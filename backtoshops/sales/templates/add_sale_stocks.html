@@ -174,6 +174,28 @@
 
 {% block javascript %}
     <script type="text/javascript">
+        function validateForm() {
+            var stocks = $("input[id*='-stock']");
+            for (var i = 0; i < stocks.length; i++) {
+                var val = $.trim($(stocks[i]).val());
+                if (val.length == 0) continue;
+                if (!/^\d+$/.test(val)) {
+                    return false;
+                }
+            }
+            
+            var barcodes = $("input[id*='-upc']");
+            for (var i = 0; i < barcodes.length; i++) {
+                var val = $.trim($(barcodes[i]).val());
+                if (val.length == 0) continue;
+                if (!/^\d+$/.test(val)) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
         $(function(){
             $("#main_form").change(function(elmt){
                 var stocks = $("input[id*='-stock']");
@@ -199,8 +221,13 @@
                 }
             });
             $("#main_form").submit(function(e){
-                $("#main_form").change();
-                return true;
+                if (validateForm()) {
+                    $("#main_form").change();
+                    return true;
+                } else {
+                    alert('{% trans "Sorry, please check your input." %}');
+                    return false;    
+                }
             });
             $("#barcode_accordion").accordion({ header: ".shopTitle" });
             $("#accordion").accordion({ header: ".shopTitle" });

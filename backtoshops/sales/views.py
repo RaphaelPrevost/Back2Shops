@@ -10,7 +10,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect
 from django.template import loader
 from django.template.context import Context
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.views.generic.base import View, TemplateResponseMixin
 from formwizard.views import SessionWizardView, NamedUrlSessionWizardView
 from sorl.thumbnail import get_thumbnail
@@ -59,6 +59,8 @@ class BrandLogoView(BOLoginRequiredMixin, View, TemplateResponseMixin):
     def get(self, request, brand_id=None):
         if brand_id:
             brand = ProductBrand.objects.get(pk=brand_id)
+            # bugfix: handle picture field is NULL
+            if brand.picture == 'NULL': return HttpResponse(ugettext('There is no brand logo.'))
             self.picture = brand.picture
             return self.render_to_response(self.__dict__)
         return HttpResponseBadRequest()
@@ -77,6 +79,16 @@ class ListSalesView(BOLoginRequiredMixin, View, TemplateResponseMixin):
                                              product__valid_to__gte=date.today())
             self.page_title = _("Current Sales")
         return self.render_to_response(self.__dict__)
+
+class DeleteSalesView(BOLoginRequiredMixin, View):
+    
+    def post(self, request, sale_id):
+        try:
+            sale = Sale.objects.get(pk=sale_id)
+            sale.delete()
+        except:
+            return HttpResponse(json.dumps({'success': False}), mimetype='text/json')
+        return HttpResponse(json.dumps({'success': True}), mimetype='text/json')
 
 class SaleDetails(BOLoginRequiredMixin, View, TemplateResponseMixin):
     template_name = "_sale_details.html"

@@ -171,7 +171,7 @@ Add a Shop
     var shops = new Array();
 
     function initMap(){
-        var latlng = new google.maps.LatLng(47, 2.352222);
+        var latlng = new google.maps.LatLng(parseFloat($('#id_latitude').val()), parseFloat($('#id_longitude').val())); // new google.maps.LatLng(47, 2.352222);
         var myOptions = {
             zoom: 5,
             center: latlng,

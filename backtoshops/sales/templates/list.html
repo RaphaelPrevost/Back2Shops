@@ -61,10 +61,13 @@
 
             <!--VENTE-->
             {% for sale in sales %}
-            <div class="vente">
+            <div class="vente" sale="{{ sale.id }}">
                 <!--NOM, CATEGORIE, TYPE de Prod-->
                 <a href="{% url edit_sale sale_id=sale.pk step="shop" %}"><h3>{{ sale.product.name }}</h3></a>
-                <h4>{{ sale.product.category.name }} > {{ sale.product.type.name }}</h4>
+                <h4>
+                    <a class="delete" href="#">[X]</a>
+                    {{ sale.product.category.name }} > {{ sale.product.type.name }}
+                </h4>
                 <!--INFOS VENTE-->
                 <div class="content">
                     <a class="imgProd" href="#">
@@ -127,6 +130,17 @@
             } else {
                 $("#content_Right #detail").html("Loading...");
                 $("#content_Right #detail").load($(this).val());
+            }
+        });
+        
+        $('a.delete').click(function() {
+            var $this = $(this);
+            if (confirm('{% trans "Are you sure you want to delete this item?" %}')) {
+                var sid = $this.parent().parent().attr('sale');
+                $.post('/sales/delete/' + sid, function(response) {
+                    if (response.success)
+                        $this.parent().parent().fadeOut();
+                }, "json");
             }
         });
     });

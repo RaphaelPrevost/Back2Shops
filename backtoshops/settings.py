@@ -1,6 +1,6 @@
 from platform import node
 
-DEVELOPMENT_HOST='Guillaumes-MacBook-Air-2.local'
+DEVELOPMENT_HOST='Nicholass-MacBook-Pro.local'
 
 if node() == DEVELOPMENT_HOST:
     from settings_local import *
