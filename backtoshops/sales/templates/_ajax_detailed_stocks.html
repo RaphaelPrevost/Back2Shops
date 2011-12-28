@@ -1,0 +1,32 @@
+{% load counter %}
+{% load getform %}
+{% counter i %}
+{{ formset.management_form }}
+{% for attribute in attributes %}
+    <strong>{{ attribute }}</strong>
+    {% for c in common_attributes %}
+        {% with curform=formset|getform:i %}
+        <label for="{{ curform.stock.auto_id }}">{{ c.name }}</label>
+        <input id="{{ curform.stock.auto_id }}" type="text"  name="{{ curform.stock.html_name }}" maxlength="5">
+        <div style="display: none;">
+            {{ curform.brand_attribute }}
+            {{ curform.common_attribute }}
+            <input type="checkbox" name="{{ curform.DELETE.html_name }}" id="{{ curform.DELETE.auto_id }}" checked="true">
+        </div>
+        {% endwith %}
+        {% counter i %}
+    {% endfor %}
+{% empty %}
+    {% for c in common_attributes %}
+        {% with curform=formset|getform:i %}
+        <label for="{{ curform.stock.auto_id }}">{{ c.name }}</label>
+        <input id="{{ curform.stock.auto_id }}" type="text"  name="{{ curform.stock.html_name }}" maxlength="5">
+        <div style="display: none;">
+            {{ curform.brand_attribute }}
+            {{ curform.common_attribute }}
+            <input type="checkbox" name="{{ curform.DELETE.html_name }}" id="{{ curform.DELETE.auto_id }}" checked="true">
+        </div>
+        {% endwith %}
+        {% counter i %}
+    {% endfor %}
+{% endfor %}

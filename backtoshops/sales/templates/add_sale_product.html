@@ -1,0 +1,485 @@
+{% extends base_template %}
+{% load i18n %}
+{% load thumbnail %}
+{#% load uploadify_tags %}#}
+{% load static %}
+
+{#Form to add product#}
+
+{% block form %}
+    {{ wizard.management_form }}
+    <fieldset>
+        <div class="p_vide formrow">
+            {{ wizard.form.non_field_errors }}
+        </div>
+        {{ wizard.form.category.errors }}
+        <div class="formrow">
+            <label for="{{ wizard.form.category.auto_id }}">{{ wizard.form.category.label }}</label>
+            {{ wizard.form.category }}
+        </div>
+        {{ wizard.form.type.errors }}
+        <div class="marge formrow">
+            <label for="{{ wizard.form.type.auto_id }}">{{ wizard.form.type.label }}</label>
+            {{ wizard.form.type }}
+        </div>
+        <div class="marge formrow">
+            {{ wizard.form.pictures.management_form }}
+            <label for="visuel">{% trans "Visuels du produit" %}</label>
+            <div id="product_pictures" class="visuelProd">
+                <label id="pp_upload_btn" role="button">
+                    <input id="pp_upload" type="file" name="files[]" multiple>
+                </label>
+                <ul id="pp_queue"></ul>
+            </div>
+        </div>
+        {{ wizard.form.brand.errors }}
+        <div class="formrow">
+            <label for="{{ wizard.form.brand.auto_id }}">{{ wizard.form.brand.label }}</label>
+            {{ wizard.form.brand }}   or <a href="#" id="add_new_brand">Add new brand</a>
+        </div>
+        {{ wizard.form.name.errors }}
+        <div class="formrow">
+            <label for="{{ wizard.form.name.auto_id }}">{{ wizard.form.name.label }}</label>
+            {{ wizard.form.name }}
+        </div>
+        {{ wizard.form.description.errors }}
+        <div class="marge formrow">
+            <label for="{{ wizard.form.description.auto_id }}">{{ wizard.form.description.label }}</label>
+            {{ wizard.form.description }}
+        </div>
+        {{ wizard.form.normal_price.errors }}
+        <div class="formrow">
+            <label for="{{ wizard.form.normal_price.auto_id }}">{{ wizard.form.normal_price.label }}</label>
+            {{ wizard.form.normal_price }}<span>&euro;</span>
+        </div>
+        {{ wizard.form.discount.errors }}
+        {{ wizard.form.discount_type.errors }}
+        <div class="marge formrow">
+            {{ wizard.form.discount_price.errors }}
+            <label for="prixBTS">{% trans "Prix de vente BackToShop" %}</label>
+            <span class="contForm" id="newPrice">
+                {{ wizard.form.discount_type }}
+                {{ wizard.form.discount_price }}
+                <span class="raw">></span>{{ wizard.form.discount }}<span id="discount_marker">%</span>
+                <span id="result">{% trans "Nouveau prix de vente" %} : <strong id="discount_price">N/F</strong><strong> &euro;</strong></span>
+            </span>
+        </div>
+        {{ wizard.form.valid_from.errors }}
+        {{ wizard.form.valid_to.errors }}
+        <div class="marge formrow">
+            <label>{% trans "Date de validité" %}</label>
+            <span>{{ wizard.form.valid_from.label }}</span>{{ wizard.form.valid_from }}
+            <span>{{ wizard.form.valid_to.label }}</span>{{ wizard.form.valid_to }}
+        </div>
+        <div class="marge formrow">
+            <label>{% trans "Brand attributes" %}</label>
+            {{ wizard.form.brand_attributes.management_form }}
+            <span class="contForm" id="brand_attributes">
+                <div id="add_ba_form">
+                    <div id="ba">
+                        <input id="ba_input" type="text"/>
+                        <img id="ba_texture_btn" role="button">
+                        <input id="ba_texture_upload" type="file" name="texture_file"/>
+                    </div>
+                    <img id="ba_preview_btn" role="button" />
+                    <input id="ba_preview_upload" type="file" name="files[]"/>
+                    <a id="add_ba" href="#">{% trans "Add" %}</a>
+                </div>
+                {% for f in wizard.form.brand_attributes %}
+                <span id="{{ f.prefix }}-row" class="brand_attribute_form" {% if f.DELETE.value == "on" %}style="display: none;"{% endif %}>
+                    {{ f.name }}
+                    {{ f.ba_id }}
+                    {{ f.texture }}
+                    {{ f.preview }}
+                    {{ f.preview_pk }}
+                    <input style="display: none;" type="checkbox" name="{{ f.DELETE.html_name }}" id="{{ f.DELETE.auto_id }}" {% if f.DELETE.value == "on" %}checked="checked"{% endif %}>
+                    <span id="{{ f.prefix }}-name" class="brand_attribute_name">{{ f.name.value }}</span>
+                    {% if f.texture.value %}
+                    <img class="classtext" role="button" src="{{ f.texture.value }}"/>
+                    {% else %}
+                    <img class="classprod" role="button" src="{{ STATIC_URL }}/img/empty_attr.png"/>
+                    {% endif %}
+                    {% if f.preview.value %}
+                    <img class="classprod" role="button" src="{{ f.preview.value }}"/>
+                    {% else %}
+                    <img class="classprod" role="button" src="{{ STATIC_URL }}/img/empty_attr.png"/>
+                    {% endif %}
+                    <a class="remove_brand_attribute" href="#">{% trans "Remove" %}</a>
+                </span>
+                {% endfor %}
+                <!-- <input id="ba_input" type="text"/><a id="add_ba" href="#">{% trans "Add" %}</a> -->
+	        </span>
+        </div>
+    </fieldset>
+{% endblock %}
+
+{% block empty_forms %}
+    <span id="brand_attribute_template_form" style="display: none;">
+        <span id="{{ wizard.form.brand_attributes.empty_form.prefix }}-row" class="brand_attribute_form">
+            {{ wizard.form.brand_attributes.empty_form.name }}
+            {{ wizard.form.brand_attributes.empty_form.ba_id }}
+            {{ wizard.form.brand_attributes.empty_form.texture }}
+            {{ wizard.form.brand_attributes.empty_form.preview }}
+            {{ wizard.form.brand_attributes.empty_form.preview_pk }}
+            <input style="display: none;" type="checkbox" name="{{ wizard.form.brand_attributes.empty_form.DELETE.html_name }}" id="{{ wizard.form.brand_attributes.empty_form.DELETE.auto_id }}">
+            <span id="{{ wizard.form.brand_attributes.empty_form.prefix }}-name" class="brand_attribute_name"></span>
+            <img class="classtext" id="{{ wizard.form.brand_attributes.empty_form.texture.auto_id }}-img">
+            <img class="classprod" id="{{ wizard.form.brand_attributes.empty_form.preview.auto_id }}-img">
+            <a class="remove_brand_attribute" href="#">{% trans "Remove" %}</a>
+        </span>
+    </span>
+    <span id="product_picture_template_form" style="display: none;">
+        <span id="{{ wizard.form.pictures.empty_form.prefix }}-row" class="product_picture_form visuelProd">
+            {{ wizard.form.pictures.empty_form.pk }}
+            {{ wizard.form.pictures.empty_form.thumb_url }}
+            {{ wizard.form.pictures.empty_form.url }}
+            <a id="{{ wizard.form.pictures.empty_form.prefix }}-link"><img id="{{ wizard.form.pictures.empty_form.prefix }}-img"/></a>
+        </span>
+    </span>
+    <div id="add_new_brand_dialog" style="display: none;">
+        <form id="add_new_brand_form" action="{% url add_new_brand %}" method="post">{% csrf_token %}
+            {{ product_brand_form.as_p }}
+            <input type="submit" value="{% trans "Add" %}"/>
+        </form>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript">
+        $(function(){
+            function addProductPicture(result) {
+                var nb_of_forms = $("#{{ wizard.form.pictures.management_form.TOTAL_FORMS.auto_id }}").val();
+                var form = $("#product_picture_template_form").html();
+                form = form.replace(/__prefix__/g, nb_of_forms.toString()); // counting start from 0, so just use nb_of_forms here
+                var picture_pk = "#{{ wizard.form.pictures.empty_form.pk.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
+                var thumb_url = "#{{ wizard.form.pictures.empty_form.thumb_url.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
+                var url = "#{{ wizard.form.pictures.empty_form.url.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
+                var link = "#{{ wizard.form.pictures.empty_form.prefix }}-link".replace(/__prefix__/g, nb_of_forms.toString());
+                var img = "#{{ wizard.form.pictures.empty_form.prefix }}-img".replace(/__prefix__/g, nb_of_forms.toString());
+                $("#product_pictures").append(form);
+                $(picture_pk).val(result.pk);
+                $(thumb_url).val(result.thumb_url);
+                $(url).val(result.url);
+                $(link).attr('href', result.url);
+                $(img).attr('src', result.thumb_url);
+
+                nb_of_forms++;
+                $("#{{ wizard.form.pictures.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
+
+                if ($("#preview-product-picture").find("img").length == 0) {
+                    $("#preview-product-picture").html(result.preview_html);
+                }
+            }
+
+            $("#pp_upload").fileupload({
+                dataType: 'json',
+                url: '{% url upload_product_picture %}',
+                dropZone: $("#product_pictures"),
+                namespace: 'product_pictures',
+                add: function(e, data) {
+                    $.each(data.files, function(key, file) {
+                        var id = file.fileName.replace(/\W+/g, '-');
+                        var to_append = '<li id="pp_'+id+'">'+file.fileName+' <b></b></li>';
+                        $("#pp_queue").append(to_append);
+                    });
+                    data.submit();
+                },
+                progress: function(e, data) {
+                    $.each(data.files, function(key, file) {
+                        var id = file.fileName.replace(/\W+/g, '-');
+                        var percentage = parseInt(data.loaded/data.total*100, 10);
+                        $("#pp_"+id+" b").html(percentage+"%");
+                    });
+                },
+                done: function(e, data) {
+                    addProductPicture(data.result);
+                    $.each(data.files, function(key, file) {
+                        var id = file.fileName.replace(/\W+/g, '-');
+                        $("#pp_"+id).remove();
+                    });
+                }
+            });
+
+            var product_pictures = "";
+            {% for pp in wizard.form.pictures %}
+                product_pictures += ''+
+                '<span id="{{ pp.prefix }}-row" class="product_picture_form visuelProd">'+
+                    '{{ pp.pk }}'+
+                    '{{ pp.url }}'+
+                    '{{ pp.thumb_url }}'+
+                    '<input style="display: none;" type="checkbox" name="{{ pp.DELETE.html_name }}" id="{{ pp.DELETE.auto_id }}" {% if pp.DELETE.value == "on" %}checked="checked"{% endif %}>'+
+                    '<a id="{{ pp.prefix }}-link" href="{{ pp.url.value }}"><img id="{{ pp.prefix }}-img" src="{{ pp.thumb_url.value }}"/></a>'+
+                '</span>';
+            {% endfor %}
+            $("#product_pictures").append(product_pictures);
+
+            function _updateBackgroundImage(selector, url) {
+                $(selector).attr('src', url);
+            }
+
+
+            /* Brand Attributes */
+            function _updateData(dic) {
+                var data = $("#add_ba_form").data("ba_data");
+                if (data == undefined) {
+                    data = {};
+                }
+                for (i in dic) {
+                    if (i != undefined) {
+                        data[i] = dic[i];
+                    }
+                }
+                $("#add_ba_form").data("ba_data", data);
+            }
+
+            function _getFromData(key) {
+                var data = $("#add_ba_form").data("ba_data");
+                if (data == undefined) { return -1; }
+                if (data[key] == undefined) { return -1; }
+                return data[key];
+            }
+
+            function _clearBaForm() {
+                $("#ba_input").val("");
+                $("#add_ba_form").data("ba_data", {});
+                _updateBackgroundImage($("#ba_preview_btn"), '{{ STATIC_URL }}img/empty_attr.png');
+                _updateBackgroundImage($("#ba_texture_btn"), '{{ STATIC_URL }}img/empty_attr.png');
+            }
+
+            $("#ba_preview_upload").fileupload({
+                dataType: 'json',
+                url: '{% url upload_product_picture %}',
+                dropZone: $("#ba_preview"),
+                namespace: 'ba_preview',
+                formData: {is_brand_attribute: true},
+                add: function(e, data) {
+                    _updateBackgroundImage($("#ba_preview_btn"), "{{ STATIC_URL }}img/loading2.gif");
+                    data.submit();
+                },
+                done: function(e, data) {
+                    _updateBackgroundImage($("#ba_preview_btn"), data.result.thumb_url);
+                    _updateData({preview_pk: data.result.pk})
+                }
+            });
+
+            $("#ba_texture_upload").fileupload({
+                dataType: 'json',
+                url: '{% url brand_attributes_view %}',
+                dropZone: $("#ba"),
+                namespace: 'ba_texture',
+                formData: {pk: _getFromData("texture_pk")},
+                add: function(e, data) {
+                    _updateBackgroundImage($("#ba_texture_btn"), "{{ STATIC_URL }}img/loading2.gif");
+                    data.submit();
+                },
+                done: function(e, data) {
+                    _updateBackgroundImage($("#ba_texture_btn"), data.result.texture_thumb);
+                    _updateData({ba_pk: -1, texture_pk: data.result.pk, type_pk: 'new'});
+                }
+            });
+
+            $("#ba_input").autocomplete({
+                autoFocus: true,
+                source: "{% url brand_attributes_view %}",
+                min_length: 2,
+                html: true,
+                showTyping: true,
+                focus: function(event, ui) {
+                    $(this).val(ui.item.name);
+                    return false;
+                },
+                select: function(event, ui) {
+                    _updateData({name: ui.item.name, ba_pk: ui.item.value, texture_pk: ui.item.value, type_pk: 'exist'});
+                    $(this).val(ui.item.name);
+                    $(this).focusout();
+                    _updateBackgroundImage($("#ba_texture_btn"), ui.item.texture);
+                    return false;
+                }
+            });
+
+            $("#ba_input").change(function(){
+                _updateData({name: $("#ba_input").val(), ba_pk: -1})
+            });
+
+            $("#add_ba").click(function(e) {
+                if (!$("#ba_input").val()) {
+                    alert('{% trans "You need to enter an attribute name" %}');
+                    e.preventDefault();
+                    return false;
+                }
+                var nb_of_forms = $("#{{ wizard.form.brand_attributes.management_form.TOTAL_FORMS.auto_id }}").val();
+                var form = $("#brand_attribute_template_form").html();
+                form = form.replace(/__prefix__/g, nb_of_forms.toString()); // counting start from 0, so just use nb_of_forms here
+                var ba_id = "#{{ wizard.form.brand_attributes.empty_form.ba_id.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
+                var name = "#{{ wizard.form.brand_attributes.empty_form.name.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
+                var span_name = "#{{ wizard.form.brand_attributes.empty_form.prefix }}-name".replace(/__prefix__/g, nb_of_forms.toString());
+                var texture = "#{{ wizard.form.brand_attributes.empty_form.texture.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
+                var preview = "#{{ wizard.form.brand_attributes.empty_form.preview.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
+                var texture_img = "#{{ wizard.form.brand_attributes.empty_form.texture.auto_id }}-img".replace(/__prefix__/g, nb_of_forms.toString());
+                var preview_img = "#{{ wizard.form.brand_attributes.empty_form.preview.auto_id }}-img".replace(/__prefix__/g, nb_of_forms.toString());
+                var preview_pk = "#{{ wizard.form.brand_attributes.empty_form.preview_pk.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
+                // if ($("#ba_input").attr('ba_id')) {
+                //     $("#brand_attributes").append(form);
+                //     $(ba_id).val($("#ba_input").attr('ba_id'));
+                //     $(name).val($("#ba_input").val());
+                //     $(span_name).html($("#ba_input").val());
+                //     $("#ba_input").val("");
+                //     $("#ba_input").removeAttr("ba_id");
+                //     nb_of_forms++;
+                //     $("#{{ wizard.form.brand_attributes.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
+                // } else if ($("#ba_input").val()) {
+
+                var data_send = $("#add_ba_form").data("ba_data");
+                if (data_send.ba_pk == -1 && data_send.texture_pk != undefined) {
+                    data_send.pk = data_send.texture_pk;
+                } else if (data_send.ba_pk != undefined) {
+                    data_send.pk = data_send.ba_pk;
+                } else {
+                    data_send.pk = -1;
+                }
+                $.post("{% url brand_attributes_view %}",
+                       data_send,
+                       function(data) {
+                            if (data.success) {
+                                $("#brand_attributes").append(form);
+                                $(ba_id).val(data.pk);
+                                $(texture).val(data.texture_thumb);
+                                $(texture_img).attr('src', data.texture_thumb);
+                                $(preview).val(data.preview_thumb);
+                                $(preview_img).attr('src', data.preview_thumb);
+                                $(preview_pk).val(data.preview_pk);
+                                $(name).val($("#ba_input").val());
+                                $(span_name).html($("#ba_input").val());
+                                nb_of_forms++;
+                                $("#{{ wizard.form.brand_attributes.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
+                                _clearBaForm();
+                            }
+                        }
+                );
+                return false;
+            });
+
+            $(".brand_attribute_form").live('click', function(){
+                $(this).hide();
+                var delete_input_id = "#id_"+$(this).attr('id').replace('-row', '-DELETE');
+                $(delete_input_id).attr('checked', 'checked');
+                return false;
+            });
+
+
+
+            $("#add_new_brand_form").ajaxForm({
+                target: $("#{{ wizard.form.brand.auto_id }}"),
+                success: function() {
+                    $("#add_new_brand_dialog").dialog("close");
+                }
+            });
+
+            $("#add_new_brand").click(function(){
+                $("#add_new_brand_dialog").dialog({
+                    modal: true,
+                    title: "{% trans "Add a new brand" %}",
+                    buttons: {
+                        "Cancel": function() {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+                return false;
+            });
+
+            {% if LANGUAGE_CODE == "fr-fr" %}
+            $.datepicker.setDefaults($.datepicker.regional['fr']);
+            {% else %}
+            $.datepicker.setDefaults($.datepicker.regional['']);
+            {% endif %}
+            $("#{{ wizard.form.valid_from.auto_id }}").datepicker();
+            $("#{{ wizard.form.valid_to.auto_id }}").datepicker({
+                onSelect: function(dateText, inst) {
+                    $("#preview-{{ wizard.form.valid_to.auto_id }}").html(dateText);
+                }
+            });
+
+            $("#main_form").change(function(elmt){
+                updateProductPreview(elmt);
+            });
+
+            $("#{{ wizard.form.brand.auto_id }}").change(function(elmt){
+                var brand_id = $("#{{ wizard.form.brand.auto_id }} :selected").val();
+                if (brand_id) {
+                    $("#preview-{{ wizard.form.brand.auto_id }}").html("{% trans "Loading..." %}");
+                    $("#preview-{{ wizard.form.brand.auto_id }}").load('{% url get_brand_logo %}'+brand_id)
+                }
+            });
+
+            function calcDiscount() {
+                var normal_price = parseFloat($("#{{ wizard.form.normal_price.auto_id }}").val());
+                var discount = parseFloat($("#{{ wizard.form.discount.auto_id }}").val());
+                var discount_type = $("#{{ wizard.form.discount_type.auto_id }}").val();
+                var new_price;
+                if (discount_type == "percentage") { //percentage
+                    new_price = normal_price - (normal_price * (discount / 100));
+                } else {
+                    new_price = normal_price - discount;
+                }
+                if (new_price > 0) {
+                    $("#{{ wizard.form.discount_price.auto_id }}").val(parseFloat(new_price));
+                    $("#discount_price").html(new_price);
+                    $("#preview-{{ wizard.form.discount_price.auto_id }}").html(new_price+"&euro;");
+                } else {
+                    $("#{{ wizard.form.discount_price.auto_id }}").val("N/F");
+                    $("#discount_price").html("N/F");
+                    $("#preview-{{ wizard.form.discount_price.auto_id }}").html("N/F");
+                }
+            }
+
+            $("#{{ wizard.form.discount_type.auto_id }}").change(function(elmt){
+                if ($(elmt).val() == "percentage") { // Percentage
+                    $("#discount_marker").html("%");
+                } else {
+                    $("#discount_marker").html("Euros");
+                }
+                calcDiscount();
+            });
+            $("#{{ wizard.form.normal_price.auto_id }}").change(function(elmt){
+                calcDiscount();
+            });
+            $("#{{ wizard.form.discount.auto_id }}").change(function(elmt){
+                calcDiscount();
+            });
+
+            function updateProductPreview(elmt) {
+                var name = $("#{{ wizard.form.name.auto_id }}").val();
+                var description = $("#{{ wizard.form.description.auto_id }}").val();
+                var discount_price = $("#{{ wizard.form.discount_price.auto_id }}").val();
+                var normal_price = $("#{{ wizard.form.normal_price.auto_id }}").val();
+                var discount = $("#{{ wizard.form.discount.auto_id }}").val();
+                var discount_type = $("#{{ wizard.form.discount_type.auto_id }}").val();
+                if (discount_type == "percentage") {
+                    discount += "%";
+                } else {
+                    discount += "&euro;";
+                }
+                var valid_to = $("#{{ wizard.form.valid_to.auto_id }}").val();
+                $("#preview-{{ wizard.form.name.auto_id }}").html(name);
+                $("#preview-{{ wizard.form.description.auto_id }}").html(description);
+                $("#preview-{{ wizard.form.discount_price.auto_id }}").html(discount_price+"&euro;");
+                $("#preview-{{ wizard.form.normal_price.auto_id }}").html(normal_price+"&euro;");
+                $("#preview-{{ wizard.form.discount.auto_id }}").html(discount);
+                $("#preview-{{ wizard.form.valid_to.auto_id }}").html(valid_to);
+            }
+
+            {% if product_picture %}
+                {% thumbnail product_picture.picture "156x171" as im %}
+                $("#preview-product-picture").html('<img style="margin:{{ im|margin:"156x171" }}" src="{{ im.url }}" alt="{% trans "visuel" %} {{ context.name }}" width="{{ im.x }}" height="{{ im.y }}"/>');
+                {% endthumbnail %}
+            {% endif %}
+
+            // Thoses will be called when page is relaoded, for example if data validation
+            // fails or we clicked "prev" from next step
+            calcDiscount();
+            updateProductPreview(null);
+            $("#{{ wizard.form.brand.auto_id }}").change();
+        });
+    </script>
+{% endblock %}

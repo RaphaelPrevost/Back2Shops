@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block content %}
+
+{% if form.errors %}
+<p>Your username and password didn't match. Please try again.</p>
+{% endif %}
+
+<div id="connect">
+<h2>Connexion a BackToShops</h2>
+
+<form method="post" action="{% url 'fouillis.views.login_staff' %}">
+{% csrf_token %}
+
+<p>
+    {{ form.username.label_tag }}
+    {{ form.username }}
+</p>
+<p>
+    {{ form.password.label_tag }}
+    {{ form.password }}
+</p>
+
+
+<input class="btn valider" type="submit" value="Login" />
+<input type="hidden" name="next" value="{{ next }}" />
+</form>
+</div>
+{% endblock %}

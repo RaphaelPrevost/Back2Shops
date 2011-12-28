@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load thumbnail %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block head %}
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/saling.css" />
+{% endblock %}
+
+{% block navigation %}
+{% include "_quick_nav.html" %}
+{% endblock %}
+
+{% block content %}
+<!--Lien Haut de Page -->
+<a id="lienUP" href="#conteneur">Haut de page</a>
+
+<!--content-left-->
+<div id="content_Left">
+
+    <!--Title-->
+    <div id="title">
+        <span>{{ page_title }}</span>
+        <h2>{{ page_title }}</h2>
+    </div>
+
+    <!--FORM-->
+    <form id="main_form" method="post" action="#">
+        <fieldset>
+            <!--SELECT TRIER PAR-->
+            <p id="triVente">
+                <label for="trie01">Trier par :</label>
+                <select id="trie01">
+                    <option value="categorie">Catégorie de produit</option>
+                    <option value="type">Type de produit</option>
+                    <option value="nom">Nom de produit</option>
+                    <option value="stock">Produits en stock</option>
+                    <option value="vente">Produits en vente</option>
+                    <option value="vendu">Produits vendu</option>
+                    <option value="prix">Prix</option>
+                    <option value="reduction">Réduction</option>
+                    <option value="date-debut">Date de début</option>
+                    <option value="date-fin">Date de fin</option>
+                </select>
+                <span>+</span>
+                <select id="trie02">
+                    <option value="categorie">Catégorie de produit</option>
+                    <option value="type">Type de produit</option>
+                    <option value="nom">Nom de produit</option>
+                    <option value="stock">Produits en stock</option>
+                    <option value="vente">Produits en vente</option>
+                    <option value="vendu">Produits vendu</option>
+                    <option value="prix">Prix</option>
+                    <option value="reduction">Réduction</option>
+                    <option value="date-debut">Date de début</option>
+                    <option value="date-fin">Date de fin</option>
+                </select>
+            </p>
+            <!--FIN SELECT TRIER PAR-->
+
+            <!--VENTE-->
+            {% for sale in sales %}
+            <div class="vente">
+                <!--NOM, CATEGORIE, TYPE de Prod-->
+                <a href="{% url edit_sale sale_id=sale.pk step="shop" %}"><h3>{{ sale.product.name }}</h3></a>
+                <h4>{{ sale.product.category.name }} > {{ sale.product.type.name }}</h4>
+                <!--INFOS VENTE-->
+                <div class="content">
+                    <a class="imgProd" href="#">
+                        {% thumbnail sale.product.pictures.all.0.picture "40x43" as im %}
+                            <img style='margin:{{ im|margin:"40x43" }}' src="{{ im.url }}" alt='{% trans "visuel" %} {{ sale.product.name }}' width="{{ im.x }}" height="{{ im.y }}"/>
+                        {% endthumbnail %}
+                    </a>
+                    <div class="date_etat">
+                        <em>{% trans "Du" %} {{ sale.product.valid_from }} {% trans "au" %} {{ sale.product.valid_to }}</em>
+                        <span>{% trans "En vente :" %} <strong>{{ sale.total_rest_stock }}</strong> | {% trans "Vendu :" %} <strong>N/I</strong> | {% trans "En Stock :" %} <strong>{{ sale.total_stock }}</strong></span>
+                    </div>
+                    <div class="prix">
+                        <span>{% trans "En vente à :" %} <strong>{{ sale.product.discount_price|floatformat }}&euro;</strong></span>
+                        <span>{% trans "Réduction :" %} <strong>{{ sale.product.discount|floatformat }}{% if sale.product.discount_type == "percentage" %}%{% else %}&euro;{% endif %}</strong></span>
+                        <span>{% trans "Au lieu de :" %} <em>{{ sale.product.normal_price|floatformat }}&euro;</em></span>
+                    </div>
+                </div>
+                <div class="clear"></div>
+                <!--Liens DETAIL-->
+                {% if sale.type_stock == "L" %}
+                <a href="{% url sale_details_shop sale.pk %}" class="seeDetail seeShop">{% trans "Voir en détail par boutique" %}</a>
+                {% endif %}
+                <a href="{% url sale_details sale.pk %}" class="seeDetail seeMain">{% trans "Voir l’ensemble en détail" %}</a>
+            </div>
+            {% endfor %}
+            <!--FIN VENTE-->
+        </fieldset>
+    </form>
+</div>
+
+<div id="content_Right">
+    <div id="controls"></div>
+    <div id="detail"></div>
+</div>
+<!--FIN content-right-->
+<div class="clear"></div>
+
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+    $(function() {
+        $(".seeDetail").click(function(){
+            $("#content_Right #controls").html("");
+            $("#content_Right #detail").html("");
+        });
+        $(".seeMain").click(function(){
+            $("#content_Right #detail").html("Loading...");
+            $("#content_Right #detail").load($(this)[0].href);
+            return false;
+        });
+        $(".seeShop").click(function(){
+            $("#content_Right #controls").html("Loading...");
+            $("#content_Right #controls").load($(this)[0].href);
+            return false;
+        });
+        $("#content_Right #controls #shop").live('change', function(){
+            if ($(this).val() == 0) {
+                $("#content_Right #detail").html("");
+            } else {
+                $("#content_Right #detail").html("Loading...");
+                $("#content_Right #detail").load($(this).val());
+            }
+        });
+    });
+</script>
+{% endblock %}

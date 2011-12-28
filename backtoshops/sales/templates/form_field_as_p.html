@@ -1,0 +1,26 @@
+{% if not form_field.is_hidden %}
+    <p>
+
+    {% if form_field.errors %}
+      {% for error in form_field.errors %}
+      <span class="errorlist">{{error}}</span>
+      {% endfor %}
+    {% endif %}
+
+    <label for="{{ form_field.label.name }}">{{ form_field.label }}</label>
+
+    {% comment %}
+    {% if form_field.field.required %}
+        <span class="required">*</span>
+    {% endif %}
+    {% endcomment %}
+    {{ form_field }}
+
+    {% if form_field.help_text %}
+        <span class="form-help-text">{{ form_field.help_text }}</span>
+    {% endif %}
+
+    </p>
+{% else %}
+    <div>{{ form_field }}</div> {# hidden field #}
+{% endif %}

@@ -1,0 +1,40 @@
+{% load get_categories %}
+{% load get_types %}
+{% load get_variants %}
+{% load l10n %}
+
+<brand version="1.0" id="{{ object.pk }}">
+    <name>{{ object.name }}</name>
+    <logo url="{% if object.logo %}{{ object.logo.url }}{% endif %}" />
+    {% for category in object|get_categories %}
+    <category id="{{ category.pk }}">
+        <name>{{ category.name }}</name>
+    </category>
+    {% endfor %}
+
+    {% for type in brand|get_types %}
+    <type id="{{ type.pk }}">
+        <name>{{ type.name }}</name>
+        {% for variant in brand|get_variants:type %}
+        <variant id="{{ variant.pk }}">
+            <name>{{ variant.name }}</name>
+            <thumb url="{% if variant.texture %}{{ variant.texture.url }}{% endif %}" />
+        </variant>
+        {% endfor %}
+    </type>
+    {% endfor %}
+
+    {% for shop in object.shops.all %}
+    <shop id="{{ shop.id }}">
+        <name>{{ shop.name }}</name>
+        <desc>{{ shop.description }}</desc>
+        <logo url="{% if shop.image %}{{ shop.image.url }}{% endif %}" />
+        <addr>{{ shop.address }}</addr>
+        <zip>{{ shop.zipcode }}</zip>
+        <city>{{ shop.city }}</city>
+        <country>FR</country>
+        <location lat="{{ shop.latitude|unlocalize }}" long="{{ shop.longitude|unlocalize }}" />
+        <code>{{ shop.upc }}</code>
+    </shop>
+    {% endfor %}
+</brand>

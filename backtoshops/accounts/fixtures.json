@@ -1,0 +1,1 @@
+[{"pk": 1, "model": "accounts.userprofile", "fields": {"user": 1, "work_for": 1}}, {"pk": 1, "model": "accounts.brand", "fields": {"logo": "brand_logos/marque_3.gif", "name": "Zadig&Voltaire"}}]

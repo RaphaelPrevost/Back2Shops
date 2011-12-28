@@ -1,0 +1,201 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-06-02 10:12+0200\n"
+"PO-Revision-Date: 2011-07-09 21:00\n"
+"Last-Translator:   <guillaume@moonstrap.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"X-Translated-Using: django-rosetta 0.6.2\n"
+
+#: settings_local.py:42 settings_production.py:42
+msgid "English"
+msgstr "Anglais"
+
+#: settings_local.py:43 settings_production.py:43
+msgid "French"
+msgstr "Français"
+
+#: backend/templates/_quick_nav.html:5 sale/templates/add_sale.html:16
+msgid "Accueil"
+msgstr "Accueil"
+
+#: backend/templates/_quick_nav.html:11 sale/templates/add_sale.html:22
+#: sale/templates/add_sale.html.py:38 sale/templates/add_sale.html:45
+#: sale/templates/add_sale2.html:25 sale/templates/add_sale2.html.py:32
+msgid "Ajouter une nouvelle vente"
+msgstr "Ajouter une nouvelle vente"
+
+#: backend/templates/_quick_nav.html:12 sale/templates/add_sale.html:23
+msgid "Mes ventes en cours"
+msgstr "Mes ventes en cours"
+
+#: backend/templates/_quick_nav.html:13 sale/templates/add_sale.html:24
+msgid "Mes anciennes ventes"
+msgstr ""
+
+#: backend/templates/_quick_nav.html:14 sale/templates/add_sale.html:25
+msgid "Ajouter - Supprimer une boutique"
+msgstr ""
+
+#: backend/templates/_quick_nav.html:15 sale/templates/add_sale.html:26
+msgid "Les Stats de ma marque"
+msgstr ""
+
+#: backend/templates/_quick_nav.html:16 sale/templates/add_sale.html:27
+msgid "Carte de France des performances"
+msgstr ""
+
+#: sale/forms.py:33
+msgid "Valid to date cannot be before valid from date"
+msgstr ""
+
+#: sale/forms.py:35
+msgid "Valid to date cannot be before today"
+msgstr ""
+
+#: sale/forms.py:94
+msgid "Product Definition"
+msgstr ""
+
+#: sale/forms.py:98
+msgid "Target Definition"
+msgstr ""
+
+#: sale/forms.py:103
+msgid "Physical shops"
+msgstr ""
+
+#: sale/models.py:8
+msgid "Male"
+msgstr ""
+
+#: sale/models.py:9
+msgid "Female"
+msgstr ""
+
+#: sale/views.py:16
+msgid "Current Sales"
+msgstr ""
+
+#: sale/views.py:19
+msgid "Old sales"
+msgstr ""
+
+#: sale/templates/add_sale.html:4 sale/templates/add_sale2.html:4
+msgid "Le produit | Ajouter une nouvelle vente"
+msgstr ""
+
+#: sale/templates/add_sale.html:41 sale/templates/add_sale2.html:28
+msgid "Le produit"
+msgstr ""
+
+#: sale/templates/add_sale.html:42 sale/templates/add_sale2.html:29
+msgid "La cible"
+msgstr ""
+
+#: sale/templates/add_sale.html:43 sale/templates/add_sale2.html:30
+msgid "Les points de vente"
+msgstr ""
+
+#: sale/templates/add_sale.html:50
+msgid "Définition générale du produit"
+msgstr ""
+
+#: sale/templates/add_sale.html:61
+msgid "Visuels du produit"
+msgstr ""
+
+#: sale/templates/add_sale.html:95
+msgid "Prix de vente BackToShop"
+msgstr ""
+
+#: sale/templates/add_sale.html:99
+msgid "Nouveau prix de vente"
+msgstr ""
+
+#: sale/templates/add_sale.html:103
+msgid "Date de validité"
+msgstr ""
+
+#: sale/templates/add_sale.html:111
+msgid "Brand attributes"
+msgstr ""
+
+#: sale/templates/add_sale.html:118
+msgid "Add more"
+msgstr ""
+
+#: sale/templates/add_sale2.html:43
+msgid "Add more attribute"
+msgstr ""
+
+#: sale/templates/add_sale2.html:47
+msgid "Add more shop"
+msgstr ""
+
+#: sale/templates/added.html:5
+msgid "Sale have been added"
+msgstr ""
+
+#: sale/templates/list.html:75
+msgid "visuel"
+msgstr ""
+
+#: sale/templates/list.html:79
+msgid "Du"
+msgstr ""
+
+#: sale/templates/list.html:79
+msgid "au"
+msgstr ""
+
+#: sale/templates/list.html:80
+msgid "En vente :"
+msgstr ""
+
+#: sale/templates/list.html:80
+msgid "Vendu :"
+msgstr ""
+
+#: sale/templates/list.html:80
+msgid "En Stock :"
+msgstr ""
+
+#: sale/templates/list.html:83
+msgid "En vente à :"
+msgstr ""
+
+#: sale/templates/list.html:84
+msgid "Réduction :"
+msgstr ""
+
+#: sale/templates/list.html:85
+msgid "Au lieu de :"
+msgstr ""
+
+#: sale/templates/list.html:90
+msgid "Voir en détail par boutique"
+msgstr ""
+
+#: sale/templates/list.html:91
+msgid "Voir l’ensemble en détail"
+msgstr ""
+
+#: templates/base.html:8
+msgid "Interface de gestion BackToShop"
+msgstr ""
+
+#~ msgid "Product Category"
+#~ msgstr "Catégorie du produit"

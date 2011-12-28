@@ -1,0 +1,29 @@
+{% load get_categories %}
+{% load get_types %}
+{% load get_variants %}
+
+<brands version="1.0">
+	{% for brand in object_list %}
+    <brand id="{{ brand.pk }}">
+        <name>{{ brand.name }}</name>
+        <logo url="{% if brand.logo %}{{ brand.logo.url }}{% endif %}" />
+        {% for category in brand|get_categories %}
+        <category id="{{ category.pk }}">
+            <name>{{ category.name }}</name>
+        </category>
+        {% endfor %}
+
+        {% for type in brand|get_types %}
+        <type id="{{ type.pk }}">
+            <name>{{ type.name }}</name>
+            {% for variant in brand|get_variants:type %}
+            <variant id="{{ variant.pk }}"> <!-- list of brand attributes -->
+                <name>{{ variant.name }}</name>
+                <thumb url="{% if variant.texture %}{{ variant.texture.url }}{% endif %}" />
+            </variant>
+            {% endfor %}
+        </type>
+        {% endfor %}
+    </brand>
+    {% endfor %}
+</brands>

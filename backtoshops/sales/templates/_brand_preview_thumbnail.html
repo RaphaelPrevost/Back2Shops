@@ -1,0 +1,5 @@
+{% load thumbnail %}
+
+{% thumbnail picture "205x70" as im %}
+    <img style='margin:{{ im|margin:"205x70" }}' src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}"/>
+{% endthumbnail %}

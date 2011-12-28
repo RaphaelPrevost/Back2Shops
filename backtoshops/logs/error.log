@@ -1,0 +1,24 @@
+ERROR Thu, 28 Jul 2011 09:08:43 +0200 views 37908 140735191181664 lala
+ERROR Thu, 28 Jul 2011 09:08:43 +0200 views 37908 140735191181664 Exception in ProductPictureUploadView: 
+ERROR Thu, 28 Jul 2011 09:10:05 +0200 views 37953 140735191181664 lala
+ERROR Thu, 28 Jul 2011 09:10:15 +0200 views 37953 140735191181664 lala
+ERROR Thu, 28 Jul 2011 09:10:15 +0200 views 37953 140735191181664 Exception in ProductPictureUploadview
+Traceback (most recent call last):
+  File "backend/views.py", line 125, in _save_upload
+    f = FileIO(os.path.join(path, filename), "r+b")
+IOError: [Errno 2] No such file or directory: '/Users/guillaume/Projects/BTS/backtoshops/media/product_pictures/moi_twitter.png'
+ERROR Thu, 28 Jul 2011 09:12:42 +0200 views 37953 140735191181664 lala
+ERROR Thu, 28 Jul 2011 09:12:42 +0200 views 37953 140735191181664 Exception in ProductPictureUploadview
+Traceback (most recent call last):
+  File "backend/views.py", line 125, in _save_upload
+    f = FileIO(os.path.join(path, filename), "r+b")
+IOError: [Errno 2] No such file or directory: '/Users/guillaume/Projects/BTS/backtoshops/media/product_pictures/statsMap.png'
+ERROR Thu, 28 Jul 2011 09:20:11 +0200 views 41882 140735191181664 lala
+ERROR Thu, 28 Jul 2011 09:20:11 +0200 views 41882 140735191181664 Exception in ProductPictureUploadview
+Traceback (most recent call last):
+  File "backend/views.py", line 125, in _save_upload
+    f = FileIO(os.path.join(path, filename), "r+b")
+IOError: [Errno 2] No such file or directory: '/Users/guillaume/Projects/BTS/backtoshops/media/product_pictures/china.jpg'
+ERROR Thu, 28 Jul 2011 09:22:42 +0200 views 41936 140735191181664 lala
+ERROR Thu, 28 Jul 2011 09:22:50 +0200 views 41936 140735191181664 lala
+ERROR Thu, 28 Jul 2011 10:12:54 +0200 views 41936 140735191181664 lala

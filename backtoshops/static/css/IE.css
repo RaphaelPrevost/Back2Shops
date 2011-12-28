@@ -1,0 +1,6 @@
+
+/*-BOUTONS FICHE PRODUIT-*/
+.ficheProd .bouton a { 
+	filter:progid:DXImageTransform.Microsoft.Shadow(color='#eea401', Direction=135, Strength=2); 
+	zoom: 1; 
+}
