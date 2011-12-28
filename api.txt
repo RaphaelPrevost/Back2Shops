@@ -1,0 +1,373 @@
+h1. API 10
+
+
+h1. Admin API:
+
+Calling convention for private API calls (sales.backtoshops.com)
+Use corresponding server public key
+Encrypt a random 256 bit AES key with it (RSA PKS1)
+Encrypt the encrypted key with brand private key
+Encrypt payload with the original AES key
+Send the double encrypted AES key and encrypted payload
+
+All calls return XML
+
+Public keys available at the following URLs:
+http://sales.backtoshops.com/apikey.pem
+http://users.backtoshops.com/apikey.pem
+
+The merchant has a private key, and the matching public key is stored on sales.backtoshops.com
+
+Used for:
+- adding items to the inventory
+- removing items from the inventory
+- accessing orders
+- marking orders as delivered
+- ...
+
+Inventory
+
+Scan the barcodes using a batch barcode scanner
+Get the CSV
+Upload the CSV using the backoffice
+
+POS
+
+iPhone/Android App
+QRCode/Barcode reader
+Call the online API to get order details
+Mark the order as delivered/canceled/returned
+
+h1. Public sales.backtoshops.com API:
+
+The results of the public API should be cached by Django, and invalidated if a sale changes, stocks 
+
+The results of the calls are also cached in reddis or tokyo tyrant on the users.backtoshops.com side
+
+h2. /webservice/1.0/pub/sales/list
+
+h3. Parameters
+
+* shop: id of a shop
+* type: id of a product type
+* category: id of a product category
+* brand: id of a brand
+
+h3. Returns
+
+the list of current sales:
+
+<pre>
+<sales version="1.0">
+    <sale id="_id_sale">
+        <category id="_id_product_category">
+            <name>_name_product_category</name>
+        </category>
+        <type id="_id_product_type
+            <name>_name_product_type</name>
+        </type>
+        <name>_name_product</name>
+        <desc>_desc_product</desc>
+        <available from="_valid_from_sale" to="_valid_to_sale" />
+        <img url="_default_img_product" />
+        <seller id="_brand_sale">
+            <name>_name_seller</name>
+            <logo url="_logo_seller" />
+        </seller>
+        <price>_normal_price_product</price>
+        <discount type="ratio/fixed" amount="_amount_discount" price="_price_after_discount" />
+        <variant id="_id_brand_attribute"> <!-- list of brand attributes -->
+            <name>_brand_attribute_name</name>
+            <thumb url="_brand_attribute_texture" />
+            <img url="_brand_attribute_product_picture" />
+            <premium type="ratio/fixed" amount="_amount_discount" price="_price_after_discount" />
+        <variant>
+    </sale>
+</sales>
+</pre>
+
+
+h2. /webservice/1.0/pub/shops/list : return the list of all the shops (all/by brand/by city)
+
+h3. Parameters
+
+* seller: id of a brand
+* city: city name
+
+h3. Returns
+
+the list of current all the shops filtered by the parameters:
+
+<pre>
+<shops version="1.0">
+    <shop id="_id_shop">
+        <name>_name_shop</name>
+                <catcher>_catcher_shop</catcher>
+        <desc>_desc_shop</desc>
+        <img url="_url_logo_shop" />
+        <seller id="_brand_shop">
+            <name>_name_seller</name>
+            <logo url="_logo_seller" />
+        </seller>
+        <addr>_street_shop</addr>
+        <zip>_zipcode_shop</zip>
+        <city>_city_shop</city>
+        <country>_country_shop</country>
+        <code>_upc_shop</code>
+        <location lat="_latitude_shop" long="_longitude_shop" />
+    </shop>
+</shops>
+</pre>
+
+* country: ISO 2 letters country code
+
+h2. /webservice/1.0/pub/types/list
+
+h3. Parameters
+
+* seller: id of a brand
+
+par exemple une marque peut ne vendre que des chaussures, dans ce cas on ne veut pas avoir le reste
+
+h3. Returns
+
+the list of product types:
+
+<pre>
+<types version="1.0">
+    <type id="_id_product_type">
+        <name>_name_product_type</name>
+        <attribute name="_name_attribute_for_this_type" /><!-- list of common attributes for this product type -->
+    </type>
+    <category id="_id_product_category">
+        <name>_name_product_category</name>
+    </category>
+</types>
+</pre>
+
+h2. /webservice/1.0/pub/brand/list
+
+h3. Parameters
+
+* type: product type id
+* category: product category id
+
+h3. Returns
+
+the list of all the brands: (Brands or Product Brands?)
+
+<pre>
+<brands version="1.0">
+    <brand id="_id_brand">
+        <name>_brand_name</name>
+        <logo url="_url_logo_brand" />
+        <category id="_id_product_category"> <!-- list -->
+            <name>_name_product_category</name>
+        </category>
+        <type id="_id_product_category">
+            <name>_name_product_category</name>
+            <variant id="_id_brand_attribute"> <!-- list of brand attributes -->
+                <name>_brand_attribute_name</name>
+                <thumb url="_brand_attribute_texture" />
+                <img url="_brand_attribute_product_picture" />
+                <premium type="ratio/fixed" amount="_amount_discount" price="_price_after_discount" />
+            <variant>
+        </type>
+    </brand>
+</brands>
+</pre>
+
+h2. /webservice/1.0/pub/brand/info : get brand details, special attributes for each type of item
+
+h3. Parameters
+
+URL must look list that: /webservice/1.0/pub/brand/info/ *pk*
+with pk the id of the brand
+
+h3. Returns
+
+<pre>
+<brand version="1.0" id="_id_brand">
+    <name>_brand_name</name>
+    <logo url="_url_logo_brand" />
+    <category id="_id_product_category"> <!-- list -->
+        <name>_name_product_category</name>
+    </category>
+    <type id="_id_product_type">
+        <name>_name_product_type">
+        <variant id="_id_brand_attribute"> <!-- list of brand attributes -->
+            <name>_brand_attribute_name</name>
+            <thumb url="_brand_attribute_texture" />
+            <img url="_brand_attribute_product_picture" />
+            <premium type="ratio/fixed" amount="_amount_discount" price="_price_after_discount" />
+        <variant>
+    </type>
+    <shop id="_id_shop"> <!-- list of shops -->
+        <name>_name_shop</name>
+        <desc>_desc_shop</desc>
+        <logo url="_url_logo_shop" />
+        <addr>_street_shop</addr>
+        <zip>_zipcode_shop</zip>
+        <city>_city_shop</city>
+        <country>_country_shop</country>
+        <location lat="_latitude_shop" long="_longitude_shop" />
+        <code>_upc_shop</code>
+    </shop>
+</brand>
+</pre>
+
+h2. /webservice/1.0/pub/sales/info : return details about an item (pictures/description/remaining stocks)
+
+h3. Parameters
+
+URL must look list that: /webservice/1.0/pub/sales/info/ *pk*
+with pk the id of the sale
+
+h3. Returns
+
+the sale:
+
+<pre>
+<sale version="1.0" id="_id_sale">
+    <category id="_id_product_category">
+        <name>_name_product_category</name>
+    </category>
+    <type id="_id_product_type">
+        <name>_name_product_type</name>
+    </type>
+    <name>_name_product</name>
+    <desc>_desc_product</desc>
+    <available from="_valid_from_sale" to="_valid_to_sale" />
+    <img url="_picture_product_url" /> <!-- list of pictures -->
+    <seller id="_brand_sale">
+        <name>_name_seller</name>
+        <logo url="_logo_seller" />
+    </seller>
+    <price>_normal_price_product</price>
+    <discount type="ratio/fixed" amount="_amount_discount" price="_price_after_discount" />
+    <variant id="_id_brand_attribute"> <!-- list of brand attributes -->
+        <name>_brand_attribute_name</name>
+        <thumb url="_brand_attribute_texture" />
+        <img url="_brand_attribute_product_picture" />
+        <premium type="ratio/fixed" amount="_amount_discount" price="_price_after_discount" />
+    <variant>
+    <attribute id="_id_attribute" name="_name_attribute_for_this_product_category" /> <!-- list -->
+    <product variant="_id_brand_attribute" attribute="_id_common_attribute">
+        <code upc="_ucp_code_for_product" />
+        <stock shop="_id_shop" available="_rest_stock" /> <!-- list of stocks by shop -->
+    </product>
+    <shop id="_id_shop"> <!-- list of shops for this sale -->
+        <name>_name_shop</name>
+        <logo url="_logo_shop" />
+        <location lat="_latitude_shop" long="_longitude_shop" />
+    </shop>
+</sale>
+</pre>
+
+h2. /webservice/1.0/pub/shops/info
+
+h3. Parameters
+
+URL must look list that: /webservice/1.0/pub/shops/info/ *pk*
+with pk the id of the shop
+
+h3. Returns
+
+the shop details
+
+<pre>
+<shop version="1.0" id="_id_shop">
+    <name>_name_shop</name>
+    <catcher>_catcher_shop</catcher>
+    <desc>_desc_shop</desc>
+    <img url="_url_logo_shop" />
+    <seller id="_brand_shop">
+        <name>_name_seller</name>
+        <logo url="_logo_seller" />
+    </seller>
+    <addr>_street_shop</addr>
+    <zip>_zipcode_shop</zip>
+    <city>_city_shop</city>
+    <country>_country_shop</country>
+    <location lat="_latitude_shop" long="_longitude_shop" />
+    <code>_upc_shop</code>
+    <hours>_opening_hours_blob_json</hours>
+</shop>
+</pre>
+
+h2. /webservice/1.0/pub/types/info : return the user preference attributes and their possible values (mainly for sizes)
+
+h3. Parameters
+
+URL must look list that: /webservice/1.0/pub/types/info/ *pk*
+with pk the id of the product type
+
+h3. Returns
+
+the list of common attributes for this product type:
+
+<pre>
+<type version="1.0" id="_id_product_category">
+    <name>_name_product_category</name>
+    <attribute pk="_id_attribute"> <!-- list of common attributes -->
+        <name>_name_attribute_for_this_category"</name>
+    </attribute>
+</type>
+</pre>
+
+h2. /webservice/1.0/vicinity/shops : return all the shops in a radius of X around the given coordinates (all/with sales/by brand) (Name - Adress - Hours - array of sales)
+
+h3. Parameters
+
+*TODO*
+
+h3. Returns
+
+*TODO*
+
+h2. /webservice/1.0/vicinity/sales : return all the sales in a radius of X around the given coordinates (all/by brand/by name) (details, shops opened selling the thing)
+
+h3. Parameters
+
+*TODO*
+
+h3. Returns
+
+*TODO*
+
+h1. Private sales.backtoshops.com API:
+
+Called by the brand, the POS application...
+
+- /webservice/1.0/private/stock/inc : increment the number of item in stock - does not cause cache invalidation unless the item was sold out (the it invalidates getsales and saleinfo)
+- /webservice/1.0/private/stock/dec : decrement - invalidates the cache for saleinfo, and getsales only if the item becomes sold out
+- /webservice/1.0/private/stock/ret : increment the number of items in stock and mark it as a returned item (same rules than inc for cache invalidations)
+
+h1. Public users.backtoshops.com API:
+
+Called by the PHP front or the iPhone/Android application
+
+- /webservice/1.0/pub/connect (authenticate the user and retrieve its global session)
+- /webservice/1.0/pub/profile (get the user preferences to filter the sales)
+(mirror all the sales.backtoshops.com public API, but the results will be filtered using the user profile - if enabled)
+
+h1. Private users.backtoshops.com API:
+
+Called by the merchant POS application
+
+- webservice/1.0/private/order/detail : get all the details relative to an order
+- webservice/1.0/private/order/cancel : cancel the order and cause the stocks to be updated, by calling the private API of sales.backtoshops.com in the background
+- webservice/1.0/private/order/filled : the order has been completed
+
+h1. "Protected" users.backtoshops.com API calling convention:
+
+- Only used from sales.backtoshops.com to users.backtoshops.com
+- Generate a 256 bits AES key
+- Encrypt the parameters with it
+- Encrypt the AES key with the server private key
+- Send with this format:
+[base64 encoded encrypted AES key]:[base 64 encoded encrypted blob]
+
+h1. "Protected" users.backtoshops.com API:
+
+- /webservice/protected/invalidate (name of the call for which the cache should be invalidated - drop it from reddis)

@@ -1,0 +1,16 @@
+{% load i18n %}
+{% load sub %}
+
+<!--CHOISIR UNE BOUTIQUE-->
+<div id="choixShop">
+    <strong>{% trans "Choose a shop" %}</strong>
+    <p>
+        <label for="shop">{% trans "Shop" %}</label>
+        <select id="shop">
+            <option value="0">{% trans "Choose..." %}</option>
+            {% for shop in shops %}
+            <option value="{% url sale_details sale.pk shop.pk %}">{{ shop.name }}</option>
+            {% endfor %}
+        </select>
+    </p>
+</div>

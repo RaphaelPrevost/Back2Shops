@@ -1,0 +1,11 @@
+{
+	"Python": {
+		"python": "/Users/guillaume/.virtualenvs/backtoshops/bin/python",
+		"pythonExtraPaths": [
+			"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages",
+		]
+	},
+	"JavaScript": {
+		"javascriptExtraPaths": "/Users/guillaume/Projects/BTS/backtoshops/static/js"
+	}
+}

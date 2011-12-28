@@ -1,0 +1,97 @@
+{% extends base_template %}
+{% load i18n %}
+
+{#Form to select shops#}
+
+{% block form %}
+    {{ wizard.management_form }}
+    <fieldset>
+        <div>
+            {{ wizard.form.non_field_errors }}
+            <div class="formrow">
+                <label for="{{ wizard.form.target_market.auto_id }}">{{ wizard.form.target_market.label }}</label>
+                {{ wizard.form.target_market }}
+            </div>
+            {% comment %}
+            <span  id="physical_shops">
+                <div class="formrow">
+                    <label for="{{ wizard.form.shops.auto_id }}">{{ wizard.form.shops.label }}</label>
+                    {{ wizard.form.shops }}
+                </div>
+            </span>
+            {% endcomment %}
+
+			<div id="physical_shops">
+				<div class="formrow">
+					<label for="{{ wizard.form.shops.auto_id }}">{{ wizard.form.shops.label }}</label>
+					<input type="text" id="shop_search" value="" name="shop_search" />
+					<div id="check_shops">
+						{{ wizard.form.shops }}
+					</div>
+					<div class="clear"></div>
+				</div>
+			</div>
+        </div>
+    </fieldset>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+    $(function(){
+        $("#{{ wizard.form.target_market.auto_id }}").change(function(){
+           if ($(this).val() == "L") {
+               $("#physical_shops").show();
+           } else {
+               $("#physical_shops").hide();
+           }
+        });
+        $("#{{ wizard.form.target_market.auto_id }}").change();
+
+        $("input[class=folder]").click(function(){
+        	var list = $(this).parent().parent();
+            var tocheck = false;
+        	if (this.checked) {
+               tocheck = true;
+            }
+            $(this).prop('checked', tocheck);
+            $.each($("input[type=checkbox]", list), function() {
+                if ($(this).prop('checked') != tocheck) {
+                    $(this).prop('checked', tocheck);
+                    $(this).change();
+                }
+
+            });
+        });
+
+        $("#shop_search").keyup(function() {
+            // Retrieve the input field text and reset the count to zero
+            var filter = $(this).val(), count = 0;
+
+            // Loop through the comment list
+            $("#check_shops ul li").each(function(){
+
+                // If the list item does not contain the text phrase fade it out
+                if ($(this).text().search(new RegExp(filter, "i")) < 0) {
+                    $("label", $(this)).css('color', '#ccc');
+                    $("input", $(this)).attr('disabled', 'disabled');
+
+                // Show the list item if the phrase matches and increase the count by 1
+                } else {
+                    $("label", $(this)).css('color', 'black');
+                    $("input", $(this)).removeAttr('disabled');
+                    count++;
+                }
+            });
+        });
+        // $("#shop-search").quicksearch('#check_shops ul li', {
+        //     'selector': 'label',
+        //     'show': function () {
+        //         this.style.color = '';
+        //     },
+        //     'hide': function () {
+        //         this.style.color = '#ccc';
+        //     }
+        // });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% load get_preview %}
+{% load l10n %}
+
+<sale version="1.0" id="{{ object.pk }}">
+    <category id="{{ object.product.category.pk }}">
+        <name>{{ object.product.category.name }}</name>
+    </category>
+    <type id="{{ object.product.type.pk }}">
+        <name>{{ object.product.type.name }}</name>
+    </type>
+    <name>{{ object.product.name }}</name>
+    <desc>{{ object.product.description }}</desc>
+    <available from="{{ object.product.valid_from|date:"c" }}" to="{{ object.product.valid_to|date:"c" }}" />
+    
+    {% for picture in object.pictures.all %}
+    <img url="picture.picture.url" />
+    {% endfor %}
+    <seller id="{{ object.mother_brand.pk }}">
+        <name>{{ object.mother_brand.name }}</name>
+        <logo url="{% if object.mother_brand.logo %}{{ object.mother_brand.logo.url }}{% endif %}" />
+    </seller>
+    <price>{{ object.product.normal_price|floatformat }}</price>
+	<discount type="{% if sale.product.discount_type == 'percentage' %}ratio{% else %}fixed{% endif %}" amount="{{ sale.product.discount|floatformat }}" price="{{ sale.product.discount_price|floatformat }}" />
+
+	{% for variant in object.product.brand_attributes.all %}
+		{% with preview=variant|get_preview:object.product %}
+		<variant id="{{ variant.pk }}">
+			<name>{{ variant.name }}</name>
+			<thumb url="{% if variant.texture %}{{ variant.texture.url }}{% endif %}" />
+			<img url="{{ preview.preview.picture.url }}" />
+		</variant>
+		{% endwith %}
+	{% endfor %}
+
+
+	{% for attribute in object.product.type.common_attributes.all %}
+    <attribute id="{{ attribute.pk }}" name="{{ attribute.name }}" />
+    {% endfor %}
+
+    {% for ba in object.product.brand_attributes.all %}
+    	{% for ca in object.product.type.common_attributes.all %}
+		<product variant="{{ ba.pk }}" attribute="{{ ca.pk }}">
+			{% for barcode in object.barcodes.all %}
+				{% if barcode.brand_attribute == ba and barcode.common_attribute == ca %}
+				<code upc="{% if barcode.upc %}{{ barcode.upc }}{% endif %}" />
+				{% endif %}
+			{% endfor %}
+	        {% for stock in object.detailed_stock.all %}
+	        	{% if stock.brand_attribute == ba and stock.common_attribute == ca %}
+		    	<stock shop="{% if stock.shop %}{{ stock.shop.pk }}{% endif %}" available="{{ stock.rest_stock }}" />
+		    	{% endif %}
+	    	{% endfor %}
+		</product>
+		{% endfor %}
+	{% empty %}
+    	{% for ca in object.product.type.common_attributes.all %}
+			<product variant="" attribute="{{ ca.pk }}">
+				{% for barcode in object.barcodes.all %}
+					{% if barcode.common_attribute == ca %}
+					<code upc="{% if barcode.upc %}{{ barcode.upc }}{% endif %}" />
+					{% endif %}
+				{% endfor %}
+		        {% for stock in object.detailed_stock.all %}
+		        	{% if stock.common_attribute == ca %}
+			    	<stock shop="{% if stock.shop %}{{ stock.shop.pk }}{% endif %}" available="{{ stock.rest_stock }}" />
+			    	{% endif %}
+		    	{% endfor %}
+			</product>
+		{% endfor %}
+	{% endfor %}
+
+	{% for shop in object.shops.all %}
+    <shop id="{{ shop.pk }}">
+        <name>{{ shop.name }}</name>
+        <logo url="{% if shop.logo %}{{ shop.logo.url }}{% endif %}" />
+        <location lat="{{ shop.latitude|unlocalize }}" long="{{ shop.longitude|unlocalize }}" />
+    </shop>
+    {% endfor %}
+</sale>

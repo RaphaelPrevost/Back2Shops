@@ -1,0 +1,11 @@
+from platform import node
+
+DEVELOPMENT_HOST='Guillaumes-MacBook-Air-2.local'
+
+if node() == DEVELOPMENT_HOST:
+    from settings_local import *
+elif node(): # == PRODUCTION_HOST:
+    from settings_production import *
+else:
+    raise Exception("Cannot determine execution mode for host '%s'.  Please check DEVELOPMENT_HOST and PRODUCTION_HOST in settings_local.py." % node())
+

@@ -1,0 +1,1417 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"Fo",
+				"ForeignKey  (class)"
+			],
+			[
+				"Com",
+				"CommonAttribute  (class)"
+			],
+			[
+				"o",
+				"models  (module)"
+			],
+			[
+				"att",
+				"attributes  (module)"
+			],
+			[
+				"Sale",
+				"Sale  (class)"
+			],
+			[
+				"mo",
+				"models  (module)"
+			],
+			[
+				"django",
+				"django  (module)"
+			],
+			[
+				"fo",
+				"ForeignKey  (class)"
+			],
+			[
+				"Cha",
+				"CharField  (class)"
+			],
+			[
+				"Mo",
+				"Model  (class)"
+			],
+			[
+				"Sor",
+				"SortedDict  (class)"
+			],
+			[
+				"data",
+				"datastructures  (module)"
+			],
+			[
+				"ut",
+				"utils  (module)"
+			],
+			[
+				"ap",
+				"append  (function)"
+			],
+			[
+				"So",
+				"SortedDict  (class)"
+			],
+			[
+				"dat",
+				"datastructures  (module)"
+			],
+			[
+				"u",
+				"utils  (module)"
+			],
+			[
+				"djan",
+				"django  (module)"
+			],
+			[
+				"__init",
+				"__init__  (function)"
+			],
+			[
+				"Ca",
+				"CharField  (class)"
+			],
+			[
+				"ad",
+				"append  (function)"
+			],
+			[
+				"mu",
+				"MultiValueField  (class)"
+			],
+			[
+				"Sc",
+				"ScheduleWidget  (class)"
+			],
+			[
+				"te",
+				"TextInput  (class)"
+			],
+			[
+				"wi",
+				"widgets  (module)"
+			],
+			[
+				"for",
+				"forms  (module)"
+			],
+			[
+				"kwargs",
+				"kwargs  (variable)"
+			],
+			[
+				"kwa",
+				"kwargs  (variable)"
+			],
+			[
+				"up",
+				"UpdateView  (class)"
+			],
+			[
+				"request",
+				"request  (variable)"
+			],
+			[
+				"requ",
+				"request  (variable)"
+			],
+			[
+				"views",
+				"views  (module)"
+			],
+			[
+				"Cre",
+				"CreateShopView  (class)"
+			],
+			[
+				"Sh",
+				"Shop  (class)"
+			],
+			[
+				"shops",
+				"shops  (module)"
+			],
+			[
+				"rev",
+				"reverse  (function)"
+			],
+			[
+				"ur",
+				"urlresolvers  (module)"
+			],
+			[
+				"cor",
+				"core  (module)"
+			],
+			[
+				"Up",
+				"UploadProductPictureView  (class)"
+			],
+			[
+				"is_bran",
+				"is_brand_attribute  (variable)"
+			],
+			[
+				"For",
+				"ForeignKey  (class)"
+			],
+			[
+				"get_th",
+				"get_thumbnail  (function)"
+			],
+			[
+				"thu",
+				"thumbnail  (module)"
+			],
+			[
+				"sorl",
+				"sorl  (module)"
+			],
+			[
+				"Tem",
+				"TemplateView  (class)"
+			],
+			[
+				"view",
+				"views  (module)"
+			],
+			[
+				"Te",
+				"TemplateView  (class)"
+			],
+			[
+				"g",
+				"generic  (module)"
+			],
+			[
+				"set",
+				"settings  (module)"
+			],
+			[
+				"url",
+				"url  (function)"
+			],
+			[
+				"de",
+				"defaults  (module)"
+			],
+			[
+				"con",
+				"contrib  (module)"
+			],
+			[
+				"Ht",
+				"HttpResponseBadRequest  (class)"
+			],
+			[
+				"htt",
+				"http  (module)"
+			],
+			[
+				"vie",
+				"views  (module)"
+			],
+			[
+				"generi",
+				"generic  (module)"
+			],
+			[
+				"redir",
+				"redirect  (function)"
+			],
+			[
+				"sh",
+				"shortcuts  (module)"
+			],
+			[
+				"ge",
+				"generic  (module)"
+			],
+			[
+				"BO",
+				"BOLoginRequiredMixin  (class)"
+			],
+			[
+				"fouilli",
+				"fouillis  (module)"
+			],
+			[
+				"PRodu",
+				"ProductType  (class)"
+			],
+			[
+				"Pro",
+				"ProductPicture  (class)"
+			],
+			[
+				"pic",
+				"pictures  (module)"
+			],
+			[
+				"attr",
+				"attributes  (module)"
+			],
+			[
+				"Sho",
+				"Shop  (class)"
+			],
+			[
+				"mode",
+				"models  (module)"
+			],
+			[
+				"tem",
+				"template  (module)"
+			],
+			[
+				"Htt",
+				"HttpResponse  (class)"
+			],
+			[
+				"ht",
+				"http  (module)"
+			],
+			[
+				"th",
+				"thumbnail  (module)"
+			],
+			[
+				"Pr",
+				"ProductPicture  (class)"
+			],
+			[
+				"pi",
+				"pictures  (module)"
+			],
+			[
+				"gene",
+				"generic  (module)"
+			],
+			[
+				"pictures",
+				"pictures  (module)"
+			],
+			[
+				"gen",
+				"generic  (module)"
+			],
+			[
+				"cont",
+				"contrib  (module)"
+			],
+			[
+				"__unit",
+				"__unicode__(self  (function)"
+			],
+			[
+				"Gene",
+				"GenericForeignKey  (class)"
+			],
+			[
+				"Pos",
+				"PositiveIntegerField  (class)"
+			],
+			[
+				"Gen",
+				"GenericForeignKey  (class)"
+			],
+			[
+				"co",
+				"contrib  (module)"
+			],
+			[
+				"Co",
+				"ContentType  (class)"
+			],
+			[
+				"contr",
+				"contrib  (module)"
+			],
+			[
+				"djang",
+				"django  (module)"
+			],
+			[
+				"ForeigN",
+				"ForeignKey  (class)"
+			],
+			[
+				"Ima",
+				"ImageField  (class)"
+			],
+			[
+				"models",
+				"models  (module)"
+			],
+			[
+				"sa",
+				"sale  (module)"
+			],
+			[
+				"Prod",
+				"ProductBrand  (class)"
+			],
+			[
+				"date",
+				"datetime  (module)"
+			],
+			[
+				"Upl",
+				"UploadProductPictureView  (class)"
+			],
+			[
+				"sett",
+				"settings  (module)"
+			],
+			[
+				"PRo",
+				"ProductPicture  (class)"
+			],
+			[
+				"slae",
+				"settings_local  (module)"
+			],
+			[
+				"get",
+				"get_thumbnail  (function)"
+			],
+			[
+				"fou",
+				"fouillis  (module)"
+			],
+			[
+				"sho",
+				"shortcuts  (module)"
+			],
+			[
+				"ProductPic",
+				"ProductPicture  (class)"
+			],
+			[
+				"Product",
+				"Product  (class)"
+			],
+			[
+				"Ses",
+				"SessionWizardView  (class)"
+			],
+			[
+				"form",
+				"formwizard  (module)"
+			],
+			[
+				"get_",
+				"get_thumbnail  (function)"
+			],
+			[
+				"Brand",
+				"BrandAttributePreview  (class)"
+			],
+			[
+				"login",
+				"login_required  (function)"
+			],
+			[
+				"Productform",
+				"ProductForm  (class)"
+			],
+			[
+				"forms",
+				"forms  (module)"
+			],
+			[
+				"shop",
+				"shop  (module)"
+			],
+			[
+				"sale",
+				"sale  (module)"
+			],
+			[
+				"accounts",
+				"accounts  (module)"
+			],
+			[
+				"import",
+				"importlib  (module)"
+			],
+			[
+				"SaleDetai",
+				"SaleDetailsShop  (class)"
+			],
+			[
+				"Tar",
+				"TargetForm  (class)"
+			],
+			[
+				"Sto",
+				"StockForm  (class)"
+			],
+			[
+				"ShopF",
+				"ShopForm  (class)"
+			],
+			[
+				"phy",
+				"physical_shop  (module)"
+			],
+			[
+				"hi",
+				"HiddenInput  (class)"
+			],
+			[
+				"flo",
+				"FloatField  (class)"
+			],
+			[
+				"C",
+				"CharField  (class)"
+			],
+			[
+				"is_v",
+				"is_valid  (function)"
+			],
+			[
+				"Char",
+				"CharField  (class)"
+			],
+			[
+				"char",
+				"CharField  (class)"
+			],
+			[
+				"fiel",
+				"fields  (variable)"
+			],
+			[
+				"__ini",
+				"__init__  (function)"
+			],
+			[
+				"Ph",
+				"PhysicalShop  (class)"
+			],
+			[
+				"mod",
+				"models  (module)"
+			],
+			[
+				"Car",
+				"CharField  (class)"
+			],
+			[
+				"CharFiel",
+				"CharField  (class)"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "models.py",
+			"settings":
+			{
+				"buffer_size": 380,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/guillaume/Projects/BTS/backtoshops/stocks/models.py",
+			"settings":
+			{
+				"buffer_size": 583,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/guillaume/Projects/BTS/backtoshops/sales/forms.py",
+			"settings":
+			{
+				"buffer_size": 6975,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/guillaume/Projects/BTS/backtoshops/sales/views.py",
+			"settings":
+			{
+				"buffer_size": 24714,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"selected_items":
+		[
+		],
+		"width": 392.0
+	},
+	"console":
+	{
+		"height": 122.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": true,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/guillaume/Projects/BTS/backtoshops/static/admin/css/forms.css",
+		"/Users/guillaume/Projects/BTS/backtoshops/stocks/models.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/backend/models.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/settings_local.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/settings_production.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/static/css/add_sale.css",
+		"/Users/guillaume/Projects/BTS/backtoshops/templates/base.html",
+		"/Users/guillaume/Projects/BTS/backtoshops/sales/templates/add_sale_product.html",
+		"/Users/guillaume/Projects/BTS/backtoshops/sales/templates/edit_sale_base.html",
+		"/Users/guillaume/Projects/BTS/backtoshops/sales/templates/add_sale_base.html",
+		"/Users/guillaume/Projects/BTS/backtoshops/sales/templates/list.html",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/shortcuts/__init__.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/sales/views.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/sales/urls.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/static/js/jquery.ui.autocomplete.html.js",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/views/generic/detail.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/shops/urls.py",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/views/generic/edit.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/shops/views.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/static/css/add_shop.css",
+		"/Users/guillaume/Projects/BTS/backtoshops/attributes/urls.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/pictures/views.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/shops/templates/physical_shop.html",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/forms/fields.py",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/views/generic/base.py",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/utils/datastructures.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/shops/widgets.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/shops/forms.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/sales/templates/add_sale_shop.html",
+		"/Users/guillaume/Projects/BTS/backtoshops/sales/templates/add_sale_preview_shop.html",
+		"/Users/guillaume/Projects/BTS/backtoshops/sales/models.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/attributes/models.py",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/contrib/contenttypes/generic.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/sales/admin.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/sales/forms.py",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/core/urlresolvers.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/templates/index.html",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/template/response.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/shops/models.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/fouillis/views.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/shops/templates/physical_shop_confirm_delete.html",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/views/generic/__init__.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/urls.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/templates/_quick_nav.html",
+		"/Users/guillaume/Projects/BTS/backtoshops/pictures/urls.py",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/views/generic/create_update.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/pictures/models.py",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/db/models/fields/__init__.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/shops/admin.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/stocks/admin.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/pictures/admin.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/attributes/admin.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/attributes/views.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/backend/templates/_quick_nav.html",
+		"/Users/guillaume/Projects/BTS/backtoshops/backend/views.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/backend/urls.py",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/contrib/auth/decorators.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/backend/templates/login.html",
+		"/Users/guillaume/Projects/BTS/backtoshops/sales/templates/index.html",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/conf/urls/defaults.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/sale/views.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/sale/models.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/sale/forms.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/shop/admin.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/backend/templates/add_sale_stocks.html",
+		"/Users/guillaume/Projects/BTS/backtoshops/shop/models.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/shop/urls.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/physical_shop/views.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/shop/views.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/backend/templates/index.html",
+		"/Users/guillaume/Projects/BTS/backtoshops/physical_shop/urls.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/physical_shop/forms.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/physical_shop/models.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/backend/templates/physical_shop.html",
+		"/Users/guillaume/Library/Application Support/Sublime Text 2/Packages/User/Base File.sublime-settings",
+		"/Users/guillaume/Library/Application Support/Sublime Text 2/Packages/User/Global.sublime-settings",
+		"/Users/guillaume/Library/Application Support/Sublime Text 2/Packages/Default/Global.sublime-settings",
+		"/Users/guillaume/Projects/BTS/backtoshops/shop/forms.py",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/forms/models.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/sale/urls.py",
+		"/Users/guillaume/Library/Application Support/Sublime Text 2/Packages/Default/Base File.sublime-settings",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/forms/forms.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/backend/templates/add_sale_base.html",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/db/models/base.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/backend/templates/add_sale_shop.html",
+		"/Users/guillaume/Projects/BTS/backtoshops/physical_shop/admin.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/sale/admin.py",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/south/db/postgresql_psycopg2.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/sale/migrations/0012_drop_physical_shop.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/physical_shop/migrations/0001_create_physical_shop.py",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/db/backends/postgresql_psycopg2/base.py",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/south/db/generic.py",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/db/backends/postgresql/operations.py",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/db/backends/__init__.py",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/db/backends/postgresql_psycopg2/introspection.py",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/south/db/__init__.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/sale/migrations.old/0020_auto__del_sale__add_product__del_field_productpicture_sale__add_field_.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/backend/templates/add_sale_preview_product.html",
+		"/Users/guillaume/Projects/BTS/documentations/back-office_BTS_06_24/add-shop.htm",
+		"/Users/guillaume/Projects/BTS/backtoshops/backend/templates/add_sale_preview_shop.html",
+		"/Users/guillaume/Projects/BTS/backtoshops/static/js/jquery.highlight.js",
+		"/Users/guillaume/Projects/BTS/backtoshops/backend/templates/add_sale_product.html",
+		"/Users/guillaume/Projects/BTS/backtoshops/backend/templates/edit_sale_base.html",
+		"/Users/guillaume/Projects/BTS/backtoshops/backend/templates/new_shop.html",
+		"/Users/guillaume/Projects/BTS/backtoshops/backend/templates/_product_preview_thumbnail.html",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/forms/widgets.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/static/js/jquery.quicksearch.js",
+		"/Users/guillaume/Projects/BTS/backtoshops/static/js/fileupload/jquery.fileupload-ui.css",
+		"/Users/guillaume/Projects/BTS/backtoshops/backend/templates/_brand_attribute_list_item.html",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/formwizard/views.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/fouillis/middleware.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/static/js/uploadify/uploadifyLang_fr.js",
+		"/private/tmp/bts.diff",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/forms/formsets.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/backend/templates/list.html",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/formwizard/storage/__init__.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/backend/templates/add_sale_target.html",
+		"/Users/guillaume/Projects/BTS/backtoshops/static/css/main.css",
+		"/private/tmp/marion.diff",
+		"/Users/guillaume/Projects/BTS/backtoshops/.codeintel/config",
+		"/Users/guillaume/Library/Application Support/Sublime Text 2/Packages/User/Default (OSX).sublime-keymap",
+		"/Users/guillaume/.virtualenvs/backtoshops/lib/python2.7/site-packages/django/contrib/auth/forms.py",
+		"/Users/guillaume/Library/Application Support/Sublime Text 2/Packages/Default/Default (OSX).sublime-keymap",
+		"/Users/guillaume/Projects/BTS/backtoshops/backtoshops.sublime-project",
+		"/Users/guillaume/Downloads/jquery.formset-1.2-with-examples/demo/templates/example/inline-formset-autocomplete.html",
+		"/Users/guillaume/Library/Mail Downloads/8-25-11-afchine2011.sql",
+		"/Users/guillaume/Projects/BTS/backtoshops/settings.py",
+		"/Users/guillaume/Projects/BTS/backtoshops/backend/templates/_product_picture_thumbnail.html"
+	],
+	"find":
+	{
+		"height": 33.0
+	},
+	"find_in_files":
+	{
+		"height": 86.0,
+		"include_history":
+		[
+		],
+		"location_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"_expired",
+			"\"<span> - </span>\", ",
+			"TextInput()",
+			"form_valid",
+			"self.form",
+			"self.form_class",
+			"formro",
+			"self.kwarg",
+			"kwargs",
+			"request",
+			"pix_tit",
+			"toolbar",
+			"gener",
+			"PhysicalShop",
+			"physical_shop",
+			"physical",
+			"quote_name",
+			"def quote_name",
+			"quote_name",
+			"phy",
+			"physical",
+			"_btn",
+			"physic",
+			"initial_dict",
+			"add",
+			"get_thu",
+			"render",
+			"brand_attribute_input",
+			"add_brand_attribute",
+			"#product_pictures",
+			"postdata",
+			"click",
+			"#fileInputQueue",
+			"uploadify",
+			"#uploadify",
+			"a/",
+			"__ini",
+			"full_clean",
+			"delete",
+			"cleaned_data",
+			"true",
+			"True",
+			"cleaned_data",
+			"is_valid()",
+			"named",
+			"namedur",
+			"canc",
+			"process_step",
+			" p ",
+			"preview-pro",
+			"base_template",
+			".marque",
+			"template",
+			"accounts-brand",
+			"{lang}",
+			"moment"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"",
+			"TextInput(attrs={\"class\": \"inputXS\"})",
+			"Shop",
+			"shop",
+			"ba_input",
+			"add_ba",
+			"#product_picture",
+			"",
+			" .formrow "
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer": false,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "models.py",
+					"settings":
+					{
+						"buffer_size": 380,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								380,
+								380
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/Users/guillaume/Projects/BTS/backtoshops/stocks/models.py",
+					"settings":
+					{
+						"buffer_size": 583,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/Users/guillaume/Projects/BTS/backtoshops/sales/forms.py",
+					"settings":
+					{
+						"buffer_size": 6975,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4.0,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1464.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/Users/guillaume/Projects/BTS/backtoshops/sales/views.py",
+					"settings":
+					{
+						"buffer_size": 24714,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								16285,
+								16285
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4.0,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 5280.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 28.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"replace":
+	{
+		"height": 62.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"saleview",
+				"sales/views.py"
+			],
+			[
+				"saleform",
+				"sales/forms.py"
+			],
+			[
+				"safo",
+				"static/admin/css/forms.css"
+			],
+			[
+				"stmo",
+				"stocks/models.py"
+			],
+			[
+				"stomo",
+				"stocks/models.py"
+			],
+			[
+				"barmo",
+				"barcodes/models.py"
+			],
+			[
+				"bamo",
+				"backend/models.py"
+			],
+			[
+				"pro",
+				"settings_production.py"
+			],
+			[
+				"set",
+				"settings_local.py"
+			],
+			[
+				"list",
+				"sales/templates/list.html"
+			],
+			[
+				"salvi",
+				"sales/views.py"
+			],
+			[
+				"salur",
+				"sales/urls.py"
+			],
+			[
+				"add",
+				"sales/templates/add_sale_base.html"
+			],
+			[
+				"edi",
+				"sales/templates/edit_sale_base.html"
+			],
+			[
+				"view",
+				"sales/views.py"
+			],
+			[
+				"saleur",
+				"sales/urls.py"
+			],
+			[
+				"base",
+				"templates/base.html"
+			],
+			[
+				"auto",
+				"static/js/jquery.ui.autocomplete.html.js"
+			],
+			[
+				"add_sal",
+				"static/css/add_sale.css"
+			],
+			[
+				"for",
+				"shops/forms.py"
+			],
+			[
+				"wid",
+				"shops/widgets.py"
+			],
+			[
+				"loc",
+				"settings_local.py"
+			],
+			[
+				"widg",
+				"shops/widgets.py"
+			],
+			[
+				"phy",
+				"shops/templates/physical_shop.html"
+			],
+			[
+				"form",
+				"shops/forms.py"
+			],
+			[
+				"add_",
+				"sales/templates/add_sale_base.html"
+			],
+			[
+				"",
+				"shops/widgets.py"
+			],
+			[
+				"sett",
+				"settings_local.py"
+			],
+			[
+				"url",
+				"attributes/urls.py"
+			],
+			[
+				"add_sale_pro",
+				"sales/templates/add_sale_product.html"
+			],
+			[
+				"ph",
+				"shops/templates/physical_shop.html"
+			],
+			[
+				"ed",
+				"sales/templates/edit_sale_base.html"
+			],
+			[
+				"add_b",
+				"sales/templates/add_sale_base.html"
+			],
+			[
+				"bas",
+				"templates/base.html"
+			],
+			[
+				"add_ba",
+				"sales/templates/add_sale_base.html"
+			],
+			[
+				"add_sa",
+				"sales/templates/add_sale_shop.html"
+			],
+			[
+				"add_sale_pr",
+				"sales/templates/add_sale_preview_shop.html"
+			],
+			[
+				"shopur",
+				"shops/urls.py"
+			],
+			[
+				"previwho",
+				"sales/templates/add_sale_preview_shop.html"
+			],
+			[
+				"add_sho",
+				"static/css/add_shop.css"
+			],
+			[
+				"addpre",
+				"sales/templates/add_sale_preview_shop.html"
+			],
+			[
+				"jq",
+				"static/js/jquery.ui.autocomplete.html.js"
+			],
+			[
+				"loca",
+				"settings_local.py"
+			],
+			[
+				"add_sh",
+				"static/css/add_shop.css"
+			],
+			[
+				"ur",
+				"urls.py"
+			],
+			[
+				"shour",
+				"shops/urls.py"
+			],
+			[
+				"ind",
+				"templates/index.html"
+			],
+			[
+				"_qui",
+				"templates/_quick_nav.html"
+			],
+			[
+				"shopsur",
+				"shops/urls.py"
+			],
+			[
+				"shops/fo",
+				"shops/forms.py"
+			],
+			[
+				"shopsvi",
+				"shops/views.py"
+			],
+			[
+				"fr",
+				"sales/forms.py"
+			],
+			[
+				"salesadm",
+				"sales/admin.py"
+			],
+			[
+				"salesmode",
+				"sales/models.py"
+			],
+			[
+				"views",
+				"sales/views.py"
+			],
+			[
+				"pic",
+				"pictures/models.py"
+			],
+			[
+				"shopsmo",
+				"shops/models.py"
+			],
+			[
+				"quick",
+				"templates/_quick_nav.html"
+			],
+			[
+				"login",
+				"backend/templates/login.html"
+			],
+			[
+				"inde",
+				"sales/templates/index.html"
+			],
+			[
+				"urls",
+				"backend/urls.py"
+			],
+			[
+				"backend",
+				"backend/urls.py"
+			],
+			[
+				"admin",
+				"shops/admin.py"
+			],
+			[
+				"admi",
+				"sales/admin.py"
+			],
+			[
+				"models",
+				"stocks/models.py"
+			],
+			[
+				"mode",
+				"sales/models.py"
+			],
+			[
+				"model",
+				"pictures/models.py"
+			],
+			[
+				"forms",
+				"sale/forms.py"
+			],
+			[
+				"qui",
+				"backend/templates/_quick_nav.html"
+			],
+			[
+				"add_sale_b",
+				"backend/templates/add_sale_base.html"
+			],
+			[
+				"add_sale",
+				"backend/templates/add_sale_shop.html"
+			],
+			[
+				"drop",
+				"sale/migrations/0012_drop_physical_shop.py"
+			],
+			[
+				"crea",
+				"physical_shop/migrations/0001_create_physical_shop.py"
+			],
+			[
+				"_",
+				"backend/templates/_product_preview_thumbnail.html"
+			],
+			[
+				"add_sale_ba",
+				"backend/templates/add_sale_base.html"
+			],
+			[
+				"preview",
+				"backend/templates/add_sale_preview_shop.html"
+			],
+			[
+				"addsh",
+				"backend/templates/add_sale_shop.html"
+			],
+			[
+				"settin",
+				"settings_local.py"
+			],
+			[
+				"produ",
+				"settings_production.py"
+			],
+			[
+				"sto",
+				"backend/templates/add_sale_stocks.html"
+			],
+			[
+				"autocom",
+				"static/js/jquery.ui.autocomplete.html.js"
+			],
+			[
+				"_p",
+				"backend/templates/_product_preview_thumbnail.html"
+			],
+			[
+				"product_pre",
+				"backend/templates/_product_preview_thumbnail.html"
+			],
+			[
+				"jquer",
+				"static/js/fileupload/jquery.fileupload-ui.css"
+			],
+			[
+				"mid",
+				"fouillis/middleware.py"
+			],
+			[
+				"fylang_f",
+				"static/js/uploadify/uploadifyLang_fr.js"
+			],
+			[
+				"addsto",
+				"backend/templates/add_sale_stocks.html"
+			],
+			[
+				"add_sale_shop",
+				"backend/templates/add_sale_shop.html"
+			],
+			[
+				"lis",
+				"backend/templates/list.html"
+			],
+			[
+				"sale_bas",
+				"backend/templates/add_sale_base.html"
+			],
+			[
+				"add_sale_p",
+				"backend/templates/add_sale_product.html"
+			],
+			[
+				"sale_pro",
+				"backend/templates/add_sale_product.html"
+			],
+			[
+				"add_sale_sto",
+				"backend/templates/add_sale_stocks.html"
+			],
+			[
+				"add_sale_tar",
+				"backend/templates/add_sale_target.html"
+			],
+			[
+				"mai",
+				"static/css/main.css"
+			],
+			[
+				"edit_s",
+				"backend/templates/edit_sale_base.html"
+			],
+			[
+				"pre",
+				"backend/templates/add_sale_preview_product.html"
+			],
+			[
+				"sale_sh",
+				"backend/templates/add_sale_shop.html"
+			],
+			[
+				"thumbnail",
+				"backtoshops/backend/templates/_product_picture_thumbnail.html"
+			],
+			[
+				"fileup",
+				"backtoshops/static/js/fileuploader.js"
+			],
+			[
+				"ajax",
+				"backtoshops/backend/templates/_ajax_brands.html"
+			],
+			[
+				"cha",
+				"CHANGELOG.txt"
+			],
+			[
+				"repl",
+				"squelettes/beijing.afchine2011.org/media/js/cufon-replace.js"
+			],
+			[
+				"cufon",
+				"squelettes/beijing.afchine2011.org/media/js/cufon-replace.js"
+			],
+			[
+				"ru",
+				"rubrique-322.html"
+			],
+			[
+				"inc-cu",
+				"squelettes/www.afchine2011.org/inc-culture-panels.html"
+			],
+			[
+				"aside",
+				"squelettes/www.afchine2011.org/aside_culture.html"
+			],
+			[
+				"style.cs",
+				"squelettes/www.afchine2011.org/media/css/style.css"
+			],
+			[
+				"modul",
+				"squelettes/www.afchine2011.org/module_culture.html"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 249.0,
+	"status_bar_visible": true
+}

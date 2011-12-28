@@ -1,0 +1,34 @@
+{% load get_preview %}
+
+<sales version="1.0">
+	{% for sale in object_list %}
+	<sale id="{{ sale.pk }}">
+		<category id="{{ sale.product.category.pk }}">
+			<name>{{ sale.product.category.name }}</name>
+		</category>
+		<type id="{{ sale.product.type.pk }}">
+			<name>{{ sale.product.type.name }}</name>
+		</type>
+		<name>{{ sale.product.name }}</name>
+		<desc>{{ sale.product.description }}</desc>
+		<available from="{{ sale.product.valid_from|date:"c" }}" to="{{ sale.product.valid_to|date:"c" }}" />
+		<img url="{{ sale.product.pictures.all.0.picture.url }}" />
+		<seller id="{{ sale.mother_brand.pk }}">
+			<name>{{ sale.mother_brand.name }}</name>
+			<logo url="{{ sale.mother_brand.logo.url }}" />
+		</seller>
+		<price>{{ sale.product.normal_price|floatformat }}</price>
+		<discount type="{% if sale.product.discount_type == 'percentage' %}ratio{% else %}fixed{% endif %}" amount="{{ sale.product.discount|floatformat }}" price="{{ sale.product.discount_price|floatformat }}" />
+
+		{% for variant in sale.product.brand_attributes.all %}
+			{% with preview=variant|get_preview:sale.product %}
+			<variant id="{{ variant.pk }}">
+				<name>{{ variant.name }}</name>
+				<thumb url="{% if variant.texture %}{{ variant.texture.url }}{% endif %}" />
+				<img url="{{ preview.preview.picture.url }}" />
+			</variant>
+			{% endwith %}
+		{% endfor %}
+	</sale>
+	{% endfor %}
+</sales>

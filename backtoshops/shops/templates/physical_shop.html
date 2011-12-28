@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+{% if shop_pk %}
+Edit a Shop
+{% else %}
+Add a Shop
+{% endif %}
+{% endblock %}
+
+{% block head %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.ui.autocomplete.html.js"></script>
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/add_shop.css" />
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/ui-lightness/jquery-ui-1.8.16.custom.css" />
+{% endblock %}
+
+{% block navigation %}
+{% include "_quick_nav.html" %}
+{% endblock %}
+
+{% block content %}
+<!--content-left-->
+<div id="content_Left">
+
+    <!--Title-->
+    <div id="title">
+        <span>{% trans "Shops management" %}</span>
+        <h2>{% trans "Shops management" %}</h2>
+    </div>
+
+    <!--FORM-->
+    {% if shop_pk %}
+    <form id="main_form" method="post" action="{% url edit_shop shop_pk %}" enctype="multipart/form-data">{% csrf_token %}
+    {% else %}
+    <form id="main_form" method="post" action="{% url page_shops %}{% if shop_pk %}/{{ shop_pk }}{% endif %}" enctype="multipart/form-data">{% csrf_token %}
+    {% endif %}
+        {% if shop_pk %}
+        <h3>{% trans "Modify Shop" %}</h3>
+        {% else %}
+        <h3>{% trans "New Shop" %}</h3>
+        {% endif %}
+        {{ form.latitude }}
+        {{ form.longitude }}
+        {{ form.mother_brand }}
+        <fieldset>
+            {{ form.non_field_errors }}
+            {{ form.gestion_name.errors }}
+            <div class="formrow">
+                {{ form.gestion_name.label_tag }}
+                {{ form.gestion_name }}
+            </div>
+            {{ form.upc.errors }}
+            <div class="marge formrow">
+                {{ form.upc.label_tag }}
+                {{ form.upc }}
+            </div>
+            {{ form.address.errors }}
+            <div class="formrow">
+                {{ form.address.label_tag }}
+                {{ form.address }}
+            </div>
+            {{ form.zipcode.errors }}
+            <div class="formrow">
+                {{ form.zipcode.label_tag }}
+                {{ form.zipcode }}
+            </div>
+            {{ form.city.errors }}
+            <div class="marge formrow">
+                {{ form.city.label_tag }}
+                {{ form.city }}
+            </div>
+            <div id="localization">
+                <span id="localization_infos"></span>
+                <div id="googleMap" style="width: 280px; height: 250px; margin-bottom: 5px;">
+                </div>
+            </div>
+            {{ form.phone.errors }}
+            <div class="marge formrow">
+                {{ form.phone.label_tag }}
+                {{ form.phone }}
+            </div>
+            {{ form.name.errors }}
+            <div class="formrow">
+                {{ form.name.label_tag }}
+                {{ form.name }}
+            </div>
+            {{ form.catcher.errors }}
+            <div class="formrow">
+                {{ form.catcher.label_tag }}
+                {{ form.catcher }}
+            </div>
+            {{ form.image.errors }}
+            <div class="formrow">
+                {{ form.image.label_tag }}
+                {{ form.image }}
+            </div>
+            {{ form.description.errors }}
+            <div class="marge formrow">
+                {{ form.description.label_tag }}
+                {{ form.description }}
+            </div>
+            {{ form.opening_hours.errors }}
+            <div class="marge formrow">
+                <label for="lund1">Horaires</label>
+                <span class="contForm" id="coloris">
+                    {{ form.opening_hours }}
+<!--                     <label for="lund1">Lundi :</label><input class="inputS" id="lund1" type="text" size="10" value="00h00-00h00" />
+                    <span>et</span><input class="inputS" id="lund2" type="text" size="10" value="00h00-00h00" />
+                    <label for="mard1">Mardi :</label><input class="inputS" id="mard1" type="text" size="10" value="00h00-00h00" />
+                    <span>et</span><input class="inputS" id="mard2" type="text" size="10" value="00h00-00h00" />
+                    <label for="mercr1">Mercredi :</label><input class="inputS" id="mercr1" type="text" size="10" value="00h00-00h00" />
+                    <span>et</span><input class="inputS" id="mercr2" type="text" size="10" value="00h00-00h00" />
+                    <label for="jeud1">Jeudi :</label><input class="inputS" id="jeud1" type="text" size="10" value="00h00-00h00" />
+                    <span>et</span><input class="inputS" id="jeud2" type="text" size="10" value="00h00-00h00" />
+                    <label for="vend1">Vendredi :</label><input class="inputS" id="vend1" type="text" size="10" value="00h00-00h00" />
+                    <span>et</span><input class="inputS" id="vend2" type="text" size="10" value="00h00-00h00" />
+                    <label for="sam1">Samedi :</label><input class="inputS" id="sam1" type="text" size="10" value="00h00-00h00" />
+                    <span>et</span><input class="inputS" id="sam2" type="text" size="10" value="00h00-00h00" />
+                    <label for="dim1">Dimanche :</label><input class="inputS" id="dim1" type="text" size="10" value="00h00-00h00" />
+                    <span>et</span><input class="inputS" id="dim2" type="text" size="10" value="00h00-00h00" />
+ -->                </span>
+            </div>
+        </fieldset>
+        <!--BOUTONS-->
+        <input class="btn valider" type="submit" value='{% trans "Valider" %}'/>
+        <button type="reset" class="btn annuler">Annuler</button>
+    </form>
+    <!--FIN FORM-->
+</div>
+<!--FIN content-left-->
+
+<!--content-right-->
+<div id="content_Right">
+    <!--Liste-Shop-->
+    <h4 class="titleRight">Liste des Boutiques</h4>
+    <div class="boxRight" id="listeShop">
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <th class="nom on"><a href="#">Nom</a></th>
+                <th class="ville off"><a href="#">Ville</a></th>
+                <th class="action"><a href="#">Actions</a></th>
+            </tr>
+            {% for shop in shops %}
+            <script type="text/javascript">console.log("{{ shop.name }}");</script>
+            <tr id="shop_{{ shop.pk }}"><!-- class=new -->
+                <td><a href="{% url edit_shop shop.pk %}">{{ shop.name }}</a></td>
+                <td>{{ shop.city }}</td>
+                <td><a class="modif" href="{% url edit_shop shop.pk %}"></a><a class="out delete_shop" href="{% url delete_shop shop.pk %}"></a></td>
+            </tr>
+            {% empty %}
+            <tr class="noshop">
+                <td colspan="3">Aucune boutique enregistr&eacute;e</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <!--//Liste-Shop-->
+    <a class="btn ajouter" href="add-sale_2.htm">Ajouter une boutique</a>
+</div>
+<!--FIN content-right-->
+<div class="clear"></div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+<script type="text/javascript">
+    var map;
+    var shopMarkers = new Array();
+    var shops = new Array();
+
+    function initMap(){
+        var latlng = new google.maps.LatLng(47, 2.352222);
+        var myOptions = {
+            zoom: 5,
+            center: latlng,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        }
+        map = new google.maps.Map(document.getElementById("googleMap"), myOptions);
+        if ($("#{{ form.latitude.auto_id }}").val() && $("#{{ form.longitude.auto_id }}").val()) {
+            var latlng = new google.maps.LatLng($("#{{ form.latitude.auto_id }}").val(), $("#{{ form.longitude.auto_id }}").val());
+            var shop = new google.maps.Marker({
+                map: map,
+                position: latlng
+            });
+            shopMarkers.push(shop);
+        }
+    }
+
+    function _setMarker(result) {
+        var shop = new google.maps.Marker({
+            map: map,
+            position: result.geometry.location,
+            title: result.formatted_address
+        });
+        shopMarkers.push(shop);
+        shops[shop] = result
+        google.maps.event.addDomListener(shop, "click", function() {
+            var address = this.title.split(',');
+            var street = address[0].trim();
+            var zipcode = address[1].trim().split(' ')[0];
+            var city = address[1].trim().split(' ')[1];
+            $("#{{ form.address.auto_id }}").val(street);
+            $("#{{ form.zipcode.auto_id }}").val(zipcode);
+            $("#{{ form.city.auto_id }}").val(city);
+            $("#{{ form.latitude.auto_id }}").val(this.position.lat());
+            $("#{{ form.longitude.auto_id }}").val(this.position.lng());
+            $("#{{ form.city.auto_id }}").change();
+        });
+    }
+
+    function _clearShops() {
+        if (shopMarkers) {
+            for (var i in shopMarkers) {
+                shopMarkers[i].setMap(null);
+            }
+        }
+    }
+
+    function localization(){
+        var address = $("#{{ form.address.auto_id }}").val() +
+                      "," + $("#{{ form.zipcode.auto_id }}").val() +
+                      "," + $("#{{ form.city.auto_id }}").val();
+        var g = new google.maps.Geocoder();
+        $("#localization_infos").html('{% trans "Searching..." %}')
+        g.geocode({address: address}, function(results, status){
+            if (status == google.maps.GeocoderStatus.OK) {
+                _clearShops();
+                if (results.length == 1) {
+                    $("#{{ form.latitude.auto_id }}").val(results[0].geometry.location.lat());
+                    $("#{{ form.longitude.auto_id }}").val(results[0].geometry.location.lng());
+                    $("#localization_infos").html('{% trans "Localization succeded" %}');
+                } else {
+                    $("#localization_infos").html('{% trans "Localization found" %} '+results.length+' {% trans "results" %}');
+                }
+                for (var i in results) {
+                    _setMarker(results[i]);
+                }
+            } else if (status == google.maps.GeocoderStatus.ZERO_RESULTS) {
+                $("#localization_infos").html('{% trans "No results found. Check the address, zip code and city you have entered" %}');
+            } else {
+                $("#localization_infos").html('{% trans "An error occured, please try again later" %}');
+            }
+        });
+    }
+
+
+    $(function(){
+        initMap(); // Define in add_sale_preview_shop.html template
+        $("#{{ form.city.auto_id }}").autocomplete({
+            source: function(request, response) {
+                var url = "http://api.geonames.org/searchJSON";
+                if ($("#{{ form.zipcode.auto_id }}").val()) {
+                    url = "http://api.geonames.org/postalCodeSearchJSON";
+                }
+
+                $.ajax({
+                    url: url,
+                    dataType: "jsonp",
+                    data: {
+                        style: "short",
+                        maxRows: 10,
+                        postalcode: $("#{{ form.zipcode.auto_id }}").val(),
+                        name_startsWith: request.term,
+                        placename_startsWith: request.term,
+                        username: "{{ geonames_username }}"
+                    },
+                    success: function(data) {
+                        if ($("#{{ form.zipcode.auto_id }}").val()) {
+                            response($.map(data.postalCodes, function(item) {
+                                return {
+                                    label: item.placeName,
+                                    value: item.placeName
+                                };
+                            }));
+                        } else {
+                            response($.map(data.geonames, function(item) {
+                                return {
+                                    label: item.name + " (" + item.countryName + ")",
+                                    value: item.name
+                                };
+                            }));
+                        }
+                    }
+                });
+            },
+            autoFocus: true,
+            showTyping: false,
+            html: false,
+            minLength: 2
+        });
+
+        $(".delete_shop").click(function() {
+            if(confirm('{% trans "Are your sure you want to delete this shop?" %}')) {
+                $.post(this.href, function(data){
+                    $("#shop_"+data.shop_pk).remove();
+                });
+            }
+            return false;
+        })
+
+        $("#{{ form.address.auto_id }}").change(localization);
+        $("#{{ form.zipcode.auto_id }}").change(localization);
+        $("#{{ form.city.auto_id }}").change(localization);
+    });
+</script>
+
+{% endblock %}

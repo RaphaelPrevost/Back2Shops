@@ -1,0 +1,81 @@
+{% load i18n %}
+{% load thumbnail %}
+
+<!--Produit-->
+<h4 class="titleRight">Le produit</h4>
+<div class="boxRight ficheProd">
+    <!--Section gauche-->
+    <div class="infoLeft">
+        <div class="descrProd">
+            <strong id="preview-{{ wizard.form.name.auto_id }}">{% if context %}{{ context.name.value }}{% else %}{% trans "N/F" %}{% endif %}</strong>
+            <p id="preview-{{ wizard.form.description.auto_id }}">{% if context %}{{ context.description.value }}{% else %}{% trans "N/F" %}{% endif %}</p>
+        </div>
+        <div id="preview-{{ wizard.form.brand.auto_id }}" class="marque">
+        {% if brand_object %}
+            {% thumbnail brand_object.picture "205x70" as im %}
+                <img style='margin:{{ im|margin:"205x70" }}' src="{{ im.url }}" alt='{{ context.brand_object.name }}' width="{{ im.x }}" height="{{ im.y }}"/>
+            {% endthumbnail %}
+        {% endif %}
+        {% if not context %}
+            <img src="{{ STATIC_URL }}img/marque.gif" alt="Votre Marque" />
+        {% endif %}
+        </div>
+        <p class="prix_date">
+            <strong id="preview-{{ wizard.form.discount_price.auto_id }}">
+                {% if context %}
+                    {{ context.discount_price.value|floatformat }}
+                {% else %}
+                    {% trans "N/F" %}
+                {% endif %}&euro;
+            </strong><em id="preview-{{ wizard.form.normal_price.auto_id }}">
+                {% if context %}
+                    {{ context.normal_price.value|floatformat }}
+                {% else %}
+                    {% trans "N/F" %}
+                {% endif %}&euro;
+            </em>
+            <span>Profitez de l'offre jusqu'au <strong id="preview-{{ wizard.form.valid_to.auto_id }}">{% if context %}{{ context.valid_to.value }}{% else %}{% trans "N/F" %}{% endif %}</strong></span>
+        </p>
+        <div class="bouton">
+            <a href="#">Acheter</a>
+            <a href="#">Offrir</a>
+        </div>
+        <div class="partage">
+            <a class="faceBook" href="#">Partagez ce produit sur FaceBook</a>
+            <a class="twitter" href="#">Partagez ce produit sur Twitter</a>
+        </div>
+    </div>
+    <!--FIN Section gauche-->
+
+    <!--Section droite-->
+    <div class="imgRight">
+        <div class="tag">
+            -
+            <span id="preview-{{ wizard.form.discount.auto_id }}">
+            {% if context %}
+                {{ context.discount.value|floatformat }}
+                {% if context.discount_type.value == "percentage" %}
+                    %
+                {% else %}
+                    &euro;
+                {% endif %}
+            {% else %}
+                {% trans "N/F" %}
+            {% endif %}
+            </span>
+        </div>
+        <div id="preview-product-picture">
+        {% if product_picture %}
+            {% thumbnail product_picture.picture "156x171" as im %}
+                <img style='margin:{{ im|margin:"156x171" }}' src="{{ im.url }}" alt='{% trans "visuel" %} {{ context.name }}' width="{{ im.x }}" height="{{ im.y }}"/>
+            {% endthumbnail %}
+{#        {% else %}#}
+{#        <img src="{{ STATIC_URL }}img/Prod01.jpg" alt="Prod01" />#}
+        {% endif %}
+        </div>
+        <a class="voirOffre" href="#">Voir l'offre</a>
+    </div>
+    <!--FIN Section droite-->
+
+</div>
+<!--FIN Produit-->

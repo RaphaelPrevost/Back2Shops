@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load active %}
+
+{% block title %}{% trans "Le produit | Ajouter une nouvelle vente" %}{% endblock %}
+
+{% block head %}
+    <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+    <META HTTP-EQUIV="Expires" CONTENT="-1">
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.form.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.ui.autocomplete.html.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.ui.datepicker-fr.js"></script>
+{#  <script type="text/javascript" src="{{ STATIC_URL }}js/plupload/plupload.full.js"></script>#}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/fileupload/jquery.iframe-transport.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/fileupload/jquery.fileupload.js"></script>
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/add_sale.css" />
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/ui-lightness/jquery-ui-1.8.16.custom.css" />
+{% endblock %}
+
+{% block navigation %}
+    {% include "_quick_nav.html" %}
+{% endblock %}
+
+{% block content %}
+    <!--Lien Haut de Page -->
+    <a id="lienUP" href="#conteneur">Haut de page</a>
+
+    <div id="content_Left">
+        <!--Title-->
+        <div id="title">
+            <span>{% trans "Ajouter une nouvelle vente" %}</span>
+            <h2>
+                {% comment %}
+                <em>
+                    <a href="#" class="{% active request "shop" %}">{% trans "Shops" %}</a> >
+                    <a href="#" class="{% active request "product" %}">{% trans "The product" %}</a> >
+                    <a href="#" class="{% active request "stocks" %}">{% trans "Stocks" %}</a> >
+                    <a href="#" class="{% active request "target" %}">{% trans "Target" %}</a>
+                </em>
+                {% endcomment %}
+                {% trans "Add a new sale" %}
+            </h2>
+        </div>
+
+        <form id="main_form" action="{% url add_sale %}" enctype="multipart/form-data" method="post">{% csrf_token %}
+            <h3><span>{{ wizard.steps.step1 }}/{{ wizard.steps.count }}</span>{{ form_title }}</h3>
+            {% block form %}{% endblock %}
+            {% if wizard.steps.prev %}
+            <button class="navForm" id="btn_first_step" name="wizard_prev_step" value="{{ wizard.steps.first }}">{% trans "First step" %}</button>
+            <button class="navForm" id="btn_prev_step" name="wizard_prev_step" value="{{ wizard.steps.prev }}">{% trans "Prev step" %}</button>
+            {% endif %}
+            <button class="navForm" id="btn_cancel" name="wizard_cancel" value="{{ wizard.steps.current }}">{% trans "Cancel" %}</button>
+            {% if wizard.steps.step0 == 0 %}
+            <input class="btn select" type="submit" value="{% trans "Define the product" %}"/>
+            {% endif %}
+            {% if wizard.steps.step0 == 1 %}
+            <input class="btn select" type="submit" value="{% trans "Define the stocks" %}"/>
+            {% endif %}
+            {% if wizard.steps.step0 == 2 %}
+            <input class="btn select" type="submit" value="{% trans "Define the target" %}"/>
+            {% endif %}
+            {% if wizard.steps.step0 == 3 %}
+            <input class="btn select" type="submit" value="{% trans "Validate" %}"/>
+            {% endif %}
+        </form>
+
+        {% block empty_forms %}{% endblock %}
+    </div>
+
+    <!--content-right-->
+    <div id="content_Right">
+{#        {% include "add_sale_preview.html" %}#}
+        {% if preview_shop %}
+            {% if preview_shop == "blank" %}
+                {% include "add_sale_preview_shop.html" %}
+            {% else %}
+                {{ preview_shop }}
+            {% endif %}
+        {% endif %}
+        {% if preview_product %}
+            {% if preview_product == "blank" %}
+                {% include "add_sale_preview_product.html" %}
+            {% else %}
+                {{ preview_product }}
+            {% endif %}
+        {% endif %}
+        {% if preview_target %}
+            {% if preview_target == "blank" %}
+                {% include "add_sale_preview_target.html" %}
+            {% else %}
+                {{ preview_target }}
+            {% endif %}
+        {% endif %}
+
+    </div>
+    <!--FIN content-right-->
+    <div class="clear"></div>
+{% endblock %}

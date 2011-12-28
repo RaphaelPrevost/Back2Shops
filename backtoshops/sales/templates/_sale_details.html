@@ -1,0 +1,43 @@
+{% load i18n %}
+{% load sub %}
+
+<!--ENSEMBLE EN DETAIL-->
+<div class="detail">
+    <h3>{{ sale.product.name }}</h3>
+    <em>{% trans "From" %} {{ sale.product.valid_from }} {% trans "To" %} {{ sale.product.valid_to }}</em>
+    <span>{% trans "Total" %} : </span>
+    <p>
+        {% trans "Base" %} : <strong>{{ total_stock }}</strong> |
+        {% trans "To Sell" %} : <strong>{{ total_stock }}</strong> |
+        {% trans "Sold" %} : <strong>{{ total_stock|sub:total_rest_stock }}</strong> |
+        {% trans "In Stock" %} : <strong>{{ total_rest_stock }}</strong>
+    </p>
+
+    <!--TABLE COLORIS-TAILLES-->
+        {% for table in stocks_table %}
+	     <div class="table">
+            {% if table.attribute %}<strong>{{ table.attribute }}</strong>{% endif %}
+            <table cellpadding="0" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th class="col1">{% trans "Attribute" %}</th>
+                        <th>{% trans "Base" %}</th>
+                        <th>{% trans "To Sell" %}</th>
+                        <th>{% trans "Sold" %}</th>
+                        <th>{% trans "In Stock" %}</th>
+                    </tr>
+                </thead>
+                {% for row in table.rows %}
+                    <tr>
+                        <td class="col1">{{ row.common_attribute }}</td>
+                        <td>{{ row.base }}</td>
+                        <td>{{ row.to_sell }}</td>
+                        <td>{{ row.sold }}</td>
+                        <td>{{ row.stock }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+	     <div class="clear"></div>
+	  </div>
+        {% endfor %}
+<!--FIN ENSEMBLE EN DETAIL-->
