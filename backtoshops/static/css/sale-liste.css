@@ -49,6 +49,8 @@
 	background-color: #f9f9f9;
 }
 
+.vente a.delete { float: right; color: red; }
+
 /*NOM, CATEGORIE, TYPE de Prod*/
 .vente h3, .vente h4 { 
 	line-height: 20px;
