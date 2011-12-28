@@ -12,9 +12,11 @@
         </div>
         <div id="preview-{{ wizard.form.brand.auto_id }}" class="marque">
         {% if brand_object %}
-            {% thumbnail brand_object.picture "205x70" as im %}
-                <img style='margin:{{ im|margin:"205x70" }}' src="{{ im.url }}" alt='{{ context.brand_object.name }}' width="{{ im.x }}" height="{{ im.y }}"/>
-            {% endthumbnail %}
+            {% ifnotequal brand_object.picture 'NULL' %}
+                {% thumbnail brand_object.picture "205x70" as im %}
+                    <img style='margin:{{ im|margin:"205x70" }}' src="{{ im.url }}" alt='{{ context.brand_object.name }}' width="{{ im.x }}" height="{{ im.y }}"/>
+                {% endthumbnail %}
+            {% endifnotequal %}
         {% endif %}
         {% if not context %}
             <img src="{{ STATIC_URL }}img/marque.gif" alt="Votre Marque" />

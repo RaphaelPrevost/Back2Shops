@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import patterns, url
 from django.contrib.auth.decorators import login_required
 from django.views.generic.base import TemplateView
-from sales.views import add_sale, BrandLogoView, edit_sale, ListSalesView, ProductBrandView, SaleDetails, SaleDetailsShop, SaleWizardNew, UploadProductPictureView
+from sales.views import add_sale, BrandLogoView, edit_sale, ListSalesView, DeleteSalesView, ProductBrandView, SaleDetails, SaleDetailsShop, SaleWizardNew, UploadProductPictureView
 from sales.forms import ProductForm, ShopForm, StockFormset, TargetForm
 import settings
 
@@ -39,4 +39,7 @@ urlpatterns = patterns(settings.SITE_NAME+'.sales',
     url(r'/details_shop/(?:(?P<sale_id>\d+)/)?$',
         SaleDetailsShop.as_view(),
         name='sale_details_shop'),
+    url(r'/delete/(?P<sale_id>\d+)',
+        login_required(DeleteSalesView.as_view(), login_url="bo_login"),
+        name='delete_sales'),
 )

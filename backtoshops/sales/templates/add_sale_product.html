@@ -178,15 +178,15 @@
                 namespace: 'product_pictures',
                 add: function(e, data) {
                     $.each(data.files, function(key, file) {
-                        var id = file.fileName.replace(/\W+/g, '-');
-                        var to_append = '<li id="pp_'+id+'">'+file.fileName+' <b></b></li>';
+                        var id = file.name.replace(/\W+/g, '-');
+                        var to_append = '<li id="pp_'+id+'">'+file.name+' <b></b></li>';
                         $("#pp_queue").append(to_append);
                     });
                     data.submit();
                 },
                 progress: function(e, data) {
                     $.each(data.files, function(key, file) {
-                        var id = file.fileName.replace(/\W+/g, '-');
+                        var id = file.name.replace(/\W+/g, '-');
                         var percentage = parseInt(data.loaded/data.total*100, 10);
                         $("#pp_"+id+" b").html(percentage+"%");
                     });
@@ -194,7 +194,7 @@
                 done: function(e, data) {
                     addProductPicture(data.result);
                     $.each(data.files, function(key, file) {
-                        var id = file.fileName.replace(/\W+/g, '-');
+                        var id = file.name.replace(/\W+/g, '-');
                         $("#pp_"+id).remove();
                     });
                 }
