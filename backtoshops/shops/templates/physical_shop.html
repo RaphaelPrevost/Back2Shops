@@ -94,6 +94,9 @@ Add a Shop
             {{ form.image.errors }}
             <div class="formrow">
                 {{ form.image.label_tag }}
+                {% if form.image.value %}
+                <p><img src='{{ media_url }}{{ form.image.value }}' /></p>
+                {% endif %}
                 {{ form.image }}
             </div>
             {{ form.description.errors }}

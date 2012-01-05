@@ -4,6 +4,8 @@ DEVELOPMENT_HOST='Nicholass-MacBook-Pro.local'
 
 if node() == DEVELOPMENT_HOST:
     from settings_local import *
+elif node() == 'debian': #tentatively using this as VPS debian dev setting
+    from settings_debian import *
 elif node(): # == PRODUCTION_HOST:
     from settings_production import *
 else:
