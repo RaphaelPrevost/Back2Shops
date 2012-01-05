@@ -174,7 +174,14 @@ Add a Shop
     var shops = new Array();
 
     function initMap(){
-        var latlng = new google.maps.LatLng(parseFloat($('#id_latitude').val()), parseFloat($('#id_longitude').val())); // new google.maps.LatLng(47, 2.352222);
+        // Set default latitude, longitude in France
+        var latitude = parseFloat($("#{{ form.latitude.auto_id }}").val());
+        if (!latitude) latitude = 47;
+        var longitude = parseFloat($("#{{ form.longitude.auto_id }}").val());
+        if (!longitude) longitude = 2.352222;
+        
+        var latlng = new google.maps.LatLng(latitude, longitude); // new google.maps.LatLng(47, 2.352222);
+
         var myOptions = {
             zoom: 5,
             center: latlng,
@@ -234,6 +241,10 @@ Add a Shop
                     $("#{{ form.latitude.auto_id }}").val(results[0].geometry.location.lat());
                     $("#{{ form.longitude.auto_id }}").val(results[0].geometry.location.lng());
                     $("#localization_infos").html('{% trans "Localization succeded" %}');
+                    var latitude = parseFloat($("#{{ form.latitude.auto_id }}").val());
+                    var longitude = parseFloat($("#{{ form.longitude.auto_id }}").val());
+                    map.setCenter(new google.maps.LatLng(latitude, longitude));
+
                 } else {
                     $("#localization_infos").html('{% trans "Localization found" %} '+results.length+' {% trans "results" %}');
                 }
