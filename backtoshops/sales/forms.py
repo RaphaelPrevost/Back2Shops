@@ -143,7 +143,16 @@ class StockForm(forms.Form):
     brand_attribute = forms.IntegerField(required=False)
     common_attribute = forms.IntegerField()
     shop = forms.IntegerField(required=False)
-    stock = forms.IntegerField(label=_("Stock"), required=False)
+    #stock = forms.IntegerField(label=_("Stock"), required=False)
+    stock = forms.IntegerField(label=_("Stock"), error_messages = {'required': _(u'This field is required.')})
+    def clean_stock(self):
+        data = self.cleaned_data['stock']
+        try:
+            int_data = int(data)
+        except:
+            raise forms.ValidationError(_('Invalid Stock'))
+        return int_data
+
 StockFormset = formset_factory(StockForm, can_delete=True, extra=0)
 
 class StockStepForm(forms.Form):
@@ -161,6 +170,12 @@ class StockStepForm(forms.Form):
             self.barcodes = BarcodeFormset(data=data, prefix="barcodes", initial=initial.get('barcodes_initials', None))
         else:
             self.barcodes = BarcodeFormset(data=data, prefix="barcodes")
+            
+    def clean(self):
+        if self.stocks.errors:
+            for form in self.stocks.forms:
+                if form.errors:
+                    raise forms.ValidationError(form.errors)
 
 class TargetForm(forms.Form):
     gender = forms.ChoiceField(choices=GENDERS, label=_("Gender"))
