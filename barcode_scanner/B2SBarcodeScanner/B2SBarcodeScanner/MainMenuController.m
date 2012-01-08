@@ -7,7 +7,9 @@
 //
 
 #import "MainMenuController.h"
+#import "LoginViewController.h"
 #import "AFJSONRequestOperation.h"
+#import "SVProgressHUD.h"
 
 @implementation MainMenuController
 
@@ -36,7 +38,15 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
+    
+    self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithTitle:@"Logout" style:UIBarButtonItemStylePlain target:self action:@selector(logout)] autorelease];
+    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if ([[defaults valueForKey:@"logged"] boolValue] == NO) {
+        LoginViewController *loginViewController = [[LoginViewController alloc] initWithNibName:@"LoginViewController" bundle:nil];
+        [self presentModalViewController:loginViewController animated:NO];
+    }
+    
     self.title = @"Barcode Scanner";
     self.barReaderView.readerDelegate = self;
 }
@@ -73,6 +83,16 @@
     [super dealloc];
 }
 
+- (void)logout
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setBool:NO forKey:@"logged"];
+    [defaults synchronize];
+    
+    LoginViewController *loginViewController = [[LoginViewController alloc] initWithNibName:@"LoginViewController" bundle:nil];
+    [self presentModalViewController:loginViewController animated:YES];
+}
+
 - (void)presentActionSheet:(NSString *)code
 {
     UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:[@"Barcode " stringByAppendingString:code]
@@ -84,24 +104,52 @@
     [actionSheet release];
 }
 
-- (void)requestWithType:(NSInteger)actionType barcode:code
+- (void)requestWithType:(NSInteger)actionType barcode:(NSString *)code
 {
-
+    if ([self.shopLabel.text isEqualToString:@"(Scan to change)"]) {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Please scan Shop ID first." delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
+        [alert show];
+        [alert release];
+        
+        return;
+    }
+    
+    [SVProgressHUD showInView:self.view];
+    
     NSURL *url;
     
     if (actionType == ActionTypeAdd) {
-        url = [NSURL URLWithString:[API_HOST stringByAppendingString:@""]];
+        url = [NSURL URLWithString:[API_HOST stringByAppendingString:@"/webservice/1.0/private/stock/inc"]];
     } else if (actionType == ActionTypeRemove) {
-        url = [NSURL URLWithString:[API_HOST stringByAppendingString:@""]];
+        url = [NSURL URLWithString:[API_HOST stringByAppendingString:@"/webservice/1.0/private/stock/inc"]];
     } else {
-        url = [NSURL URLWithString:[API_HOST stringByAppendingString:@""]];
+        url = [NSURL URLWithString:[API_HOST stringByAppendingString:@"/webservice/1.0/private/stock/ret"]];
     }
     
+    NSString *body = [NSString stringWithFormat:@"item=%@&shop=%@", code, self.shopLabel.text];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setHTTPBody:[body dataUsingEncoding:NSUTF8StringEncoding]];
+    [request setHTTPMethod:@"POST"];
+    
     AFJSONRequestOperation *operation = [AFJSONRequestOperation JSONRequestOperationWithRequest:request success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
-        
+        [SVProgressHUD dismiss];
+        if ([[JSON valueForKey:@"success"] boolValue]) {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Notice" message:[NSString stringWithFormat:@"In Stock: %d", [[JSON valueForKey:@"total_stock"] intValue]] delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
+            [alert show];
+            [alert release];
+        } else {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:[JSON valueForKey:@"error"] delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
+            [alert show];
+            [alert release];
+        }
     } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
-        
+        NSLog(@"%@\n%@", error, JSON);
+        if (response.statusCode == 403) {
+            [SVProgressHUD dismissWithError:@"Login required."];
+            [self performSelector:@selector(logout)];
+        } else {
+            [SVProgressHUD dismissWithError:@"Error occurred."];
+        }
     }];
     
     NSOperationQueue *queue = [[[NSOperationQueue alloc] init] autorelease];
