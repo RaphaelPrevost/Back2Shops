@@ -5,4 +5,5 @@ backtoshops/media
 .idea
 backtoshops/.idea
 backtoshops/logs/*
+*.a
 
