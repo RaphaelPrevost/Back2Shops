@@ -19,8 +19,8 @@
         <name>{{ object.mother_brand.name }}</name>
         <logo url="{% if object.mother_brand.logo %}{{ object.mother_brand.logo.url }}{% endif %}" />
     </seller>
-    <price>{{ object.product.normal_price|floatformat }}</price>
-	<discount type="{% if sale.product.discount_type == 'percentage' %}ratio{% else %}fixed{% endif %}" amount="{{ sale.product.discount|floatformat }}" price="{{ sale.product.discount_price|floatformat }}" />
+    <price currency="{{object.product.currency}}">{{ object.product.normal_price|floatformat }}</price>
+	<discount type="{% if sale.product.discount_type == 'percentage' %}ratio{% else %}fixed{% endif %}" amount="{{ sale.product.discount|floatformat }}" currency="{{object.product.currency}}" price="{{ sale.product.discount_price|floatformat }}" />
 
 	{% for variant in object.product.brand_attributes.all %}
 		{% with preview=variant|get_preview:object.product %}

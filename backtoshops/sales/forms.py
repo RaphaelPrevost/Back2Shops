@@ -7,7 +7,7 @@ from django.utils.encoding import force_unicode
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from sales.models import DISCOUNT_TYPE, ProductBrand, ProductType, ProductCategory, GENDERS
+from sales.models import DISCOUNT_TYPE, ProductBrand, ProductType, ProductCategory, GENDERS, ProductCurrency
 from shops.models import Shop
 
 
@@ -99,6 +99,7 @@ class ProductForm(forms.Form):
     name = forms.CharField(show_hidden_initial=True)
     description = forms.CharField(widget=forms.Textarea())
     normal_price = forms.FloatField(widget=forms.TextInput(attrs={'class': 'inputS'}))
+    currency = forms.ModelChoiceField(queryset=ProductCurrency.objects.all())
     discount_price = forms.FloatField(widget=forms.TextInput(attrs={'class': 'inputXS', 'style': 'display: none;'}))
     discount_type = forms.ChoiceField(choices=DISCOUNT_TYPE)
     discount = forms.FloatField(widget=forms.TextInput(attrs={'class': 'inputXS'}))

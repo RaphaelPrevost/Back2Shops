@@ -50,7 +50,7 @@
         {{ wizard.form.normal_price.errors }}
         <div class="formrow">
             <label for="{{ wizard.form.normal_price.auto_id }}">{{ wizard.form.normal_price.label }}</label>
-            {{ wizard.form.normal_price }}<span>&euro;</span>
+            {{ wizard.form.normal_price }}<span>{{wizard.form.currency}}</span>
         </div>
         {{ wizard.form.discount.errors }}
         {{ wizard.form.discount_type.errors }}
