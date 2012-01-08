@@ -18,7 +18,7 @@ from attributes.models import BrandAttribute, BrandAttributePreview, CommonAttri
 from barcodes.models import Barcode
 from fouillis.views import BOLoginRequiredMixin
 from sales.forms import ShopForm, ProductBrandFormModel, ProductForm, StockStepForm, TargetForm
-from sales.models import Sale, Product, ProductBrand, ProductPicture, STOCK_TYPE_DETAILED, STOCK_TYPE_GLOBAL
+from sales.models import Sale, Product, ProductBrand, ProductPicture, STOCK_TYPE_DETAILED, STOCK_TYPE_GLOBAL, ProductCurrency
 from shops.models import Shop
 from stocks.models import ProductStock
 
@@ -158,8 +158,16 @@ def add_sale(*args, **kwargs):
         (SaleWizardNew.STEP_STOCKS, StockStepForm),
         (SaleWizardNew.STEP_TARGET, TargetForm)
     ]
+    
+    initial_product = {
+        'currency': ProductCurrency.objects.get(is_default=True).id,
+    }
+    
+    initials = {
+        SaleWizardNew.STEP_PRODUCT: initial_product,
+    }
 
-    sale_wizard = login_required(SaleWizardNew.as_view(forms, url_name="add_sale",
+    sale_wizard = login_required(SaleWizardNew.as_view(forms, initial_dict = initials,url_name="add_sale",
                                                        done_step_name="list_sales"),
                                  login_url="login")
     return sale_wizard(*args, **kwargs)
@@ -210,6 +218,7 @@ def edit_sale(*args, **kwargs):
         'valid_from': sale.product.valid_from,
         'valid_to': sale.product.valid_to,
         'normal_price': sale.product.normal_price,
+        'currency': sale.product.currency,
         'discount': sale.product.discount,
         'discount_price': sale.product.discount_price,
         'discount_type': sale.product.discount_type,
@@ -326,6 +335,7 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
         product.valid_from = product_form['valid_from']
         product.valid_to = product_form['valid_to']
         product.normal_price = product_form['normal_price']
+        product.currency = product_form['currency']
         product.discount = product_form['discount']
         product.discount_price = product_form['discount_price']
         product.discount_type = product_form['discount_type']

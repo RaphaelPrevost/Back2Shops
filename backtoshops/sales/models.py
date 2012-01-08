@@ -36,6 +36,7 @@ class Product(models.Model):
     category = models.ForeignKey("ProductCategory", related_name="products", blank=False)
     type = models.ForeignKey("ProductType", related_name="products", blank=False)
     brand = models.ForeignKey("ProductBrand", related_name="products")
+    currency = models.ForeignKey("ProductCurrency",blank=False)
     name = models.CharField(max_length=50)
     description = models.TextField(max_length=500)
     normal_price = models.FloatField()
@@ -48,7 +49,20 @@ class Product(models.Model):
 
     def __unicode__(self):
         return self.name
-
+    
+class ProductCurrency(models.Model):
+    code = models.CharField(max_length=3)
+    description = models.CharField(max_length=200)
+    is_default = models.BooleanField()
+    
+    def __unicode__(self):
+        return self.code
+    
+    def save(self,*args, **kwargs):
+        if self.is_default == True:
+            ProductCurrency.objects.update(is_default=False)
+        super(ProductCurrency,self).save(*args, **kwargs)
+    
 class ProductPicture(models.Model):
     product = models.ForeignKey("Product", related_name="pictures", null=True, blank=True)
     is_brand_attribute = models.BooleanField(default=False)
