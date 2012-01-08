@@ -1,9 +1,0 @@
-.DS_Store
-*.pyc
-backtoshops/media/cache
-backtoshops/media
-.idea
-backtoshops/.idea
-backtoshops/logs/*
-*.a
-
