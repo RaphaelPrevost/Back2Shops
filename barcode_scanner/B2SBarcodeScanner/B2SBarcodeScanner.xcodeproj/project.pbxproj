@@ -17,8 +17,8 @@
 		E1864D1E14ADF58E00487B84 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E1864D1C14ADF58E00487B84 /* InfoPlist.strings */; };
 		E1864D2014ADF58E00487B84 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E1864D1F14ADF58E00487B84 /* main.m */; };
 		E1864D2414ADF58E00487B84 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E1864D2314ADF58E00487B84 /* AppDelegate.m */; };
-		E1864D2714ADF58E00487B84 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E1864D2614ADF58E00487B84 /* ViewController.m */; };
-		E1864D2A14ADF58E00487B84 /* ViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E1864D2814ADF58E00487B84 /* ViewController.xib */; };
+		E1864D2714ADF58E00487B84 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E1864D2614ADF58E00487B84 /* LoginViewController.m */; };
+		E1864D2A14ADF58E00487B84 /* LoginViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E1864D2814ADF58E00487B84 /* LoginViewController.xib */; };
 		E1864D5914ADF5CE00487B84 /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = E1864D3314ADF5CE00487B84 /* AFHTTPClient.m */; };
 		E1864D5A14ADF5CE00487B84 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = E1864D3514ADF5CE00487B84 /* AFHTTPRequestOperation.m */; };
 		E1864D5B14ADF5CE00487B84 /* AFImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = E1864D3714ADF5CE00487B84 /* AFImageCache.m */; };
@@ -51,6 +51,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E132B54814B9E05D005158CC /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		E183202D14AE1D0A00E74BD4 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		E183203014AE1D1300E74BD4 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		E183203214AE1D2500E74BD4 /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = usr/lib/libiconv.dylib; sourceTree = SDKROOT; };
@@ -65,9 +66,9 @@
 		E1864D2114ADF58E00487B84 /* B2SBarcodeScanner-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "B2SBarcodeScanner-Prefix.pch"; sourceTree = "<group>"; };
 		E1864D2214ADF58E00487B84 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		E1864D2314ADF58E00487B84 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		E1864D2514ADF58E00487B84 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		E1864D2614ADF58E00487B84 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		E1864D2914ADF58E00487B84 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ViewController.xib; sourceTree = "<group>"; };
+		E1864D2514ADF58E00487B84 /* LoginViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoginViewController.h; sourceTree = "<group>"; };
+		E1864D2614ADF58E00487B84 /* LoginViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LoginViewController.m; sourceTree = "<group>"; };
+		E1864D2914ADF58E00487B84 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/LoginViewController.xib; sourceTree = "<group>"; };
 		E1864D3214ADF5CE00487B84 /* AFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPClient.h; sourceTree = "<group>"; };
 		E1864D3314ADF5CE00487B84 /* AFHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPClient.m; sourceTree = "<group>"; };
 		E1864D3414ADF5CE00487B84 /* AFHTTPRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPRequestOperation.h; sourceTree = "<group>"; };
@@ -192,11 +193,12 @@
 		E1864D1914ADF58E00487B84 /* B2SBarcodeScanner */ = {
 			isa = PBXGroup;
 			children = (
+				E132B54814B9E05D005158CC /* Constants.h */,
 				E1864D2214ADF58E00487B84 /* AppDelegate.h */,
 				E1864D2314ADF58E00487B84 /* AppDelegate.m */,
-				E1864D2514ADF58E00487B84 /* ViewController.h */,
-				E1864D2614ADF58E00487B84 /* ViewController.m */,
-				E1864D2814ADF58E00487B84 /* ViewController.xib */,
+				E1864D2514ADF58E00487B84 /* LoginViewController.h */,
+				E1864D2614ADF58E00487B84 /* LoginViewController.m */,
+				E1864D2814ADF58E00487B84 /* LoginViewController.xib */,
 				E1864D7014ADF78C00487B84 /* MainMenuController.h */,
 				E1864D7114ADF78C00487B84 /* MainMenuController.m */,
 				E1864D7214ADF78C00487B84 /* MainMenuController.xib */,
@@ -400,7 +402,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E1864D1E14ADF58E00487B84 /* InfoPlist.strings in Resources */,
-				E1864D2A14ADF58E00487B84 /* ViewController.xib in Resources */,
+				E1864D2A14ADF58E00487B84 /* LoginViewController.xib in Resources */,
 				E1864D6314ADF5CE00487B84 /* blackArrow.png in Resources */,
 				E1864D6414ADF5CE00487B84 /* blackArrow@2x.png in Resources */,
 				E1864D6514ADF5CE00487B84 /* blueArrow.png in Resources */,
@@ -425,7 +427,7 @@
 			files = (
 				E1864D2014ADF58E00487B84 /* main.m in Sources */,
 				E1864D2414ADF58E00487B84 /* AppDelegate.m in Sources */,
-				E1864D2714ADF58E00487B84 /* ViewController.m in Sources */,
+				E1864D2714ADF58E00487B84 /* LoginViewController.m in Sources */,
 				E1864D5914ADF5CE00487B84 /* AFHTTPClient.m in Sources */,
 				E1864D5A14ADF5CE00487B84 /* AFHTTPRequestOperation.m in Sources */,
 				E1864D5B14ADF5CE00487B84 /* AFImageCache.m in Sources */,
@@ -455,12 +457,12 @@
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
-		E1864D2814ADF58E00487B84 /* ViewController.xib */ = {
+		E1864D2814ADF58E00487B84 /* LoginViewController.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
 				E1864D2914ADF58E00487B84 /* en */,
 			);
-			name = ViewController.xib;
+			name = LoginViewController.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -485,7 +487,7 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -502,7 +504,7 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
@@ -515,6 +517,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "B2SBarcodeScanner/B2SBarcodeScanner-Prefix.pch";
 				INFOPLIST_FILE = "B2SBarcodeScanner/B2SBarcodeScanner-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/Libraries/ZBarSDK\"",
@@ -530,6 +533,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "B2SBarcodeScanner/B2SBarcodeScanner-Prefix.pch";
 				INFOPLIST_FILE = "B2SBarcodeScanner/B2SBarcodeScanner-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/Libraries/ZBarSDK\"",

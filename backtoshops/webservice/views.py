@@ -1,8 +1,15 @@
+import json
+import base64
 from datetime import date
+from django.contrib.auth import authenticate as _authenticate
+from django.http import HttpResponse, HttpResponseForbidden
 from django.views.generic import View, ListView, DetailView
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404
 from accounts.models import Brand
 from sales.models import Sale, ProductType, ProductCategory
 from shops.models import Shop
+from barcodes.models import Barcode
 
 class BaseWebservice(View):
     def render_to_response(self, context, **response_kwargs):
@@ -92,3 +99,57 @@ class ShopsInfoView(BaseWebservice, DetailView):
 class TypesInfoView(BaseWebservice, DetailView):
     template_name = "types_info.xml"
     model = ProductType
+
+def is_authenticated(request):
+	token = request.META['HTTP_AUTHORIZATION'].replace('Basic ', '')
+	username, password = base64.decodestring(token).split(':')
+	user = _authenticate(username=username, password=password)
+	return (user is not None)
+	
+@csrf_exempt
+def authenticate(request):
+	if is_authenticated(request):
+		return HttpResponse(json.dumps({'success': True}), mimetype='text/json')
+	else:
+		return HttpResponseForbidden()
+
+def get_sale(shop, item):
+	try:
+		shop = Shop.objects.get(upc=shop)
+		item = Barcode.objects.get
+		return Barcode.objects.get(upc=code)
+	except Barcode.DoesNotExist:
+		return None
+
+@csrf_exempt
+def barcode_increment(request):
+	if not is_authenticated(request):
+		return HttpResponseForbidden()
+	
+	barcode = __get_barcode(request.REQUEST['barcode'])
+	if barcode:
+		barcode.inc()
+		return HttpResponse(json.dumps({'success': True, 'total_stock': barcode.sale.total_stock}), mimetype='text/json')	
+	return HttpResponse(json.dumps({'success': False, 'error': 'Barcode Error'}), mimetype='text/json')
+   
+@csrf_exempt
+def barcode_decrement(request):
+	if not is_authenticated(request):
+		return HttpResponseForbidden()
+		
+	barcode = __get_barcode(request.REQUEST['barcode'])
+	if barcode:
+		barcode.dec()
+		return HttpResponse(json.dumps({'success': True, 'total_stock': barcode.sale.total_stock}), mimetype='text/json')	
+	return HttpResponse(json.dumps({'success': False, 'error': 'Barcode Error'}), mimetype='text/json')
+
+@csrf_exempt
+def barcode_returned(request):
+	if not is_authenticated(request):
+		return HttpResponseForbidden()
+		
+	barcode = __get_barcode(request.REQUEST['barcode'])
+	if barcode:
+		barcode.ret()
+		return HttpResponse(json.dumps({'success': True, 'total_stock': barcode.sale.total_stock}), mimetype='text/json')
+	return HttpResponse(json.dumps({'success': False, 'error': 'Barcode Error'}), mimetype='text/json')

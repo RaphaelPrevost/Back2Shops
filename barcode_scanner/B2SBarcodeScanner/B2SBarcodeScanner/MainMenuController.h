@@ -8,8 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-#define API_HOST @"http://localhost:8000"
-
 enum ActionType {
     ActionTypeAdd = 1,
     ActionTypeRemove = 2,

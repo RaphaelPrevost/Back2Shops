@@ -31,6 +31,9 @@ class Sale(models.Model):
     gender = models.CharField(max_length=2, choices=GENDERS, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
 
+    def __unicode__(self):
+        return '%d - %d' % (self.id, self.total_stock)
+
 class Product(models.Model):
     sale = models.OneToOneField("Sale", blank=True, null=True, on_delete=models.CASCADE)
     category = models.ForeignKey("ProductCategory", related_name="products", blank=False)
