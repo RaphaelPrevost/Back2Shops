@@ -61,7 +61,4 @@ class DeleteShopView(BaseShopView, DeleteView):
         return HttpResponse(content=json.dumps({"shop_pk": self.kwargs.get('pk', None)}),
                             mimetype="application/json")
 
-def goto_latest(request):
-    latest = Shop.objects.latest()
-    HttpResponseRedirect(reverse('edit_shop',args=[latest.id]))
     

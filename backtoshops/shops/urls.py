@@ -1,7 +1,7 @@
 import settings
 from django.conf.urls.defaults import patterns, url
 from django.core.urlresolvers import reverse
-from shops.views import ShopCoordinates, CreateShopView, DeleteShopView, EditShopView, goto_latest
+from shops.views import ShopCoordinates, CreateShopView, DeleteShopView, EditShopView
 
 urlpatterns = patterns(settings.SITE_NAME+'.shops',
     url(r'/coordinates', ShopCoordinates.as_view(), name='shop_coordinates'),
