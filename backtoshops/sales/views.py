@@ -17,7 +17,7 @@ from sorl.thumbnail import get_thumbnail
 from attributes.models import BrandAttribute, BrandAttributePreview, CommonAttribute
 from barcodes.models import Barcode
 from fouillis.views import BOLoginRequiredMixin
-from sales.forms import ShopForm, ProductBrandFormModel, ProductForm, StockStepForm, TargetForm
+from sales.forms import ShopForm, ProductBrandFormModel, ProductForm, StockStepForm, TargetForm,ListSalesForm
 from sales.models import Sale, Product, ProductBrand, ProductPicture, STOCK_TYPE_DETAILED, STOCK_TYPE_GLOBAL, ProductCurrency
 from shops.models import Shop
 from stocks.models import ProductStock
@@ -68,8 +68,11 @@ class BrandLogoView(BOLoginRequiredMixin, View, TemplateResponseMixin):
 class ListSalesView(BOLoginRequiredMixin, View, TemplateResponseMixin):
     template_name = 'list.html'
     list_current = True
-
-    def get(self, request, sales_type=None):
+    
+    def set_sales_list(self,request,sales_type=None):
+        """
+        this is just internal method to make the self.sales queryset.
+        """
         if sales_type == "old":
             self.sales = Sale.objects.filter(mother_brand=request.user.get_profile().work_for,
                                              product__valid_to__lt=date.today())
@@ -78,6 +81,23 @@ class ListSalesView(BOLoginRequiredMixin, View, TemplateResponseMixin):
             self.sales = Sale.objects.filter(mother_brand=request.user.get_profile().work_for,
                                              product__valid_to__gte=date.today())
             self.page_title = _("Current Sales")
+        #put extra fields
+        self.sales = self.sales.extra(select={'total_sold_stock':'total_stock-total_rest_stock'})
+        return
+
+    def get(self, request, sales_type=None):
+        self.set_sales_list(request,sales_type)
+        self.form = ListSalesForm()
+        print self.__dict__
+        return self.render_to_response(self.__dict__)
+    
+    def post(self, request, sales_type=None):
+        self.set_sales_list(request, sales_type)
+        self.form = ListSalesForm(request.POST)
+        if self.form.is_valid():
+            order_by1 = self.form.cleaned_data['order_by1']
+            order_by2 = self.form.cleaned_data['order_by2']
+            self.sales = self.sales.extra(order_by=[order_by1,order_by2])
         return self.render_to_response(self.__dict__)
 
 class DeleteSalesView(BOLoginRequiredMixin, View):

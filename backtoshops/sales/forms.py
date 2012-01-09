@@ -1,3 +1,4 @@
+# coding:UTF-8
 from datetime import date
 from itertools import chain
 from django import forms
@@ -185,3 +186,20 @@ class ProductBrandFormModel(forms.ModelForm):
     class Meta:
         model = ProductBrand
         exclude = ("seller",)
+
+class ListSalesForm(forms.Form):
+    ORDER_BY_ITEMS = (
+                      ('product__category',_('Catégorie de produit')),
+                      ('product__type',_('Type de produit')),
+                      ('product__name',_('Nom de produit')),
+                      ('total_stock',_('Produits en stock')),
+                      ('total_rest_stock',_('Produits en vente')),
+                      ('total_sold_stock',_('Produits vendu')),
+                      ('product__normal_price',_('Prix')),
+                      ('product__discount_price',_('Réduction')),
+                      ('product__valid_from',_('Date de début')),
+                      ('product__valid_to',_('Date de fin')),
+                     )
+    order_by1 = forms.ChoiceField(required=False,choices=ORDER_BY_ITEMS)
+    order_by2 = forms.ChoiceField(required=False,choices=ORDER_BY_ITEMS)
+    

@@ -26,36 +26,16 @@
     </div>
 
     <!--FORM-->
-    <form id="main_form" method="post" action="#">
+    <form id="main_form" method="post">
+    {% csrf_token %}
         <fieldset>
             <!--SELECT TRIER PAR-->
             <p id="triVente">
                 <label for="trie01">Trier par :</label>
-                <select id="trie01">
-                    <option value="categorie">Catégorie de produit</option>
-                    <option value="type">Type de produit</option>
-                    <option value="nom">Nom de produit</option>
-                    <option value="stock">Produits en stock</option>
-                    <option value="vente">Produits en vente</option>
-                    <option value="vendu">Produits vendu</option>
-                    <option value="prix">Prix</option>
-                    <option value="reduction">Réduction</option>
-                    <option value="date-debut">Date de début</option>
-                    <option value="date-fin">Date de fin</option>
-                </select>
+                {{ form.order_by1 }}
                 <span>+</span>
-                <select id="trie02">
-                    <option value="categorie">Catégorie de produit</option>
-                    <option value="type">Type de produit</option>
-                    <option value="nom">Nom de produit</option>
-                    <option value="stock">Produits en stock</option>
-                    <option value="vente">Produits en vente</option>
-                    <option value="vendu">Produits vendu</option>
-                    <option value="prix">Prix</option>
-                    <option value="reduction">Réduction</option>
-                    <option value="date-debut">Date de début</option>
-                    <option value="date-fin">Date de fin</option>
-                </select>
+                {{ form.order_by2 }}
+                <input type="submit" value="{% trans "sort" %}" />
             </p>
             <!--FIN SELECT TRIER PAR-->
 
