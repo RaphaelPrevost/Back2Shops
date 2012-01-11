@@ -106,22 +106,21 @@ class TypesInfoView(BaseWebservice, DetailView):
 
 def basic_auth(func):
 	"""Decorator for basic auth"""
-	def wrapper(*args, **kwargs):
-		# token = request.META['HTTP_AUTHORIZATION'].replace('Basic ', '')
-		# username, password = base64.decodestring(token).split(':')
-		# user = _authenticate(username=username, password=password)
-		# if user is not None:
-		# 	return func(*args, **kwargs)
-		#if is_authenticated(args[0]):
-		return func(*args, **kwargs)
-		#return HttpResponseForbidden()
+	def wrapper(request, *args, **kwargs):
+		try:
+			if is_authenticated(request):
+				return func(request, *args, **kwargs)
+		except Exception, ex:
+			print ex
+		return HttpResponseForbidden()
 	return wrapper
 	
 def is_authenticated(request):
 	token = request.META['HTTP_AUTHORIZATION'].replace('Basic ', '')
 	username, password = base64.decodestring(token).split(':')
 	user = _authenticate(username=username, password=password)
-	return (user is not None)
+	shop = Shop.objects.get(upc=request.REQUEST['shop'])
+	return (shop.mother_brand.employee.filter(user__id=user.id).count() > 0)
 
 @csrf_exempt
 def authenticate(request):
