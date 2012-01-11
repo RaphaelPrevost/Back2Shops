@@ -100,12 +100,29 @@ class TypesInfoView(BaseWebservice, DetailView):
     template_name = "types_info.xml"
     model = ProductType
 
+#
+# APIs for managing shop inventory
+#
+
+def basic_auth(func):
+	"""Decorator for basic auth"""
+	def wrapper(*args, **kwargs):
+		# token = request.META['HTTP_AUTHORIZATION'].replace('Basic ', '')
+		# username, password = base64.decodestring(token).split(':')
+		# user = _authenticate(username=username, password=password)
+		# if user is not None:
+		# 	return func(*args, **kwargs)
+		#if is_authenticated(args[0]):
+		return func(*args, **kwargs)
+		#return HttpResponseForbidden()
+	return wrapper
+	
 def is_authenticated(request):
 	token = request.META['HTTP_AUTHORIZATION'].replace('Basic ', '')
 	username, password = base64.decodestring(token).split(':')
 	user = _authenticate(username=username, password=password)
 	return (user is not None)
-	
+
 @csrf_exempt
 def authenticate(request):
 	if is_authenticated(request):
@@ -116,40 +133,40 @@ def authenticate(request):
 def get_sale(shop, item):
 	try:
 		shop = Shop.objects.get(upc=shop)
-		item = Barcode.objects.get
-		return Barcode.objects.get(upc=code)
-	except Barcode.DoesNotExist:
+		barcodes = Barcode.objects.filter(upc=item)
+		sales = Sale.objects.filter(barcodes__in=barcodes, shops__in=[shop])
+		if sales.count() > 0:
+			return sales[0]
+		return None
+	except Exception, ex:
 		return None
 
+@basic_auth
 @csrf_exempt
 def barcode_increment(request):
-	if not is_authenticated(request):
-		return HttpResponseForbidden()
-	
-	barcode = __get_barcode(request.REQUEST['barcode'])
-	if barcode:
-		barcode.inc()
-		return HttpResponse(json.dumps({'success': True, 'total_stock': barcode.sale.total_stock}), mimetype='text/json')	
-	return HttpResponse(json.dumps({'success': False, 'error': 'Barcode Error'}), mimetype='text/json')
-   
-@csrf_exempt
-def barcode_decrement(request):
-	if not is_authenticated(request):
-		return HttpResponseForbidden()
-		
-	barcode = __get_barcode(request.REQUEST['barcode'])
-	if barcode:
-		barcode.dec()
-		return HttpResponse(json.dumps({'success': True, 'total_stock': barcode.sale.total_stock}), mimetype='text/json')	
+	sale = get_sale(request.REQUEST['shop'], request.REQUEST['item'])
+	if sale is not None:
+		sale.total_stock += 1
+		sale.save()
+		return HttpResponse(json.dumps({'success': True, 'total_stock': sale.total_stock}), mimetype='text/json')
 	return HttpResponse(json.dumps({'success': False, 'error': 'Barcode Error'}), mimetype='text/json')
 
+@basic_auth
 @csrf_exempt
-def barcode_returned(request):
-	if not is_authenticated(request):
-		return HttpResponseForbidden()
-		
-	barcode = __get_barcode(request.REQUEST['barcode'])
-	if barcode:
-		barcode.ret()
-		return HttpResponse(json.dumps({'success': True, 'total_stock': barcode.sale.total_stock}), mimetype='text/json')
+def barcode_decrement(request):
+	sale = get_sale(request.REQUEST['shop'], request.REQUEST['item'])
+	if sale is not None:
+		sale.total_stock -= 1
+		if sale.total_stock > 0:
+			sale.save()
+		return HttpResponse(json.dumps({'success': True, 'total_stock': sale.total_stock}), mimetype='text/json')	
+	return HttpResponse(json.dumps({'success': False, 'error': 'Barcode Error'}), mimetype='text/json')
+
+@basic_auth
+@csrf_exempt
+def barcode_returned(request):		
+	sale = get_sale(request.REQUEST['shop'], request.REQUEST['item'])
+	if sale is not None:
+		sale.total_stock += 1
+		return HttpResponse(json.dumps({'success': True, 'total_stock': sale.total_stock}), mimetype='text/json')
 	return HttpResponse(json.dumps({'success': False, 'error': 'Barcode Error'}), mimetype='text/json')
