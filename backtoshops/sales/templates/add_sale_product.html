@@ -36,6 +36,7 @@
         <div class="formrow">
             <label for="{{ wizard.form.brand.auto_id }}">{{ wizard.form.brand.label }}</label>
             {{ wizard.form.brand }}   or <a href="#" id="add_new_brand">Add new brand</a>
+            <span id="brand_new_error" style='display:none'></span>
         </div>
         {{ wizard.form.name.errors }}
         <div class="formrow">
@@ -369,9 +370,20 @@
 
 
             $("#add_new_brand_form").ajaxForm({
-                target: $("#{{ wizard.form.brand.auto_id }}"),
-                success: function() {
+                //target: $("#{{ wizard.form.brand.auto_id }}"),
+                success: function(responseText) {
+                	if(responseText.substring(0,5)=="ERROR")
+                	{
+                		$("#brand_new_error").html(responseText)
+                		$("#brand_new_error").show();
+                	}
+                	else
+                	{
+						$("#{{ wizard.form.brand.auto_id }}").html(responseText)
+						$("#brand_new_error").hide();
+					}
                     $("#add_new_brand_dialog").dialog("close");
+                
                 }
             });
 

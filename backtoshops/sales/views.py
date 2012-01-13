@@ -44,13 +44,16 @@ class ProductBrandView(BOLoginRequiredMixin, View, TemplateResponseMixin):
     template_name = "_ajax_brands.html"
 
     def post(self, request):
-        form = ProductBrandFormModel(request.POST, request.FILES)
-        if form.is_valid():
-            self.new_brand = form.save(commit=False)
-            self.new_brand.seller = request.user.get_profile().work_for
-            self.new_brand.save()
-            messages.success(request, _("Brand has been added"))
-            self.brands = ProductBrand.objects.filter(seller=request.user.get_profile().work_for)
+        try:
+            form = ProductBrandFormModel(request.POST, request.FILES)
+            if form.is_valid():
+                self.new_brand = form.save(commit=False)
+                self.new_brand.seller = request.user.get_profile().work_for
+                self.new_brand.save()
+                messages.success(request, _("Brand has been added"))
+                self.brands = ProductBrand.objects.filter(seller=request.user.get_profile().work_for)
+        except Exception as e:
+            self.errors = e
         return self.render_to_response(self.__dict__)
 
 class BrandLogoView(BOLoginRequiredMixin, View, TemplateResponseMixin):
