@@ -1,3 +1,6 @@
 {% for i in brands %}
     <option value="{{ forloop.counter }}" {% if i.name == new_brand.name %}selected="selected"{% endif %}>{{ i.name }}</option>
 {% endfor %}
+{% if errors %}
+ERROR{{ errors }}
+{% endif %}
