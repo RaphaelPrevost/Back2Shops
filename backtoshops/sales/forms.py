@@ -188,7 +188,7 @@ class ProductBrandFormModel(forms.ModelForm):
         exclude = ("seller",)
 
 class ListSalesForm(forms.Form):
-    ORDER_BY_ITEMS = (
+    ORDER_BY_ITEMS = {
                       ('product__category',_('Categorie de produit')),
                       ('product__type',_('Type de produit')),
                       ('product__name',_('Nom de produit')),
@@ -199,7 +199,7 @@ class ListSalesForm(forms.Form):
                       ('product__discount_price',_('Reduction')),
                       ('product__valid_from',_('Date de debut')),
                       ('product__valid_to',_('Date de fin')),
-                     )
+                     }
     order_by1 = forms.ChoiceField(required=False,choices=ORDER_BY_ITEMS)
     order_by2 = forms.ChoiceField(required=False,choices=ORDER_BY_ITEMS)
     
