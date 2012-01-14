@@ -21,7 +21,7 @@ from sales.forms import ShopForm, ProductBrandFormModel, ProductForm, StockStepF
 from sales.models import Sale, Product, ProductBrand, ProductPicture, STOCK_TYPE_DETAILED, STOCK_TYPE_GLOBAL, ProductCurrency
 from shops.models import Shop
 from stocks.models import ProductStock
-from backtoshops.globalsettings import get_setting
+from globalsettings import get_setting
 
 class UploadProductPictureView(View, TemplateResponseMixin):
     template_name = ""
