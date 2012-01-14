@@ -21,6 +21,7 @@ from sales.forms import ShopForm, ProductBrandFormModel, ProductForm, StockStepF
 from sales.models import Sale, Product, ProductBrand, ProductPicture, STOCK_TYPE_DETAILED, STOCK_TYPE_GLOBAL, ProductCurrency
 from shops.models import Shop
 from stocks.models import ProductStock
+from backtoshops.globalsettings import get_setting
 
 class UploadProductPictureView(View, TemplateResponseMixin):
     template_name = ""
@@ -183,7 +184,7 @@ def add_sale(*args, **kwargs):
     ]
     
     initial_product = {
-        'currency': ProductCurrency.objects.get(is_default=True).id,
+        'currency': ProductCurrency.objects.get(code=get_setting('default_currency')),
     }
     
     initials = {

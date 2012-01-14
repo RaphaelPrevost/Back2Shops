@@ -2,13 +2,13 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-12-13 06:49+0100\n"
+"POT-Creation-Date: 2012-01-14 11:30+0800\n"
 "PO-Revision-Date: 2011-12-14 09:36\n"
 "Last-Translator:   <raphael@princesseavis.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,408 +19,493 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0\n"
 "X-Translated-Using: django-rosetta 0.6.2\n"
 
-#: settings_local.py:65 settings_production.py:41
+#: .\settings_ghostwheel.py:65 .\settings_local.py:65
+#: .\settings_production.py:42
 msgid "English"
 msgstr "英语"
 
-#: settings_local.py:66 settings_production.py:42
+#: .\settings_ghostwheel.py:66 .\settings_local.py:66
+#: .\settings_production.py:43
 msgid "French"
 msgstr "法语"
 
-#: settings_local.py:67
-msgid "Chinese"
-msgstr "中文"
-
-#: pictures/views.py:24 sales/views.py:41
+#: .\pictures\views.py:24 .\sales\views.py:41
 msgid "Must have files attached"
 msgstr "必须添加文件"
 
-#: sales/forms.py:15
+#: .\sales\forms.py:16
 msgid "National"
 msgstr "全国"
 
-#: sales/forms.py:16
+#: .\sales\forms.py:17
 msgid "Local"
 msgstr "所在城市"
 
-#: sales/forms.py:72
+#: .\sales\forms.py:73
 msgid "You must select at least one shop for local markets"
 msgstr "你必须在地方市场上至少选择一个商店"
 
-#: sales/forms.py:105 sales/templates/_sale_details.html:7
+#: .\sales\forms.py:107 .\sales\templates\_sale_details.html.py:7
 msgid "From"
 msgstr "从"
 
-#: sales/forms.py:106 sales/templates/_sale_details.html:7
+#: .\sales\forms.py:108 .\sales\templates\_sale_details.html.py:7
 msgid "To"
 msgstr "到"
 
-#: sales/forms.py:131
+#: .\sales\forms.py:133
 msgid "Valid to date cannot be before valid from date"
 msgstr "在......之前无效"
 
-#: sales/forms.py:133
+#: .\sales\forms.py:135
 msgid "Valid to date cannot be before today"
 msgstr "在今天之前无效"
 
-#: sales/forms.py:139
+#: .\sales\forms.py:141
 msgid "Barcode"
 msgstr "条形码"
 
-#: sales/forms.py:146
+#: .\sales\forms.py:149
 msgid "Stock"
 msgstr "库存"
 
-#: sales/forms.py:166 sales/templates/add_sale_preview_target.html:7
+#: .\sales\forms.py:149
+msgid "This field is required."
+msgstr ""
+
+#: .\sales\forms.py:155
+#, fuzzy
+msgid "Invalid Stock"
+msgstr "库存"
+
+#: .\sales\forms.py:183 .\sales\templates\add_sale_preview_target.html.py:7
 msgid "Gender"
 msgstr "性别"
 
-#: sales/models.py:8
+#: .\sales\forms.py:192
+#, fuzzy
+msgid "Categorie de produit"
+msgstr "录入产品信息"
+
+#: .\sales\forms.py:193
+#, fuzzy
+msgid "Type de produit"
+msgstr "产品广告图片"
+
+#: .\sales\forms.py:194
+#, fuzzy
+msgid "Nom de produit"
+msgstr "产品广告图片"
+
+#: .\sales\forms.py:195
+#, fuzzy
+msgid "Produits en stock"
+msgstr "产品信息录入"
+
+#: .\sales\forms.py:196
+#, fuzzy
+msgid "Produits en vente"
+msgstr "销售点"
+
+#: .\sales\forms.py:197
+msgid "Produits vendu"
+msgstr ""
+
+#: .\sales\forms.py:198
+msgid "Prix"
+msgstr ""
+
+#: .\sales\forms.py:199
+#, fuzzy
+msgid "Reduction"
+msgstr "折扣"
+
+#: .\sales\forms.py:200
+#, fuzzy
+msgid "Date de debut"
+msgstr "有效期"
+
+#: .\sales\forms.py:201
+#, fuzzy
+msgid "Date de fin"
+msgstr "有效期"
+
+#: .\sales\models.py:8
 msgid "Male"
 msgstr "男"
 
-#: sales/models.py:9
+#: .\sales\models.py:9
 msgid "Female"
 msgstr "女"
 
-#: sales/models.py:15
+#: .\sales\models.py:15
 msgid "Detailed stocks"
 msgstr "库存明细"
 
-#: sales/models.py:16
+#: .\sales\models.py:16
 msgid "Global stocks"
 msgstr "总库存"
 
-#: sales/models.py:20
+#: .\sales\models.py:20
 msgid "Percentage"
 msgstr "百分比"
 
-#: sales/models.py:21
+#: .\sales\models.py:21
 msgid "Amount"
 msgstr "总数"
 
-#: sales/views.py:52
+#: .\sales\views.py:53
 msgid "Brand has been added"
 msgstr "已添加的品牌"
 
-#: sales/views.py:74
+#: .\sales\views.py:66
+msgid "There is no brand logo."
+msgstr ""
+
+#: .\sales\views.py:82
 msgid "Old sales"
 msgstr "往期售卖"
 
-#: sales/views.py:78
+#: .\sales\views.py:86
 msgid "Current Sales"
 msgstr "当前售卖"
 
-#: sales/views.py:482
+#: .\sales\views.py:527
 msgid "Shops Definition"
 msgstr "商店信息录入"
 
-#: sales/views.py:495
+#: .\sales\views.py:540
 msgid "Product Definition"
 msgstr "产品信息录入"
 
-#: sales/views.py:503
+#: .\sales\views.py:548
 msgid "Stocks Definition"
 msgstr "库存信息录入"
 
-#: sales/views.py:513
+#: .\sales\views.py:558
 msgid "Target Definition"
 msgstr "目标群体定义"
 
-#: sales/templates/_sale_details.html:8
+#: .\sales\templates\_sale_details.html.py:8
 msgid "Total"
 msgstr "总数"
 
-#: sales/templates/_sale_details.html:10 sales/templates/_sale_details.html:24
+#: .\sales\templates\_sale_details.html.py:10
+#: .\sales\templates\_sale_details.html.py:24
 msgid "Base"
 msgstr "初始数目"
 
-#: sales/templates/_sale_details.html:11 sales/templates/_sale_details.html:25
+#: .\sales\templates\_sale_details.html.py:11
+#: .\sales\templates\_sale_details.html.py:25
 msgid "To Sell"
 msgstr "预售"
 
-#: sales/templates/_sale_details.html:12 sales/templates/_sale_details.html:26
+#: .\sales\templates\_sale_details.html.py:12
+#: .\sales\templates\_sale_details.html.py:26
 msgid "Sold"
 msgstr "已售"
 
-#: sales/templates/_sale_details.html:13 sales/templates/_sale_details.html:27
+#: .\sales\templates\_sale_details.html.py:13
+#: .\sales\templates\_sale_details.html.py:27
 msgid "In Stock"
 msgstr "库存"
 
-#: sales/templates/_sale_details.html:23
+#: .\sales\templates\_sale_details.html.py:23
 msgid "Attribute"
 msgstr "特性"
 
-#: sales/templates/_sale_details_shop.html:6
+#: .\sales\templates\_sale_details_shop.html.py:6
 msgid "Choose a shop"
 msgstr "选择一个商店"
 
-#: sales/templates/_sale_details_shop.html:8
+#: .\sales\templates\_sale_details_shop.html.py:8
 msgid "Shop"
 msgstr "商店"
 
-#: sales/templates/_sale_details_shop.html:10
+#: .\sales\templates\_sale_details_shop.html.py:10
 msgid "Choose..."
 msgstr "选择..."
 
-#: sales/templates/add_sale_base.html:5
+#: .\sales\templates\add_sale_base.html.py:5
 msgid "Le produit | Ajouter une nouvelle vente"
 msgstr "产品|添加一个新的售卖"
 
-#: sales/templates/add_sale_base.html:32
+#: .\sales\templates\add_sale_base.html.py:32
 msgid "Ajouter une nouvelle vente"
 msgstr "添加一个新的售卖"
 
-#: sales/templates/add_sale_base.html:43 templates/_quick_nav.html:8
+#: .\sales\templates\add_sale_base.html.py:43 .\templates\_quick_nav.html.py:8
 msgid "Add a new sale"
 msgstr "添加一个新的售卖"
 
-#: sales/templates/add_sale_base.html:51
-#: sales/templates/edit_sale_base.html:49
+#: .\sales\templates\add_sale_base.html.py:51
+#: .\sales\templates\edit_sale_base.html.py:49
 msgid "First step"
 msgstr "第一步"
 
-#: sales/templates/add_sale_base.html:52
-#: sales/templates/edit_sale_base.html:50
+#: .\sales\templates\add_sale_base.html.py:52
+#: .\sales\templates\edit_sale_base.html.py:50
 msgid "Prev step"
 msgstr "上一步"
 
-#: sales/templates/add_sale_base.html:54
-#: sales/templates/edit_sale_base.html:52
+#: .\sales\templates\add_sale_base.html.py:54
+#: .\sales\templates\edit_sale_base.html.py:52
 msgid "Cancel"
 msgstr "取消"
 
-#: sales/templates/add_sale_base.html:56
-#: sales/templates/edit_sale_base.html:54
+#: .\sales\templates\add_sale_base.html.py:56
+#: .\sales\templates\edit_sale_base.html.py:54
 msgid "Define the product"
 msgstr "录入产品信息"
 
-#: sales/templates/add_sale_base.html:59
-#: sales/templates/edit_sale_base.html:57
+#: .\sales\templates\add_sale_base.html.py:59
+#: .\sales\templates\edit_sale_base.html.py:57
 msgid "Define the stocks"
 msgstr "录入库存信息"
 
-#: sales/templates/add_sale_base.html:62
-#: sales/templates/edit_sale_base.html:60
+#: .\sales\templates\add_sale_base.html.py:62
+#: .\sales\templates\edit_sale_base.html.py:60
 msgid "Define the target"
 msgstr "定义目标群体"
 
-#: sales/templates/add_sale_base.html:65
-#: sales/templates/edit_sale_base.html:63
+#: .\sales\templates\add_sale_base.html.py:65
+#: .\sales\templates\edit_sale_base.html.py:63
 msgid "Validate"
 msgstr "使生效"
 
-#: sales/templates/add_sale_preview_product.html:10
-#: sales/templates/add_sale_preview_product.html:11
-#: sales/templates/add_sale_preview_product.html:28
-#: sales/templates/add_sale_preview_product.html:34
-#: sales/templates/add_sale_preview_product.html:37
-#: sales/templates/add_sale_preview_product.html:63
+#: .\sales\templates\add_sale_preview_product.html.py:10
+#: .\sales\templates\add_sale_preview_product.html.py:11
+#: .\sales\templates\add_sale_preview_product.html.py:30
+#: .\sales\templates\add_sale_preview_product.html.py:36
+#: .\sales\templates\add_sale_preview_product.html.py:39
+#: .\sales\templates\add_sale_preview_product.html.py:65
 msgid "N/F"
 msgstr "无"
 
-#: sales/templates/add_sale_preview_product.html:70
-#: sales/templates/add_sale_product.html:474 sales/templates/list.html:72
+#: .\sales\templates\add_sale_preview_product.html.py:72
+#: .\sales\templates\add_sale_product.html.py:486
+#: .\sales\templates\list.html.py:55
 msgid "visuel"
 msgstr "视觉的"
 
-#: sales/templates/add_sale_preview_shop.html:5
+#: .\sales\templates\add_sale_preview_shop.html.py:5
 msgid "Les points de vente"
 msgstr "销售点"
 
-#: sales/templates/add_sale_product.html:27
-#: sales/templates/add_sale_product.old.html:24
+#: .\sales\templates\add_sale_product.html.py:27
+#: .\sales\templates\add_sale_product.old.html.py:24
 msgid "Visuels du produit"
 msgstr "产品广告图片"
 
-#: sales/templates/add_sale_product.html:59
-#: sales/templates/add_sale_product.old.html:65
+#: .\sales\templates\add_sale_product.html.py:60
+#: .\sales\templates\add_sale_product.old.html.py:65
 msgid "Prix de vente BackToShop"
 msgstr "BackToShop上的销售价格"
 
-#: sales/templates/add_sale_product.html:64
-#: sales/templates/add_sale_product.old.html:70
+#: .\sales\templates\add_sale_product.html.py:65
+#: .\sales\templates\add_sale_product.old.html.py:70
 msgid "Nouveau prix de vente"
 msgstr "最新定价"
 
-#: sales/templates/add_sale_product.html:70
-#: sales/templates/add_sale_product.old.html:76
+#: .\sales\templates\add_sale_product.html.py:71
+#: .\sales\templates\add_sale_product.old.html.py:76
 msgid "Date de validité"
 msgstr "有效期"
 
-#: sales/templates/add_sale_product.html:75
-#: sales/templates/add_sale_product.old.html:81
+#: .\sales\templates\add_sale_product.html.py:76
+#: .\sales\templates\add_sale_product.old.html.py:81
 msgid "Brand attributes"
 msgstr "品牌特性"
 
-#: sales/templates/add_sale_product.html:86
-#: sales/templates/add_sale_product.html:110
-#: sales/templates/add_sale_product.html:142
-#: sales/templates/add_sale_product.old.html:106
+#: .\sales\templates\add_sale_product.html.py:87
+#: .\sales\templates\add_sale_product.html.py:111
+#: .\sales\templates\add_sale_product.html.py:143
+#: .\sales\templates\add_sale_product.old.html.py:106
 msgid "Add"
 msgstr "添加"
 
-#: sales/templates/add_sale_product.html:107
-#: sales/templates/add_sale_product.html:128
+#: .\sales\templates\add_sale_product.html.py:108
+#: .\sales\templates\add_sale_product.html.py:129
 msgid "Remove"
 msgstr "移动"
 
-#: sales/templates/add_sale_product.html:306
+#: .\sales\templates\add_sale_product.html.py:307
 msgid "You need to enter an attribute name"
 msgstr "你需要输入一个特性名称"
 
-#: sales/templates/add_sale_product.html:381
-#: sales/templates/add_sale_product.old.html:191
+#: .\sales\templates\add_sale_product.html.py:393
+#: .\sales\templates\add_sale_product.old.html.py:191
 msgid "Add a new brand"
 msgstr "添加一个新的品牌"
 
-#: sales/templates/add_sale_product.html:410
-#: sales/templates/add_sale_product.old.html:275
+#: .\sales\templates\add_sale_product.html.py:422
+#: .\sales\templates\add_sale_product.old.html.py:275
 msgid "Loading..."
 msgstr "读取进度中..."
 
-#: sales/templates/add_sale_product.old.html:93
+#: .\sales\templates\add_sale_product.old.html.py:93
 msgid "Add more"
 msgstr "更多添加"
 
-#: sales/templates/add_sale_stocks.html:20
+#: .\sales\templates\add_sale_stocks.html.py:20
 msgid "Barcodes"
 msgstr "条形码"
 
-#: sales/templates/add_sale_stocks.html:23
+#: .\sales\templates\add_sale_stocks.html.py:23
 msgid "Barcodes definition"
 msgstr "条形码信息录入"
 
-#: sales/templates/add_sale_stocks.html:71
+#: .\sales\templates\add_sale_stocks.html.py:71
 msgid "Global Stocks"
 msgstr "总库存"
 
-#: sales/templates/add_sale_stocks.html:74
-#: sales/templates/add_sale_stocks.html:125
+#: .\sales\templates\add_sale_stocks.html.py:74
+#: .\sales\templates\add_sale_stocks.html.py:125
 msgid "Definition des stocks"
 msgstr "库存信息录入"
 
-#: sales/templates/added.html:5 sales/templates/updated.html:5
+#: .\sales\templates\add_sale_stocks.html.py:228
+msgid "Sorry, please check your input."
+msgstr ""
+
+#: .\sales\templates\added.html.py:5 .\sales\templates\updated.html.py:5
 msgid "Sale have been added"
 msgstr "被添加的售卖"
 
-#: sales/templates/edit_sale_base.html:5
+#: .\sales\templates\edit_sale_base.html.py:5
 msgid "Le produit | Editer une vente existante"
 msgstr "产品|编辑一个现存的售卖"
 
-#: sales/templates/edit_sale_base.html:30
-#: sales/templates/edit_sale_base.html:41
+#: .\sales\templates\edit_sale_base.html.py:30
+#: .\sales\templates\edit_sale_base.html.py:41
 msgid "Editing a sale"
 msgstr "编辑一个售卖"
 
-#: sales/templates/list.html:76
+#: .\sales\templates\list.html.py:38
+msgid "sort"
+msgstr ""
+
+#: .\sales\templates\list.html.py:59
 msgid "Du"
 msgstr "从"
 
-#: sales/templates/list.html:76
+#: .\sales\templates\list.html.py:59
 msgid "au"
 msgstr "到"
 
-#: sales/templates/list.html:77
+#: .\sales\templates\list.html.py:60
 msgid "En vente :"
 msgstr "正在售卖"
 
-#: sales/templates/list.html:77
+#: .\sales\templates\list.html.py:60
 msgid "Vendu :"
 msgstr "售出"
 
-#: sales/templates/list.html:77
+#: .\sales\templates\list.html.py:60
 msgid "En Stock :"
 msgstr "库存"
 
-#: sales/templates/list.html:80
+#: .\sales\templates\list.html.py:63
 msgid "En vente à :"
 msgstr "卖价为"
 
-#: sales/templates/list.html:81
+#: .\sales\templates\list.html.py:64
 msgid "Réduction :"
 msgstr "折扣"
 
-#: sales/templates/list.html:82
+#: .\sales\templates\list.html.py:65
 msgid "Au lieu de :"
 msgstr "原价"
 
-#: sales/templates/list.html:88
+#: .\sales\templates\list.html.py:71
 msgid "Voir en détail par boutique"
 msgstr "按商店查看细节"
 
-#: sales/templates/list.html:90
+#: .\sales\templates\list.html.py:73
 msgid "Voir l’ensemble en détail"
 msgstr "查看全部细节"
 
-#: shops/templates/physical_shop.html:29 shops/templates/physical_shop.html:30
+#: .\sales\templates\list.html.py:118
+#, fuzzy
+msgid "Are you sure you want to delete this item?"
+msgstr "你确定要删除这个商店吗？"
+
+#: .\shops\templates\physical_shop.html.py:29
+#: .\shops\templates\physical_shop.html.py:30
 msgid "Shops management"
 msgstr "商店管理"
 
-#: shops/templates/physical_shop.html:40
+#: .\shops\templates\physical_shop.html.py:40
 msgid "Modify Shop"
 msgstr "商店变更"
 
-#: shops/templates/physical_shop.html:42
+#: .\shops\templates\physical_shop.html.py:42
 msgid "New Shop"
 msgstr "新商店"
 
-#: shops/templates/physical_shop.html:127
+#: .\shops\templates\physical_shop.html.py:130
 msgid "Valider"
 msgstr "使生效"
 
-#: shops/templates/physical_shop.html:226
+#: .\shops\templates\physical_shop.html.py:236
 msgid "Searching..."
 msgstr "查找中..."
 
-#: shops/templates/physical_shop.html:233
+#: .\shops\templates\physical_shop.html.py:243
 msgid "Localization succeded"
 msgstr "定位成功"
 
-#: shops/templates/physical_shop.html:235
+#: .\shops\templates\physical_shop.html.py:249
 msgid "Localization found"
 msgstr "发现定位"
 
-#: shops/templates/physical_shop.html:235
+#: .\shops\templates\physical_shop.html.py:249
 msgid "results"
 msgstr "结果"
 
-#: shops/templates/physical_shop.html:241
+#: .\shops\templates\physical_shop.html.py:255
 msgid "No results found. Check the address, zip code and city you have entered"
 msgstr "没有发现结果。检查地址，邮编和你所键入的城市"
 
-#: shops/templates/physical_shop.html:243
+#: .\shops\templates\physical_shop.html.py:257
 msgid "An error occured, please try again later"
 msgstr "错误发生，请稍后尝试"
 
-#: shops/templates/physical_shop.html:295
+#: .\shops\templates\physical_shop.html.py:310
 msgid "Are your sure you want to delete this shop?"
 msgstr "你确定要删除这个商店吗？"
 
-#: templates/_quick_nav.html:5
+#: .\templates\_quick_nav.html.py:5
 msgid "Accueil"
 msgstr "首页"
 
-#: templates/_quick_nav.html:9
+#: .\templates\_quick_nav.html.py:9
 msgid "Mes ventes en cours"
 msgstr "正在售卖"
 
-#: templates/_quick_nav.html:10
+#: .\templates\_quick_nav.html.py:10
 msgid "Mes anciennes ventes"
 msgstr "往期的售卖"
 
-#: templates/_quick_nav.html:11
+#: .\templates\_quick_nav.html.py:11
 msgid "Ajouter - Supprimer une boutique"
 msgstr "添加-删除一个店铺"
 
-#: templates/_quick_nav.html:12
+#: .\templates\_quick_nav.html.py:12
 msgid "Les Stats de ma marque"
 msgstr "品牌销量统计"
 
-#: templates/_quick_nav.html:13
+#: .\templates\_quick_nav.html.py:13
 msgid "Carte de France des performances"
 msgstr "销量地图"
 
-#: templates/base.html:8
+#: .\templates\base.html.py:9
 msgid "Interface de gestion BackToShop"
 msgstr "BackToShop界面管理"
+
+#: .\templates\base.html.py:89
+msgid "Welcome"
+msgstr ""
+
+#~ msgid "Chinese"
+#~ msgstr "中文"
