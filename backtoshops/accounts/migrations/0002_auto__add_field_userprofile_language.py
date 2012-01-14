@@ -9,7 +9,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         
         # Adding field 'UserProfile.language'
-        db.add_column('accounts_userprofile', 'language', self.gf('django.db.models.fields.CharField')(default='en-us', max_length=2), keep_default=False)
+        db.add_column('accounts_userprofile', 'language', self.gf('django.db.models.fields.CharField')(default='en-us', max_length=6), keep_default=False)
 
 
     def backwards(self, orm):
