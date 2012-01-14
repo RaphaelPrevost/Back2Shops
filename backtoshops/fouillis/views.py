@@ -30,6 +30,7 @@ def login_staff(request):
             if user is not None:
                 if user.is_active and user.is_staff:
                     login(request, user)
+                    request.session['django_language'] = user.get_profile().language
                     netloc = urlparse.urlparse(redirect_to)[1]
 
                     # Use default setting if redirect_to is empty

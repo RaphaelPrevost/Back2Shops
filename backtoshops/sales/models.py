@@ -56,15 +56,10 @@ class Product(models.Model):
 class ProductCurrency(models.Model):
     code = models.CharField(max_length=3)
     description = models.CharField(max_length=200)
-    is_default = models.BooleanField()
     
     def __unicode__(self):
         return self.code
-    
-    def save(self,*args, **kwargs):
-        if self.is_default == True:
-            ProductCurrency.objects.update(is_default=False)
-        super(ProductCurrency,self).save(*args, **kwargs)
+
     
 class ProductPicture(models.Model):
     product = models.ForeignKey("Product", related_name="pictures", null=True, blank=True)

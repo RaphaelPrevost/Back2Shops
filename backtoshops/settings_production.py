@@ -105,6 +105,7 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -129,7 +130,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.media',
     'django.core.context_processors.static',
     'django.contrib.auth.context_processors.auth',
-    'django.contrib.messages.context_processors.messages'
+    'django.contrib.messages.context_processors.messages',
 )
 
 INSTALLED_APPS = (
@@ -153,6 +154,7 @@ INSTALLED_APPS = (
     SITE_NAME+'.fouillis',
     SITE_NAME+'.webservice',
     SITE_NAME+'.barcodes',
+    SITE_NAME+'.globalsettings',
     'south',
     'form_utils',
     'formwizard',
