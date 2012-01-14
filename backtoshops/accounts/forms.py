@@ -1,6 +1,6 @@
 from django import forms
 from models import UserProfile
-from backtoshops.globalsettings import get_setting
+from globalsettings import get_setting
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
