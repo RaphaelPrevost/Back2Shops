@@ -484,8 +484,8 @@
                 var valid_to = $("#{{ wizard.form.valid_to.auto_id }}").val();
                 $("#preview-{{ wizard.form.name.auto_id }}").html(name);
                 $("#preview-{{ wizard.form.description.auto_id }}").html(description);
-                $("#preview-{{ wizard.form.discount_price.auto_id }}").html(discount_price+"&euro;");
-                $("#preview-{{ wizard.form.normal_price.auto_id }}").html(normal_price+"&euro;");
+                $("#preview-{{ wizard.form.discount_price.auto_id }}").html(discount_price+$("#{{wizard.form.currency.auto_id}} option:selected").text());
+                $("#preview-{{ wizard.form.normal_price.auto_id }}").html(normal_price+$("#{{wizard.form.currency.auto_id}} option:selected").text());
                 $("#preview-{{ wizard.form.discount.auto_id }}").html(discount);
                 $("#preview-{{ wizard.form.valid_to.auto_id }}").html(valid_to);
             }
