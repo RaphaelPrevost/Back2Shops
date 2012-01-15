@@ -91,7 +91,7 @@
             	{% if LANGUAGES %}
             		<select id="language" name="language">
                 	{% for language in LANGUAGES %}
-                		<option value="{{language.0}}" {% if language.0 == LANGUAGE_CODE %}selected{% endif %}>{{language.1}}</option>
+                		<option value="{{language.0}}" {% if language.0|lower == LANGUAGE_CODE|lower %}selected{% endif %}>{{language.1}}</option>
                 	{% endfor %}
                 	</select>
                 {% endif %}
