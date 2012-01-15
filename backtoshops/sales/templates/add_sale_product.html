@@ -61,8 +61,8 @@
             <span class="contForm" id="newPrice">
                 {{ wizard.form.discount_type }}
                 {{ wizard.form.discount_price }}
-                <span class="raw">></span>{{ wizard.form.discount }}<span id="discount_marker">%</span>
-                <span id="result">{% trans "Nouveau prix de vente" %} : <strong id="discount_price">N/F</strong><strong> &euro;</strong></span>
+                <span class="raw">></span>{{ wizard.form.discount }}<span id="discount_marker" class="discount_marker">%</span>
+                <span id="result">{% trans "Nouveau prix de vente" %} : <strong id="discount_price">N/F</strong> <strong id="id_discount_price_marker">&nbsp;</strong></span>
             </span>
         </div>
         {{ wizard.form.valid_from.errors }}
@@ -147,6 +147,11 @@
 
 {% block javascript %}
     <script type="text/javascript">
+    	$(document).ready(function(){
+    	{# ready the currency mark #}
+    		$("#id_discount_price_marker").html($("#{{wizard.form.currency.auto_id}} option:selected").text())
+    	});
+    	
         $(function(){
             function addProductPicture(result) {
                 var nb_of_forms = $("#{{ wizard.form.pictures.management_form.TOTAL_FORMS.auto_id }}").val();
@@ -415,6 +420,12 @@
             $("#main_form").change(function(elmt){
                 updateProductPreview(elmt);
             });
+            
+            {# currency dropdown change event#}
+            $("#{{wizard.form.currency.auto_id}}").change(function(e){
+            	$("#id_discount_price_marker").html($("#{{wizard.form.currency.auto_id}} option:selected").text());
+            	calcDiscount();
+            });
 
             $("#{{ wizard.form.brand.auto_id }}").change(function(elmt){
                 var brand_id = $("#{{ wizard.form.brand.auto_id }} :selected").val();
@@ -431,13 +442,15 @@
                 var new_price;
                 if (discount_type == "percentage") { //percentage
                     new_price = normal_price - (normal_price * (discount / 100));
+                    $("#discount_marker").html("%");
                 } else {
                     new_price = normal_price - discount;
+                    $("#discount_marker").html($("#{{wizard.form.currency.auto_id}} option:selected").text());
                 }
                 if (new_price > 0) {
                     $("#{{ wizard.form.discount_price.auto_id }}").val(parseFloat(new_price));
                     $("#discount_price").html(new_price);
-                    $("#preview-{{ wizard.form.discount_price.auto_id }}").html(new_price+"&euro;");
+                    $("#preview-{{ wizard.form.discount_price.auto_id }}").html(new_price+$("#{{wizard.form.currency.auto_id}} option:selected").text());
                 } else {
                     $("#{{ wizard.form.discount_price.auto_id }}").val("N/F");
                     $("#discount_price").html("N/F");
@@ -445,12 +458,8 @@
                 }
             }
 
-            $("#{{ wizard.form.discount_type.auto_id }}").change(function(elmt){
-                if ($(elmt).val() == "percentage") { // Percentage
-                    $("#discount_marker").html("%");
-                } else {
-                    $("#discount_marker").html("Euros");
-                }
+            $("#{{ wizard.form.discount_type.auto_id }}").change(function(){
+                
                 calcDiscount();
             });
             $("#{{ wizard.form.normal_price.auto_id }}").change(function(elmt){
@@ -470,7 +479,7 @@
                 if (discount_type == "percentage") {
                     discount += "%";
                 } else {
-                    discount += "&euro;";
+                    discount += $("#{{wizard.form.currency.auto_id}} option:selected").text();
                 }
                 var valid_to = $("#{{ wizard.form.valid_to.auto_id }}").val();
                 $("#preview-{{ wizard.form.name.auto_id }}").html(name);
