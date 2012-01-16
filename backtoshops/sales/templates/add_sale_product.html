@@ -14,12 +14,12 @@
         </div>
         {{ wizard.form.category.errors }}
         <div class="formrow">
-            <label for="{{ wizard.form.category.auto_id }}">{{ wizard.form.category.label }}</label>
+            <label for="{{ wizard.form.category.auto_id }}">{% trans wizard.form.category.label %}</label>
             {{ wizard.form.category }}
         </div>
         {{ wizard.form.type.errors }}
         <div class="marge formrow">
-            <label for="{{ wizard.form.type.auto_id }}">{{ wizard.form.type.label }}</label>
+            <label for="{{ wizard.form.type.auto_id }}">{% trans wizard.form.type.label %}</label>
             {{ wizard.form.type }}
         </div>
         <div class="marge formrow">
@@ -34,23 +34,23 @@
         </div>
         {{ wizard.form.brand.errors }}
         <div class="formrow">
-            <label for="{{ wizard.form.brand.auto_id }}">{{ wizard.form.brand.label }}</label>
-            {{ wizard.form.brand }}   or <a href="#" id="add_new_brand">Add new brand</a>
+            <label for="{{ wizard.form.brand.auto_id }}">{% trans wizard.form.brand.label %}</label>
+            {{ wizard.form.brand }} {% trans "or" %}  <a href="#" id="add_new_brand">{% trans "Add new brand" %}</a>
             <span id="brand_new_error" style='display:none'></span>
         </div>
         {{ wizard.form.name.errors }}
         <div class="formrow">
-            <label for="{{ wizard.form.name.auto_id }}">{{ wizard.form.name.label }}</label>
+            <label for="{{ wizard.form.name.auto_id }}">{% trans wizard.form.name.label %}</label>
             {{ wizard.form.name }}
         </div>
         {{ wizard.form.description.errors }}
         <div class="marge formrow">
-            <label for="{{ wizard.form.description.auto_id }}">{{ wizard.form.description.label }}</label>
+            <label for="{{ wizard.form.description.auto_id }}">{% trans wizard.form.description.label %}</label>
             {{ wizard.form.description }}
         </div>
         {{ wizard.form.normal_price.errors }}
         <div class="formrow">
-            <label for="{{ wizard.form.normal_price.auto_id }}">{{ wizard.form.normal_price.label }}</label>
+            <label for="{{ wizard.form.normal_price.auto_id }}">{% trans wizard.form.normal_price.label %}</label>
             {{ wizard.form.normal_price }}<span>{{wizard.form.currency}}</span>
         </div>
         {{ wizard.form.discount.errors }}
