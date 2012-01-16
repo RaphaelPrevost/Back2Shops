@@ -5,6 +5,7 @@ from shops.models import Shop
 from sorl.thumbnail import ImageField
 
 GENDERS = (
+    ('U', _('Unapplicable')),
     ('M', _('Male')),
     ('F', _('Female'))
 )
@@ -12,8 +13,8 @@ GENDERS = (
 STOCK_TYPE_DETAILED = "L"
 STOCK_TYPE_GLOBAL = "N"
 STOCK_TYPE_CHOICES = (
-    (STOCK_TYPE_DETAILED, _('Detailed stocks')),
-    (STOCK_TYPE_GLOBAL, _('Global stocks'))
+    (STOCK_TYPE_DETAILED, _('Initial stock allocation')),
+    (STOCK_TYPE_GLOBAL, _('Initial stock quantities'))
 )
 
 DISCOUNT_TYPE = (
@@ -88,13 +89,4 @@ class ProductBrand(models.Model):
 
     def __unicode__(self):
         return self.name
-
-# class ProductPicture(models.Model):
-#     picture = ImageField(upload_to="product_pictures")
-#     content_type = models.ForeignKey(ContentType, null=True, blank=True)
-#     object_id = models.PositiveIntegerField(null=True, blank=True)
-#     content_object = generic.GenericForeignKey("content_type", "object_id")
-
-#     def __unicode__(self):
-#         return self.picture.url
 

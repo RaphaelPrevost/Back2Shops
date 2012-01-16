@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load active %}
 
-{% block title %}{% trans "Le produit | Ajouter une nouvelle vente" %}{% endblock %}
+{% block title %}{% trans "Add a new sale" %}{% endblock %}
 
 {% block head %}
     <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
@@ -24,21 +24,13 @@
 
 {% block content %}
     <!--Lien Haut de Page -->
-    <a id="lienUP" href="#conteneur">Haut de page</a>
+    <a id="lienUP" href="#conteneur">{% trans "Page Top" %}</a>
 
     <div id="content_Left">
         <!--Title-->
         <div id="title">
-            <span>{% trans "Ajouter une nouvelle vente" %}</span>
+            <span>{% trans "Add a new sale" %}</span>
             <h2>
-                {% comment %}
-                <em>
-                    <a href="#" class="{% active request "shop" %}">{% trans "Shops" %}</a> >
-                    <a href="#" class="{% active request "product" %}">{% trans "The product" %}</a> >
-                    <a href="#" class="{% active request "stocks" %}">{% trans "Stocks" %}</a> >
-                    <a href="#" class="{% active request "target" %}">{% trans "Target" %}</a>
-                </em>
-                {% endcomment %}
                 {% trans "Add a new sale" %}
             </h2>
         </div>
@@ -48,20 +40,20 @@
             {% block form %}{% endblock %}
             {% if wizard.steps.prev %}
             <button class="navForm" id="btn_first_step" name="wizard_prev_step" value="{{ wizard.steps.first }}">{% trans "First step" %}</button>
-            <button class="navForm" id="btn_prev_step" name="wizard_prev_step" value="{{ wizard.steps.prev }}">{% trans "Prev step" %}</button>
+            <button class="navForm" id="btn_prev_step" name="wizard_prev_step" value="{{ wizard.steps.prev }}">{% trans "Back" %}</button>
             {% endif %}
             <button class="navForm" id="btn_cancel" name="wizard_cancel" value="{{ wizard.steps.current }}">{% trans "Cancel" %}</button>
             {% if wizard.steps.step0 == 0 %}
-            <input class="btn select" type="submit" value="{% trans "Define the product" %}"/>
+            <input class="btn select" type="submit" value="{% trans "Next: Product" %}"/>
             {% endif %}
             {% if wizard.steps.step0 == 1 %}
-            <input class="btn select" type="submit" value="{% trans "Define the stocks" %}"/>
+            <input class="btn select" type="submit" value="{% trans "Next: Stock Qty" %}"/>
             {% endif %}
             {% if wizard.steps.step0 == 2 %}
-            <input class="btn select" type="submit" value="{% trans "Define the target" %}"/>
+            <input class="btn select" type="submit" value="{% trans "Next: Target" %}"/>
             {% endif %}
             {% if wizard.steps.step0 == 3 %}
-            <input class="btn select" type="submit" value="{% trans "Validate" %}"/>
+            <input class="btn select" type="submit" value="{% trans "Create Sale" %}"/>
             {% endif %}
         </form>
 

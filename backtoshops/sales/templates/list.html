@@ -14,7 +14,7 @@
 
 {% block content %}
 <!--Lien Haut de Page -->
-<a id="lienUP" href="#conteneur">Haut de page</a>
+<a id="lienUP" href="#conteneur">{% trans "Page Top" %}</a>
 
 <!--content-left-->
 <div id="content_Left">
@@ -31,11 +31,11 @@
         <fieldset>
             <!--SELECT TRIER PAR-->
             <p id="triVente">
-                <label for="trie01">{% trans "Trier par :" %}</label>
+                <label for="trie01">{% trans "Sort by:" %}</label>
                 {{ form.order_by1 }}
                 <span>+</span>
                 {{ form.order_by2 }}
-                <input type="submit" value="{% trans "Trier" %}" />
+                <input type="submit" value="{% trans "Sort" %}" />
             </p>
             <!--FIN SELECT TRIER PAR-->
 
@@ -52,25 +52,25 @@
                 <div class="content">
                     <a class="imgProd" href="#">
                         {% thumbnail sale.product.pictures.all.0.picture "40x43" as im %}
-                            <img style='margin:{{ im|margin:"40x43" }}' src="{{ im.url }}" alt='{% trans "visuel" %} {{ sale.product.name }}' width="{{ im.x }}" height="{{ im.y }}"/>
+                            <img style='margin:{{ im|margin:"40x43" }}' src="{{ im.url }}" alt='{% trans "Product picture" %} {{ sale.product.name }}' width="{{ im.x }}" height="{{ im.y }}"/>
                         {% endthumbnail %}
                     </a>
                     <div class="date_etat">
-                        <em>{% trans "Du" %} {{ sale.product.valid_from }} {% trans "au" %} {{ sale.product.valid_to }}</em>
-                        <span>{% trans "En vente :" %} <strong>{{ sale.total_rest_stock }}</strong> | {% trans "Vendu :" %} <strong>N/I</strong> | {% trans "En Stock :" %} <strong>{{ sale.total_stock }}</strong></span>
+                        <em>{% trans "From" %} {{ sale.product.valid_from }} {% trans "To" %} {{ sale.product.valid_to }}</em>
+                        <span>{% trans "Available Qty:" %} <strong>{{ sale.total_rest_stock }}</strong> | {% trans "Sales:" %} <strong>{% trans "N/A" %}</strong> | {% trans "Initial Stock:" %} <strong>{{ sale.total_stock }}</strong></span>
                     </div>
                     <div class="prix">
-                        <span>{% trans "En vente à :" %} <strong>{{ sale.product.discount_price|floatformat }}&euro;</strong></span>
-                        <span>{% trans "Réduction :" %} <strong>{{ sale.product.discount|floatformat }}{% if sale.product.discount_type == "percentage" %}%{% else %}&euro;{% endif %}</strong></span>
-                        <span>{% trans "Au lieu de :" %} <em>{{ sale.product.normal_price|floatformat }}&euro;</em></span>
+                        <span>{% trans "Discounted price:" %}<strong>{{ sale.product.discount_price|floatformat }}&euro;</strong></span>
+                        <span>{% trans "Discount:" %} <strong>{{ sale.product.discount|floatformat }}{% if sale.product.discount_type == "percentage" %}%{% else %}&euro;{% endif %}</strong></span>
+                        <span>{% trans "Item price:" %} <em>{{ sale.product.normal_price|floatformat }}&euro;</em></span>
                     </div>
                 </div>
                 <div class="clear"></div>
                 <!--Liens DETAIL-->
                 {% if sale.type_stock == "L" %}
-                <a href="{% url sale_details_shop sale.pk %}" class="seeDetail seeShop">{% trans "Voir en détail par boutique" %}</a>
+                <a href="{% url sale_details_shop sale.pk %}" class="seeDetail seeShop">{% trans "Details per shop" %}</a>
                 {% endif %}
-                <a href="{% url sale_details sale.pk %}" class="seeDetail seeMain">{% trans "Voir l’ensemble en détail" %}</a>
+                <a href="{% url sale_details sale.pk %}" class="seeDetail seeMain">{% trans "Details" %}</a>
             </div>
             {% endfor %}
             <!--FIN VENTE-->
@@ -95,12 +95,12 @@
             $("#content_Right #detail").html("");
         });
         $(".seeMain").click(function(){
-            $("#content_Right #detail").html("Loading...");
+            $("#content_Right #detail").html('{% trans "Loading..." %}');
             $("#content_Right #detail").load($(this)[0].href);
             return false;
         });
         $(".seeShop").click(function(){
-            $("#content_Right #controls").html("Loading...");
+            $("#content_Right #controls").html('{% trans "Loading..." %}');
             $("#content_Right #controls").load($(this)[0].href);
             return false;
         });
@@ -108,14 +108,14 @@
             if ($(this).val() == 0) {
                 $("#content_Right #detail").html("");
             } else {
-                $("#content_Right #detail").html("Loading...");
+                $("#content_Right #detail").html('{% trans "Loading..." %}');
                 $("#content_Right #detail").load($(this).val());
             }
         });
         
         $('a.delete').click(function() {
             var $this = $(this);
-            if (confirm('{% trans "Are you sure you want to delete this item?" %}')) {
+            if (confirm('{% trans "Are you sure you want to delete this sale?" %}')) {
                 var sid = $this.parent().parent().attr('sale');
                 $.post('/sales/delete/' + sid, function(response) {
                     if (response.success)

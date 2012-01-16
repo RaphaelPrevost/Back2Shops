@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load i18n %}
 
 {% block content %}
 
 {% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
+<p>{% trans "Your username and password didn't match. Please try again." %}</p>
 {% endif %}
 
 <div id="connect">
-<h2>Connexion a BackToShops</h2>
+<h2>{% trans "BackToShops Login" %}</h2>
 
 <form method="post" action="{% url 'fouillis.views.login_staff' %}">
 {% csrf_token %}
@@ -23,7 +24,7 @@
 </p>
 
 
-<input class="btn valider" type="submit" value="Login" />
+<input class="btn valider" type="submit" value="{% trans "Login" %}" />
 <input type="hidden" name="next" value="{{ next }}" />
 </form>
 </div>

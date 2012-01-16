@@ -7,10 +7,9 @@
     <em>{% trans "From" %} {{ sale.product.valid_from }} {% trans "To" %} {{ sale.product.valid_to }}</em>
     <span>{% trans "Total" %} : </span>
     <p>
-        {% trans "Base" %} : <strong>{{ total_stock }}</strong> |
-        {% trans "To Sell" %} : <strong>{{ total_stock }}</strong> |
-        {% trans "Sold" %} : <strong>{{ total_stock|sub:total_rest_stock }}</strong> |
-        {% trans "In Stock" %} : <strong>{{ total_rest_stock }}</strong>
+        {% trans "Initial" %} : <strong>{{ total_stock }}</strong> |
+        {% trans "Sales" %} : <strong>{{ total_stock|sub:total_rest_stock }}</strong> |
+        {% trans "On Hand" %} : <strong>{{ total_rest_stock }}</strong>
     </p>
 
     <!--TABLE COLORIS-TAILLES-->
@@ -21,17 +20,15 @@
                 <thead>
                     <tr>
                         <th class="col1">{% trans "Attribute" %}</th>
-                        <th>{% trans "Base" %}</th>
-                        <th>{% trans "To Sell" %}</th>
-                        <th>{% trans "Sold" %}</th>
-                        <th>{% trans "In Stock" %}</th>
+                        <th>{% trans "Initial" %}</th>
+                        <th>{% trans "Sales" %}</th>
+                        <th>{% trans "On Hand" %}</th>
                     </tr>
                 </thead>
                 {% for row in table.rows %}
                     <tr>
                         <td class="col1">{{ row.common_attribute }}</td>
                         <td>{{ row.base }}</td>
-                        <td>{{ row.to_sell }}</td>
                         <td>{{ row.sold }}</td>
                         <td>{{ row.stock }}</td>
                     </tr>
