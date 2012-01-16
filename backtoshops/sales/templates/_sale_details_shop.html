@@ -3,11 +3,11 @@
 
 <!--CHOISIR UNE BOUTIQUE-->
 <div id="choixShop">
-    <strong>{% trans "Choose a shop" %}</strong>
+    <strong>{% trans "Select a participating shop" %}</strong>
     <p>
         <label for="shop">{% trans "Shop" %}</label>
         <select id="shop">
-            <option value="0">{% trans "Choose..." %}</option>
+            <option value="0">{% trans "Select a shop" %}</option>
             {% for shop in shops %}
             <option value="{% url sale_details sale.pk shop.pk %}">{{ shop.name }}</option>
             {% endfor %}

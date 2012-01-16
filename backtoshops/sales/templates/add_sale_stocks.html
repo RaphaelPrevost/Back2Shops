@@ -17,10 +17,10 @@
         <div id="barcodes_form">
             <div id="barcode_accordion" class="accordion">
                 <div>
-                    <h4 class="shopTitle done"><a href ="#">{% trans "Barcodes" %}</a></h4>
+                    <h4 class="shopTitle done"><a href ="#">{% trans "Product Barcodes" %}</a></h4>
                     <div>
                         <p>
-                            <em>{% trans "Barcodes definition" %}</em>
+                            <em>{% trans "Product Barcodes" %}</em>
                             <span class="contForm taille">
                             {% for attribute in attributes %}
                                 <strong>
@@ -68,10 +68,10 @@
         <div id="global_stocks_form">
             <div id="accordion" class="accordion">
                 <div>
-                    <h4 class="shopTitle done"><a href ="#">{% trans "Global Stocks" %}</a></h4>
+                    <h4 class="shopTitle done"><a href ="#">{% trans "Initial stock quantity" %}</a></h4>
                     <div>
                         <p>
-                            <em>{% trans "Definition des stocks" %}</em>
+                            <em>{% trans "Initial stock quantity" %}</em>
                             <span class="contForm taille">
                             {% for attribute in attributes %}
                                 <strong>
@@ -122,7 +122,7 @@
                     <h4 class="shopTitle done"><a href ="#">{{ shop.name }}</a></h4>
                     <div>
                         <p>
-                            <em>{% trans "Definition des stocks" %}</em>
+                            <em>{% trans "Initial stock allocation" %}</em>
                             <span class="contForm taille">
                             {% for attribute in attributes %}
                                 <strong>

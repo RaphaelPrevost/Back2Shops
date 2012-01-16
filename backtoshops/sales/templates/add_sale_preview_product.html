@@ -2,13 +2,13 @@
 {% load thumbnail %}
 
 <!--Produit-->
-<h4 class="titleRight">{% trans "Le produit" %}</h4>
+<h4 class="titleRight">{% trans "Preview" %}</h4>
 <div class="boxRight ficheProd">
     <!--Section gauche-->
     <div class="infoLeft">
         <div class="descrProd">
-            <strong id="preview-{{ wizard.form.name.auto_id }}">{% if context %}{{ context.name.value }}{% else %}{% trans "N/F" %}{% endif %}</strong>
-            <p id="preview-{{ wizard.form.description.auto_id }}">{% if context %}{{ context.description.value }}{% else %}{% trans "N/F" %}{% endif %}</p>
+            <strong id="preview-{{ wizard.form.name.auto_id }}">{% if context %}{{ context.name.value }}{% else %}{% trans "N/A" %}{% endif %}</strong>
+            <p id="preview-{{ wizard.form.description.auto_id }}">{% if context %}{{ context.description.value }}{% else %}{% trans "N/A" %}{% endif %}</p>
         </div>
         <div id="preview-{{ wizard.form.brand.auto_id }}" class="marque">
         {% if brand_object %}
@@ -27,20 +27,20 @@
                 {% if context %}
                     {{ context.discount_price.value|floatformat }}
                 {% else %}
-                    {% trans "N/F" %}
+                    {% trans "N/A" %}
                 {% endif %}&euro;
             </strong><em id="preview-{{ wizard.form.normal_price.auto_id }}">
                 {% if context %}
                     {{ context.normal_price.value|floatformat }}
                 {% else %}
-                    {% trans "N/F" %}
+                    {% trans "N/A" %}
                 {% endif %}&euro;
             </em>
-            <span>{% trans "Profitez de l'offre jusqu'au" %} <strong id="preview-{{ wizard.form.valid_to.auto_id }}">{% if context %}{{ context.valid_to.value }}{% else %}{% trans "N/F" %}{% endif %}</strong></span>
+            <span>{% trans "Offer valid until" %} <strong id="preview-{{ wizard.form.valid_to.auto_id }}">{% if context %}{{ context.valid_to.value }}{% else %}{% trans "N/A" %}{% endif %}</strong></span>
         </p>
         <div class="bouton">
-            <a href="#">{% trans "Acheter" %}</a>
-            <a href="#">{% trans "Offrir" %}</a>
+            <a href="#">{% trans "Buy Now" %}</a>
+            <a href="#">{% trans "Make a Gift" %}</a>
         </div>
         <div class="partage">
             <a class="faceBook" href="#">Partagez ce produit sur FaceBook</a>
@@ -62,20 +62,20 @@
                     &euro;
                 {% endif %}
             {% else %}
-                {% trans "N/F" %}
+                {% trans "N/A" %}
             {% endif %}
             </span>
         </div>
         <div id="preview-product-picture">
         {% if product_picture %}
             {% thumbnail product_picture.picture "156x171" as im %}
-                <img style='margin:{{ im|margin:"156x171" }}' src="{{ im.url }}" alt='{% trans "visuel" %} {{ context.name }}' width="{{ im.x }}" height="{{ im.y }}"/>
+                <img style='margin:{{ im|margin:"156x171" }}' src="{{ im.url }}" alt='{% trans "Product picture" %} {{ context.name }}' width="{{ im.x }}" height="{{ im.y }}"/>
             {% endthumbnail %}
 {#        {% else %}#}
 {#        <img src="{{ STATIC_URL }}img/Prod01.jpg" alt="Prod01" />#}
         {% endif %}
         </div>
-        <a class="voirOffre" href="#">{% trans "Voir l'offre" %}</a>
+        <a class="voirOffre" href="#">{% trans "Learn more" %}</a>
     </div>
     <!--FIN Section droite-->
 

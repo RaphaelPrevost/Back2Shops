@@ -6,7 +6,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-    <title>{% block title %}{% trans "Interface de gestion BackToShop" %}{% endblock %}</title>
+    <title>{% block title %}{% trans "Backoffice" %}{% endblock %}</title>
 
     <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/main.css" />
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.1.6.2.min.js"></script>
@@ -95,10 +95,10 @@
                 	{% endfor %}
                 	</select>
                 {% endif %}
-                <a id="logout" href="{% url bo_logout %}?next={% url bo_index %}">Logout</a>
+                <a id="logout" href="{% url bo_logout %}?next={% url bo_index %}">{% trans "Logout" %}</a>
             </form>
             {% else %}
-                <a id="login" href="{% url bo_login %}?next={% url bo_index %}">Login</a>
+                <a id="login" href="{% url bo_login %}?next={% url bo_index %}">{% trans "Login" %}</a>
             {% endif %}
             {% block navigation %}
             {% endblock %}
@@ -118,8 +118,8 @@
 
 	<!--FOOTER-->
 	<div id="footer">
-		<a href="http://www.backtoshop.com">www.backtoshop.com</a>
-		<strong>&copy; BACK TO SHOPS 2011</strong>
+		<a href="http://www.backtoshops.com">www.backtoshops.com</a>
+		<strong>&copy; BACK TO SHOPS 2012</strong>
 	</div>
 	<!--FIN FOOTER-->
 

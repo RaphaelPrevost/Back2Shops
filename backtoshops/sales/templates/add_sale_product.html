@@ -24,7 +24,7 @@
         </div>
         <div class="marge formrow">
             {{ wizard.form.pictures.management_form }}
-            <label for="visuel">{% trans "Visuels du produit" %}</label>
+            <label for="visuel">{% trans "Product pictures" %}</label>
             <div id="product_pictures" class="visuelProd">
                 <label id="pp_upload_btn" role="button">
                     <input id="pp_upload" type="file" name="files[]" multiple>
@@ -34,7 +34,7 @@
         </div>
         {{ wizard.form.brand.errors }}
         <div class="formrow">
-            <label for="{{ wizard.form.brand.auto_id }}">{% trans wizard.form.brand.label %}</label>
+            <label for="{{ wizard.form.brand.auto_id }}">{% trans "Brand name" %}</label>
             {{ wizard.form.brand }} {% trans "or" %}  <a href="#" id="add_new_brand">{% trans "Add new brand" %}</a>
             <span id="brand_new_error" style='display:none'></span>
         </div>
@@ -57,18 +57,18 @@
         {{ wizard.form.discount_type.errors }}
         <div class="marge formrow">
             {{ wizard.form.discount_price.errors }}
-            <label for="prixBTS">{% trans "Prix de vente BackToShop" %}</label>
+            <label for="prixBTS">{% trans "BackToShops Price" %}</label>
             <span class="contForm" id="newPrice">
                 {{ wizard.form.discount_type }}
                 {{ wizard.form.discount_price }}
                 <span class="raw">></span>{{ wizard.form.discount }}<span id="discount_marker" class="discount_marker">%</span>
-                <span id="result">{% trans "Nouveau prix de vente" %} : <strong id="discount_price">N/F</strong> <strong id="id_discount_price_marker">&nbsp;</strong></span>
+                <span id="result">{% trans "Discounted price" %} : <strong id="discount_price">{% trans "N/A" %}</strong> <strong id="id_discount_price_marker">&nbsp;</strong></span>
             </span>
         </div>
         {{ wizard.form.valid_from.errors }}
         {{ wizard.form.valid_to.errors }}
         <div class="marge formrow">
-            <label>{% trans "Date de validité" %}</label>
+            <label>{% trans "Valid through" %}</label>
             <span>{{ wizard.form.valid_from.label }}</span>{{ wizard.form.valid_from }}
             <span>{{ wizard.form.valid_to.label }}</span>{{ wizard.form.valid_to }}
         </div>
@@ -140,7 +140,7 @@
     <div id="add_new_brand_dialog" style="display: none;">
         <form id="add_new_brand_form" action="{% url add_new_brand %}" method="post">{% csrf_token %}
             {{ product_brand_form.as_p }}
-            <input type="submit" value="{% trans "Add" %}"/>
+            <input type="submit" value="{% trans "Create Brand" %}"/>
         </form>
     </div>
 {% endblock %}
@@ -309,7 +309,7 @@
 
             $("#add_ba").click(function(e) {
                 if (!$("#ba_input").val()) {
-                    alert('{% trans "You need to enter an attribute name" %}');
+                    alert('{% trans "Attribute name can not be left blank." %}');
                     e.preventDefault();
                     return false;
                 }
@@ -452,9 +452,9 @@
                     $("#discount_price").html(new_price);
                     $("#preview-{{ wizard.form.discount_price.auto_id }}").html(new_price+$("#{{wizard.form.currency.auto_id}} option:selected").text());
                 } else {
-                    $("#{{ wizard.form.discount_price.auto_id }}").val("N/F");
-                    $("#discount_price").html("N/F");
-                    $("#preview-{{ wizard.form.discount_price.auto_id }}").html("N/F");
+                    $("#{{ wizard.form.discount_price.auto_id }}").val("{% trans "N/A" %}");
+                    $("#discount_price").html("{% trans "N/A" %}");
+                    $("#preview-{{ wizard.form.discount_price.auto_id }}").html("{% trans "N/A" %}");
                 }
             }
 
@@ -492,7 +492,7 @@
 
             {% if product_picture %}
                 {% thumbnail product_picture.picture "156x171" as im %}
-                $("#preview-product-picture").html('<img style="margin:{{ im|margin:"156x171" }}" src="{{ im.url }}" alt="{% trans "visuel" %} {{ context.name }}" width="{{ im.x }}" height="{{ im.y }}"/>');
+                $("#preview-product-picture").html('<img style="margin:{{ im|margin:"156x171" }}" src="{{ im.url }}" alt="{% trans "Product picture" %} {{ context.name }}" width="{{ im.x }}" height="{{ im.y }}"/>');
                 {% endthumbnail %}
             {% endif %}
 

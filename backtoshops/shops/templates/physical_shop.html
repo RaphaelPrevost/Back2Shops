@@ -26,8 +26,8 @@
 
     <!--Title-->
     <div id="title">
-        <span>{% trans "Shops management" %}</span>
-        <h2>{% trans "Shops management" %}</h2>
+        <span>{% trans "Shops" %}</span>
+        <h2>{% trans "Shops" %}</h2>
     </div>
 
     <!--FORM-->
@@ -37,7 +37,7 @@
     <form id="main_form" method="post" action="{% url page_shops %}{% if shop_pk %}/{{ shop_pk }}{% endif %}" enctype="multipart/form-data">{% csrf_token %}
     {% endif %}
         {% if shop_pk %}
-        <h3>{% trans "Modify Shop" %}</h3>
+        <h3>{% trans "Edit Shop" %}</h3>
         {% else %}
         <h3>{% trans "New Shop" %}</h3>
         {% endif %}
@@ -106,29 +106,15 @@
             </div>
             {{ form.opening_hours.errors }}
             <div class="marge formrow">
-                <label for="lund1">{% trans "Horaires" %}</label>
+                <label for="lund1">{% trans "Opening hours" %}</label>
                 <span class="contForm" id="coloris">
                     {{ form.opening_hours }}
-<!--                     <label for="lund1">Lundi :</label><input class="inputS" id="lund1" type="text" size="10" value="00h00-00h00" />
-                    <span>et</span><input class="inputS" id="lund2" type="text" size="10" value="00h00-00h00" />
-                    <label for="mard1">Mardi :</label><input class="inputS" id="mard1" type="text" size="10" value="00h00-00h00" />
-                    <span>et</span><input class="inputS" id="mard2" type="text" size="10" value="00h00-00h00" />
-                    <label for="mercr1">Mercredi :</label><input class="inputS" id="mercr1" type="text" size="10" value="00h00-00h00" />
-                    <span>et</span><input class="inputS" id="mercr2" type="text" size="10" value="00h00-00h00" />
-                    <label for="jeud1">Jeudi :</label><input class="inputS" id="jeud1" type="text" size="10" value="00h00-00h00" />
-                    <span>et</span><input class="inputS" id="jeud2" type="text" size="10" value="00h00-00h00" />
-                    <label for="vend1">Vendredi :</label><input class="inputS" id="vend1" type="text" size="10" value="00h00-00h00" />
-                    <span>et</span><input class="inputS" id="vend2" type="text" size="10" value="00h00-00h00" />
-                    <label for="sam1">Samedi :</label><input class="inputS" id="sam1" type="text" size="10" value="00h00-00h00" />
-                    <span>et</span><input class="inputS" id="sam2" type="text" size="10" value="00h00-00h00" />
-                    <label for="dim1">Dimanche :</label><input class="inputS" id="dim1" type="text" size="10" value="00h00-00h00" />
-                    <span>et</span><input class="inputS" id="dim2" type="text" size="10" value="00h00-00h00" />
- -->                </span>
+                </span>
             </div>
         </fieldset>
         <!--BOUTONS-->
-        <input class="btn valider" type="submit" value='{% trans "Valider" %}'/>
-        <button type="reset" class="btn annuler">{% trans "Annuler" %}</button>
+        <input class="btn valider" type="submit" value='{% trans "Save" %}'/>
+        <button type="reset" class="btn annuler">{% trans "Cancel" %}</button>
     </form>
     <!--FIN FORM-->
 </div>
@@ -137,12 +123,12 @@
 <!--content-right-->
 <div id="content_Right">
     <!--Liste-Shop-->
-    <h4 class="titleRight">{% trans "Liste des Boutiques" %}</h4>
+    <h4 class="titleRight">{% trans "Shops list" %}</h4>
     <div class="boxRight" id="listeShop">
         <table cellpadding="0" cellspacing="0" border="0">
             <tr>
-                <th class="nom on"><a href="#">{% trans "Nom" %}</a></th>
-                <th class="ville off"><a href="#">{% trans "Ville" %}</a></th>
+                <th class="nom on"><a href="#">{% trans "Name" %}</a></th>
+                <th class="ville off"><a href="#">{% trans "City" %}</a></th>
                 <th class="action"><a href="#">{% trans "Actions" %}</a></th>
             </tr>
             {% for shop in shops %}
@@ -154,13 +140,13 @@
             </tr>
             {% empty %}
             <tr class="noshop">
-                <td colspan="3">{% trans "Aucune boutique enregistrée" %}</td>
+                <td colspan="3">{% trans "The shops list is empty." %}</td>
             </tr>
             {% endfor %}
         </table>
     </div>
     <!--//Liste-Shop-->
-    <a class="btn ajouter" href="add-sale_2.htm">{% trans "Ajouter une boutique" %}</a>
+    <a class="btn ajouter" href="add-sale_2.htm">{% trans "Add a new shop" %}</a>
 </div>
 <!--FIN content-right-->
 <div class="clear"></div>
@@ -240,21 +226,21 @@
                 if (results.length == 1) {
                     $("#{{ form.latitude.auto_id }}").val(results[0].geometry.location.lat());
                     $("#{{ form.longitude.auto_id }}").val(results[0].geometry.location.lng());
-                    $("#localization_infos").html('{% trans "Localization succeded" %}');
+                    $("#localization_infos").html('{% trans "Found" %}');
                     var latitude = parseFloat($("#{{ form.latitude.auto_id }}").val());
                     var longitude = parseFloat($("#{{ form.longitude.auto_id }}").val());
                     map.setCenter(new google.maps.LatLng(latitude, longitude));
 
                 } else {
-                    $("#localization_infos").html('{% trans "Localization found" %} '+results.length+' {% trans "results" %}');
+                    $("#localization_infos").html('{% trans "Found" %} '+results.length+' {% trans "results" %}');
                 }
                 for (var i in results) {
                     _setMarker(results[i]);
                 }
             } else if (status == google.maps.GeocoderStatus.ZERO_RESULTS) {
-                $("#localization_infos").html('{% trans "No results found. Check the address, zip code and city you have entered" %}');
+                $("#localization_infos").html('{% trans "No results found. Please check the address, postal code and city are correct." %}');
             } else {
-                $("#localization_infos").html('{% trans "An error occured, please try again later" %}');
+                $("#localization_infos").html('{% trans "An error occured, please try again later." %}');
             }
         });
     }

@@ -39,7 +39,7 @@ class UploadProductPictureView(View, TemplateResponseMixin):
             to_ret = {'status': 'ok', 'url': new_media.picture.url, 'thumb_url': thumb.url,
                       'pk': new_media.pk, 'preview_html': preview_html}
             return HttpResponse(json.dumps(to_ret), mimetype="application/json")
-        raise HttpResponseBadRequest(_("Must have files attached"))
+        raise HttpResponseBadRequest(_("Please upload a picture."))
 
 class ProductBrandView(BOLoginRequiredMixin, View, TemplateResponseMixin):
     template_name = "_ajax_brands.html"
@@ -51,7 +51,7 @@ class ProductBrandView(BOLoginRequiredMixin, View, TemplateResponseMixin):
                 self.new_brand = form.save(commit=False)
                 self.new_brand.seller = request.user.get_profile().work_for
                 self.new_brand.save()
-                messages.success(request, _("Brand has been added"))
+                messages.success(request, _("The brand has been successfully created."))
                 self.brands = ProductBrand.objects.filter(seller=request.user.get_profile().work_for)
         except Exception as e:
             self.errors = e
@@ -64,7 +64,7 @@ class BrandLogoView(BOLoginRequiredMixin, View, TemplateResponseMixin):
         if brand_id:
             brand = ProductBrand.objects.get(pk=brand_id)
             # bugfix: handle picture field is NULL
-            if brand.picture == 'NULL': return HttpResponse(ugettext('There is no brand logo.'))
+            if brand.picture == 'NULL': return HttpResponse(ugettext('Please upload a logo.'))
             self.picture = brand.picture
             return self.render_to_response(self.__dict__)
         return HttpResponseBadRequest()
@@ -80,7 +80,7 @@ class ListSalesView(BOLoginRequiredMixin, View, TemplateResponseMixin):
         if sales_type == "old":
             self.sales = Sale.objects.filter(mother_brand=request.user.get_profile().work_for,
                                              product__valid_to__lt=date.today())
-            self.page_title = _("Old sales")
+            self.page_title = _("History")
         else:
             self.sales = Sale.objects.filter(mother_brand=request.user.get_profile().work_for,
                                              product__valid_to__gte=date.today())
@@ -525,7 +525,7 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
         })
         if self.steps.current == self.STEP_SHOP:
             context.update({
-                'form_title': _("Shops Definition"),
+                'form_title': _("Shops Selection"),
                 'preview_shop': "blank"
             })
         elif self.steps.current == self.STEP_PRODUCT:
@@ -538,7 +538,7 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
                     if len(form.pictures.cleaned_data) > 0:
                         product_picture = ProductPicture.objects.get(pk=form.pictures.cleaned_data[0]['pk'])
             context.update({
-                'form_title': _("Product Definition"),
+                'form_title': _("Sale Details"),
                 'preview_shop': self._render_preview(self.STEP_SHOP),
                 'preview_product': "blank",
                 'product_picture': product_picture,
@@ -546,7 +546,7 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
             })
         elif self.steps.current == self.STEP_STOCKS:
             context.update({
-                'form_title': _("Stocks Definition"),
+                'form_title': _("Stock Allocation"),
                 'attributes': self.brand_attributes,
                 'preview_shop': self._render_preview(self.STEP_SHOP),
                 'preview_product': self._render_preview(self.STEP_PRODUCT),
@@ -556,7 +556,7 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
             })
         elif self.steps.current == self.STEP_TARGET:
             context.update({
-                'form_title': _("Target Definition"),
+                'form_title': _("Target Demographics"),
                 'preview_shop': self._render_preview(self.STEP_SHOP),
                 'preview_product': self._render_preview(self.STEP_PRODUCT),
                 'preview_target': "blank",

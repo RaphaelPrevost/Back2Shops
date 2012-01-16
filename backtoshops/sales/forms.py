@@ -13,7 +13,7 @@ from shops.models import Shop
 
 
 TARGET_MARKET = (
-    ('N', _("National")),
+    ('N', _("Global")),
     ('L', _("Local"))
 )
 
@@ -55,11 +55,11 @@ class GroupedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
 
 
 class ShopForm(forms.Form):
-    target_market = forms.ChoiceField(label=_(u"Marché ciblé"),choices=TARGET_MARKET)
+    target_market = forms.ChoiceField(label=_("Target market"), choices=TARGET_MARKET)
     def __init__(self, mother_brand=None, *args, **kwargs):
         super(ShopForm, self).__init__(*args, **kwargs)
         self.fields['shops'] = forms.ModelMultipleChoiceField(
-            label=_("Boutiques participantes"),
+            label=_("Participating shops"),
             queryset=Shop.objects.filter(mother_brand=mother_brand),
             widget=GroupedCheckboxSelectMultiple(),
             required=False
@@ -71,7 +71,7 @@ class ShopForm(forms.Form):
             data['shops'] = []
         else:
             if len(data['shops']) == 0:
-                raise forms.ValidationError(_("You must select at least one shop for local markets"))
+                raise forms.ValidationError(_("You must select at least one shop."))
         return data
 
 class BrandAttributeForm(forms.Form):
@@ -91,18 +91,18 @@ class ProductPictureForm(forms.Form):
 
 class ProductForm(forms.Form):
     type = forms.ModelChoiceField(
-        label=_("Type de produit"),
+        label=_("Product type"),
         queryset=ProductType.objects.all(),
         empty_label=None
     )
     category = forms.ModelChoiceField(
-        label=_(u"Catégorie de produit"),
+        label=_("Product category"),
         queryset=ProductCategory.objects.all(),
         empty_label=None
     )
-    name = forms.CharField(label=_("Nom de produit"), show_hidden_initial=True)
+    name = forms.CharField(label=_("Product name"), show_hidden_initial=True)
     description = forms.CharField(label=_("Description"), widget=forms.Textarea())
-    normal_price = forms.FloatField(label=_("Prix"),widget=forms.TextInput(attrs={'class': 'inputS'}))
+    normal_price = forms.FloatField(label=_("Price"),widget=forms.TextInput(attrs={'class': 'inputS'}))
     currency = forms.ModelChoiceField(queryset=ProductCurrency.objects.all())
     discount_price = forms.FloatField(widget=forms.TextInput(attrs={'class': 'inputXS', 'style': 'display: none;'}))
     discount_type = forms.ChoiceField(choices=DISCOUNT_TYPE)
@@ -133,9 +133,9 @@ class ProductForm(forms.Form):
 
     def clean_valid_to(self):
         if self.cleaned_data['valid_to'] < self.cleaned_data['valid_from']:
-            raise forms.ValidationError(_("Valid to date cannot be before valid from date"))
+            raise forms.ValidationError(_("Starting date can not be set past this sale's expiration date."))
         elif self.cleaned_data['valid_to'] < date.today():
-            raise forms.ValidationError(_("Valid to date cannot be before today"))
+            raise forms.ValidationError(_("Expiration date can not be set before today."))
         return self.cleaned_data['valid_to']
 
 class BarcodeForm(forms.Form):
@@ -148,14 +148,13 @@ class StockForm(forms.Form):
     brand_attribute = forms.IntegerField(required=False)
     common_attribute = forms.IntegerField()
     shop = forms.IntegerField(required=False)
-    #stock = forms.IntegerField(label=_("Stock"), required=False)
     stock = forms.IntegerField(label=_("Stock"), error_messages = {'required': _(u'This field is required.')})
     def clean_stock(self):
         data = self.cleaned_data['stock']
         try:
             int_data = int(data)
         except:
-            raise forms.ValidationError(_('Invalid Stock'))
+            raise forms.ValidationError(_('Invalid stock quantity.'))
         return int_data
 
 StockFormset = formset_factory(StockForm, can_delete=True, extra=0)
@@ -183,7 +182,7 @@ class StockStepForm(forms.Form):
                     raise forms.ValidationError(form.errors)
 
 class TargetForm(forms.Form):
-    gender = forms.ChoiceField(choices=GENDERS, label=_("Gender"))
+    gender = forms.ChoiceField(choices=GENDERS, label=_("Target gender"))
 
 class ProductBrandFormModel(forms.ModelForm):
     class Meta:
@@ -192,16 +191,16 @@ class ProductBrandFormModel(forms.ModelForm):
 
 class ListSalesForm(forms.Form):
     ORDER_BY_ITEMS = {
-                      ('product__category',_(u"Catégorie de produit")),
-                      ('product__type',_("Type de produit")),
-                      ('product__name',_("Nom de produit")),
-                      ('total_stock',_("Produits en stock")),
-                      ('total_rest_stock',_("Produits en vente")),
-                      ('total_sold_stock',_("Produits vendu")),
-                      ('product__normal_price',_("Prix")),
-                      ('product__discount_price',_("Reduction")),
-                      ('product__valid_from',_("Date de debut")),
-                      ('product__valid_to',_("Date de fin")),
+                      ('product__category',_("Product category")),
+                      ('product__type',_("Product type")),
+                      ('product__name',_("Product name")),
+                      ('total_stock',_("Initial stock quantity")),
+                      ('total_rest_stock',_("Available quantity")),
+                      ('total_sold_stock',_("Sales")),
+                      ('product__normal_price',_("Price")),
+                      ('product__discount_price',_("Discounted price")),
+                      ('product__valid_from',_("Starting date")),
+                      ('product__valid_to',_("Expiration date")),
                      }
     order_by1 = forms.ChoiceField(required=False,choices=ORDER_BY_ITEMS)
     order_by2 = forms.ChoiceField(required=False,choices=ORDER_BY_ITEMS)
