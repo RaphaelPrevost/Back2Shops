@@ -1,0 +1,626 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-01-16 17:50+0100\n"
+"PO-Revision-Date: 2012-01-16 18:00\n"
+"Last-Translator:   <raphael@princesseavis.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
+"X-Translated-Using: django-rosetta 0.6.2\n"
+
+#: settings_local.py:65 settings_production.py:41
+msgid "English"
+msgstr "英语"
+
+#: settings_local.py:66 settings_production.py:42
+msgid "French"
+msgstr "法语"
+
+#: settings_production.py:43
+msgid "Chinese"
+msgstr "中文"
+
+#: pictures/views.py:24 sales/views.py:42
+msgid "Please upload a picture."
+msgstr "必须添加文件"
+
+#: sales/forms.py:16
+msgid "Global"
+msgstr "全国"
+
+#: sales/forms.py:17
+msgid "Local"
+msgstr "所在城市"
+
+#: sales/forms.py:58
+msgid "Target market"
+msgstr "目标市场"
+
+#: sales/forms.py:62 sales/templates/add_sale_preview_shop.html:5
+msgid "Participating shops"
+msgstr "参与的店铺"
+
+#: sales/forms.py:74
+msgid "You must select at least one shop."
+msgstr "您必须在地方市场上至少选择一个商店"
+
+#: sales/forms.py:94 sales/forms.py:195
+msgid "Product type"
+msgstr "商品种类"
+
+#: sales/forms.py:99 sales/forms.py:194
+msgid "Product category"
+msgstr "商品类别"
+
+#: sales/forms.py:103 sales/forms.py:196
+msgid "Product name"
+msgstr "商品名称"
+
+#: sales/forms.py:104 shops/models.py:18
+msgid "Description"
+msgstr "描述"
+
+#: sales/forms.py:105 sales/forms.py:200
+msgid "Price"
+msgstr "价格"
+
+#: sales/forms.py:110 sales/templates/_sale_details.html:7
+#: sales/templates/list.html:59
+msgid "From"
+msgstr "从"
+
+#: sales/forms.py:111 sales/templates/_sale_details.html:7
+#: sales/templates/list.html:59
+msgid "To"
+msgstr "到"
+
+#: sales/forms.py:136
+msgid "Starting date can not be set past this sale's expiration date."
+msgstr ""
+
+#: sales/forms.py:138
+msgid "Expiration date can not be set before today."
+msgstr ""
+
+#: sales/forms.py:144 shops/models.py:10
+msgid "Barcode"
+msgstr "条形码"
+
+#: sales/forms.py:151
+msgid "Stock"
+msgstr "库存"
+
+#: sales/forms.py:151
+msgid "This field is required."
+msgstr "这是需要被填入的区域"
+
+#: sales/forms.py:157
+msgid "Invalid stock quantity."
+msgstr ""
+
+#: sales/forms.py:185
+msgid "Target gender"
+msgstr "目标性别"
+
+#: sales/forms.py:197 sales/templates/add_sale_stocks.html:71
+#: sales/templates/add_sale_stocks.html:74
+msgid "Initial stock quantity"
+msgstr "库存商品"
+
+#: sales/forms.py:198
+msgid "Available quantity"
+msgstr "正在售卖的商品"
+
+#: sales/forms.py:199 sales/templates/_sale_details.html:11
+#: sales/templates/_sale_details.html:24
+msgid "Sales"
+msgstr "卖出的商品"
+
+#: sales/forms.py:201 sales/templates/add_sale_product.html:65
+msgid "Discounted price"
+msgstr ""
+
+#: sales/forms.py:202
+msgid "Starting date"
+msgstr "起始日期"
+
+#: sales/forms.py:203
+msgid "Expiration date"
+msgstr "结束日期"
+
+#: sales/models.py:8
+msgid "Unapplicable"
+msgstr ""
+
+#: sales/models.py:9
+msgid "Male"
+msgstr "男"
+
+#: sales/models.py:10
+msgid "Female"
+msgstr "女"
+
+#: sales/models.py:16 sales/templates/add_sale_stocks.html:125
+msgid "Initial stock allocation"
+msgstr ""
+
+#: sales/models.py:17
+msgid "Initial stock quantities"
+msgstr ""
+
+#: sales/models.py:21
+msgid "Percentage"
+msgstr "百分比"
+
+#: sales/models.py:22
+msgid "Amount"
+msgstr "总数"
+
+#: sales/views.py:54
+msgid "The brand has been successfully created."
+msgstr "已添加的品牌"
+
+#: sales/views.py:67
+msgid "Please upload a logo."
+msgstr "没有品牌标识"
+
+#: sales/views.py:83 templates/_quick_nav.html:10 templates/index.html:23
+#: templates/index.html.py:24
+msgid "History"
+msgstr "往期售卖"
+
+#: sales/views.py:87
+msgid "Current Sales"
+msgstr "当前售卖"
+
+#: sales/views.py:528
+msgid "Shops Selection"
+msgstr "商店信息录入"
+
+#: sales/views.py:541
+msgid "Sale Details"
+msgstr "商品信息录入"
+
+#: sales/views.py:549
+msgid "Stock Allocation"
+msgstr "库存信息录入"
+
+#: sales/views.py:559
+msgid "Target Demographics"
+msgstr "目标群体定义"
+
+#: sales/templates/_sale_details.html:8
+msgid "Total"
+msgstr "总数"
+
+#: sales/templates/_sale_details.html:10 sales/templates/_sale_details.html:23
+msgid "Initial"
+msgstr ""
+
+#: sales/templates/_sale_details.html:12 sales/templates/_sale_details.html:25
+msgid "On Hand"
+msgstr "预售"
+
+#: sales/templates/_sale_details.html:22
+msgid "Attribute"
+msgstr "特性"
+
+#: sales/templates/_sale_details_shop.html:6
+msgid "Select a participating shop"
+msgstr "选择一个店铺"
+
+#: sales/templates/_sale_details_shop.html:8
+msgid "Shop"
+msgstr "商店"
+
+#: sales/templates/_sale_details_shop.html:10
+msgid "Select a shop"
+msgstr "选择一个店铺"
+
+#: sales/templates/add_sale_base.html:5 sales/templates/add_sale_base.html:32
+#: sales/templates/add_sale_base.html:34 templates/_quick_nav.html:8
+#: templates/index.html:7 templates/index.html.py:8
+msgid "Add a new sale"
+msgstr "添加一个新的售卖"
+
+#: sales/templates/add_sale_base.html:27
+#: sales/templates/edit_sale_base.html:25 sales/templates/list.html:17
+msgid "Page Top"
+msgstr ""
+
+#: sales/templates/add_sale_base.html:42
+#: sales/templates/edit_sale_base.html:40
+msgid "First step"
+msgstr "第一步"
+
+#: sales/templates/add_sale_base.html:43
+#: sales/templates/edit_sale_base.html:41
+msgid "Back"
+msgstr "上一步"
+
+#: sales/templates/add_sale_base.html:45
+#: sales/templates/edit_sale_base.html:43
+#: shops/templates/physical_shop.html:117
+msgid "Cancel"
+msgstr "取消"
+
+#: sales/templates/add_sale_base.html:47
+#: sales/templates/edit_sale_base.html:45
+msgid "Next: Product"
+msgstr ""
+
+#: sales/templates/add_sale_base.html:50
+#: sales/templates/edit_sale_base.html:48
+msgid "Next: Stock Qty"
+msgstr ""
+
+#: sales/templates/add_sale_base.html:53
+#: sales/templates/edit_sale_base.html:51
+msgid "Next: Target"
+msgstr ""
+
+#: sales/templates/add_sale_base.html:56
+msgid "Create Sale"
+msgstr ""
+
+#: sales/templates/add_sale_preview_product.html:5
+msgid "Preview"
+msgstr ""
+
+#: sales/templates/add_sale_preview_product.html:10
+#: sales/templates/add_sale_preview_product.html:11
+#: sales/templates/add_sale_preview_product.html:30
+#: sales/templates/add_sale_preview_product.html:36
+#: sales/templates/add_sale_preview_product.html:39
+#: sales/templates/add_sale_preview_product.html:65
+#: sales/templates/add_sale_product.html:65
+#: sales/templates/add_sale_product.html:455
+#: sales/templates/add_sale_product.html:456
+#: sales/templates/add_sale_product.html:457 sales/templates/list.html:60
+msgid "N/A"
+msgstr "无"
+
+#: sales/templates/add_sale_preview_product.html:39
+msgid "Offer valid until"
+msgstr "享受折扣直到"
+
+#: sales/templates/add_sale_preview_product.html:42
+msgid "Buy Now"
+msgstr "买"
+
+#: sales/templates/add_sale_preview_product.html:43
+msgid "Make a Gift"
+msgstr "特供"
+
+#: sales/templates/add_sale_preview_product.html:72
+#: sales/templates/add_sale_product.html:495 sales/templates/list.html:55
+msgid "Product picture"
+msgstr ""
+
+#: sales/templates/add_sale_preview_product.html:78
+msgid "Learn more"
+msgstr "查看特供"
+
+#: sales/templates/add_sale_preview_target.html:7
+msgid "Gender"
+msgstr ""
+
+#: sales/templates/add_sale_product.html:27
+msgid "Product pictures"
+msgstr "产品广告图片"
+
+#: sales/templates/add_sale_product.html:37
+msgid "Brand name"
+msgstr ""
+
+#: sales/templates/add_sale_product.html:38
+msgid "or"
+msgstr "或者"
+
+#: sales/templates/add_sale_product.html:38
+#: sales/templates/add_sale_product.html:398
+msgid "Add a new brand"
+msgstr "添加一个新的品牌"
+
+#: sales/templates/add_sale_product.html:60
+msgid "BackToShops Price"
+msgstr "BackToShop上的销售价格"
+
+#: sales/templates/add_sale_product.html:71
+msgid "Valid through"
+msgstr "有效期"
+
+#: sales/templates/add_sale_product.html:76
+msgid "Brand attributes"
+msgstr "品牌特性"
+
+#: sales/templates/add_sale_product.html:87
+#: sales/templates/add_sale_product.html:111
+msgid "Add"
+msgstr "添加"
+
+#: sales/templates/add_sale_product.html:108
+#: sales/templates/add_sale_product.html:129
+msgid "Remove"
+msgstr "移动"
+
+#: sales/templates/add_sale_product.html:143
+msgid "Create Brand"
+msgstr ""
+
+#: sales/templates/add_sale_product.html:312
+msgid "Attribute name can not be left blank."
+msgstr "你需要输入一个特性名称"
+
+#: sales/templates/add_sale_product.html:433 sales/templates/list.html:98
+#: sales/templates/list.html.py:103 sales/templates/list.html:111
+msgid "Loading..."
+msgstr "读取进度中..."
+
+#: sales/templates/add_sale_stocks.html:20
+#: sales/templates/add_sale_stocks.html:23
+msgid "Product Barcodes"
+msgstr "条形码信息录入"
+
+#: sales/templates/add_sale_stocks.html:228
+msgid "Sorry, please check your input."
+msgstr "对不起，请检查您的输入。"
+
+#: sales/templates/added.html:5
+msgid "The sale has been successfully created."
+msgstr "被添加的售卖"
+
+#: sales/templates/edit_sale_base.html:5
+#: sales/templates/edit_sale_base.html:30
+#: sales/templates/edit_sale_base.html:32
+msgid "Edit a sale"
+msgstr "编辑一个售卖"
+
+#: sales/templates/edit_sale_base.html:54
+msgid "Update Sale"
+msgstr ""
+
+#: sales/templates/list.html:34
+msgid "Sort by:"
+msgstr ""
+
+#: sales/templates/list.html:38
+msgid "Sort"
+msgstr "分类"
+
+#: sales/templates/list.html:60
+msgid "Available Qty:"
+msgstr "预售："
+
+#: sales/templates/list.html:60
+msgid "Sales:"
+msgstr "已售："
+
+#: sales/templates/list.html:60
+msgid "Initial Stock:"
+msgstr "初始数目："
+
+#: sales/templates/list.html:63
+msgid "Discounted price:"
+msgstr ""
+
+#: sales/templates/list.html:64
+msgid "Discount:"
+msgstr ""
+
+#: sales/templates/list.html:65
+msgid "Item price:"
+msgstr ""
+
+#: sales/templates/list.html:71
+msgid "Details per shop"
+msgstr "按商店查看细节"
+
+#: sales/templates/list.html:73
+msgid "Details"
+msgstr "查看全部细节"
+
+#: sales/templates/list.html:118
+msgid "Are you sure you want to delete this sale?"
+msgstr "您确定要删除这项吗？"
+
+#: sales/templates/updated.html:5
+msgid "The sale was successfully updated."
+msgstr ""
+
+#: shops/models.py:9
+msgid "Internal name"
+msgstr "内部名称"
+
+#: shops/models.py:11
+msgid "Address"
+msgstr "地址"
+
+#: shops/models.py:12
+msgid "Postal code"
+msgstr "邮编"
+
+#: shops/models.py:13 shops/templates/physical_shop.html:131
+msgid "City"
+msgstr "城市"
+
+#: shops/models.py:14
+msgid "Phone number"
+msgstr "电话"
+
+#: shops/models.py:15
+msgid "Shop name"
+msgstr "名称"
+
+#: shops/models.py:16
+msgid "Caption"
+msgstr "文本附件"
+
+#: shops/models.py:17
+msgid "Shop picture"
+msgstr "图片"
+
+#: shops/widgets.py:10
+msgid "Monday"
+msgstr "星期一"
+
+#: shops/widgets.py:10
+msgid "Tuesday"
+msgstr "星期二"
+
+#: shops/widgets.py:10
+msgid "Wednesday"
+msgstr "星期三"
+
+#: shops/widgets.py:10
+msgid "Thursday"
+msgstr "星期四"
+
+#: shops/widgets.py:11
+msgid "Friday"
+msgstr "星期五"
+
+#: shops/widgets.py:11
+msgid "Saturday"
+msgstr "星期六"
+
+#: shops/widgets.py:11
+msgid "Sunday"
+msgstr "星期天"
+
+#: shops/widgets.py:16
+msgid "and"
+msgstr "和"
+
+#: shops/templates/physical_shop.html:6
+msgid "Edit a Shop"
+msgstr "编辑一个店铺"
+
+#: shops/templates/physical_shop.html:8
+msgid "Add a Shop"
+msgstr "添加一个店铺"
+
+#: shops/templates/physical_shop.html:29 shops/templates/physical_shop.html:30
+#: templates/_quick_nav.html:11 templates/index.html:11
+#: templates/index.html.py:12
+msgid "Shops"
+msgstr ""
+
+#: shops/templates/physical_shop.html:40
+msgid "Edit Shop"
+msgstr "商店变更"
+
+#: shops/templates/physical_shop.html:42
+msgid "New Shop"
+msgstr "新商店"
+
+#: shops/templates/physical_shop.html:109
+msgid "Opening hours"
+msgstr "时刻表"
+
+#: shops/templates/physical_shop.html:116
+msgid "Save"
+msgstr ""
+
+#: shops/templates/physical_shop.html:126
+msgid "Shops list"
+msgstr "店铺列表"
+
+#: shops/templates/physical_shop.html:130
+msgid "Name"
+msgstr "名称"
+
+#: shops/templates/physical_shop.html:132
+msgid "Actions"
+msgstr "动作"
+
+#: shops/templates/physical_shop.html:143
+msgid "The shops list is empty."
+msgstr "无店铺登记信息"
+
+#: shops/templates/physical_shop.html:149
+msgid "Add a new shop"
+msgstr "添加一个店铺"
+
+#: shops/templates/physical_shop.html:222
+msgid "Searching..."
+msgstr "查找中..."
+
+#: shops/templates/physical_shop.html:229
+#: shops/templates/physical_shop.html:235
+msgid "Found"
+msgstr ""
+
+#: shops/templates/physical_shop.html:235
+msgid "results"
+msgstr "结果"
+
+#: shops/templates/physical_shop.html:241
+msgid ""
+"No results found. Please check the address, postal code and city are "
+"correct."
+msgstr "没有发现结果。检查地址，邮编和你所键入的城市"
+
+#: shops/templates/physical_shop.html:243
+msgid "An error occured, please try again later."
+msgstr "错误发生，请稍后尝试"
+
+#: shops/templates/physical_shop.html:296
+msgid "Are your sure you want to delete this shop?"
+msgstr "您确定要删除这个商店吗？"
+
+#: templates/_quick_nav.html:5
+msgid "Home"
+msgstr "首页"
+
+#: templates/_quick_nav.html:9 templates/index.html:15
+#: templates/index.html.py:16
+msgid "Current sales"
+msgstr "正在售卖"
+
+#: templates/_quick_nav.html:12 templates/index.html:19
+#: templates/index.html.py:20
+msgid "Statistics"
+msgstr "品牌销量统计"
+
+#: templates/_quick_nav.html:13 templates/index.html:27
+#: templates/index.html.py:28
+msgid "Performance Map"
+msgstr "销量地图"
+
+#: templates/base.html:9
+msgid "Backoffice"
+msgstr "BackToShops界面管理"
+
+#: templates/base.html:89
+msgid "Welcome"
+msgstr "欢迎"
+
+#: templates/base.html:98
+msgid "Logout"
+msgstr ""
+
+#: templates/base.html:101 templates/login.html:27
+msgid "Login"
+msgstr ""
+
+#: templates/login.html:8
+msgid "Your username and password didn't match. Please try again."
+msgstr ""
+
+#: templates/login.html:12
+msgid "BackToShops Login"
+msgstr ""
+
+#~ msgid "Add new brand"
+#~ msgstr "添加一个新的品牌"
