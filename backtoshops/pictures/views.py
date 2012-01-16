@@ -21,4 +21,4 @@ class UploadProductPictureView(View, TemplateResponseMixin):
             to_ret = {'status': 'ok', 'url': new_media.picture.url, 'thumb_url': thumb.url,
                       'pk': new_media.pk, 'preview_html': preview_html}
             return HttpResponse(json.dumps(to_ret), mimetype="application/json")
-        raise HttpResponseBadRequest(_("Must have files attached"))
+        raise HttpResponseBadRequest(_("Please upload a picture."))
