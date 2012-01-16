@@ -9,13 +9,13 @@
         <div>
             {{ wizard.form.non_field_errors }}
             <div class="formrow">
-                <label for="{{ wizard.form.target_market.auto_id }}">{{ wizard.form.target_market.label }}</label>
+                <label for="{{ wizard.form.target_market.auto_id }}">{% trans wizard.form.target_market.label %}</label>
                 {{ wizard.form.target_market }}
             </div>
             {% comment %}
             <span  id="physical_shops">
                 <div class="formrow">
-                    <label for="{{ wizard.form.shops.auto_id }}">{{ wizard.form.shops.label }}</label>
+                    <label for="{{ wizard.form.shops.auto_id }}">{% trans wizard.form.shops.label %}</label>
                     {{ wizard.form.shops }}
                 </div>
             </span>

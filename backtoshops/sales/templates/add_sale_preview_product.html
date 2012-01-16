@@ -2,7 +2,7 @@
 {% load thumbnail %}
 
 <!--Produit-->
-<h4 class="titleRight">Le produit</h4>
+<h4 class="titleRight">{% trans "Le produit" %}</h4>
 <div class="boxRight ficheProd">
     <!--Section gauche-->
     <div class="infoLeft">
@@ -36,11 +36,11 @@
                     {% trans "N/F" %}
                 {% endif %}&euro;
             </em>
-            <span>Profitez de l'offre jusqu'au <strong id="preview-{{ wizard.form.valid_to.auto_id }}">{% if context %}{{ context.valid_to.value }}{% else %}{% trans "N/F" %}{% endif %}</strong></span>
+            <span>{% trans "Profitez de l'offre jusqu'au" %} <strong id="preview-{{ wizard.form.valid_to.auto_id }}">{% if context %}{{ context.valid_to.value }}{% else %}{% trans "N/F" %}{% endif %}</strong></span>
         </p>
         <div class="bouton">
-            <a href="#">Acheter</a>
-            <a href="#">Offrir</a>
+            <a href="#">{% trans "Acheter" %}</a>
+            <a href="#">{% trans "Offrir" %}</a>
         </div>
         <div class="partage">
             <a class="faceBook" href="#">Partagez ce produit sur FaceBook</a>
@@ -75,7 +75,7 @@
 {#        <img src="{{ STATIC_URL }}img/Prod01.jpg" alt="Prod01" />#}
         {% endif %}
         </div>
-        <a class="voirOffre" href="#">Voir l'offre</a>
+        <a class="voirOffre" href="#">{% trans "Voir l'offre" %}</a>
     </div>
     <!--FIN Section droite-->
 

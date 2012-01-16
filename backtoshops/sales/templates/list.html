@@ -31,11 +31,11 @@
         <fieldset>
             <!--SELECT TRIER PAR-->
             <p id="triVente">
-                <label for="trie01">Trier par :</label>
+                <label for="trie01">{% trans "Trier par :" %}</label>
                 {{ form.order_by1 }}
                 <span>+</span>
                 {{ form.order_by2 }}
-                <input type="submit" value="{% trans "sort" %}" />
+                <input type="submit" value="{% trans "Trier" %}" />
             </p>
             <!--FIN SELECT TRIER PAR-->
 

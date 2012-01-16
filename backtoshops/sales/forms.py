@@ -55,10 +55,11 @@ class GroupedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
 
 
 class ShopForm(forms.Form):
-    target_market = forms.ChoiceField(choices=TARGET_MARKET)
+    target_market = forms.ChoiceField(label=_(u"Marché ciblé"),choices=TARGET_MARKET)
     def __init__(self, mother_brand=None, *args, **kwargs):
         super(ShopForm, self).__init__(*args, **kwargs)
         self.fields['shops'] = forms.ModelMultipleChoiceField(
+            label=_("Boutiques participantes"),
             queryset=Shop.objects.filter(mother_brand=mother_brand),
             widget=GroupedCheckboxSelectMultiple(),
             required=False
@@ -90,16 +91,18 @@ class ProductPictureForm(forms.Form):
 
 class ProductForm(forms.Form):
     type = forms.ModelChoiceField(
+        label=_("Type de produit"),
         queryset=ProductType.objects.all(),
         empty_label=None
     )
     category = forms.ModelChoiceField(
+        label=_(u"Catégorie de produit"),
         queryset=ProductCategory.objects.all(),
         empty_label=None
     )
-    name = forms.CharField(show_hidden_initial=True)
-    description = forms.CharField(widget=forms.Textarea())
-    normal_price = forms.FloatField(widget=forms.TextInput(attrs={'class': 'inputS'}))
+    name = forms.CharField(label=_("Nom de produit"), show_hidden_initial=True)
+    description = forms.CharField(label=_("Description"), widget=forms.Textarea())
+    normal_price = forms.FloatField(label=_("Prix"),widget=forms.TextInput(attrs={'class': 'inputS'}))
     currency = forms.ModelChoiceField(queryset=ProductCurrency.objects.all())
     discount_price = forms.FloatField(widget=forms.TextInput(attrs={'class': 'inputXS', 'style': 'display: none;'}))
     discount_type = forms.ChoiceField(choices=DISCOUNT_TYPE)
@@ -189,16 +192,16 @@ class ProductBrandFormModel(forms.ModelForm):
 
 class ListSalesForm(forms.Form):
     ORDER_BY_ITEMS = {
-                      ('product__category',_('Categorie de produit')),
-                      ('product__type',_('Type de produit')),
-                      ('product__name',_('Nom de produit')),
-                      ('total_stock',_('Produits en stock')),
-                      ('total_rest_stock',_('Produits en vente')),
-                      ('total_sold_stock',_('Produits vendu')),
-                      ('product__normal_price',_('Prix')),
-                      ('product__discount_price',_('Reduction')),
-                      ('product__valid_from',_('Date de debut')),
-                      ('product__valid_to',_('Date de fin')),
+                      ('product__category',_(u"Catégorie de produit")),
+                      ('product__type',_("Type de produit")),
+                      ('product__name',_("Nom de produit")),
+                      ('total_stock',_("Produits en stock")),
+                      ('total_rest_stock',_("Produits en vente")),
+                      ('total_sold_stock',_("Produits vendu")),
+                      ('product__normal_price',_("Prix")),
+                      ('product__discount_price',_("Reduction")),
+                      ('product__valid_from',_("Date de debut")),
+                      ('product__valid_to',_("Date de fin")),
                      }
     order_by1 = forms.ChoiceField(required=False,choices=ORDER_BY_ITEMS)
     order_by2 = forms.ChoiceField(required=False,choices=ORDER_BY_ITEMS)

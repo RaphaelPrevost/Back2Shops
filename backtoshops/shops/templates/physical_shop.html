@@ -3,9 +3,9 @@
 
 {% block title %}
 {% if shop_pk %}
-Edit a Shop
+{% trans "Edit a Shop" %}
 {% else %}
-Add a Shop
+{% trans "Add a Shop" %}
 {% endif %}
 {% endblock %}
 
@@ -48,27 +48,27 @@ Add a Shop
             {{ form.non_field_errors }}
             {{ form.gestion_name.errors }}
             <div class="formrow">
-                {{ form.gestion_name.label_tag }}
+                <label for="{{form.gestion_name.auto_id}}">{% trans form.gestion_name.label %}</label>
                 {{ form.gestion_name }}
             </div>
             {{ form.upc.errors }}
             <div class="marge formrow">
-                {{ form.upc.label_tag }}
+                <label for="{{form.upc.auto_id}}">{% trans form.upc.label %}</label>
                 {{ form.upc }}
             </div>
             {{ form.address.errors }}
             <div class="formrow">
-                {{ form.address.label_tag }}
+                <label for="{{form.address.auto_id}}">{% trans form.address.label %}</label>
                 {{ form.address }}
             </div>
             {{ form.zipcode.errors }}
             <div class="formrow">
-                {{ form.zipcode.label_tag }}
+                <label for="{{form.zipcode.auto_id}}">{% trans form.zipcode.label %}</label>
                 {{ form.zipcode }}
             </div>
             {{ form.city.errors }}
             <div class="marge formrow">
-                {{ form.city.label_tag }}
+                <label for="{{form.city.auto_id}}">{% trans form.city.label %}</label>
                 {{ form.city }}
             </div>
             <div id="localization">
@@ -78,22 +78,22 @@ Add a Shop
             </div>
             {{ form.phone.errors }}
             <div class="marge formrow">
-                {{ form.phone.label_tag }}
+                <label for="{{form.phone.auto_id}}">{% trans form.phone.label %}</label>
                 {{ form.phone }}
             </div>
             {{ form.name.errors }}
             <div class="formrow">
-                {{ form.name.label_tag }}
+                <label for="{{form.name.auto_id}}">{% trans form.name.label %}</label>
                 {{ form.name }}
             </div>
             {{ form.catcher.errors }}
             <div class="formrow">
-                {{ form.catcher.label_tag }}
+                <label for="{{form.catcher.auto_id}}">{% trans form.catcher.label %}</label>
                 {{ form.catcher }}
             </div>
             {{ form.image.errors }}
             <div class="formrow">
-                {{ form.image.label_tag }}
+                <label for="{{form.image.auto_id}}">{% trans form.image.label %}</label>
                 {% if form.image.value %}
                 <p><img src='{{ media_url }}{{ form.image.value }}' /></p>
                 {% endif %}
@@ -101,12 +101,12 @@ Add a Shop
             </div>
             {{ form.description.errors }}
             <div class="marge formrow">
-                {{ form.description.label_tag }}
+                <label for="{{form.description.auto_id}}">{% trans form.description.label %}</label>
                 {{ form.description }}
             </div>
             {{ form.opening_hours.errors }}
             <div class="marge formrow">
-                <label for="lund1">Horaires</label>
+                <label for="lund1">{% trans "Horaires" %}</label>
                 <span class="contForm" id="coloris">
                     {{ form.opening_hours }}
 <!--                     <label for="lund1">Lundi :</label><input class="inputS" id="lund1" type="text" size="10" value="00h00-00h00" />
@@ -128,7 +128,7 @@ Add a Shop
         </fieldset>
         <!--BOUTONS-->
         <input class="btn valider" type="submit" value='{% trans "Valider" %}'/>
-        <button type="reset" class="btn annuler">Annuler</button>
+        <button type="reset" class="btn annuler">{% trans "Annuler" %}</button>
     </form>
     <!--FIN FORM-->
 </div>
@@ -137,13 +137,13 @@ Add a Shop
 <!--content-right-->
 <div id="content_Right">
     <!--Liste-Shop-->
-    <h4 class="titleRight">Liste des Boutiques</h4>
+    <h4 class="titleRight">{% trans "Liste des Boutiques" %}</h4>
     <div class="boxRight" id="listeShop">
         <table cellpadding="0" cellspacing="0" border="0">
             <tr>
-                <th class="nom on"><a href="#">Nom</a></th>
-                <th class="ville off"><a href="#">Ville</a></th>
-                <th class="action"><a href="#">Actions</a></th>
+                <th class="nom on"><a href="#">{% trans "Nom" %}</a></th>
+                <th class="ville off"><a href="#">{% trans "Ville" %}</a></th>
+                <th class="action"><a href="#">{% trans "Actions" %}</a></th>
             </tr>
             {% for shop in shops %}
             <script type="text/javascript">console.log("{{ shop.name }}");</script>
@@ -154,13 +154,13 @@ Add a Shop
             </tr>
             {% empty %}
             <tr class="noshop">
-                <td colspan="3">Aucune boutique enregistr&eacute;e</td>
+                <td colspan="3">{% trans "Aucune boutique enregistrée" %}</td>
             </tr>
             {% endfor %}
         </table>
     </div>
     <!--//Liste-Shop-->
-    <a class="btn ajouter" href="add-sale_2.htm">Ajouter une boutique</a>
+    <a class="btn ajouter" href="add-sale_2.htm">{% trans "Ajouter une boutique" %}</a>
 </div>
 <!--FIN content-right-->
 <div class="clear"></div>

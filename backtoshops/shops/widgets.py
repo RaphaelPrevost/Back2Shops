@@ -1,28 +1,20 @@
 import json
 from django.forms.widgets import TextInput
 from django.utils.datastructures import SortedDict
+from django.utils.translation import ugettext_lazy as _
 from multiwidgetlayout.widgets import MultiWidgetLayout
 
 class ScheduleWidget(MultiWidgetLayout):
 	def __init__(self, attrs=None):
 		days = [
-			"Monday", "Tuesday", "Wednesday", "Thursday",
-			"Friday", "Saturday", "Sunday"
+			_("Monday"), _("Tuesday"), _("Wednesday"), _("Thursday"),
+			_("Friday"), _("Saturday"), _("Sunday")
 		]
 		layout = []
 		for i in days:
 			layout += [
-				"<label for='%(id)s'>"+i+"</label>", TextInput(attrs={"class": "inputXS"}), TextInput(attrs={"class": "inputXS"}), "<span> and </span>", TextInput(attrs={"class": "inputXS"}), TextInput(attrs={"class": "inputXS"}),
+				"<label for='%(id)s'>", unicode(i), "</label>", TextInput(attrs={"class": "inputXS"}), TextInput(attrs={"class": "inputXS"}), "<span> ", unicode(_("and")), " </span>", TextInput(attrs={"class": "inputXS"}), TextInput(attrs={"class": "inputXS"}),
 			]
-		# layout = [
-		# 	"<label for='%(id)s'>Monday</label>", TextInput(attrs={"class": "inputXS"}), TextInput(attrs={"class": "inputXS"}), "<span> and </span>", TextInput(attrs={"class": "inputXS"}), TextInput(attrs={"class": "inputXS"}),
-		# 	"<label for='%(id)s'>Tuesday</label>", TextInput(attrs={"class": "inputXS"}), TextInput(attrs={"class": "inputXS"}), "<span> and </span>", TextInput(attrs={"class": "inputXS"}), TextInput(attrs={"class": "inputXS"}),
-		# 	"<label for='%(id)s'>Wednesday</label>", TextInput(attrs={"class": "inputXS"}), TextInput(attrs={"class": "inputXS"}), "<span> and </span>", TextInput(attrs={"class": "inputXS"}), TextInput(attrs={"class": "inputXS"}),
-		# 	"<label for='%(id)s'>Thursday</label>", TextInput(attrs={"class": "inputXS"}), TextInput(attrs={"class": "inputXS"}), "<span> and </span>", TextInput(attrs={"class": "inputXS"}), TextInput(attrs={"class": "inputXS"}),
-		# 	"<label for='%(id)s'>Friday</label>", TextInput(attrs={"class": "inputXS"}), TextInput(attrs={"class": "inputXS"}), "<span> and </span>", TextInput(attrs={"class": "inputXS"}), TextInput(attrs={"class": "inputXS"}),
-		# 	"<label for='%(id)s'>Saturday</label>", TextInput(attrs={"class": "inputXS"}), TextInput(attrs={"class": "inputXS"}), "<span> and </span>", TextInput(attrs={"class": "inputXS"}), TextInput(attrs={"class": "inputXS"}),
-		# 	"<label for='%(id)s'>Sunday</label>", TextInput(attrs={"class": "inputXS"}), TextInput(attrs={"class": "inputXS"}), "<span> and </span>", TextInput(attrs={"class": "inputXS"}), TextInput(attrs={"class": "inputXS"}),
-		# ]
 		super(ScheduleWidget, self).__init__(layout, attrs)
 
 	def decompress(self, value):
