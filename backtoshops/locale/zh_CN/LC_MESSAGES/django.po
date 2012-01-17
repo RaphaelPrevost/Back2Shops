@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-01-16 17:50+0100\n"
-"PO-Revision-Date: 2012-01-17 08:44\n"
+"PO-Revision-Date: 2012-01-17 08:47\n"
 "Last-Translator:   <raphael@princesseavis.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -102,7 +102,7 @@ msgstr "库存"
 
 #: sales/forms.py:151
 msgid "This field is required."
-msgstr "这个区域需要填入。"
+msgstr "这个区域需要被填入。"
 
 #: sales/forms.py:157
 msgid "Invalid stock quantity."
@@ -526,7 +526,7 @@ msgstr "新商店"
 
 #: shops/templates/physical_shop.html:109
 msgid "Opening hours"
-msgstr "时刻表"
+msgstr "营业时间"
 
 #: shops/templates/physical_shop.html:116
 msgid "Save"

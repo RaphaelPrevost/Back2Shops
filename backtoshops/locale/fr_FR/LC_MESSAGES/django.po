@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-01-16 17:50+0100\n"
-"PO-Revision-Date: 2012-01-17 07:10\n"
+"PO-Revision-Date: 2012-01-17 08:48\n"
 "Last-Translator:   <raphael@princesseavis.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -570,7 +570,7 @@ msgid ""
 "No results found. Please check the address, postal code and city are "
 "correct."
 msgstr ""
-"Aucun résultat. Verifiez que l'adresse, le code postal et la ville "
+"Aucun résultat. Verifiez que l’adresse, le code postal et la ville "
 "sont corrects."
 
 #: shops/templates/physical_shop.html:243
@@ -618,7 +618,7 @@ msgstr "Connexion"
 
 #: templates/login.html:8
 msgid "Your username and password didn't match. Please try again."
-msgstr "Le nom d'utilisateur et/ou le mot de passe sont incorrects."
+msgstr "Le nom d’utilisateur et/ou le mot de passe sont incorrects."
 
 #: templates/login.html:12
 msgid "BackToShops Login"
