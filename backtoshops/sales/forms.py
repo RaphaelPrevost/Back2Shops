@@ -60,7 +60,7 @@ class ShopForm(forms.Form):
         super(ShopForm, self).__init__(*args, **kwargs)
         self.fields['shops'] = forms.ModelMultipleChoiceField(
             label=_("Participating shops"),
-            queryset=Shop.objects.filter(mother_brand=mother_brand),
+            queryset=Shop.objects.filter(mother_brand=mother_brand).order_by('city'),
             widget=GroupedCheckboxSelectMultiple(),
             required=False
         )
