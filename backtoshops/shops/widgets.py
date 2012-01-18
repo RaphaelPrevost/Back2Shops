@@ -5,6 +5,9 @@ from django.utils.translation import ugettext_lazy as _
 from multiwidgetlayout.widgets import MultiWidgetLayout
 
 class ScheduleWidget(MultiWidgetLayout):
+
+        is_localized = True        
+
 	def __init__(self, attrs=None):
 		days = [
 			_("Monday"), _("Tuesday"), _("Wednesday"), _("Thursday"),
@@ -19,6 +22,8 @@ class ScheduleWidget(MultiWidgetLayout):
 
 	def decompress(self, value):
 		toret = []
+                # XXX force the widget to update the translation
+                self.__init__()
 		if value:
 			data = json.loads(value)
 			if data:
