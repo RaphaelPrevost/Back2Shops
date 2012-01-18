@@ -107,8 +107,8 @@ class ProductForm(forms.Form):
     discount_price = forms.FloatField(widget=forms.TextInput(attrs={'class': 'inputXS', 'style': 'display: none;'}))
     discount_type = forms.ChoiceField(choices=DISCOUNT_TYPE)
     discount = forms.FloatField(widget=forms.TextInput(attrs={'class': 'inputXS'}))
-    valid_from = forms.DateField(label=_("From"), widget=forms.TextInput(attrs={'class': 'inputS'}))
-    valid_to = forms.DateField(label=_("To"), widget=forms.TextInput(attrs={'class': 'inputS'}))
+    valid_from = forms.DateField(label=_("From"), widget=forms.TextInput(attrs={'class': 'inputS'}), localize=True)
+    valid_to = forms.DateField(label=_("To"), widget=forms.TextInput(attrs={'class': 'inputS'}), localize=True)
 
     def __init__(self, mother_brand=None, data=None, files=None, auto_id='id_%s', prefix=None,
                  initial=None, error_class=ErrorList, label_suffix=':',
