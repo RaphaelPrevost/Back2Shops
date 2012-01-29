@@ -79,6 +79,15 @@
                 <div id="add_ba_form">
                     <div id="ba">
                         <input id="ba_input" type="text"/>
+                        <select id="premium_type" name="premium_type">
+                        	<option value="percentage">{% trans "Percentage" %}</option>
+                        	<option value="amount">{% trans "Amount" %}</option>
+                        </select>
+                        <span class="raw">></span>
+                        <input id="premium_amount" type="text" />
+                        <span id="premium_marker" class="premium_marker">%</span>
+                        <input style="display:none;" id="premium_price_val" type="hidden" />
+                        <span id="premium_result">Premium price : <strong id="premium_price">N/A</strong> <strong id="id_premium_price_marker">&nbsp;</strong></span>
                         <img id="ba_texture_btn" role="button">
                         <input id="ba_texture_upload" type="file" name="texture_file"/>
                     </div>
@@ -93,8 +102,12 @@
                     {{ f.texture }}
                     {{ f.preview }}
                     {{ f.preview_pk }}
+                    {{ f.premium_type }}
+                    {{ f.premium_amount }}
+                    {{ f.premium_price }}
                     <input style="display: none;" type="checkbox" name="{{ f.DELETE.html_name }}" id="{{ f.DELETE.auto_id }}" {% if f.DELETE.value == "on" %}checked="checked"{% endif %}>
                     <span id="{{ f.prefix }}-name" class="brand_attribute_name">{{ f.name.value }}</span>
+                    <span id="{{ f.prefix }}-premium">{{ f.premium_price.value }}</span>
                     {% if f.texture.value %}
                     <img class="classtext" role="button" src="{{ f.texture.value }}"/>
                     {% else %}
@@ -124,6 +137,7 @@
             {{ wizard.form.brand_attributes.empty_form.preview_pk }}
             <input style="display: none;" type="checkbox" name="{{ wizard.form.brand_attributes.empty_form.DELETE.html_name }}" id="{{ wizard.form.brand_attributes.empty_form.DELETE.auto_id }}">
             <span id="{{ wizard.form.brand_attributes.empty_form.prefix }}-name" class="brand_attribute_name"></span>
+            <span id="{{ wizard.form.brand_attributes.empty_form.prefix }}-premium"></span>
             <img class="classtext" id="{{ wizard.form.brand_attributes.empty_form.texture.auto_id }}-img">
             <img class="classprod" id="{{ wizard.form.brand_attributes.empty_form.preview.auto_id }}-img">
             <a class="remove_brand_attribute" href="#">{% trans "Remove" %}</a>
@@ -192,6 +206,7 @@
     	$(document).ready(function(){
     	{# ready the currency mark #}
     		$("#id_discount_price_marker").html($("#{{wizard.form.currency.auto_id}} option:selected").text())
+    		$("#id_premium_price_marker").html($("#{{wizard.form.currency.auto_id}} option:selected").text())
     	});
     	
         $(function(){
@@ -289,6 +304,10 @@
 
             function _clearBaForm() {
                 $("#ba_input").val("");
+                $("#premium_type").val("percentage");
+                $("#premium_amount").val("");
+                $("#premium_price_val").val("");
+                $("#premium_price").val("");
                 $("#add_ba_form").data("ba_data", {});
                 _updateBackgroundImage($("#ba_preview_btn"), '{{ STATIC_URL }}img/empty_attr.png');
                 _updateBackgroundImage($("#ba_texture_btn"), '{{ STATIC_URL }}img/empty_attr.png');
@@ -337,7 +356,7 @@
                     return false;
                 },
                 select: function(event, ui) {
-                    _updateData({name: ui.item.name, ba_pk: ui.item.value, texture_pk: ui.item.value, type_pk: 'exist'});
+                    _updateData({name: ui.item.name, ba_pk: ui.item.value, premium_type: ui.item.premium_type, premium_amount: ui.item.premium_amount, premium_price: ui.item.premium_price, texture_pk: ui.item.value, type_pk: 'exist'});
                     $(this).val(ui.item.name);
                     $(this).focusout();
                     _updateBackgroundImage($("#ba_texture_btn"), ui.item.texture);
@@ -345,8 +364,8 @@
                 }
             });
 
-            $("#ba_input").change(function(){
-                _updateData({name: $("#ba_input").val(), ba_pk: -1})
+            $("#ba").change(function(){
+                _updateData({name: $("#ba_input").val(), premium_type:$("#premium_type").val(), premium_amount:$("#premium_amount").val(), premium_price:$("#premium_price_val").val(), ba_pk: -1})
             });
 
             $("#add_ba").click(function(e) {
@@ -361,6 +380,10 @@
                 var ba_id = "#{{ wizard.form.brand_attributes.empty_form.ba_id.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
                 var name = "#{{ wizard.form.brand_attributes.empty_form.name.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
                 var span_name = "#{{ wizard.form.brand_attributes.empty_form.prefix }}-name".replace(/__prefix__/g, nb_of_forms.toString());
+                var premium_type = "#{{ wizard.form.brand_attributes.empty_form.premium_type.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
+                var premium_amount = "#{{ wizard.form.brand_attributes.empty_form.premium_amount.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
+                var premium_price = "#{{ wizard.form.brand_attributes.empty_form.premium_price.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
+                var span_premium_price = "#{{ wizard.form.brand_attributes.empty_form.prefix }}-premium".replace(/__prefix__/g, nb_of_forms.toString());
                 var texture = "#{{ wizard.form.brand_attributes.empty_form.texture.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
                 var preview = "#{{ wizard.form.brand_attributes.empty_form.preview.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
                 var texture_img = "#{{ wizard.form.brand_attributes.empty_form.texture.auto_id }}-img".replace(/__prefix__/g, nb_of_forms.toString());
@@ -398,6 +421,10 @@
                                 $(preview_pk).val(data.preview_pk);
                                 $(name).val($("#ba_input").val());
                                 $(span_name).html($("#ba_input").val());
+                                $(premium_type).val($("#premium_type").val());
+                                $(premium_amount).val($("#premium_amount").val());
+                                $(premium_price).val($("#premium_price_val").val());
+                                $(span_premium_price).html($("#premium_price").html());
                                 nb_of_forms++;
                                 $("#{{ wizard.form.brand_attributes.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
                                 _clearBaForm();
@@ -470,6 +497,7 @@
             {# currency dropdown change event#}
             $("#{{wizard.form.currency.auto_id}}").change(function(e){
             	$("#id_discount_price_marker").html($("#{{wizard.form.currency.auto_id}} option:selected").text());
+            	$("#id_premium_price_marker").html($("#{{wizard.form.currency.auto_id}} option:selected").text());
             	calcDiscount();
             });
 
@@ -486,6 +514,10 @@
                 var discount = parseFloat($("#{{ wizard.form.discount.auto_id }}").val());
                 var discount_type = $("#{{ wizard.form.discount_type.auto_id }}").val();
                 var new_price;
+                var premium_type = $("#premium_type").val();
+                var premium_amount = parseFloat($("#premium_amount").val());
+                var premium_price;
+                
                 if (discount_type == "percentage") { //percentage
                     new_price = normal_price - (normal_price * (discount / 100));
                     $("#discount_marker").html("%");
@@ -493,6 +525,15 @@
                     new_price = normal_price - discount;
                     $("#discount_marker").html($("#{{wizard.form.currency.auto_id}} option:selected").text());
                 }
+                
+                if (premium_type == "percentage") { //percentage
+                   	premium_price = new_price + (new_price * (premium_amount / 100));
+                    $("#premium_marker").html("%");
+                } else {
+                    premium_price = new_price + premium_amount;
+                    $("#premium_marker").html($("#{{wizard.form.currency.auto_id}} option:selected").text());
+                }
+                
                 if (new_price > 0) {
                     $("#{{ wizard.form.discount_price.auto_id }}").val(parseFloat(new_price));
                     $("#discount_price").html(new_price);
@@ -502,10 +543,23 @@
                     $("#discount_price").html("{% trans "N/A" %}");
                     $("#preview-{{ wizard.form.discount_price.auto_id }}").html("{% trans "N/A" %}");
                 }
+                
+                if (premium_price > 0) {
+                    $("#premium_price_val").val(parseFloat(premium_price));
+                    $("#premium_price").html(parseFloat(premium_price));
+                } else {
+                	if (new_price > 0) {
+                		$("#premium_price_val").val(parseFloat(new_price));
+	                    $("#premium_price").html(new_price);
+                	}
+                	else {
+	                	$("#premium_price_val").val("{% trans "N/A" %}");
+	                    $("#premium_price").html("{% trans "N/A" %}");
+                    }
+                }
             }
 
             $("#{{ wizard.form.discount_type.auto_id }}").change(function(){
-                
                 calcDiscount();
             });
             $("#{{ wizard.form.normal_price.auto_id }}").change(function(elmt){
@@ -513,6 +567,12 @@
             });
             $("#{{ wizard.form.discount.auto_id }}").change(function(elmt){
                 calcDiscount();
+            });
+            $("#premium_type").change(function(){
+            	calcDiscount();
+            });
+            $("#premium_amount").change(function(){
+            	calcDiscount();
             });
 
             function updateProductPreview(elmt) {

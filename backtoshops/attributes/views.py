@@ -23,6 +23,9 @@ class BrandAttributeView(BOLoginRequiredMixin, View, TemplateResponseMixin):
             ret_json.append({
                 'value': attr.pk,
                 'label': t.render(c),
+                'premium_type': attr.premium_type,
+                'premium_amount': attr.premium_amount,
+                'premium_price':attr.premium_price,
                 'name': attr.name,
                 'texture': get_thumbnail(attr.texture, "15x15").url if attr.texture else None
             })
@@ -34,6 +37,9 @@ class BrandAttributeView(BOLoginRequiredMixin, View, TemplateResponseMixin):
         if pk:
             pk = int(pk)
         name = request.POST.get('name', None)
+        premium_type = request.POST.get('premium_type',None)
+        premium_amount = request.POST.get('premium_amount',None)
+        premium_price = request.POST.get('premium_price',None)
         texture = request.FILES.get('texture_file', None)
         preview_pk = request.POST.get('preview_pk', None)
 
@@ -43,6 +49,9 @@ class BrandAttributeView(BOLoginRequiredMixin, View, TemplateResponseMixin):
         else:
             ba = BrandAttribute(mother_brand=request.user.get_profile().work_for)
         if name: ba.name = name
+        if premium_type: ba.premium_type = premium_type
+        if premium_amount: ba.premium_amount = premium_amount
+        if premium_price: ba.premium_price = premium_price
         if texture: ba.texture = texture
         ba.save()
         pk = ba.pk
@@ -50,7 +59,7 @@ class BrandAttributeView(BOLoginRequiredMixin, View, TemplateResponseMixin):
         texture_thumb = None
         if ba.texture:
             texture_thumb = get_thumbnail(ba.texture, "15x15").url
-        to_ret.update({'pk': pk, 'success': success, 'texture_thumb': texture_thumb})
+        to_ret.update({'pk': pk, 'success': success, 'premium_type':premium_type,'premium_amount':premium_amount, 'premium_price': premium_price, 'texture_thumb': texture_thumb})
 
         if preview_pk:
             p = ProductPicture.objects.get(pk=preview_pk)

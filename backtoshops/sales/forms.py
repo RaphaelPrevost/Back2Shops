@@ -77,6 +77,9 @@ class ShopForm(forms.Form):
 class BrandAttributeForm(forms.Form):
     ba_id = forms.IntegerField(widget=forms.HiddenInput())
     name = forms.CharField(widget=forms.HiddenInput())
+    premium_type = forms.CharField(widget=forms.HiddenInput(),required=False)
+    premium_amount = forms.FloatField(widget=forms.HiddenInput(), required=False)
+    premium_price = forms.FloatField(widget=forms.HiddenInput(), required=False)
     texture = forms.CharField(widget=forms.HiddenInput(), required=False)
     # texture_thumb = forms.CharField(widget=forms.HiddenInput())
     # preview_pk = forms.IntegerField(widget=forms.HiddenInput())
