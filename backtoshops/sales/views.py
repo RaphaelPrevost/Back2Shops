@@ -230,7 +230,10 @@ def edit_sale(*args, **kwargs):
             'ba_id': i.pk,
             'texture': get_thumbnail(i.texture, "15x15").url if i.texture else None,
             'preview': get_thumbnail(bap.preview.picture, "39x43").url if bap.preview else None,
-            'preview_pk': bap.preview.pk if bap.preview else None
+            'preview_pk': bap.preview.pk if bap.preview else None,
+            'premium_type': i.premium_type,
+            'premium_amount': i.premium_amount,
+            'premium_price': i.premium_price
         })
 
     initial_product = {
