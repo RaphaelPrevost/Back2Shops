@@ -92,7 +92,6 @@ class ListSalesView(BOLoginRequiredMixin, View, TemplateResponseMixin):
     def get(self, request, sales_type=None):
         self.set_sales_list(request,sales_type)
         self.form = ListSalesForm()
-        print self.__dict__
         return self.render_to_response(self.__dict__)
     
     def post(self, request, sales_type=None):

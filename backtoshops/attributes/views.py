@@ -38,14 +38,23 @@ class BrandAttributeView(BOLoginRequiredMixin, View, TemplateResponseMixin):
             pk = int(pk)
         name = request.POST.get('name', None)
         premium_type = request.POST.get('premium_type',None)
-        premium_amount = request.POST.get('premium_amount',None)
-        premium_price = request.POST.get('premium_price',None)
+        try:
+            premium_amount = request.POST.get('premium_amount',None)
+        except:
+            premium_amount = None
+        try:
+            premium_price = request.POST.get('premium_price',None)
+        except:
+            premium_price = None
         texture = request.FILES.get('texture_file', None)
         preview_pk = request.POST.get('preview_pk', None)
 
         success = False
         if pk != -1:
-            ba = BrandAttribute.objects.get(pk=pk)
+            try: # a fail-safe for not-found
+                ba = BrandAttribute.objects.get(pk=pk)
+            except:
+                ba = BrandAttribute(mother_brand=request.user.get_profile().work_for)
         else:
             ba = BrandAttribute(mother_brand=request.user.get_profile().work_for)
         if name: ba.name = name

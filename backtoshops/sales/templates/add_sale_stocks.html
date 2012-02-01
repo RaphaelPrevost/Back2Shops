@@ -220,7 +220,7 @@
                     }
                 }
             });
-            $("#main_form").submit(function(e){
+            $("input[type=submit]").click(function(e){
                 if (validateForm()) {
                     $("#main_form").change();
                     return true;

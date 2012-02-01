@@ -135,6 +135,9 @@
             {{ wizard.form.brand_attributes.empty_form.texture }}
             {{ wizard.form.brand_attributes.empty_form.preview }}
             {{ wizard.form.brand_attributes.empty_form.preview_pk }}
+            {{ wizard.form.brand_attributes.empty_form.premium_type }}
+            {{ wizard.form.brand_attributes.empty_form.premium_amount }}
+            {{ wizard.form.brand_attributes.empty_form.premium_price }}
             <input style="display: none;" type="checkbox" name="{{ wizard.form.brand_attributes.empty_form.DELETE.html_name }}" id="{{ wizard.form.brand_attributes.empty_form.DELETE.auto_id }}">
             <span id="{{ wizard.form.brand_attributes.empty_form.prefix }}-name" class="brand_attribute_name"></span>
             <span id="{{ wizard.form.brand_attributes.empty_form.prefix }}-premium"></span>
@@ -358,6 +361,9 @@
                 select: function(event, ui) {
                     _updateData({name: ui.item.name, ba_pk: ui.item.value, premium_type: ui.item.premium_type, premium_amount: ui.item.premium_amount, premium_price: ui.item.premium_price, texture_pk: ui.item.value, type_pk: 'exist'});
                     $(this).val(ui.item.name);
+                    $(this).siblings("#premium_amount").val(ui.item.premium_amount);
+                    $(this).siblings("#premium_type").val(ui.item.premium_type);
+                    calcDiscount();
                     $(this).focusout();
                     _updateBackgroundImage($("#ba_texture_btn"), ui.item.texture);
                     return false;
@@ -505,7 +511,7 @@
                 var brand_id = $("#{{ wizard.form.brand.auto_id }} :selected").val();
                 if (brand_id) {
                     $("#preview-{{ wizard.form.brand.auto_id }}").html("{% trans "Loading..." %}");
-                    $("#preview-{{ wizard.form.brand.auto_id }}").load('{% url get_brand_logo %}'+brand_id)
+                    $("#preview-{{ wizard.form.brand.auto_id }}").load('{% url get_brand_logo %}'+brand_id+'/');
                 }
             });
 
@@ -519,7 +525,8 @@
                 var premium_price;
                 
                 if (discount_type == "percentage") { //percentage
-                    new_price = normal_price - (normal_price * (discount / 100));
+                	var tmp = normal_price - (normal_price * (discount / 100))
+                    new_price = Math.round(tmp*100 +((tmp*1000%10>4)?1:0))/100;
                     $("#discount_marker").html("%");
                 } else {
                     new_price = normal_price - discount;
@@ -527,7 +534,8 @@
                 }
                 
                 if (premium_type == "percentage") { //percentage
-                   	premium_price = new_price + (new_price * (premium_amount / 100));
+                	var tmp = new_price + (new_price * (premium_amount / 100))
+                   	premium_price = Math.round(tmp*100 +((tmp*1000%10>4)?1:0))/100;
                     $("#premium_marker").html("%");
                 } else {
                     premium_price = new_price + premium_amount;
@@ -553,7 +561,7 @@
 	                    $("#premium_price").html(new_price);
                 	}
                 	else {
-	                	$("#premium_price_val").val("{% trans "N/A" %}");
+	                	$("#premium_price_val").val("");
 	                    $("#premium_price").html("{% trans "N/A" %}");
                     }
                 }

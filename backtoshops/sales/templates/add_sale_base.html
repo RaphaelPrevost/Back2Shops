@@ -59,6 +59,13 @@
 
         {% block empty_forms %}{% endblock %}
     </div>
+    
+    <script type="text/javascript">
+    	$("#btn_first_step,#btn_prev_step").click(function(event){
+    		if(confirm("{% trans "Data in this step will not be saved, are you okay?" %}")==false)
+    			event.preventDefault();
+    	});
+    </script>
 
     <!--content-right-->
     <div id="content_Right">
