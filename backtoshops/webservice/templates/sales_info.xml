@@ -28,7 +28,7 @@
 			<name>{{ variant.name }}</name>
 			<thumb url="{% if variant.texture %}{{ variant.texture.url }}{% endif %}" />
 			<img url="{{ preview.preview.picture.url }}" />
-			<premium type="{% if variant.premium_type == 'percentage' %}ratio{% else %}fixed{% endif %}" amount="{{ variant.premium_amount }}" price="{{ variant.premium_price }}" />
+			<premium type="{% if variant.premium_type == 'percentage' %}ratio{% else %}fixed{% endif %}" amount="{% firstof variant.premium_amount "0" %}" price="{% firstof variant.premium_price "0" %}" />
 		</variant>
 		{% endwith %}
 	{% endfor %}
