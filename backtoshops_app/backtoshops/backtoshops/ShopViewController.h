@@ -11,4 +11,6 @@
 
 @interface ShopViewController : UIViewController <MKMapViewDelegate>
 
+@property (retain, nonatomic) IBOutlet MKMapView *mapView;
+
 @end

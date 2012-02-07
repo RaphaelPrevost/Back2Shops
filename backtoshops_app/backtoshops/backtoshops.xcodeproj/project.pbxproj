@@ -31,6 +31,8 @@
 		E176C50B14D70D610067EEE5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E176C50914D70D610067EEE5 /* InfoPlist.strings */; };
 		E176C50D14D70D610067EEE5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E176C50C14D70D610067EEE5 /* main.m */; };
 		E176C51114D70D610067EEE5 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E176C51014D70D610067EEE5 /* AppDelegate.m */; };
+		E1B43DB114E1828100E20DAD /* ShopAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = E1B43DB014E1828100E20DAD /* ShopAnnotation.m */; };
+		E1B43DB414E1834300E20DAD /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1B43DB314E1834300E20DAD /* CoreLocation.framework */; };
 		E1B97B0114DC0EAF00649841 /* tabbar.png in Resources */ = {isa = PBXBuildFile; fileRef = E1B97AFF14DC0EAF00649841 /* tabbar.png */; };
 		E1B97B0214DC0EAF00649841 /* tabbar@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E1B97B0014DC0EAF00649841 /* tabbar@2x.png */; };
 		E1B97B0614DC104C00649841 /* ShopViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E1B97B0414DC104C00649841 /* ShopViewController.m */; };
@@ -118,6 +120,9 @@
 		E176C50E14D70D610067EEE5 /* backtoshops-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "backtoshops-Prefix.pch"; sourceTree = "<group>"; };
 		E176C50F14D70D610067EEE5 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		E176C51014D70D610067EEE5 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		E1B43DAF14E1828100E20DAD /* ShopAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShopAnnotation.h; sourceTree = "<group>"; };
+		E1B43DB014E1828100E20DAD /* ShopAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShopAnnotation.m; sourceTree = "<group>"; };
+		E1B43DB314E1834300E20DAD /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		E1B97AFF14DC0EAF00649841 /* tabbar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabbar.png; sourceTree = "<group>"; };
 		E1B97B0014DC0EAF00649841 /* tabbar@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabbar@2x.png"; sourceTree = "<group>"; };
 		E1B97B0314DC104C00649841 /* ShopViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShopViewController.h; sourceTree = "<group>"; };
@@ -175,6 +180,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E1B43DB414E1834300E20DAD /* CoreLocation.framework in Frameworks */,
 				E1FC1B2E14DE0A0E00A6FC7D /* MapKit.framework in Frameworks */,
 				E176C50114D70D610067EEE5 /* UIKit.framework in Frameworks */,
 				E176C50314D70D610067EEE5 /* Foundation.framework in Frameworks */,
@@ -225,6 +231,8 @@
 		E1527C5F14DAD04E00724874 /* Secondary Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				E1B43DAF14E1828100E20DAD /* ShopAnnotation.h */,
+				E1B43DB014E1828100E20DAD /* ShopAnnotation.m */,
 				E1B97B0314DC104C00649841 /* ShopViewController.h */,
 				E1B97B0414DC104C00649841 /* ShopViewController.m */,
 				E1B97B0514DC104C00649841 /* ShopViewController.xib */,
@@ -266,6 +274,7 @@
 		E176C4FF14D70D610067EEE5 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E1B43DB314E1834300E20DAD /* CoreLocation.framework */,
 				E1FC1B2D14DE0A0E00A6FC7D /* MapKit.framework */,
 				E176C50014D70D610067EEE5 /* UIKit.framework */,
 				E176C50214D70D610067EEE5 /* Foundation.framework */,
@@ -477,6 +486,7 @@
 				E1FC1B4114DE0F4400A6FC7D /* OrderDetailViewController.m in Sources */,
 				E1FC1B4B14DEE1C900A6FC7D /* HomeViewController.m in Sources */,
 				E1FC1B5014DEE20D00A6FC7D /* LoginViewController.m in Sources */,
+				E1B43DB114E1828100E20DAD /* ShopAnnotation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
