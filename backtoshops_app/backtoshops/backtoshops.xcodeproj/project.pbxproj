@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E11251A614E13510003D4CBC /* Login_Box.png in Resources */ = {isa = PBXBuildFile; fileRef = E11251A014E13510003D4CBC /* Login_Box.png */; };
+		E11251A714E13510003D4CBC /* Login_Box@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E11251A114E13510003D4CBC /* Login_Box@2x.png */; };
+		E11251A814E13510003D4CBC /* Login_Forget_password.png in Resources */ = {isa = PBXBuildFile; fileRef = E11251A214E13510003D4CBC /* Login_Forget_password.png */; };
+		E11251A914E13510003D4CBC /* Login_Forget_password@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E11251A314E13510003D4CBC /* Login_Forget_password@2x.png */; };
+		E11251AA14E13510003D4CBC /* Login_Separator.png in Resources */ = {isa = PBXBuildFile; fileRef = E11251A414E13510003D4CBC /* Login_Separator.png */; };
+		E11251AB14E13510003D4CBC /* Login_Separator@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E11251A514E13510003D4CBC /* Login_Separator@2x.png */; };
 		E1527C1E14DABF9D00724874 /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = E1527BA914DABF9D00724874 /* AFHTTPClient.m */; };
 		E1527C1F14DABF9D00724874 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = E1527BAB14DABF9D00724874 /* AFHTTPRequestOperation.m */; };
 		E1527C2014DABF9D00724874 /* AFImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = E1527BAD14DABF9D00724874 /* AFImageCache.m */; };
@@ -71,6 +77,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E11251A014E13510003D4CBC /* Login_Box.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Login_Box.png; sourceTree = "<group>"; };
+		E11251A114E13510003D4CBC /* Login_Box@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Login_Box@2x.png"; sourceTree = "<group>"; };
+		E11251A214E13510003D4CBC /* Login_Forget_password.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Login_Forget_password.png; sourceTree = "<group>"; };
+		E11251A314E13510003D4CBC /* Login_Forget_password@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Login_Forget_password@2x.png"; sourceTree = "<group>"; };
+		E11251A414E13510003D4CBC /* Login_Separator.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Login_Separator.png; sourceTree = "<group>"; };
+		E11251A514E13510003D4CBC /* Login_Separator@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Login_Separator@2x.png"; sourceTree = "<group>"; };
 		E1527BA814DABF9D00724874 /* AFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPClient.h; sourceTree = "<group>"; };
 		E1527BA914DABF9D00724874 /* AFHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPClient.m; sourceTree = "<group>"; };
 		E1527BAA14DABF9D00724874 /* AFHTTPRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPRequestOperation.h; sourceTree = "<group>"; };
@@ -291,6 +303,12 @@
 		E1B97AFE14DC0EAF00649841 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				E11251A014E13510003D4CBC /* Login_Box.png */,
+				E11251A114E13510003D4CBC /* Login_Box@2x.png */,
+				E11251A214E13510003D4CBC /* Login_Forget_password.png */,
+				E11251A314E13510003D4CBC /* Login_Forget_password@2x.png */,
+				E11251A414E13510003D4CBC /* Login_Separator.png */,
+				E11251A514E13510003D4CBC /* Login_Separator@2x.png */,
 				E1FC1B5214DEE56400A6FC7D /* Background.png */,
 				E1FC1B5314DEE56400A6FC7D /* Background@2x.png */,
 				E1FC1B5414DEE56400A6FC7D /* HomeScreenBackground.png */,
@@ -423,6 +441,12 @@
 				E1FC1B6714DEE56400A6FC7D /* HomeScreenSegments_04@2x.png in Resources */,
 				E1FC1B6814DEE56400A6FC7D /* HomeScreenSegments_06.png in Resources */,
 				E1FC1B6914DEE56400A6FC7D /* HomeScreenSegments_06@2x.png in Resources */,
+				E11251A614E13510003D4CBC /* Login_Box.png in Resources */,
+				E11251A714E13510003D4CBC /* Login_Box@2x.png in Resources */,
+				E11251A814E13510003D4CBC /* Login_Forget_password.png in Resources */,
+				E11251A914E13510003D4CBC /* Login_Forget_password@2x.png in Resources */,
+				E11251AA14E13510003D4CBC /* Login_Separator.png in Resources */,
+				E11251AB14E13510003D4CBC /* Login_Separator@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
