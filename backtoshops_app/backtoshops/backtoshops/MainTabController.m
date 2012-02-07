@@ -9,12 +9,20 @@
 #import "MainTabController.h"
 #import "HomeViewController.h"
 #import "ShopViewController.h"
+#import "LoginViewController.h"
+
+@interface MainTabController (Private)
+
+- (void)deselectTab;
+
+@end
 
 @implementation MainTabController
 
 @synthesize viewControllers;
 @synthesize currentController;
 @synthesize contentView;
+@synthesize tabbar;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -43,13 +51,11 @@
     HomeViewController *c1 = [[[HomeViewController alloc] initWithNibName:@"HomeViewController" bundle:nil] autorelease];
     [self.contentView addSubview:c1.view];
     
-//    UINavigationController *firstController = [[[UINavigationController alloc] init] autorelease];
-//    firstController.view.frame = CGRectMake(0, 0, 320, 415);
-//    [firstController pushViewController:[[[ShopViewController alloc] initWithNibName:@"ShopViewController" bundle:nil] autorelease] animated:NO];
-//    
-//    [self.contentView addSubview:firstController.view];
+    UINavigationController *firstController = [[[UINavigationController alloc] init] autorelease];
+    firstController.view.frame = CGRectMake(0, 0, 320, 415);
+    [firstController pushViewController:[[[ShopViewController alloc] initWithNibName:@"ShopViewController" bundle:nil] autorelease] animated:NO];
     
-//    [self.viewControllers addObject:firstController];
+    [self.viewControllers addObject:firstController];
     
 //    for (int i = 0; i < 3; i++) {
 //        UIViewController *c;
@@ -99,6 +105,13 @@
     currentController = [_currentController retain];
 }
 
+- (void)presentLoginViewController:(BOOL)animated
+{
+    LoginViewController *controller = [[LoginViewController alloc] initWithNibName:@"LoginViewController" bundle:nil];
+    [self presentModalViewController:controller animated:animated];
+    [controller release];
+}
+
 - (IBAction)click1st:(id)sender
 {
 //    UIViewController *c = [[[UIViewController alloc] init] autorelease];
@@ -106,6 +119,11 @@
 //    
 //    UINavigationController *nav = [self.viewControllers objectAtIndex:0];
 //    [nav pushViewController:c animated:YES];
+
+    [self deselectTab];
+    
+    UIImageView *imageView = (UIImageView *)[self.tabbar viewWithTag:ButtonImageTagFirst];
+    imageView.image = [UIImage imageNamed:@"icons_01_on"];
     
     self.currentController = [self.viewControllers objectAtIndex:0];
 }
@@ -117,6 +135,11 @@
 //    
 //    UINavigationController *nav = [self.viewControllers objectAtIndex:1];
 //    [nav pushViewController:c animated:YES];
+
+    [self deselectTab];
+    
+    UIImageView *imageView = (UIImageView *)[self.tabbar viewWithTag:ButtonImageTagSecond];
+    imageView.image = [UIImage imageNamed:@"icons_02_on"];
     
     self.currentController = [self.viewControllers objectAtIndex:1];
 }
@@ -129,7 +152,26 @@
 //    UINavigationController *nav = [self.viewControllers objectAtIndex:2];
 //    [nav pushViewController:c animated:YES];
     
+    [self deselectTab];
+    
+    UIImageView *imageView = (UIImageView *)[self.tabbar viewWithTag:ButtonImageTagThird];
+    imageView.image = [UIImage imageNamed:@"icons_03_on"];
+
     self.currentController = [self.viewControllers objectAtIndex:2];
+}
+
+#pragma mark - Private
+
+- (void)deselectTab
+{
+    UIImageView *imageView = (UIImageView *)[self.tabbar viewWithTag:ButtonImageTagFirst];
+    imageView.image = [UIImage imageNamed:@"icons_01_off"];
+
+    imageView = (UIImageView *)[self.tabbar viewWithTag:ButtonImageTagSecond];
+    imageView.image = [UIImage imageNamed:@"icons_02_off"];
+    
+    imageView = (UIImageView *)[self.tabbar viewWithTag:ButtonImageTagThird];
+    imageView.image = [UIImage imageNamed:@"icons_03_off"];
 }
 
 @end

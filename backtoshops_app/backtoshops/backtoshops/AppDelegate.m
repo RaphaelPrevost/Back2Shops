@@ -33,6 +33,8 @@
     [self.window addSubview:controller.view];
     [self.window makeKeyAndVisible];
     
+    [controller presentLoginViewController:YES];
+    
     return YES;
 }
 
