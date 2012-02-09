@@ -10,6 +10,7 @@
 
 @implementation ShopAnnotation
 
+@synthesize shopID;
 @synthesize coordinate, title, subtitle;
 
 - (id)initWithCoordinate:(CLLocationCoordinate2D)_coordinate title:(NSString *)_title subtitle:(NSString *)_subtitle

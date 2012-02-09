@@ -11,10 +11,9 @@
 
 @interface ShopAnnotation : NSObject <MKAnnotation> {
     CLLocationCoordinate2D coordinate;
-//    NSString *title;
-//    NSString *subtitle;
 }
 
+@property (nonatomic, copy) NSString *shopID;
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSString *subtitle;
 

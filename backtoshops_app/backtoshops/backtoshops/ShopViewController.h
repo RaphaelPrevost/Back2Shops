@@ -9,7 +9,9 @@
 #import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>
 
-@interface ShopViewController : UIViewController <MKMapViewDelegate>
+@interface ShopViewController : UIViewController <MKMapViewDelegate> {
+    BOOL isLocationLoaded;
+}
 
 @property (retain, nonatomic) IBOutlet MKMapView *mapView;
 

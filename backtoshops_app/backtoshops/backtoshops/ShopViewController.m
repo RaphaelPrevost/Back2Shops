@@ -8,6 +8,8 @@
 
 #import "ShopViewController.h"
 #import "ShopAnnotation.h"
+#import "AFHTTPRequestOperation.h"
+#import "GDataXMLNode.h"
 
 @implementation ShopViewController
 @synthesize mapView;
@@ -45,6 +47,35 @@
     shop1.subtitle = @"";
     [shop1 setCoordinate:CLLocationCoordinate2DMake(40.1447, 117.2720)];
     [self.mapView addAnnotation:shop1];
+    
+    // Load shop list from webservice
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://sales.backtoshops.com/webservice/1.0/pub/shops/list"]];
+    AFHTTPRequestOperation *operation = [[[AFHTTPRequestOperation alloc] initWithRequest:request] autorelease];
+    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSError *error;
+        GDataXMLDocument *doc = [[GDataXMLDocument alloc] initWithData:responseObject options:0 error:&error];
+        for (GDataXMLElement *shop in [doc.rootElement elementsForName:@"shop"]) {
+//            NSLog(@"%@", shop);
+            
+            ShopAnnotation *shopAnno = [[ShopAnnotation alloc] init];
+            shopAnno.title = [[[shop elementsForName:@"name"] lastObject] stringValue];
+            shopAnno.shopID = [[shop attributeForName:@"id"] stringValue];
+            
+            GDataXMLElement *location = [[shop elementsForName:@"location"] lastObject];
+            CLLocationDegrees lat = [[[location attributeForName:@"lat"] stringValue] doubleValue];
+            CLLocationDegrees lng = [[[location attributeForName:@"long"] stringValue] doubleValue];
+            [shopAnno setCoordinate:CLLocationCoordinate2DMake(lat, lng)];
+            [self.mapView addAnnotation:shopAnno];
+            [shopAnno release];
+        }
+        
+        [doc release];
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        
+    }];
+    
+    NSOperationQueue *queue = [[[NSOperationQueue alloc] init] autorelease];
+    [queue addOperation:operation];
 }
 
 - (void)viewDidUnload
@@ -66,17 +97,20 @@
                         change:(NSDictionary *)change  
                        context:(void *)context
 {
-    if ([self.mapView showsUserLocation]) {
-        [self.mapView setCenterCoordinate:self.mapView.userLocation.location.coordinate animated:NO];
-//        MKCoordinateRegion region;
-//        region.center = self.mapView.userLocation.coordinate;  
-//        
-//        MKCoordinateSpan span; 
-//        span.latitudeDelta  = 1; // Change these values to change the zoom
-//        span.longitudeDelta = 1; 
-//        region.span = span;
-//        
-//        [self.mapView setRegion:region animated:YES];
+    if (!isLocationLoaded) {
+        if ([self.mapView showsUserLocation]) {
+            [self.mapView setCenterCoordinate:self.mapView.userLocation.location.coordinate animated:NO];
+            isLocationLoaded = YES;
+    //        MKCoordinateRegion region;
+    //        region.center = self.mapView.userLocation.coordinate;  
+    //        
+    //        MKCoordinateSpan span; 
+    //        span.latitudeDelta  = 1; // Change these values to change the zoom
+    //        span.longitudeDelta = 1; 
+    //        region.span = span;
+    //        
+    //        [self.mapView setRegion:region animated:YES];
+        }
     }
 }
 
