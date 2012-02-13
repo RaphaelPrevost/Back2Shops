@@ -17,6 +17,9 @@
 		E132BF6014E3CBD500177F12 /* ShopTemplate.html in Resources */ = {isa = PBXBuildFile; fileRef = E132BF5F14E3CBD500177F12 /* ShopTemplate.html */; };
 		E1474FBE14E8F96800A061BF /* arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = E1474FBC14E8F96800A061BF /* arrow.png */; };
 		E1474FBF14E8F96800A061BF /* mapicon.png in Resources */ = {isa = PBXBuildFile; fileRef = E1474FBD14E8F96800A061BF /* mapicon.png */; };
+		E1474FC414E9304F00A061BF /* SaleInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E1474FC214E9304F00A061BF /* SaleInfoViewController.m */; };
+		E1474FC514E9304F00A061BF /* SaleInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E1474FC314E9304F00A061BF /* SaleInfoViewController.xib */; };
+		E1474FC714E9317F00A061BF /* SaleInfoTemplate.html in Resources */ = {isa = PBXBuildFile; fileRef = E1474FC614E9317F00A061BF /* SaleInfoTemplate.html */; };
 		E1527C1E14DABF9D00724874 /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = E1527BA914DABF9D00724874 /* AFHTTPClient.m */; };
 		E1527C1F14DABF9D00724874 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = E1527BAB14DABF9D00724874 /* AFHTTPRequestOperation.m */; };
 		E1527C2014DABF9D00724874 /* AFImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = E1527BAD14DABF9D00724874 /* AFImageCache.m */; };
@@ -94,6 +97,10 @@
 		E132BF5F14E3CBD500177F12 /* ShopTemplate.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ShopTemplate.html; sourceTree = "<group>"; };
 		E1474FBC14E8F96800A061BF /* arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arrow.png; sourceTree = "<group>"; };
 		E1474FBD14E8F96800A061BF /* mapicon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mapicon.png; sourceTree = "<group>"; };
+		E1474FC114E9304F00A061BF /* SaleInfoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SaleInfoViewController.h; sourceTree = "<group>"; };
+		E1474FC214E9304F00A061BF /* SaleInfoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SaleInfoViewController.m; sourceTree = "<group>"; };
+		E1474FC314E9304F00A061BF /* SaleInfoViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SaleInfoViewController.xib; sourceTree = "<group>"; };
+		E1474FC614E9317F00A061BF /* SaleInfoTemplate.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = SaleInfoTemplate.html; sourceTree = "<group>"; };
 		E1527BA814DABF9D00724874 /* AFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPClient.h; sourceTree = "<group>"; };
 		E1527BA914DABF9D00724874 /* AFHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPClient.m; sourceTree = "<group>"; };
 		E1527BAA14DABF9D00724874 /* AFHTTPRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPRequestOperation.h; sourceTree = "<group>"; };
@@ -215,6 +222,7 @@
 				E1474FBC14E8F96800A061BF /* arrow.png */,
 				E1474FBD14E8F96800A061BF /* mapicon.png */,
 				E132BF5F14E3CBD500177F12 /* ShopTemplate.html */,
+				E1474FC614E9317F00A061BF /* SaleInfoTemplate.html */,
 			);
 			path = Templates;
 			sourceTree = "<group>";
@@ -277,6 +285,9 @@
 				E1FC1B3E14DE0F4400A6FC7D /* OrderDetailViewController.h */,
 				E1FC1B3F14DE0F4400A6FC7D /* OrderDetailViewController.m */,
 				E1FC1B4014DE0F4400A6FC7D /* OrderDetailViewController.xib */,
+				E1474FC114E9304F00A061BF /* SaleInfoViewController.h */,
+				E1474FC214E9304F00A061BF /* SaleInfoViewController.m */,
+				E1474FC314E9304F00A061BF /* SaleInfoViewController.xib */,
 			);
 			name = "Secondary Controllers";
 			sourceTree = "<group>";
@@ -489,6 +500,8 @@
 				E132BF6014E3CBD500177F12 /* ShopTemplate.html in Resources */,
 				E1474FBE14E8F96800A061BF /* arrow.png in Resources */,
 				E1474FBF14E8F96800A061BF /* mapicon.png in Resources */,
+				E1474FC514E9304F00A061BF /* SaleInfoViewController.xib in Resources */,
+				E1474FC714E9317F00A061BF /* SaleInfoTemplate.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -521,6 +534,7 @@
 				E1FC1B5014DEE20D00A6FC7D /* LoginViewController.m in Sources */,
 				E1B43DB114E1828100E20DAD /* ShopAnnotation.m in Sources */,
 				E132BF5A14E3B82300177F12 /* GDataXMLNode.m in Sources */,
+				E1474FC414E9304F00A061BF /* SaleInfoViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
