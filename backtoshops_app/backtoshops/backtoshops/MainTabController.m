@@ -48,14 +48,16 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
 
-    HomeViewController *c1 = [[[HomeViewController alloc] initWithNibName:@"HomeViewController" bundle:nil] autorelease];
-    [self.contentView addSubview:c1.view];
+//    HomeViewController *c1 = [[[HomeViewController alloc] initWithNibName:@"HomeViewController" bundle:nil] autorelease];
+//    [self.contentView addSubview:c1.view];
     
     UINavigationController *firstController = [[[UINavigationController alloc] init] autorelease];
     firstController.view.frame = CGRectMake(0, 0, 320, 415);
     [firstController pushViewController:[[[ShopViewController alloc] initWithNibName:@"ShopViewController" bundle:nil] autorelease] animated:NO];
     
     [self.viewControllers addObject:firstController];
+    
+    [self click1st:nil];
     
 //    for (int i = 0; i < 3; i++) {
 //        UIViewController *c;
@@ -99,7 +101,7 @@
         [self.currentController.view removeFromSuperview];
     }
     
-    [self.view addSubview:_currentController.view];
+    [self.contentView addSubview:_currentController.view];
     
     [currentController release];
     currentController = [_currentController retain];

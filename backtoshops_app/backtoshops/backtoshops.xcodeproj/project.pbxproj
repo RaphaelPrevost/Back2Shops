@@ -14,6 +14,9 @@
 		E11251AA14E13510003D4CBC /* Login_Separator.png in Resources */ = {isa = PBXBuildFile; fileRef = E11251A414E13510003D4CBC /* Login_Separator.png */; };
 		E11251AB14E13510003D4CBC /* Login_Separator@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E11251A514E13510003D4CBC /* Login_Separator@2x.png */; };
 		E132BF5A14E3B82300177F12 /* GDataXMLNode.m in Sources */ = {isa = PBXBuildFile; fileRef = E132BF5914E3B82300177F12 /* GDataXMLNode.m */; };
+		E132BF6014E3CBD500177F12 /* ShopTemplate.html in Resources */ = {isa = PBXBuildFile; fileRef = E132BF5F14E3CBD500177F12 /* ShopTemplate.html */; };
+		E1474FBE14E8F96800A061BF /* arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = E1474FBC14E8F96800A061BF /* arrow.png */; };
+		E1474FBF14E8F96800A061BF /* mapicon.png in Resources */ = {isa = PBXBuildFile; fileRef = E1474FBD14E8F96800A061BF /* mapicon.png */; };
 		E1527C1E14DABF9D00724874 /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = E1527BA914DABF9D00724874 /* AFHTTPClient.m */; };
 		E1527C1F14DABF9D00724874 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = E1527BAB14DABF9D00724874 /* AFHTTPRequestOperation.m */; };
 		E1527C2014DABF9D00724874 /* AFImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = E1527BAD14DABF9D00724874 /* AFImageCache.m */; };
@@ -88,6 +91,9 @@
 		E11251A514E13510003D4CBC /* Login_Separator@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Login_Separator@2x.png"; sourceTree = "<group>"; };
 		E132BF5814E3B82300177F12 /* GDataXMLNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GDataXMLNode.h; sourceTree = "<group>"; };
 		E132BF5914E3B82300177F12 /* GDataXMLNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GDataXMLNode.m; sourceTree = "<group>"; };
+		E132BF5F14E3CBD500177F12 /* ShopTemplate.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ShopTemplate.html; sourceTree = "<group>"; };
+		E1474FBC14E8F96800A061BF /* arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arrow.png; sourceTree = "<group>"; };
+		E1474FBD14E8F96800A061BF /* mapicon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mapicon.png; sourceTree = "<group>"; };
 		E1527BA814DABF9D00724874 /* AFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPClient.h; sourceTree = "<group>"; };
 		E1527BA914DABF9D00724874 /* AFHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPClient.m; sourceTree = "<group>"; };
 		E1527BAA14DABF9D00724874 /* AFHTTPRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPRequestOperation.h; sourceTree = "<group>"; };
@@ -203,6 +209,16 @@
 			path = XMLSupport;
 			sourceTree = "<group>";
 		};
+		E132BF5E14E3CBBC00177F12 /* Templates */ = {
+			isa = PBXGroup;
+			children = (
+				E1474FBC14E8F96800A061BF /* arrow.png */,
+				E1474FBD14E8F96800A061BF /* mapicon.png */,
+				E132BF5F14E3CBD500177F12 /* ShopTemplate.html */,
+			);
+			path = Templates;
+			sourceTree = "<group>";
+		};
 		E1527BA614DABF9D00724874 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
@@ -268,6 +284,7 @@
 		E176C4F114D70D610067EEE5 = {
 			isa = PBXGroup;
 			children = (
+				E132BF5E14E3CBBC00177F12 /* Templates */,
 				E1B97AFE14DC0EAF00649841 /* Resources */,
 				E1527BA614DABF9D00724874 /* Libraries */,
 				E176C50614D70D610067EEE5 /* backtoshops */,
@@ -469,6 +486,9 @@
 				E11251A914E13510003D4CBC /* Login_Forget_password@2x.png in Resources */,
 				E11251AA14E13510003D4CBC /* Login_Separator.png in Resources */,
 				E11251AB14E13510003D4CBC /* Login_Separator@2x.png in Resources */,
+				E132BF6014E3CBD500177F12 /* ShopTemplate.html in Resources */,
+				E1474FBE14E8F96800A061BF /* arrow.png in Resources */,
+				E1474FBF14E8F96800A061BF /* mapicon.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -568,9 +588,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "backtoshops/backtoshops-Prefix.pch";
-				HEADER_SEARCH_PATHS = (
-					/usr/include/libxml2,
-				);
+				HEADER_SEARCH_PATHS = /usr/include/libxml2;
 				INFOPLIST_FILE = "backtoshops/backtoshops-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				OTHER_LDFLAGS = "-lxml2";
@@ -588,9 +606,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "backtoshops/backtoshops-Prefix.pch";
-				HEADER_SEARCH_PATHS = (
-					/usr/include/libxml2,
-				);
+				HEADER_SEARCH_PATHS = /usr/include/libxml2;
 				INFOPLIST_FILE = "backtoshops/backtoshops-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				OTHER_LDFLAGS = "-lxml2";
