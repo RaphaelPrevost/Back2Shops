@@ -10,6 +10,7 @@
 #import "HomeViewController.h"
 #import "ShopViewController.h"
 #import "LoginViewController.h"
+#import "SaleInfoViewController.h"
 
 @interface MainTabController (Private)
 
@@ -54,8 +55,13 @@
     UINavigationController *firstController = [[[UINavigationController alloc] init] autorelease];
     firstController.view.frame = CGRectMake(0, 0, 320, 415);
     [firstController pushViewController:[[[ShopViewController alloc] initWithNibName:@"ShopViewController" bundle:nil] autorelease] animated:NO];
-    
     [self.viewControllers addObject:firstController];
+    
+    UINavigationController *secondController = [[[UINavigationController alloc] init] autorelease];
+    secondController.view.frame = CGRectMake(0, 0, 320, 415);
+    [secondController pushViewController:[[[SaleInfoViewController alloc] initWithSaleID:@"1"] autorelease] animated:NO];
+    [self.viewControllers addObject:secondController];
+    
     
     [self click1st:nil];
     
