@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-size: 15px; }
+        h1 { margin: 4px 0; }
+        p { margin: 0; }
+        img.mapicon { width: 64px; height: 64px; float: right; }
+        div.cell { position: relative; font-size: 15px; margin-top: 10px; border-width: 1px; border-color: #ababab; background-color: white; border-radius: 6px; padding: 8px 0 8px 8px; color: black; }
+        div.cell h2 { font-size: 17px; margin: 0; padding: 0; }
+        div.cell p { color: #474747; font-size: 14px; margin: 0; padding-top: 4px; }
+        div img.arrow { width: 9; height: 14px; position: absolute; top: 12px; left: 280px; }
+        h1 { color: white; font-size: 18px; }
+        p.address { color: white; }
+        hr { height: 1px; border: none; border-bottom: 1px solid #5e5e5e; background-color: black; margin: 7px 0; }
+    </style>
+</head>
+
+<body>
+    <img src="mapicon.png" class="mapicon"/>
+    <h1>$SHOP_NAME</h1>
+    <p class="address">$ADDRESS</p>
+    <hr style="clear:both"/>
+    <div class="cell">
+        <img src="arrow.png" class="arrow" />
+        <h2>Toutes les offres de ce Shop (11)</h2>
+    </div>
+    <!--
+    <div class="cell"><h2>Toutes les offres de ce Shop($SHOP_OFFERS)</h2></div>
+    -->
+    <div class="cell">
+        <h2>Horaires</h2>
+        <!--
+        <p>$HOURS</p>
+        -->
+        <p>
+        Du lundi au vendredi : <br/>
+        9h00 - 13h30 | 14h30 - 18h00<br/>
+        Le samedi :<br/>
+        10h00 - 19h00 sans interrupt
+        </p>
+    </div>
+    <div class="cell">
+        <h2>Infos Pratiques</h2>
+        <!--
+        <p>$INFO</p>
+        -->
+        <p>
+        Métro Madeleine : Ligne 8 / 12 / 14  <br/>
+        Métro Havre - Caumartin : Ligne 3 / 9 
+        </p>
+    </div>
+</body>
+</html>

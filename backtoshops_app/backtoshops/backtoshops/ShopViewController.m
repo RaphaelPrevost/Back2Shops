@@ -10,6 +10,7 @@
 #import "ShopAnnotation.h"
 #import "AFHTTPRequestOperation.h"
 #import "GDataXMLNode.h"
+#import "ShopInfoViewController.h"
 
 @implementation ShopViewController
 @synthesize mapView;
@@ -41,12 +42,6 @@
     self.navigationController.navigationBar.tintColor = [UIColor colorWithRed:251.0/255.0 green:195.0/255.0 blue:38.0/255.0 alpha:1];
     
     [self.mapView.userLocation addObserver:self forKeyPath:@"location" options:(NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld) context:NULL];
-    
-    ShopAnnotation *shop1 = [[[ShopAnnotation alloc] init] autorelease];
-    shop1.title = @"Beijing";
-    shop1.subtitle = @"";
-    [shop1 setCoordinate:CLLocationCoordinate2DMake(40.1447, 117.2720)];
-    [self.mapView addAnnotation:shop1];
     
     // Load shop list from webservice
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://sales.backtoshops.com/webservice/1.0/pub/shops/list"]];
@@ -138,7 +133,10 @@
 
 - (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control
 {
-    NSLog(@"Clicked %@", view.annotation);
+    ShopAnnotation *annotation = (ShopAnnotation *)view.annotation;
+    ShopInfoViewController *controller = [[ShopInfoViewController alloc] initWithShopID:annotation.shopID];
+    [self.navigationController pushViewController:controller animated:YES];
+    [controller release];
 }
 
 @end

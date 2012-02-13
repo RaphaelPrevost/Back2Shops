@@ -10,4 +10,9 @@
 
 @interface ShopInfoViewController : UIViewController
 
+@property (nonatomic, copy) NSString *shopID;
+@property (retain, nonatomic) IBOutlet UIWebView *webView;
+
+- (id)initWithShopID:(NSString *)shopID;
+
 @end
