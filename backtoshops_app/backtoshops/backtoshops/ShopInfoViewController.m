@@ -81,11 +81,15 @@
         NSString *shopAddress = [NSString stringWithFormat:@"%@<br/>%@ %@", [[[root elementsForName:@"addr"] lastObject] stringValue],
                                                                             [[[root elementsForName:@"zip"] lastObject] stringValue],
                                                                             [[[root elementsForName:@"city"] lastObject] stringValue]];
+        NSString *info = [[[root elementsForName:@"desc"] lastObject] stringValue];
+        NSString *hours = [[[root elementsForName:@"hours"] lastObject] stringValue];
         
         NSString *path = [[NSBundle mainBundle] pathForResource:@"ShopTemplate" ofType:@"html"];
         NSString *htmlTemplate = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:NULL];
         htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$SHOP_NAME" withString:shopName];
         htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$ADDRESS" withString:shopAddress];
+        htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$INFO" withString:info];
+        htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$HOURS" withString:hours];
         [self.webView loadHTMLString:htmlTemplate baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"ShopTemplate" ofType:@"html"]]];
         
         [doc release];
