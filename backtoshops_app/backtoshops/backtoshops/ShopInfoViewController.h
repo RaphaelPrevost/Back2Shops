@@ -8,11 +8,15 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ShopInfoViewController : UIViewController
+@interface ShopInfoViewController : UIViewController <UIWebViewDelegate> {
+    NSMutableArray *saleList;
+}
 
 @property (nonatomic, copy) NSString *shopID;
+@property (nonatomic, assign) NSInteger numberOfSales;
 @property (retain, nonatomic) IBOutlet UIWebView *webView;
 
 - (id)initWithShopID:(NSString *)shopID;
+- (void)loadSaleList;
 
 @end

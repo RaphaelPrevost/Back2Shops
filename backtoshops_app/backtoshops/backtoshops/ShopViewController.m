@@ -50,8 +50,6 @@
         NSError *error;
         GDataXMLDocument *doc = [[GDataXMLDocument alloc] initWithData:responseObject options:0 error:&error];
         for (GDataXMLElement *shop in [doc.rootElement elementsForName:@"shop"]) {
-//            NSLog(@"%@", shop);
-            
             ShopAnnotation *shopAnno = [[ShopAnnotation alloc] init];
             shopAnno.title = [[[shop elementsForName:@"name"] lastObject] stringValue];
             shopAnno.shopID = [[shop attributeForName:@"id"] stringValue];

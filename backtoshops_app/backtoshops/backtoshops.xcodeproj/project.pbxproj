@@ -38,6 +38,14 @@
 		E176C50B14D70D610067EEE5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E176C50914D70D610067EEE5 /* InfoPlist.strings */; };
 		E176C50D14D70D610067EEE5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E176C50C14D70D610067EEE5 /* main.m */; };
 		E176C51114D70D610067EEE5 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E176C51014D70D610067EEE5 /* AppDelegate.m */; };
+		E19C8CCB14EB652C001DEA67 /* SaleListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E19C8CC914EB652B001DEA67 /* SaleListViewController.m */; };
+		E19C8CCC14EB652C001DEA67 /* SaleListViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E19C8CCA14EB652C001DEA67 /* SaleListViewController.xib */; };
+		E19C8CD114EB6756001DEA67 /* Sale.m in Sources */ = {isa = PBXBuildFile; fileRef = E19C8CD014EB6756001DEA67 /* Sale.m */; };
+		E19C8CD314EBA763001DEA67 /* pin.png in Resources */ = {isa = PBXBuildFile; fileRef = E19C8CD214EBA763001DEA67 /* pin.png */; };
+		E19C8CD814EBA99E001DEA67 /* LeftButton.png in Resources */ = {isa = PBXBuildFile; fileRef = E19C8CD414EBA99E001DEA67 /* LeftButton.png */; };
+		E19C8CD914EBA99E001DEA67 /* LeftButton@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E19C8CD514EBA99E001DEA67 /* LeftButton@2x.png */; };
+		E19C8CDA14EBA99E001DEA67 /* RightButton.png in Resources */ = {isa = PBXBuildFile; fileRef = E19C8CD614EBA99E001DEA67 /* RightButton.png */; };
+		E19C8CDB14EBA99E001DEA67 /* RightButton@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E19C8CD714EBA99E001DEA67 /* RightButton@2x.png */; };
 		E1B43DB114E1828100E20DAD /* ShopAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = E1B43DB014E1828100E20DAD /* ShopAnnotation.m */; };
 		E1B43DB414E1834300E20DAD /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1B43DB314E1834300E20DAD /* CoreLocation.framework */; };
 		E1B97B0114DC0EAF00649841 /* tabbar.png in Resources */ = {isa = PBXBuildFile; fileRef = E1B97AFF14DC0EAF00649841 /* tabbar.png */; };
@@ -136,6 +144,16 @@
 		E176C50E14D70D610067EEE5 /* backtoshops-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "backtoshops-Prefix.pch"; sourceTree = "<group>"; };
 		E176C50F14D70D610067EEE5 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		E176C51014D70D610067EEE5 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		E19C8CC814EB652B001DEA67 /* SaleListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SaleListViewController.h; sourceTree = "<group>"; };
+		E19C8CC914EB652B001DEA67 /* SaleListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SaleListViewController.m; sourceTree = "<group>"; };
+		E19C8CCA14EB652C001DEA67 /* SaleListViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SaleListViewController.xib; sourceTree = "<group>"; };
+		E19C8CCF14EB6756001DEA67 /* Sale.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sale.h; sourceTree = "<group>"; };
+		E19C8CD014EB6756001DEA67 /* Sale.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Sale.m; sourceTree = "<group>"; };
+		E19C8CD214EBA763001DEA67 /* pin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pin.png; sourceTree = "<group>"; };
+		E19C8CD414EBA99E001DEA67 /* LeftButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = LeftButton.png; sourceTree = "<group>"; };
+		E19C8CD514EBA99E001DEA67 /* LeftButton@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "LeftButton@2x.png"; sourceTree = "<group>"; };
+		E19C8CD614EBA99E001DEA67 /* RightButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = RightButton.png; sourceTree = "<group>"; };
+		E19C8CD714EBA99E001DEA67 /* RightButton@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "RightButton@2x.png"; sourceTree = "<group>"; };
 		E1B43DAF14E1828100E20DAD /* ShopAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShopAnnotation.h; sourceTree = "<group>"; };
 		E1B43DB014E1828100E20DAD /* ShopAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShopAnnotation.m; sourceTree = "<group>"; };
 		E1B43DB314E1834300E20DAD /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
@@ -220,6 +238,7 @@
 			isa = PBXGroup;
 			children = (
 				E1474FBC14E8F96800A061BF /* arrow.png */,
+				E19C8CD214EBA763001DEA67 /* pin.png */,
 				E1474FBD14E8F96800A061BF /* mapicon.png */,
 				E132BF5F14E3CBD500177F12 /* ShopTemplate.html */,
 				E1474FC614E9317F00A061BF /* SaleInfoTemplate.html */,
@@ -288,6 +307,9 @@
 				E1474FC114E9304F00A061BF /* SaleInfoViewController.h */,
 				E1474FC214E9304F00A061BF /* SaleInfoViewController.m */,
 				E1474FC314E9304F00A061BF /* SaleInfoViewController.xib */,
+				E19C8CC814EB652B001DEA67 /* SaleListViewController.h */,
+				E19C8CC914EB652B001DEA67 /* SaleListViewController.m */,
+				E19C8CCA14EB652C001DEA67 /* SaleListViewController.xib */,
 			);
 			name = "Secondary Controllers";
 			sourceTree = "<group>";
@@ -327,6 +349,7 @@
 		E176C50614D70D610067EEE5 /* backtoshops */ = {
 			isa = PBXGroup;
 			children = (
+				E19C8CCE14EB6744001DEA67 /* Models */,
 				E1FC1B4714DEE1B700A6FC7D /* Primary Controllers */,
 				E1527C5F14DAD04E00724874 /* Secondary Controllers */,
 				E176C50F14D70D610067EEE5 /* AppDelegate.h */,
@@ -350,9 +373,22 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		E19C8CCE14EB6744001DEA67 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				E19C8CCF14EB6756001DEA67 /* Sale.h */,
+				E19C8CD014EB6756001DEA67 /* Sale.m */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
 		E1B97AFE14DC0EAF00649841 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				E19C8CD414EBA99E001DEA67 /* LeftButton.png */,
+				E19C8CD514EBA99E001DEA67 /* LeftButton@2x.png */,
+				E19C8CD614EBA99E001DEA67 /* RightButton.png */,
+				E19C8CD714EBA99E001DEA67 /* RightButton@2x.png */,
 				E11251A014E13510003D4CBC /* Login_Box.png */,
 				E11251A114E13510003D4CBC /* Login_Box@2x.png */,
 				E11251A214E13510003D4CBC /* Login_Forget_password.png */,
@@ -502,6 +538,12 @@
 				E1474FBF14E8F96800A061BF /* mapicon.png in Resources */,
 				E1474FC514E9304F00A061BF /* SaleInfoViewController.xib in Resources */,
 				E1474FC714E9317F00A061BF /* SaleInfoTemplate.html in Resources */,
+				E19C8CCC14EB652C001DEA67 /* SaleListViewController.xib in Resources */,
+				E19C8CD314EBA763001DEA67 /* pin.png in Resources */,
+				E19C8CD814EBA99E001DEA67 /* LeftButton.png in Resources */,
+				E19C8CD914EBA99E001DEA67 /* LeftButton@2x.png in Resources */,
+				E19C8CDA14EBA99E001DEA67 /* RightButton.png in Resources */,
+				E19C8CDB14EBA99E001DEA67 /* RightButton@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -535,6 +577,8 @@
 				E1B43DB114E1828100E20DAD /* ShopAnnotation.m in Sources */,
 				E132BF5A14E3B82300177F12 /* GDataXMLNode.m in Sources */,
 				E1474FC414E9304F00A061BF /* SaleInfoViewController.m in Sources */,
+				E19C8CCB14EB652C001DEA67 /* SaleListViewController.m in Sources */,
+				E19C8CD114EB6756001DEA67 /* Sale.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

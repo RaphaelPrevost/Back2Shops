@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width = device-width" />
+    <meta name="viewport" content="initial-scale = 1.0" />
     <style>
         body { font-size: 15px; }
         h1 { margin: 4px 0; }
@@ -21,24 +23,13 @@
     <h1>$SHOP_NAME</h1>
     <p class="address">$ADDRESS</p>
     <hr style="clear:both"/>
-    <div class="cell">
+    <div class="cell" onclick="window.location='app://salelist';">
         <img src="arrow.png" class="arrow" />
-        <h2>Toutes les offres de ce Shop</h2>
+        <h2>Toutes les offres de ce Shop ($SHOP_OFFERS)</h2>
     </div>
-    <!--
-    <div class="cell"><h2>Toutes les offres de ce Shop($SHOP_OFFERS)</h2></div>
-    -->
     <div class="cell">
         <h2>Horaires</h2>
         <p id="formattedHours"></p>
-        <!--
-        <p>
-        Du lundi au vendredi : <br/>
-        9h00 - 13h30 | 14h30 - 18h00<br/>
-        Le samedi :<br/>
-        10h00 - 19h00 sans interrupt
-        </p>
-        -->
     </div>
     <div class="cell">
         <h2>Infos Pratiques</h2>

@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width = device-width" />
+    <meta name="viewport" content="initial-scale = 1.0" />
     <style>
         body { font-size: 15px; }
         h1 { margin: 4px 0; }
         p { margin: 0; }
         img.thumbnail { width:  }
-        img.mapicon { width: 64px; height: 64px; float: right; }
         div.cell { position: relative; font-size: 15px; margin-top: 10px; border-width: 1px; border-color: #ababab; background-color: white; border-radius: 6px; padding: 8px 0 8px 8px; color: black; }
         div.cell h2 { font-size: 17px; margin: 0; padding: 0; }
         div.cell p { color: #474747; font-size: 14px; margin: 0; padding-top: 4px; }
@@ -14,13 +15,58 @@
         h1 { color: white; font-size: 18px; }
         p.address { color: white; }
         hr { height: 1px; border: none; border-bottom: 1px solid #5e5e5e; background-color: black; margin: 7px 0; }
-        </style>
+        
+        div.header { margin-top: 40px; position: relative; }
+        div.price { position: absolute; top: 0px; left: 220px; }
+        img.pin { position: absolute; width: 92px; height: 35px; left: -3px; top: -3px; }
+        img.mapicon { position: absolute; width: 64px; height: 64px; top: 60px; left: 240px; }
+        #logo { width: 214px; min-height: 150px; }
+        #discount { font-size: 18px; font-weight: bold; position: absolute; top: 5px; left: 10px; color: white; }
+    </style>
 </head>
     
 <body>
-    <div>
-        $XML
+    <div class="header">
+        <img src="mapicon.png" class="mapicon"/>
+        <img src="pin.png" class="pin"/>
+        <img id="logo" />
+        <span id="discount"></span>
+        <div class="price">
+            <span style="color:#fdc900;font-weight:bold">
+                <span style="font-size:30px;" id="discount-price">0</span><sup style="font-size:21px;">&euro;00</sup>
+            </span>
+                <br/>
+            <span style="font-size:11px;color:#dedede;">au lieu de <strike id="price">0</strike><strike><sup>&euro;00</sup></strike></span>
+        </div>
     </div>
     <hr/>
+    
+    <div class="cell">
+        
+    </div>
+    
+    <div class="cell">
+        <h2 id="brand"></h2>
+        <p id="brand-desc"></p>
+    </div>
+    
+    <div style="margin-bottom: 70px;">
+    </div>
+    
+    <script type="text/javascript">
+        var JSON = $JSON;
+//        var JSON = {'name': 'Kyle Avatar', 'description': 'NO', 'imageURL': '/site_media/product_pictures/kyle_summer_2010.jpg', 'price': '100', 'discountPrice': '70', 'discountRatio': '30'};
+        
+        function $(eid) {
+            return document.getElementById(eid);
+        }
+        
+        $('brand').innerHTML = JSON['name'];
+        $('brand-desc').innerHTML = JSON['description'];
+        $('logo').src = 'http://sales.backtoshops.com' + JSON['imageURL'];
+        $('price').innerHTML = JSON['price'];
+        $('discount-price').innerHTML = JSON['discountPrice'];
+        $('discount').innerHTML = '-' + JSON['discountRatio'] + '%';
+    </script>
 </body>
 </html>
