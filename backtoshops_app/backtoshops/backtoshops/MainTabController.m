@@ -10,7 +10,6 @@
 #import "HomeViewController.h"
 #import "ShopViewController.h"
 #import "LoginViewController.h"
-#import "SaleInfoViewController.h"
 
 @interface MainTabController (Private)
 
@@ -59,7 +58,7 @@
     
     UINavigationController *secondController = [[[UINavigationController alloc] init] autorelease];
     secondController.view.frame = CGRectMake(0, 0, 320, 415);
-    [secondController pushViewController:[[[SaleInfoViewController alloc] initWithSaleID:@"1"] autorelease] animated:NO];
+//    [secondController pushViewController:[[[SaleInfoViewController alloc] initWithSaleID:@"1"] autorelease] animated:NO];
     [self.viewControllers addObject:secondController];
     
     

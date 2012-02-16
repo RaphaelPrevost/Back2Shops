@@ -17,8 +17,6 @@
 		E132BF6014E3CBD500177F12 /* ShopTemplate.html in Resources */ = {isa = PBXBuildFile; fileRef = E132BF5F14E3CBD500177F12 /* ShopTemplate.html */; };
 		E1474FBE14E8F96800A061BF /* arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = E1474FBC14E8F96800A061BF /* arrow.png */; };
 		E1474FBF14E8F96800A061BF /* mapicon.png in Resources */ = {isa = PBXBuildFile; fileRef = E1474FBD14E8F96800A061BF /* mapicon.png */; };
-		E1474FC414E9304F00A061BF /* SaleInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E1474FC214E9304F00A061BF /* SaleInfoViewController.m */; };
-		E1474FC514E9304F00A061BF /* SaleInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E1474FC314E9304F00A061BF /* SaleInfoViewController.xib */; };
 		E1474FC714E9317F00A061BF /* SaleInfoTemplate.html in Resources */ = {isa = PBXBuildFile; fileRef = E1474FC614E9317F00A061BF /* SaleInfoTemplate.html */; };
 		E1527C1E14DABF9D00724874 /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = E1527BA914DABF9D00724874 /* AFHTTPClient.m */; };
 		E1527C1F14DABF9D00724874 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = E1527BAB14DABF9D00724874 /* AFHTTPRequestOperation.m */; };
@@ -38,6 +36,8 @@
 		E176C50B14D70D610067EEE5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E176C50914D70D610067EEE5 /* InfoPlist.strings */; };
 		E176C50D14D70D610067EEE5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E176C50C14D70D610067EEE5 /* main.m */; };
 		E176C51114D70D610067EEE5 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E176C51014D70D610067EEE5 /* AppDelegate.m */; };
+		E18B841F14ED103E0083E54D /* Shop.m in Sources */ = {isa = PBXBuildFile; fileRef = E18B841E14ED103E0083E54D /* Shop.m */; };
+		E18B842314ED1AE40083E54D /* shopicon.png in Resources */ = {isa = PBXBuildFile; fileRef = E18B842214ED1AE40083E54D /* shopicon.png */; };
 		E19C8CCB14EB652C001DEA67 /* SaleListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E19C8CC914EB652B001DEA67 /* SaleListViewController.m */; };
 		E19C8CCC14EB652C001DEA67 /* SaleListViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E19C8CCA14EB652C001DEA67 /* SaleListViewController.xib */; };
 		E19C8CD114EB6756001DEA67 /* Sale.m in Sources */ = {isa = PBXBuildFile; fileRef = E19C8CD014EB6756001DEA67 /* Sale.m */; };
@@ -105,9 +105,6 @@
 		E132BF5F14E3CBD500177F12 /* ShopTemplate.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ShopTemplate.html; sourceTree = "<group>"; };
 		E1474FBC14E8F96800A061BF /* arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arrow.png; sourceTree = "<group>"; };
 		E1474FBD14E8F96800A061BF /* mapicon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mapicon.png; sourceTree = "<group>"; };
-		E1474FC114E9304F00A061BF /* SaleInfoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SaleInfoViewController.h; sourceTree = "<group>"; };
-		E1474FC214E9304F00A061BF /* SaleInfoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SaleInfoViewController.m; sourceTree = "<group>"; };
-		E1474FC314E9304F00A061BF /* SaleInfoViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SaleInfoViewController.xib; sourceTree = "<group>"; };
 		E1474FC614E9317F00A061BF /* SaleInfoTemplate.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = SaleInfoTemplate.html; sourceTree = "<group>"; };
 		E1527BA814DABF9D00724874 /* AFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPClient.h; sourceTree = "<group>"; };
 		E1527BA914DABF9D00724874 /* AFHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPClient.m; sourceTree = "<group>"; };
@@ -144,6 +141,9 @@
 		E176C50E14D70D610067EEE5 /* backtoshops-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "backtoshops-Prefix.pch"; sourceTree = "<group>"; };
 		E176C50F14D70D610067EEE5 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		E176C51014D70D610067EEE5 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		E18B841D14ED103E0083E54D /* Shop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Shop.h; sourceTree = "<group>"; };
+		E18B841E14ED103E0083E54D /* Shop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Shop.m; sourceTree = "<group>"; };
+		E18B842214ED1AE40083E54D /* shopicon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = shopicon.png; sourceTree = "<group>"; };
 		E19C8CC814EB652B001DEA67 /* SaleListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SaleListViewController.h; sourceTree = "<group>"; };
 		E19C8CC914EB652B001DEA67 /* SaleListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SaleListViewController.m; sourceTree = "<group>"; };
 		E19C8CCA14EB652C001DEA67 /* SaleListViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SaleListViewController.xib; sourceTree = "<group>"; };
@@ -237,6 +237,7 @@
 		E132BF5E14E3CBBC00177F12 /* Templates */ = {
 			isa = PBXGroup;
 			children = (
+				E18B842214ED1AE40083E54D /* shopicon.png */,
 				E1474FBC14E8F96800A061BF /* arrow.png */,
 				E19C8CD214EBA763001DEA67 /* pin.png */,
 				E1474FBD14E8F96800A061BF /* mapicon.png */,
@@ -304,9 +305,6 @@
 				E1FC1B3E14DE0F4400A6FC7D /* OrderDetailViewController.h */,
 				E1FC1B3F14DE0F4400A6FC7D /* OrderDetailViewController.m */,
 				E1FC1B4014DE0F4400A6FC7D /* OrderDetailViewController.xib */,
-				E1474FC114E9304F00A061BF /* SaleInfoViewController.h */,
-				E1474FC214E9304F00A061BF /* SaleInfoViewController.m */,
-				E1474FC314E9304F00A061BF /* SaleInfoViewController.xib */,
 				E19C8CC814EB652B001DEA67 /* SaleListViewController.h */,
 				E19C8CC914EB652B001DEA67 /* SaleListViewController.m */,
 				E19C8CCA14EB652C001DEA67 /* SaleListViewController.xib */,
@@ -378,6 +376,8 @@
 			children = (
 				E19C8CCF14EB6756001DEA67 /* Sale.h */,
 				E19C8CD014EB6756001DEA67 /* Sale.m */,
+				E18B841D14ED103E0083E54D /* Shop.h */,
+				E18B841E14ED103E0083E54D /* Shop.m */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -536,7 +536,6 @@
 				E132BF6014E3CBD500177F12 /* ShopTemplate.html in Resources */,
 				E1474FBE14E8F96800A061BF /* arrow.png in Resources */,
 				E1474FBF14E8F96800A061BF /* mapicon.png in Resources */,
-				E1474FC514E9304F00A061BF /* SaleInfoViewController.xib in Resources */,
 				E1474FC714E9317F00A061BF /* SaleInfoTemplate.html in Resources */,
 				E19C8CCC14EB652C001DEA67 /* SaleListViewController.xib in Resources */,
 				E19C8CD314EBA763001DEA67 /* pin.png in Resources */,
@@ -544,6 +543,7 @@
 				E19C8CD914EBA99E001DEA67 /* LeftButton@2x.png in Resources */,
 				E19C8CDA14EBA99E001DEA67 /* RightButton.png in Resources */,
 				E19C8CDB14EBA99E001DEA67 /* RightButton@2x.png in Resources */,
+				E18B842314ED1AE40083E54D /* shopicon.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -576,9 +576,9 @@
 				E1FC1B5014DEE20D00A6FC7D /* LoginViewController.m in Sources */,
 				E1B43DB114E1828100E20DAD /* ShopAnnotation.m in Sources */,
 				E132BF5A14E3B82300177F12 /* GDataXMLNode.m in Sources */,
-				E1474FC414E9304F00A061BF /* SaleInfoViewController.m in Sources */,
 				E19C8CCB14EB652C001DEA67 /* SaleListViewController.m in Sources */,
 				E19C8CD114EB6756001DEA67 /* Sale.m in Sources */,
+				E18B841F14ED103E0083E54D /* Shop.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
