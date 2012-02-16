@@ -22,6 +22,12 @@
         img.mapicon { position: absolute; width: 64px; height: 64px; top: 60px; left: 240px; }
         #logo { width: 214px; min-height: 150px; }
         #discount { font-size: 18px; font-weight: bold; position: absolute; top: 5px; left: 10px; color: white; }
+        
+        #shop-list { margin-top: 10px; border-width: 1px; border-color: #ababab; background-color: white; border-radius: 6px; } 
+        div.tiny-cell { position: relative; padding: 8px 0 8px 46px; color: black; border-bottom: 1px solid #ababab; }
+        div.tiny-cell .shopicon { position: absolute; width: 30px; height: 30px; left: 8px; top: 4px; }
+        div.tiny-cell:last-child { border-bottom: none; }
+        div.tiny-cell h2 { font-size: 17px; margin: 0; padding: 0; }
     </style>
 </head>
     
@@ -41,7 +47,7 @@
     </div>
     <hr/>
     
-    <div class="cell">
+    <div id="shop-list">
         
     </div>
     
@@ -55,7 +61,7 @@
     
     <script type="text/javascript">
         var JSON = $JSON;
-//        var JSON = {'name': 'Kyle Avatar', 'description': 'NO', 'imageURL': '/site_media/product_pictures/kyle_summer_2010.jpg', 'price': '100', 'discountPrice': '70', 'discountRatio': '30'};
+//        var JSON = {'name': 'Business Suit', 'description': 'Business Suit', 'imageURL': '/site_media/product_pictures/boy.png', 'price': '500', 'discountPrice': '450', 'discountRatio': '10', 'shops': [{'id': '4', 'name': 'nocibé tours', 'imageURL': ''}, {'id': '4', 'name': 'nocibé tours', 'imageURL': ''}, {'id': '4', 'name': 'nocibé tours', 'imageURL': ''}, {'id': '4', 'name': 'nocibé tours', 'imageURL': ''}]}
         
         function $(eid) {
             return document.getElementById(eid);
@@ -67,6 +73,13 @@
         $('price').innerHTML = JSON['price'];
         $('discount-price').innerHTML = JSON['discountPrice'];
         $('discount').innerHTML = '-' + JSON['discountRatio'] + '%';
+        
+        var shopList = []
+        for (var i = 0; i < JSON['shops'].length; i++) {
+            var shop = JSON['shops'][i];
+            shopList.push('<div class="tiny-cell"><img src="shopicon.png" class="shopicon"/><img src="arrow.png" class="arrow"/><h2>' + shop.name + '</h2></div>');
+        }
+        $('shop-list').innerHTML = shopList.join('\n');
     </script>
 </body>
 </html>

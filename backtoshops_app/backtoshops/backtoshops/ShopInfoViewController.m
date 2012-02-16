@@ -85,6 +85,7 @@
         
         for (GDataXMLElement *el in [doc.rootElement elementsForName:@"sale"]) {
             Sale *sale = [[Sale alloc] init];
+            sale.identifier = [[el attributeForName:@"id"] stringValue];
             sale.name = [[[el elementsForName:@"name"] lastObject] stringValue];
             sale.description = [[[el elementsForName:@"desc"] lastObject] stringValue];
             sale.imageURL = [[[[el elementsForName:@"img"] lastObject] attributeForName:@"url"] stringValue];
@@ -164,7 +165,7 @@
 {
     NSString *requestString = [[request URL] absoluteString];
     
-    NSLog(@"%@", requestString);
+//    NSLog(@"%@", requestString);
     
     if ([requestString isEqualToString:@"app://salelist"]) {
         [self loadSaleList];
