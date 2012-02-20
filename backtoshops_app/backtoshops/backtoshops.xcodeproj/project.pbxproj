@@ -13,6 +13,13 @@
 		E11251A914E13510003D4CBC /* Login_Forget_password@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E11251A314E13510003D4CBC /* Login_Forget_password@2x.png */; };
 		E11251AA14E13510003D4CBC /* Login_Separator.png in Resources */ = {isa = PBXBuildFile; fileRef = E11251A414E13510003D4CBC /* Login_Separator.png */; };
 		E11251AB14E13510003D4CBC /* Login_Separator@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E11251A514E13510003D4CBC /* Login_Separator@2x.png */; };
+		E11651B114F2A12D004D8D99 /* BuyButton.png in Resources */ = {isa = PBXBuildFile; fileRef = E11651AF14F2A12D004D8D99 /* BuyButton.png */; };
+		E11651B214F2A12D004D8D99 /* BuyButton@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E11651B014F2A12D004D8D99 /* BuyButton@2x.png */; };
+		E11651B714F2A49C004D8D99 /* MainTabController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E11651B914F2A49C004D8D99 /* MainTabController.xib */; };
+		E11651BC14F2A4BB004D8D99 /* SaleListViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E11651BE14F2A4BB004D8D99 /* SaleListViewController.xib */; };
+		E11651C214F2A4C9004D8D99 /* ShopInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E11651C314F2A4C9004D8D99 /* ShopInfoViewController.xib */; };
+		E11651C614F2A4DA004D8D99 /* HomeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E11651C814F2A4DA004D8D99 /* HomeViewController.xib */; };
+		E11651CB14F2A4E6004D8D99 /* LoginViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E11651CD14F2A4E6004D8D99 /* LoginViewController.xib */; };
 		E132BF5A14E3B82300177F12 /* GDataXMLNode.m in Sources */ = {isa = PBXBuildFile; fileRef = E132BF5914E3B82300177F12 /* GDataXMLNode.m */; };
 		E132BF6014E3CBD500177F12 /* ShopTemplate.html in Resources */ = {isa = PBXBuildFile; fileRef = E132BF5F14E3CBD500177F12 /* ShopTemplate.html */; };
 		E1474FBE14E8F96800A061BF /* arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = E1474FBC14E8F96800A061BF /* arrow.png */; };
@@ -29,7 +36,6 @@
 		E1527C2614DABF9D00724874 /* AFXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = E1527BBB14DABF9D00724874 /* AFXMLRequestOperation.m */; };
 		E1527C2714DABF9D00724874 /* UIImageView+AFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = E1527BBD14DABF9D00724874 /* UIImageView+AFNetworking.m */; };
 		E1527C5D14DAC0EF00724874 /* MainTabController.m in Sources */ = {isa = PBXBuildFile; fileRef = E1527C5B14DAC0EF00724874 /* MainTabController.m */; };
-		E1527C5E14DAC0EF00724874 /* MainTabController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E1527C5C14DAC0EF00724874 /* MainTabController.xib */; };
 		E176C50114D70D610067EEE5 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E176C50014D70D610067EEE5 /* UIKit.framework */; };
 		E176C50314D70D610067EEE5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E176C50214D70D610067EEE5 /* Foundation.framework */; };
 		E176C50514D70D610067EEE5 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E176C50414D70D610067EEE5 /* CoreGraphics.framework */; };
@@ -39,7 +45,6 @@
 		E18B841F14ED103E0083E54D /* Shop.m in Sources */ = {isa = PBXBuildFile; fileRef = E18B841E14ED103E0083E54D /* Shop.m */; };
 		E18B842314ED1AE40083E54D /* shopicon.png in Resources */ = {isa = PBXBuildFile; fileRef = E18B842214ED1AE40083E54D /* shopicon.png */; };
 		E19C8CCB14EB652C001DEA67 /* SaleListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E19C8CC914EB652B001DEA67 /* SaleListViewController.m */; };
-		E19C8CCC14EB652C001DEA67 /* SaleListViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E19C8CCA14EB652C001DEA67 /* SaleListViewController.xib */; };
 		E19C8CD114EB6756001DEA67 /* Sale.m in Sources */ = {isa = PBXBuildFile; fileRef = E19C8CD014EB6756001DEA67 /* Sale.m */; };
 		E19C8CD314EBA763001DEA67 /* pin.png in Resources */ = {isa = PBXBuildFile; fileRef = E19C8CD214EBA763001DEA67 /* pin.png */; };
 		E19C8CD814EBA99E001DEA67 /* LeftButton.png in Resources */ = {isa = PBXBuildFile; fileRef = E19C8CD414EBA99E001DEA67 /* LeftButton.png */; };
@@ -66,9 +71,6 @@
 		E1FC1B2B14DE06F900A6FC7D /* icons_03_on@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FC1B1F14DE06F900A6FC7D /* icons_03_on@2x.png */; };
 		E1FC1B2E14DE0A0E00A6FC7D /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1FC1B2D14DE0A0E00A6FC7D /* MapKit.framework */; };
 		E1FC1B3214DE0EC800A6FC7D /* ShopInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E1FC1B3014DE0EC800A6FC7D /* ShopInfoViewController.m */; };
-		E1FC1B3314DE0EC800A6FC7D /* ShopInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E1FC1B3114DE0EC800A6FC7D /* ShopInfoViewController.xib */; };
-		E1FC1B3714DE0F1B00A6FC7D /* ProductViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E1FC1B3514DE0F1B00A6FC7D /* ProductViewController.m */; };
-		E1FC1B3814DE0F1B00A6FC7D /* ProductViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E1FC1B3614DE0F1B00A6FC7D /* ProductViewController.xib */; };
 		E1FC1B3C14DE0F3700A6FC7D /* OrderViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E1FC1B3A14DE0F3700A6FC7D /* OrderViewController.m */; };
 		E1FC1B3D14DE0F3700A6FC7D /* OrderViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E1FC1B3B14DE0F3700A6FC7D /* OrderViewController.xib */; };
 		E1FC1B4114DE0F4400A6FC7D /* OrderDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E1FC1B3F14DE0F4400A6FC7D /* OrderDetailViewController.m */; };
@@ -76,9 +78,7 @@
 		E1FC1B4514DE136500A6FC7D /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FC1B4314DE136500A6FC7D /* Icon.png */; };
 		E1FC1B4614DE136500A6FC7D /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FC1B4414DE136500A6FC7D /* Icon@2x.png */; };
 		E1FC1B4B14DEE1C900A6FC7D /* HomeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E1FC1B4914DEE1C900A6FC7D /* HomeViewController.m */; };
-		E1FC1B4C14DEE1C900A6FC7D /* HomeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E1FC1B4A14DEE1C900A6FC7D /* HomeViewController.xib */; };
 		E1FC1B5014DEE20D00A6FC7D /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E1FC1B4E14DEE20D00A6FC7D /* LoginViewController.m */; };
-		E1FC1B5114DEE20D00A6FC7D /* LoginViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E1FC1B4F14DEE20D00A6FC7D /* LoginViewController.xib */; };
 		E1FC1B5E14DEE56400A6FC7D /* Background.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FC1B5214DEE56400A6FC7D /* Background.png */; };
 		E1FC1B5F14DEE56400A6FC7D /* Background@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FC1B5314DEE56400A6FC7D /* Background@2x.png */; };
 		E1FC1B6014DEE56400A6FC7D /* HomeScreenBackground.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FC1B5414DEE56400A6FC7D /* HomeScreenBackground.png */; };
@@ -100,6 +100,23 @@
 		E11251A314E13510003D4CBC /* Login_Forget_password@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Login_Forget_password@2x.png"; sourceTree = "<group>"; };
 		E11251A414E13510003D4CBC /* Login_Separator.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Login_Separator.png; sourceTree = "<group>"; };
 		E11251A514E13510003D4CBC /* Login_Separator@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Login_Separator@2x.png"; sourceTree = "<group>"; };
+		E11651AF14F2A12D004D8D99 /* BuyButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BuyButton.png; sourceTree = "<group>"; };
+		E11651B014F2A12D004D8D99 /* BuyButton@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "BuyButton@2x.png"; sourceTree = "<group>"; };
+		E11651B514F2A476004D8D99 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		E11651B614F2A479004D8D99 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		E11651B814F2A49C004D8D99 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainTabController.xib; sourceTree = "<group>"; };
+		E11651BA14F2A4A5004D8D99 /* fr */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = fr; path = fr.lproj/MainTabController.xib; sourceTree = "<group>"; };
+		E11651BB14F2A4A5004D8D99 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "zh-Hans"; path = "zh-Hans.lproj/MainTabController.xib"; sourceTree = "<group>"; };
+		E11651BD14F2A4BB004D8D99 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/SaleListViewController.xib; sourceTree = "<group>"; };
+		E11651C314F2A4C9004D8D99 /* ShopInfoViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ShopInfoViewController.xib; sourceTree = "<group>"; };
+		E11651C414F2A4CF004D8D99 /* fr */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = fr; path = fr.lproj/SaleListViewController.xib; sourceTree = "<group>"; };
+		E11651C514F2A4CF004D8D99 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "zh-Hans"; path = "zh-Hans.lproj/SaleListViewController.xib"; sourceTree = "<group>"; };
+		E11651C714F2A4DA004D8D99 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/HomeViewController.xib; sourceTree = "<group>"; };
+		E11651C914F2A4DE004D8D99 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "zh-Hans"; path = "zh-Hans.lproj/HomeViewController.xib"; sourceTree = "<group>"; };
+		E11651CA14F2A4DE004D8D99 /* fr */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = fr; path = fr.lproj/HomeViewController.xib; sourceTree = "<group>"; };
+		E11651CC14F2A4E6004D8D99 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/LoginViewController.xib; sourceTree = "<group>"; };
+		E11651CE14F2A4E9004D8D99 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "zh-Hans"; path = "zh-Hans.lproj/LoginViewController.xib"; sourceTree = "<group>"; };
+		E11651CF14F2A4E9004D8D99 /* fr */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = fr; path = fr.lproj/LoginViewController.xib; sourceTree = "<group>"; };
 		E132BF5814E3B82300177F12 /* GDataXMLNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GDataXMLNode.h; sourceTree = "<group>"; };
 		E132BF5914E3B82300177F12 /* GDataXMLNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GDataXMLNode.m; sourceTree = "<group>"; };
 		E132BF5F14E3CBD500177F12 /* ShopTemplate.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ShopTemplate.html; sourceTree = "<group>"; };
@@ -130,7 +147,6 @@
 		E1527BBD14DABF9D00724874 /* UIImageView+AFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+AFNetworking.m"; sourceTree = "<group>"; };
 		E1527C5A14DAC0EF00724874 /* MainTabController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainTabController.h; sourceTree = "<group>"; };
 		E1527C5B14DAC0EF00724874 /* MainTabController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainTabController.m; sourceTree = "<group>"; };
-		E1527C5C14DAC0EF00724874 /* MainTabController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainTabController.xib; sourceTree = "<group>"; };
 		E176C4FC14D70D610067EEE5 /* backtoshops.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = backtoshops.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E176C50014D70D610067EEE5 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		E176C50214D70D610067EEE5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -146,7 +162,6 @@
 		E18B842214ED1AE40083E54D /* shopicon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = shopicon.png; sourceTree = "<group>"; };
 		E19C8CC814EB652B001DEA67 /* SaleListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SaleListViewController.h; sourceTree = "<group>"; };
 		E19C8CC914EB652B001DEA67 /* SaleListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SaleListViewController.m; sourceTree = "<group>"; };
-		E19C8CCA14EB652C001DEA67 /* SaleListViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SaleListViewController.xib; sourceTree = "<group>"; };
 		E19C8CCF14EB6756001DEA67 /* Sale.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sale.h; sourceTree = "<group>"; };
 		E19C8CD014EB6756001DEA67 /* Sale.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Sale.m; sourceTree = "<group>"; };
 		E19C8CD214EBA763001DEA67 /* pin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pin.png; sourceTree = "<group>"; };
@@ -177,10 +192,6 @@
 		E1FC1B2D14DE0A0E00A6FC7D /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		E1FC1B2F14DE0EC800A6FC7D /* ShopInfoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShopInfoViewController.h; sourceTree = "<group>"; };
 		E1FC1B3014DE0EC800A6FC7D /* ShopInfoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShopInfoViewController.m; sourceTree = "<group>"; };
-		E1FC1B3114DE0EC800A6FC7D /* ShopInfoViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ShopInfoViewController.xib; sourceTree = "<group>"; };
-		E1FC1B3414DE0F1B00A6FC7D /* ProductViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProductViewController.h; sourceTree = "<group>"; };
-		E1FC1B3514DE0F1B00A6FC7D /* ProductViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProductViewController.m; sourceTree = "<group>"; };
-		E1FC1B3614DE0F1B00A6FC7D /* ProductViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ProductViewController.xib; sourceTree = "<group>"; };
 		E1FC1B3914DE0F3700A6FC7D /* OrderViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrderViewController.h; sourceTree = "<group>"; };
 		E1FC1B3A14DE0F3700A6FC7D /* OrderViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OrderViewController.m; sourceTree = "<group>"; };
 		E1FC1B3B14DE0F3700A6FC7D /* OrderViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OrderViewController.xib; sourceTree = "<group>"; };
@@ -191,10 +202,8 @@
 		E1FC1B4414DE136500A6FC7D /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
 		E1FC1B4814DEE1C900A6FC7D /* HomeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HomeViewController.h; sourceTree = "<group>"; };
 		E1FC1B4914DEE1C900A6FC7D /* HomeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HomeViewController.m; sourceTree = "<group>"; };
-		E1FC1B4A14DEE1C900A6FC7D /* HomeViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HomeViewController.xib; sourceTree = "<group>"; };
 		E1FC1B4D14DEE20D00A6FC7D /* LoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginViewController.h; sourceTree = "<group>"; };
 		E1FC1B4E14DEE20D00A6FC7D /* LoginViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginViewController.m; sourceTree = "<group>"; };
-		E1FC1B4F14DEE20D00A6FC7D /* LoginViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LoginViewController.xib; sourceTree = "<group>"; };
 		E1FC1B5214DEE56400A6FC7D /* Background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Background.png; sourceTree = "<group>"; };
 		E1FC1B5314DEE56400A6FC7D /* Background@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Background@2x.png"; sourceTree = "<group>"; };
 		E1FC1B5414DEE56400A6FC7D /* HomeScreenBackground.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = HomeScreenBackground.png; sourceTree = "<group>"; };
@@ -225,6 +234,37 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E11651B314F2A343004D8D99 /* Shop */ = {
+			isa = PBXGroup;
+			children = (
+				E1B43DAF14E1828100E20DAD /* ShopAnnotation.h */,
+				E1B43DB014E1828100E20DAD /* ShopAnnotation.m */,
+				E1B97B0314DC104C00649841 /* ShopViewController.h */,
+				E1B97B0414DC104C00649841 /* ShopViewController.m */,
+				E1B97B0514DC104C00649841 /* ShopViewController.xib */,
+				E1FC1B2F14DE0EC800A6FC7D /* ShopInfoViewController.h */,
+				E1FC1B3014DE0EC800A6FC7D /* ShopInfoViewController.m */,
+				E11651C314F2A4C9004D8D99 /* ShopInfoViewController.xib */,
+				E19C8CC814EB652B001DEA67 /* SaleListViewController.h */,
+				E19C8CC914EB652B001DEA67 /* SaleListViewController.m */,
+				E11651BE14F2A4BB004D8D99 /* SaleListViewController.xib */,
+			);
+			name = Shop;
+			sourceTree = "<group>";
+		};
+		E11651B414F2A351004D8D99 /* Order */ = {
+			isa = PBXGroup;
+			children = (
+				E1FC1B3914DE0F3700A6FC7D /* OrderViewController.h */,
+				E1FC1B3A14DE0F3700A6FC7D /* OrderViewController.m */,
+				E1FC1B3B14DE0F3700A6FC7D /* OrderViewController.xib */,
+				E1FC1B3E14DE0F4400A6FC7D /* OrderDetailViewController.h */,
+				E1FC1B3F14DE0F4400A6FC7D /* OrderDetailViewController.m */,
+				E1FC1B4014DE0F4400A6FC7D /* OrderDetailViewController.xib */,
+			);
+			name = Order;
+			sourceTree = "<group>";
+		};
 		E132BF5714E3B82300177F12 /* XMLSupport */ = {
 			isa = PBXGroup;
 			children = (
@@ -288,26 +328,8 @@
 		E1527C5F14DAD04E00724874 /* Secondary Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				E1B43DAF14E1828100E20DAD /* ShopAnnotation.h */,
-				E1B43DB014E1828100E20DAD /* ShopAnnotation.m */,
-				E1B97B0314DC104C00649841 /* ShopViewController.h */,
-				E1B97B0414DC104C00649841 /* ShopViewController.m */,
-				E1B97B0514DC104C00649841 /* ShopViewController.xib */,
-				E1FC1B2F14DE0EC800A6FC7D /* ShopInfoViewController.h */,
-				E1FC1B3014DE0EC800A6FC7D /* ShopInfoViewController.m */,
-				E1FC1B3114DE0EC800A6FC7D /* ShopInfoViewController.xib */,
-				E1FC1B3414DE0F1B00A6FC7D /* ProductViewController.h */,
-				E1FC1B3514DE0F1B00A6FC7D /* ProductViewController.m */,
-				E1FC1B3614DE0F1B00A6FC7D /* ProductViewController.xib */,
-				E1FC1B3914DE0F3700A6FC7D /* OrderViewController.h */,
-				E1FC1B3A14DE0F3700A6FC7D /* OrderViewController.m */,
-				E1FC1B3B14DE0F3700A6FC7D /* OrderViewController.xib */,
-				E1FC1B3E14DE0F4400A6FC7D /* OrderDetailViewController.h */,
-				E1FC1B3F14DE0F4400A6FC7D /* OrderDetailViewController.m */,
-				E1FC1B4014DE0F4400A6FC7D /* OrderDetailViewController.xib */,
-				E19C8CC814EB652B001DEA67 /* SaleListViewController.h */,
-				E19C8CC914EB652B001DEA67 /* SaleListViewController.m */,
-				E19C8CCA14EB652C001DEA67 /* SaleListViewController.xib */,
+				E11651B314F2A343004D8D99 /* Shop */,
+				E11651B414F2A351004D8D99 /* Order */,
 			);
 			name = "Secondary Controllers";
 			sourceTree = "<group>";
@@ -354,7 +376,7 @@
 				E176C51014D70D610067EEE5 /* AppDelegate.m */,
 				E1527C5A14DAC0EF00724874 /* MainTabController.h */,
 				E1527C5B14DAC0EF00724874 /* MainTabController.m */,
-				E1527C5C14DAC0EF00724874 /* MainTabController.xib */,
+				E11651B914F2A49C004D8D99 /* MainTabController.xib */,
 				E176C50714D70D610067EEE5 /* Supporting Files */,
 			);
 			path = backtoshops;
@@ -385,6 +407,8 @@
 		E1B97AFE14DC0EAF00649841 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				E11651AF14F2A12D004D8D99 /* BuyButton.png */,
+				E11651B014F2A12D004D8D99 /* BuyButton@2x.png */,
 				E19C8CD414EBA99E001DEA67 /* LeftButton.png */,
 				E19C8CD514EBA99E001DEA67 /* LeftButton@2x.png */,
 				E19C8CD614EBA99E001DEA67 /* RightButton.png */,
@@ -432,10 +456,10 @@
 			children = (
 				E1FC1B4814DEE1C900A6FC7D /* HomeViewController.h */,
 				E1FC1B4914DEE1C900A6FC7D /* HomeViewController.m */,
-				E1FC1B4A14DEE1C900A6FC7D /* HomeViewController.xib */,
+				E11651C814F2A4DA004D8D99 /* HomeViewController.xib */,
 				E1FC1B4D14DEE20D00A6FC7D /* LoginViewController.h */,
 				E1FC1B4E14DEE20D00A6FC7D /* LoginViewController.m */,
-				E1FC1B4F14DEE20D00A6FC7D /* LoginViewController.xib */,
+				E11651CD14F2A4E6004D8D99 /* LoginViewController.xib */,
 			);
 			name = "Primary Controllers";
 			sourceTree = "<group>";
@@ -467,6 +491,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0420;
+				ORGANIZATIONNAME = "Nicholas Ding";
 			};
 			buildConfigurationList = E176C4F614D70D610067EEE5 /* Build configuration list for PBXProject "backtoshops" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -474,6 +499,8 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				"zh-Hans",
+				fr,
 			);
 			mainGroup = E176C4F114D70D610067EEE5;
 			productRefGroup = E176C4FD14D70D610067EEE5 /* Products */;
@@ -491,7 +518,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E176C50B14D70D610067EEE5 /* InfoPlist.strings in Resources */,
-				E1527C5E14DAC0EF00724874 /* MainTabController.xib in Resources */,
+				E11651B714F2A49C004D8D99 /* MainTabController.xib in Resources */,
 				E1B97B0114DC0EAF00649841 /* tabbar.png in Resources */,
 				E1B97B0214DC0EAF00649841 /* tabbar@2x.png in Resources */,
 				E1B97B0714DC104C00649841 /* ShopViewController.xib in Resources */,
@@ -507,14 +534,13 @@
 				E1FC1B2914DE06F900A6FC7D /* icons_03_off@2x.png in Resources */,
 				E1FC1B2A14DE06F900A6FC7D /* icons_03_on.png in Resources */,
 				E1FC1B2B14DE06F900A6FC7D /* icons_03_on@2x.png in Resources */,
-				E1FC1B3314DE0EC800A6FC7D /* ShopInfoViewController.xib in Resources */,
-				E1FC1B3814DE0F1B00A6FC7D /* ProductViewController.xib in Resources */,
+				E11651C214F2A4C9004D8D99 /* ShopInfoViewController.xib in Resources */,
 				E1FC1B3D14DE0F3700A6FC7D /* OrderViewController.xib in Resources */,
 				E1FC1B4214DE0F4400A6FC7D /* OrderDetailViewController.xib in Resources */,
 				E1FC1B4514DE136500A6FC7D /* Icon.png in Resources */,
 				E1FC1B4614DE136500A6FC7D /* Icon@2x.png in Resources */,
-				E1FC1B4C14DEE1C900A6FC7D /* HomeViewController.xib in Resources */,
-				E1FC1B5114DEE20D00A6FC7D /* LoginViewController.xib in Resources */,
+				E11651C614F2A4DA004D8D99 /* HomeViewController.xib in Resources */,
+				E11651CB14F2A4E6004D8D99 /* LoginViewController.xib in Resources */,
 				E1FC1B5E14DEE56400A6FC7D /* Background.png in Resources */,
 				E1FC1B5F14DEE56400A6FC7D /* Background@2x.png in Resources */,
 				E1FC1B6014DEE56400A6FC7D /* HomeScreenBackground.png in Resources */,
@@ -537,13 +563,15 @@
 				E1474FBE14E8F96800A061BF /* arrow.png in Resources */,
 				E1474FBF14E8F96800A061BF /* mapicon.png in Resources */,
 				E1474FC714E9317F00A061BF /* SaleInfoTemplate.html in Resources */,
-				E19C8CCC14EB652C001DEA67 /* SaleListViewController.xib in Resources */,
+				E11651BC14F2A4BB004D8D99 /* SaleListViewController.xib in Resources */,
 				E19C8CD314EBA763001DEA67 /* pin.png in Resources */,
 				E19C8CD814EBA99E001DEA67 /* LeftButton.png in Resources */,
 				E19C8CD914EBA99E001DEA67 /* LeftButton@2x.png in Resources */,
 				E19C8CDA14EBA99E001DEA67 /* RightButton.png in Resources */,
 				E19C8CDB14EBA99E001DEA67 /* RightButton@2x.png in Resources */,
 				E18B842314ED1AE40083E54D /* shopicon.png in Resources */,
+				E11651B114F2A12D004D8D99 /* BuyButton.png in Resources */,
+				E11651B214F2A12D004D8D99 /* BuyButton@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -569,7 +597,6 @@
 				E1527C5D14DAC0EF00724874 /* MainTabController.m in Sources */,
 				E1B97B0614DC104C00649841 /* ShopViewController.m in Sources */,
 				E1FC1B3214DE0EC800A6FC7D /* ShopInfoViewController.m in Sources */,
-				E1FC1B3714DE0F1B00A6FC7D /* ProductViewController.m in Sources */,
 				E1FC1B3C14DE0F3700A6FC7D /* OrderViewController.m in Sources */,
 				E1FC1B4114DE0F4400A6FC7D /* OrderDetailViewController.m in Sources */,
 				E1FC1B4B14DEE1C900A6FC7D /* HomeViewController.m in Sources */,
@@ -585,10 +612,52 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
+		E11651B914F2A49C004D8D99 /* MainTabController.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E11651B814F2A49C004D8D99 /* en */,
+				E11651BA14F2A4A5004D8D99 /* fr */,
+				E11651BB14F2A4A5004D8D99 /* zh-Hans */,
+			);
+			name = MainTabController.xib;
+			sourceTree = "<group>";
+		};
+		E11651BE14F2A4BB004D8D99 /* SaleListViewController.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E11651BD14F2A4BB004D8D99 /* en */,
+				E11651C414F2A4CF004D8D99 /* fr */,
+				E11651C514F2A4CF004D8D99 /* zh-Hans */,
+			);
+			name = SaleListViewController.xib;
+			sourceTree = "<group>";
+		};
+		E11651C814F2A4DA004D8D99 /* HomeViewController.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E11651C714F2A4DA004D8D99 /* en */,
+				E11651C914F2A4DE004D8D99 /* zh-Hans */,
+				E11651CA14F2A4DE004D8D99 /* fr */,
+			);
+			name = HomeViewController.xib;
+			sourceTree = "<group>";
+		};
+		E11651CD14F2A4E6004D8D99 /* LoginViewController.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E11651CC14F2A4E6004D8D99 /* en */,
+				E11651CE14F2A4E9004D8D99 /* zh-Hans */,
+				E11651CF14F2A4E9004D8D99 /* fr */,
+			);
+			name = LoginViewController.xib;
+			sourceTree = "<group>";
+		};
 		E176C50914D70D610067EEE5 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
 				E176C50A14D70D610067EEE5 /* en */,
+				E11651B514F2A476004D8D99 /* zh-Hans */,
+				E11651B614F2A479004D8D99 /* fr */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";

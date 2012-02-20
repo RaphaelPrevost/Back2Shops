@@ -66,8 +66,7 @@
     
     for (UIView* subView in [self.webView subviews]) {
         if ([subView isKindOfClass:[UIScrollView class]]) {
-            for (UIView* shadowView in [subView subviews])
-            {
+            for (UIView* shadowView in [subView subviews]) {
                 if ([shadowView isKindOfClass:[UIImageView class]]) {
                     [shadowView setHidden:YES];
                 }

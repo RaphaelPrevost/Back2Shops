@@ -38,7 +38,7 @@
 {
     [super viewDidLoad];
 
-    self.title = @"Plan";
+    self.title = NSLocalizedString(@"Plan", @"Title of ShopViewController");
     self.navigationController.navigationBar.tintColor = [UIColor colorWithRed:251.0/255.0 green:195.0/255.0 blue:38.0/255.0 alpha:1];
     
     [self.mapView.userLocation addObserver:self forKeyPath:@"location" options:(NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld) context:NULL];

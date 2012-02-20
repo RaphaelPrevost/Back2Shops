@@ -11,6 +11,7 @@
 #import "Shop.h"
 #import "AFHTTPRequestOperation.h"
 #import "GDataXMLNode.h"
+#import "ShopInfoViewController.h"
 
 @interface SaleListViewController (Private)
 
@@ -81,7 +82,7 @@
 {
     [super viewDidLoad];
 
-    self.title = @"Offre BTS";
+    self.title = NSLocalizedString(@"Offre BTS", "Title of SaleListViewController");
 
     self.webView.opaque = NO;
     self.webView.backgroundColor = [UIColor clearColor];
@@ -214,6 +215,22 @@
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
     NSLog(@"%@", error);
+}
+
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
+{
+    NSURL *url = [request URL];
+    
+    if ([[url scheme] isEqualToString:@"app"]) {
+        NSString *_shopID = [[url path] stringByReplacingOccurrencesOfString:@"/" withString:@""];
+        ShopInfoViewController *controller = [[ShopInfoViewController alloc] initWithShopID:_shopID];
+        [self.navigationController pushViewController:controller animated:YES];
+        [controller release];
+        
+        return NO;
+    }
+    
+    return YES;
 }
 
 @end
