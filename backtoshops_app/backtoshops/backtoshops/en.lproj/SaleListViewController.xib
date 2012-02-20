@@ -92,7 +92,7 @@
 						<string key="NSFrameSize">{320, 32}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView"/>
+						<reference key="NSNextKeyView" ref="476350933"/>
 						<string key="NSReuseIdentifierKey">_NS:328</string>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
@@ -128,7 +128,7 @@
 							<object class="IBUIButton" id="1066911307">
 								<reference key="NSNextResponder" ref="235344657"/>
 								<int key="NSvFlags">292</int>
-								<string key="NSFrame">{{124, 10}, {72, 37}}</string>
+								<string key="NSFrame">{{48, 8}, {224, 42}}</string>
 								<reference key="NSSuperview" ref="235344657"/>
 								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView"/>
@@ -138,6 +138,7 @@
 								<int key="IBUIContentHorizontalAlignment">0</int>
 								<int key="IBUIContentVerticalAlignment">0</int>
 								<int key="IBUIButtonType">1</int>
+								<string key="IBUITitleShadowOffset">{0, 1}</string>
 								<string key="IBUINormalTitle">Acheter</string>
 								<object class="NSColor" key="IBUIHighlightedTitleColor" id="1020517086">
 									<int key="NSColorSpace">3</int>
@@ -145,19 +146,20 @@
 								</object>
 								<object class="NSColor" key="IBUINormalTitleColor">
 									<int key="NSColorSpace">1</int>
-									<bytes key="NSRGB">MC4xOTYwNzg0MzQ2IDAuMzA5ODAzOTMyOSAwLjUyMTU2ODY1NgA</bytes>
+									<bytes key="NSRGB">MC4zMDk4MDM5MjE2IDAgMAA</bytes>
 								</object>
-								<object class="NSColor" key="IBUINormalTitleShadowColor" id="850354478">
-									<int key="NSColorSpace">3</int>
-									<bytes key="NSWhite">MC41AA</bytes>
+								<reference key="IBUINormalTitleShadowColor" ref="1020517086"/>
+								<object class="NSCustomResource" key="IBUINormalBackgroundImage">
+									<string key="NSClassName">NSImage</string>
+									<string key="NSResourceName">BuyButton.png</string>
 								</object>
-								<object class="IBUIFontDescription" key="IBUIFontDescription" id="390123691">
+								<object class="IBUIFontDescription" key="IBUIFontDescription">
 									<int key="type">2</int>
-									<double key="pointSize">15</double>
+									<double key="pointSize">20</double>
 								</object>
-								<object class="NSFont" key="IBUIFont" id="620532695">
+								<object class="NSFont" key="IBUIFont">
 									<string key="NSName">Helvetica-Bold</string>
-									<double key="NSSize">15</double>
+									<double key="NSSize">20</double>
 									<int key="NSfFlags">16</int>
 								</object>
 							</object>
@@ -177,7 +179,7 @@
 						<string key="NSFrame">{{0, 188}, {27, 40}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView" ref="235344657"/>
+						<reference key="NSNextKeyView" ref="627554090"/>
 						<string key="NSReuseIdentifierKey">_NS:225</string>
 						<bool key="IBUIOpaque">NO</bool>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
@@ -188,13 +190,23 @@
 							<int key="NSColorSpace">1</int>
 							<bytes key="NSRGB">MC4xOTYwNzg0MzQ2IDAuMzA5ODAzOTMyOSAwLjUyMTU2ODY1NgA</bytes>
 						</object>
-						<reference key="IBUINormalTitleShadowColor" ref="850354478"/>
+						<object class="NSColor" key="IBUINormalTitleShadowColor" id="850354478">
+							<int key="NSColorSpace">3</int>
+							<bytes key="NSWhite">MC41AA</bytes>
+						</object>
 						<object class="NSCustomResource" key="IBUINormalImage">
 							<string key="NSClassName">NSImage</string>
 							<string key="NSResourceName">LeftButton.png</string>
 						</object>
-						<reference key="IBUIFontDescription" ref="390123691"/>
-						<reference key="IBUIFont" ref="620532695"/>
+						<object class="IBUIFontDescription" key="IBUIFontDescription" id="390123691">
+							<int key="type">2</int>
+							<double key="pointSize">15</double>
+						</object>
+						<object class="NSFont" key="IBUIFont" id="50844669">
+							<string key="NSName">Helvetica-Bold</string>
+							<double key="NSSize">15</double>
+							<int key="NSfFlags">16</int>
+						</object>
 					</object>
 					<object class="IBUIButton" id="627554090">
 						<reference key="NSNextResponder" ref="191373211"/>
@@ -202,6 +214,7 @@
 						<string key="NSFrame">{{293, 188}, {27, 40}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<reference key="NSWindow"/>
+						<reference key="NSNextKeyView" ref="235344657"/>
 						<string key="NSReuseIdentifierKey">_NS:225</string>
 						<bool key="IBUIOpaque">NO</bool>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
@@ -218,7 +231,7 @@
 							<string key="NSResourceName">RightButton.png</string>
 						</object>
 						<reference key="IBUIFontDescription" ref="390123691"/>
-						<reference key="IBUIFont" ref="620532695"/>
+						<reference key="IBUIFont" ref="50844669"/>
 					</object>
 				</array>
 				<string key="NSFrame">{{0, 64}, {320, 416}}</string>
@@ -464,6 +477,7 @@
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 		<dictionary class="NSMutableDictionary" key="IBDocument.LastKnownImageSizes">
 			<string key="Background.png">{320, 413}</string>
+			<string key="BuyButton.png">{224, 42}</string>
 			<string key="LeftButton.png">{27, 40}</string>
 			<string key="RightButton.png">{27, 40}</string>
 		</dictionary>

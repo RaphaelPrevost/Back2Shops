@@ -77,9 +77,13 @@
         var shopList = []
         for (var i = 0; i < JSON['shops'].length; i++) {
             var shop = JSON['shops'][i];
-            shopList.push('<div class="tiny-cell"><img src="shopicon.png" class="shopicon"/><img src="arrow.png" class="arrow"/><h2>' + shop.name + '</h2></div>');
+            shopList.push('<div class="tiny-cell" onclick="openShop(' + shop.id + ')"><img src="shopicon.png" class="shopicon"/><img src="arrow.png" class="arrow"/><h2>' + shop.name + '</h2></div>');
         }
         $('shop-list').innerHTML = shopList.join('\n');
+        
+        function openShop(shopId) {
+            window.location = 'app://shop/' + shopId;
+        }
     </script>
 </body>
 </html>
