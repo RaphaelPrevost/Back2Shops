@@ -61,7 +61,6 @@
 //    [secondController pushViewController:[[[SaleInfoViewController alloc] initWithSaleID:@"1"] autorelease] animated:NO];
     [self.viewControllers addObject:secondController];
     
-    
     [self click1st:nil];
     
 //    for (int i = 0; i < 3; i++) {

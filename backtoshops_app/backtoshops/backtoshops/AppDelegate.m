@@ -27,6 +27,26 @@
     // Override point for customization after application launch.
     application.statusBarStyle = UIStatusBarStyleBlackOpaque;
     
+    // Override default appearance
+    [[UINavigationBar appearance] setBackgroundImage:[UIImage imageNamed:@"navbar"] forBarMetrics:UIBarMetricsDefault];
+    [[UINavigationBar appearance] setTitleTextAttributes:
+         [NSDictionary dictionaryWithObjectsAndKeys:
+              [UIColor colorWithRed:0x4f/255.0 green:0 blue:0 alpha:1.0],
+              UITextAttributeTextColor,
+              [NSValue valueWithUIOffset:UIOffsetMake(0, 0)], 
+              UITextAttributeTextShadowOffset,
+              nil]];
+    [[UIBarButtonItem appearance] setTitleTextAttributes:
+         [NSDictionary dictionaryWithObjectsAndKeys:
+              [UIColor colorWithRed:0x4f/255.0 green:0 blue:0 alpha:1.0], 
+              UITextAttributeTextColor, 
+              [NSValue valueWithUIOffset:UIOffsetMake(0, 0)], 
+              UITextAttributeTextShadowOffset, 
+              [UIFont systemFontOfSize:12],
+              UITextAttributeFont,
+              nil] 
+         forState:UIControlStateNormal];
+    
     MainTabController *controller = [[MainTabController alloc] initWithNibName:@"MainTabController" bundle:nil];
     controller.view.frame = CGRectMake(0, 20, 320, 460);
     
