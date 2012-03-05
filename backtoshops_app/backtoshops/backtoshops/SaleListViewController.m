@@ -12,6 +12,7 @@
 #import "AFHTTPRequestOperation.h"
 #import "GDataXMLNode.h"
 #import "ShopInfoViewController.h"
+#import "SaleMapViewController.h"
 
 @interface SaleListViewController (Private)
 
@@ -160,7 +161,7 @@
         
         [doc release];
         
-        NSLog(@"%@", [item toJSON]);
+//        NSLog(@"%@", [item toJSON]);
         
         // Prepare template variables then render HTML template
         NSString *path = [[NSBundle mainBundle] pathForResource:@"SaleInfoTemplate" ofType:@"html"];
@@ -222,10 +223,16 @@
     NSURL *url = [request URL];
     
     if ([[url scheme] isEqualToString:@"app"]) {
-        NSString *_shopID = [[url path] stringByReplacingOccurrencesOfString:@"/" withString:@""];
-        ShopInfoViewController *controller = [[ShopInfoViewController alloc] initWithShopID:_shopID];
-        [self.navigationController pushViewController:controller animated:YES];
-        [controller release];
+        if ([[url host] isEqualToString:@"shop"]) {
+            NSString *_shopID = [[url path] stringByReplacingOccurrencesOfString:@"/" withString:@""];
+            ShopInfoViewController *controller = [[ShopInfoViewController alloc] initWithShopID:_shopID];
+            [self.navigationController pushViewController:controller animated:YES];
+            [controller release];
+        } else if ([[url host] isEqualToString:@"map"]) {
+            SaleMapViewController *controller = [[SaleMapViewController alloc] initWithSale:[self.items objectAtIndex:self.currentItemIndex]];
+            [self.navigationController pushViewController:controller animated:YES];
+            [controller release];
+        }
         
         return NO;
     }

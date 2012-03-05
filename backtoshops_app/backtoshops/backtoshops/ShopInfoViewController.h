@@ -17,6 +17,7 @@
 @property (retain, nonatomic) IBOutlet UIWebView *webView;
 
 - (id)initWithShopID:(NSString *)shopID;
+
 - (void)loadSaleList;
 
 @end
