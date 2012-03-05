@@ -36,6 +36,8 @@
 		E1527C2614DABF9D00724874 /* AFXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = E1527BBB14DABF9D00724874 /* AFXMLRequestOperation.m */; };
 		E1527C2714DABF9D00724874 /* UIImageView+AFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = E1527BBD14DABF9D00724874 /* UIImageView+AFNetworking.m */; };
 		E1527C5D14DAC0EF00724874 /* MainTabController.m in Sources */ = {isa = PBXBuildFile; fileRef = E1527C5B14DAC0EF00724874 /* MainTabController.m */; };
+		E15493BB15049C5D0030B647 /* navbar.png in Resources */ = {isa = PBXBuildFile; fileRef = E15493B915049C5D0030B647 /* navbar.png */; };
+		E15493BC15049C5D0030B647 /* navbar@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E15493BA15049C5D0030B647 /* navbar@2x.png */; };
 		E176C50114D70D610067EEE5 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E176C50014D70D610067EEE5 /* UIKit.framework */; };
 		E176C50314D70D610067EEE5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E176C50214D70D610067EEE5 /* Foundation.framework */; };
 		E176C50514D70D610067EEE5 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E176C50414D70D610067EEE5 /* CoreGraphics.framework */; };
@@ -147,6 +149,8 @@
 		E1527BBD14DABF9D00724874 /* UIImageView+AFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+AFNetworking.m"; sourceTree = "<group>"; };
 		E1527C5A14DAC0EF00724874 /* MainTabController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainTabController.h; sourceTree = "<group>"; };
 		E1527C5B14DAC0EF00724874 /* MainTabController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainTabController.m; sourceTree = "<group>"; };
+		E15493B915049C5D0030B647 /* navbar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = navbar.png; sourceTree = "<group>"; };
+		E15493BA15049C5D0030B647 /* navbar@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "navbar@2x.png"; sourceTree = "<group>"; };
 		E176C4FC14D70D610067EEE5 /* backtoshops.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = backtoshops.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E176C50014D70D610067EEE5 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		E176C50214D70D610067EEE5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -407,6 +411,8 @@
 		E1B97AFE14DC0EAF00649841 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				E15493B915049C5D0030B647 /* navbar.png */,
+				E15493BA15049C5D0030B647 /* navbar@2x.png */,
 				E11651AF14F2A12D004D8D99 /* BuyButton.png */,
 				E11651B014F2A12D004D8D99 /* BuyButton@2x.png */,
 				E19C8CD414EBA99E001DEA67 /* LeftButton.png */,
@@ -572,6 +578,8 @@
 				E18B842314ED1AE40083E54D /* shopicon.png in Resources */,
 				E11651B114F2A12D004D8D99 /* BuyButton.png in Resources */,
 				E11651B214F2A12D004D8D99 /* BuyButton@2x.png in Resources */,
+				E15493BB15049C5D0030B647 /* navbar.png in Resources */,
+				E15493BC15049C5D0030B647 /* navbar@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -717,7 +725,7 @@
 				GCC_PREFIX_HEADER = "backtoshops/backtoshops-Prefix.pch";
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
 				INFOPLIST_FILE = "backtoshops/backtoshops-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = "-lxml2";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -735,7 +743,7 @@
 				GCC_PREFIX_HEADER = "backtoshops/backtoshops-Prefix.pch";
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
 				INFOPLIST_FILE = "backtoshops/backtoshops-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = "-lxml2";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
