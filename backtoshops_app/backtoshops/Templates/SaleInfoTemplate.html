@@ -33,7 +33,7 @@
     
 <body>
     <div class="header">
-        <img src="mapicon.png" class="mapicon"/>
+        <img src="mapicon.png" class="mapicon" onclick="openMap();"/>
         <img src="pin.png" class="pin"/>
         <img id="logo" />
         <span id="discount"></span>
@@ -83,6 +83,10 @@
         
         function openShop(shopId) {
             window.location = 'app://shop/' + shopId;
+        }
+        
+        function openMap() {
+        	window.location = 'app://map';
         }
     </script>
 </body>

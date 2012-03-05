@@ -1,22 +1,22 @@
 //
-//  ShopInfoViewController.m
+//  SaleShopInfoViewController.m
 //  backtoshops
 //
-//  Created by Ding Nicholas on 2/5/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Created by Ding Nicholas on 3/5/12.
+//  Copyright (c) 2012 Nicholas Ding. All rights reserved.
 //
 
-#import "ShopInfoViewController.h"
+#import "SaleShopInfoViewController.h"
+#import "UIImageView+AFNetworking.h"
 #import "AFHTTPRequestOperation.h"
 #import "GDataXMLNode.h"
 #import "Sale.h"
 #import "SaleListViewController.h"
 
-@implementation ShopInfoViewController
+@implementation SaleShopInfoViewController
 
-@synthesize shopID;
+@synthesize shopID, numberOfSales;
 @synthesize webView;
-@synthesize numberOfSales;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -27,29 +27,23 @@
     return self;
 }
 
-- (id)initWithShopID:(NSString *)_shopID
+- (id)initWithSale:(Sale *)_sale shopID:(NSString *)_shopID
 {
-    self = [super initWithNibName:@"ShopInfoViewController" bundle:nil];
+    self = [self initWithNibName:@"SaleShopInfoViewController" bundle:nil];
     if (self) {
+        sale = [_sale retain];
         self.shopID = _shopID;
         saleList = [[NSMutableArray alloc] init];
     }
     return self;
 }
 
-- (void)didReceiveMemoryWarning
-{
-    // Releases the view if it doesn't have a superview.
-    [super didReceiveMemoryWarning];
-    
-    // Release any cached data, images, etc that aren't in use.
-}
-
 - (void)dealloc
 {
-    [saleList release];
+    [sale release];
     [shopID release];
     [webView release];
+    [saleList release];
     [super dealloc];
 }
 
@@ -74,6 +68,18 @@
         }
     }
     
+    // Sale Info
+    UIImageView *thumbnail = (UIImageView *)[self.view viewWithTag:1];
+    [thumbnail setImageWithURL:[NSURL URLWithString:[@"http://sales.backtoshops.com" stringByAppendingString:sale.imageURL]]];
+    UILabel *name = (UILabel *)[self.view viewWithTag:2];
+    name.text = sale.name;
+    UILabel *discount = (UILabel *)[self.view viewWithTag:3];
+    discount.text = [NSString stringWithFormat:@"%@€00", sale.discountPrice];
+    UILabel *price = (UILabel *)[self.view viewWithTag:4];
+    price.text = [NSString stringWithFormat:@"au lieu de %@€00", sale.price];
+    UILabel *ratio = (UILabel *)[self.view viewWithTag:5];
+    ratio.text = [NSString stringWithFormat:@"-%@%%", sale.discountRatio];
+
     // Load Sales
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:[@"http://sales.backtoshops.com/webservice/1.0/pub/sales/list?shop=" stringByAppendingString:self.shopID]]];
     AFHTTPRequestOperation *saleListOperation = [[[AFHTTPRequestOperation alloc] initWithRequest:request] autorelease];
@@ -83,16 +89,16 @@
         self.numberOfSales = [[doc.rootElement elementsForName:@"sale"] count];
         
         for (GDataXMLElement *el in [doc.rootElement elementsForName:@"sale"]) {
-            Sale *sale = [[Sale alloc] init];
-            sale.identifier = [[el attributeForName:@"id"] stringValue];
-            sale.name = [[[el elementsForName:@"name"] lastObject] stringValue];
-            sale.description = [[[el elementsForName:@"desc"] lastObject] stringValue];
-            sale.imageURL = [[[[el elementsForName:@"img"] lastObject] attributeForName:@"url"] stringValue];
-            sale.price = [[[el elementsForName:@"price"] lastObject] stringValue];
-            sale.discountRatio = [[[[el elementsForName:@"discount"] lastObject] attributeForName:@"amount"] stringValue];
-            sale.discountPrice = [[[[el elementsForName:@"discount"] lastObject] attributeForName:@"price"] stringValue];
-            [saleList addObject:sale];
-            [sale release];
+            Sale *obj = [[Sale alloc] init];
+            obj.identifier = [[el attributeForName:@"id"] stringValue];
+            obj.name = [[[el elementsForName:@"name"] lastObject] stringValue];
+            obj.description = [[[el elementsForName:@"desc"] lastObject] stringValue];
+            obj.imageURL = [[[[el elementsForName:@"img"] lastObject] attributeForName:@"url"] stringValue];
+            obj.price = [[[el elementsForName:@"price"] lastObject] stringValue];
+            obj.discountRatio = [[[[el elementsForName:@"discount"] lastObject] attributeForName:@"amount"] stringValue];
+            obj.discountPrice = [[[[el elementsForName:@"discount"] lastObject] attributeForName:@"price"] stringValue];
+            [saleList addObject:obj];
+            [obj release];
         }
         
         [doc release];
@@ -110,19 +116,19 @@
         
         NSString *shopName = [[[root elementsForName:@"name"] lastObject] stringValue];
         NSString *shopAddress = [NSString stringWithFormat:@"%@<br/>%@ %@", [[[root elementsForName:@"addr"] lastObject] stringValue],
-                                                                            [[[root elementsForName:@"zip"] lastObject] stringValue],
-                                                                            [[[root elementsForName:@"city"] lastObject] stringValue]];
+                                 [[[root elementsForName:@"zip"] lastObject] stringValue],
+                                 [[[root elementsForName:@"city"] lastObject] stringValue]];
         NSString *info = [[[root elementsForName:@"desc"] lastObject] stringValue];
         NSString *hours = [[[root elementsForName:@"hours"] lastObject] stringValue];
         
-        NSString *path = [[NSBundle mainBundle] pathForResource:@"ShopTemplate" ofType:@"html"];
+        NSString *path = [[NSBundle mainBundle] pathForResource:@"ShopTemplateInSale" ofType:@"html"];
         NSString *htmlTemplate = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:NULL];
         htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$SHOP_NAME" withString:shopName];
         htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$ADDRESS" withString:shopAddress];
         htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$INFO" withString:info];
         htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$HOURS" withString:hours];
         htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$SHOP_OFFERS" withString:[NSString stringWithFormat:@"%d", self.numberOfSales]];
-        [self.webView loadHTMLString:htmlTemplate baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"ShopTemplate" ofType:@"html"]]];
+        [self.webView loadHTMLString:htmlTemplate baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"ShopTemplateInSale" ofType:@"html"]]];
         
         [doc release];
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -163,8 +169,6 @@
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
     NSString *requestString = [[request URL] absoluteString];
-    
-//    NSLog(@"%@", requestString);
     
     if ([requestString isEqualToString:@"app://salelist"]) {
         [self loadSaleList];

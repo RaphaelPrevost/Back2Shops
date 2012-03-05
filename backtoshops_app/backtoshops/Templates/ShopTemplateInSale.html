@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width = device-width" />
+    <meta name="viewport" content="initial-scale = 1.0" />
+    <style>
+        body { font-size: 15px; padding-top: 75px; padding-bottom: 60px; }
+        h1 { margin: 4px 0; }
+        p { margin: 0; }
+        img.mapicon { width: 64px; height: 64px; float: right; }
+        div.cell { position: relative; font-size: 15px; margin-top: 10px; border-width: 1px; border-color: #ababab; background-color: white; border-radius: 6px; padding: 8px 0 8px 8px; color: black; }
+        div.cell h2 { font-size: 17px; margin: 0; padding: 0; }
+        div.cell p { color: #474747; font-size: 14px; margin: 0; padding-top: 4px; }
+        div img.arrow { width: 9; height: 14px; position: absolute; top: 12px; left: 280px; }
+        h1 { color: white; font-size: 18px; }
+        p.address { color: white; }
+        hr { height: 1px; border: none; border-bottom: 1px solid #5e5e5e; background-color: black; margin: 7px 0; }
+    </style>
+</head>
+
+<body>
+    <img src="mapicon.png" class="mapicon"/>
+    <h1>$SHOP_NAME</h1>
+    <p class="address">$ADDRESS</p>
+    <hr style="clear:both"/>
+    <div class="cell" onclick="window.location='app://salelist';">
+        <img src="arrow.png" class="arrow" />
+        <h2>Toutes les offres de ce Shop ($SHOP_OFFERS)</h2>
+    </div>
+    <div class="cell">
+        <h2>Horaires</h2>
+        <p id="formattedHours"></p>
+    </div>
+    <div class="cell">
+        <h2>Infos Pratiques</h2>
+        <p>$INFO</p>
+    </div>
+    
+    <script type="text/javascript">
+        function convertFormat(hours) {
+            var list = [];
+            for (var k in hours) {
+                var item = {'index': k, 'value': hours[k]};
+                list.push(item);
+            }
+            return list;
+        }
+        
+        var hours = $HOURS;
+        var dataSet = convertFormat(hours);
+        var DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+        
+        function printDays(days) {
+            if (days.length == 1) {
+                var day = days[0];
+                if (!day.value.am.close && !day.value.pm.open) {
+                    return 'Le ' + DAYS[day.index] + ': ' + day.value.am.open + ' - ' + day.value.pm.close + ' sans interruption';
+                }
+                return 'Le ' + DAYS[day.index] + ': ' + day.value.am.open + ' - ' + day.value.am.close + ' | ' + day.value.pm.open + ' - ' + day.value.pm.close;
+            } else {
+                var firstDay = days[0];
+                var lastDay = days[days.length - 1];
+                return 'Du ' + DAYS[firstDay.index] + ' au ' + DAYS[lastDay.index] + ': ' + firstDay.value.am.open + ' - ' + firstDay.value.am.close + ' | ' + firstDay.value.pm.open + ' - ' + firstDay.value.pm.close;
+            }
+        }
+        
+        function formatHours() {
+            var count = dataSet.length;
+            
+            if (count == 0) return 'N/A';
+            
+            if (count == 1) {
+                return printDays([dataSet[0]]);
+            } else {
+                var resultHtml = [];
+                var lastObject = dataSet[0];
+                var group = [dataSet[0]];
+                for (var i = 1; i < count; i++) {
+                    var currentObject = dataSet[i];
+                    if (currentObject.value.am.open != lastObject.value.am.open ||
+                        currentObject.value.pm.open != lastObject.value.pm.open ||
+                        currentObject.value.am.close != lastObject.value.am.close ||
+                        currentObject.value.pm.close != lastObject.value.pm.close) {
+                        lastObject = currentObject;
+                        
+                        if (dataSet[i - 1] != group[0]) {
+                            group.push(dataSet[i - 1]);
+                        }
+                        resultHtml.push(printDays(group));
+                        group = [lastObject];
+                    }
+                }
+                return resultHtml.join('<br/>');
+            }
+        }
+        
+        document.getElementById('formattedHours').innerHTML = formatHours();
+    </script>
+</body>
+</html>

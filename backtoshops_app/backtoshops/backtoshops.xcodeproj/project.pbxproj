@@ -38,6 +38,13 @@
 		E1527C5D14DAC0EF00724874 /* MainTabController.m in Sources */ = {isa = PBXBuildFile; fileRef = E1527C5B14DAC0EF00724874 /* MainTabController.m */; };
 		E15493BB15049C5D0030B647 /* navbar.png in Resources */ = {isa = PBXBuildFile; fileRef = E15493B915049C5D0030B647 /* navbar.png */; };
 		E15493BC15049C5D0030B647 /* navbar@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E15493BA15049C5D0030B647 /* navbar@2x.png */; };
+		E15493C01504A4670030B647 /* SaleMapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E15493BE1504A4670030B647 /* SaleMapViewController.m */; };
+		E15493C11504A4670030B647 /* SaleMapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E15493BF1504A4670030B647 /* SaleMapViewController.xib */; };
+		E15493C51504A4760030B647 /* SaleShopInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E15493C31504A4750030B647 /* SaleShopInfoViewController.m */; };
+		E15493C61504A4760030B647 /* SaleShopInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E15493C41504A4760030B647 /* SaleShopInfoViewController.xib */; };
+		E15493C91504A9C20030B647 /* pin.png in Resources */ = {isa = PBXBuildFile; fileRef = E15493C71504A9C20030B647 /* pin.png */; };
+		E15493CA1504A9C20030B647 /* pin@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E15493C81504A9C20030B647 /* pin@2x.png */; };
+		E15493CC1504BEE90030B647 /* ShopTemplateInSale.html in Resources */ = {isa = PBXBuildFile; fileRef = E15493CB1504BEE90030B647 /* ShopTemplateInSale.html */; };
 		E176C50114D70D610067EEE5 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E176C50014D70D610067EEE5 /* UIKit.framework */; };
 		E176C50314D70D610067EEE5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E176C50214D70D610067EEE5 /* Foundation.framework */; };
 		E176C50514D70D610067EEE5 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E176C50414D70D610067EEE5 /* CoreGraphics.framework */; };
@@ -151,6 +158,15 @@
 		E1527C5B14DAC0EF00724874 /* MainTabController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainTabController.m; sourceTree = "<group>"; };
 		E15493B915049C5D0030B647 /* navbar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = navbar.png; sourceTree = "<group>"; };
 		E15493BA15049C5D0030B647 /* navbar@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "navbar@2x.png"; sourceTree = "<group>"; };
+		E15493BD1504A4670030B647 /* SaleMapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SaleMapViewController.h; sourceTree = "<group>"; };
+		E15493BE1504A4670030B647 /* SaleMapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SaleMapViewController.m; sourceTree = "<group>"; };
+		E15493BF1504A4670030B647 /* SaleMapViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SaleMapViewController.xib; sourceTree = "<group>"; };
+		E15493C21504A4750030B647 /* SaleShopInfoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SaleShopInfoViewController.h; sourceTree = "<group>"; };
+		E15493C31504A4750030B647 /* SaleShopInfoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SaleShopInfoViewController.m; sourceTree = "<group>"; };
+		E15493C41504A4760030B647 /* SaleShopInfoViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SaleShopInfoViewController.xib; sourceTree = "<group>"; };
+		E15493C71504A9C20030B647 /* pin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pin.png; sourceTree = "<group>"; };
+		E15493C81504A9C20030B647 /* pin@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pin@2x.png"; sourceTree = "<group>"; };
+		E15493CB1504BEE90030B647 /* ShopTemplateInSale.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ShopTemplateInSale.html; sourceTree = "<group>"; };
 		E176C4FC14D70D610067EEE5 /* backtoshops.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = backtoshops.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E176C50014D70D610067EEE5 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		E176C50214D70D610067EEE5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -252,6 +268,12 @@
 				E19C8CC814EB652B001DEA67 /* SaleListViewController.h */,
 				E19C8CC914EB652B001DEA67 /* SaleListViewController.m */,
 				E11651BE14F2A4BB004D8D99 /* SaleListViewController.xib */,
+				E15493BD1504A4670030B647 /* SaleMapViewController.h */,
+				E15493BE1504A4670030B647 /* SaleMapViewController.m */,
+				E15493BF1504A4670030B647 /* SaleMapViewController.xib */,
+				E15493C21504A4750030B647 /* SaleShopInfoViewController.h */,
+				E15493C31504A4750030B647 /* SaleShopInfoViewController.m */,
+				E15493C41504A4760030B647 /* SaleShopInfoViewController.xib */,
 			);
 			name = Shop;
 			sourceTree = "<group>";
@@ -281,6 +303,7 @@
 		E132BF5E14E3CBBC00177F12 /* Templates */ = {
 			isa = PBXGroup;
 			children = (
+				E15493CB1504BEE90030B647 /* ShopTemplateInSale.html */,
 				E18B842214ED1AE40083E54D /* shopicon.png */,
 				E1474FBC14E8F96800A061BF /* arrow.png */,
 				E19C8CD214EBA763001DEA67 /* pin.png */,
@@ -411,6 +434,8 @@
 		E1B97AFE14DC0EAF00649841 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				E15493C71504A9C20030B647 /* pin.png */,
+				E15493C81504A9C20030B647 /* pin@2x.png */,
 				E15493B915049C5D0030B647 /* navbar.png */,
 				E15493BA15049C5D0030B647 /* navbar@2x.png */,
 				E11651AF14F2A12D004D8D99 /* BuyButton.png */,
@@ -580,6 +605,11 @@
 				E11651B214F2A12D004D8D99 /* BuyButton@2x.png in Resources */,
 				E15493BB15049C5D0030B647 /* navbar.png in Resources */,
 				E15493BC15049C5D0030B647 /* navbar@2x.png in Resources */,
+				E15493C11504A4670030B647 /* SaleMapViewController.xib in Resources */,
+				E15493C61504A4760030B647 /* SaleShopInfoViewController.xib in Resources */,
+				E15493C91504A9C20030B647 /* pin.png in Resources */,
+				E15493CA1504A9C20030B647 /* pin@2x.png in Resources */,
+				E15493CC1504BEE90030B647 /* ShopTemplateInSale.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -614,6 +644,8 @@
 				E19C8CCB14EB652C001DEA67 /* SaleListViewController.m in Sources */,
 				E19C8CD114EB6756001DEA67 /* Sale.m in Sources */,
 				E18B841F14ED103E0083E54D /* Shop.m in Sources */,
+				E15493C01504A4670030B647 /* SaleMapViewController.m in Sources */,
+				E15493C51504A4760030B647 /* SaleShopInfoViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
