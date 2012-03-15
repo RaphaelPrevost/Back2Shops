@@ -177,15 +177,24 @@ LATITUDE_METERS = 111.2 * 1000 * 1000 # 111.2 km
 LONGITUDE_METERS = ''
 
 def filter_by_coordinate(query_set, lat, lng, radius):
-    lat, lng, radius = float(lat), float(lng), float(radius)
-    lat_delta = radius / LATITUDE_METERS
-    lat_min, lat_max = lat - lat_delta, lat + lat_delta
-    lng_delta = abs(radius / (math.pi / 180 * EARTH_MEAN_RADIUS * math.cos(abs(lng) / 2 * math.pi)))
-    lng_min, lng_max = lng - lng_delta, lng + lng_delta
-#    print 'lat delta', lat_delta
-#    print 'lng delta', lng_delta
-#    print lat_min, lat_max, lng_min, lng_max
-    return query_set.filter(latitude__gte=lat_min, latitude__lte=lat_max, longitude__gte=lng_min, longitude__lte=lng_max)
+    try:
+        import pymongo
+        from bson.son import SON
+        
+        db = pymongo.Connection().backtoshops
+        ret = db.command(SON([('geoNear', 'shops'), ('near', [float(lng), float(lat)]), ('spherical', True), ('maxDistance', float(radius) / 1000 / 6371)]))
+        shops = [item['obj']['shop_id'] for item in ret['results']]
+        return query_set.filter(pk__in=shops)
+    except:
+        lat, lng, radius = float(lat), float(lng), float(radius)
+        lat_delta = radius / LATITUDE_METERS
+        lat_min, lat_max = lat - lat_delta, lat + lat_delta
+        lng_delta = abs(radius / (math.pi / 180 * EARTH_MEAN_RADIUS * math.cos(abs(lng) / 2 * math.pi)))
+        lng_min, lng_max = lng - lng_delta, lng + lng_delta
+    #    print 'lat delta', lat_delta
+    #    print 'lng delta', lng_delta
+    #    print lat_min, lat_max, lng_min, lng_max
+        return query_set.filter(latitude__gte=lat_min, latitude__lte=lat_max, longitude__gte=lng_min, longitude__lte=lng_max)
 
 
 class VicinitySalesListView(BaseWebservice, ListView):
