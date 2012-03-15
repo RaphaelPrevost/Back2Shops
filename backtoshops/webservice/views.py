@@ -1,5 +1,6 @@
 import json
 import base64
+import math
 from datetime import date
 from django.contrib.auth import authenticate as _authenticate
 from django.http import HttpResponse, HttpResponseForbidden
@@ -169,3 +170,61 @@ def barcode_returned(request):
 		sale.total_stock += 1
 		return HttpResponse(json.dumps({'success': True, 'total_stock': sale.total_stock}), mimetype='text/json')
 	return HttpResponse(json.dumps({'success': False, 'error': 'Barcode Error'}), mimetype='text/json')
+
+
+EARTH_MEAN_RADIUS = 6371 * 1000 * 1000 # 6371 km
+LATITUDE_METERS = 111.2 * 1000 * 1000 # 111.2 km
+LONGITUDE_METERS = ''
+
+def filter_by_coordinate(query_set, lat, lng, radius):
+    lat, lng, radius = float(lat), float(lng), float(radius)
+    lat_delta = radius / LATITUDE_METERS
+    lat_min, lat_max = lat - lat_delta, lat + lat_delta
+    lng_delta = radius / (math.pi / 180 * EARTH_MEAN_RADIUS * math.cos(abs(lng) / 2 * math.pi))
+    lng_min, lng_max = lng - lng_delta, lng + lng_delta
+    # print 'lat delta', lat_delta
+    # print 'lng delta', lng_delta
+    # print lat_min, lat_max, lng_min, lng_max
+    return query_set.filter(latitude__gte=lat_min, latitude__lte=lat_max, longitude__gte=lng_min, longitude__lte=lng_max)
+
+
+class VicinitySalesListView(BaseWebservice, ListView):
+    template_name = "sales_list.xml"
+    
+    def get_queryset(self):
+        lat, lng = self.request.GET.get('lat', None), self.request.GET.get('lng', None)
+        radius = self.request.GET.get('radius', None)
+        product_type = self.request.GET.get('type', None)
+        category = self.request.GET.get('category', None)
+        shop = self.request.GET.get('shop', None)
+        brand = self.request.GET.get('brand', None)
+        queryset = Sale.objects.filter(product__valid_from__lte=date.today()).filter(product__valid_to__gte=date.today())
+        if product_type:
+            queryset = queryset.filter(product__type=product_type)
+        if category:
+            queryset = queryset.filter(product__category=category)
+        if shop:
+            queryset = queryset.filter(shops__in=[shop])
+        if brand:
+            queryset = queryset.filter(mother_brand=brand)
+        if lat and lng and radius:
+            shops = filter_by_coordinate(Shop.objects.all(), lat, lng, radius)
+            queryset = queryset.filter(shops__in=shops)
+        return queryset
+
+class VicinityShopsListView(BaseWebservice, ListView):
+    template_name = "shops_list.xml"
+    
+    def get_queryset(self):
+        lat, lng = self.request.GET.get('lat', None), self.request.GET.get('lng', None)
+        radius = self.request.GET.get('radius', None)
+        brand = self.request.GET.get('seller', None)
+        city = self.request.GET.get('city', None)
+        queryset = Shop.objects.all()
+        if brand:
+            queryset = queryset.filter(mother_brand=brand)
+        if city:
+            queryset = queryset.filter(city__iexact=city)
+        if lat and lng and radius:
+            queryset = filter_by_coordinate(queryset, lat, lng, radius)
+        return queryset
