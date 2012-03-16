@@ -75,6 +75,9 @@
         <name>{{ shop.name }}</name>
         <logo url="{% if shop.logo %}{{ shop.logo.url }}{% endif %}" />
         <location lat="{{ shop.latitude|unlocalize }}" long="{{ shop.longitude|unlocalize }}" />
+        <addr>{{ shop.address }}</addr>
+    	<zip>{{ shop.zipcode }}</zip>
+    	<city>{{ shop.city }}</city>
     </shop>
     {% endfor %}
 </sale>
