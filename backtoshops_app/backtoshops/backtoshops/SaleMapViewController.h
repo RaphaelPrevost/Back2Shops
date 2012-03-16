@@ -12,6 +12,7 @@
 
 @interface SaleMapViewController : UIViewController <MKMapViewDelegate> {
     Sale *sale;
+    BOOL isLocationLoaded;
 }
 
 @property (retain, nonatomic) IBOutlet MKMapView *mapView;
