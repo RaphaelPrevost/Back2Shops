@@ -106,11 +106,11 @@
             [shopAnno release];
         }
         
-        [doc release];
-        
         if ([[doc.rootElement elementsForName:@"shop"] count] == 0) {
             [self loadAllShops];
         }
+        
+        [doc release];
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         
     }];
@@ -152,14 +152,17 @@
             
             [self.mapView setRegion:region animated:YES];
             
-            [self loadNearbyShops:self.mapView.userLocation.location.coordinate radius:20000000]; // radius = 20 km
+            [self loadNearbyShops:self.mapView.userLocation.location.coordinate radius:20000]; // radius = 20 km
         }
     }
 }
 
 - (void)dealloc
 {
+    [self.mapView.userLocation removeObserver:self forKeyPath:@"location"];
+    
     [mapView release];
+    
     [super dealloc];
 }
 

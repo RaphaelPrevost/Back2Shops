@@ -36,8 +36,11 @@
 
 - (void)dealloc
 {
+    [self.mapView.userLocation removeObserver:self forKeyPath:@"location"];
+    
     [sale release];
     [mapView release];
+    
     [super dealloc];
 }
 
