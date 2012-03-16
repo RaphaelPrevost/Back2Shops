@@ -149,7 +149,10 @@
             shop.identifier = [[el attributeForName:@"id"] stringValue];
             shop.name = [[[el elementsForName:@"name"] lastObject] stringValue];
             shop.imageURL = [[[[el elementsForName:@"logo"] lastObject] attributeForName:@"url"] stringValue];
-            
+            shop.location = [NSString stringWithFormat:@"%@<br/>%@ %@", 
+                             [[[el elementsForName:@"addr"] lastObject] stringValue], 
+                             [[[el elementsForName:@"zip"] lastObject] stringValue], 
+                             [[[el elementsForName:@"city"] lastObject] stringValue]];
             double lat = [[[[[el elementsForName:@"location"] lastObject] attributeForName:@"lat"] stringValue] doubleValue];
             double lng = [[[[[el elementsForName:@"location"] lastObject] attributeForName:@"long"] stringValue] doubleValue];
             shop.coordinate = CLLocationCoordinate2DMake(lat, lng);
@@ -161,7 +164,7 @@
         
         [doc release];
         
-//        NSLog(@"%@", [item toJSON]);
+        NSLog(@"%@", [item toJSON]);
         
         // Prepare template variables then render HTML template
         NSString *path = [[NSBundle mainBundle] pathForResource:@"SaleInfoTemplate" ofType:@"html"];
