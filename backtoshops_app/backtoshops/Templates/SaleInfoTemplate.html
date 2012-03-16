@@ -25,9 +25,10 @@
         
         #shop-list { margin-top: 10px; border-width: 1px; border-color: #ababab; background-color: white; border-radius: 6px; } 
         div.tiny-cell { position: relative; padding: 8px 0 8px 46px; color: black; border-bottom: 1px solid #ababab; }
-        div.tiny-cell .shopicon { position: absolute; width: 30px; height: 30px; left: 8px; top: 4px; }
+        div.tiny-cell .shopicon { position: absolute; width: 30px; height: 30px; left: 8px; top: 8px; }
         div.tiny-cell:last-child { border-bottom: none; }
         div.tiny-cell h2 { font-size: 17px; margin: 0; padding: 0; }
+        div.tiny-cell p { font-size: 12px; color: #777; }
     </style>
 </head>
     
@@ -61,7 +62,7 @@
     
     <script type="text/javascript">
         var JSON = $JSON;
-//        var JSON = {'name': 'Business Suit', 'description': 'Business Suit', 'imageURL': '/site_media/product_pictures/boy.png', 'price': '500', 'discountPrice': '450', 'discountRatio': '10', 'shops': [{'id': '4', 'name': 'nocibé tours', 'imageURL': ''}, {'id': '4', 'name': 'nocibé tours', 'imageURL': ''}, {'id': '4', 'name': 'nocibé tours', 'imageURL': ''}, {'id': '4', 'name': 'nocibé tours', 'imageURL': ''}]}
+        // var JSON =  {'name': 'Kyle Avatar', 'description': 'NO', 'imageURL': '/site_media/product_pictures/kyle_summer_2010.jpg', 'price': '100', 'discountPrice': '70', 'discountRatio': '30', 'shops': [{'id': '10', 'name': 'coco', 'imageURL': '', 'location': '30 boulevard b<br/>80000 AMIENS'},{'id': '3', 'name': 'sephora bastille', 'imageURL': '', 'location': 'place de la bastille<br/>75005 PARIS 05 PANTHÉON'},{'id': '4', 'name': 'nocibé tours', 'imageURL': '', 'location': '北京市朝阳区西大望路3号<br/>100022 北京'},{'id': '2', 'name': 'LAPIN', 'imageURL': '', 'location': "place de l'hotel de ville<br/>80000 AMIENS"},{'id': '7', 'name': 'footlocker', 'imageURL': '', 'location': '30 rue victor hugo <br/>49000 ANGERS'}]};
         
         function $(eid) {
             return document.getElementById(eid);
@@ -77,7 +78,9 @@
         var shopList = []
         for (var i = 0; i < JSON['shops'].length; i++) {
             var shop = JSON['shops'][i];
-            shopList.push('<div class="tiny-cell" onclick="openShop(' + shop.id + ')"><img src="shopicon.png" class="shopicon"/><img src="arrow.png" class="arrow"/><h2>' + shop.name + '</h2></div>');
+            shopList.push('<div class="tiny-cell" onclick="openShop(' + shop.id + ')"><img src="shopicon.png" class="shopicon"/><img src="arrow.png" class="arrow"/><h2>' + 
+                          shop.name + '</h2><p>' + 
+                          shop.location + '</p></div>');
         }
         $('shop-list').innerHTML = shopList.join('\n');
         

@@ -24,8 +24,8 @@
 
 - (NSString *)toJSON
 {
-    NSString *jsonText = [NSString stringWithFormat:@"{'id': '%@', 'name': '%@', 'imageURL': '%@'}",
-                          identifier, name, imageURL];
+    NSString *jsonText = [NSString stringWithFormat:@"{'id': '%@', 'name': '%@', 'imageURL': '%@', 'location': \"%@\"}",
+                          identifier, name, imageURL, location];
     return jsonText;
 }
 
