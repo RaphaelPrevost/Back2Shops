@@ -42,6 +42,19 @@
     self.navigationController.navigationBar.tintColor = [UIColor colorWithRed:251.0/255.0 green:195.0/255.0 blue:38.0/255.0 alpha:1];
     
     [self.mapView.userLocation addObserver:self forKeyPath:@"location" options:(NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld) context:NULL];
+}
+
+- (void)loadAllShops
+{
+    MKCoordinateRegion region;
+    region.center = self.mapView.userLocation.coordinate;
+    
+    MKCoordinateSpan span; 
+    span.latitudeDelta  = 4; // Change these values to change the zoom
+    span.longitudeDelta = 4; 
+    region.span = span;
+    
+    [self.mapView setRegion:region animated:YES];
     
     // Load shop list from webservice
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://sales.backtoshops.com/webservice/1.0/pub/shops/list"]];
@@ -71,6 +84,41 @@
     [queue addOperation:operation];
 }
 
+- (void)loadNearbyShops:(CLLocationCoordinate2D)coordinate radius:(NSInteger)radius
+{
+    // Load shop list from webservice
+    NSString *params = [NSString stringWithFormat:@"lat=%f&lng=%f&radius=%d", coordinate.latitude, coordinate.longitude, radius];
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:[@"http://sales.backtoshops.com/webservice/1.0/vicinity/shops?" stringByAppendingString:params]]];
+    AFHTTPRequestOperation *operation = [[[AFHTTPRequestOperation alloc] initWithRequest:request] autorelease];
+    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSError *error;
+        GDataXMLDocument *doc = [[GDataXMLDocument alloc] initWithData:responseObject options:0 error:&error];
+        for (GDataXMLElement *shop in [doc.rootElement elementsForName:@"shop"]) {
+            ShopAnnotation *shopAnno = [[ShopAnnotation alloc] init];
+            shopAnno.title = [[[shop elementsForName:@"name"] lastObject] stringValue];
+            shopAnno.shopID = [[shop attributeForName:@"id"] stringValue];
+            
+            GDataXMLElement *location = [[shop elementsForName:@"location"] lastObject];
+            CLLocationDegrees lat = [[[location attributeForName:@"lat"] stringValue] doubleValue];
+            CLLocationDegrees lng = [[[location attributeForName:@"long"] stringValue] doubleValue];
+            [shopAnno setCoordinate:CLLocationCoordinate2DMake(lat, lng)];
+            [self.mapView addAnnotation:shopAnno];
+            [shopAnno release];
+        }
+        
+        [doc release];
+        
+        if ([[doc.rootElement elementsForName:@"shop"] count] == 0) {
+            [self loadAllShops];
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        
+    }];
+    
+    NSOperationQueue *queue = [[[NSOperationQueue alloc] init] autorelease];
+    [queue addOperation:operation];    
+}
+
 - (void)viewDidUnload
 {
     [self setMapView:nil];
@@ -94,15 +142,17 @@
         if ([self.mapView showsUserLocation]) {
             [self.mapView setCenterCoordinate:self.mapView.userLocation.location.coordinate animated:NO];
             isLocationLoaded = YES;
-    //        MKCoordinateRegion region;
-    //        region.center = self.mapView.userLocation.coordinate;  
-    //        
-    //        MKCoordinateSpan span; 
-    //        span.latitudeDelta  = 1; // Change these values to change the zoom
-    //        span.longitudeDelta = 1; 
-    //        region.span = span;
-    //        
-    //        [self.mapView setRegion:region animated:YES];
+            MKCoordinateRegion region;
+            region.center = self.mapView.userLocation.coordinate;
+            
+            MKCoordinateSpan span; 
+            span.latitudeDelta  = 0.4; // Change these values to change the zoom
+            span.longitudeDelta = 0.4; 
+            region.span = span;
+            
+            [self.mapView setRegion:region animated:YES];
+            
+            [self loadNearbyShops:self.mapView.userLocation.location.coordinate radius:20000000]; // radius = 20 km
         }
     }
 }

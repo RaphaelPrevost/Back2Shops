@@ -164,7 +164,7 @@
         
         [doc release];
         
-        NSLog(@"%@", [item toJSON]);
+//        NSLog(@"%@", [item toJSON]);
         
         // Prepare template variables then render HTML template
         NSString *path = [[NSBundle mainBundle] pathForResource:@"SaleInfoTemplate" ofType:@"html"];

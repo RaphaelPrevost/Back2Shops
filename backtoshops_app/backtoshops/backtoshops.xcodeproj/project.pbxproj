@@ -197,6 +197,7 @@
 		E1B97B0314DC104C00649841 /* ShopViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShopViewController.h; sourceTree = "<group>"; };
 		E1B97B0414DC104C00649841 /* ShopViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShopViewController.m; sourceTree = "<group>"; };
 		E1B97B0514DC104C00649841 /* ShopViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ShopViewController.xib; sourceTree = "<group>"; };
+		E1BF101915131ECB00E58F52 /* MockLocation.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = MockLocation.gpx; sourceTree = "<group>"; };
 		E1FC1B1414DE06F900A6FC7D /* icons_01_off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icons_01_off.png; sourceTree = "<group>"; };
 		E1FC1B1514DE06F900A6FC7D /* icons_01_off@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icons_01_off@2x.png"; sourceTree = "<group>"; };
 		E1FC1B1614DE06F900A6FC7D /* icons_01_on.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icons_01_on.png; sourceTree = "<group>"; };
@@ -478,6 +479,7 @@
 				E1FC1B1F14DE06F900A6FC7D /* icons_03_on@2x.png */,
 				E1B97AFF14DC0EAF00649841 /* tabbar.png */,
 				E1B97B0014DC0EAF00649841 /* tabbar@2x.png */,
+				E1BF101915131ECB00E58F52 /* MockLocation.gpx */,
 			);
 			path = Resources;
 			sourceTree = "<group>";

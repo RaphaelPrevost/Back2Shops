@@ -49,6 +49,8 @@
 
     self.title = NSLocalizedString(@"Plan", nil);
     
+    [self.mapView.userLocation addObserver:self forKeyPath:@"location" options:(NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld) context:NULL];
+    
     // Sale Info
     UIImageView *thumbnail = (UIImageView *)[self.view viewWithTag:1];
     [thumbnail setImageWithURL:[NSURL URLWithString:[@"http://sales.backtoshops.com" stringByAppendingString:sale.imageURL]]];
@@ -84,6 +86,28 @@
 {
     // Return YES for supported orientations
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath  
+                      ofObject:(id)object  
+                        change:(NSDictionary *)change  
+                       context:(void *)context
+{
+    if (!isLocationLoaded) {
+        if ([self.mapView showsUserLocation]) {
+            [self.mapView setCenterCoordinate:self.mapView.userLocation.location.coordinate animated:NO];
+            isLocationLoaded = YES;
+            MKCoordinateRegion region;
+            region.center = self.mapView.userLocation.coordinate;  
+            
+            MKCoordinateSpan span; 
+            span.latitudeDelta  = 1; // Change these values to change the zoom
+            span.longitudeDelta = 1; 
+            region.span = span;
+            
+            [self.mapView setRegion:region animated:YES];
+        }
+    }
 }
 
 #pragma mark - MKMapViewDelegate

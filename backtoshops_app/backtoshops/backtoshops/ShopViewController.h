@@ -15,4 +15,7 @@
 
 @property (retain, nonatomic) IBOutlet MKMapView *mapView;
 
+- (void)loadAllShops;
+- (void)loadNearbyShops:(CLLocationCoordinate2D)coordinate radius:(NSInteger)radius;
+
 @end
