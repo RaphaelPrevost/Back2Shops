@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Sale.h"
 
 @interface SaleListViewController : UIViewController <UIWebViewDelegate>
 
@@ -26,6 +27,8 @@
 
 - (IBAction)showPreviousSale;
 - (IBAction)showNextSale;
+
+- (void)loadWebViewWithSale:(Sale *)item;
 
 @end
 

@@ -10,6 +10,7 @@
 #import "HomeViewController.h"
 #import "ShopViewController.h"
 #import "LoginViewController.h"
+#import "NearbySaleListViewController.h"
 
 @interface MainTabController (Private)
 
@@ -46,19 +47,17 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    // Do any additional setup after loading the view from its nib.
 
-//    HomeViewController *c1 = [[[HomeViewController alloc] initWithNibName:@"HomeViewController" bundle:nil] autorelease];
-//    [self.contentView addSubview:c1.view];
-    
+    // Le Plan
     UINavigationController *firstController = [[[UINavigationController alloc] init] autorelease];
     firstController.view.frame = CGRectMake(0, 0, 320, 415);
     [firstController pushViewController:[[[ShopViewController alloc] initWithNibName:@"ShopViewController" bundle:nil] autorelease] animated:NO];
     [self.viewControllers addObject:firstController];
     
+    // Offre BTS
     UINavigationController *secondController = [[[UINavigationController alloc] init] autorelease];
     secondController.view.frame = CGRectMake(0, 0, 320, 415);
-//    [secondController pushViewController:[[[SaleInfoViewController alloc] initWithSaleID:@"1"] autorelease] animated:NO];
+    [secondController pushViewController:[[[NearbySaleListViewController alloc] init] autorelease] animated:NO];
     [self.viewControllers addObject:secondController];
     
     [self click1st:nil];

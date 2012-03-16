@@ -16,7 +16,6 @@
 
 @interface SaleListViewController (Private)
 
-- (void)loadWebViewWithSale:(Sale *)item;
 - (void)showNavigationArrows;
 
 @end
@@ -48,15 +47,6 @@
     }
     return self;
 }
-
-//- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-//{
-//    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-//    if (self) {
-//        // Custom initialization
-//    }
-//    return self;
-//}
 
 - (void)dealloc
 {
@@ -100,20 +90,12 @@
     }
     
     self.currentItemIndex = 0;
-    
-//    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:[@"http://sales.backtoshops.com/webservice/1.0/pub/sales/list?shop=" stringByAppendingString:self.shopID]]];
-//    AFHTTPRequestOperation *operation = [[[AFHTTPRequestOperation alloc] initWithRequest:request] autorelease];
-//    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-//        <#code#>
-//    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-//        <#code#>
-//    }];
-//    
-//    NSOperationQueue *queue = [[[NSOperationQueue alloc] init] autorelease];
-//    [queue addOperation:operation];
-    
+        
     [self showNavigationArrows];
-    [self loadWebViewWithSale:[self.items objectAtIndex:0]];
+    
+    if ([self.items count] > 0) {
+        [self loadWebViewWithSale:[self.items objectAtIndex:0]];
+    }
 }
 
 - (void)viewDidUnload
@@ -136,7 +118,7 @@
 - (void)loadWebViewWithSale:(Sale *)item
 {
     self.brandLabel.text = item.name;
-            
+    
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:[@"http://sales.backtoshops.com/webservice/1.0/pub/sales/info/" stringByAppendingString:item.identifier]]];
     AFHTTPRequestOperation *operation = [[[AFHTTPRequestOperation alloc] initWithRequest:request] autorelease];
     [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {

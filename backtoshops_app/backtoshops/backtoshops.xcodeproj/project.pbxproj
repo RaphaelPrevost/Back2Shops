@@ -66,6 +66,7 @@
 		E1B97B0214DC0EAF00649841 /* tabbar@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E1B97B0014DC0EAF00649841 /* tabbar@2x.png */; };
 		E1B97B0614DC104C00649841 /* ShopViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E1B97B0414DC104C00649841 /* ShopViewController.m */; };
 		E1B97B0714DC104C00649841 /* ShopViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E1B97B0514DC104C00649841 /* ShopViewController.xib */; };
+		E1BF101D1513414800E58F52 /* NearbySaleListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E1BF101C1513414700E58F52 /* NearbySaleListViewController.m */; };
 		E1FC1B2014DE06F900A6FC7D /* icons_01_off.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FC1B1414DE06F900A6FC7D /* icons_01_off.png */; };
 		E1FC1B2114DE06F900A6FC7D /* icons_01_off@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FC1B1514DE06F900A6FC7D /* icons_01_off@2x.png */; };
 		E1FC1B2214DE06F900A6FC7D /* icons_01_on.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FC1B1614DE06F900A6FC7D /* icons_01_on.png */; };
@@ -198,6 +199,8 @@
 		E1B97B0414DC104C00649841 /* ShopViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShopViewController.m; sourceTree = "<group>"; };
 		E1B97B0514DC104C00649841 /* ShopViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ShopViewController.xib; sourceTree = "<group>"; };
 		E1BF101915131ECB00E58F52 /* MockLocation.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = MockLocation.gpx; sourceTree = "<group>"; };
+		E1BF101B1513414700E58F52 /* NearbySaleListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NearbySaleListViewController.h; sourceTree = "<group>"; };
+		E1BF101C1513414700E58F52 /* NearbySaleListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NearbySaleListViewController.m; sourceTree = "<group>"; };
 		E1FC1B1414DE06F900A6FC7D /* icons_01_off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icons_01_off.png; sourceTree = "<group>"; };
 		E1FC1B1514DE06F900A6FC7D /* icons_01_off@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icons_01_off@2x.png"; sourceTree = "<group>"; };
 		E1FC1B1614DE06F900A6FC7D /* icons_01_on.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icons_01_on.png; sourceTree = "<group>"; };
@@ -275,6 +278,8 @@
 				E15493C21504A4750030B647 /* SaleShopInfoViewController.h */,
 				E15493C31504A4750030B647 /* SaleShopInfoViewController.m */,
 				E15493C41504A4760030B647 /* SaleShopInfoViewController.xib */,
+				E1BF101B1513414700E58F52 /* NearbySaleListViewController.h */,
+				E1BF101C1513414700E58F52 /* NearbySaleListViewController.m */,
 			);
 			name = Shop;
 			sourceTree = "<group>";
@@ -648,6 +653,7 @@
 				E18B841F14ED103E0083E54D /* Shop.m in Sources */,
 				E15493C01504A4670030B647 /* SaleMapViewController.m in Sources */,
 				E15493C51504A4760030B647 /* SaleShopInfoViewController.m in Sources */,
+				E1BF101D1513414800E58F52 /* NearbySaleListViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
