@@ -150,8 +150,7 @@
             span.longitudeDelta = 0.4; 
             region.span = span;
             
-            [self.mapView setRegion:region animated:YES];
-            
+            [self.mapView setRegion:region animated:YES];            
             [self loadNearbyShops:self.mapView.userLocation.location.coordinate radius:20000]; // radius = 20 km
         }
     }

@@ -11,9 +11,15 @@
 #import "ShopViewController.h"
 #import "LoginViewController.h"
 #import "NearbySaleListViewController.h"
+#import "LocalCache.h"
+#import "AFHTTPRequestOperation.h"
+#import "GDataXMLNode.h"
+#import "Shop.h"
+#import "Sale.h"
 
 @interface MainTabController (Private)
 
+- (void)loadCache;
 - (void)deselectTab;
 
 @end
@@ -48,6 +54,8 @@
 {
     [super viewDidLoad];
 
+    [self loadCache];
+    
     // Le Plan
     UINavigationController *firstController = [[[UINavigationController alloc] init] autorelease];
     firstController.view.frame = CGRectMake(0, 0, 320, 415);
@@ -157,12 +165,12 @@
 //    UINavigationController *nav = [self.viewControllers objectAtIndex:2];
 //    [nav pushViewController:c animated:YES];
     
-    [self deselectTab];
-    
-    UIImageView *imageView = (UIImageView *)[self.tabbar viewWithTag:ButtonImageTagThird];
-    imageView.image = [UIImage imageNamed:@"icons_03_on"];
-
-    self.currentController = [self.viewControllers objectAtIndex:2];
+//    [self deselectTab];
+//    
+//    UIImageView *imageView = (UIImageView *)[self.tabbar viewWithTag:ButtonImageTagThird];
+//    imageView.image = [UIImage imageNamed:@"icons_03_on"];
+//
+//    self.currentController = [self.viewControllers objectAtIndex:2];
 }
 
 #pragma mark - Private
@@ -177,6 +185,40 @@
     
     imageView = (UIImageView *)[self.tabbar viewWithTag:ButtonImageTagThird];
     imageView.image = [UIImage imageNamed:@"icons_03_off"];
+}
+
+- (void)loadCache
+{
+    // Load shop list from webservice
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://sales.backtoshops.com/webservice/1.0/pub/shops/list"]];
+    AFHTTPRequestOperation *operation = [[[AFHTTPRequestOperation alloc] initWithRequest:request] autorelease];
+    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSMutableDictionary *shopMap = [NSMutableDictionary dictionary];
+        NSError *error;
+        GDataXMLDocument *doc = [[GDataXMLDocument alloc] initWithData:responseObject options:0 error:&error];
+        for (GDataXMLElement *shop in [doc.rootElement elementsForName:@"shop"]) {
+            Shop *shopObj = [[Shop alloc] init];
+            shopObj.identifier = [[shop attributeForName:@"id"] stringValue];
+            shopObj.name = [[[shop elementsForName:@"name"] lastObject] stringValue];
+            shopObj.location = [NSString stringWithFormat:@"%@<br/>%@ %@", 
+                                [[[shop elementsForName:@"addr"] lastObject] stringValue], 
+                                [[[shop elementsForName:@"zip"] lastObject] stringValue], 
+                                [[[shop elementsForName:@"city"] lastObject] stringValue]];
+            double lat = [[[[[shop elementsForName:@"location"] lastObject] attributeForName:@"lat"] stringValue] doubleValue];
+            double lng = [[[[[shop elementsForName:@"location"] lastObject] attributeForName:@"long"] stringValue] doubleValue];
+            shopObj.coordinate = CLLocationCoordinate2DMake(lat, lng);
+            [shopMap setValue:shopObj forKey:shopObj.identifier];
+            [shopObj release];
+        }
+        
+        [[LocalCache sharedLocalCache] storeDictionary:shopMap forKey:@"ShopMap"];
+        [doc release];
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        
+    }];
+    
+    NSOperationQueue *queue = [[[NSOperationQueue alloc] init] autorelease];
+    [queue addOperation:operation]; 
 }
 
 @end

@@ -29,4 +29,29 @@
     return jsonText;
 }
 
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+    self = [super init];
+    if (self) {
+        self.identifier = [aDecoder decodeObjectForKey:@"identifier"];
+        self.name = [aDecoder decodeObjectForKey:@"name"];
+        self.location = [aDecoder decodeObjectForKey:@"location"];
+        self.imageURL = [aDecoder decodeObjectForKey:@"imageURL"];
+        double latitude = [aDecoder decodeDoubleForKey:@"coordinate.latitude"];
+        double longitude = [aDecoder decodeDoubleForKey:@"coordinate.longitude"];
+        self.coordinate = CLLocationCoordinate2DMake(latitude, longitude);
+    }
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{    
+    [aCoder encodeObject:self.identifier forKey:@"identifier"];
+    [aCoder encodeObject:self.name forKey:@"name"];
+    [aCoder encodeObject:self.location forKey:@"location"];
+    [aCoder encodeObject:self.imageURL forKey:@"imageURL"];
+    [aCoder encodeDouble:self.coordinate.latitude forKey:@"coordinate.latitude"];
+    [aCoder encodeDouble:self.coordinate.longitude forKey:@"coordinate.longitude"];
+}
+
 @end
