@@ -67,6 +67,7 @@
 		E1B97B0614DC104C00649841 /* ShopViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E1B97B0414DC104C00649841 /* ShopViewController.m */; };
 		E1B97B0714DC104C00649841 /* ShopViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E1B97B0514DC104C00649841 /* ShopViewController.xib */; };
 		E1BF101D1513414800E58F52 /* NearbySaleListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E1BF101C1513414700E58F52 /* NearbySaleListViewController.m */; };
+		E1F00BB41519C5340032DD40 /* LocalCache.m in Sources */ = {isa = PBXBuildFile; fileRef = E1F00BB31519C5340032DD40 /* LocalCache.m */; };
 		E1FC1B2014DE06F900A6FC7D /* icons_01_off.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FC1B1414DE06F900A6FC7D /* icons_01_off.png */; };
 		E1FC1B2114DE06F900A6FC7D /* icons_01_off@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FC1B1514DE06F900A6FC7D /* icons_01_off@2x.png */; };
 		E1FC1B2214DE06F900A6FC7D /* icons_01_on.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FC1B1614DE06F900A6FC7D /* icons_01_on.png */; };
@@ -201,6 +202,8 @@
 		E1BF101915131ECB00E58F52 /* MockLocation.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = MockLocation.gpx; sourceTree = "<group>"; };
 		E1BF101B1513414700E58F52 /* NearbySaleListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NearbySaleListViewController.h; sourceTree = "<group>"; };
 		E1BF101C1513414700E58F52 /* NearbySaleListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NearbySaleListViewController.m; sourceTree = "<group>"; };
+		E1F00BB21519C5340032DD40 /* LocalCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalCache.h; sourceTree = "<group>"; };
+		E1F00BB31519C5340032DD40 /* LocalCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalCache.m; sourceTree = "<group>"; };
 		E1FC1B1414DE06F900A6FC7D /* icons_01_off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icons_01_off.png; sourceTree = "<group>"; };
 		E1FC1B1514DE06F900A6FC7D /* icons_01_off@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icons_01_off@2x.png"; sourceTree = "<group>"; };
 		E1FC1B1614DE06F900A6FC7D /* icons_01_on.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icons_01_on.png; sourceTree = "<group>"; };
@@ -407,6 +410,8 @@
 				E1527C5F14DAD04E00724874 /* Secondary Controllers */,
 				E176C50F14D70D610067EEE5 /* AppDelegate.h */,
 				E176C51014D70D610067EEE5 /* AppDelegate.m */,
+				E1F00BB21519C5340032DD40 /* LocalCache.h */,
+				E1F00BB31519C5340032DD40 /* LocalCache.m */,
 				E1527C5A14DAC0EF00724874 /* MainTabController.h */,
 				E1527C5B14DAC0EF00724874 /* MainTabController.m */,
 				E11651B914F2A49C004D8D99 /* MainTabController.xib */,
@@ -528,7 +533,7 @@
 		E176C4F314D70D610067EEE5 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0430;
 				ORGANIZATIONNAME = "Nicholas Ding";
 			};
 			buildConfigurationList = E176C4F614D70D610067EEE5 /* Build configuration list for PBXProject "backtoshops" */;
@@ -654,6 +659,7 @@
 				E15493C01504A4670030B647 /* SaleMapViewController.m in Sources */,
 				E15493C51504A4760030B647 /* SaleShopInfoViewController.m in Sources */,
 				E1BF101D1513414800E58F52 /* NearbySaleListViewController.m in Sources */,
+				E1F00BB41519C5340032DD40 /* LocalCache.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
