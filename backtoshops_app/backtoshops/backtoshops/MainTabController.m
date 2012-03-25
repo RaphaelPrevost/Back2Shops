@@ -190,9 +190,9 @@
 - (void)loadCache
 {
     // Load shop list from webservice
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://sales.backtoshops.com/webservice/1.0/pub/shops/list"]];
-    AFHTTPRequestOperation *operation = [[[AFHTTPRequestOperation alloc] initWithRequest:request] autorelease];
-    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+    NSURLRequest *request1 = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://sales.backtoshops.com/webservice/1.0/pub/shops/list"]];
+    AFHTTPRequestOperation *operation1 = [[[AFHTTPRequestOperation alloc] initWithRequest:request1] autorelease];
+    [operation1 setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSMutableDictionary *shopMap = [NSMutableDictionary dictionary];
         NSError *error;
         GDataXMLDocument *doc = [[GDataXMLDocument alloc] initWithData:responseObject options:0 error:&error];
@@ -217,8 +217,35 @@
         
     }];
     
+    NSURLRequest *request2 = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://sales.backtoshops.com/webservice/1.0/pub/sales/list"]];
+    AFHTTPRequestOperation *operation2 = [[[AFHTTPRequestOperation alloc] initWithRequest:request2] autorelease];
+    [operation2 setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSMutableDictionary *saleMap = [NSMutableDictionary dictionary];
+        NSError *error;
+        GDataXMLDocument *doc = [[GDataXMLDocument alloc] initWithData:responseObject options:0 error:&error];
+        for (GDataXMLElement *sale in [doc.rootElement elementsForName:@"sale"]) {
+            Sale *saleObj = [[Sale alloc] init];
+            saleObj.identifier = [[sale attributeForName:@"id"] stringValue];
+            saleObj.name = [[[sale elementsForName:@"name"] lastObject] stringValue];
+            saleObj.description = [[[sale elementsForName:@"desc"] lastObject] stringValue];
+            saleObj.imageURL = [[[[sale elementsForName:@"img"] lastObject] attributeForName:@"url"] stringValue];
+            saleObj.price = [[[sale elementsForName:@"price"] lastObject] stringValue];
+            saleObj.currency = [[[[sale elementsForName:@"price"] lastObject] attributeForName:@"currency"] stringValue];
+            saleObj.discountRatio = [[[[sale elementsForName:@"discount"] lastObject] attributeForName:@"amount"] stringValue];
+            saleObj.discountPrice = [[[[sale elementsForName:@"discount"] lastObject] attributeForName:@"price"] stringValue];
+            [saleMap setValue:saleObj forKey:saleObj.identifier];
+            [saleObj release];
+        }
+        
+        [[LocalCache sharedLocalCache] storeDictionary:saleMap forKey:@"SaleMap"];
+        [doc release];
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        
+    }];
+    
     NSOperationQueue *queue = [[[NSOperationQueue alloc] init] autorelease];
-    [queue addOperation:operation]; 
+    [queue addOperation:operation1];
+    [queue addOperation:operation2];
 }
 
 @end
