@@ -9,7 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "Sale.h"
 
-@interface SaleListViewController : UIViewController <UIWebViewDelegate>
+@interface SaleListViewController : UIViewController <UIWebViewDelegate> {
+    NSMutableDictionary *cachedTemplate;
+}
 
 @property (nonatomic, copy) NSString *shopID;
 
