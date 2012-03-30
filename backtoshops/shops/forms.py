@@ -33,7 +33,7 @@ class ShopForm(forms.ModelForm):
 
 	def __init__(self, *args, **kwargs):
 		super(ShopForm, self).__init__(*args, **kwargs)
-                self.fields['upc'].widget = forms.TextInput(attrs={'class': 'inputM'})
+		self.fields['upc'].widget = forms.TextInput(attrs={'class': 'inputM'})
 		self.fields['zipcode'].widget = forms.TextInput(attrs={'class': 'inputXS'})
 		self.fields['phone'].widget = forms.TextInput(attrs={'class': 'inputS'})
 		self.fields['city'].widget = forms.TextInput(attrs={'class': 'inputM'})

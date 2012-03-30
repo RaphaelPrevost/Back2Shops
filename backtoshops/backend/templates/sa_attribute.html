@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+{% if attribute_pk %}
+{% trans "Edit a Attribute" %}
+{% else %}
+{% trans "Add a Attribute" %}
+{% endif %}
+{% endblock %}
+
+{% block head %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+{% endblock %}
+
+{% block navigation %}
+{% include "_quick_nav.html" %}
+{% endblock %}
+
+{% block content %}
+<!--content-left-->
+<div id="content_Left">
+
+    <!--Title-->
+    <div id="title">
+        <span>{% trans "Attributes" %}</span>
+        <h2>{% trans "Attributes" %}</h2>
+    </div>
+
+    <!--FORM-->
+    {% if attribute_pk %}
+    <form id="main_form" method="post" action="{% url sa_edit_attribute attribute_pk %}" enctype="multipart/form-data">{% csrf_token %}
+    {% else %}
+    <form id="main_form" method="post" action="{% url sa_attributes %}" enctype="multipart/form-data">{% csrf_token %}
+    {% endif %}
+    {% if attribute_pk %}
+        <h3>{% trans "Edit Attribute" %}</h3>
+    {% else %}
+        <h3>{% trans "New Attribute" %}</h3>
+    {% endif %}
+
+        <fieldset>
+            {{ form.name.errors }}
+            <div class="formrow">
+                <label for="{{form.name.auto_id}}">{% trans form.name.label %}</label>
+                {{ form.name }}
+            </div>
+        </fieldset>
+        <!--BOUTONS-->
+        <input class="btn valider" type="submit" value='{% trans "Save" %}'/>
+        <button type="reset" class="btn annuler">{% trans "Cancel" %}</button>
+    </form>
+    <!--FIN FORM-->
+</div>
+<!--FIN content-left-->
+
+<!--content-right-->
+<div id="content_Right">
+    <!--Liste-Attributes-->
+    <h4 class="titleRight">{% trans "Attributes list" %}</h4>
+    <div class="boxRight" id="listeAttribute">
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <th class="nom on"><a href="#">{% trans "Name" %}</a></th>
+                <th class="action"><a href="#">{% trans "Actions" %}</a></th>
+            </tr>
+            {% for attribute in attributes %}
+            <tr id="attribute_{{ attribute.pk }}"><!-- class=new -->
+                <td><a href="{% url sa_edit_attribute attribute.pk %}">{{ attribute.name }}</a></td>
+                <td><a class="modif" href="{% url sa_edit_attribute attribute.pk %}">edit</a><a class="out delete_attribute" href="{% url sa_delete_attribute attribute.pk %}">delete</a></td>
+            </tr>
+            {% empty %}
+            <tr class="noshop">
+                <td colspan="2">{% trans "The attributes list is empty." %}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <!--//Liste-Attribute-->
+    <a class="btn ajouter" href="{% url sa_attributes %}">{% trans "Add a new attribute" %}</a>
+</div>
+<!--FIN content-right-->
+<div class="clear"></div>
+{% endblock %}
+
+{% block javascript %}
+
+<script type="text/javascript">
+$(document).ready(function(){
+    $(".delete_attribute").click(function() {
+            if(confirm('{% trans "Are your sure you want to delete this attribute?" %}')) {
+                $.post(this.href, function(data){
+                    $("#attribute_"+data.attribute_pk).remove();
+                    if(data.attribute_pk == "{% firstof attribute_pk "0" %}") {
+                        location.replace("{% url sa_attributes %}");
+                    }
+                });
+            }
+            return false;
+    });
+});    
+</script>
+
+{% endblock %}

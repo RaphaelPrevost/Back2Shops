@@ -1,0 +1,32 @@
+{% extends "sa_base.html" %}
+{% load i18n %}
+
+{% block content %}
+    <ul id="content_Home">
+        <li>
+            <h3 class="link1">{% trans "Main brand management" %}</h3>
+            <a href="{% url sa_brands %}">{% trans "Main brand management" %}</a>
+        </li>
+        <li>
+            <h3 class="link4">{% trans "Admin users management" %}</h3>
+            <a href="{% url sa_users %}">{% trans "Admin users management" %}</a>
+        </li>
+        <li>
+            <h3 class="link2">{% trans "Categories management" %}</h3>
+            <a href="{% url sa_categories %}">{% trans "Categories management" %}</a>
+        </li>
+        <li>
+            <h3 class="link5">{% trans "Attributes management" %}</h3>
+            <a href="{% url sa_attributes %}">{% trans "Attributes management" %}</a>
+        </li>
+        <li>
+            <h3 class="link3">{% trans "Branding" %}</h3>
+            <a href="{% url sa_brandings %}" >{% trans "Branding" %}</a>
+        </li>
+        <li>
+            <h3 class="link6">{% trans "Settings" %}</h3>
+            <a href="map_1.htm" >{% trans "Settings" %}</a>
+        </li>
+    </ul>
+
+{% endblock %}

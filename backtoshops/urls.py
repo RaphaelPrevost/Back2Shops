@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import patterns, include, url
 from django.contrib.auth.decorators import login_required
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from django.views.generic.base import TemplateView
+from accounts.views import home_page
 import settings
 
 # Uncomment the next two lines to enable the admin:
@@ -33,7 +33,7 @@ urlpatterns += patterns('',
     url(r'^shops', include(settings.SITE_NAME+'.shops.urls')),
     url(r'^login', 'fouillis.views.login_staff', name='bo_login'),
     url(r'^$',
-        login_required(TemplateView.as_view(template_name="index.html"), login_url="login"),
+        login_required(home_page, login_url="login"),
         name='bo_index'),
     # Examples:
     # url(r'^$', 'backtoshops.views.home', name='home'),
@@ -45,5 +45,6 @@ urlpatterns += patterns('',
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
     url(r'^setlang/','accounts.views.set_language'),
+    url(r'^sa/', include(settings.SITE_NAME+'.backend.urls')),
 )
 
