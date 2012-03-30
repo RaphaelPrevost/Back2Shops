@@ -296,6 +296,9 @@
             if(confirm('{% trans "Are your sure you want to delete this shop?" %}')) {
                 $.post(this.href, function(data){
                     $("#shop_"+data.shop_pk).remove();
+                    if(data.shop_pk == "{% firstof shop_pk "0" %}") {
+                        location.replace("{% url page_shops %}");
+                    }
                 });
             }
             return false;

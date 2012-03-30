@@ -4,6 +4,7 @@ from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from globalsettings import get_setting
 
 class LoginRequiredMixin(object):
     def dispatch(self, *args, **kwargs):
@@ -30,7 +31,10 @@ def login_staff(request):
             if user is not None:
                 if user.is_active and user.is_staff:
                     login(request, user)
-                    request.session['django_language'] = user.get_profile().language
+                    try:
+                        request.session['django_language'] = user.get_profile().language
+                    except:
+                        request.session['django_language'] = get_setting('default_language')
                     netloc = urlparse.urlparse(redirect_to)[1]
 
                     # Use default setting if redirect_to is empty

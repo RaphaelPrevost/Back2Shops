@@ -155,6 +155,7 @@ INSTALLED_APPS = (
     SITE_NAME+'.webservice',
     SITE_NAME+'.barcodes',
     SITE_NAME+'.globalsettings',
+    SITE_NAME+'.brandings',
     'south',
     'form_utils',
     'formwizard',

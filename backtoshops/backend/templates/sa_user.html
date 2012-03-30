@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+{% if user_pk %}
+{% trans "Edit a User" %}
+{% else %}
+{% trans "Add a User" %}
+{% endif %}
+{% endblock %}
+
+{% block head %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+{% endblock %}
+
+{% block navigation %}
+{% include "_quick_nav.html" %}
+{% endblock %}
+
+{% block content %}
+<!--content-left-->
+<div id="content_Left">
+
+    <!--Title-->
+    <div id="title">
+        <span>{% trans "Users" %}</span>
+        <h2>{% trans "Users" %}</h2>
+    </div>
+
+    <!--FORM-->
+    {% if user_pk %}
+    <form id="main_form" method="post" action="{% url sa_edit_user user_pk %}" enctype="multipart/form-data">{% csrf_token %}
+    {% else %}
+    <form id="main_form" method="post" action="{% url sa_users %}" enctype="multipart/form-data">{% csrf_token %}
+    {% endif %}
+    {% if user_pk %}
+        <h3>{% trans "Edit User" %}</h3>
+    {% else %}
+        <h3>{% trans "New User" %}</h3>
+    {% endif %}
+
+        {% if user_pk %}
+        <fieldset>
+            {{ form.username.errors }}
+            <div class="formrow">
+                <label for="{{form.username.auto_id}}">{% trans form.username.label %}</label>
+                {{ form.username }}
+            </div>
+            {{ form.email.errors }}
+            <div class="formrow">
+                <label for="{{ form.email.auto_id }}">{% trans form.email.label %}</label>
+                {{ form.email }}
+            </div>
+            {{ form.is_superuser.errors }}
+            <div class="formrow">
+                <label for="{{ form.is_superuser.auto_id }}">{% trans form.is_superuser.label %}</label>
+                {{ form.is_superuser }}
+            </div>
+            {{ form.is_active.errors }}
+            <div class="formrow">
+                <label for="{{ form.is_active.auto_id }}">{% trans form.is_active.label %}</label>
+                {{ form.is_active }}
+            </div>
+            {{ form.language.errors }}
+            <div class="formrow">
+                <label for="{{ form.language.auto_id }}">{% trans form.language.label %}</label>
+                {{ form.language }}
+            </div>
+            {{ form.work_for.errors }}
+            <div class="formrow">
+                <label for="{{ form.work_for.auto_id }}">{% trans form.work_for.label %}</label>
+                {{ form.work_for }}
+            </div>
+        </fieldset>
+        {% else %}
+        <fieldset>
+            {{ form.username.errors }}
+            <div class="formrow">
+                <label for="{{form.username.auto_id}}">{% trans form.username.label %}</label>
+                {{ form.username }}
+            </div>
+            {{ form.password1.errors }}
+            <div class="formrow">
+                <label for="{{form.password1.auto_id}}">{% trans form.password1.label %}</label>
+                {{ form.password1 }}
+            </div>
+            {{ form.password2.errors }}
+            <div class="formrow">
+                <label for="{{form.password2.auto_id}}">{% trans form.password2.label %}</label>
+                {{ form.password2 }}
+            </div>
+            {{ form.email.errors }}
+            <div class="formrow">
+                <label for="{{ form.email.auto_id }}">{% trans form.email.label %}</label>
+                {{ form.email }}
+            </div>
+            {{ form.is_superuser.errors }}
+            <div class="formrow">
+                <label for="{{ form.is_superuser.auto_id }}">{% trans form.is_superuser.label %}</label>
+                {{ form.is_superuser }}
+            </div>
+            {{ form.language.errors }}
+            <div class="formrow">
+                <label for="{{ form.language.auto_id }}">{% trans form.language.label %}</label>
+                {{ form.language }}
+            </div>
+            {{ form.work_for.errors }}
+            <div class="formrow">
+                <label for="{{ form.work_for.auto_id }}">{% trans form.work_for.label %}</label>
+                {{ form.work_for }}
+            </div>
+        </fieldset>
+        {% endif %}
+        <!--BOUTONS-->
+        <input class="btn valider" type="submit" value='{% trans "Save" %}'/>
+        <button type="reset" class="btn annuler">{% trans "Cancel" %}</button>
+    </form>
+    <!--FIN FORM-->
+</div>
+<!--FIN content-left-->
+
+<!--content-right-->
+<div id="content_Right">
+    <!--Liste-Brands-->
+    <h4 class="titleRight">{% trans "Users list" %}</h4>
+    <form method="post">
+    {% csrf_token %}
+    <div style='display:none'><input type='hidden' name='search' value='True' /></div>    
+    <div class="searchBox">
+        <label for="id_searchUsername">{% trans "username" %}</label><input type="text" id="id_searchUsername" name="username" />
+        <label for="id_searchCompany">{% trans "company" %}</label>
+        <select id="id_searchCompany" name="company" ><option value="">{% trans '--select company--' %}</option>
+        {% for company in companies %}<option value="{{ company.pk }}">{{company.name}}</option>{%endfor%}
+        </select>
+        <input type="button" value="search" id="btnSearch" />
+    </div>
+    </form>
+    <div class="boxRight" id="listeUser"> 
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <th class="nom on"><a href="#">{% trans "Username" %}</a></th>
+                <th>superadmin?</th>
+                <th>company</th>
+                <th class="action"><a href="#">{% trans "Actions" %}</a></th>
+            </tr>
+            {% for user in users %}
+            <tr id="user_{{ user.pk }}"><!-- class=new -->
+                <td><a href="{% url sa_edit_user user.pk %}">{{ user.username }}</a></td>
+                <td>{{ user.is_superuser|yesno:"Y,N" }}</td>
+                <td>{% firstof user.get_profile.work_for "N/A" %}</td>
+                <td><a class="modif" href="{% url sa_edit_user user.pk %}">edit</a><a class="out delete_user" href="{% url sa_delete_user user.pk %}">delete</a></td>
+            </tr>
+            {% empty %}
+            <tr class="noshop">
+                <td colspan="4">{% trans "The users list is empty." %}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <!--//Liste-Brand-->
+    <a class="btn ajouter" href="{% url sa_users %}">{% trans "Add a new user" %}</a>
+</div>
+<!--FIN content-right-->
+<div class="clear"></div>
+{% endblock %}
+
+{% block javascript %}
+
+<script type="text/javascript">
+$(document).ready(function(){
+    $(".delete_user").click(function() {
+        if(confirm('{% trans "Are your sure you want to delete this user?" %}')) {
+            $.post(this.href, function(data){
+                $("#user_"+data.user_pk).remove();
+                if(data.user_pk == "{% firstof user_pk "0" %}") {
+                    location.replace("{% url sa_users %}");
+                }
+            });
+        }
+        return false;
+    });
+    
+    //search feature
+
+    $("#btnSearch").click(function(){
+        $("#listeUser table tbody").find("tr:gt(0)").remove();
+        $.post("{% url sa_ajax_user_search %}", 
+            {'username':$("#id_searchUsername").val(),'company':$("#id_searchCompany").val()}, 
+            function(data){
+                $("#listeUser table tbody").append(data);
+        });
+    });
+
+});    
+</script>
+
+{% endblock %}

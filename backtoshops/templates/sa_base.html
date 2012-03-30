@@ -1,0 +1,129 @@
+{% load i18n %}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+    <title>{% block title %}{% trans "Backoffice" %}{% endblock %}</title>
+
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/main.css" />
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.1.6.2.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/smooth-scrolling.js"></script>
+
+    <!--[if IE]><link rel="stylesheet" media="screen" href="css/IE.css" /><![endif]-->
+    <!--[if IE 6]><link rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/IE6.css" /><![endif]-->
+    {% block head %}{% endblock %}
+
+    <script type="text/javascript">
+        $(document).ajaxSend(function(event, xhr, settings) {
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            function sameOrigin(url) {
+                // url could be relative or scheme relative or absolute
+                var host = document.location.host; // host + port
+                var protocol = document.location.protocol;
+                var sr_origin = '//' + host;
+                var origin = protocol + sr_origin;
+                // Allow absolute or scheme relative URLs to same origin
+                return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+                    (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+                    // or any other URL that isn't scheme relative or absolute i.e relative.
+                    !(/^(\/\/|http:|https:).*/.test(url));
+            }
+            function safeMethod(method) {
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+
+            if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+            }
+        });
+        
+        $(document).ready(function(){
+        	$("#language").change(function(event){
+        		$("#language_next").val(window.location.pathname);
+        		$("#language_form").submit()
+        	});
+        });
+    </script>
+
+</head>
+<body>
+	<!--CONTENEUR-->
+	<div id="conteneur">
+
+		<!--HEADER-->
+		<div id="header">
+			<h1>
+				<a href="{% url bo_index %}">
+					BackToShops
+				</a>
+			</h1>
+		</div>
+		<!--FIN HEADER-->
+
+		<!--NAV-->
+		<div id="nav">
+			<div id="etiquette">
+				<h3>You're logged in as a super admin</h3>
+			</div>
+            {% if user.is_authenticated %}
+        	<form id="language_form" method="POST" action="/setlang/">
+            	{% csrf_token %}
+            	<input id="language_next" name="next" type="hidden" value="/" />
+                {% trans 'Welcome' %} <span id="userName">{{ user.username }}</span> 
+                {{ default_language }}
+            	{% if LANGUAGES %}
+            		<select id="language" name="language">
+                	{% for language in LANGUAGES %}
+                		<option value="{{language.0}}" {% if language.0|lower == LANGUAGE_CODE|lower %}selected{% endif %}>{{language.1}}</option>
+                	{% endfor %}
+                	</select>
+                {% endif %}
+                <a id="logout" href="{% url bo_logout %}?next={% url bo_index %}">{% trans "Logout" %}</a>
+            </form>
+            {% else %}
+                <a id="login" href="{% url bo_login %}?next={% url bo_index %}">{% trans "Login" %}</a>
+            {% endif %}
+            {% block navigation %}
+            {% endblock %}
+		</div>
+		<!--FIN NAV-->
+
+		<!--CONTENU-->
+		<div id="contenu">
+            {% block content %}{% endblock %}
+            <!--FIN content-right-->
+            <div class="clear"></div>
+		</div>
+		<!--FIN CONTENU-->
+
+	</div>
+	<!--FIN CONTENEUR-->
+
+	<!--FOOTER-->
+	<div id="footer">
+		<a href="http://www.backtoshops.com">www.backtoshops.com</a>
+		<strong>&copy; BACK TO SHOPS 2012</strong>
+	</div>
+	<!--FIN FOOTER-->
+
+    {% block javascript %}
+    {% endblock %}
+</body>
+</html>
