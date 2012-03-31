@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+{% trans 'Settings' %}
+{% endblock %}
+
+{% block head %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+{% endblock %}
+
+{% block navigation %}
+{% include "_quick_nav.html" %}
+{% endblock %}
+
+{% block content %}
+<!--content-left-->
+<div id="content_Left">
+
+    <!--Title-->
+    <div id="title">
+        <span>{% trans "Settings" %}</span>
+        <h2>{% trans "Settings" %}</h2>
+    </div>
+
+    <!--FORM-->
+    <form id="main_form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+        <h3>{% trans "Settings" %}</h3>
+        <fieldset>
+            {{ form.default_language.errors }}
+            <div class="formrow">
+                <label for="{{form.default_language.auto_id}}">{% trans form.default_language.label %}</label>
+                {{ form.default_language }}
+            </div>
+            {{ form.default_currency.errors }}
+            <div class="formrow">
+                <label for="{{ form.default_currency.auto_id }}">{% trans form.default_currency.label %}</label>
+                {{ form.default_currency }}
+            </div>
+        </fieldset>
+        <!--BOUTONS-->
+        <input class="btn valider" type="submit" value='{% trans "Save" %}'/>
+        <button type="reset" class="btn annuler">{% trans "Cancel" %}</button>
+    </form>
+    <!--FIN FORM-->
+</div>
+<!--FIN content-left-->
+
+<!--content-right-->
+
+<!--FIN content-right-->
+<div class="clear"></div>
+{% endblock %}
+
+{% block javascript %}
+
+<script type="text/javascript">
+$(document).ready(function(){
+    
+});    
+</script>
+
+{% endblock %}

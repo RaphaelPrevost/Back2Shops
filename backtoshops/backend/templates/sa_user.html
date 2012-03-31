@@ -127,12 +127,16 @@
     {% csrf_token %}
     <div style='display:none'><input type='hidden' name='search' value='True' /></div>    
     <div class="searchBox">
-        <label for="id_searchUsername">{% trans "username" %}</label><input type="text" id="id_searchUsername" name="username" />
+        <label for="id_searchUsername">{% trans "username" %}</label><input type="text" id="id_searchUsername" name="username" value="{{ search_username }}" />
         <label for="id_searchCompany">{% trans "company" %}</label>
         <select id="id_searchCompany" name="company" ><option value="">{% trans '--select company--' %}</option>
-        {% for company in companies %}<option value="{{ company.pk }}">{{company.name}}</option>{%endfor%}
+        {% for company in companies %}
+            <option value="{{ company.pk }}" {% if company.pk == search_brand %}selected="selected"{% endif %}>
+                {{company.name}}
+            </option>
+        {%endfor%}
         </select>
-        <input type="button" value="search" id="btnSearch" />
+        <input type="submit" value="search" id="btnSearch" />
     </div>
     </form>
     <div class="boxRight" id="listeUser"> 
@@ -181,7 +185,7 @@ $(document).ready(function(){
     });
     
     //search feature
-
+    /*
     $("#btnSearch").click(function(){
         $("#listeUser table tbody").find("tr:gt(0)").remove();
         $.post("{% url sa_ajax_user_search %}", 
@@ -190,7 +194,7 @@ $(document).ready(function(){
                 $("#listeUser table tbody").append(data);
         });
     });
-
+    */
 });    
 </script>
 

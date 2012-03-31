@@ -7,6 +7,8 @@ from django import forms
 from accounts.models import Brand, UserProfile
 from sales.models import ProductCategory, ProductType
 from brandings.models import Branding
+from sales.models import ProductCurrency
+from globalsettings.models import GlobalSettings
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 import settings
@@ -113,3 +115,17 @@ class SABrandingForm(forms.ModelForm):
     
     class Meta:
         model = Branding
+        
+class SASettingsForm(forms.Form):
+    error_css_class = 'error'
+    required_css_class = 'required'
+    
+    default_language = forms.ChoiceField(choices=settings.LANGUAGES, label=_('Default language'))
+    default_currency = forms.ChoiceField(choices=[(s,s) for s in ProductCurrency.objects.all().values_list('code',flat=True)], label=_('Default currency'))
+    
+    def __init__(self, *args, **kwargs):
+        super(SASettingsForm,self).__init__(*args, **kwargs)
+        if not self.is_bound:
+            global_settings = GlobalSettings.objects.all()
+            for global_setting in global_settings: 
+                self.base_fields[global_setting.key].initial = global_setting.value

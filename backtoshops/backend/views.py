@@ -1,6 +1,7 @@
 # Create your views here.
 import json
 from django.http import HttpResponse
+from django.template import RequestContext
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.shortcuts import render_to_response
@@ -9,6 +10,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.contrib.auth.models import User
 from accounts.models import Brand, UserProfile
 from sales.models import ProductCategory, ProductType
+from globalsettings.models import GlobalSettings
 from brandings.models import Branding
 from globalsettings import get_setting
 import forms
@@ -75,28 +77,44 @@ class BaseUserView(SARequiredMixin):
     def get_context_data(self, **kwargs):
         kwargs.update({
             'user_pk': self.kwargs.get('pk', None),
-            'users': User.objects.filter(is_staff=True),
+            'users': User.objects.filter(is_staff=True),  
+            'companies': Brand.objects.all(),
             'request': self.request,
         })
-        if 'companies' not in kwargs:
-            kwargs.update({
-                'companies': Brand.objects.all(),
-            })
+        if 'is_search' in self.__dict__ and self.is_search:
+            kwargs.update({'users':self.users,
+                           'search_username': self.search_username,
+                           })
+            if 'search_brand' in self.__dict__:
+                kwargs.update({'search_brand': self.search_brand,})
+        
         return kwargs
-#    
-#    def post(self, request, *args, **kwargs):
-#        is_search = request.POST.get('search',False)
-#        if is_search: #search case
-#            username=request.POST.get('username','')
-#            users=User.objects.filter(username__contains=username)
-#            try:
-#                brand=int(request.POST['company'])
-#                users=users.filter(userprofile__work_for=brand)
-#            except:
-#                pass
-#            return self.get(request, *args, **kwargs)
-#        else:
-#            super(BaseUserView,self).post(request, *args, **kwargs)
+    
+    def get_form_kwargs(self):
+        """
+        overriding this for avoid any form binding during search post.
+        """
+        if 'is_search' in self.__dict__ and self.is_search:
+            kwargs = {'initial': self.get_initial(),} 
+            if 'object' in self.__dict__:
+                kwargs.update({'instance': self.object,})
+            return kwargs
+        else:
+            return super(BaseUserView,self).get_form_kwargs()
+    
+    def post(self, request, *args, **kwargs):
+        self.is_search = request.POST.get('search',False)
+        if self.is_search: #search case
+            self.search_username=request.POST.get('username','')
+            self.users=User.objects.filter(username__contains=self.search_username, is_staff=True)
+            try:
+                self.search_brand=int(request.POST['company'])
+                self.users=self.users.filter(userprofile__work_for=self.search_brand)
+            except:
+                pass
+            return self.get(request, *args, **kwargs)
+        else:
+            super(BaseUserView,self).post(request, *args, **kwargs)
  
 class CreateUserView(BaseUserView, CreateView):
     form_class = forms.SACreateUserForm
@@ -150,7 +168,7 @@ class DeleteUserView(BaseUserView, DeleteView):
 @superadmin_required
 def ajax_user_search(request):
     """
-    returns the user search result. 
+    returns the user search result. currently this is not used since search user feature changed to form post.
     """
     if request.method=='POST':
         username=request.POST.get('username','')
@@ -252,3 +270,19 @@ class DeleteBrandingView(BaseBrandingView, DeleteView):
         self.object.delete()
         return HttpResponse(content=json.dumps({"branding_pk": self.kwargs.get('pk', None)}),
                             mimetype="application/json")
+
+@superadmin_required
+def settings_view(request):
+    is_saved = False
+    if request.method == 'POST':
+        form = forms.SASettingsForm(request.POST)
+        if form.is_valid():
+            for key in form.cleaned_data.keys():
+                g = GlobalSettings.objects.get(key=key)
+                g.value = form.cleaned_data[key]
+                g.save()
+            is_saved = True
+    else:
+        form = forms.SASettingsForm()
+        
+    return render_to_response('sa_settings.html',{'form':form, 'is_saved':is_saved, 'request':request, }, context_instance=RequestContext(request))
