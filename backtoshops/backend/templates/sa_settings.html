@@ -27,6 +27,10 @@
     <form id="main_form" method="post" enctype="multipart/form-data">
     {% csrf_token %}
         <h3>{% trans "Settings" %}</h3>
+        <p>{% trans "usage1: to change settings, set the setting values and input current password then save." %}</p>
+        <p>{% trans "usage2: to change current super admin username/email, set them and input current password then save." %}</p>
+        <p>{% trans "usage3: to change current super admin password, set new password and confirm new password (these two should be same) and and input current password then save." %}</p>
+        <p>{% trans "you can perform more than one of above usages together." %}</p>
         <fieldset>
             {{ form.default_language.errors }}
             <div class="formrow">
@@ -37,6 +41,33 @@
             <div class="formrow">
                 <label for="{{ form.default_currency.auto_id }}">{% trans form.default_currency.label %}</label>
                 {{ form.default_currency }}
+            </div>
+            <hr />
+            {{ form.password.errors }}
+            <div class="formrow">
+                <label for="{{ form.password.auto_id }}">{% trans form.password.label %}</label>
+                {{ form.password }}
+            </div>
+            <hr />
+            {{ form.username.errors }}
+            <div class="formrow">
+                <label for="{{ form.username.auto_id }}">{% trans form.username.label %}</label>
+                {{ form.username }}
+            </div>
+            {{ form.email.errors }}
+            <div class="formrow">
+                <label for="{{ form.email.auto_id }}">{% trans form.email.label %}</label>
+                {{ form.email }}
+            </div>
+            {{ form.new_password1.errors }}
+            <div class="formrow">
+                <label for="{{ form.new_password1.auto_id }}">{% trans form.new_password1.label %}</label>
+                {{ form.new_password1 }}
+            </div>
+            {{ form.new_password2.errors }}
+            <div class="formrow">
+                <label for="{{ form.new_password2.auto_id }}">{% trans form.new_password2.label %}</label>
+                {{ form.new_password2 }}
             </div>
         </fieldset>
         <!--BOUTONS-->

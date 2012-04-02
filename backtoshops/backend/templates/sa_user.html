@@ -51,11 +51,6 @@
                 <label for="{{ form.email.auto_id }}">{% trans form.email.label %}</label>
                 {{ form.email }}
             </div>
-            {{ form.is_superuser.errors }}
-            <div class="formrow">
-                <label for="{{ form.is_superuser.auto_id }}">{% trans form.is_superuser.label %}</label>
-                {{ form.is_superuser }}
-            </div>
             {{ form.is_active.errors }}
             <div class="formrow">
                 <label for="{{ form.is_active.auto_id }}">{% trans form.is_active.label %}</label>
@@ -93,11 +88,6 @@
             <div class="formrow">
                 <label for="{{ form.email.auto_id }}">{% trans form.email.label %}</label>
                 {{ form.email }}
-            </div>
-            {{ form.is_superuser.errors }}
-            <div class="formrow">
-                <label for="{{ form.is_superuser.auto_id }}">{% trans form.is_superuser.label %}</label>
-                {{ form.is_superuser }}
             </div>
             {{ form.language.errors }}
             <div class="formrow">
@@ -143,20 +133,18 @@
         <table cellpadding="0" cellspacing="0" border="0">
             <tr>
                 <th class="nom on"><a href="#">{% trans "Username" %}</a></th>
-                <th>superadmin?</th>
                 <th>company</th>
                 <th class="action"><a href="#">{% trans "Actions" %}</a></th>
             </tr>
             {% for user in users %}
             <tr id="user_{{ user.pk }}"><!-- class=new -->
                 <td><a href="{% url sa_edit_user user.pk %}">{{ user.username }}</a></td>
-                <td>{{ user.is_superuser|yesno:"Y,N" }}</td>
                 <td>{% firstof user.get_profile.work_for "N/A" %}</td>
                 <td><a class="modif" href="{% url sa_edit_user user.pk %}">edit</a><a class="out delete_user" href="{% url sa_delete_user user.pk %}">delete</a></td>
             </tr>
             {% empty %}
             <tr class="noshop">
-                <td colspan="4">{% trans "The users list is empty." %}</td>
+                <td colspan="3">{% trans "The users list is empty." %}</td>
             </tr>
             {% endfor %}
         </table>

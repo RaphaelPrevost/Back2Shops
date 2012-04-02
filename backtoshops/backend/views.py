@@ -77,7 +77,7 @@ class BaseUserView(SARequiredMixin):
     def get_context_data(self, **kwargs):
         kwargs.update({
             'user_pk': self.kwargs.get('pk', None),
-            'users': User.objects.filter(is_staff=True),  
+            'users': User.objects.filter(is_staff=True, is_superuser=False),  
             'companies': Brand.objects.all(),
             'request': self.request,
         })
@@ -106,7 +106,7 @@ class BaseUserView(SARequiredMixin):
         self.is_search = request.POST.get('search',False)
         if self.is_search: #search case
             self.search_username=request.POST.get('username','')
-            self.users=User.objects.filter(username__contains=self.search_username, is_staff=True)
+            self.users=User.objects.filter(username__contains=self.search_username, is_staff=True, is_superuser=False)
             try:
                 self.search_brand=int(request.POST['company'])
                 self.users=self.users.filter(userprofile__work_for=self.search_brand)
@@ -114,7 +114,7 @@ class BaseUserView(SARequiredMixin):
                 pass
             return self.get(request, *args, **kwargs)
         else:
-            super(BaseUserView,self).post(request, *args, **kwargs)
+            return super(BaseUserView,self).post(request, *args, **kwargs)
  
 class CreateUserView(BaseUserView, CreateView):
     form_class = forms.SACreateUserForm
@@ -275,14 +275,20 @@ class DeleteBrandingView(BaseBrandingView, DeleteView):
 def settings_view(request):
     is_saved = False
     if request.method == 'POST':
-        form = forms.SASettingsForm(request.POST)
+        form = forms.SASettingsForm(data=request.POST, user=request.user)
         if form.is_valid():
-            for key in form.cleaned_data.keys():
-                g = GlobalSettings.objects.get(key=key)
-                g.value = form.cleaned_data[key]
-                g.save()
+            global_settings = GlobalSettings.objects.all()
+            for global_setting in global_settings: 
+                global_setting.value = form.cleaned_data[global_setting.key]
+                global_setting.save()
+            user = User.objects.get(pk=request.user.pk)
+            user.username = form.cleaned_data['username']
+            user.email = form.cleaned_data['email']
+            if form.cleaned_data['new_password1'] != '':
+                user.set_password(form.cleaned_data['new_password1'])
+            user.save()
             is_saved = True
     else:
-        form = forms.SASettingsForm()
+        form = forms.SASettingsForm(user=request.user)
         
     return render_to_response('sa_settings.html',{'form':form, 'is_saved':is_saved, 'request':request, }, context_instance=RequestContext(request))
