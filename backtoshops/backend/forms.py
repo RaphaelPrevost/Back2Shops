@@ -26,23 +26,23 @@ class BaseUserForm(forms.ModelForm):
     username = forms.CharField(label=_("Username"))
     email = forms.EmailField(label=_("E-mail"))
     language = forms.ChoiceField(label=_("language"), choices=settings.LANGUAGES)
-    is_superuser = forms.BooleanField(label=_("Super admin"), required=False)
+#    is_superuser = forms.BooleanField(label=_("Super admin"), required=False)
     
     class Meta:
         model = UserProfile
         exclude=('user',)
 
-    def clean(self):
-        cleaned_data = super(BaseUserForm,self).clean()
-        is_superuser = cleaned_data.get('is_superuser')
-        work_for = cleaned_data.get('work_for')
-        if is_superuser:
-            cleaned_data['work_for'] = None
-        else:
-            if work_for is None:
-                self._errors['work_for'] = self.error_class([_('Normal admin must select a brand.')])
-                del cleaned_data['work_for']
-        return cleaned_data
+#    def clean(self):
+#        cleaned_data = super(BaseUserForm,self).clean()
+#        is_superuser = cleaned_data.get('is_superuser')
+#        work_for = cleaned_data.get('work_for')
+#        if is_superuser:
+#            cleaned_data['work_for'] = None
+#        else:
+#            if work_for is None:
+#                self._errors['work_for'] = self.error_class([_('Normal admin must select a brand.')])
+#                del cleaned_data['work_for']
+#        return cleaned_data
 
 class SACreateUserForm(BaseUserForm):
     password1 = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
@@ -67,7 +67,8 @@ class SACreateUserForm(BaseUserForm):
         user_profile = super(SACreateUserForm,self).save(commit=False)
         user = User.objects.create_user(self.cleaned_data["username"], self.cleaned_data["email"], self.cleaned_data["password1"])
         user.is_staff = True
-        user.is_superuser = self.cleaned_data['is_superuser']
+#        user.is_superuser = self.cleaned_data['is_superuser']
+        user.is_superuser = False
         user.save()
         user_profile.user = user
         if commit:
@@ -82,13 +83,13 @@ class SAUserForm(BaseUserForm):
         self.fields['username'].initial = self.instance.user.username
         self.fields['username'].widget.attrs['readonly'] = True
         self.fields['email'].initial = self.instance.user.email
-        self.fields['is_superuser'].initial = self.instance.user.is_superuser
+#        self.fields['is_superuser'].initial = self.instance.user.is_superuser
         self.fields['is_active'].initial = self.instance.user.is_active
         
     def save(self, commit=True):
         self.instance = super(SAUserForm, self).save(commit=False)
         self.instance.user.email = self.cleaned_data['email']
-        self.instance.user.is_superuser = self.cleaned_data['is_superuser']
+#        self.instance.user.is_superuser = self.cleaned_data['is_superuser']
         self.instance.user.is_active = self.cleaned_data['is_active']
         self.instance.user.save()
         if commit:
@@ -122,10 +123,32 @@ class SASettingsForm(forms.Form):
     
     default_language = forms.ChoiceField(choices=settings.LANGUAGES, label=_('Default language'))
     default_currency = forms.ChoiceField(choices=[(s,s) for s in ProductCurrency.objects.all().values_list('code',flat=True)], label=_('Default currency'))
+    password = forms.CharField(widget=forms.PasswordInput, label=_('Current password'))
+    username = forms.CharField(label=_('Super admin username'))
+    email = forms.EmailField(label=_('Super admin email'))
+    new_password1 = forms.CharField(label=_('Change password'), widget=forms.PasswordInput, required=False)
+    new_password2 = forms.CharField(label=_('Confirm change password'), widget=forms.PasswordInput, required=False)
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user=None, *args, **kwargs):
         super(SASettingsForm,self).__init__(*args, **kwargs)
         if not self.is_bound:
+            self.base_fields['username'].initial = user.__dict__.get('username','')
+            self.base_fields['email'].initial = user.__dict__.get('email','')
             global_settings = GlobalSettings.objects.all()
             for global_setting in global_settings: 
                 self.base_fields[global_setting.key].initial = global_setting.value
+    
+    def clean_username(self):
+        username = self.cleaned_data["username"]
+        try:
+            User.objects.get(username=username)
+        except User.DoesNotExist:
+            return username
+        raise forms.ValidationError(_("A user with that username already exists."))
+        
+    def clean_new_password2(self):
+        new_password1 = self.cleaned_data.get("new_password1", "")
+        new_password2 = self.cleaned_data["new_password2"]
+        if new_password1 != new_password2:
+            raise forms.ValidationError(_("The two password fields didn't match."))
+        return new_password2
