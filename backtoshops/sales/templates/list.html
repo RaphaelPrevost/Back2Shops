@@ -46,7 +46,9 @@
                 <!--NOM, CATEGORIE, TYPE de Prod-->
                 <a href="{% url edit_sale sale_id=sale.pk step="shop" %}"><h3>{{ sale.product.name }}</h3></a>
                 <h4>
+                    {% if request.user.is_staff %}
                     <a class="delete" href="#">[X]</a>
+                    {% endif %}
                     {{ sale.product.category.name }} > {{ sale.product.type.name }}
                 </h4>
                 <!--INFOS VENTE-->

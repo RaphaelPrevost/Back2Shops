@@ -55,19 +55,33 @@ class GroupedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
 
 
 class ShopForm(forms.Form):
-    target_market = forms.ChoiceField(label=_("Target market"), choices=TARGET_MARKET)
-    def __init__(self, mother_brand=None, *args, **kwargs):
+    target_market = forms.ChoiceField(label=_("Target market"), choices=TARGET_MARKET, required=False)
+    
+    def __init__(self, mother_brand=None, request=None, *args, **kwargs):
         super(ShopForm, self).__init__(*args, **kwargs)
+        self.request = request
+        search_arguments = {"mother_brand": mother_brand}
+        
+        if not request.user.is_staff: #operator.
+            search_arguments.update({"pk__in": request.user.get_profile().shops.all(),})
+            
         self.fields['shops'] = forms.ModelMultipleChoiceField(
             label=_("Participating shops"),
-            queryset=Shop.objects.filter(mother_brand=mother_brand).order_by('city'),
+            queryset=Shop.objects.filter(**search_arguments).order_by('city'),
             widget=GroupedCheckboxSelectMultiple(),
             required=False
         )
+        
+    def clean_target_market(self):
+        if self.request.user.is_staff:
+            return self.cleaned_data['target_market']
+        else:
+            return 'L'
 
     def clean(self):
         data = self.cleaned_data
-        if data['target_market'] == 'N':
+        target_market = data.get('target_market','')
+        if target_market == 'N' and self.request.user.is_staff:
             data['shops'] = []
         else:
             if len(data['shops']) == 0:

@@ -8,10 +8,12 @@
     <fieldset>
         <div>
             {{ wizard.form.non_field_errors }}
+            {% if request.user.is_staff %}
             <div class="formrow">
                 <label for="{{ wizard.form.target_market.auto_id }}">{% trans wizard.form.target_market.label %}</label>
                 {{ wizard.form.target_market }}
             </div>
+            {% endif %}
             {% comment %}
             <span  id="physical_shops">
                 <div class="formrow">
@@ -38,6 +40,7 @@
 {% block javascript %}
 <script type="text/javascript">
     $(function(){
+        {% if request.user.is_staff %}
         $("#{{ wizard.form.target_market.auto_id }}").change(function(){
            if ($(this).val() == "L") {
                $("#physical_shops").show();
@@ -46,6 +49,7 @@
            }
         });
         $("#{{ wizard.form.target_market.auto_id }}").change();
+        {% endif %}
 
         $("input[class=folder]").click(function(){
         	var list = $(this).parent().parent();
