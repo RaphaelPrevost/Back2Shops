@@ -27,6 +27,12 @@
             <h3 class="link6">{% trans "Performance Map" %}</h3>
             <a href="map_1.htm" class="bottom">{% trans "Performance Map" %}</a>
         </li>
+        {% if user.is_staff %}
+        <li>
+            <h3 class="">{% trans "Operators mgmt" %}</h3>
+            <a href="{% url operators %}" class="bottom">{% trans "Operators mgmt" %}</a>
+        </li>
+        {% endif %}
     </ul>
 
 {% endblock %}

@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
 from django.db import transaction
 from django.db.models.aggregates import Sum
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template import loader
 from django.template.context import Context
@@ -16,7 +16,7 @@ from formwizard.views import SessionWizardView, NamedUrlSessionWizardView
 from sorl.thumbnail import get_thumbnail
 from attributes.models import BrandAttribute, BrandAttributePreview, CommonAttribute
 from barcodes.models import Barcode
-from fouillis.views import BOLoginRequiredMixin
+from fouillis.views import BOLoginRequiredMixin, LoginRequiredMixin
 from sales.forms import ShopForm, ProductBrandFormModel, ProductForm, StockStepForm, TargetForm,ListSalesForm
 from sales.models import Sale, Product, ProductBrand, ProductPicture, STOCK_TYPE_DETAILED, STOCK_TYPE_GLOBAL, ProductCurrency
 from shops.models import Shop
@@ -41,7 +41,7 @@ class UploadProductPictureView(View, TemplateResponseMixin):
             return HttpResponse(json.dumps(to_ret), mimetype="application/json")
         raise HttpResponseBadRequest(_("Please upload a picture."))
 
-class ProductBrandView(BOLoginRequiredMixin, View, TemplateResponseMixin):
+class ProductBrandView(LoginRequiredMixin, View, TemplateResponseMixin):
     template_name = "_ajax_brands.html"
 
     def post(self, request):
@@ -57,7 +57,7 @@ class ProductBrandView(BOLoginRequiredMixin, View, TemplateResponseMixin):
             self.errors = e
         return self.render_to_response(self.__dict__)
 
-class BrandLogoView(BOLoginRequiredMixin, View, TemplateResponseMixin):
+class BrandLogoView(LoginRequiredMixin, View, TemplateResponseMixin):
     template_name = "_brand_preview_thumbnail.html"
 
     def get(self, request, brand_id=None):
@@ -69,7 +69,7 @@ class BrandLogoView(BOLoginRequiredMixin, View, TemplateResponseMixin):
             return self.render_to_response(self.__dict__)
         return HttpResponseBadRequest()
 
-class ListSalesView(BOLoginRequiredMixin, View, TemplateResponseMixin):
+class ListSalesView(LoginRequiredMixin, View, TemplateResponseMixin):
     template_name = 'list.html'
     list_current = True
     
@@ -85,6 +85,9 @@ class ListSalesView(BOLoginRequiredMixin, View, TemplateResponseMixin):
             self.sales = Sale.objects.filter(mother_brand=request.user.get_profile().work_for,
                                              product__valid_to__gte=date.today())
             self.page_title = _("Current Sales")
+        
+        if not request.user.is_staff: #==operator
+            self.sales = self.sales.filter(shops__in=request.user.get_profile().shops.all())
         #put extra fields
         self.sales = self.sales.extra(select={'total_sold_stock':'total_stock-total_rest_stock'})
         return
@@ -113,7 +116,7 @@ class DeleteSalesView(BOLoginRequiredMixin, View):
             return HttpResponse(json.dumps({'success': False}), mimetype='text/json')
         return HttpResponse(json.dumps({'success': True}), mimetype='text/json')
 
-class SaleDetails(BOLoginRequiredMixin, View, TemplateResponseMixin):
+class SaleDetails(LoginRequiredMixin, View, TemplateResponseMixin):
     template_name = "_sale_details.html"
 
     def _get_common_attributes(self, shop_id, ba):
@@ -165,7 +168,7 @@ class SaleDetails(BOLoginRequiredMixin, View, TemplateResponseMixin):
 
         return self.render_to_response(self.__dict__)
 
-class SaleDetailsShop(BOLoginRequiredMixin, View, TemplateResponseMixin):
+class SaleDetailsShop(LoginRequiredMixin, View, TemplateResponseMixin):
     template_name = "_sale_details_shop.html"
 
     def get(self, request, sale_id=None):
@@ -174,7 +177,7 @@ class SaleDetailsShop(BOLoginRequiredMixin, View, TemplateResponseMixin):
                                         .filter(productstock__sale=self.sale).distinct()
         return self.render_to_response(self.__dict__)
 
-def add_sale(*args, **kwargs):
+def add_sale(request, *args, **kwargs):
     forms = [
         (SaleWizardNew.STEP_SHOP, ShopForm),
         (SaleWizardNew.STEP_PRODUCT, ProductForm),
@@ -193,9 +196,9 @@ def add_sale(*args, **kwargs):
     sale_wizard = login_required(SaleWizardNew.as_view(forms, initial_dict = initials,url_name="add_sale",
                                                        done_step_name="list_sales"),
                                  login_url="login")
-    return sale_wizard(*args, **kwargs)
+    return sale_wizard(request, *args, **kwargs)
 
-def edit_sale(*args, **kwargs):
+def edit_sale(request, *args, **kwargs):
     forms = [
         (SaleWizardNew.STEP_SHOP, ShopForm),
         (SaleWizardNew.STEP_PRODUCT, ProductForm),
@@ -204,9 +207,16 @@ def edit_sale(*args, **kwargs):
     ]
 
     if not 'sale_id' in kwargs:
-        return add_sale(*args, **kwargs)
+        return add_sale(request, *args, **kwargs)
     sale_id = kwargs['sale_id']
     sale = Sale.objects.get(pk=sale_id)
+    
+    user = request.user
+    if user.get_profile().work_for != sale.mother_brand: #if brand is different
+        return HttpResponseRedirect("/")
+    
+    if not user.is_staff and len([x for x in sale.shops.all() if x in user.get_profile().shops.all()])==0: #if operator and no shops are matching
+        return HttpResponseRedirect("/")
 
     # We use pk in initials so we can use has_changed() method on forms
     initial_shop = {
@@ -296,7 +306,7 @@ def edit_sale(*args, **kwargs):
                                                        **settings),
                                  login_url="login")
 
-    return sale_wizard(*args, **kwargs)
+    return sale_wizard(request, *args, **kwargs)
 
 class StocksInfos(object):
     def __init__(self):
@@ -567,7 +577,11 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
 
     def get_form_kwargs(self, step=None):
         if step == self.STEP_SHOP or step == self.STEP_PRODUCT:
-            return {'mother_brand': self.request.user.get_profile().work_for}
+            kwargs = {}
+            if step == self.STEP_SHOP:
+                kwargs.update({"request": self.request,})
+            kwargs.update({'mother_brand': self.request.user.get_profile().work_for,})
+            return kwargs
         return super(SaleWizardNew, self).get_form_kwargs(step)
 
     def _get_stock(self, ba, ca, ps):

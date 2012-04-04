@@ -121,7 +121,9 @@ TEMPLATE_DIRS = (
     SITE_ROOT+'/backend/templates',
     SITE_ROOT+'/sale/templates',
     SITE_ROOT+'/shop/templates',
-    SITE_ROOT+'/templates'
+    SITE_ROOT+'/accounts/templates',
+    SITE_ROOT+'/templates',
+    
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

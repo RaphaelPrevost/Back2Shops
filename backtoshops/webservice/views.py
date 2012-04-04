@@ -117,11 +117,14 @@ def basic_auth(func):
 	return wrapper
 	
 def is_authenticated(request):
-	token = request.META['HTTP_AUTHORIZATION'].replace('Basic ', '')
-	username, password = base64.decodestring(token).split(':')
-	user = _authenticate(username=username, password=password)
-	shop = Shop.objects.get(upc=request.REQUEST['shop'])
-	return (shop.mother_brand.employee.filter(user__id=user.id).count() > 0)
+    token = request.META['HTTP_AUTHORIZATION'].replace('Basic ', '')
+    username, password = base64.decodestring(token).split(':')
+    user = _authenticate(username=username, password=password)
+    shop = Shop.objects.get(upc=request.REQUEST['shop'])
+    if user.is_staff:
+        return (shop.mother_brand.employee.filter(user__id=user.id).count() > 0)
+    else: #operator
+        return (shop.userprofile_set.filter(user__id=user.id).count() > 0)
 
 @csrf_exempt
 def authenticate(request):
@@ -144,12 +147,12 @@ def get_sale(shop, item):
 @basic_auth
 @csrf_exempt
 def barcode_increment(request):
-	sale = get_sale(request.REQUEST['shop'], request.REQUEST['item'])
-	if sale is not None:
-		sale.total_stock += 1
-		sale.save()
-		return HttpResponse(json.dumps({'success': True, 'total_stock': sale.total_stock}), mimetype='text/json')
-	return HttpResponse(json.dumps({'success': False, 'error': 'Barcode Error'}), mimetype='text/json')
+    sale = get_sale(request.REQUEST['shop'], request.REQUEST['item'])
+    if sale is not None:
+        sale.total_stock += 1
+        sale.save()
+        return HttpResponse(json.dumps({'success': True, 'total_stock': sale.total_stock}), mimetype='text/json')
+    return HttpResponse(json.dumps({'success': False, 'error': 'Barcode Error'}), mimetype='text/json')
 
 @basic_auth
 @csrf_exempt

@@ -46,5 +46,6 @@ urlpatterns += patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^setlang/','accounts.views.set_language'),
     url(r'^sa/', include(settings.SITE_NAME+'.backend.urls')),
+    url(r'^accounts/', include(settings.SITE_NAME+'.accounts.urls')),
 )
 

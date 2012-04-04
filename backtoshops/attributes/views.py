@@ -4,11 +4,11 @@ from django.template import loader
 from django.template.context import Context
 from django.views.generic.base import TemplateResponseMixin, View
 from models import BrandAttribute
-from fouillis.views import BOLoginRequiredMixin
+from fouillis.views import LoginRequiredMixin
 from sales.models import ProductPicture
 from sorl.thumbnail import get_thumbnail
 
-class BrandAttributeView(BOLoginRequiredMixin, View, TemplateResponseMixin):
+class BrandAttributeView(LoginRequiredMixin, View, TemplateResponseMixin):
     template_name = ""
 
     def get(self, request):

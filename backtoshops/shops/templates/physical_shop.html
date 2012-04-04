@@ -41,6 +41,7 @@
         {% else %}
         <h3>{% trans "New Shop" %}</h3>
         {% endif %}
+        {% if shop_pk or request.user.is_staff %}
         {{ form.latitude }}
         {{ form.longitude }}
         {{ form.mother_brand }}
@@ -115,6 +116,9 @@
         <!--BOUTONS-->
         <input class="btn valider" type="submit" value='{% trans "Save" %}'/>
         <button type="reset" class="btn annuler">{% trans "Cancel" %}</button>
+        {% else %}
+        <p> {%trans "you're not allowed to create a shop" %}</p>
+        {% endif %}
     </form>
     <!--FIN FORM-->
 </div>
@@ -136,7 +140,9 @@
             <tr id="shop_{{ shop.pk }}"><!-- class=new -->
                 <td><a href="{% url edit_shop shop.pk %}">{{ shop.name }}</a></td>
                 <td>{{ shop.city }}</td>
-                <td><a class="modif" href="{% url edit_shop shop.pk %}"></a><a class="out delete_shop" href="{% url delete_shop shop.pk %}"></a></td>
+                <td><a class="modif" href="{% url edit_shop shop.pk %}"></a>
+                    {%if request.user.is_staff %}<a class="out delete_shop" href="{% url delete_shop shop.pk %}"></a>{%endif%}
+                    </td>
             </tr>
             {% empty %}
             <tr class="noshop">
