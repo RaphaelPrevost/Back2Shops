@@ -1,19 +1,22 @@
 {% load l10n %}
 
-<shop version="1.0" id="{{ object.pk }}">
-    <name>{{ object.name }}</name>
-    <catcher>{{ object.catcher }}</catcher>
-    <desc>{{ object.description }}</desc>
-    <img url="{% if object.image %}{{ object.image.url }}{% endif %}" />
-    <seller id="{{ object.mother_brand.pk }}">
+<info type="shop" version="1.0"> 
+<shop id="{{ object.pk }}">
+    <!-- brand responsible for the shop -->
+    <brand id="{{ object.mother_brand.pk }}">
         <name>{{ object.mother_brand.name }}</name>
-        <logo url="{% if object.mother_brand.logo %}{{ object.mother_brand.logo.url }}{% endif %}" />
-    </seller>
+        <img>{% if object.mother_brand.logo %}{{ object.mother_brand.logo.url }}{% endif %}</img>
+    </brand>
+    <name>{{ object.name }}</name>
+    <desc>{{ object.description }}</desc>
+    <caption>{{ object.catcher }}</caption>
+    <img>{% if object.image %}{{ object.image.url }}{% endif %}</img>
     <addr>{{ object.address }}</addr>
     <zip>{{ object.zipcode }}</zip>
     <city>{{ object.city }}</city>
-    <country>FR</country>
+    <country>{{ object.country }}</country>
+    <upc>{% if object.upc %}{{ object.upc }}{% endif %}</upc>
     <location lat="{{ object.latitude|unlocalize }}" long="{{ object.longitude|unlocalize }}" />
-    <code upc="{% if object.upc %}{{ object.upc }}{% endif %}" />
-    <hours>{% if object.opening_hours %}{{ object.opening_hours }}{% endif %}</hours>
+    <hours>{{ object.opening_hours }}</hours>
 </shop>
+</info>
