@@ -1,18 +1,24 @@
 {% load l10n %}
 
 <shops version="1.0">
-	{% for shop in object_list %}
-	<shop id="{{ shop.pk }}">
-		<name>{{ shop.name }}</name>
-		<catcher>{{ shop.catcher }}</catcher>
-		<img url="{% if shop.image %}{{ shop.image.url }}{% endif %}" />
-		<desc>{{ shop.description }}</desc>
-		<addr>{{ shop.address }}</addr>
-		<zip>{{ shop.zipcode }}</zip>
-		<city>{{ shop.city }}</city>
-		<country>FR</country>
-		<location lat="{{ shop.latitude|unlocalize }}" long="{{ shop.longitude|unlocalize }}" />
-	    <code upc="{% if shop.upc %}{{ shop.upc }}{% endif %}" />
-	</shop>
+	{% for object in object_list %}
+<shop id="{{ object.pk }}">
+    <!-- brand responsible for the shop -->
+    <brand id="{{ object.mother_brand.pk }}">
+        <name>{{ object.mother_brand.name }}</name>
+        <img>{% if object.mother_brand.logo %}{{ object.mother_brand.logo.url }}{% endif %}</img>
+    </brand>
+    <name>{{ object.name }}</name>
+    <desc>{{ object.description }}</desc>
+    <caption>{{ object.catcher }}</caption>
+    <img>{% if object.image %}{{ object.image.url }}{% endif %}</img>
+    <addr>{{ object.address }}</addr>
+    <zip>{{ object.zipcode }}</zip>
+    <city>{{ object.city }}</city>
+    <country>{{ object.country }}</country>
+    <upc>{% if object.upc %}{{ object.upc }}{% endif %}</upc>
+    <location lat="{{ object.latitude|unlocalize }}" long="{{ object.longitude|unlocalize }}" />
+    <hours>{{ object.opening_hours }}</hours>
+</shop>
 	{% endfor %}
 </shops>

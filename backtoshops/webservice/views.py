@@ -11,6 +11,7 @@ from accounts.models import Brand
 from sales.models import Sale, ProductType, ProductCategory
 from shops.models import Shop
 from barcodes.models import Barcode
+import settings
 
 class BaseWebservice(View):
     def render_to_response(self, context, **response_kwargs):
@@ -18,6 +19,10 @@ class BaseWebservice(View):
             'mimetype': 'text/xml'
         })
         return super(BaseWebservice, self).render_to_response(context, **response_kwargs)
+    
+    def get_context_data(self,**kwargs):
+        kwargs.update({"settings":settings, })
+        return kwargs
 
 #
 # Public webservices
@@ -92,6 +97,7 @@ class BrandInfoView(BaseWebservice, DetailView):
 class SalesInfoView(BaseWebservice, DetailView):
     template_name = "sales_info.xml"
     model = Sale
+        
 
 class ShopsInfoView(BaseWebservice, DetailView):
     template_name = "shops_info.xml"

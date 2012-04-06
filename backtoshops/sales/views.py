@@ -399,29 +399,35 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
 
         stock_step = form_list[2]
         total_stock = 0
+        
+        #in revision 75, it just remove all existing stocks and add new records.
+        #but this is to be re-defined in the future revision
+        sale.detailed_stock.all().delete()
         for i in stock_step.stocks:
             if i.is_valid() and i.cleaned_data and i.cleaned_data['stock']:
-                stock = ProductStock()
-                stock.sale = sale
-                stock.stock = stock.rest_stock = i.cleaned_data['stock']
-                stock.shop = None
-                if i.cleaned_data['shop']:
-                    stock.shop = Shop.objects.get(pk=i.cleaned_data['shop'])
-                stock.common_attribute = CommonAttribute.objects.get(pk=i.cleaned_data['common_attribute'])
                 ba_pk = i.cleaned_data['brand_attribute']
-                stock.brand_attribute = BrandAttribute.objects.get(pk=ba_pk) if ba_pk else None
+                stock, created = ProductStock.objects.get_or_create(sale=sale, 
+                    shop=Shop.objects.get(pk=i.cleaned_data['shop']) if i.cleaned_data['shop'] else None,
+                    common_attribute=CommonAttribute.objects.get(pk=i.cleaned_data['common_attribute']),
+                    brand_attribute = BrandAttribute.objects.get(pk=ba_pk) if ba_pk else None,
+                    )
+                stock.rest_stock = stock.stock = i.cleaned_data['stock']
                 total_stock += stock.stock
                 stock.save()
+                
         sale.total_rest_stock = sale.total_stock = total_stock
 
+        # in revision 75, just remove all barcodes and add new records.
+        # but this also to be re-defined in the future reviison.
+        sale.barcodes.all().delete()
         for i in stock_step.barcodes:
             if i.is_valid() and i.cleaned_data and i.cleaned_data['upc']:
-                barcode = Barcode()
-                barcode.sale = sale
-                barcode.upc = i.cleaned_data['upc']
-                barcode.common_attribute = CommonAttribute.objects.get(pk=i.cleaned_data['common_attribute'])
                 ba_pk = i.cleaned_data['brand_attribute']
-                barcode.brand_attribute = BrandAttribute.objects.get(pk=ba_pk) if ba_pk else None
+                barcode, created = Barcode.objects.get_or_create(sale=sale,
+                    common_attribute=CommonAttribute.objects.get(pk=i.cleaned_data['common_attribute']),
+                    brand_attribute=BrandAttribute.objects.get(pk=ba_pk) if ba_pk else None,
+                    )
+                barcode.upc = i.cleaned_data['upc']
                 barcode.save()
 
         if self.edit_mode:
