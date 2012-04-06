@@ -3,7 +3,8 @@
 {% load get_variants %}
 {% load l10n %}
 
-<brand version="1.0" id="{{ object.pk }}">
+<info type="brand" version="1.0">
+<brand id="{{ object.pk }}">
     <name>{{ object.name }}</name>
     <logo url="{% if object.logo %}{{ object.logo.url }}{% endif %}" />
     {% for category in object|get_categories %}
@@ -38,3 +39,4 @@
     </shop>
     {% endfor %}
 </brand>
+</info>

@@ -1,8 +1,11 @@
 <types version="1.0">
 	{% for type in object_list %}
-    <type id="_id_product_type">
-        <name>_name_product_type</name>
-        <attribute name="_name_attribute_for_this_type" /><!-- list of common attributes for this product type -->
+    <type id="{{ type.pk }}">
+        <name>{{ type.name }}</name>
+        <!-- list of common attributes for this product type -->
+        {% for ca in type.common_attributes.all %}
+        <attribute name="{{ ca.name }}" />
+        {% endfor %}
     </type>
 	{% endfor %}
 	{% for category in categories %}
