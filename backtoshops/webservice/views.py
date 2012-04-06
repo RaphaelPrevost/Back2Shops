@@ -69,6 +69,7 @@ class TypesListView(BaseWebservice, ListView):
         if brand:
             queryset = queryset.filter(products__sale__mother_brand=brand).distinct()
             self.q_category = self.q_category.filter(products__sale__mother_brand=brand).distinct()
+        return queryset
 
     def get_context_data(self, **kwargs):
         kwargs.update({

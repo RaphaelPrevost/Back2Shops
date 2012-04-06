@@ -1,4 +1,5 @@
-<type version="1.0" pk="{{ object.pk }}">
+<info type="type" version="1.0" >
+<type pk="{{ object.pk }}">
 	<name>{{ object.name }}</name>
 	{% for attribute in object.common_attributes.all %}
 	<attribute pk="{{ attribute.pk }}">
@@ -6,3 +7,4 @@
 	</attribute>
 	{% endfor %}
 </type>
+</info>

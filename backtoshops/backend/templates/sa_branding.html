@@ -55,6 +55,11 @@
                 <label for="{{form.img.auto_id}}">{% trans form.img.label %}</label>
                 {{ form.img }}
             </div>
+            {{ form.landing_url.errors }}
+            <div class="formrow">
+                <label for="{{form.landing_url.auto_id}}">{% trans form.landing_url.label %}</label>
+                {{ form.landing_url }}
+            </div>
             {{ form.show_from.errors }}
             <div class="formrow">
                 <label for="{{form.show_from.auto_id}}">{% trans form.show_from.label %}</label>
