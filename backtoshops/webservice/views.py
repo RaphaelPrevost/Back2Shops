@@ -11,6 +11,8 @@ from accounts.models import Brand
 from sales.models import Sale, ProductType, ProductCategory
 from shops.models import Shop
 from barcodes.models import Barcode
+from brandings.models import Branding
+from datetime import datetime
 import settings
 
 class BaseWebservice(View):
@@ -94,6 +96,10 @@ class BrandListView(BaseWebservice, ListView):
 class BrandInfoView(BaseWebservice, DetailView):
     template_name = "brand_info.xml"
     model = Brand
+
+class BrandingsListView(BaseWebservice, ListView):
+    template_name = "brandings_slideshow.xml"
+    queryset = Branding.objects.exclude(show_from__gt=datetime.now()).exclude(show_until__lt=datetime.now()).order_by('sort_key')[:5]
 
 class SalesInfoView(BaseWebservice, DetailView):
     template_name = "sales_info.xml"

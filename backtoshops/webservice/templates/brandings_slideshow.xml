@@ -1,0 +1,5 @@
+<slideshow version="1.0" id="home">
+{% for object in object_list %}
+    <slide key="{{ object.sort_key }}" img="{{ object.img.url }}" alt="{{ object.name }}" url="{{ object.landing_url }}" />
+{% endfor %}
+</slideshow>
