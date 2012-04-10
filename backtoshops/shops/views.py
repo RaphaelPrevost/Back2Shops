@@ -7,6 +7,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from fouillis.views import LoginRequiredMixin
 from shops.models import Shop
 from shops.forms import ShopForm
+from django.core.paginator import Paginator, EmptyPage, InvalidPage
 
 class ShopCoordinates(TemplateView):
     def get(self, request, *args, **kwargs):
@@ -30,12 +31,32 @@ class BaseShopView(LoginRequiredMixin):
         shops = Shop.objects.filter(mother_brand=self.request.user.get_profile().work_for)
         if not self.request.user.is_staff: #operator
             shops = shops.filter(pk__in=self.request.user.get_profile().shops.all())
+            
+        try:
+            p_size = int(self.request.GET.get('page_size',settings.get_page_size(self.request)))
+            p_size = p_size if p_size in settings.CHOICE_PAGE_SIZE else settings.DEFAULT_PAGE_SIZE
+            self.request.session['page_size'] = p_size
+        except:
+            pass
+        self.current_page = int(self.kwargs.get('page','1'))
+        self.range_start = self.current_page - (self.current_page % settings.PAGE_NAV_SIZE)
+        paginator = Paginator(shops,settings.get_page_size(self.request))
+        try:
+            self.page = paginator.page(self.current_page)
+        except(EmptyPage, InvalidPage):
+            self.page = paginator.page(paginator.num_pages)
         kwargs.update({
             'shop_pk': self.kwargs.get('pk', None),
-            'shops': shops,
+            'shops': self.page,
             'request': self.request,
             'geonames_username': settings.GEONAMES_USERNAME,
             'media_url': settings.MEDIA_URL,
+            'choice_page_size': settings.CHOICE_PAGE_SIZE,
+            'current_page_size': settings.get_page_size(self.request),
+            'page': self.page,
+            'prev_10': self.current_page-settings.PAGE_NAV_SIZE if self.current_page-settings.PAGE_NAV_SIZE > 1 else 1,
+            'next_10': self.current_page+settings.PAGE_NAV_SIZE if self.current_page+settings.PAGE_NAV_SIZE <= self.page.paginator.num_pages else self.page.paginator.num_pages,
+            'page_nav': self.page.paginator.page_range[self.range_start:self.range_start+settings.PAGE_NAV_SIZE],       
         })
         return kwargs
 

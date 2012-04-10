@@ -127,7 +127,7 @@
                 <th class="nom on"><a href="#">{% trans "Username" %}</a></th>
                 <th class="action"><a href="#">{% trans "Actions" %}</a></th>
             </tr>
-            {% for user in users %}
+            {% for user in users.object_list %}
             <tr id="user_{{ user.pk }}"><!-- class=new -->
                 <td><a href="{% url sa_edit_user user.pk %}">{{ user.username }}</a></td>
                 <td><a class="modif" href="{% url edit_operator user.pk %}">edit</a><a class="out delete_user" href="{% url delete_operator user.pk %}">delete</a></td>
@@ -138,6 +138,37 @@
             </tr>
             {% endfor %}
         </table>
+        <div class="pag_nav">
+        <form id="page_size_form" method="POST">
+        {% csrf_token %}
+        <div style='display:none'>
+            <input type="hidden" name="search" value="True" />
+            <input type="hidden" name="username" value="{{ search_username }}" />
+            <input type="hidden" name="page" id="current_page" value="" />
+        </div>
+            <span class="page_info">
+                {% blocktrans with number=users.number num_pages=users.paginator.num_pages %}
+                Page {{ number }} of {{ num_pages }} pages.
+                {% endblocktrans %}
+            </span>
+            <span class="page_size">
+                <select id="page_size" name="page_size">
+                {% for page_size in choice_page_size %}
+                    <option value="{{ page_size }}" {% if current_page_size == page_size %}selected="selected"{% endif %}>{{ page_size }}</option>
+                {% endfor %}
+                </select>
+            </span>
+            <div>
+                <a href="1" class="pagination">|<</a>
+                <a href="{{ prev_10 }}" class="pagination"><</a>
+                {% for page_num in page_nav %}
+                [{% if users.number != page_num %}<a href="{{ page_num }}" class="pagination">{{ page_num }}</a>{% else %}{{ page_num }}{% endif %}] 
+                {% endfor %}
+                <a href="{{ next_10 }}" class="pagination">></a>
+                <a href="{{ users.paginator.num_pages }}" class="pagination">>|</a>
+            </div>
+        </form>
+        </div>
     </div>
     <!--//Liste-Brand-->
     <a class="btn ajouter" href="{% url operators %}">{% trans "Add a new operator" %}</a>
@@ -160,6 +191,17 @@ $(document).ready(function(){
             });
         }
         return false;
+    });
+    
+    //set page size
+    $("#page_size").change(function(event){
+        $("#page_size_form").submit();
+    });
+    //page nav
+    $(".pagination").click(function(event){
+        $("#current_page").val($(this).attr('href'));
+        $("#page_size_form").submit();
+        event.preventDefault();        
     });
 
 });    

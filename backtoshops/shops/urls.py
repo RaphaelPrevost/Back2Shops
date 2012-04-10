@@ -3,11 +3,13 @@ from django.conf.urls.defaults import patterns, url
 from django.core.urlresolvers import reverse
 from shops.views import ShopCoordinates, CreateShopView, DeleteShopView, EditShopView
 
-urlpatterns = patterns(settings.SITE_NAME+'.shops',
-    url(r'/coordinates', ShopCoordinates.as_view(), name='shop_coordinates'),
-    url(r'/(?P<pk>\d+)/delete$', DeleteShopView.as_view(), name="delete_shop"),
+urlpatterns = patterns(settings.get_site_prefix()+'shops',
+    url(r'/$', CreateShopView.as_view(), name="page_shops"),
+    url(r'/(?P<page>\d+)$', CreateShopView.as_view()),
     url(r'/(?P<pk>\d+)/edit$', EditShopView.as_view(), name="edit_shop"),
-    url(r'$', CreateShopView.as_view(), name="page_shops"),
+    url(r'/(?P<pk>\d+)/edit/(?P<page>\d+)$', EditShopView.as_view()),
+    url(r'/(?P<pk>\d+)/delete$', DeleteShopView.as_view(), name="delete_shop"),
+    url(r'/coordinates', ShopCoordinates.as_view(), name='shop_coordinates'),
 )
 
     # url(r'/shop/(?:(?P<shop_id>\d+)/)?$', 

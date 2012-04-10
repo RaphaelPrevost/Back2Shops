@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block title %}
-{% if brand_pk %}
+{% if pk %}
 {% trans "Edit a Brand" %}
 {% else %}
 {% trans "Add a Brand" %}
@@ -28,12 +28,12 @@
     </div>
 
     <!--FORM-->
-    {% if brand_pk %}
-    <form id="main_form" method="post" action="{% url sa_edit_brand brand_pk %}" enctype="multipart/form-data">{% csrf_token %}
+    {% if pk %}
+    <form id="main_form" method="post" action="{% url sa_edit_brand pk %}" enctype="multipart/form-data">{% csrf_token %}
     {% else %}
     <form id="main_form" method="post" action="{% url sa_brands %}" enctype="multipart/form-data">{% csrf_token %}
     {% endif %}
-    {% if brand_pk %}
+    {% if pk %}
         <h3>{% trans "Edit Brand" %}</h3>
     {% else %}
         <h3>{% trans "New Brand" %}</h3>
@@ -69,7 +69,7 @@
                 <th class="nom on"><a href="#">{% trans "Name" %}</a></th>
                 <th class="action"><a href="#">{% trans "Actions" %}</a></th>
             </tr>
-            {% for brand in brands %}
+            {% for brand in page.object_list %}
             <tr id="brand_{{ brand.pk }}"><!-- class=new -->
                 <td><a href="{% url sa_edit_brand brand.pk %}">{{ brand.name }}</a></td>
                 <td><a class="modif" href="{% url sa_edit_brand brand.pk %}">edit</a><a class="out delete_brand" href="{% url sa_delete_brand brand.pk %}">delete</a></td>
@@ -80,6 +80,29 @@
             </tr>
             {% endfor %}
         </table>
+        <div class="pag_nav">
+            <span class="page_info">
+                {% blocktrans with number=page.number num_pages=page.paginator.num_pages %}
+                Page {{ number }} of {{ num_pages }} pages.
+                {% endblocktrans %}
+            </span>
+            <span class="page_size">
+                <select id="page_size" name="page_size">
+                {% for page_size in choice_page_size %}
+                    <option value="{{ page_size }}" {% if current_page_size == page_size %}selected="selected"{% endif %}>{{ page_size }}</option>
+                {% endfor %}
+                </select>
+            </span>
+            <div>
+                <a href="1" class="pagination">|<</a>
+                <a href="{{ prev_10 }}" class="pagination"><</a>
+                {% for page_num in page_nav %}
+                [{% if page.number != page_num %}<a href="{{ page_num }}" class="pagination">{{ page_num }}</a>{% else %}{{ page_num }}{% endif %}] 
+                {% endfor %}
+                <a href="{{ next_10 }}" class="pagination">></a>
+                <a href="{{ page.paginator.num_pages }}" class="pagination">>|</a>
+            </div>
+        </div>
     </div>
     <!--//Liste-Brand-->
     <a class="btn ajouter" href="{% url sa_brands %}">{% trans "Add a new brand" %}</a>
@@ -96,12 +119,16 @@ $(document).ready(function(){
             if(confirm('{% trans "Are your sure you want to delete this brand?" %}')) {
                 $.post(this.href, function(data){
                     $("#brand_"+data.brand_pk).remove();
-                    if(data.brand_pk == "{% firstof brand_pk "0" %}") {
+                    if(data.brand_pk == "{% firstof pk "0" %}") {
                         location.replace("{% url sa_brands %}");
                     }
                 });
             }
             return false;
+    });
+    //set page size
+    $("#page_size").change(function(event){
+        location.href = location.pathname+'?page_size='+$(this).val();
     });
 });    
 </script>

@@ -22,6 +22,8 @@ from sales.models import Sale, Product, ProductBrand, ProductPicture, STOCK_TYPE
 from shops.models import Shop
 from stocks.models import ProductStock
 from globalsettings import get_setting
+import settings
+from django.core.paginator import Paginator, EmptyPage, InvalidPage
 
 class UploadProductPictureView(View, TemplateResponseMixin):
     template_name = ""
@@ -91,10 +93,34 @@ class ListSalesView(LoginRequiredMixin, View, TemplateResponseMixin):
         #put extra fields
         self.sales = self.sales.extra(select={'total_sold_stock':'total_stock-total_rest_stock'})
         return
+    
+    def make_page(self):
+        """
+        make a pagination
+        """
+        try:
+            self.current_page = int(self.request.GET.get('page','1'))
+            p_size = int(self.request.GET.get('page_size',settings.get_page_size(self.request)))
+            p_size = p_size if p_size in settings.CHOICE_PAGE_SIZE else settings.DEFAULT_PAGE_SIZE
+            self.request.session['page_size'] = p_size
+        except:
+            self.current_page = 1
+        self.range_start = self.current_page - (self.current_page % settings.PAGE_NAV_SIZE)
+        paginator = Paginator(self.sales,settings.get_page_size(self.request))
+        try:
+            self.page = paginator.page(self.current_page)
+        except(EmptyPage, InvalidPage):
+            self.page = paginator.page(paginator.num_pages)
+        self.choice_page_size = settings.CHOICE_PAGE_SIZE
+        self.current_page_size = settings.get_page_size(self.request)
+        self.prev_10 = self.current_page-settings.PAGE_NAV_SIZE if self.current_page-settings.PAGE_NAV_SIZE > 1 else 1
+        self.next_10 = self.current_page+settings.PAGE_NAV_SIZE if self.current_page+settings.PAGE_NAV_SIZE <= self.page.paginator.num_pages else self.page.paginator.num_pages
+        self.page_nav = self.page.paginator.page_range[self.range_start:self.range_start+settings.PAGE_NAV_SIZE]
 
     def get(self, request, sales_type=None):
         self.set_sales_list(request,sales_type)
         self.form = ListSalesForm()
+        self.make_page()
         return self.render_to_response(self.__dict__)
     
     def post(self, request, sales_type=None):
@@ -104,6 +130,7 @@ class ListSalesView(LoginRequiredMixin, View, TemplateResponseMixin):
             order_by1 = self.form.cleaned_data['order_by1']
             order_by2 = self.form.cleaned_data['order_by2']
             self.sales = self.sales.extra(order_by=[order_by1,order_by2])
+        self.make_page()
         return self.render_to_response(self.__dict__)
 
 class DeleteSalesView(BOLoginRequiredMixin, View):

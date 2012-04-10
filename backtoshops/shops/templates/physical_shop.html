@@ -135,7 +135,7 @@
                 <th class="ville off"><a href="#">{% trans "City" %}</a></th>
                 <th class="action"><a href="#">{% trans "Actions" %}</a></th>
             </tr>
-            {% for shop in shops %}
+            {% for shop in shops.object_list %}
             <script type="text/javascript">console.log("{{ shop.name }}");</script>
             <tr id="shop_{{ shop.pk }}"><!-- class=new -->
                 <td><a href="{% url edit_shop shop.pk %}">{{ shop.name }}</a></td>
@@ -150,6 +150,29 @@
             </tr>
             {% endfor %}
         </table>
+        <div class="pag_nav">
+            <span class="page_info">
+                {% blocktrans with number=page.number num_pages=page.paginator.num_pages %}
+                Page {{ number }} of {{ num_pages }} pages.
+                {% endblocktrans %}
+            </span>
+            <span class="page_size">
+                <select id="page_size" name="page_size">
+                {% for page_size in choice_page_size %}
+                    <option value="{{ page_size }}" {% if current_page_size == page_size %}selected="selected"{% endif %}>{{ page_size }}</option>
+                {% endfor %}
+                </select>
+            </span>
+            <div>
+                <a href="1" class="pagination">|<</a>
+                <a href="{{ prev_10 }}" class="pagination"><</a>
+                {% for page_num in page_nav %}
+                [{% if page.number != page_num %}<a href="{{ page_num }}" class="pagination">{{ page_num }}</a>{% else %}{{ page_num }}{% endif %}] 
+                {% endfor %}
+                <a href="{{ next_10 }}" class="pagination">></a>
+                <a href="{{ page.paginator.num_pages }}" class="pagination">>|</a>
+            </div>
+        </div>
     </div>
     <!--//Liste-Shop-->
     <a class="btn ajouter" href="add-sale_2.htm">{% trans "Add a new shop" %}</a>
@@ -313,6 +336,12 @@
         $("#{{ form.address.auto_id }}").change(localization);
         $("#{{ form.zipcode.auto_id }}").change(localization);
         $("#{{ form.city.auto_id }}").change(localization);
+        
+        //set page size
+        $("#page_size").change(function(event){
+            location.href = location.pathname+'?page_size='+$(this).val();
+        });
+        
     });
 </script>
 

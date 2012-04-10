@@ -26,11 +26,11 @@ urlpatterns += patterns('',
 )
 
 urlpatterns += patterns('',
-    url(r'^webservice', include(settings.SITE_NAME+'.webservice.urls')),
-    url(r'^attributes', include(settings.SITE_NAME+'.attributes.urls')),
-    url(r'^pictures', include(settings.SITE_NAME+'.pictures.urls')),
-    url(r'^sales', include(settings.SITE_NAME+'.sales.urls')),
-    url(r'^shops', include(settings.SITE_NAME+'.shops.urls')),
+    url(r'^webservice', include(settings.get_site_prefix()+'webservice.urls')),
+    url(r'^attributes', include(settings.get_site_prefix()+'attributes.urls')),
+    url(r'^pictures', include(settings.get_site_prefix()+'pictures.urls')),
+    url(r'^sales', include(settings.get_site_prefix()+'sales.urls')),
+    url(r'^shops', include(settings.get_site_prefix()+'shops.urls')),
     url(r'^login', 'fouillis.views.login_staff', name='bo_login'),
     url(r'^$',
         login_required(home_page, login_url="login"),
@@ -44,8 +44,8 @@ urlpatterns += patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^setlang/','accounts.views.set_language'),
-    url(r'^sa/', include(settings.SITE_NAME+'.backend.urls')),
-    url(r'^accounts/', include(settings.SITE_NAME+'.accounts.urls')),
+    url(r'^setlang/',settings.get_site_prefix()+'accounts.views.set_language'),
+    url(r'^sa/', include(settings.get_site_prefix()+'backend.urls')),
+    url(r'^accounts/', include(settings.get_site_prefix()+'accounts.urls')),
 )
 

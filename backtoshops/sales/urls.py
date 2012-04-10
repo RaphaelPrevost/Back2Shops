@@ -12,7 +12,7 @@ forms = [
     (SaleWizardNew.STEP_TARGET, TargetForm)
 ]
 
-urlpatterns = patterns(settings.SITE_NAME+'.sales',
+urlpatterns = patterns(settings.get_site_prefix()+'sales',
     url(r'/picture/new/$',
         UploadProductPictureView.as_view(),
         name="upload_product_picture"),
