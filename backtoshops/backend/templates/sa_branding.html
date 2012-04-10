@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block title %}
-{% if branding_pk %}
+{% if pk %}
 {% trans "Edit a Branding" %}
 {% else %}
 {% trans "Add a Branding" %}
@@ -28,12 +28,12 @@
     </div>
 
     <!--FORM-->
-    {% if branding_pk %}
-    <form id="main_form" method="post" action="{% url sa_edit_branding branding_pk %}" enctype="multipart/form-data">{% csrf_token %}
+    {% if pk %}
+    <form id="main_form" method="post" action="{% url sa_edit_branding pk %}" enctype="multipart/form-data">{% csrf_token %}
     {% else %}
     <form id="main_form" method="post" action="{% url sa_brandings %}" enctype="multipart/form-data">{% csrf_token %}
     {% endif %}
-    {% if branding_pk %}
+    {% if pk %}
         <h3>{% trans "Edit Branding" %}</h3>
     {% else %}
         <h3>{% trans "New Branding" %}</h3>
@@ -91,7 +91,7 @@
                 <th>{% trans "Sort key" %}</th>
                 <th class="action"><a href="#">{% trans "Actions" %}</a></th>
             </tr>
-            {% for branding in brandings %}
+            {% for branding in page.object_list %}
             <tr id="branding_{{ branding.pk }}"><!-- class=new -->
                 <td><a href="{% url sa_edit_branding branding.pk %}">{{ branding.name }}</a></td>
                 <td>{{ branding.img }}</td>
@@ -104,6 +104,29 @@
             </tr>
             {% endfor %}
         </table>
+        <div class="pag_nav">
+            <span class="page_info">
+                {% blocktrans with number=page.number num_pages=page.paginator.num_pages %}
+                Page {{ number }} of {{ num_pages }} pages.
+                {% endblocktrans %}
+            </span>
+            <span class="page_size">
+                <select id="page_size" name="page_size">
+                {% for page_size in choice_page_size %}
+                    <option value="{{ page_size }}" {% if current_page_size == page_size %}selected="selected"{% endif %}>{{ page_size }}</option>
+                {% endfor %}
+                </select>
+            </span>
+            <div>
+                <a href="1" class="pagination">|<</a>
+                <a href="{{ prev_10 }}" class="pagination"><</a>
+                {% for page_num in page_nav %}
+                [{% if page.number != page_num %}<a href="{{ page_num }}" class="pagination">{{ page_num }}</a>{% else %}{{ page_num }}{% endif %}] 
+                {% endfor %}
+                <a href="{{ next_10 }}" class="pagination">></a>
+                <a href="{{ page.paginator.num_pages }}" class="pagination">>|</a>
+            </div>
+        </div>
     </div>
     <!--//Liste-Branding-->
     <a class="btn ajouter" href="{% url sa_brandings %}">{% trans "Add a new branding" %}</a>
@@ -120,7 +143,7 @@ $(document).ready(function(){
             if(confirm('{% trans "Are your sure you want to delete this branding?" %}')) {
                 $.post(this.href, function(data){
                     $("#branding_"+data.branding_pk).remove();
-                    if(data.branding_pk == "{% firstof branding_pk "0" %}") {
+                    if(data.branding_pk == "{% firstof pk "0" %}") {
                         location.replace("{% url sa_brandings %}");
                     }
                 });

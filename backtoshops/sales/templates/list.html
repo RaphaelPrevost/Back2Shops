@@ -41,7 +41,7 @@
             <!--FIN SELECT TRIER PAR-->
 
             <!--VENTE-->
-            {% for sale in sales %}
+            {% for sale in page.object_list %}
             <div class="vente" sale="{{ sale.id }}">
                 <!--NOM, CATEGORIE, TYPE de Prod-->
                 <a href="{% url edit_sale sale_id=sale.pk step="shop" %}"><h3>{{ sale.product.name }}</h3></a>
@@ -77,6 +77,30 @@
             </div>
             {% endfor %}
             <!--FIN VENTE-->
+            <div class="pag_nav">
+                <span class="page_info">
+                    {% blocktrans with number=page.number num_pages=page.paginator.num_pages %}
+                    Page {{ number }} of {{ num_pages }} pages.
+                    {% endblocktrans %}
+                </span>
+                <span class="page_size">
+                    <select id="page_size" name="page_size">
+                    {% for page_size in choice_page_size %}
+                        <option value="{{ page_size }}" {% if current_page_size == page_size %}selected="selected"{% endif %}>{{ page_size }}</option>
+                    {% endfor %}
+                    </select>
+                </span>
+                <div>
+                    <a href="{{ request.path }}?page=1" class="pagination">|<</a>
+                    <a href="{{ request.path }}?page={{ prev_10 }}" class="pagination"><</a>
+                    {% for page_num in page_nav %}
+                    [{% if page.number != page_num %}<a href="{{ request.path }}?page={{ page_num }}" class="pagination">{{ page_num }}</a>{% else %}{{ page_num }}{% endif %}] 
+                    {% endfor %}
+                    <a href="{{ request.path }}?page={{ next_10 }}" class="pagination">></a>
+                    <a href="{{ request.path }}?page={{ page.paginator.num_pages }}" class="pagination">>|</a>
+                </div>
+            </div>
+            
         </fieldset>
     </form>
 </div>
@@ -125,6 +149,11 @@
                         $this.parent().parent().fadeOut();
                 }, "json");
             }
+        });
+        
+        //set page size
+        $("#page_size").change(function(event){
+            location.href = location.pathname+'?page_size='+$(this).val();
         });
     });
 </script>

@@ -1,7 +1,7 @@
 # Create your views here.
 from django import http
 from django.utils.translation import check_for_language
-from django.conf import settings
+import settings
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 import json
 from globalsettings import get_setting
 import forms
+from django.core.paginator import Paginator
 
 def home_page(request):
     """
@@ -55,6 +56,18 @@ def set_language(request):
                 response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang_code)
     return response
 
+def set_page_size(request):
+    _next = request.REQUEST.get('next', None)
+    if not _next:
+        _next = request.META.get('HTTP_REFERER', None)
+    if not _next:
+        _next = '/'
+    response = http.HttpResponseRedirect(_next)
+    if request.method == 'POST':
+        page_size = int(request.POST.get('pageSize', settings.DEFAULT_PAGE_SIZE))
+        request.session['page_size'] = page_size
+    return response
+
 class BaseOperatorView(BOLoginRequiredMixin):
     """
     User is different from other models since it has User + UserProfile model.
@@ -63,14 +76,25 @@ class BaseOperatorView(BOLoginRequiredMixin):
     template_name = "operator.html"
     
     def get_context_data(self, **kwargs):
+        if 'users' not in self.__dict__:
+            self.users = User.objects.filter(is_staff=False, userprofile__work_for=self.request.user.get_profile().work_for)
+        if 'current_page' not in self.__dict__:
+            self.current_page = 1
+        users = Paginator(self.users,settings.get_page_size(self.request)).page(self.current_page)
+        range_start = self.current_page - (self.current_page % settings.PAGE_NAV_SIZE)
         kwargs.update({
             'user_pk': self.kwargs.get('pk', None),
-            'users': User.objects.filter(is_staff=False, userprofile__work_for=self.request.user.get_profile().work_for),  
+            'choice_page_size': settings.CHOICE_PAGE_SIZE,
+            'current_page_size': settings.get_page_size(self.request),
+            'users': users,
+            'prev_10': self.current_page-settings.PAGE_NAV_SIZE if self.current_page-settings.PAGE_NAV_SIZE > 1 else 1,
+            'next_10': self.current_page+settings.PAGE_NAV_SIZE if self.current_page+settings.PAGE_NAV_SIZE <= users.paginator.num_pages else users.paginator.num_pages,
+            'page_nav': users.paginator.page_range[range_start:range_start+settings.PAGE_NAV_SIZE],
             'companies': Brand.objects.all(),
             'request': self.request,
         })
         if 'is_search' in self.__dict__ and self.is_search:
-            kwargs.update({'users':self.users,
+            kwargs.update({
                            'search_username': self.search_username,
                            })
         return kwargs
@@ -80,12 +104,12 @@ class BaseOperatorView(BOLoginRequiredMixin):
         overriding this for avoid any form binding during search post.
         """
         if 'is_search' in self.__dict__ and self.is_search:
-            kwargs = {'initial': self.get_initial(),} 
+            kwargs = {'initial': self.get_initial(), 'request': self.request,} 
             if 'object' in self.__dict__:
                 kwargs.update({'instance': self.object,})
             return kwargs
         else:
-            kwargs = super(BaseOperatorView,self).get_form_kwargs() 
+            kwargs = super(BaseOperatorView,self).get_form_kwargs()
             kwargs.update({'request': self.request,})
             return kwargs 
     
@@ -93,6 +117,14 @@ class BaseOperatorView(BOLoginRequiredMixin):
         self.is_search = request.POST.get('search',False)
         if self.is_search: #search case
             self.search_username=request.POST.get('username','')
+            try:
+                self.current_page = int(request.POST.get('page','1'))
+            except:
+                self.current_page = 1
+            try:
+                request.session['page_size'] = int(request.POST.get('page_size',settings.get_page_size(request)))
+            except:
+                pass
             self.users=User.objects.filter(username__contains=self.search_username, is_staff=False, userprofile__work_for=self.request.user.get_profile().work_for)
             return self.get(request, *args, **kwargs)
         else:

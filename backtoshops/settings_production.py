@@ -2,7 +2,9 @@
 import os
 
 SITE_ROOT = "/var/www/backtoshops/backtoshops/"
-SITE_NAME = "backtoshops"
+SITE_NAME = ""
+
+get_site_prefix = lambda : SITE_NAME+'.' if SITE_NAME != '' and SITE_NAME is not None else ''
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -12,6 +14,13 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
+
+# this is for pagination
+CHOICE_PAGE_SIZE = (10, 20, 50, 100)
+DEFAULT_PAGE_SIZE = 10
+PAGE_NAV_SIZE = 10
+
+get_page_size = lambda request: int(request.session.get('page_size',DEFAULT_PAGE_SIZE))
 
 DATABASES = {
     'default': {

@@ -8,12 +8,14 @@ from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from accounts.models import Brand, UserProfile
 from sales.models import ProductCategory, ProductType
 from globalsettings.models import GlobalSettings
 from brandings.models import Branding
 from globalsettings import get_setting
 import forms
+import settings
 
 def superadmin_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
     """
@@ -35,20 +37,40 @@ class SARequiredMixin(object):
     """
     def dispatch(self, *args, **kwargs):
         bound_dispatch = super(SARequiredMixin, self).dispatch
-        return superadmin_required(bound_dispatch, login_url="/")(*args, **kwargs)   
+        return superadmin_required(bound_dispatch, login_url="/")(*args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        # general pagination handling.
+        try:
+            p_size = int(self.request.GET.get('page_size',settings.get_page_size(self.request)))
+            p_size = p_size if p_size in settings.CHOICE_PAGE_SIZE else settings.DEFAULT_PAGE_SIZE
+            self.request.session['page_size'] = p_size
+        except:
+            pass
+        self.current_page = int(self.kwargs.get('page','1'))
+        self.range_start = self.current_page - (self.current_page % settings.PAGE_NAV_SIZE)
+        paginator = Paginator(self.get_queryset(),settings.get_page_size(self.request))
+        try:
+            self.page = paginator.page(self.current_page)
+        except(EmptyPage, InvalidPage):
+            self.page = paginator.page(paginator.num_pages)
+        # fill some required fields.
+        kwargs.update({
+            'choice_page_size': settings.CHOICE_PAGE_SIZE,
+            'current_page_size': settings.get_page_size(self.request),
+            'page': self.page,
+            'prev_10': self.current_page-settings.PAGE_NAV_SIZE if self.current_page-settings.PAGE_NAV_SIZE > 1 else 1,
+            'next_10': self.current_page+settings.PAGE_NAV_SIZE if self.current_page+settings.PAGE_NAV_SIZE <= self.page.paginator.num_pages else self.page.paginator.num_pages,
+            'page_nav': self.page.paginator.page_range[self.range_start:self.range_start+settings.PAGE_NAV_SIZE],
+            'request': self.request,
+            'pk': self.kwargs.get('pk', None),
+        })
+        return kwargs
      
 class BaseBrandView(SARequiredMixin):
     template_name = "sa_brand.html"
     form_class = forms.SABrandForm
     model = Brand
-
-    def get_context_data(self, **kwargs):
-        kwargs.update({
-            'brand_pk': self.kwargs.get('pk', None),
-            'brands': Brand.objects.all(),
-            'request': self.request,
-        })
-        return kwargs
     
 class CreateBrandView(BaseBrandView, CreateView):
     def get_success_url(self):
@@ -75,14 +97,25 @@ class BaseUserView(SARequiredMixin):
     template_name = "sa_user.html"
     
     def get_context_data(self, **kwargs):
+        if 'users' not in self.__dict__:
+            self.users = User.objects.filter(is_staff=True, is_superuser=False)
+        if 'current_page' not in self.__dict__:
+            self.current_page = 1
+        users = Paginator(self.users,settings.get_page_size(self.request)).page(self.current_page)
+        range_start = self.current_page - (self.current_page % settings.PAGE_NAV_SIZE)
         kwargs.update({
             'user_pk': self.kwargs.get('pk', None),
-            'users': User.objects.filter(is_staff=True, is_superuser=False),  
+            'choice_page_size': settings.CHOICE_PAGE_SIZE,
+            'current_page_size': settings.get_page_size(self.request),
+            'users': users,
+            'prev_10': self.current_page-settings.PAGE_NAV_SIZE if self.current_page-settings.PAGE_NAV_SIZE > 1 else 1,
+            'next_10': self.current_page+settings.PAGE_NAV_SIZE if self.current_page+settings.PAGE_NAV_SIZE <= users.paginator.num_pages else users.paginator.num_pages,
+            'page_nav': users.paginator.page_range[range_start:range_start+settings.PAGE_NAV_SIZE],
             'companies': Brand.objects.all(),
             'request': self.request,
         })
         if 'is_search' in self.__dict__ and self.is_search:
-            kwargs.update({'users':self.users,
+            kwargs.update({
                            'search_username': self.search_username,
                            })
             if 'search_brand' in self.__dict__:
@@ -106,6 +139,14 @@ class BaseUserView(SARequiredMixin):
         self.is_search = request.POST.get('search',False)
         if self.is_search: #search case
             self.search_username=request.POST.get('username','')
+            try:
+                self.current_page = int(request.POST.get('page','1'))
+            except:
+                self.current_page = 1
+            try:
+                request.session['page_size'] = int(request.POST.get('page_size',settings.get_page_size(request)))
+            except:
+                pass
             self.users=User.objects.filter(username__contains=self.search_username, is_staff=True, is_superuser=False)
             try:
                 self.search_brand=int(request.POST['company'])
@@ -185,14 +226,6 @@ class BaseCategoryView(SARequiredMixin):
     template_name = "sa_category.html"
     form_class = forms.SACategoryForm
     model = ProductCategory
-
-    def get_context_data(self, **kwargs):
-        kwargs.update({
-            'category_pk': self.kwargs.get('pk', None),
-            'categories': ProductCategory.objects.all(),
-            'request': self.request,
-        })
-        return kwargs
     
 class CreateCategoryView(BaseCategoryView, CreateView):
     def get_success_url(self):
@@ -215,14 +248,6 @@ class BaseAttributeView(SARequiredMixin):
     template_name = "sa_attribute.html"
     form_class = forms.SAAttributeForm
     model = ProductType
-
-    def get_context_data(self, **kwargs):
-        kwargs.update({
-            'attribute_pk': self.kwargs.get('pk', None),
-            'attributes': ProductType.objects.all(),
-            'request': self.request,
-        })
-        return kwargs
     
 class CreateAttributeView(BaseAttributeView, CreateView):
     def get_success_url(self):
@@ -245,14 +270,6 @@ class BaseBrandingView(SARequiredMixin):
     template_name = "sa_branding.html"
     form_class = forms.SABrandingForm
     model = Branding
-
-    def get_context_data(self, **kwargs):
-        kwargs.update({
-            'branding_pk': self.kwargs.get('pk', None),
-            'brandings': Branding.objects.all(),
-            'request': self.request,
-        })
-        return kwargs
     
 class CreateBrandingView(BaseBrandingView, CreateView):
     def get_success_url(self):
