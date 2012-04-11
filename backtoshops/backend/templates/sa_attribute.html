@@ -40,6 +40,11 @@
     {% endif %}
 
         <fieldset>
+            {{ form.category.errors }}
+            <div class="formrow">
+                <label for="{{form.category.auto_id}}">{% trans form.category.label %}</label>
+                {{ form.category }}
+            </div>
             {{ form.name.errors }}
             <div class="formrow">
                 <label for="{{form.name.auto_id}}">{% trans form.name.label %}</label>
@@ -47,10 +52,31 @@
             </div>
         </fieldset>
         <!--BOUTONS-->
+        <div>{% trans 'common attributes for this type' %}</div>
+        <div>{{ formset.management_form }}</div>
+        <fieldset id="subform">
+        {% for subform in formset.forms %}
+            <div class="formrow">
+                <label for="{{subform.name.auto_id}}">{% trans subform.name.label %}</label>
+                {{ subform.id }}{{ subform.name }}
+                <input type="button" class="del_ca" value='{% trans 'delete' %}' />
+                <input style="display: none;" type="checkbox" name="{{ subform.DELETE.html_name }}" id="{{ subform.DELETE.auto_id }}">
+            </div>
+        {% endfor %}
+        </fieldset>
+        <input type="button" id="add_ca" value='{% trans 'add' %}' />
         <input class="btn valider" type="submit" value='{% trans "Save" %}'/>
         <button type="reset" class="btn annuler">{% trans "Cancel" %}</button>
     </form>
     <!--FIN FORM-->
+    <div id='add_ca_form' style='display:none;'>
+        <div class="formrow">
+            <label for="{{ formset.empty_form.name.auto_id }}">{% trans formset.empty_form.name.label %}</label>
+            {{ formset.empty_form.id }}{{ formset.empty_form.name }}
+            <input style="display: none;" type="checkbox" name="{{ formset.empty_form.DELETE.html_name }}" id="{{ formset.empty_form.DELETE.auto_id }}" />
+            <input type="button" class="del_ca" value='{% trans 'delete' %}' />
+        </div>
+    </div>
 </div>
 <!--FIN content-left-->
 
@@ -125,6 +151,33 @@ $(document).ready(function(){
     $("#page_size").change(function(event){
         location.href = location.pathname+'?page_size='+$(this).val();
     });
+    
+    //adding new subform
+    $("#add_ca").click(function(){
+        var new_subform = $("#add_ca_form").html();
+        var total_forms = $("#{{ formset.management_form.TOTAL_FORMS.auto_id }}").val();
+        new_subform = new_subform.replace(/__prefix__/g,total_forms.toString());
+        $("#subform").append(new_subform);
+        total_forms++;
+        $("#{{ formset.management_form.TOTAL_FORMS.auto_id }}").val(total_forms);
+    });
+    
+    //deleting subform
+    $(".del_ca").live("click", function(){
+        $(this).parent().hide();
+        $(this).siblings("input[type='checkbox']").attr('checked','checked');
+        /*var total_forms = $("#{{ formset.management_form.TOTAL_FORMS.auto_id }}").val();
+        var initial_forms = $("#{{ formset.management_form.INITIAL_FORMS.auto_id }}").val();
+        var ca_id = $($(this).siblings()[1]).val();
+        if(ca_id){
+            initial_forms--;
+        }
+        $(this).parent().remove();
+        total_forms--;
+        $("#{{ formset.management_form.TOTAL_FORMS.auto_id }}").val(total_forms);
+        $("#{{ formset.management_form.INITIAL_FORMS.auto_id }}").val(initial_forms);*/
+    });
+    
 });    
 </script>
 

@@ -77,7 +77,8 @@ class ProductCategory(models.Model):
         return self.name
 
 class ProductType(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, verbose_name='name')
+    category = models.ForeignKey(ProductCategory, verbose_name='category')
 
     def __unicode__(self):
         return self.name
