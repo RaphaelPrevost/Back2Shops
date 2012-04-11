@@ -30,7 +30,7 @@
     
     <!-- default price and discount (type: "ratio" or "fixed" ) -->
     <price currency="{{object.product.currency}}">{{ object.product.normal_price|floatformat }}</price>
-    <discount type="{% if sale.product.discount_type == 'percentage' %}ratio{% else %}fixed{% endif %}">{{ sale.product.discount|floatformat }}</discount>
+    <discount type="{% if object.product.discount_type == 'percentage' %}ratio{% else %}fixed{% endif %}">{{ object.product.discount|floatformat }}</discount>
 
     <!-- if there is some variants for this product, list them here -->
     {% for variant in object.product.brand_attributes.all %}
