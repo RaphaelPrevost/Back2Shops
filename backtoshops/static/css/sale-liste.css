@@ -24,19 +24,34 @@
 	color: #555555;
 }
 #triVente select {
-	width: 186px;
-	margin: 1px 0px 1px 15px;
+	width: 183px;
+	margin: 1px 0px 1px 6px;
 	background-color: #fff;
 }
 #triVente span { 
 	width: 20px;
 	height: 20px;
-	margin: 1px 0 1px 15px;
+	margin: 1px 0 1px 6px;
 	overflow: hidden;
 	text-indent: -1500px;
 	background: url(../img/icon.png) no-repeat 0 -350px;
 }
-
+#triVente input { 
+	width: 20px;
+	height: 20px;
+	margin: 1px 0 1px 8px;
+	overflow: hidden;
+	text-indent: -1500px;
+	background: url(../img/icon.png) no-repeat -2px -227px #000000;
+	border: none;
+	border-radius: 3px;
+		-moz-border-radius: 3px;
+		-webkit-border-radius: 3px;
+		-ms-border-radius: 3px;
+		-o-border-radius: 3px;
+	cursor: pointer;
+}
+#triVente input:hover { background-color: #555; }
 
 /*----LISTE DES VENTES----*/
 .vente {

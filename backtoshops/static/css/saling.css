@@ -17,6 +17,8 @@
 /*                      content-right                    */
 /*------------------------------------------------------ */		
 #content_Right {  margin: 88px 15px 0 0; }
+#content_Right #detail { position: fixed;  width: 400px; }
+#content_Right #controls { position: fixed;  width: 400px; }
 
 /*----------------------*/
 /* CHOISIR UNE BOUTIQUE */

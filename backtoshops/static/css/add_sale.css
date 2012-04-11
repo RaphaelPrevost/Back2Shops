@@ -68,14 +68,14 @@
 
 	#main_form .formrow select.dubble { width: 95px; }
 	#main_form .formrow #plus {
-    		background: url(../img/icon.png) no-repeat 0 -275px;
+    	background: url(../img/icon.png) no-repeat 0 -275px;
    		display: block;
-    		float: left;
-    		height: 19px;
-    		margin: 1px 0 0 10px;
-    		overflow: hidden;
-    		text-indent: -1500px;
-    		width: 19px;
+    	float: left;
+    	height: 19px;
+    	margin: 1px 0 0 10px;
+    	overflow: hidden;
+    	text-indent: -1500px;
+    	width: 19px;
 	}
 
 	#main_form .contForm,
@@ -300,7 +300,7 @@
 		}
 
 	/*Marque*/
-	#id_product-brand { margin: 1px 5px 0 0; }
+	#main_form #id_product-brand { width: 120px; margin: 1px 5px 0 0; }
 	#add_new_brand {
 		display: block;
 		float: right;
@@ -318,10 +318,19 @@
 	#newPrice #result {
 		margin: 5px 0 0 0;
 		padding: 0 5px;
-		background-color: #eee;
+		background-color: #DBF8D8;
 
 	}
+	
+	/*---Prix de Vente _ Coloris---*/
+	#main_form #newPriceAttrib { margin: 10px 0 20px 0; } 
+	#newPriceAttrib #premium_result {
+		margin: 5px 0 0 0;
+		padding: 0 5px;
+		background-color: #DBF8D8;
+	}
 
+	
 
 	/*--- Coloris ---*/ /*---Style non utilise au 07-26---*/
 	#main_form #coloris span{ margin: 0 5px 0 0; }
@@ -335,10 +344,7 @@
 
 
 
-
-
 	/*-------------------- Coloris --------------------*/
-
 	#main_form #brand_attributes { position: relative; }
 
 	/*-Box Form-*/
@@ -443,7 +449,7 @@
 		display: block;
 		width: 195px;
    		height: 32px;
-   		margin: 5px 0 0 0;
+   		margin: 5px 0 30px 0;
 		padding: 11px 7px 0 7px;
 		border: 1px solid #F1F1F1;
 		background-color: #ecf6ff;
@@ -479,6 +485,15 @@
 		border: 1px solid #c9c9c9;
 	}
 
+	
+	/*-PRICE-*/
+	#main_form #brand_attributes .brand_attributes-premium {
+		width: 248px; height: 22px;
+		line-height: 22px;
+		margin: 15px 0 0 -8px; padding: 0 5px;
+		background-color: #DBF8D8;
+	}
+	
 	/*-BOUTON SUPPR-*/
 	#main_form #brand_attributes .remove_brand_attribute {
 		position: absolute;
