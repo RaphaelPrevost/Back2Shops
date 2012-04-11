@@ -80,7 +80,9 @@
 		<!--NAV-->
 		<div id="nav">
 			<div id="etiquette">
-				<h3>You're logged in as a super admin</h3>
+				{% if user.get_profile %}
+				<img src="{{ user.get_profile.work_for.logo.url }}" alt="{{ user.get_profile.work_for.name }}" />
+				{% endif %}
 			</div>
             {% if user.is_authenticated %}
         	<form id="language_form" method="POST" action="/setlang/">
