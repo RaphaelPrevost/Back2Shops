@@ -11,6 +11,8 @@
 
 {% block head %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+	<link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/admin_main.css">
+	<link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/admin_user.css">
 {% endblock %}
 
 {% block navigation %}
@@ -126,14 +128,14 @@
             </option>
         {%endfor%}
         </select>
-        <input type="submit" value="search" id="btnSearch" />
+        <input type="submit" value="search" class="btn select" id="btnSearch" />
     </div>
     </form>
-    <div class="boxRight" id="listeUser"> 
+    <div class="boxRight listeRight" id="listeUser"> 
         <table cellpadding="0" cellspacing="0" border="0">
             <tr>
                 <th class="nom on"><a href="#">{% trans "Username" %}</a></th>
-                <th>company</th>
+                <th class="company">company</th>
                 <th class="action"><a href="#">{% trans "Actions" %}</a></th>
             </tr>
             {% for user in users.object_list %}
@@ -169,12 +171,12 @@
                 {% endfor %}
                 </select>
             </span>
-            <div>
+            <div class="page_ico">
                 <a href="1" class="pagination">|<</a>
                 <a href="{{ prev_10 }}" class="pagination"><</a>
-                {% for page_num in page_nav %}
+				<a href="{{ page_num }}" class="pagination">{% for page_num in page_nav %}
                 [{% if users.number != page_num %}<a href="{{ page_num }}" class="pagination">{{ page_num }}</a>{% else %}{{ page_num }}{% endif %}] 
-                {% endfor %}
+                {% endfor %}</a>
                 <a href="{{ next_10 }}" class="pagination">></a>
                 <a href="{{ users.paginator.num_pages }}" class="pagination">>|</a>
             </div>
