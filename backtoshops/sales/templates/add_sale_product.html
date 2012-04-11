@@ -79,21 +79,25 @@
                 <div id="add_ba_form">
                     <div id="ba">
                         <input id="ba_input" type="text"/>
-                        <select id="premium_type" name="premium_type">
-                        	<option value="percentage">{% trans "Percentage" %}</option>
-                        	<option value="amount">{% trans "Amount" %}</option>
-                        </select>
-                        <span class="raw">></span>
-                        <input id="premium_amount" type="text" />
-                        <span id="premium_marker" class="premium_marker">%</span>
-                        <input style="display:none;" id="premium_price_val" type="hidden" />
-                        <span id="premium_result">Premium price : <strong id="premium_price">N/A</strong> <strong id="id_premium_price_marker">&nbsp;</strong></span>
+                        
                         <img id="ba_texture_btn" role="button">
                         <input id="ba_texture_upload" type="file" name="texture_file"/>
                     </div>
                     <img id="ba_preview_btn" role="button" />
                     <input id="ba_preview_upload" type="file" name="files[]"/>
                     <a id="add_ba" href="#">{% trans "Add" %}</a>
+					
+					<span id="newPriceAttrib" class="contForm">
+						<select id="premium_type" name="premium_type">
+							<option value="percentage">{% trans "Percentage" %}</option>
+							<option value="amount">{% trans "Amount" %}</option>
+						</select>
+						<span class="raw">></span>
+						<input id="premium_amount" class="inputXS" type="text" />
+						<span id="premium_marker" class="premium_marker">%</span>
+						<input style="display:none;" id="premium_price_val" type="hidden" />
+						<span id="premium_result">Premium price : <strong id="premium_price">N/A</strong> <strong id="id_premium_price_marker">&nbsp;</strong></span>
+					</span>
                 </div>
                 {% for f in wizard.form.brand_attributes %}
                 <span id="{{ f.prefix }}-row" class="brand_attribute_form" {% if f.DELETE.value == "on" %}style="display: none;"{% endif %}>
@@ -140,7 +144,7 @@
             {{ wizard.form.brand_attributes.empty_form.premium_price }}
             <input style="display: none;" type="checkbox" name="{{ wizard.form.brand_attributes.empty_form.DELETE.html_name }}" id="{{ wizard.form.brand_attributes.empty_form.DELETE.auto_id }}">
             <span id="{{ wizard.form.brand_attributes.empty_form.prefix }}-name" class="brand_attribute_name"></span>
-            <span id="{{ wizard.form.brand_attributes.empty_form.prefix }}-premium"></span>
+            <span class="brand_attributes-premium" id="{{ wizard.form.brand_attributes.empty_form.prefix }}-premium"></span>
             <img class="classtext" id="{{ wizard.form.brand_attributes.empty_form.texture.auto_id }}-img">
             <img class="classprod" id="{{ wizard.form.brand_attributes.empty_form.preview.auto_id }}-img">
             <a class="remove_brand_attribute" href="#">{% trans "Remove" %}</a>
