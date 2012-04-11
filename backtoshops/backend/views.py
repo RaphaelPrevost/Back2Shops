@@ -9,7 +9,9 @@ from django.core.urlresolvers import reverse
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.forms.models import inlineformset_factory
 from accounts.models import Brand, UserProfile
+from attributes.models import CommonAttribute
 from sales.models import ProductCategory, ProductType
 from globalsettings.models import GlobalSettings
 from brandings.models import Branding
@@ -248,16 +250,53 @@ class BaseAttributeView(SARequiredMixin):
     template_name = "sa_attribute.html"
     form_class = forms.SAAttributeForm
     model = ProductType
+    formset = inlineformset_factory(ProductType, CommonAttribute, extra=1)
+    
+    def get_context_data(self, **kwargs):
+        kwargs.update({"formset": self.formset,})
+        return super(BaseAttributeView,self).get_context_data(**kwargs)
     
 class CreateAttributeView(BaseAttributeView, CreateView):
     def get_success_url(self):
         new_id = ProductType.objects.all().count()
         return reverse('sa_edit_attribute',args=[new_id])
+        
+    def post(self, request, *args, **kwargs):
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            product_type=form.save(commit=False)
+            formset = self.formset(data=self.request.POST, instance=product_type)
+            if formset.is_valid():
+                form.save(commit=True)
+                formset.save()
+                return self.form_valid(form)
+        return self.form_invalid(form)
     
 class EditAttributeView(BaseAttributeView, UpdateView):
     def get_success_url(self):
         pk = self.kwargs.get('pk', None)
         return reverse("sa_edit_attribute",args=[pk])
+    
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        formset = inlineformset_factory(ProductType, CommonAttribute,extra=0)
+        self.formset = formset(instance = self.get_object())
+        return super(BaseAttributeView,self).get(request, *args, **kwargs)
+    
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            product_type=form.save(commit=False)
+            formset = self.formset(data=self.request.POST, instance=product_type)
+            if formset.is_valid():
+                form.save(commit=True)
+                formset.save()
+                return self.form_valid(form)
+        return self.form_invalid(form)
 
 class DeleteAttributeView(BaseAttributeView, DeleteView):
     def delete(self, request, *args, **kwargs):
