@@ -7,6 +7,8 @@
 
 {% block head %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+	<link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/admin_main.css">
+	<link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/admin_settings.css">
 {% endblock %}
 
 {% block navigation %}
@@ -27,11 +29,14 @@
     <form id="main_form" method="post" enctype="multipart/form-data">
     {% csrf_token %}
         <h3>{% trans "Settings" %}</h3>
-        <p>{% trans "usage1: to change settings, set the setting values and input current password then save." %}</p>
-        <p>{% trans "usage2: to change current super admin username/email, set them and input current password then save." %}</p>
-        <p>{% trans "usage3: to change current super admin password, set new password and confirm new password (these two should be same) and and input current password then save." %}</p>
-        <p>{% trans "you can perform more than one of above usages together." %}</p>
+        
         <fieldset>
+		
+			<p>{% trans "usage1: to change settings, set the setting values and input current password then save." %}</p>
+			<p>{% trans "usage2: to change current super admin username/email, set them and input current password then save." %}</p>
+			<p>{% trans "usage3: to change current super admin password, set new password and confirm new password (these two should be same) and and input current password then save." %}</p>
+			<p>{% trans "you can perform more than one of above usages together." %}<br /><br /></p>
+			
             {{ form.default_language.errors }}
             <div class="formrow">
                 <label for="{{form.default_language.auto_id}}">{% trans form.default_language.label %}</label>
