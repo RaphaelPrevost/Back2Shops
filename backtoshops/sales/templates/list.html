@@ -77,6 +77,7 @@
             </div>
             {% endfor %}
             <!--FIN VENTE-->
+            {% if page.paginator.num_pages > 1%}
             <div class="pag_nav">
                 <span class="page_info">
                     {% blocktrans with number=page.number num_pages=page.paginator.num_pages %}
@@ -100,7 +101,7 @@
                     <a href="{{ request.path }}?page={{ page.paginator.num_pages }}" class="pagination">>|</a>
                 </div>
             </div>
-            
+            {% endif %}
         </fieldset>
     </form>
 </div>

@@ -106,6 +106,7 @@
             </tr>
             {% endfor %}
         </table>
+        {% if page.paginator.num_pages > 1%}
         <div class="pag_nav">
             <span class="page_info">
                 {% blocktrans with number=page.number num_pages=page.paginator.num_pages %}
@@ -129,6 +130,7 @@
                 <a href="{{ page.paginator.num_pages }}" class="pagination">>|</a>
             </div>
         </div>
+        {% endif %}
     </div>
     <!--//Liste-Branding-->
     <a class="btn ajouter" href="{% url sa_brandings %}">{% trans "Add a new branding" %}</a>

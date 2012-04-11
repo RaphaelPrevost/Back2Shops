@@ -150,38 +150,40 @@
             </tr>
             {% endfor %}
         </table>
+        {% if users.paginator.num_pages > 1%}
         <div class="pag_nav">
-        <form id="page_size_form" method="POST">
-        {% csrf_token %}
-        <div style='display:none'>
-            <input type="hidden" name="search" value="True" />
-            <input type="hidden" name="username" value="{{ search_username }}" />
-            <input type="hidden" name="company" value="{{ search_brand }}" />
-            <input type="hidden" name="page" id="current_page" value="" />
-        </div>
-            <span class="page_info">
-                {% blocktrans with number=users.number num_pages=users.paginator.num_pages %}
-                Page {{ number }} of {{ num_pages }} pages.
-                {% endblocktrans %}
-            </span>
-            <span class="page_size">
-                <select id="page_size" name="page_size">
-                {% for page_size in choice_page_size %}
-                    <option value="{{ page_size }}" {% if current_page_size == page_size %}selected="selected"{% endif %}>{{ page_size }}</option>
-                {% endfor %}
-                </select>
-            </span>
-            <div class="page_ico">
-                <a href="1" class="pagination">|<</a>
-                <a href="{{ prev_10 }}" class="pagination"><</a>
-				<a href="{{ page_num }}" class="pagination">{% for page_num in page_nav %}
-                [{% if users.number != page_num %}<a href="{{ page_num }}" class="pagination">{{ page_num }}</a>{% else %}{{ page_num }}{% endif %}] 
-                {% endfor %}</a>
-                <a href="{{ next_10 }}" class="pagination">></a>
-                <a href="{{ users.paginator.num_pages }}" class="pagination">>|</a>
+            <form id="page_size_form" method="POST">
+            {% csrf_token %}
+            <div style='display:none'>
+                <input type="hidden" name="search" value="True" />
+                <input type="hidden" name="username" value="{{ search_username }}" />
+                <input type="hidden" name="company" value="{{ search_brand }}" />
+                <input type="hidden" name="page" id="current_page" value="" />
             </div>
-        </form>
+                <span class="page_info">
+                    {% blocktrans with number=users.number num_pages=users.paginator.num_pages %}
+                    Page {{ number }} of {{ num_pages }} pages.
+                    {% endblocktrans %}
+                </span>
+                <span class="page_size">
+                    <select id="page_size" name="page_size">
+                    {% for page_size in choice_page_size %}
+                        <option value="{{ page_size }}" {% if current_page_size == page_size %}selected="selected"{% endif %}>{{ page_size }}</option>
+                    {% endfor %}
+                    </select>
+                </span>
+                <div>
+                    <a href="1" class="pagination">|<</a>
+                    <a href="{{ prev_10 }}" class="pagination"><</a>
+                    {% for page_num in page_nav %}
+                    [{% if users.number != page_num %}<a href="{{ page_num }}" class="pagination">{{ page_num }}</a>{% else %}{{ page_num }}{% endif %}] 
+                    {% endfor %}
+                    <a href="{{ next_10 }}" class="pagination">></a>
+                    <a href="{{ users.paginator.num_pages }}" class="pagination">>|</a>
+                </div>
+            </form>
         </div>
+        {% endif %}
     </div>
     <!--//Liste-Brand-->
     <a class="btn ajouter" href="{% url sa_users %}">{% trans "Add a new user" %}</a>
