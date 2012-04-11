@@ -54,7 +54,7 @@
 
 	#main_form .formrow span { height: 22px; line-height: 22px; margin: 0 5px; }
 
-	#main_form .formrow label { width: 165px; }
+	#main_form .formrow label { width: 145px; }
 	#main_form .formrow select { width: 130px; }
 	#main_form .formrow textarea,
 	#main_form .formrow input { width: 271px; }
@@ -67,19 +67,19 @@
 
 	#main_form .formrow select.dubble { width: 95px; }
 	#main_form .formrow #plus {
-    		background: url(../img/icon.png) no-repeat 0 -275px;
-			display: block;
-    		float: left;
-    		height: 19px;
-    		margin: 1px 0 0 10px;
-    		overflow: hidden;
-    		text-indent: -1500px;
-    		width: 19px;
+		background: url(../img/icon.png) no-repeat 0 -275px;
+		display: block;
+		float: left;
+		height: 19px;
+		margin: 1px 0 0 10px;
+		overflow: hidden;
+		text-indent: -1500px;
+		width: 19px;
 	}
 
 	#main_form .contForm,
 	#main_form .formrow .contForm{
-		width: 283px;
+		width: 300px;
 		height: auto;
 		line-height: auto;
 		margin: auto;
@@ -115,8 +115,21 @@
 
 
 	/*---------- FORM CSS PAGE 1 ----------*/
+	
+	/*--- Localisation ---*/
+	#main_form #localization {
+		height: 250px;
+		margin-bottom: 30px;
+		padding-right: 20px;
+	}
+	#main_form #localization #googleMap {
+		width: 280px; height: 250px;
+		float: right; border: 1px solid #BABABA;
+	}
+	
+	
 	/*--- Coloris ---*/
-	#main_form #coloris span{ margin: 5px 10px 0 0; }
+	#main_form #coloris span{ margin: 5px 5px 0 2px; }
 	#main_form #coloris label {
 		background: none;
 		padding: 0;
@@ -124,7 +137,7 @@
 		clear: left;
 	}
 	#main_form #coloris label {  margin: 5px 5px 0 0; }
-	#main_form #coloris input {  margin: 5px 7px 0 0; }
+	#main_form #coloris input {  margin: 5px 2px 0 0; }
 
 
 
