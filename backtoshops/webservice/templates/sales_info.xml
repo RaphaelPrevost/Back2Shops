@@ -10,7 +10,7 @@
     <type id="{{ object.product.type.pk }}">
         <name>{{ object.product.type.name }}</name>
         {% for ca in object.product.type.common_attributes.all %}
-        <attribute id="ca.pk" name="ca.name" />
+        <attribute id="{{ca.pk}}" name="{{ca.name}}" />
         {% endfor %}
     </type>
     
