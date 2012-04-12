@@ -525,8 +525,14 @@ label {
 	width: 20px; height: 20px;
 	text-align: center; line-height: 18px;
 	margin: 5px 3px 0 0;
-	background-color: #8AAECB;
-	color: #fff; font-weight: bold;  
+	background: url(../img/icon_pagination.png) no-repeat 0 -80px;
+	color: #00A2FD; font-weight: bold;  
+	border: 1px solid #D5D5D5;
 } 
-.pagination:hover, .pagination:focus { background-color: #B1CEE7; } 
+.pagination:hover, .pagination:focus { border: 1px solid #2DA3E1; } 
 
+.pagination.current { text-decoration: underline; }
+.pagination.prev1 { background-position: 0 0px; overflow: hidden; text-indent: -1500px; }
+.pagination.prev2 { background-position: 0 -20px; overflow: hidden; text-indent: -1500px; }
+.pagination.next1 { background-position: 0 -40px; overflow: hidden; text-indent: -1500px; }
+.pagination.next2 { background-position: 0 -60px; overflow: hidden; text-indent: -1500px; }

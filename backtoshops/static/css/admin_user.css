@@ -1,0 +1,43 @@
+/*------------------------------*/
+/*  Ajouter une nouvelle vente  */
+/*------------------------------*/
+
+#menu_ico li a.link4 { background-color: #565656; }
+#title span { background-position: 0 -400px; }
+
+/*------------------------------------------------------ */
+/*                       content-left                    */
+/*------------------------------------------------------ */
+
+/*---------- FORM CSS Generales ----------*/
+#main_form .formrow label { width: 210px; margin-right: 10px; }
+#main_form .formrow textarea, #main_form .formrow input { width: 221px; }
+
+
+/*------------------------------------------------------ */
+/*                       content-right                   */
+/*------------------------------------------------------ */
+
+.searchBox {  
+    background-color: #FFFFFF;
+    border: 1px solid #C4C4C4;
+    margin: 0 0 10px 0; 
+    width: 398px;
+}
+.searchBox label {
+	display: block; float: left;
+	width: 140px;
+    margin: 12px 0 0 10px;
+}
+.searchBox textarea, .searchBox input, .searchBox select { width: 221px; margin: 15px 0 0 0; }
+.searchBox #btnSearch { width: 90px; margin: 20px auto 10px 295px; }
+
+.listeRight table tr th.nom { width: 160px; }
+.listeRight table tr th.company { width: 110px; }
+.listeRight table tr th.on a { background: url(../img/trie_on-off.gif) no-repeat 125px 1px transparent; }
+
+
+
+
+
+

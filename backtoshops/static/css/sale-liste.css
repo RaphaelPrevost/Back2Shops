@@ -64,7 +64,21 @@
 	background-color: #f9f9f9;
 }
 
-.vente a.delete { float: right; color: red; }
+.vente a.delete { 
+	display: block; float: right; 
+	width: 14px; height: 14px;
+	margin: 2px -7px 0 0;
+	overflow: hidden; text-indent: -1500px;
+	background: url(../img/out.gif) no-repeat -1px -1px;
+	border: 1px solid #A4A4A4;
+	border-radius: 2px;
+		-moz-border-radius: 2px;
+		-webkit-border-radius: 2px;
+		-ms-border-radius: 2px;
+		-o-border-radius: 2px;
+}
+.vente a.delete:hover { background: url(../img/out.gif) no-repeat -1px -17px; }
+
 
 /*NOM, CATEGORIE, TYPE de Prod*/
 .vente h3, .vente h4 { 
@@ -137,15 +151,18 @@
 			line-height: 12px;
 			margin: 3px 0 0 0;
 			font-size: 10px;
-			color: #686868;
+			color: #030303;
+			font-family: arial;
 		}
 			.content .prix span strong,
 			.content .prix span em { 
 				display: block; 
 				float: right; 
-				width: 60px;
+				width: auto;
 				text-align: right;
 				font-style: normal;
+				font-family: arial;
+				font-size: 12px;
 			}
 	
 /*Liens DETAIL*/
