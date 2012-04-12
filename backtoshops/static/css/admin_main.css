@@ -1,0 +1,251 @@
+/*------------------------------*/
+/*  Ajouter une nouvelle vente  */
+/*------------------------------*/
+
+/*----------MENU Icones----------*/
+	.link1 { background-position: 0 -375px; }
+	.link2 { background-position: 0 -425px; }
+	.link3 { background-position: 0 -450px; }
+	.link4 { background-position: 0 -400px; }
+	.link5 { background-position: 0 -475px; }
+	.link6 { background-position: 0 -500px; }
+			
+			
+			
+			
+/*------------------------------------------------------ */
+/*                       content-left                    */
+/*------------------------------------------------------ */
+
+/*---------- FORM CSS Generales ----------*/
+#main_form { position: relative; }
+	#main_form h3 {
+		display: block;
+		position: absolute;
+		top: 2px;
+		left: 2px;
+		width: 491px;
+		height: 22px;
+		line-height: 22px;
+		padding-left: 5px;
+		background-color: #000;
+		color: #fff;
+	}
+	#main_form h3 span { float: right; margin-right: 5px; color: #fff; }
+
+	#main_form fieldset {
+		padding: 40px 20px 20px 20px;
+		background-color: #fff;
+		border: 1px solid #c8c8c8;
+	}
+
+	#main_form .formrow { min-height: 22px; margin-bottom: 10px; }
+	#main_form .formrow.p_vide { height: 0; min-height: 0; margin: 0; }
+	#main_form .formrow.marge { margin-bottom: 30px; }
+	#main_form .formrow:after {
+		content: ".";
+		display: block;
+		height: 0;
+		clear: both;
+		visibility: hidden;
+	}
+
+	#main_form .formrow label,
+	#main_form .formrow input,
+	#main_form .formrow select,
+	#main_form .formrow textarea,
+	#main_form .formrow span,
+	#main_form .contForm{
+		display: block;
+		float: left;
+	}
+
+	#main_form .formrow span { height: 22px; line-height: 22px; margin: 0 5px; }
+
+	#main_form .formrow label { width: 165px; }
+	#main_form .formrow select { width: 130px; }
+	#main_form .formrow textarea,
+	#main_form .formrow input { width: 271px; }
+	#main_form .formrow .inputXS { width: 40px; }
+	#main_form .formrow .inputS { width: 70px; }
+	#main_form .formrow .inputM { width: 180px; }
+	#main_form .formrow .selectS { width: 70px; }
+	#main_form .formrow .selectL { width: 190px; }
+	#main_form .formrow .selectXL { width: 260px; }
+
+	#main_form .formrow select.dubble { width: 95px; }
+	#main_form .formrow #plus {
+    		background: url(../img/icon.png) no-repeat 0 -275px;
+   		display: block;
+    		float: left;
+    		height: 19px;
+    		margin: 1px 0 0 10px;
+    		overflow: hidden;
+    		text-indent: -1500px;
+    		width: 19px;
+	}
+
+	#main_form .contForm,
+	#main_form .formrow .contForm{
+		width: 283px;
+		height: auto;
+		line-height: auto;
+		margin: auto;
+	}
+
+	#main_form .contForm.checkbox input{
+		width: auto;
+		margin: 1px 15px 0 -25px;
+		border: none 0;
+	}
+	#main_form .contForm.checkbox label{
+		width: 85px;
+		height: 20px;
+		line-height: 20px;
+		margin: 2 0 0 0;
+		padding: 0 35px 0 5px;
+		border: 1px solid #eee;
+		background: none;
+		background-color: #f8f8f8;
+	}
+	#main_form .contForm.checkbox.auto label{ width: auto; }
+
+	#main_form .inactif { background-color: #d9d9d9; }
+
+	#main_form .raw {
+		width: 8px;
+		overflow: hidden;
+		text-indent: -1500px;
+		background: url(../../../documentations/back-office_BTS_06_24/img/icon.png) no-repeat -10px -252px;
+	}
+
+	#main_form .btn { float: right; margin: 5px 0 0 5px; }
+
+
+	 
+
+
+/*------------------------------------------------------ */
+/*                       content-right                   */
+/*------------------------------------------------------ */
+
+.titleRight {
+	width: 388px;
+	height: 27px;
+    line-height: 27px;
+	margin: 0 0 7px 0;
+	padding: 0 5px 0 7px;
+    background: url(../img/pix_title.gif) repeat-x 0 0 #FFFFFF;
+}
+.boxRight {
+	width: 398px;
+	margin: 0 0 30px 0;
+	background-color: #fff;
+	border: 1px solid #c4c4c4;
+}
+
+
+
+
+/*------------------- Liste Boutique -------------------*/
+.listeRight {
+	max-height: 600px;
+	overflow: auto;
+	margin-bottom: 10px;
+}
+
+
+/*--Table--*/
+.listeRight table { margin: 20px; }
+.listeRight table tr {
+	height: 28px;
+	line-height: 28px;
+	background-color: #F7F7F7;
+}
+.listeRight table tr.new { background: url(../img/back_flag.png) repeat-x 0 -1px; }
+.listeRight table tr.noshop td { text-align: center; font-weight: bold; }
+
+
+.listeRight table tr th { background-color: #fff; }
+.listeRight table tr td,
+.listeRight table tr th {
+	text-align: left;
+	padding: 0 5px;
+	font-size: 11px;
+	border-bottom: 1px solid #dbdbdb;
+}
+
+
+.listeRight table tr th.nom { width: 180px; }
+.listeRight table tr th.ville { width: 100px; }
+.listeRight table tr th.action { width: 58px; text-align: right; }
+.listeRight table tr th.action a { margin-right: 0; padding-right: 0; }
+
+
+.listeRight table tr th a {
+	display: block;
+	height: 25px;
+	line-height: 25px;
+	margin-right: 10px;
+	padding: 0 15px 0 0;
+	font-size: 11px;
+}
+	.listeRight table tr th.on a { background: url(../img/trie_on-off.gif) no-repeat 45px 1px; }
+	.listeRight table tr th.off a { background: url(../img/trie_on-off.gif) no-repeat 45px -24px; }
+
+.listeRight table tr td a {
+	display: block;
+	width: 280px;
+	height: 28px;
+	line-height: 28px;
+	overflow: hidden;
+	font-size: 11px;
+	font-weight: bold;
+}
+	.listeRight table tr td a:hover { text-decoration: underline; }
+
+.listeRight table tr td .out{
+	display: block;
+	float: left;
+	width: 16px;
+	height: 16px;
+	overflow: hidden;
+	text-indent: -1500px;
+	background: url(../img/out.gif) no-repeat 0 0;
+}
+	.listeRight table tr td .out:hover{ background-position: 0 -16px; }
+
+.listeRight table tr td .modif {
+	display: block;
+	float: left;
+	width: 16px;
+	height: 16px;
+	overflow: hidden;
+	text-indent: -1500px;
+	margin:  0 5px 0 20px;
+	background: url(../img/modif.gif) no-repeat 0 0;
+}
+	.listeRight table tr td .modif:hover{ background-position: 0 -16px; }
+
+
+
+/*--BTN--*/
+#content_Right .btn.ajouter { float: right; }
+
+
+
+/*------------------------*/
+/*    PAGINATION RIGHT    */
+/*------------------------*/
+
+.pag_nav { margin: 10px 20px; }
+
+
+
+
+
+
+
+
+
+
