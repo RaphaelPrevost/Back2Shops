@@ -9,8 +9,10 @@
 #import "ShopInfoViewController.h"
 #import "AFHTTPRequestOperation.h"
 #import "GDataXMLNode.h"
+#import "Shop.h"
 #import "Sale.h"
 #import "SaleListViewController.h"
+#import "LocalCache.h"
 
 @implementation ShopInfoViewController
 
@@ -74,6 +76,10 @@
         }
     }
     
+    // Create the queue
+    NSOperationQueue *queue = [[[NSOperationQueue alloc] init] autorelease];
+    queue.maxConcurrentOperationCount = 1;
+
     // Load Sales
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:[@"http://sales.backtoshops.com/webservice/1.0/pub/sales/list?shop=" stringByAppendingString:self.shopID]]];
     AFHTTPRequestOperation *saleListOperation = [[[AFHTTPRequestOperation alloc] initWithRequest:request] autorelease];
@@ -100,39 +106,51 @@
         self.numberOfSales = 0;
     }];
     
+    [queue addOperation:saleListOperation];
+    
     // Load Shop
-    request = [NSURLRequest requestWithURL:[NSURL URLWithString:[@"http://sales.backtoshops.com/webservice/1.0/pub/shops/info/" stringByAppendingString:self.shopID]]];
-    AFHTTPRequestOperation *shopInfoOeration = [[[AFHTTPRequestOperation alloc] initWithRequest:request] autorelease];
-    [shopInfoOeration setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSError *error;
-        GDataXMLDocument *doc = [[GDataXMLDocument alloc] initWithData:responseObject options:0 error:&error];
-        GDataXMLElement *root = doc.rootElement;
-        
-        NSString *shopName = [[[root elementsForName:@"name"] lastObject] stringValue];
-        NSString *shopAddress = [NSString stringWithFormat:@"%@<br/>%@ %@", [[[root elementsForName:@"addr"] lastObject] stringValue],
-                                                                            [[[root elementsForName:@"zip"] lastObject] stringValue],
-                                                                            [[[root elementsForName:@"city"] lastObject] stringValue]];
-        NSString *info = [[[root elementsForName:@"desc"] lastObject] stringValue];
-        NSString *hours = [[[root elementsForName:@"hours"] lastObject] stringValue];
-        
+    NSDictionary *cachedShops = [[LocalCache sharedLocalCache] cachedDictionaryWithKey:@"ShopMap"];
+    if ([cachedShops valueForKey:self.shopID]) {
+        Shop *shop = (Shop *)[cachedShops valueForKey:self.shopID];
         NSString *path = [[NSBundle mainBundle] pathForResource:@"ShopTemplate" ofType:@"html"];
         NSString *htmlTemplate = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:NULL];
-        htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$SHOP_NAME" withString:shopName];
-        htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$ADDRESS" withString:shopAddress];
-        htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$INFO" withString:info];
-        htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$HOURS" withString:hours];
+        htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$SHOP_NAME" withString:shop.name];
+        htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$ADDRESS" withString:shop.location];
+        htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$INFO" withString:shop.description];
+        htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$HOURS" withString:shop.hours];
         htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$SHOP_OFFERS" withString:[NSString stringWithFormat:@"%d", self.numberOfSales]];
         [self.webView loadHTMLString:htmlTemplate baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"ShopTemplate" ofType:@"html"]]];
+    } else {
+        request = [NSURLRequest requestWithURL:[NSURL URLWithString:[@"http://sales.backtoshops.com/webservice/1.0/pub/shops/info/" stringByAppendingString:self.shopID]]];
+        AFHTTPRequestOperation *shopInfoOeration = [[[AFHTTPRequestOperation alloc] initWithRequest:request] autorelease];
+        [shopInfoOeration setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+            NSError *error;
+            GDataXMLDocument *doc = [[GDataXMLDocument alloc] initWithData:responseObject options:0 error:&error];
+            GDataXMLElement *root = [[doc.rootElement elementsForName:@"shop"] lastObject];
+            
+            NSString *shopName = [[[root elementsForName:@"name"] lastObject] stringValue];
+            NSString *shopAddress = [NSString stringWithFormat:@"%@<br/>%@ %@", [[[root elementsForName:@"addr"] lastObject] stringValue],
+                                                                                [[[root elementsForName:@"zip"] lastObject] stringValue],
+                                                                                [[[root elementsForName:@"city"] lastObject] stringValue]];
+            NSString *info = [[[root elementsForName:@"desc"] lastObject] stringValue];
+            NSString *hours = [[[root elementsForName:@"hours"] lastObject] stringValue];
+            
+            NSString *path = [[NSBundle mainBundle] pathForResource:@"ShopTemplate" ofType:@"html"];
+            NSString *htmlTemplate = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:NULL];
+            htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$SHOP_NAME" withString:shopName];
+            htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$ADDRESS" withString:shopAddress];
+            htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$INFO" withString:info];
+            htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$HOURS" withString:hours];
+            htmlTemplate = [htmlTemplate stringByReplacingOccurrencesOfString:@"$SHOP_OFFERS" withString:[NSString stringWithFormat:@"%d", self.numberOfSales]];
+            [self.webView loadHTMLString:htmlTemplate baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"ShopTemplate" ofType:@"html"]]];
+            
+            [doc release];
+        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            
+        }];
         
-        [doc release];
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        
-    }];
-    
-    NSOperationQueue *queue = [[[NSOperationQueue alloc] init] autorelease];
-    queue.maxConcurrentOperationCount = 1;
-    [queue addOperation:saleListOperation];
-    [queue addOperation:shopInfoOeration];
+        [queue addOperation:shopInfoOeration];
+    }
 }
 
 - (void)viewDidUnload

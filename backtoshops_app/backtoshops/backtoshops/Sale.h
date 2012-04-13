@@ -19,6 +19,10 @@
 @property (nonatomic, copy) NSString *discountRatio;
 @property (nonatomic, copy) NSString *discountPrice;
 
+// Newly added
+@property (nonatomic, copy) NSString *discountType;
+@property (nonatomic, copy) NSString *discountValue;
+
 @property (nonatomic, strong) NSMutableArray *shops;
 
 - (NSString *)toJSON;

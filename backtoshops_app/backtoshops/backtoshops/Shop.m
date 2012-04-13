@@ -11,6 +11,7 @@
 @implementation Shop
 
 @synthesize identifier, name, imageURL, location;
+@synthesize upc, hours;
 @synthesize coordinate;
 
 - (void)dealloc
@@ -18,6 +19,8 @@
     [identifier release];
     [name release];
     [imageURL release];
+    [upc release];
+    [hours release];
     [location release];
     [super dealloc];
 }
@@ -37,6 +40,8 @@
         self.name = [aDecoder decodeObjectForKey:@"name"];
         self.location = [aDecoder decodeObjectForKey:@"location"];
         self.imageURL = [aDecoder decodeObjectForKey:@"imageURL"];
+        self.upc = [aDecoder decodeObjectForKey:@"upc"];
+        self.hours = [aDecoder decodeObjectForKey:@"hours"];
         double latitude = [aDecoder decodeDoubleForKey:@"coordinate.latitude"];
         double longitude = [aDecoder decodeDoubleForKey:@"coordinate.longitude"];
         self.coordinate = CLLocationCoordinate2DMake(latitude, longitude);
@@ -50,6 +55,8 @@
     [aCoder encodeObject:self.name forKey:@"name"];
     [aCoder encodeObject:self.location forKey:@"location"];
     [aCoder encodeObject:self.imageURL forKey:@"imageURL"];
+    [aCoder encodeObject:self.upc forKey:@"upc"];
+    [aCoder encodeObject:self.hours forKey:@"hours"];
     [aCoder encodeDouble:self.coordinate.latitude forKey:@"coordinate.latitude"];
     [aCoder encodeDouble:self.coordinate.longitude forKey:@"coordinate.longitude"];
 }

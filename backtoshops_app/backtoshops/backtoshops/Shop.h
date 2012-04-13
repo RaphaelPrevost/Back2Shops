@@ -15,6 +15,11 @@
 @property (nonatomic, copy) NSString *name;
 @property (nonatomic, copy) NSString *imageURL;
 @property (nonatomic, copy) NSString *location;
+
+// Newly added
+@property (nonatomic, copy) NSString *upc;
+@property (nonatomic, copy) NSString *hours;
+
 @property (nonatomic, assign) CLLocationCoordinate2D coordinate;
 
 - (NSString *)toJSON;

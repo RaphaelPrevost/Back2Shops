@@ -13,6 +13,7 @@
 
 @synthesize identifier;
 @synthesize name, description, imageURL, currency, price, discountPrice, discountRatio;
+@synthesize discountType, discountValue;
 @synthesize shops;
 
 - (void)dealloc
@@ -25,6 +26,8 @@
     [price release];
     [discountPrice release];
     [discountRatio release];
+    [discountType release];
+    [discountValue release];
     [shops release];
     [super dealloc];
 }
@@ -59,6 +62,8 @@
         self.price = [aDecoder decodeObjectForKey:@"price"];
         self.discountRatio = [aDecoder decodeObjectForKey:@"discountRatio"];
         self.discountPrice = [aDecoder decodeObjectForKey:@"discountPrice"];
+        self.discountType = [aDecoder decodeObjectForKey:@"discountType"];
+        self.discountValue = [aDecoder decodeObjectForKey:@"discountValue"];
     }
     return self;
 }
@@ -73,6 +78,8 @@
     [aCoder encodeObject:self.price forKey:@"price"];
     [aCoder encodeObject:self.discountRatio forKey:@"discountRatio"];
     [aCoder encodeObject:self.discountPrice forKey:@"discountPrice"];
+    [aCoder encodeObject:self.discountType forKey:@"discountType"];
+    [aCoder encodeObject:self.discountValue forKey:@"discountValue"];
 }
 
 @end
