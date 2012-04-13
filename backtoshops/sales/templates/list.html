@@ -77,35 +77,38 @@
             </div>
             {% endfor %}
             <!--FIN VENTE-->
-            {% if page.paginator.num_pages > 1%}
-            <div class="pag_nav">
-                <span class="page_info">
-                    {% blocktrans with number=page.number num_pages=page.paginator.num_pages %}
-                    Page {{ number }} of {{ num_pages }} pages.
-                    {% endblocktrans %}
-                </span>
-                <span class="page_size">
-                    <select id="page_size" name="page_size">
-                    {% for page_size in choice_page_size %}
-                        <option value="{{ page_size }}" {% if current_page_size == page_size %}selected="selected"{% endif %}>{{ page_size }}</option>
-                    {% endfor %}
-                    </select>
-                </span>
-                <div class="page_ico">
-                    <a href="{{ request.path }}?page=1" class="pagination prev2">|<</a>
-                    <a href="{{ request.path }}?page={{ prev_10 }}" class="pagination prev1"><</a>
-                    {% for page_num in page_nav %}
-                    {% if page.number != page_num %}
-					<a href="{{ request.path }}?page={{ page_num }}" class="pagination">{{ page_num }}</a>
-					{% else %}<span class="pagination current">{{ page_num }}</span>{% endif %}
-                    {% endfor %}
-                    <a href="{{ request.path }}?page={{ next_10 }}" class="pagination next1">></a>
-                    <a href="{{ request.path }}?page={{ page.paginator.num_pages }}" class="pagination next2">>|</a>
-                </div>
-            </div>
-            {% endif %}
         </fieldset>
     </form>
+    {% if page.paginator.num_pages > 1%}
+    <div class="pag_nav">
+        <span class="page_info">
+        {% blocktrans with number=page.number num_pages=page.paginator.num_pages %}
+        Page <input type="text" value="{{ number }}" id="page_num"> of {{ num_pages }} pages.
+        {% endblocktrans %}
+    </span>
+        <span class="page_size">
+            {% trans '(' %}
+            <select id="page_size" name="page_size">
+            {% for page_size in choice_page_size %}
+                <option value="{{ page_size }}" {% if current_page_size == page_size %}selected="selected"{% endif %}>{{ page_size }}</option>
+            {% endfor %}
+            </select>
+            {% trans ') elements/page ' %}
+        </span>
+        <div class="page_ico">
+            <a href="{{ request.path }}?page=1" class="pagination prev2">|<</a>
+            <a href="{{ request.path }}?page={{ prev_10 }}" class="pagination prev1"><</a>
+            {% for page_num in page_nav %}
+            {% if page.number != page_num %}
+			<a href="{{ request.path }}?page={{ page_num }}" class="pagination">{{ page_num }}</a>
+			{% else %}<span class="pagination current">{{ page_num }}</span>{% endif %}
+            {% endfor %}
+            <a href="{{ request.path }}?page={{ next_10 }}" class="pagination next1">></a>
+            <a href="{{ request.path }}?page={{ page.paginator.num_pages }}" class="pagination next2">>|</a>
+        </div>
+    </div>
+    {% endif %}
+        
 </div>
 
 <div id="content_Right">
@@ -157,6 +160,22 @@
         //set page size
         $("#page_size").change(function(event){
             location.href = location.pathname+'?page_size='+$(this).val();
+        });
+        
+        //go specific page by input
+        $("#page_num").keypress(function(event){
+            if(event.which == 13){ //'enter' key
+                var page_num = $(this).val();
+                if(!isNaN(page_num)&&parseInt(page_num)==page_num)
+                {
+                    location.href = '{{ request.path }}'+'?page='+page_num;
+                }
+                else
+                {
+                    alert("{% trans 'please input a correct page number.' %}");
+                }
+            }
+
         });
     });
 </script>
