@@ -127,12 +127,6 @@
 
 - (IBAction)click1st:(id)sender
 {
-//    UIViewController *c = [[[UIViewController alloc] init] autorelease];
-//    c.title = @"Hello 1st";
-//    
-//    UINavigationController *nav = [self.viewControllers objectAtIndex:0];
-//    [nav pushViewController:c animated:YES];
-
     [self deselectTab];
     
     UIImageView *imageView = (UIImageView *)[self.tabbar viewWithTag:ButtonImageTagFirst];
@@ -143,12 +137,6 @@
 
 - (IBAction)click2nd:(id)sender
 {
-//    UIViewController *c = [[[UIViewController alloc] init] autorelease];
-//    c.title = @"Hello 2nd";
-//    
-//    UINavigationController *nav = [self.viewControllers objectAtIndex:1];
-//    [nav pushViewController:c animated:YES];
-
     [self deselectTab];
     
     UIImageView *imageView = (UIImageView *)[self.tabbar viewWithTag:ButtonImageTagSecond];
@@ -204,6 +192,9 @@
                                 [[[shop elementsForName:@"addr"] lastObject] stringValue], 
                                 [[[shop elementsForName:@"zip"] lastObject] stringValue], 
                                 [[[shop elementsForName:@"city"] lastObject] stringValue]];
+            shopObj.upc = [[[shop elementsForName:@"upc"] lastObject] stringValue];
+            shopObj.imageURL = [[[shop elementsForName:@"img"] lastObject] stringValue];
+            shopObj.hours = [[[shop elementsForName:@"hours"] lastObject] stringValue];
             double lat = [[[[[shop elementsForName:@"location"] lastObject] attributeForName:@"lat"] stringValue] doubleValue];
             double lng = [[[[[shop elementsForName:@"location"] lastObject] attributeForName:@"long"] stringValue] doubleValue];
             shopObj.coordinate = CLLocationCoordinate2DMake(lat, lng);
@@ -228,11 +219,11 @@
             saleObj.identifier = [[sale attributeForName:@"id"] stringValue];
             saleObj.name = [[[sale elementsForName:@"name"] lastObject] stringValue];
             saleObj.description = [[[sale elementsForName:@"desc"] lastObject] stringValue];
-            saleObj.imageURL = [[[[sale elementsForName:@"img"] lastObject] attributeForName:@"url"] stringValue];
+            saleObj.imageURL = [[[sale elementsForName:@"img"] lastObject] stringValue];
             saleObj.price = [[[sale elementsForName:@"price"] lastObject] stringValue];
             saleObj.currency = [[[[sale elementsForName:@"price"] lastObject] attributeForName:@"currency"] stringValue];
-            saleObj.discountRatio = [[[[sale elementsForName:@"discount"] lastObject] attributeForName:@"amount"] stringValue];
-            saleObj.discountPrice = [[[[sale elementsForName:@"discount"] lastObject] attributeForName:@"price"] stringValue];
+            saleObj.discountType = [[[[sale elementsForName:@"discount"] lastObject] attributeForName:@"type"] stringValue];
+            saleObj.discountValue = [[[sale elementsForName:@"discount"] lastObject] stringValue];
             [saleMap setValue:saleObj forKey:saleObj.identifier];
             [saleObj release];
         }
@@ -244,6 +235,7 @@
     }];
     
     NSOperationQueue *queue = [[[NSOperationQueue alloc] init] autorelease];
+    queue.maxConcurrentOperationCount = 2;
     [queue addOperation:operation1];
     [queue addOperation:operation2];
 }
