@@ -149,15 +149,17 @@
             </div>
                 <span class="page_info">
                     {% blocktrans with number=users.number num_pages=users.paginator.num_pages %}
-                    Page {{ number }} of {{ num_pages }} pages.
+                    Page <input type="text" value="{{ number }}" id="page_num"> of {{ num_pages }} pages.
                     {% endblocktrans %}
                 </span>
                 <span class="page_size">
+                    {% trans '(' %}
                     <select id="page_size" name="page_size">
                     {% for page_size in choice_page_size %}
                         <option value="{{ page_size }}" {% if current_page_size == page_size %}selected="selected"{% endif %}>{{ page_size }}</option>
                     {% endfor %}
                     </select>
+                    {% trans ') elements/page ' %}
                 </span>
                 <div>
                     <a href="1" class="pagination">|<</a>
@@ -204,6 +206,19 @@ $(document).ready(function(){
         $("#current_page").val($(this).attr('href'));
         $("#page_size_form").submit();
         event.preventDefault();        
+    });
+    //go specific page by input
+    $("#page_num").keypress(function(event){
+        if(event.which == 13){ //'enter' key
+            var page_num = $(this).val();
+            if(!isNaN(page_num)&&parseInt(page_num)==page_num) {
+                $("#current_page").val(page_num);
+                $("#page_size_form").submit();
+                event.preventDefault();
+            }
+            else
+                alert("{% trans 'please input a correct page number.' %}");
+        }
     });
 
 });    
