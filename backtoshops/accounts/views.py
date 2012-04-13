@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 import json
 from globalsettings import get_setting
 import forms
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 def home_page(request):
     """
@@ -80,8 +80,14 @@ class BaseOperatorView(BOLoginRequiredMixin):
             self.users = User.objects.filter(is_staff=False, userprofile__work_for=self.request.user.get_profile().work_for)
         if 'current_page' not in self.__dict__:
             self.current_page = 1
-        users = Paginator(self.users,settings.get_page_size(self.request)).page(self.current_page)
-        range_start = self.current_page - (self.current_page % settings.PAGE_NAV_SIZE)
+        users = None
+        paginator = Paginator(self.users,settings.get_page_size(self.request))
+        try:
+            users = Paginator(self.users,settings.get_page_size(self.request)).page(self.current_page)
+        except(EmptyPage, InvalidPage):
+            users = Paginator(self.users,settings.get_page_size(self.request)).page(paginator.num_pages)
+            self.current_page = paginator.num_pages
+        range_start = self.current_page - (self.current_page % settings.PAGE_NAV_SIZE)          
         kwargs.update({
             'user_pk': self.kwargs.get('pk', None),
             'choice_page_size': settings.CHOICE_PAGE_SIZE,
