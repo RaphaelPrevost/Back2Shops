@@ -12,10 +12,13 @@ from globalsettings.models import GlobalSettings
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 import settings
+from widgets import AdvancedFileInput
 
 class SABrandForm(forms.ModelForm):
     error_css_class = 'error'
     required_css_class = 'required'
+    
+    logo = forms.ImageField(widget=AdvancedFileInput)
     
     class Meta:
         model = Brand
