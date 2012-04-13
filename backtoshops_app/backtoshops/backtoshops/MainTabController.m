@@ -185,21 +185,8 @@
         NSError *error;
         GDataXMLDocument *doc = [[GDataXMLDocument alloc] initWithData:responseObject options:0 error:&error];
         for (GDataXMLElement *shop in [doc.rootElement elementsForName:@"shop"]) {
-            Shop *shopObj = [[Shop alloc] init];
-            shopObj.identifier = [[shop attributeForName:@"id"] stringValue];
-            shopObj.name = [[[shop elementsForName:@"name"] lastObject] stringValue];
-            shopObj.location = [NSString stringWithFormat:@"%@<br/>%@ %@", 
-                                [[[shop elementsForName:@"addr"] lastObject] stringValue], 
-                                [[[shop elementsForName:@"zip"] lastObject] stringValue], 
-                                [[[shop elementsForName:@"city"] lastObject] stringValue]];
-            shopObj.upc = [[[shop elementsForName:@"upc"] lastObject] stringValue];
-            shopObj.imageURL = [[[shop elementsForName:@"img"] lastObject] stringValue];
-            shopObj.hours = [[[shop elementsForName:@"hours"] lastObject] stringValue];
-            double lat = [[[[[shop elementsForName:@"location"] lastObject] attributeForName:@"lat"] stringValue] doubleValue];
-            double lng = [[[[[shop elementsForName:@"location"] lastObject] attributeForName:@"long"] stringValue] doubleValue];
-            shopObj.coordinate = CLLocationCoordinate2DMake(lat, lng);
+            Shop *shopObj = [Shop shopFromXML:shop];
             [shopMap setValue:shopObj forKey:shopObj.identifier];
-            [shopObj release];
         }
         
         [[LocalCache sharedLocalCache] storeDictionary:shopMap forKey:@"ShopMap"];
@@ -215,17 +202,15 @@
         NSError *error;
         GDataXMLDocument *doc = [[GDataXMLDocument alloc] initWithData:responseObject options:0 error:&error];
         for (GDataXMLElement *sale in [doc.rootElement elementsForName:@"sale"]) {
-            Sale *saleObj = [[Sale alloc] init];
-            saleObj.identifier = [[sale attributeForName:@"id"] stringValue];
-            saleObj.name = [[[sale elementsForName:@"name"] lastObject] stringValue];
-            saleObj.description = [[[sale elementsForName:@"desc"] lastObject] stringValue];
-            saleObj.imageURL = [[[sale elementsForName:@"img"] lastObject] stringValue];
-            saleObj.price = [[[sale elementsForName:@"price"] lastObject] stringValue];
-            saleObj.currency = [[[[sale elementsForName:@"price"] lastObject] attributeForName:@"currency"] stringValue];
-            saleObj.discountType = [[[[sale elementsForName:@"discount"] lastObject] attributeForName:@"type"] stringValue];
-            saleObj.discountValue = [[[sale elementsForName:@"discount"] lastObject] stringValue];
+            Sale *saleObj = [Sale saleFromXML:sale];
+            
+            NSMutableArray *shops = [NSMutableArray array];
+            for (GDataXMLElement *shop in [sale elementsForName:@"shop"]) {
+                Shop *shopObj = [Shop shopFromXML:shop];
+                [shops addObject:shopObj];
+            }
+            
             [saleMap setValue:saleObj forKey:saleObj.identifier];
-            [saleObj release];
         }
         
         [[LocalCache sharedLocalCache] storeDictionary:saleMap forKey:@"SaleMap"];

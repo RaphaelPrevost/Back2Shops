@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "GDataXMLNode.h"
 
 @interface Sale : NSObject
 
@@ -24,6 +25,8 @@
 @property (nonatomic, copy) NSString *discountValue;
 
 @property (nonatomic, strong) NSMutableArray *shops;
+
++ (id)saleFromXML:(GDataXMLElement *)el;
 
 - (NSString *)toJSON;
 

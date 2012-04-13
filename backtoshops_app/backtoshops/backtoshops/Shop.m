@@ -32,6 +32,24 @@
     return jsonText;
 }
 
++ (id)shopFromXML:(GDataXMLElement *)el
+{
+    Shop *shopObj = [[[Shop alloc] init] autorelease];
+    shopObj.identifier = [[el attributeForName:@"id"] stringValue];
+    shopObj.name = [[[el elementsForName:@"name"] lastObject] stringValue];
+    shopObj.location = [NSString stringWithFormat:@"%@<br/>%@ %@", 
+                        [[[el elementsForName:@"addr"] lastObject] stringValue], 
+                        [[[el elementsForName:@"zip"] lastObject] stringValue], 
+                        [[[el elementsForName:@"city"] lastObject] stringValue]];
+    shopObj.upc = [[[el elementsForName:@"upc"] lastObject] stringValue];
+    shopObj.imageURL = [[[el elementsForName:@"img"] lastObject] stringValue];
+    shopObj.hours = [[[el elementsForName:@"hours"] lastObject] stringValue];
+    double lat = [[[[[el elementsForName:@"location"] lastObject] attributeForName:@"lat"] stringValue] doubleValue];
+    double lng = [[[[[el elementsForName:@"location"] lastObject] attributeForName:@"long"] stringValue] doubleValue];
+    shopObj.coordinate = CLLocationCoordinate2DMake(lat, lng);
+    return shopObj;
+}
+
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
     self = [super init];

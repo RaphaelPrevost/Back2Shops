@@ -89,16 +89,8 @@
         self.numberOfSales = [[doc.rootElement elementsForName:@"sale"] count];
         
         for (GDataXMLElement *el in [doc.rootElement elementsForName:@"sale"]) {
-            Sale *obj = [[Sale alloc] init];
-            obj.identifier = [[el attributeForName:@"id"] stringValue];
-            obj.name = [[[el elementsForName:@"name"] lastObject] stringValue];
-            obj.description = [[[el elementsForName:@"desc"] lastObject] stringValue];
-            obj.imageURL = [[[[el elementsForName:@"img"] lastObject] attributeForName:@"url"] stringValue];
-            obj.price = [[[el elementsForName:@"price"] lastObject] stringValue];
-            obj.discountRatio = [[[[el elementsForName:@"discount"] lastObject] attributeForName:@"amount"] stringValue];
-            obj.discountPrice = [[[[el elementsForName:@"discount"] lastObject] attributeForName:@"price"] stringValue];
-            [saleList addObject:obj];
-            [obj release];
+            Sale *saleObj = [Sale saleFromXML:el];
+            [saleList addObject:saleObj];
         }
         
         [doc release];

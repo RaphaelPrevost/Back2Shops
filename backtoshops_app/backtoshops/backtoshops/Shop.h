@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
+#import "GDataXMLNode.h"
 
 @interface Shop : NSObject <NSCoding>
 
@@ -21,6 +22,8 @@
 @property (nonatomic, copy) NSString *hours;
 
 @property (nonatomic, assign) CLLocationCoordinate2D coordinate;
+
++ (id)shopFromXML:(GDataXMLElement *)el;
 
 - (NSString *)toJSON;
 
