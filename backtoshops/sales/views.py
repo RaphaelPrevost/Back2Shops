@@ -105,12 +105,13 @@ class ListSalesView(LoginRequiredMixin, View, TemplateResponseMixin):
             self.request.session['page_size'] = p_size
         except:
             self.current_page = 1
-        self.range_start = self.current_page - (self.current_page % settings.PAGE_NAV_SIZE)
         paginator = Paginator(self.sales,settings.get_page_size(self.request))
         try:
             self.page = paginator.page(self.current_page)
         except(EmptyPage, InvalidPage):
             self.page = paginator.page(paginator.num_pages)
+            self.current_page = paginator.num_pages
+        self.range_start = self.current_page - (self.current_page % settings.PAGE_NAV_SIZE)
         self.choice_page_size = settings.CHOICE_PAGE_SIZE
         self.current_page_size = settings.get_page_size(self.request)
         self.prev_10 = self.current_page-settings.PAGE_NAV_SIZE if self.current_page-settings.PAGE_NAV_SIZE > 1 else 1

@@ -39,12 +39,13 @@ class BaseShopView(LoginRequiredMixin):
         except:
             pass
         self.current_page = int(self.kwargs.get('page','1'))
-        self.range_start = self.current_page - (self.current_page % settings.PAGE_NAV_SIZE)
         paginator = Paginator(shops,settings.get_page_size(self.request))
         try:
             self.page = paginator.page(self.current_page)
         except(EmptyPage, InvalidPage):
             self.page = paginator.page(paginator.num_pages)
+            self.current_page = paginator.num_pages
+        self.range_start = self.current_page - (self.current_page % settings.PAGE_NAV_SIZE)    
         kwargs.update({
             'shop_pk': self.kwargs.get('pk', None),
             'shops': self.page,

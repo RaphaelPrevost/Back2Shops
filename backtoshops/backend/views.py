@@ -50,12 +50,13 @@ class SARequiredMixin(object):
         except:
             pass
         self.current_page = int(self.kwargs.get('page','1'))
-        self.range_start = self.current_page - (self.current_page % settings.PAGE_NAV_SIZE)
         paginator = Paginator(self.get_queryset(),settings.get_page_size(self.request))
         try:
             self.page = paginator.page(self.current_page)
         except(EmptyPage, InvalidPage):
             self.page = paginator.page(paginator.num_pages)
+            self.current_page = paginator.num_pages
+        self.range_start = self.current_page - (self.current_page % settings.PAGE_NAV_SIZE)   
         # fill some required fields.
         kwargs.update({
             'choice_page_size': settings.CHOICE_PAGE_SIZE,
@@ -103,8 +104,14 @@ class BaseUserView(SARequiredMixin):
             self.users = User.objects.filter(is_staff=True, is_superuser=False)
         if 'current_page' not in self.__dict__:
             self.current_page = 1
-        users = Paginator(self.users,settings.get_page_size(self.request)).page(self.current_page)
-        range_start = self.current_page - (self.current_page % settings.PAGE_NAV_SIZE)
+        users = None
+        paginator = Paginator(self.users,settings.get_page_size(self.request))
+        try:
+            users = Paginator(self.users,settings.get_page_size(self.request)).page(self.current_page)
+        except(EmptyPage, InvalidPage):
+            users = Paginator(self.users,settings.get_page_size(self.request)).page(paginator.num_pages)
+            self.current_page = paginator.num_pages
+        range_start = self.current_page - (self.current_page % settings.PAGE_NAV_SIZE)   
         kwargs.update({
             'user_pk': self.kwargs.get('pk', None),
             'choice_page_size': settings.CHOICE_PAGE_SIZE,
