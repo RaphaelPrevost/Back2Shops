@@ -12,7 +12,7 @@
 @implementation Sale
 
 @synthesize identifier;
-@synthesize name, description, imageURL, currency, price, discountPrice, discountRatio;
+@synthesize name, description, imageURL, currency, price;
 @synthesize discountType, discountValue;
 @synthesize shops;
 
@@ -24,19 +24,28 @@
     [imageURL release];
     [currency release];
     [price release];
-    [discountPrice release];
-    [discountRatio release];
     [discountType release];
     [discountValue release];
     [shops release];
     [super dealloc];
 }
 
+- (NSString *)discountPrice
+{
+    float discountPrice = [self.price floatValue] * (1 - [self.discountValue floatValue] / 100.0f);
+    return [NSString stringWithFormat:@"%.0f", discountPrice];
+}
+
+- (NSString *)discountRatio
+{
+    return self.discountValue;
+}
+
 - (NSString *)toJSON
 {
     NSMutableString *jsonText = [[[NSMutableString alloc] init] autorelease];
     [jsonText appendString:[NSString stringWithFormat:@"{'name': '%@', 'description': '%@', 'imageURL': '%@', 'currency': '%@', 'price': '%@', 'discountPrice': '%@', 'discountRatio': '%@'",
-                            self.name, self.description, self.imageURL, self.currency, self.price, self.discountPrice, self.discountRatio]];
+                            self.name, self.description, self.imageURL, self.currency, self.price, [self discountPrice], self.discountValue]];
     if (self.shops) {
         NSMutableArray *textArray = [NSMutableArray array];
         for (Shop *shop in self.shops) {
@@ -75,8 +84,6 @@
         self.imageURL = [aDecoder decodeObjectForKey:@"imageURL"];
         self.currency = [aDecoder decodeObjectForKey:@"currency"];
         self.price = [aDecoder decodeObjectForKey:@"price"];
-        self.discountRatio = [aDecoder decodeObjectForKey:@"discountRatio"];
-        self.discountPrice = [aDecoder decodeObjectForKey:@"discountPrice"];
         self.discountType = [aDecoder decodeObjectForKey:@"discountType"];
         self.discountValue = [aDecoder decodeObjectForKey:@"discountValue"];
     }
@@ -91,8 +98,6 @@
     [aCoder encodeObject:self.imageURL forKey:@"imageURL"];
     [aCoder encodeObject:self.currency forKey:@"currency"];
     [aCoder encodeObject:self.price forKey:@"price"];
-    [aCoder encodeObject:self.discountRatio forKey:@"discountRatio"];
-    [aCoder encodeObject:self.discountPrice forKey:@"discountPrice"];
     [aCoder encodeObject:self.discountType forKey:@"discountType"];
     [aCoder encodeObject:self.discountValue forKey:@"discountValue"];
 }

@@ -17,8 +17,6 @@
 @property (nonatomic, copy) NSString *imageURL;
 @property (nonatomic, copy) NSString *currency;
 @property (nonatomic, copy) NSString *price;
-@property (nonatomic, copy) NSString *discountRatio;
-@property (nonatomic, copy) NSString *discountPrice;
 
 // Newly added
 @property (nonatomic, copy) NSString *discountType;
@@ -27,6 +25,9 @@
 @property (nonatomic, strong) NSMutableArray *shops;
 
 + (id)saleFromXML:(GDataXMLElement *)el;
+
+- (NSString *)discountPrice;
+- (NSString *)discountRatio;
 
 - (NSString *)toJSON;
 

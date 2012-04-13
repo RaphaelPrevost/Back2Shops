@@ -60,11 +60,11 @@
     UILabel *name = (UILabel *)[self.view viewWithTag:2];
     name.text = sale.name;
     UILabel *discount = (UILabel *)[self.view viewWithTag:3];
-    discount.text = [NSString stringWithFormat:@"%@€00", sale.discountPrice];
+    discount.text = [NSString stringWithFormat:@"%@€00", [sale discountPrice]];
     UILabel *price = (UILabel *)[self.view viewWithTag:4];
     price.text = [NSString stringWithFormat:@"au lieu de %@€00", sale.price];
     UILabel *ratio = (UILabel *)[self.view viewWithTag:5];
-    ratio.text = [NSString stringWithFormat:@"-%@%%", sale.discountRatio];
+    ratio.text = [NSString stringWithFormat:@"-%@%%", [sale discountRatio]];
     
     // Place pins
     for (Shop *shop in sale.shops) {

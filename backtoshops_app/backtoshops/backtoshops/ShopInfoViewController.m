@@ -178,8 +178,6 @@
 {
     NSString *requestString = [[request URL] absoluteString];
     
-//    NSLog(@"%@", requestString);
-    
     if ([requestString isEqualToString:@"app://salelist"]) {
         [self loadSaleList];
         return NO;
