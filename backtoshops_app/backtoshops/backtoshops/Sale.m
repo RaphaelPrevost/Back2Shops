@@ -50,6 +50,21 @@
     return [jsonText copy];
 }
 
++ (id)saleFromXML:(GDataXMLElement *)el
+{
+    Sale *saleObj = [[[Sale alloc] init] autorelease];
+    saleObj.identifier = [[el attributeForName:@"id"] stringValue];
+    saleObj.name = [[[el elementsForName:@"name"] lastObject] stringValue];
+    saleObj.description = [[[el elementsForName:@"desc"] lastObject] stringValue];
+    saleObj.imageURL = [[[el elementsForName:@"img"] lastObject] stringValue];
+    saleObj.price = [[[el elementsForName:@"price"] lastObject] stringValue];
+    saleObj.currency = [[[[el elementsForName:@"price"] lastObject] attributeForName:@"currency"] stringValue];
+    saleObj.discountType = [[[[el elementsForName:@"discount"] lastObject] attributeForName:@"type"] stringValue];
+    saleObj.discountValue = [[[el elementsForName:@"discount"] lastObject] stringValue];
+    
+    return saleObj;
+}
+
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
     self = [super init];

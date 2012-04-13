@@ -47,16 +47,8 @@
         GDataXMLDocument *doc = [[GDataXMLDocument alloc] initWithData:responseObject options:0 error:&error];
         NSMutableArray *saleList = [NSMutableArray array];
         for (GDataXMLElement *el in [doc.rootElement elementsForName:@"sale"]) {
-            Sale *sale = [[Sale alloc] init];
-            sale.identifier = [[el attributeForName:@"id"] stringValue];
-            sale.name = [[[el elementsForName:@"name"] lastObject] stringValue];
-            sale.description = [[[el elementsForName:@"desc"] lastObject] stringValue];
-            sale.imageURL = [[[[el elementsForName:@"img"] lastObject] attributeForName:@"url"] stringValue];
-            sale.price = [[[el elementsForName:@"price"] lastObject] stringValue];
-            sale.discountRatio = [[[[el elementsForName:@"discount"] lastObject] attributeForName:@"amount"] stringValue];
-            sale.discountPrice = [[[[el elementsForName:@"discount"] lastObject] attributeForName:@"price"] stringValue];
-            [saleList addObject:sale];
-            [sale release];
+            Sale *saleObj = [Sale saleFromXML:el];
+            [saleList addObject:saleObj];
         }
         
         self.items = [saleList copy];
