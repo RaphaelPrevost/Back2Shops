@@ -57,6 +57,10 @@
         <div>{% trans 'common attributes for this type' %}</div>
         <div>{{ formset.management_form }}</div>
         <fieldset id="subform">
+            <div class="add_subform">
+                <input type="text" id="new_ca_name" />
+                <input type="button" id="add_ca" value='{% trans 'add' %}' />
+            </div>
         {% for subform in formset.forms %}
             <div class="formrow">
                 <label for="{{subform.name.auto_id}}">{% trans subform.name.label %}</label>
@@ -66,7 +70,6 @@
             </div>
         {% endfor %}
         </fieldset>
-        <input type="button" id="add_ca" value='{% trans 'add' %}' />
         <input class="btn valider" type="submit" value='{% trans "Save" %}'/>
         <button type="reset" class="btn annuler">{% trans "Cancel" %}</button>
     </form>
@@ -173,8 +176,11 @@ $(document).ready(function(){
     $("#add_ca").click(function(){
         var new_subform = $("#add_ca_form").html();
         var total_forms = $("#{{ formset.management_form.TOTAL_FORMS.auto_id }}").val();
+        var new_name = $('#new_ca_name').val(); 
         new_subform = new_subform.replace(/__prefix__/g,total_forms.toString());
+        $('#new_ca_name').val('');
         $("#subform").append(new_subform);
+        $('#{{formset.empty_form.name.auto_id}}'.replace(/__prefix__/g,total_forms.toString())).val(new_name);
         total_forms++;
         $("#{{ formset.management_form.TOTAL_FORMS.auto_id }}").val(total_forms);
     });

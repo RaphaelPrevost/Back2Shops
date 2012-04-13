@@ -257,7 +257,7 @@ class BaseAttributeView(SARequiredMixin):
     template_name = "sa_attribute.html"
     form_class = forms.SAAttributeForm
     model = ProductType
-    formset = inlineformset_factory(ProductType, CommonAttribute, extra=1)
+    formset = inlineformset_factory(ProductType, CommonAttribute, extra=0)
     
     def get_context_data(self, **kwargs):
         kwargs.update({"formset": self.formset,})
