@@ -11,7 +11,6 @@
 
 {% block head %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
-	<link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/admin_main.css">
 	<link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/admin_brand.css">
 {% endblock %}
 
@@ -96,16 +95,17 @@
                     <option value="{{ page_size }}" {% if current_page_size == page_size %}selected="selected"{% endif %}>{{ page_size }}</option>
                 {% endfor %}
                 </select>
-                {% trans ') elements/page ' %}
+                {% trans ' elements/page )' %}
             </span>
             <div class="page_ico">
-                <a href="1" class="pagination">|<</a>
-                <a href="{{ prev_10 }}" class="pagination"><</a>
-                <a href="{{ page_num }}" class="pagination">{% for page_num in page_nav %}
-                [{% if page.number != page_num %}<a href="{{ page_num }}" class="pagination">{{ page_num }}</a>{% else %}{{ page_num }}{% endif %}] 
-                {% endfor %}</a>
-                <a href="{{ next_10 }}" class="pagination">></a>
-                <a href="{{ page.paginator.num_pages }}" class="pagination">>|</a>
+                <a href="1" class="pagination prev2">|<</a>
+                <a href="{{ prev_10 }}" class="pagination prev1"><</a>
+                {% for page_num in page_nav %}
+                {% if page.number != page_num %}<a href="{{ page_num }}" class="pagination">{{ page_num }}</a>
+				{% else %}<span class="pagination current">{{ page_num }}</span>{% endif %}
+                {% endfor %}
+                <a href="{{ next_10 }}" class="pagination next1">></a>
+                <a href="{{ page.paginator.num_pages }}" class="pagination next2">>|</a>
             </div>
         </div>
         {% endif %}

@@ -15,23 +15,19 @@ class AdvancedFileInput(ClearableFileInput):
     def render(self, name, value, attrs=None,):
 
         substitutions = {
-            'initial_text': self.initial_text,
-            'input_text': self.input_text,
+            'input_text': '', #self.input_text,
             'clear_template': '',
             'clear_checkbox_label': self.clear_checkbox_label,
         }
-        template = u'%(input)s'
+        template = u'%(input)s';
 
         substitutions['input'] = super(ClearableFileInput, self).render(name, value, attrs)
 
         if value and hasattr(value, "url"):
 
-            template = self.template_with_initial
+            template = u'%(initial)s %(clear_template)s<br />%(input_text)s: %(input)s' 
             if self.preview:
-                substitutions['initial'] = (u'<a href="{0}">{1}</a><br>\
-                <a href="{0}" target="_blank"><img src="{0}" width="{2}"></a><br>'.format
-                    (escape(value.url),'...'+escape(force_unicode(value))[-self.url_length:],
-                     self.image_width))
+                substitutions['initial'] = (u'<img class="img_logo" src="{0}" width="{1}">'.format(escape(value.url), self.image_width))
             else:
                 substitutions['initial'] = (u'<a href="{0}">{1}</a>'.format
                     (escape(value.url),'...'+escape(force_unicode(value))[-self.url_length:]))
