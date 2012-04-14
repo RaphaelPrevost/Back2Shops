@@ -21,15 +21,15 @@
         </li>
         <li>
             <h3 class="link3">{% trans "History" %}</h3>
-            <a href="{% url list_sales "old" %}" class="bottom">{% trans "History" %}</a>
+            <a href="{% url list_sales "old" %}">{% trans "History" %}</a>
         </li>
         <li>
             <h3 class="link6">{% trans "Performance Map" %}</h3>
-            <a href="map_1.htm" class="bottom">{% trans "Performance Map" %}</a>
+            <a href="map_1.htm">{% trans "Performance Map" %}</a>
         </li>
         {% if user.is_staff %}
         <li>
-            <h3 class="">{% trans "Operators mgmt" %}</h3>
+            <h3 class="link7">{% trans "Operators mgmt" %}</h3>
             <a href="{% url operators %}" class="bottom">{% trans "Operators mgmt" %}</a>
         </li>
         {% endif %}
