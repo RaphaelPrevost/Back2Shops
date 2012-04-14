@@ -195,7 +195,7 @@ label {
 		position: absolute;
 		top: 85px;
 		right: 15px;
-		width: 180px; /*total : 243px;*/
+		width: 210px; /*total : 243px;*/
 		height: 25px;
 		padding: 0 2px 5px 63px;
 		border-bottom: 1px solid #dcdcdc;
@@ -227,6 +227,7 @@ label {
 			.link4 { background-position: 0 -75px; }
 			.link5 { background-position: 0 -100px; }
 			.link6 { background-position: 0 -125px; }
+			.link7 { background-position: 0 -400px; }
 
 
 
@@ -497,7 +498,9 @@ label {
 /*------------------------*/
 
 .pag_nav {
+	position: relative;
 	height: 30px;
+	margin-bottom: 35px;
 	background-color: #F2F9FF;
 	border: 1px solid #E1E6EA;
 }
@@ -508,15 +511,19 @@ label {
 	font-size: 11px;
 	font-family: arial;
 }
+#page_num { width: 23px; height:15px; }
 .page_size{ 
-	display: block; float: left;
-	width: 58px;
+	display: block; float: right;
+	width: 140px;
 	margin: 5px; 
+	font-size: 11px;
+	font-family: arial;
 }
-.page_size select { width: 55px; padding: 0 0 0 2px; }
+.page_size select { width: 50px; height: 17px; padding: 0px; }
 
 .pag_nav div{ 
-	display: block; float: right;
+	position: absolute;
+	top: 30px; right: -3px;
 	height: 30px;
 }
 

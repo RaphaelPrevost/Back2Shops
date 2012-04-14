@@ -3,6 +3,7 @@
 /*------------------------------*/
 
 /*----------MENU Icones----------*/
+#menu_ico { width: 180px; }
 	.link1 { background-position: 0 -375px; }
 	.link2 { background-position: 0 -425px; }
 	.link3 { background-position: 0 -450px; }
@@ -156,10 +157,10 @@
 
 
 /*--Table--*/
-.listeRight table { margin: 20px; }
+.listeRight table { width: 358px; margin: 20px; }
 .listeRight table tr {
-	height: 28px;
-	line-height: 28px;
+	/*height: 28px;
+	line-height: 28px;*/
 	background-color: #F7F7F7;
 }
 .listeRight table tr.new { background: url(../img/back_flag.png) repeat-x 0 -1px; }
@@ -174,6 +175,8 @@
 	font-size: 11px;
 	border-bottom: 1px solid #dbdbdb;
 }
+
+.listeRight table tr td { padding: 5px 3px; }
 
 
 .listeRight table tr th.nom { width: 180px; }
@@ -238,7 +241,7 @@
 /*    PAGINATION RIGHT    */
 /*------------------------*/
 
-.pag_nav { margin: 10px 20px; }
+.pag_nav { margin: 10px 20px 35px 20px; }
 
 
 
