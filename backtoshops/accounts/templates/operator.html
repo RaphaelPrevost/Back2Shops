@@ -117,20 +117,20 @@
     {% csrf_token %}
     <div style='display:none'><input type='hidden' name='search' value='True' /></div>    
     <div class="searchBox">
-        <label for="id_searchUsername">{% trans "username" %}</label><input type="text" id="id_searchUsername" name="username" value="{{ search_username }}" />
-        <input type="submit" value="search" id="btnSearch" />
+        <label for="id_searchUsername">{% trans "User" %}</label><input type="text" id="id_searchUsername" name="username" value="{{ search_username }}" />
+        <input type="submit" value="{% trans "Search" %}" id="btnSearch" />
     </div>
     </form>
     <div class="boxRight" id="listeUser"> 
         <table cellpadding="0" cellspacing="0" border="0">
             <tr>
-                <th class="nom on"><a href="#">{% trans "Username" %}</a></th>
+                <th class="nom on"><a href="#">{% trans "User" %}</a></th>
                 <th class="action"><a href="#">{% trans "Actions" %}</a></th>
             </tr>
             {% for user in users.object_list %}
             <tr id="user_{{ user.pk }}"><!-- class=new -->
                 <td><a href="{% url sa_edit_user user.pk %}">{{ user.username }}</a></td>
-                <td><a class="modif" href="{% url edit_operator user.pk %}">edit</a><a class="out delete_user" href="{% url delete_operator user.pk %}">delete</a></td>
+                <td><a class="modif" href="{% url edit_operator user.pk %}">{% trans "Edit" %}</a><a class="out delete_user" href="{% url delete_operator user.pk %}">{% trans "Delete" %}</a></td>
             </tr>
             {% empty %}
             <tr class="noshop">
@@ -217,7 +217,7 @@ $(document).ready(function(){
                 event.preventDefault();
             }
             else
-                alert("{% trans 'please input a correct page number.' %}");
+                alert("{% trans "Please enter a valid page number." %}");
         }
     });
 
