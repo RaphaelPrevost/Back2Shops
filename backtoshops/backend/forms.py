@@ -49,7 +49,7 @@ class BaseUserForm(forms.ModelForm):
 
 class SACreateUserForm(BaseUserForm):
     password1 = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
-    password2 = forms.CharField(label=_("Password confirmation"), widget=forms.PasswordInput)
+    password2 = forms.CharField(label=_("Confirm password"), widget=forms.PasswordInput)
     
     def clean_username(self):
         username = self.cleaned_data["username"]
@@ -126,11 +126,11 @@ class SASettingsForm(forms.Form):
     
     default_language = forms.ChoiceField(choices=settings.LANGUAGES, label=_('Default language'))
     default_currency = forms.ChoiceField(choices=[(s,s) for s in ProductCurrency.objects.all().values_list('code',flat=True)], label=_('Default currency'))
-    password = forms.CharField(widget=forms.PasswordInput, label=_('Current password'))
-    username = forms.CharField(label=_('Super admin username'))
-    email = forms.EmailField(label=_('Super admin email'))
-    new_password1 = forms.CharField(label=_('Change password'), widget=forms.PasswordInput, required=False)
-    new_password2 = forms.CharField(label=_('Confirm change password'), widget=forms.PasswordInput, required=False)
+    password = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
+    username = forms.CharField(label=_('Administrator login'))
+    email = forms.EmailField(label=_('Administrator e-mail'))
+    new_password1 = forms.CharField(label=_('New administrative password'), widget=forms.PasswordInput, required=False)
+    new_password2 = forms.CharField(label=_('Confirm new password'), widget=forms.PasswordInput, required=False)
     
     def __init__(self, user=None, *args, **kwargs):
         super(SASettingsForm,self).__init__(*args, **kwargs)

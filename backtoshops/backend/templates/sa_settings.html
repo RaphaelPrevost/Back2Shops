@@ -30,12 +30,6 @@
         <h3>{% trans "Settings" %}</h3>
         
         <fieldset>
-		
-			<p>{% trans "usage1: to change settings, set the setting values and input current password then save." %}</p>
-			<p>{% trans "usage2: to change current super admin username/email, set them and input current password then save." %}</p>
-			<p>{% trans "usage3: to change current super admin password, set new password and confirm new password (these two should be same) and and input current password then save." %}</p>
-			<p>{% trans "you can perform more than one of above usages together." %}<br /><br /></p>
-			
             {{ form.default_language.errors }}
             <div class="formrow">
                 <label for="{{form.default_language.auto_id}}">{% trans form.default_language.label %}</label>
@@ -45,12 +39,6 @@
             <div class="formrow">
                 <label for="{{ form.default_currency.auto_id }}">{% trans form.default_currency.label %}</label>
                 {{ form.default_currency }}
-            </div>
-            <hr />
-            {{ form.password.errors }}
-            <div class="formrow">
-                <label for="{{ form.password.auto_id }}">{% trans form.password.label %}</label>
-                {{ form.password }}
             </div>
             <hr />
             {{ form.username.errors }}
@@ -72,6 +60,13 @@
             <div class="formrow">
                 <label for="{{ form.new_password2.auto_id }}">{% trans form.new_password2.label %}</label>
                 {{ form.new_password2 }}
+            </div>
+            <hr />
+            {{ form.password.errors }}
+            <div class="formrow">
+                <p>{% trans "Please enter the current administrative password to save these settings:" %}</p>
+                <label for="{{ form.password.auto_id }}">{% trans form.password.label %}</label>
+                {{ form.password }}
             </div>
         </fieldset>
         <!--BOUTONS-->

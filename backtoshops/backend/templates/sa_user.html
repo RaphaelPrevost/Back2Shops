@@ -3,9 +3,9 @@
 
 {% block title %}
 {% if user_pk %}
-{% trans "Edit a User" %}
+{% trans "Edit user information" %}
 {% else %}
-{% trans "Add a User" %}
+{% trans "Add a new user" %}
 {% endif %}
 {% endblock %}
 
@@ -35,9 +35,9 @@
     <form id="main_form" method="post" action="{% url sa_users %}" enctype="multipart/form-data">{% csrf_token %}
     {% endif %}
     {% if user_pk %}
-        <h3>{% trans "Edit User" %}</h3>
+        <h3>{% trans "Edit user information" %}</h3>
     {% else %}
-        <h3>{% trans "New User" %}</h3>
+        <h3>{% trans "Add a new user" %}</h3>
     {% endif %}
 
         {% if user_pk %}
@@ -49,7 +49,7 @@
             </div>
             {{ form.email.errors }}
             <div class="formrow">
-                <label for="{{ form.email.auto_id }}">{% trans form.email.label %}</label>
+                <label for="{{ form.email.auto_id }}">{% trans "E-mail" %}</label>
                 {{ form.email }}
             </div>
             {{ form.is_active.errors }}
@@ -59,12 +59,12 @@
             </div>
             {{ form.language.errors }}
             <div class="formrow">
-                <label for="{{ form.language.auto_id }}">{% trans form.language.label %}</label>
+                <label for="{{ form.language.auto_id }}">{% trans "Default language" %}</label>
                 {{ form.language }}
             </div>
             {{ form.work_for.errors }}
             <div class="formrow">
-                <label for="{{ form.work_for.auto_id }}">{% trans form.work_for.label %}</label>
+                <label for="{{ form.work_for.auto_id }}">{% trans "Corporate account" %}</label>
                 {{ form.work_for }}
             </div>
         </fieldset>
@@ -87,17 +87,17 @@
             </div>
             {{ form.email.errors }}
             <div class="formrow">
-                <label for="{{ form.email.auto_id }}">{% trans form.email.label %}</label>
+                <label for="{{ form.email.auto_id }}">{% trans "E-mail" %}</label>
                 {{ form.email }}
             </div>
             {{ form.language.errors }}
             <div class="formrow">
-                <label for="{{ form.language.auto_id }}">{% trans form.language.label %}</label>
+                <label for="{{ form.language.auto_id }}">{% trans "Default language" %}</label>
                 {{ form.language }}
             </div>
             {{ form.work_for.errors }}
             <div class="formrow">
-                <label for="{{ form.work_for.auto_id }}">{% trans form.work_for.label %}</label>
+                <label for="{{ form.work_for.auto_id }}">{% trans "Corporate account" %}</label>
                 {{ form.work_for }}
             </div>
         </fieldset>
@@ -118,30 +118,30 @@
     {% csrf_token %}
     <div style='display:none'><input type='hidden' name='search' value='True' /></div>    
     <div class="searchBox">
-        <label for="id_searchUsername">{% trans "username" %}</label><input type="text" id="id_searchUsername" name="username" value="{{ search_username }}" />
-        <label for="id_searchCompany">{% trans "company" %}</label>
-        <select id="id_searchCompany" name="company" ><option value="">{% trans '--select company--' %}</option>
+        <label for="id_searchUsername">{% trans "User" %}</label><input type="text" id="id_searchUsername" name="username" value="{{ search_username }}" />
+        <label for="id_searchCompany">{% trans "Corporate account" %}</label>
+        <select id="id_searchCompany" name="company" ><option value="">{% trans "Select a brand" %}</option>
         {% for company in companies %}
             <option value="{{ company.pk }}" {% if company.pk == search_brand %}selected="selected"{% endif %}>
                 {{company.name}}
             </option>
         {%endfor%}
         </select>
-        <input type="submit" value="search" class="btn select" id="btnSearch" />
+        <input type="submit" value="{% trans "Search" %}" class="btn select" id="btnSearch" />
     </div>
     </form>
     <div class="boxRight listeRight" id="listeUser"> 
         <table cellpadding="0" cellspacing="0" border="0">
             <tr>
-                <th class="nom on"><a href="#">{% trans "Username" %}</a></th>
-                <th class="company">company</th>
+                <th class="nom on"><a href="#">{% trans "User" %}</a></th>
+                <th class="company">{% trans "Brand" %}</th>
                 <th class="action"><a href="#">{% trans "Actions" %}</a></th>
             </tr>
             {% for user in users.object_list %}
             <tr id="user_{{ user.pk }}"><!-- class=new -->
                 <td><a href="{% url sa_edit_user user.pk %}">{{ user.username }}</a></td>
                 <td>{% firstof user.get_profile.work_for "N/A" %}</td>
-                <td><a class="modif" href="{% url sa_edit_user user.pk %}">edit</a><a class="out delete_user" href="{% url sa_delete_user user.pk %}">delete</a></td>
+                <td><a class="modif" href="{% url sa_edit_user user.pk %}">{% trans "Edit" %}</a><a class="out delete_user" href="{% url sa_delete_user user.pk %}">{% trans "Delete" %}</a></td>
             </tr>
             {% empty %}
             <tr class="noshop">
@@ -230,7 +230,7 @@ $(document).ready(function(){
                 event.preventDefault();
             }
             else
-                alert("{% trans 'please input a correct page number.' %}");
+                alert("{% trans "Please enter a valid page number." %}");
         }
     });
     

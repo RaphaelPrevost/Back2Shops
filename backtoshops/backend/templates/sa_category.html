@@ -3,9 +3,9 @@
 
 {% block title %}
 {% if pk %}
-{% trans "Edit a Category" %}
+{% trans "Edit a sales category" %}
 {% else %}
-{% trans "Add a Category" %}
+{% trans "Add a new sales category" %}
 {% endif %}
 {% endblock %}
 
@@ -24,8 +24,8 @@
 
     <!--Title-->
     <div id="title">
-        <span>{% trans "Categories" %}</span>
-        <h2>{% trans "Categories" %}</h2>
+        <span>{% trans "Sales categories" %}</span>
+        <h2>{% trans "Sales categories" %}</h2>
     </div>
 
     <!--FORM-->
@@ -35,9 +35,9 @@
     <form id="main_form" method="post" action="{% url sa_categories %}" enctype="multipart/form-data">{% csrf_token %}
     {% endif %}
     {% if pk %}
-        <h3>{% trans "Edit Category" %}</h3>
+        <h3>{% trans "Edit a sales category" %}</h3>
     {% else %}
-        <h3>{% trans "New Category" %}</h3>
+        <h3>{% trans "Add a new sales category" %}</h3>
     {% endif %}
 
         <fieldset>
@@ -58,7 +58,7 @@
 <!--content-right-->
 <div id="content_Right">
     <!--Liste-Categories-->
-    <h4 class="titleRight">{% trans "Categories list" %}</h4>
+    <h4 class="titleRight">{% trans "Sales categories" %}</h4>
     <div class="boxRight listeRight" id="listeCategory">
         <table cellpadding="0" cellspacing="0" border="0">
             <tr>
@@ -68,11 +68,11 @@
             {% for category in page.object_list %}
             <tr id="category_{{ category.pk }}"><!-- class=new -->
                 <td><a href="{% url sa_edit_category category.pk %}">{{ category.name }}</a></td>
-                <td><a class="modif" href="{% url sa_edit_category category.pk %}">edit</a><a class="out delete_category" href="{% url sa_delete_category category.pk %}">delete</a></td>
+                <td><a class="modif" href="{% url sa_edit_category category.pk %}">{% trans "Edit" %}</a><a class="out delete_category" href="{% url sa_delete_category category.pk %}">{% trans "Delete" %}</a></td>
             </tr>
             {% empty %}
             <tr class="noshop">
-                <td colspan="2">{% trans "The categories list is empty." %}</td>
+                <td colspan="2">{% trans "The sales categories list is empty." %}</td>
             </tr>
             {% endfor %}
         </table>
@@ -107,7 +107,7 @@
         {% endif %}
     </div>
     <!--//Liste-Category-->
-    <a class="btn ajouter" href="{% url sa_categories %}">{% trans "Add a new category" %}</a>
+    <a class="btn ajouter" href="{% url sa_categories %}">{% trans "Add a new sales category" %}</a>
 </div>
 <!--FIN content-right-->
 <div class="clear"></div>
@@ -118,7 +118,7 @@
 <script type="text/javascript">
 $(document).ready(function(){
     $(".delete_category").click(function() {
-            if(confirm('{% trans "Are your sure you want to delete this category?" %}')) {
+            if(confirm('{% trans "Are your sure you want to delete this sales category?" %}')) {
                 $.post(this.href, function(data){
                     $("#category_"+data.category_pk).remove();
                     if(data.category_pk == "{% firstof pk "0" %}") {
@@ -140,7 +140,7 @@ $(document).ready(function(){
             if(!isNaN(page_num)&&parseInt(page_num)==page_num)
                 location.href = page_num;
             else
-                alert("{% trans 'please input a correct page number.' %}");
+                alert("{% trans "Please enter a valid page number." %}");
         }
     });
 });    

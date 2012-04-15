@@ -62,7 +62,7 @@
     
     <script type="text/javascript">
     	$("#btn_first_step,#btn_prev_step").click(function(event){
-    		if(confirm("{% trans "Data in this step will not be saved, are you okay?" %}")==false)
+    		if(confirm("{% trans "The information entered on this page will be lost. Do you want to continue?" %}")==false)
     			event.preventDefault();
     	});
     </script>
