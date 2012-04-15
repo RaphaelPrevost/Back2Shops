@@ -182,6 +182,7 @@ $(document).ready(function(){
     
     //adding new subform
     $("#add_ca").click(function(){
+        if (! $('#new_ca_name').val()) return;
         var new_subform = $("#add_ca_form").html();
         var total_forms = $("#{{ formset.management_form.TOTAL_FORMS.auto_id }}").val();
         var new_name = $('#new_ca_name').val(); 
@@ -195,8 +196,10 @@ $(document).ready(function(){
     
     //deleting subform
     $(".del_ca").live("click", function(){
-        $(this).parent().hide();
-        $(this).siblings("input[type='checkbox']").attr('checked','checked');
+        if(confirm('{% trans "Are your sure you want to delete this property?" %}')) {
+            $(this).parent().hide();
+            $(this).siblings("input[type='checkbox']").attr('checked','checked');
+        }
         /*var total_forms = $("#{{ formset.management_form.TOTAL_FORMS.auto_id }}").val();
         var initial_forms = $("#{{ formset.management_form.INITIAL_FORMS.auto_id }}").val();
         var ca_id = $($(this).siblings()[1]).val();
