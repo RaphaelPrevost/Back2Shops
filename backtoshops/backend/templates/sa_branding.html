@@ -3,9 +3,9 @@
 
 {% block title %}
 {% if pk %}
-{% trans "Edit a Branding" %}
+{% trans "Edit a slide" %}
 {% else %}
-{% trans "Add a Branding" %}
+{% trans "Add a new slide" %}
 {% endif %}
 {% endblock %}
 
@@ -24,8 +24,8 @@
 
     <!--Title-->
     <div id="title">
-        <span>{% trans "Brandings" %}</span>
-        <h2>{% trans "Brandings" %}</h2>
+        <span>{% trans "Frontpage" %}</span>
+        <h2>{% trans "Frontpage" %}</h2>
     </div>
 
     <!--FORM-->
@@ -35,9 +35,9 @@
     <form id="main_form" method="post" action="{% url sa_brandings %}" enctype="multipart/form-data">{% csrf_token %}
     {% endif %}
     {% if pk %}
-        <h3>{% trans "Edit Branding" %}</h3>
+        <h3>{% trans "Edit a slide" %}</h3>
     {% else %}
-        <h3>{% trans "New Branding" %}</h3>
+        <h3>{% trans "Add a new slide" %}</h3>
     {% endif %}
 
         <fieldset>
@@ -83,13 +83,13 @@
 <!--content-right-->
 <div id="content_Right">
     <!--Liste-Brandings-->
-    <h4 class="titleRight">{% trans "Brandings list" %}</h4>
+    <h4 class="titleRight">{% trans "Slides" %}</h4>
     <div class="boxRight listeRight" id="listeBranding">
         <table cellpadding="0" cellspacing="0" border="0">
             <tr>
                 <th class="nom on"><a href="#">{% trans "Name" %}</a></th>
-                <th>{% trans "Image file" %}</th>
-                <th>{% trans "Sort key" %}</th>
+                <th>{% trans "Picture" %}</th>
+                <th>{% trans "Key" %}</th>
                 <th class="action"><a href="#">{% trans "Actions" %}</a></th>
             </tr>
             {% for branding in page.object_list %}
@@ -97,11 +97,11 @@
                 <td><a href="{% url sa_edit_branding branding.pk %}">{{ branding.name }}</a></td>
                 <td>{{ branding.img }}</td>
                 <td>{{ branding.sort_key }}</td>
-                <td><a class="modif" href="{% url sa_edit_branding branding.pk %}">edit</a><a class="out delete_branding" href="{% url sa_delete_branding branding.pk %}">delete</a></td>
+                <td><a class="modif" href="{% url sa_edit_branding branding.pk %}">{% trans "Edit" %}</a><a class="out delete_branding" href="{% url sa_delete_branding branding.pk %}">{% trans "Delete" %}</a></td>
             </tr>
             {% empty %}
             <tr class="noshop">
-                <td colspan="4">{% trans "The brandings list is empty." %}</td>
+                <td colspan="4">{% trans "The slides list is empty." %}</td>
             </tr>
             {% endfor %}
         </table>
@@ -135,7 +135,7 @@
         {% endif %}
     </div>
     <!--//Liste-Branding-->
-    <a class="btn ajouter" href="{% url sa_brandings %}">{% trans "Add a new branding" %}</a>
+    <a class="btn ajouter" href="{% url sa_brandings %}">{% trans "Add a new slide" %}</a>
 </div>
 <!--FIN content-right-->
 <div class="clear"></div>
@@ -146,7 +146,7 @@
 <script type="text/javascript">
 $(document).ready(function(){
     $(".delete_branding").click(function() {
-            if(confirm('{% trans "Are your sure you want to delete this branding?" %}')) {
+            if(confirm('{% trans "Are your sure you want to delete this slide?" %}')) {
                 $.post(this.href, function(data){
                     $("#branding_"+data.branding_pk).remove();
                     if(data.branding_pk == "{% firstof pk "0" %}") {
@@ -168,7 +168,7 @@ $(document).ready(function(){
             if(!isNaN(page_num)&&parseInt(page_num)==page_num)
                 location.href = page_num;
             else
-                alert("{% trans 'please input a correct page number.' %}");
+                alert("{% trans "Please enter a valid page number." %}");
         }
     });
 });    
