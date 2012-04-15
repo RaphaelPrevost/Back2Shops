@@ -3,9 +3,9 @@
 
 {% block title %}
 {% if pk %}
-{% trans "Edit a Attribute" %}
+{% trans "Edit an item type" %}
 {% else %}
-{% trans "Add a Attribute" %}
+{% trans "Add a new item type" %}
 {% endif %}
 {% endblock %}
 
@@ -24,8 +24,8 @@
 
     <!--Title-->
     <div id="title">
-        <span>{% trans "Attributes" %}</span>
-        <h2>{% trans "Attributes" %}</h2>
+        <span>{% trans "Items" %}</span>
+        <h2>{% trans "Items" %}</h2>
     </div>
 
     <!--FORM-->
@@ -35,20 +35,20 @@
     <form id="main_form" method="post" action="{% url sa_attributes %}" enctype="multipart/form-data">{% csrf_token %}
     {% endif %}
     {% if pk %}
-        <h3>{% trans "Edit Attribute" %}</h3>
+        <h3>{% trans "Edit an item type" %}</h3>
     {% else %}
-        <h3>{% trans "New Attribute" %}</h3>
+        <h3>{% trans "Add a new item type" %}</h3>
     {% endif %}
 
         <fieldset>
             {{ form.category.errors }}
             <div class="formrow">
-                <label for="{{form.category.auto_id}}">{% trans form.category.label %}</label>
+                <label for="{{form.category.auto_id}}">{% trans "Sales category" %}</label>
                 {{ form.category }}
             </div>
             {{ form.name.errors }}
             <div class="formrow">
-                <label for="{{form.name.auto_id}}">{% trans form.name.label %}</label>
+                <label for="{{form.name.auto_id}}">{% trans "Item type" %}</label>
                 {{ form.name }}
             </div>
         </fieldset>
@@ -57,21 +57,21 @@
         <fieldset id="subform">
 		
 			
-			<h3>{% trans 'Common attributes for this type' %}</h3>
+			<h3>{% trans "Item generic properties (e.g. sizes)" %}</h3>
 			<div>{{ formset.management_form }}</div>
 			
             <div class="add_subform">
 				<div class="formrow">
 					<label for="new_ca_name">Nom</label>
 					<input type="text" id="new_ca_name" />
-					<input type="button" id="add_ca" value='{% trans 'add' %}' />
+					<input type="button" id="add_ca" value="{% trans "Add" %}" />
 				</div>
             </div>
         {% for subform in formset.forms %}
             <div class="formrow">
                 <label for="{{subform.name.auto_id}}">{% trans subform.name.label %}</label>
                 {{ subform.id }}{{ subform.name }}
-                <input type="button" class="del_ca" value="{% trans 'delete' %}" />
+                <input type="button" class="del_ca" value="{% trans "Delete" %}" />
                 <input style="display: none;" type="checkbox" name="{{subform.DELETE.html_name}}" id="{{subform.DELETE.auto_id}}" />
             </div>
         {% endfor %}
@@ -86,7 +86,7 @@
             <label for="{{ formset.empty_form.name.auto_id }}">{% trans formset.empty_form.name.label %}</label>
             {{ formset.empty_form.id }}{{ formset.empty_form.name }}
             <input style="display: none;" type="checkbox" name="{{formset.empty_form.DELETE.html_name}}" id="{{formset.empty_form.DELETE.auto_id}}" />
-            <input type="button" class="del_ca" value="{% trans 'delete' %}" />
+            <input type="button" class="del_ca" value="{% trans "Delete" %}" />
         </div>
     </div>
 </div>
@@ -95,7 +95,7 @@
 <!--content-right-->
 <div id="content_Right">
     <!--Liste-Attributes-->
-    <h4 class="titleRight">{% trans "Attributes list" %}</h4>
+    <h4 class="titleRight">{% trans "Items types" %}</h4>
     <div class="boxRight listeRight" id="listeAttribute">
         <table cellpadding="0" cellspacing="0" border="0">
             <tr>
@@ -109,7 +109,7 @@
             </tr>
             {% empty %}
             <tr class="noshop">
-                <td colspan="2">{% trans "The attributes list is empty." %}</td>
+                <td colspan="2">{% trans "The items types list is empty." %}</td>
             </tr>
             {% endfor %}
         </table>
@@ -143,7 +143,7 @@
         {% endif %}
     </div>
     <!--//Liste-Attribute-->
-    <a class="btn ajouter" href="{% url sa_attributes %}">{% trans "Add a new attribute" %}</a>
+    <a class="btn ajouter" href="{% url sa_attributes %}">{% trans "Add a new item type" %}</a>
 </div>
 <!--FIN content-right-->
 <div class="clear"></div>
@@ -154,7 +154,7 @@
 <script type="text/javascript">
 $(document).ready(function(){
     $(".delete_attribute").click(function() {
-            if(confirm('{% trans "Are your sure you want to delete this attribute?" %}')) {
+            if(confirm('{% trans "Are your sure you want to delete this item type?" %}')) {
                 $.post(this.href, function(data){
                     $("#attribute_"+data.attribute_pk).remove();
                     if(data.attribute_pk == "{% firstof pk "0" %}") {
@@ -176,7 +176,7 @@ $(document).ready(function(){
             if(!isNaN(page_num)&&parseInt(page_num)==page_num)
                 location.href = page_num;
             else
-                alert("{% trans 'please input a correct page number.' %}");
+                alert("{% trans "Please enter a valid page number." %}");
         }
     });
     
