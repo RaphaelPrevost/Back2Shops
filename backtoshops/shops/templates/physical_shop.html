@@ -72,6 +72,11 @@
                 <label for="{{form.city.auto_id}}">{% trans form.city.label %}</label>
                 {{ form.city }}
             </div>
+            {{ form.country.errors }}
+            <div class="formrow">
+                <label for="{{form.country.auto_id}}">{% trans form.country.label %}</label>
+                {{ form.country }}
+            </div>
             <div id="localization">
                 <span id="localization_infos"></span>
                 <div id="googleMap" style="width: 280px; height: 250px; margin-bottom: 5px;">
@@ -252,7 +257,8 @@
     function localization(){
         var address = $("#{{ form.address.auto_id }}").val() +
                       "," + $("#{{ form.zipcode.auto_id }}").val() +
-                      "," + $("#{{ form.city.auto_id }}").val();
+                      "," + $("#{{ form.city.auto_id }}").val() +
+                      "," + $("#{{ form.country.auto_id }}").val();
         var g = new google.maps.Geocoder();
         $("#localization_infos").html('{% trans "Searching..." %}')
         g.geocode({address: address}, function(results, status){
@@ -342,6 +348,7 @@
         $("#{{ form.address.auto_id }}").change(localization);
         $("#{{ form.zipcode.auto_id }}").change(localization);
         $("#{{ form.city.auto_id }}").change(localization);
+        $("#{{ form.country.auto_id }}").change(localization);
         
         //set page size
         $("#page_size").change(function(event){
