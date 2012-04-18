@@ -3,6 +3,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from accounts.models import Brand
 from sorl.thumbnail import ImageField
+from countries.models import Country
 
 class Shop(models.Model):
     mother_brand = models.ForeignKey(Brand, related_name="shops")
@@ -11,7 +12,7 @@ class Shop(models.Model):
     address = models.CharField(verbose_name=_("Address"), max_length=250, blank=True, null=True)
     zipcode = models.IntegerField(verbose_name=_("Postal code"), blank=True, null=True)
     city = models.CharField(verbose_name=_("City"), max_length=100)
-    country = models.CharField(verbose_name=_("Country"), max_length=100)
+    country = models.ForeignKey(Country, verbose_name=_('Country'), blank=True, null=True)
     phone = models.CharField(verbose_name=_("Phone number"), max_length=50, blank=True, null=True)
     name = models.CharField(verbose_name=_("Shop name"), max_length=50)
     catcher = models.CharField(verbose_name=_("Caption"), max_length=250, blank=True, null=True)
