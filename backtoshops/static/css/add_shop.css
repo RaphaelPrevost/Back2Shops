@@ -227,6 +227,7 @@
 	float: left;
 	width: 16px;
 	height: 16px;
+	overflow: hidden; text-indent: -1500px;
 	background: url(../img/out.gif) no-repeat 0 0;
 }
 	#listeShop table tr td .out:hover{ background-position: 0 -16px; }
@@ -236,6 +237,7 @@
 	float: left;
 	width: 16px;
 	height: 16px;
+	overflow: hidden; text-indent: -1500px;
 	margin:  0 5px 0 20px;
 	background: url(../img/modif.gif) no-repeat 0 0;
 }
