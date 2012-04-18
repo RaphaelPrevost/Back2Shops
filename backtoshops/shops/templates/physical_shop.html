@@ -141,7 +141,6 @@
                 <th class="action"><a href="#">{% trans "Actions" %}</a></th>
             </tr>
             {% for shop in shops.object_list %}
-            <script type="text/javascript">console.log("{{ shop.name }}");</script>
             <tr id="shop_{{ shop.pk }}"><!-- class=new -->
                 <td><a href="{% url edit_shop shop.pk %}">{{ shop.name }}</a></td>
                 <td>{{ shop.city }}</td>
@@ -263,10 +262,17 @@
         $("#localization_infos").html('{% trans "Searching..." %}')
         g.geocode({address: address}, function(results, status){
             if (status == google.maps.GeocoderStatus.OK) {
-                _clearShops();
+                _clearShops();                
                 if (results.length == 1) {
+                    var country;
+                    for(i=0;i<results[0].address_components.length;i++) {
+                        if(results[0].address_components[i].types.indexOf("country")!= -1) {
+                            country = results[0].address_components[i].short_name;
+                        } 
+                    }
                     $("#{{ form.latitude.auto_id }}").val(results[0].geometry.location.lat());
                     $("#{{ form.longitude.auto_id }}").val(results[0].geometry.location.lng());
+                    $("#{{ form.country.auto_id }}").val(country);
                     $("#localization_infos").html('{% trans "Found" %}');
                     var latitude = parseFloat($("#{{ form.latitude.auto_id }}").val());
                     var longitude = parseFloat($("#{{ form.longitude.auto_id }}").val());
@@ -290,12 +296,9 @@
     $(function(){
         initMap(); // Define in add_sale_preview_shop.html template
         /*
-        $("#{{ form.city.auto_id }}").autocomplete({
+        $("#{{ form.country.auto_id }}").autocomplete({
             source: function(request, response) {
                 var url = "http://api.geonames.org/searchJSON";
-                if ($("#{{ form.zipcode.auto_id }}").val()) {
-                    url = "http://api.geonames.org/postalCodeSearchJSON";
-                }
 
                 $.ajax({
                     url: url,
@@ -303,27 +306,17 @@
                     data: {
                         style: "short",
                         maxRows: 10,
-                        postalcode: $("#{{ form.zipcode.auto_id }}").val(),
                         name_startsWith: request.term,
-                        placename_startsWith: request.term,
+                        featureCode: "PCLI",
                         username: "{{ geonames_username }}"
                     },
                     success: function(data) {
-                        if ($("#{{ form.zipcode.auto_id }}").val()) {
-                            response($.map(data.postalCodes, function(item) {
-                                return {
-                                    label: item.placeName,
-                                    value: item.placeName
-                                };
-                            }));
-                        } else {
-                            response($.map(data.geonames, function(item) {
-                                return {
-                                    label: item.name + " (" + item.countryName + ")",
-                                    value: item.name
-                                };
-                            }));
-                        }
+                        response($.map(data.geonames, function(item) {
+                            return {
+                                label: item.name + " (" + item.countryCode + ")",
+                                value: item.countryCode
+                            };
+                        }));
                     }
                 });
             },
@@ -331,7 +324,7 @@
             showTyping: false,
             html: false,
             minLength: 2
-        }); */
+        }); */ 
 
         $(".delete_shop").click(function() {
             if(confirm('{% trans "Are your sure you want to delete this shop?" %}')) {
