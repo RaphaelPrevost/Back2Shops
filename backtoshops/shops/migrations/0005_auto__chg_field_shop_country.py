@@ -4,17 +4,16 @@ from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
 
+depends_on = ( ('countries', '0001_initial') )
+
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
         # Renaming column for 'Shop.country' to match new field type.
-        db.rename_column('shops_shop', 'country', 'country_id')
+        db.drop_column('shops_shop', 'country')
         # Changing field 'Shop.country'
-        db.alter_column('shops_shop', 'country_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['countries.Country'], null=True))
-
-        # Adding index on 'Shop', fields ['country']
-        db.create_index('shops_shop', ['country_id'])
+        db.add_column('shops_shop', 'country', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['countries.Country'], null=True, blank=True))
 
 
     def backwards(self, orm):
