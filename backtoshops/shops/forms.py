@@ -2,7 +2,15 @@ import json
 from django import forms
 from django.utils.datastructures import SortedDict
 from shops.models import Shop
+from countries.models import Country
 from widgets import ScheduleWidget
+from django.utils.translation import ugettext_lazy as _
+
+
+class CountryField(forms.ModelChoiceField):
+        def label_from_instance(self, obj):
+                return _(obj.printable_name)
+
 
 class ScheduleField(forms.MultiValueField):
 	widget = ScheduleWidget()
@@ -37,8 +45,10 @@ class ShopForm(forms.ModelForm):
 		self.fields['zipcode'].widget = forms.TextInput(attrs={'class': 'inputXS'})
 		self.fields['phone'].widget = forms.TextInput(attrs={'class': 'inputS'})
 		self.fields['city'].widget = forms.TextInput(attrs={'class': 'inputM'})
+                self.fields['country'] = CountryField(queryset=Country.objects.all(), empty_label=_('Please select a country'))
 		self.fields['description'].widget = forms.Textarea(attrs={"cols": 30, "rows": 4})
 		self.fields['latitude'].widget = forms.HiddenInput()
 		self.fields['longitude'].widget = forms.HiddenInput()
 		self.fields['mother_brand'].widget = forms.HiddenInput()
 		self.fields['opening_hours'] = ScheduleField(required=False)
+
