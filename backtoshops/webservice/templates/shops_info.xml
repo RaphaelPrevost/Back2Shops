@@ -14,7 +14,7 @@
     <addr>{{ object.address }}</addr>
     <zip>{{ object.zipcode }}</zip>
     <city>{{ object.city }}</city>
-    <country>{{ object.country }}</country>
+    <country>{{ object.country.iso }}</country>
     <upc>{% if object.upc %}{{ object.upc }}{% endif %}</upc>
     <location lat="{{ object.latitude|unlocalize }}" long="{{ object.longitude|unlocalize }}" />
     <hours>{{ object.opening_hours }}</hours>
