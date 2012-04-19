@@ -36,15 +36,17 @@
         }
         map = new google.maps.Map(document.getElementById("googleMap"), myOptions);
 
+        google.maps.event.addListener(map, 'idle', function() {
         {% if context %}
             {% for shop_id in context.shops.value %}
                 _setMarker("{{ shop_id }}");
             {% endfor %}
         {% else %}
-            $.each($("shopfiles input[type=checkbox]:checked"), function() {
+            $.each($("#shopfolders li ul input[type=checkbox]:checked"), function() {
                 _setMarker($(this).val());
             });
         {% endif %}
+        });
     }
 
     function _setMarker(shop_id) {
