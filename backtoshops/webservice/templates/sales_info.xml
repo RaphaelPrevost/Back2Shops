@@ -54,7 +54,7 @@
         <addr>{{ shop.address }}</addr>
         <zip>{{ shop.zipcode }}</zip>
         <city>{{ shop.city }}</city>
-        <country>{{ shop.country }}</country>
+        <country>{{ shop.country.iso }}</country>
         <upc>{{ shop.upc }}</upc>
         <location lat="{{ shop.latitude|unlocalize }}" long="{{ shop.longitude|unlocalize }}" />
         <hours>{{ shop.opening_hours }}</hours>
