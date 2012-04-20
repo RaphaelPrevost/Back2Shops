@@ -28,7 +28,7 @@ class BaseUserForm(forms.ModelForm):
     required_css_class = 'required'
     username = forms.CharField(label=_("Username"))
     email = forms.EmailField(label=_("E-mail"))
-    language = forms.ChoiceField(label=_("language"), choices=settings.LANGUAGES)
+    language = forms.ChoiceField(label=_("language"), choices=[(k, _(v)) for k, v in settings.LANGUAGES])
 #    is_superuser = forms.BooleanField(label=_("Super admin"), required=False)
     
     class Meta:
