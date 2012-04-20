@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-04-19 07:23+0200\n"
-"PO-Revision-Date: 2012-04-20 08:11\n"
+"POT-Creation-Date: 2012-04-20 09:23+0200\n"
+"PO-Revision-Date: 2012-04-20 09:24\n"
 "Last-Translator:   <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -60,9 +60,8 @@ msgid "The two password fields didn't match."
 msgstr ""
 
 #: accounts/forms.py:65 backend/forms.py:82
-#, fuzzy
 msgid "Active"
-msgstr "Actions"
+msgstr "Activé"
 
 #: accounts/models.py:9
 #, fuzzy
@@ -148,9 +147,8 @@ msgstr ""
 
 #: accounts/templates/operator.html:137 backend/templates/sa_user.html:148
 #: backend/templates/ajax/user_search.html:12
-#, fuzzy
 msgid "The users list is empty."
-msgstr "Aucune boutique enregistrée."
+msgstr "Aucun utilisateur enregistré."
 
 #: accounts/templates/operator.html:151 backend/templates/sa_user.html:163
 #, python-format
@@ -204,7 +202,7 @@ msgstr ""
 
 #: backend/forms.py:52
 msgid "Confirm password"
-msgstr ""
+msgstr "Confirmez le mot de passe"
 
 #: backend/forms.py:127 backend/templates/sa_user.html:62
 #: backend/templates/sa_user.html.py:95
@@ -221,15 +219,15 @@ msgstr "Identifiant administrateur"
 
 #: backend/forms.py:131
 msgid "Administrator e-mail"
-msgstr ""
+msgstr "Courriel administrateur"
 
 #: backend/forms.py:132
 msgid "New administrative password"
-msgstr ""
+msgstr "Nouveau mot de passe administrateur"
 
 #: backend/forms.py:133
 msgid "Confirm new password"
-msgstr ""
+msgstr "Confirmez le nouveau mot de passe"
 
 #: backend/templates/sa_attribute.html:6
 #: backend/templates/sa_attribute.html:38
@@ -323,16 +321,15 @@ msgstr "Ajouter une marque"
 #: templates/sa_index.html:7 templates/sa_index.html.py:8
 #: templates/sa_quick_nav.html:8
 msgid "Corporate accounts"
-msgstr ""
+msgstr "Marques"
 
 #: backend/templates/sa_brand.html:66
 msgid "Brands list"
-msgstr ""
+msgstr "Liste des marques"
 
 #: backend/templates/sa_brand.html:80
-#, fuzzy
 msgid "The brands list is empty."
-msgstr "Aucune boutique enregistrée."
+msgstr "Aucune marque enregistrée."
 
 #: backend/templates/sa_brand.html:125
 #, fuzzy
@@ -430,22 +427,20 @@ msgstr "Ajouter un utilisateur"
 
 #: backend/templates/sa_user.html:27 backend/templates/sa_user.html.py:28
 msgid "Users"
-msgstr ""
+msgstr "Utilisateurs"
 
 #: backend/templates/sa_user.html:67 backend/templates/sa_user.html.py:100
 #: backend/templates/sa_user.html:122
 msgid "Corporate account"
-msgstr ""
+msgstr "Marque"
 
 #: backend/templates/sa_user.html:116
-#, fuzzy
 msgid "Users list"
-msgstr "Liste des boutiques"
+msgstr "Liste des utilisateurs"
 
 #: backend/templates/sa_user.html:123
-#, fuzzy
 msgid "Select a brand"
-msgstr "Choisissez une boutique"
+msgstr "Choisissez une marque"
 
 #: backend/templates/sa_user.html:137
 #, fuzzy
@@ -1914,6 +1909,10 @@ msgstr "Êtes vous sûr de vouloir supprimer cette vente ?"
 msgid "The sale was successfully updated."
 msgstr "La vente a été modifiée avec succès."
 
+#: shops/forms.py:48
+msgid "Select a country"
+msgstr "Choisissez un pays"
+
 #: shops/models.py:10
 msgid "Internal name"
 msgstr "Nom de gestion"
@@ -2093,7 +2092,7 @@ msgstr ""
 #: templates/sa_index.html:11 templates/sa_index.html.py:12
 #: templates/sa_quick_nav.html:11
 msgid "User accounts"
-msgstr ""
+msgstr "Utilisateurs"
 
 #~ msgid "add"
 #~ msgstr "Ajouter"
