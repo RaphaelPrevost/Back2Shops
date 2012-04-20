@@ -151,12 +151,8 @@ def authenticate(request):
 def get_sale(shop_upc, item):
     try:
         barcodes = Barcode.objects.filter(upc=item)
-        if shop_upc != 'global':
-            shop = Shop.objects.get(upc=shop_upc)
-            sales = Sale.objects.filter(barcodes__in=barcodes, shops__in=[shop])
-        else:
-            sales = Sale.objects.filter(barcodes__in=barcodes)
-            
+        shop = Shop.objects.get(upc=shop_upc)
+        sales = Sale.objects.filter(barcodes__in=barcodes, shops__in=[shop])
         if sales.count() > 0:
             return sales[0]
         return None
@@ -170,12 +166,12 @@ def stock_setter(request,val):
     
     try:
         shop_upc = request.REQUEST['shop']
-        if shop_upc != 'global':
-            shop = Shop.objects.get(upc=int(shop_upc))
+        shop = Shop.objects.get(upc=int(shop_upc))
     except:
         return fail('shop upc must be given') 
 
     sale = get_sale(shop_upc, request.REQUEST['item'])
+
     if sale is None:
         return fail('sale not found with given shop and item')
 
