@@ -124,7 +124,7 @@ class SASettingsForm(forms.Form):
     error_css_class = 'error'
     required_css_class = 'required'
     
-    default_language = forms.ChoiceField(choices=settings.LANGUAGES, label=_('Default language'))
+    default_language = forms.ChoiceField(choices=[(k, _(v)) for k, v in settings.LANGUAGES], label=_('Default language'))
     default_currency = forms.ChoiceField(choices=[(s,s) for s in ProductCurrency.objects.all().values_list('code',flat=True)], label=_('Default currency'))
     password = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
     username = forms.CharField(label=_('Administrator login'))
