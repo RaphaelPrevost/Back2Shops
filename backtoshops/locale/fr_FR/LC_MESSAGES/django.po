@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-19 07:23+0200\n"
-"PO-Revision-Date: 2012-04-20 07:38\n"
+"PO-Revision-Date: 2012-04-20 07:52\n"
 "Last-Translator:   <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -1254,7 +1254,7 @@ msgstr "Porto Rico"
 
 #: locale/dbgettext/countries/country/Country_PS/printable_name.py:2
 msgid "Occupied Palestinian Territory"
-msgstr "Palestine (occupée)"
+msgstr "État de Palestine"
 
 #: locale/dbgettext/countries/country/Country_PT/printable_name.py:2
 msgid "Portugal"
@@ -1426,7 +1426,7 @@ msgstr "Tuvalu"
 
 #: locale/dbgettext/countries/country/Country_TW/printable_name.py:2
 msgid "Taiwan, Province of China"
-msgstr "Taiwan"
+msgstr "Taïwan"
 
 #: locale/dbgettext/countries/country/Country_TZ/printable_name.py:2
 msgid "United Republic of Tanzania"
