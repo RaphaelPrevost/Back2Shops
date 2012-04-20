@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-19 07:23+0200\n"
-"PO-Revision-Date: 2012-04-20 07:52\n"
+"PO-Revision-Date: 2012-04-20 08:11\n"
 "Last-Translator:   <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -217,7 +217,7 @@ msgstr "Devise par défaut"
 
 #: backend/forms.py:130
 msgid "Administrator login"
-msgstr ""
+msgstr "Identifiant administrateur"
 
 #: backend/forms.py:131
 msgid "Administrator e-mail"
@@ -234,34 +234,31 @@ msgstr ""
 #: backend/templates/sa_attribute.html:6
 #: backend/templates/sa_attribute.html:38
 msgid "Edit an item type"
-msgstr ""
+msgstr "Modifier un type de produit"
 
 #: backend/templates/sa_attribute.html:8
 #: backend/templates/sa_attribute.html:40
 #: backend/templates/sa_attribute.html:145
-#, fuzzy
 msgid "Add a new item type"
-msgstr "Ajouter une nouvelle vente"
+msgstr "Ajouter une nouveau type"
 
 #: backend/templates/sa_attribute.html:27
 #: backend/templates/sa_attribute.html:28 templates/sa_index.html:19
 #: templates/sa_index.html.py:20 templates/sa_quick_nav.html:12
 msgid "Items"
-msgstr ""
+msgstr "Produits"
 
 #: backend/templates/sa_attribute.html:46
-#, fuzzy
 msgid "Sales category"
-msgstr "Catégorie de produit"
+msgstr "Catégorie"
 
 #: backend/templates/sa_attribute.html:51
-#, fuzzy
 msgid "Item type"
-msgstr "Prix unitaire :"
+msgstr "Type de produit"
 
 #: backend/templates/sa_attribute.html:60
 msgid "Item generic properties (e.g. sizes)"
-msgstr ""
+msgstr "Caractéristiques du produit (ex : taille, pointure ...)"
 
 #: backend/templates/sa_attribute.html:67
 #: sales/templates/add_sale_product.html:88
@@ -270,9 +267,8 @@ msgid "Add"
 msgstr "Ajouter"
 
 #: backend/templates/sa_attribute.html:97
-#, fuzzy
 msgid "Items types"
-msgstr "Prix unitaire :"
+msgstr "Types de produits"
 
 #: backend/templates/sa_attribute.html:101 backend/templates/sa_brand.html:70
 #: backend/templates/sa_branding.html:90 backend/templates/sa_category.html:65
@@ -281,9 +277,8 @@ msgid "Name"
 msgstr "Nom"
 
 #: backend/templates/sa_attribute.html:111
-#, fuzzy
 msgid "The items types list is empty."
-msgstr "Aucune boutique enregistrée."
+msgstr "Aucun type enregistré."
 
 #: backend/templates/sa_attribute.html:118 backend/templates/sa_brand.html:87
 #: backend/templates/sa_branding.html:111
@@ -304,9 +299,8 @@ msgid " elements/page )"
 msgstr ""
 
 #: backend/templates/sa_attribute.html:156
-#, fuzzy
 msgid "Are your sure you want to delete this item type?"
-msgstr "Êtes vous sûr de vouloir supprimer cette boutique ?"
+msgstr "Êtes vous sûr de vouloir supprimer ce type ?"
 
 #: backend/templates/sa_attribute.html:198
 #, fuzzy
@@ -392,20 +386,18 @@ msgstr "Modifier une vente"
 
 #: backend/templates/sa_category.html:8 backend/templates/sa_category.html:40
 #: backend/templates/sa_category.html:110
-#, fuzzy
 msgid "Add a new sales category"
-msgstr "Ajouter une nouvelle vente"
+msgstr "Ajouter une catégorie"
 
 #: backend/templates/sa_category.html:27 backend/templates/sa_category.html:28
 #: backend/templates/sa_category.html:61 templates/sa_index.html:15
 #: templates/sa_index.html.py:16 templates/sa_quick_nav.html:9
 msgid "Sales categories"
-msgstr ""
+msgstr "Catégories"
 
 #: backend/templates/sa_category.html:75
-#, fuzzy
 msgid "The sales categories list is empty."
-msgstr "Aucune boutique enregistrée."
+msgstr "Aucune catégorie enregistrée."
 
 #: backend/templates/sa_category.html:121
 #, fuzzy
@@ -417,23 +409,24 @@ msgstr "Êtes vous sûr de vouloir supprimer cette vente ?"
 #: templates/sa_index.html:27 templates/sa_index.html.py:28
 #: templates/sa_quick_nav.html:13
 msgid "Settings"
-msgstr ""
+msgstr "Configuration"
 
 #: backend/templates/sa_settings.html:67
 msgid ""
 "Please enter the current administrative password to save these "
 "settings:"
 msgstr ""
+"Veuillez saisir le mot de passe administrateur actuel pour enregistrer"
+" ces paramètres :"
 
 #: backend/templates/sa_user.html:6 backend/templates/sa_user.html.py:38
 msgid "Edit user information"
-msgstr ""
+msgstr "Modifier les informations utilisateur"
 
 #: backend/templates/sa_user.html:8 backend/templates/sa_user.html.py:40
 #: backend/templates/sa_user.html:191
-#, fuzzy
 msgid "Add a new user"
-msgstr "Ajouter une nouvelle vente"
+msgstr "Ajouter un utilisateur"
 
 #: backend/templates/sa_user.html:27 backend/templates/sa_user.html.py:28
 msgid "Users"
@@ -1713,7 +1706,7 @@ msgstr "Choisissez une boutique"
 #: sales/templates/add_sale_base.html:34 templates/_quick_nav.html:8
 #: templates/index.html:7 templates/index.html.py:8
 msgid "Add a new sale"
-msgstr "Ajouter une nouvelle vente"
+msgstr "Ajouter une vente"
 
 #: sales/templates/add_sale_base.html:27
 #: sales/templates/edit_sale_base.html:25 sales/templates/list.html:18
@@ -1987,7 +1980,7 @@ msgstr "et"
 
 #: shops/templates/physical_shop.html:6 shops/templates/physical_shop.html:40
 msgid "Edit shop information"
-msgstr ""
+msgstr "Modifier les informations boutique"
 
 #: shops/templates/physical_shop.html:8 shops/templates/physical_shop.html:42
 #: shops/templates/physical_shop.html:188
