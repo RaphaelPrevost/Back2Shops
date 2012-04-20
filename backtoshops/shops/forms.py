@@ -45,7 +45,7 @@ class ShopForm(forms.ModelForm):
 		self.fields['zipcode'].widget = forms.TextInput(attrs={'class': 'inputXS'})
 		self.fields['phone'].widget = forms.TextInput(attrs={'class': 'inputS'})
 		self.fields['city'].widget = forms.TextInput(attrs={'class': 'inputM'})
-                self.fields['country'] = CountryField(queryset=Country.objects.all(), empty_label=_('Please select a country'))
+                self.fields['country'] = CountryField(queryset=Country.objects.all(), empty_label=_('Select a country'))
 		self.fields['description'].widget = forms.Textarea(attrs={"cols": 30, "rows": 4})
 		self.fields['latitude'].widget = forms.HiddenInput()
 		self.fields['longitude'].widget = forms.HiddenInput()
