@@ -166,7 +166,7 @@ def stock_setter(request,val):
     
     try:
         shop_upc = request.REQUEST['shop']
-        shop = Shop.objects.get(upc=int(shop_upc))
+        shop = Shop.objects.get(upc=shop_upc)
     except:
         return fail('shop upc must be given') 
 
