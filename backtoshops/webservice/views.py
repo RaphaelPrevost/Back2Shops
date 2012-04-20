@@ -8,12 +8,14 @@ from django.views.generic import View, ListView, DetailView
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
 from accounts.models import Brand
-from sales.models import Sale, ProductType, ProductCategory
+from sales.models import Sale, ProductType, ProductCategory, STOCK_TYPE_DETAILED, STOCK_TYPE_GLOBAL
 from shops.models import Shop
 from barcodes.models import Barcode
 from brandings.models import Branding
 from datetime import datetime
 import settings
+
+fail = lambda s: HttpResponse(json.dumps({'success': False, 'error': s}), mimetype='text/json')
 
 class BaseWebservice(View):
     def render_to_response(self, context, **response_kwargs):
@@ -146,46 +148,77 @@ def authenticate(request):
 	else:
 		return HttpResponseForbidden()
 
-def get_sale(shop, item):
-	try:
-		shop = Shop.objects.get(upc=shop)
-		barcodes = Barcode.objects.filter(upc=item)
-		sales = Sale.objects.filter(barcodes__in=barcodes, shops__in=[shop])
-		if sales.count() > 0:
-			return sales[0]
-		return None
-	except Exception, ex:
-		return None
+def get_sale(shop_upc, item):
+    try:
+        barcodes = Barcode.objects.filter(upc=item)
+        if shop_upc != 'global':
+            shop = Shop.objects.get(upc=shop_upc)
+            sales = Sale.objects.filter(barcodes__in=barcodes, shops__in=[shop])
+        else:
+            sales = Sale.objects.filter(barcodes__in=barcodes)
+            
+        if sales.count() > 0:
+            return sales[0]
+        return None
+    except Exception, ex:
+        return None
+
+def stock_setter(request,val):
+    token = request.META['HTTP_AUTHORIZATION'].replace('Basic ', '')
+    username, password = base64.decodestring(token).split(':')
+    user = _authenticate(username=username, password=password)
+    
+    try:
+        shop_upc = request.REQUEST['shop']
+        if shop_upc != 'global':
+            shop = Shop.objects.get(upc=int(shop_upc))
+    except:
+        return fail('shop upc must be given') 
+
+    sale = get_sale(shop_upc, request.REQUEST['item'])
+    if sale is None:
+        return fail('sale not found with given shop and item')
+
+    if sale.type_stock == STOCK_TYPE_GLOBAL: #stocks at global level
+        if shop_upc != 'global':
+            return fail('shop upc must be "global"')
+    else: #stocks at shops level
+        if user.is_staff or shop in user.get_profile().shops.all(): # can update
+            try:
+                stock = sale.detailed_stock.get(shop=shop)
+                stock.rest_stock += val
+                if stock.rest_stock < 0:
+                    stock.rest_stock = 0
+                if stock.stock < stock.rest_stock:
+                    stock.stock = stock.rest_stock
+                stock.save()
+            except:
+                return fail('stock of the given shop is invalid.')
+        else: #this operator can't touch this shop.
+            return fail('no access to this shop''s stock')
+    
+    sale.total_rest_stock += val
+    if sale.total_rest_stock < 0:
+        sale.total_rest_stock = 0
+    if sale.total_stock < sale.total_rest_stock:
+        sale.total_stock = sale.total_rest_stock
+    sale.save()
+    return HttpResponse(json.dumps({'success': True, 'total_stock': sale.total_stock, 'total_rest_stock': sale.total_rest_stock}), mimetype='text/json')
 
 @basic_auth
 @csrf_exempt
 def barcode_increment(request):
-    sale = get_sale(request.REQUEST['shop'], request.REQUEST['item'])
-    if sale is not None:
-        sale.total_stock += 1
-        sale.save()
-        return HttpResponse(json.dumps({'success': True, 'total_stock': sale.total_stock}), mimetype='text/json')
-    return HttpResponse(json.dumps({'success': False, 'error': 'Barcode Error'}), mimetype='text/json')
-
+    return stock_setter(request,1)
+    
 @basic_auth
 @csrf_exempt
 def barcode_decrement(request):
-	sale = get_sale(request.REQUEST['shop'], request.REQUEST['item'])
-	if sale is not None:
-		sale.total_stock -= 1
-		if sale.total_stock > 0:
-			sale.save()
-		return HttpResponse(json.dumps({'success': True, 'total_stock': sale.total_stock}), mimetype='text/json')	
-	return HttpResponse(json.dumps({'success': False, 'error': 'Barcode Error'}), mimetype='text/json')
+    return stock_setter(request,-1)
 
 @basic_auth
 @csrf_exempt
 def barcode_returned(request):		
-	sale = get_sale(request.REQUEST['shop'], request.REQUEST['item'])
-	if sale is not None:
-		sale.total_stock += 1
-		return HttpResponse(json.dumps({'success': True, 'total_stock': sale.total_stock}), mimetype='text/json')
-	return HttpResponse(json.dumps({'success': False, 'error': 'Barcode Error'}), mimetype='text/json')
+    return stock_setter(request,1)
 
 
 EARTH_MEAN_RADIUS = 6371 * 1000 * 1000 # 6371 km
