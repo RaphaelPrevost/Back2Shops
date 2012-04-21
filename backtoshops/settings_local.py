@@ -4,6 +4,8 @@ import os
 SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
 SITE_NAME = "backtoshops"
 
+get_site_prefix = lambda : SITE_NAME+'.' if SITE_NAME != '' and SITE_NAME is not None else ''
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -37,12 +39,12 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'postgresql_psycopg2', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'backtoshops',                      # Or path to database file if using sqlite3.
-        'USER': 'root',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        'USER': 'postgres',                      # Not used with sqlite3.
+        'PASSWORD': '123qwe',                  # Not used with sqlite3.
+        'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '5432',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
 
@@ -167,16 +169,19 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    SITE_NAME+'.accounts',
-    # SITE_NAME+'.pictures',
-    SITE_NAME+'.shops',
-    SITE_NAME+'.sales',
-    SITE_NAME+'.attributes',
-    SITE_NAME+'.stocks',
-    SITE_NAME+'.fouillis',
-    SITE_NAME+'.barcodes',
-    SITE_NAME+'.webservice',
-    # SITE_NAME+'.backend',
+    get_site_prefix()+'accounts',
+    get_site_prefix()+'pictures',
+    get_site_prefix()+'shops',
+    get_site_prefix()+'sales',
+    get_site_prefix()+'attributes',
+    get_site_prefix()+'stocks',
+    get_site_prefix()+'backend',
+    get_site_prefix()+'fouillis',
+    get_site_prefix()+'webservice',
+    get_site_prefix()+'barcodes',
+    get_site_prefix()+'globalsettings',
+    get_site_prefix()+'brandings',
+    get_site_prefix()+'countries',
     'south',
     'form_utils',
     'formwizard',

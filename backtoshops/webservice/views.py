@@ -127,15 +127,18 @@ def basic_auth(func):
 			if is_authenticated(request):
 				return func(request, *args, **kwargs)
 		except Exception, ex:
-			print ex
-		return HttpResponseForbidden()
+			return HttpResponse(json.dumps({'success': False, 'error': ex.message}), mimetype='text/json')
 	return wrapper
 	
 def is_authenticated(request):
     token = request.META['HTTP_AUTHORIZATION'].replace('Basic ', '')
     username, password = base64.decodestring(token).split(':')
     user = _authenticate(username=username, password=password)
-    shop = Shop.objects.get(upc=request.REQUEST['shop'])
+    try:
+        shop = Shop.objects.get(upc=request.REQUEST['shop'])
+    except Shop.DoesNotExist:
+        raise Exception("Shop %s doesn't exist." % request.REQUEST['shop'])
+    
     if user.is_staff:
         return (shop.mother_brand.employee.filter(user__id=user.id).count() > 0)
     else: #operator
@@ -143,10 +146,13 @@ def is_authenticated(request):
 
 @csrf_exempt
 def authenticate(request):
-	if is_authenticated(request):
-		return HttpResponse(json.dumps({'success': True}), mimetype='text/json')
-	else:
-		return HttpResponseForbidden()
+    token = request.META['HTTP_AUTHORIZATION'].replace('Basic ', '')
+    username, password = base64.decodestring(token).split(':')
+    user = _authenticate(username=username, password=password)
+    if user:
+        return HttpResponse(json.dumps({'success': True}), mimetype='text/json')
+    else:
+        return HttpResponseForbidden()
 
 def get_sale(shop_upc, item):
     try:
@@ -201,20 +207,20 @@ def stock_setter(request,val):
     sale.save()
     return HttpResponse(json.dumps({'success': True, 'total_stock': sale.total_stock, 'total_rest_stock': sale.total_rest_stock}), mimetype='text/json')
 
-@basic_auth
 @csrf_exempt
+@basic_auth
 def barcode_increment(request):
-    return stock_setter(request,1)
-    
-@basic_auth
-@csrf_exempt
-def barcode_decrement(request):
-    return stock_setter(request,-1)
+    return stock_setter(request, 1)
 
+@csrf_exempt    
 @basic_auth
+def barcode_decrement(request):
+    return stock_setter(request, -1)
+
 @csrf_exempt
+@basic_auth
 def barcode_returned(request):		
-    return stock_setter(request,1)
+    return stock_setter(request, 1)
 
 
 EARTH_MEAN_RADIUS = 6371 * 1000 * 1000 # 6371 km
