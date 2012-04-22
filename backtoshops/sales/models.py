@@ -25,7 +25,7 @@ DISCOUNT_TYPE = (
 class Sale(models.Model):
     direct_sale = models.BooleanField(default=False)
     mother_brand = models.ForeignKey(Brand, related_name="sales", on_delete=models.DO_NOTHING)
-    shops = models.ManyToManyField(Shop, blank=True, null=True)
+    shops = models.ManyToManyField(Shop, blank=True, null=True, through='ShopsInSale')
     type_stock = models.CharField(max_length=1, choices=STOCK_TYPE_CHOICES, blank=True, null=True)
     total_stock = models.IntegerField(blank=True, null=True)
     total_rest_stock = models.IntegerField(blank=True, null=True)
@@ -34,6 +34,14 @@ class Sale(models.Model):
 
     def __unicode__(self):
         return '%d - %d' % (self.id, self.total_stock)
+    
+class ShopsInSale(models.Model):
+    sale = models.ForeignKey(Sale)
+    shop = models.ForeignKey(Shop)
+    is_freezed = models.BooleanField(default=False)
+    
+    def __unicode__(self):
+        return '%s-%s-%s' %(self.sale, self.shop, self.is_freezed)
 
 class Product(models.Model):
     sale = models.OneToOneField("Sale", blank=True, null=True, on_delete=models.CASCADE)

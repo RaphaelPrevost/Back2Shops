@@ -18,12 +18,13 @@ from attributes.models import BrandAttribute, BrandAttributePreview, CommonAttri
 from barcodes.models import Barcode
 from fouillis.views import BOLoginRequiredMixin, LoginRequiredMixin
 from sales.forms import ShopForm, ProductBrandFormModel, ProductForm, StockStepForm, TargetForm,ListSalesForm
-from sales.models import Sale, Product, ProductBrand, ProductPicture, STOCK_TYPE_DETAILED, STOCK_TYPE_GLOBAL, ProductCurrency
+from sales.models import Sale, Product, ProductBrand, ProductPicture, STOCK_TYPE_DETAILED, STOCK_TYPE_GLOBAL, ProductCurrency, ShopsInSale
 from shops.models import Shop
 from stocks.models import ProductStock
 from globalsettings import get_setting
 import settings
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
+from django.db.models import F
 
 class UploadProductPictureView(View, TemplateResponseMixin):
     template_name = ""
@@ -249,7 +250,7 @@ def edit_sale(request, *args, **kwargs):
     # We use pk in initials so we can use has_changed() method on forms
     initial_shop = {
         'target_market': sale.type_stock,
-        'shops': [ s.pk for s in sale.shops.all() ]
+        'shops': [ s.shop.pk for s in ShopsInSale.objects.filter(sale=sale,is_freezed=False) ],
     }
 
     pictures = []
@@ -296,7 +297,7 @@ def edit_sale(request, *args, **kwargs):
             'brand_attribute': i.brand_attribute.pk if i.brand_attribute else None,
             'common_attribute': i.common_attribute.pk,
             'shop': i.shop.pk if i.shop else None,
-            'stock': i.stock
+            'stock': i.rest_stock
         })
 
     initial_barcodes = []
@@ -388,7 +389,23 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
         sale.type_stock = form_list[0].cleaned_data['target_market']
         sale.save()
         if sale.type_stock == STOCK_TYPE_DETAILED:
-            sale.shops = form_list[0].cleaned_data['shops']
+            ShopsInSale.objects.update(sale=sale,is_freezed=True) 
+            for shop in form_list[0].cleaned_data['shops']:
+                shops_in_sale, created = ShopsInSale.objects.get_or_create(sale=sale,shop=shop)
+                shops_in_sale.is_freezed = False
+                shops_in_sale.save()
+            #if the rest stock is same as initial stock and it is frozen, delete.
+            #also remove the stock record for these.
+            #update sale's total stock and rest_stock
+            shops_to_be_removed = ShopsInSale.objects.filter(is_freezed = True, shop__in = [p.shop for p in ProductStock.objects.filter(sale=self.sale,stock=F('rest_stock'))])
+            stocks_to_be_removed = ProductStock.objects.filter(sale=sale,shop__in=[s.shop for s in shops_to_be_removed])
+            removed_total_stock = stocks_to_be_removed.aggregate(Sum('stock'))['stock__sum']
+            if removed_total_stock is not None:
+                sale.total_stock -= removed_total_stock
+                sale.total_rest_stock -= removed_total_stock
+            stocks_to_be_removed.delete()
+            shops_to_be_removed.delete()
+                
         product_form = form_list[1].cleaned_data
         product.sale = sale
         product.brand = product_form['brand']
@@ -426,11 +443,7 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
         product.save()
 
         stock_step = form_list[2]
-        total_stock = 0
-        
-        #in revision 75, it just remove all existing stocks and add new records.
-        #but this is to be re-defined in the future revision
-        sale.detailed_stock.all().delete()
+
         for i in stock_step.stocks:
             if i.is_valid() and i.cleaned_data and i.cleaned_data['stock']:
                 ba_pk = i.cleaned_data['brand_attribute']
@@ -439,15 +452,15 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
                     common_attribute=CommonAttribute.objects.get(pk=i.cleaned_data['common_attribute']),
                     brand_attribute = BrandAttribute.objects.get(pk=ba_pk) if ba_pk else None,
                     )
-                stock.rest_stock = stock.stock = i.cleaned_data['stock']
-                total_stock += stock.stock
+                stock.rest_stock = i.cleaned_data['stock']
+                if stock.stock < stock.rest_stock:
+                    stock.stock = stock.rest_stock
                 stock.save()
                 
-        sale.total_rest_stock = sale.total_stock = total_stock
+        sale.total_rest_stock  = sale.detailed_stock.aggregate(Sum('rest_stock'))['rest_stock__sum']
+        if sale.total_stock < sale.total_rest_stock:
+            sale.total_stock = sale.total_rest_stock
 
-        # in revision 75, just remove all barcodes and add new records.
-        # but this also to be re-defined in the future reviison.
-        sale.barcodes.all().delete()
         for i in stock_step.barcodes:
             if i.is_valid() and i.cleaned_data and i.cleaned_data['upc']:
                 ba_pk = i.cleaned_data['brand_attribute']
@@ -572,7 +585,12 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
         if self.steps.current == self.STEP_SHOP:
             context.update({
                 'form_title': _("Shops Selection"),
-                'preview_shop': "blank"
+                'preview_shop': "blank",
+                'shops_cant_be_deleted': ','.join(list(set(
+                   [str(p.shop.pk) for p in ProductStock.objects.filter(sale=self.sale).exclude(stock=F('rest_stock')) 
+                    if p.shop.pk in ShopsInSale.objects.filter(sale=self.sale,is_freezed=False).values_list('shop_id',flat=True)]
+                   ))),
+                'freezed_shops': ','.join([str(s.shop.pk) for s in ShopsInSale.objects.filter(sale=self.sale,is_freezed=True)]),
             })
         elif self.steps.current == self.STEP_PRODUCT:
             product_picture = None

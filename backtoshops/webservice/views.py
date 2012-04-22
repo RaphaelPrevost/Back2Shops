@@ -8,7 +8,7 @@ from django.views.generic import View, ListView, DetailView
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
 from accounts.models import Brand
-from sales.models import Sale, ProductType, ProductCategory, STOCK_TYPE_DETAILED, STOCK_TYPE_GLOBAL
+from sales.models import Sale, ProductType, ProductCategory, STOCK_TYPE_DETAILED, STOCK_TYPE_GLOBAL,ShopsInSale
 from shops.models import Shop
 from barcodes.models import Barcode
 from brandings.models import Branding
@@ -180,12 +180,18 @@ def stock_setter(request,val):
 
     if sale is None:
         return fail('sale not found with given shop and item')
+    
+    #if shop is frozen.
+    try:
+        if ShopsInSale.objects.get(shop=shop,sale=sale).is_freezed:
+            return fail("this shop is frozen, can't update stocks")
+    except:
+         return fail('shop is not found in this sale')
 
     if sale.type_stock == STOCK_TYPE_GLOBAL: #stocks at global level
-        if shop_upc != 'global':
-            return fail('shop upc must be "global"')
+        pass
     else: #stocks at shops level
-        if user.is_staff or shop in user.get_profile().shops.all(): # can update
+        if user.is_staff or shop in user.get_profile().shops.all(): # can update 
             try:
                 stock = sale.detailed_stock.get(shop=shop)
                 stock.rest_stock += val

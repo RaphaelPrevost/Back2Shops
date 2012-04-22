@@ -12,5 +12,5 @@ class ProductStock(models.Model):
     rest_stock = models.IntegerField()
 
     def __unicode__(self):
-        return str(self.stock)
+        return '%d:%d:%s'%(self.stock,self.rest_stock,self.sale)
 
