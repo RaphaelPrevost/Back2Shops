@@ -8,8 +8,8 @@ class ProductStock(models.Model):
     brand_attribute = models.ForeignKey(BrandAttribute, null=True, blank=True)
     common_attribute = models.ForeignKey(CommonAttribute)
     shop = models.ForeignKey(Shop, null=True, blank=True)
-    stock = models.IntegerField()
-    rest_stock = models.IntegerField()
+    stock = models.IntegerField(default=0)
+    rest_stock = models.IntegerField(default=0)
 
     def __unicode__(self):
         return '%d:%d:%s'%(self.stock,self.rest_stock,self.sale)
