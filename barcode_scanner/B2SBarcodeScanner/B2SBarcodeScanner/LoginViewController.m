@@ -16,12 +16,6 @@
 @synthesize usernameField;
 @synthesize passwordField;
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Release any cached data, images, etc that aren't in use.
-}
-
 #pragma mark - View lifecycle
 
 - (void)viewDidLoad
@@ -29,6 +23,13 @@
     [super viewDidLoad];
 
     self.title = @"Login";
+    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if ([defaults valueForKey:@"Username"]) {
+        self.usernameField.text = [defaults valueForKey:@"Username"];
+    }
+    
+    [self.usernameField becomeFirstResponder];
 }
 
 - (void)viewDidUnload
@@ -36,28 +37,6 @@
     [self setUsernameField:nil];
     [self setPasswordField:nil];
     [super viewDidUnload];
-    // Release any retained subviews of the main view.
-    // e.g. self.myOutlet = nil;
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-}
-
-- (void)viewDidAppear:(BOOL)animated
-{
-    [super viewDidAppear:animated];
-}
-
-- (void)viewWillDisappear:(BOOL)animated
-{
-	[super viewWillDisappear:animated];
-}
-
-- (void)viewDidDisappear:(BOOL)animated
-{
-	[super viewDidDisappear:animated];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
@@ -66,7 +45,8 @@
     return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
 }
 
-- (void)dealloc {
+- (void)dealloc
+{
     [usernameField release];
     [passwordField release];
     [super dealloc];
@@ -74,7 +54,7 @@
 
 - (IBAction)login:(id)sender
 {
-    [SVProgressHUD showInView:self.view];
+    [SVProgressHUD showInView:self.view status:@"Loading..." networkIndicator:YES posY:150];
     
     NSURL *url = [NSURL URLWithString:API_HOST];
  
@@ -88,6 +68,8 @@
             
             NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
             [defaults setBool:YES forKey:@"logged"];
+            [defaults setValue:self.usernameField.text forKey:@"Username"];
+            [defaults setValue:self.passwordField.text forKey:@"Password"];
             [defaults synchronize];
             
             [self dismissModalViewControllerAnimated:YES];
@@ -95,6 +77,7 @@
             [SVProgressHUD dismissWithError:@"Please check your username and password."];
         }
     } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
+        NSLog(@"%@", error);
         [SVProgressHUD dismissWithError:@"Login failed"];
     }];
     
