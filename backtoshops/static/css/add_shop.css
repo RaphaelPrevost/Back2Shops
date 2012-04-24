@@ -55,7 +55,7 @@
 	#main_form .formrow span { height: 22px; line-height: 22px; margin: 0 5px; }
 
 	#main_form .formrow label { width: 145px; }
-	#main_form .formrow select { width: 130px; }
+	#main_form .formrow select { width: 283px; }
 	#main_form .formrow textarea,
 	#main_form .formrow input { width: 271px; }
 	#main_form .formrow .inputXS { width: 40px; }
@@ -126,7 +126,11 @@
 		width: 280px; height: 250px;
 		float: right; border: 1px solid #BABABA;
 	}
-	
+	#main_form #localization #localization_infos {
+		display: block; float: left;
+		/*padding: 5px 7px;*/
+		background-color: #DBF8D8;
+	}
 	
 	/*--- Coloris ---*/
 	#main_form #coloris span{ margin: 5px 5px 0 2px; }

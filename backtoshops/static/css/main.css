@@ -182,11 +182,10 @@ label {
 			color: #d18f00;
 		}
 		#etiquette h3 {
-			width: 170px; line-height: 16px;
-			margin: 22px auto 0 auto;
-			text-align: center;
-			vertical-align: middle;
-			color: #d18f00;
+			width: 130px; height: 55px;
+			margin: 10px auto 0 auto; padding: 15px 80px 0 0;
+			color: #000; line-height: 15px;
+			background: url(../img/superAdmin.png) no-repeat right 0;
 		}
 
 
