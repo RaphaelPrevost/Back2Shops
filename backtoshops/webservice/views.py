@@ -123,17 +123,23 @@ class TypesInfoView(BaseWebservice, DetailView):
 def basic_auth(func):
 	"""Decorator for basic auth"""
 	def wrapper(request, *args, **kwargs):
-		try:
-			if is_authenticated(request):
-				return func(request, *args, **kwargs)
-		except Exception, ex:
-			return HttpResponse(json.dumps({'success': False, 'error': ex.message}), mimetype='text/json')
+            try:
+                if is_authenticated(request):
+                    return func(request, *args, **kwargs)
+                else:
+                    return HttpResponseForbidden()
+            except Exception, ex:
+                return HttpResponse(json.dumps({'success': False, 'error': ex.message}), mimetype='text/json')
 	return wrapper
 	
 def is_authenticated(request):
     token = request.META['HTTP_AUTHORIZATION'].replace('Basic ', '')
     username, password = base64.decodestring(token).split(':')
     user = _authenticate(username=username, password=password)
+
+    if not user:
+        return False
+
     try:
         shop = Shop.objects.get(upc=request.REQUEST['shop'])
     except Shop.DoesNotExist:
