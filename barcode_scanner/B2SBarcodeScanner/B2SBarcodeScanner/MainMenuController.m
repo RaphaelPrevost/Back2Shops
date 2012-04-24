@@ -8,6 +8,7 @@
 
 #import "MainMenuController.h"
 #import "LoginViewController.h"
+#import "AFHTTPClient.h"
 #import "AFJSONRequestOperation.h"
 #import "SVProgressHUD.h"
 
@@ -116,20 +117,26 @@
     
     [SVProgressHUD showInView:self.view];
     
-    NSURL *url;
+    NSString *path;
     
     if (actionType == ActionTypeAdd) {
-        url = [NSURL URLWithString:[API_HOST stringByAppendingString:@"/webservice/1.0/private/stock/inc"]];
+        path = [API_HOST stringByAppendingString:@"/webservice/1.0/private/stock/inc"];
     } else if (actionType == ActionTypeRemove) {
-        url = [NSURL URLWithString:[API_HOST stringByAppendingString:@"/webservice/1.0/private/stock/inc"]];
+        path = [API_HOST stringByAppendingString:@"/webservice/1.0/private/stock/inc"];
     } else {
-        url = [NSURL URLWithString:[API_HOST stringByAppendingString:@"/webservice/1.0/private/stock/ret"]];
+        path = [API_HOST stringByAppendingString:@"/webservice/1.0/private/stock/ret"];
     }
+        
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     
+    AFHTTPClient *client = [AFHTTPClient clientWithBaseURL:[NSURL URLWithString:API_HOST]];
+    [client setAuthorizationHeaderWithUsername:[defaults valueForKey:@"Username"] password:[defaults valueForKey:@"Password"]];
+    NSMutableURLRequest *request = [client requestWithMethod:@"GET" path:path parameters:nil];
     NSString *body = [NSString stringWithFormat:@"item=%@&shop=%@", code, self.shopLabel.text];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     [request setHTTPBody:[body dataUsingEncoding:NSUTF8StringEncoding]];
     [request setHTTPMethod:@"POST"];
+    
+    NSLog(@"%@", [request allHTTPHeaderFields]);
     
     AFJSONRequestOperation *operation = [AFJSONRequestOperation JSONRequestOperationWithRequest:request success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
         [SVProgressHUD dismiss];

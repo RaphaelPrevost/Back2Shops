@@ -9,6 +9,6 @@
 #ifndef B2SBarcodeScanner_Constants_h
 #define B2SBarcodeScanner_Constants_h
 
-#define API_HOST @"http://192.168.1.110:8000"
+#define API_HOST @"http://sales.backtoshops.com" // @"http://192.168.1.101:8000"
 
 #endif
