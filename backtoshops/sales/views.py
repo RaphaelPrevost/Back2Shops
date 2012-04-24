@@ -156,23 +156,23 @@ class SaleDetails(LoginRequiredMixin, View, TemplateResponseMixin):
                                                       common_attribute=common_attribute,
                                                       sale=self.sale,
                                                       shop=shop_id)\
-                                              .annotate(stock_sum=Sum('stock'), rest_stock_sum=Sum('rest_stock'))
+                                              .aggregate(stock_sum=Sum('stock'), rest_stock_sum=Sum('rest_stock'))
             else:
                 results = ProductStock.objects.filter(brand_attribute=ba,
                                                       common_attribute=common_attribute,
                                                       sale=self.sale)\
-                                              .annotate(stock_sum=Sum('stock'), rest_stock_sum=Sum('rest_stock'))
+                                              .aggregate(stock_sum=Sum('stock'), rest_stock_sum=Sum('rest_stock'))
 
             rows.append({
                 'common_attribute': common_attribute.name,
-                'base': results[0].stock_sum if results else 0,
-                'to_sell': results[0].rest_stock_sum if results else 0,
-                'sold': results[0].stock - results[0].rest_stock_sum if results else 0,
-                'stock': results[0].rest_stock_sum if results else 0
+                'base': results['stock_sum'] if results else 0,
+                'to_sell': results['rest_stock_sum'] if results else 0,
+                'sold': results['stock_sum'] - results['rest_stock_sum'] if results else 0,
+                'stock': results['rest_stock_sum'] if results else 0
             })
             if shop_id:
-                self.total_stock += results[0].stock_sum if results else 0
-                self.total_rest_stock += results[0].rest_stock_sum if results else 0
+                self.total_stock += results['stock_sum'] if results else 0
+                self.total_rest_stock += results['rest_stock_sum'] if results else 0
         return rows
 
 
@@ -389,7 +389,7 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
         sale.type_stock = form_list[0].cleaned_data['target_market']
         sale.save()
         if sale.type_stock == STOCK_TYPE_DETAILED:
-            ShopsInSale.objects.update(sale=sale,is_freezed=True) 
+            ShopsInSale.objects.filter(sale=sale).update(is_freezed=True) 
             for shop in form_list[0].cleaned_data['shops']:
                 shops_in_sale, created = ShopsInSale.objects.get_or_create(sale=sale,shop=shop)
                 shops_in_sale.is_freezed = False
