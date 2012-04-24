@@ -20,7 +20,11 @@
 
 
 
+#main_form .formrow textarea, #main_form .formrow input {
+    width: 210px;
+}
 
-
-
+#main_form .formrow label {
+    width: 226px;
+}
 
