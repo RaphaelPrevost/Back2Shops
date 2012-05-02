@@ -14,6 +14,7 @@
 
 @implementation MainMenuController
 
+@synthesize requestTypeControl;
 @synthesize shopLabel;
 @synthesize barReaderView;
 
@@ -50,6 +51,8 @@
     
     self.title = @"Barcode Scanner";
     self.barReaderView.readerDelegate = self;
+    
+    isLoading = NO;
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -67,6 +70,7 @@
 {
     [self setBarReaderView:nil];
     [self setShopLabel:nil];
+    [self setRequestTypeControl:nil];
     [super viewDidUnload];
     // Release any retained subviews of the main view.
     // e.g. self.myOutlet = nil;
@@ -78,14 +82,18 @@
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
-- (void)dealloc {
+- (void)dealloc
+{
     [barReaderView release];
     [shopLabel release];
+    [requestTypeControl release];
     [super dealloc];
 }
 
 - (void)logout
 {
+    self.shopLabel.text = @"(Scan to change)";
+    
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setBool:NO forKey:@"logged"];
     [defaults synchronize];
@@ -96,13 +104,18 @@
 
 - (void)presentActionSheet:(NSString *)code
 {
-    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:[@"Barcode " stringByAppendingString:code]
-                                                             delegate:self 
-                                                    cancelButtonTitle:@"Cancel" 
-                                               destructiveButtonTitle:nil 
-                                                    otherButtonTitles:@"Set as Shop ID", @"Add Product", @"Remove Product", @"Custom Return", nil];
-    [actionSheet showInView:self.view];
-    [actionSheet release];
+    if ([self.shopLabel.text isEqualToString:@"(Scan to change)"]) {
+        self.shopLabel.text = barcode;
+    } else {
+        [self requestWithType:self.requestTypeControl.selectedSegmentIndex barcode:barcode];
+    }
+//    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:[@"Barcode " stringByAppendingString:code]
+//                                                             delegate:self 
+//                                                    cancelButtonTitle:@"Cancel" 
+//                                               destructiveButtonTitle:nil 
+//                                                    otherButtonTitles:@"Set as Shop ID", @"Add Product", @"Remove Product", @"Custom Return", nil];
+//    [actionSheet showInView:self.view];
+//    [actionSheet release];
 }
 
 - (void)requestWithType:(NSInteger)actionType barcode:(NSString *)code
@@ -115,18 +128,24 @@
         return;
     }
     
-    [SVProgressHUD showInView:self.view];
+    if (isLoading) return;
     
     NSString *path;
+    NSString *message;
     
     if (actionType == ActionTypeAdd) {
         path = [API_HOST stringByAppendingString:@"/webservice/1.0/private/stock/inc"];
+        message = [NSString stringWithFormat:@"Add Product %@", code];
     } else if (actionType == ActionTypeRemove) {
         path = [API_HOST stringByAppendingString:@"/webservice/1.0/private/stock/inc"];
+        message = [NSString stringWithFormat:@"Remove Product %@", code];
     } else {
         path = [API_HOST stringByAppendingString:@"/webservice/1.0/private/stock/ret"];
+        message = [NSString stringWithFormat:@"Custom Return %@", code];
     }
-        
+    
+    [SVProgressHUD showInView:self.view status:message networkIndicator:YES];
+    
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     
     AFHTTPClient *client = [AFHTTPClient clientWithBaseURL:[NSURL URLWithString:API_HOST]];
@@ -136,7 +155,7 @@
     [request setHTTPBody:[body dataUsingEncoding:NSUTF8StringEncoding]];
     [request setHTTPMethod:@"POST"];
     
-    NSLog(@"%@", [request allHTTPHeaderFields]);
+    isLoading = YES;
     
     AFJSONRequestOperation *operation = [AFJSONRequestOperation JSONRequestOperationWithRequest:request success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
         [SVProgressHUD dismiss];
@@ -149,6 +168,8 @@
             [alert show];
             [alert release];
         }
+        
+        isLoading = NO;
     } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
         NSLog(@"%@\n%@", error, JSON);
         if (response.statusCode == 403) {
@@ -157,6 +178,8 @@
         } else {
             [SVProgressHUD dismissWithError:@"Error occurred."];
         }
+        
+        isLoading = NO;
     }];
     
     NSOperationQueue *queue = [[[NSOperationQueue alloc] init] autorelease];

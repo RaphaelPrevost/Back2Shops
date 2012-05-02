@@ -9,15 +9,17 @@
 #import <UIKit/UIKit.h>
 
 enum ActionType {
-    ActionTypeAdd = 1,
+    ActionTypeAdd = 0,
     ActionTypeRemove = 2,
     ActionTypeReturn = 3
 };
 
 @interface MainMenuController : UIViewController <ZBarReaderViewDelegate, UIActionSheetDelegate> {
     NSString *barcode;
+    BOOL isLoading;
 }
 
+@property (retain, nonatomic) IBOutlet UISegmentedControl *requestTypeControl;
 @property (retain, nonatomic) IBOutlet UILabel *shopLabel;
 @property (retain, nonatomic) IBOutlet ZBarReaderView *barReaderView;
 
