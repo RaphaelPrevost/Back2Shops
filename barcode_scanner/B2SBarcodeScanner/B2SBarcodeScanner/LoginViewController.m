@@ -24,10 +24,10 @@
 
     self.title = @"Login";
     
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    if ([defaults valueForKey:@"Username"]) {
-        self.usernameField.text = [defaults valueForKey:@"Username"];
-    }
+//    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+//    if ([defaults valueForKey:@"Username"]) {
+//        self.usernameField.text = [defaults valueForKey:@"Username"];
+//    }
     
     [self.usernameField becomeFirstResponder];
 }
