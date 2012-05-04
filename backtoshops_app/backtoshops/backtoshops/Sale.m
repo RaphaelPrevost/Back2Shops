@@ -86,6 +86,7 @@
         self.price = [aDecoder decodeObjectForKey:@"price"];
         self.discountType = [aDecoder decodeObjectForKey:@"discountType"];
         self.discountValue = [aDecoder decodeObjectForKey:@"discountValue"];
+        self.shops = [aDecoder decodeObjectForKey:@"shops"];
     }
     return self;
 }
@@ -100,6 +101,7 @@
     [aCoder encodeObject:self.price forKey:@"price"];
     [aCoder encodeObject:self.discountType forKey:@"discountType"];
     [aCoder encodeObject:self.discountValue forKey:@"discountValue"];
+    [aCoder encodeObject:self.shops forKey:@"shops"];
 }
 
 @end

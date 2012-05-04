@@ -10,10 +10,11 @@
 #import "AFHTTPRequestOperation.h"
 #import "GDataXMLNode.h"
 #import "Sale.h"
+#import "SVProgressHUD.h"
 
 @implementation NearbySaleListViewController
 
-- (id)init
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:@"SaleListViewController" bundle:nil];
     if (self) {
@@ -33,10 +34,19 @@
     self.navigationController.navigationBar.tintColor = [UIColor colorWithRed:251.0/255.0 green:195.0/255.0 blue:38.0/255.0 alpha:1];
     
     [locationManager startUpdatingLocation];
+    
+    [SVProgressHUD showInView:self.view status:nil networkIndicator:YES];
+    
+    self.previousButton.hidden = YES;
+    self.nextButton.hidden = YES;
 }
 
 - (void)loadSales:(CLLocationCoordinate2D)coordinate radius:(NSInteger)radius
 {
+    if (isLoading) return;
+    
+    isLoading = YES;
+    
     // Load Sales
     NSString *params = [NSString stringWithFormat:@"lat=%f&lng=%f&radius=%d", coordinate.latitude, coordinate.longitude, radius];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:[@"http://sales.backtoshops.com/webservice/1.0/vicinity/sales?" stringByAppendingString:params]]];
@@ -58,18 +68,17 @@
         }
         
         [doc release];
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         
+        isLoading = NO;
+        [SVProgressHUD dismiss];
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Load nearby sales %@", error);
+        isLoading = NO;
+        [SVProgressHUD dismiss];
     }];
     
     NSOperationQueue *queue = [[[NSOperationQueue alloc] init] autorelease];
     [queue addOperation:saleListOperation];
-}
-
-- (void)viewDidUnload
-{
-    [super viewDidUnload];
-    // Release any retained subviews of the main view.
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation

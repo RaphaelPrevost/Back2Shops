@@ -11,6 +11,7 @@
 
 @interface SaleListViewController : UIViewController <UIWebViewDelegate> {
     NSMutableDictionary *cachedTemplate;
+    BOOL isLoading;
 }
 
 @property (nonatomic, copy) NSString *shopID;

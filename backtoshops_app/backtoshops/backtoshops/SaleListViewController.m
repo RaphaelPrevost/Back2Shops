@@ -14,6 +14,7 @@
 #import "ShopInfoViewController.h"
 #import "SaleMapViewController.h"
 #import "LocalCache.h"
+#import "SVProgressHUD.h"
 
 @interface SaleListViewController (Private)
 
@@ -97,9 +98,14 @@
         
     [self showNavigationArrows];
     
+    [SVProgressHUD showInView:self.view status:nil networkIndicator:YES];
+    
+//    self.previousButton.hidden = YES;
+//    self.nextButton.hidden = YES;
+    
     if ([self.items count] > 0) {
         [self loadWebViewWithSale:[self.items objectAtIndex:0]];
-    }
+    }    
 }
 
 - (void)viewDidUnload
@@ -109,8 +115,6 @@
     [self setPreviousButton:nil];
     [self setNextButton:nil];
     [super viewDidUnload];
-    // Release any retained subviews of the main view.
-    // e.g. self.myOutlet = nil;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
@@ -126,6 +130,8 @@
     if ([cachedTemplate valueForKey:item.identifier] == nil) {
         NSDictionary *cachedSales = [[LocalCache sharedLocalCache] cachedDictionaryWithKey:@"SaleMap"];
         if ([cachedSales valueForKey:item.identifier]) {
+            [SVProgressHUD dismiss];
+            
             Sale *sale = (Sale *)[cachedSales valueForKey:item.identifier];
             NSString *path = [[NSBundle mainBundle] pathForResource:@"SaleInfoTemplate" ofType:@"html"];
             NSString *htmlTemplate = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:NULL];
@@ -148,10 +154,7 @@
                 }
                 
                 item.shops = shops;
-                
                 [doc release];
-                
-        //        NSLog(@"%@", [item toJSON]);
                 
                 // Prepare template variables then render HTML template
                 NSString *path = [[NSBundle mainBundle] pathForResource:@"SaleInfoTemplate" ofType:@"html"];
@@ -161,14 +164,19 @@
                 [cachedTemplate setValue:htmlTemplate forKey:item.identifier];
                 [self.webView stopLoading];
                 [self.webView loadHTMLString:htmlTemplate baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"SaleInfoTemplate" ofType:@"html"]]];
+                
+                [SVProgressHUD dismiss];
             } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                 NSLog(@"%@", error);
+                [SVProgressHUD dismiss];
             }];
             
             NSOperationQueue *queue = [[[NSOperationQueue alloc] init] autorelease];
             [queue addOperation:operation];
         }
     } else {
+        [SVProgressHUD dismiss];
+        
         NSString *htmlTemplate = [cachedTemplate valueForKey:item.identifier];
         [self.webView stopLoading];
         [self.webView loadHTMLString:htmlTemplate baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"SaleInfoTemplate" ofType:@"html"]]];
@@ -199,6 +207,8 @@
 {
     self.previousButton.hidden = NO;
     self.nextButton.hidden = NO;
+    
+    if ([self.items count] == 0) return;
     
     if (self.currentItemIndex == 0) {
         self.previousButton.hidden = YES;
