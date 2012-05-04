@@ -10,6 +10,8 @@
 #import "HomeViewController.h"
 #import "ShopViewController.h"
 #import "LoginViewController.h"
+#import "SearchViewController.h"
+#import "OrderViewController.h"
 #import "NearbySaleListViewController.h"
 #import "LocalCache.h"
 #import "AFHTTPRequestOperation.h"
@@ -21,6 +23,7 @@
 
 - (void)loadCache;
 - (void)deselectTab;
+- (UIViewController *)createController:(NSString *)className;
 
 @end
 
@@ -40,14 +43,6 @@
     return self;
 }
 
-- (void)didReceiveMemoryWarning
-{
-    // Releases the view if it doesn't have a superview.
-    [super didReceiveMemoryWarning];
-    
-    // Release any cached data, images, etc that aren't in use.
-}
-
 #pragma mark - View lifecycle
 
 - (void)viewDidLoad
@@ -56,41 +51,19 @@
 
     [self loadCache];
     
-    // Le Plan
-    UINavigationController *firstController = [[[UINavigationController alloc] init] autorelease];
-    firstController.view.frame = CGRectMake(0, 0, 320, 415);
-    [firstController pushViewController:[[[ShopViewController alloc] initWithNibName:@"ShopViewController" bundle:nil] autorelease] animated:NO];
-    [self.viewControllers addObject:firstController];
+    // Trouver
+    [self.viewControllers addObject:[self createController:@"SearchViewController"]];
+
+    // Les Offres BTS
+    [self.viewControllers addObject:[self createController:@"NearbySaleListViewController"]];
     
-    // Offre BTS
-    UINavigationController *secondController = [[[UINavigationController alloc] init] autorelease];
-    secondController.view.frame = CGRectMake(0, 0, 320, 415);
-    [secondController pushViewController:[[[NearbySaleListViewController alloc] init] autorelease] animated:NO];
-    [self.viewControllers addObject:secondController];
+    // Les Shops
+    [self.viewControllers addObject:[self createController:@"ShopViewController"]];
+    
+    // Mes achets
+    [self.viewControllers addObject:[self createController:@"OrderViewController"]];
     
     [self click1st:nil];
-    
-//    for (int i = 0; i < 3; i++) {
-//        UIViewController *c;
-//        if (i == 0) {
-//            c = [[ShopViewController alloc] initWithNibName:@"ShopViewController" bundle:nil];
-//            c.title = @"Plan";
-//        } else {
-//            c = [[UIViewController alloc] init];
-//            c.title = [NSString stringWithFormat:@"C - %d", i];
-//        }
-//        
-//        UINavigationController *nav = [[UINavigationController alloc] init];
-//        nav.view.frame = CGRectMake(0, 20, 320, 410);
-//        [nav pushViewController:c animated:YES];
-//        
-//        [self.viewControllers addObject:nav];
-//        
-//        [c release];
-//        [nav release];
-//    }
-//    
-//    self.currentController = [self.viewControllers objectAtIndex:0];
 }
 
 - (void)viewDidUnload
@@ -147,21 +120,34 @@
 
 - (IBAction)click3rd:(id)sender
 {
-//    UIViewController *c = [[[UIViewController alloc] init] autorelease];
-//    c.title = @"Hello 3rd";
-//    
-//    UINavigationController *nav = [self.viewControllers objectAtIndex:2];
-//    [nav pushViewController:c animated:YES];
+    [self deselectTab];
     
-//    [self deselectTab];
-//    
-//    UIImageView *imageView = (UIImageView *)[self.tabbar viewWithTag:ButtonImageTagThird];
-//    imageView.image = [UIImage imageNamed:@"icons_03_on"];
-//
-//    self.currentController = [self.viewControllers objectAtIndex:2];
+    UIImageView *imageView = (UIImageView *)[self.tabbar viewWithTag:ButtonImageTagThird];
+    imageView.image = [UIImage imageNamed:@"icons_03_on"];
+    
+    self.currentController = [self.viewControllers objectAtIndex:2];
+}
+
+- (IBAction)click4th:(id)sender
+{
+    [self deselectTab];
+    
+    UIImageView *imageView = (UIImageView *)[self.tabbar viewWithTag:ButtonImageTagFourth];
+    imageView.image = [UIImage imageNamed:@"icons_04_on"];
+    
+    self.currentController = [self.viewControllers objectAtIndex:3];    
 }
 
 #pragma mark - Private
+
+- (UIViewController *)createController:(NSString *)className
+{
+    UIViewController *controller = [[[NSClassFromString(className) alloc] initWithNibName:className bundle:nil] autorelease];
+    UINavigationController *nav = [[[UINavigationController alloc] initWithRootViewController:controller] autorelease];
+    nav.view.frame = CGRectMake(0, 0, 320, 415);
+    
+    return nav;
+}
 
 - (void)deselectTab
 {
@@ -173,6 +159,9 @@
     
     imageView = (UIImageView *)[self.tabbar viewWithTag:ButtonImageTagThird];
     imageView.image = [UIImage imageNamed:@"icons_03_off"];
+    
+    imageView = (UIImageView *)[self.tabbar viewWithTag:ButtonImageTagFourth];
+    imageView.image = [UIImage imageNamed:@"icons_04_off"];
 }
 
 - (void)loadCache
@@ -208,6 +197,7 @@
             for (GDataXMLElement *shop in [sale elementsForName:@"shop"]) {
                 Shop *shopObj = [Shop shopFromXML:shop];
                 [shops addObject:shopObj];
+                saleObj.shops = shops;
             }
             
             [saleMap setValue:saleObj forKey:saleObj.identifier];

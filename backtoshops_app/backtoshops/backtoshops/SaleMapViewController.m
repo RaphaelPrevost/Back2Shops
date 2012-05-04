@@ -56,7 +56,8 @@
     
     // Sale Info
     UIImageView *thumbnail = (UIImageView *)[self.view viewWithTag:1];
-    [thumbnail setImageWithURL:[NSURL URLWithString:[@"http://sales.backtoshops.com" stringByAppendingString:sale.imageURL]]];
+    if (sale.imageURL)
+        [thumbnail setImageWithURL:[NSURL URLWithString:[@"http://sales.backtoshops.com" stringByAppendingString:sale.imageURL]]];
     UILabel *name = (UILabel *)[self.view viewWithTag:2];
     name.text = sale.name;
     UILabel *discount = (UILabel *)[self.view viewWithTag:3];

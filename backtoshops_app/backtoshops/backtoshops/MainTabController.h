@@ -11,7 +11,8 @@
 enum ButtonImageTags {
     ButtonImageTagFirst = 1,
     ButtonImageTagSecond = 2,
-    ButtonImageTagThird = 3
+    ButtonImageTagThird = 3,
+    ButtonImageTagFourth = 4
 };
 
 @interface MainTabController : UIViewController {
@@ -28,5 +29,6 @@ enum ButtonImageTags {
 - (IBAction)click1st:(id)sender;
 - (IBAction)click2nd:(id)sender;
 - (IBAction)click3rd:(id)sender;
+- (IBAction)click4th:(id)sender;
 
 @end
