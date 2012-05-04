@@ -1,0 +1,2095 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-05-04 15:32+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+
+#: settings_local.py:67 settings_production.py:50
+msgid "English"
+msgstr ""
+
+#: settings_local.py:68 settings_production.py:51
+msgid "French"
+msgstr ""
+
+#: settings_production.py:52
+msgid "Chinese"
+msgstr ""
+
+#: settings_production.py:53
+msgid "Spanish"
+msgstr ""
+
+#: settings_production.py:54
+msgid "Brazilian Portuguese"
+msgstr ""
+
+#: settings_production.py:55
+msgid "Italian"
+msgstr ""
+
+#: settings_production.py:56
+msgid "Catalan"
+msgstr ""
+
+#: settings_production.py:57
+msgid "Korean"
+msgstr ""
+
+#: accounts/forms.py:21 backend/forms.py:29
+msgid "Username"
+msgstr ""
+
+#: accounts/forms.py:22 backend/forms.py:30 backend/templates/sa_user.html:52
+#: backend/templates/sa_user.html.py:90
+msgid "E-mail"
+msgstr ""
+
+#: accounts/forms.py:23 accounts/models.py:10 backend/forms.py:31
+msgid "language"
+msgstr ""
+
+#: accounts/forms.py:35 backend/forms.py:51 backend/forms.py:129
+msgid "Password"
+msgstr ""
+
+#: accounts/forms.py:36
+msgid "Password confirmation"
+msgstr ""
+
+#: accounts/forms.py:44 backend/forms.py:60 backend/forms.py:150
+msgid "A user with that username already exists."
+msgstr ""
+
+#: accounts/forms.py:50 backend/forms.py:66 backend/forms.py:156
+msgid "The two password fields didn't match."
+msgstr ""
+
+#: accounts/forms.py:65 backend/forms.py:82
+msgid "Active"
+msgstr ""
+
+#: accounts/models.py:9
+msgid "shops"
+msgstr ""
+
+#: accounts/templates/operator.html:6
+msgid "Edit an operator"
+msgstr ""
+
+#: accounts/templates/operator.html:8
+msgid "Add an operator"
+msgstr ""
+
+#: accounts/templates/operator.html:26 accounts/templates/operator.html:27
+msgid "Operators"
+msgstr ""
+
+#: accounts/templates/operator.html:37
+msgid "Edit operator"
+msgstr ""
+
+#: accounts/templates/operator.html:39
+msgid "New operator"
+msgstr ""
+
+#: accounts/templates/operator.html:105 backend/templates/sa_attribute.html:79
+#: backend/templates/sa_brand.html:56 backend/templates/sa_branding.html:76
+#: backend/templates/sa_category.html:51 backend/templates/sa_settings.html:73
+#: backend/templates/sa_user.html:106 shops/templates/physical_shop.html:122
+msgid "Save"
+msgstr ""
+
+#: accounts/templates/operator.html:106 backend/templates/sa_attribute.html:80
+#: backend/templates/sa_brand.html:57 backend/templates/sa_branding.html:77
+#: backend/templates/sa_category.html:52 backend/templates/sa_settings.html:74
+#: backend/templates/sa_user.html:107 sales/templates/add_sale_base.html:45
+#: sales/templates/edit_sale_base.html:43
+#: shops/templates/physical_shop.html:123
+msgid "Cancel"
+msgstr ""
+
+#: accounts/templates/operator.html:115
+msgid "Operators list"
+msgstr ""
+
+#: accounts/templates/operator.html:120 accounts/templates/operator.html:127
+#: backend/templates/sa_user.html:121 backend/templates/sa_user.html.py:136
+msgid "User"
+msgstr ""
+
+#: accounts/templates/operator.html:121 backend/templates/sa_user.html:130
+msgid "Search"
+msgstr ""
+
+#: accounts/templates/operator.html:128
+#: backend/templates/sa_attribute.html:102 backend/templates/sa_brand.html:71
+#: backend/templates/sa_branding.html:93 backend/templates/sa_category.html:66
+#: backend/templates/sa_user.html:138 shops/templates/physical_shop.html:141
+msgid "Actions"
+msgstr ""
+
+#: accounts/templates/operator.html:133 backend/templates/sa_brand.html:76
+#: backend/templates/sa_branding.html:100
+#: backend/templates/sa_category.html:71 backend/templates/sa_user.html:144
+#: shops/templates/physical_shop.html:147
+msgid "Edit"
+msgstr ""
+
+#: accounts/templates/operator.html:133 backend/templates/sa_attribute.html:74
+#: backend/templates/sa_attribute.html:88 backend/templates/sa_brand.html:76
+#: backend/templates/sa_branding.html:100
+#: backend/templates/sa_category.html:71 backend/templates/sa_user.html:144
+#: shops/templates/physical_shop.html:148
+msgid "Delete"
+msgstr ""
+
+#: accounts/templates/operator.html:137 backend/templates/sa_user.html:148
+#: backend/templates/ajax/user_search.html:12
+msgid "The users list is empty."
+msgstr ""
+
+#: accounts/templates/operator.html:151 backend/templates/sa_user.html:163
+#, python-format
+msgid ""
+"\n"
+"                    Page <input type=\"text\" value=\"%(number)s\" id="
+"\"page_num\"> of %(num_pages)s pages.\n"
+"                    "
+msgstr ""
+
+#: accounts/templates/operator.html:156
+#: backend/templates/sa_attribute.html:123 backend/templates/sa_brand.html:92
+#: backend/templates/sa_branding.html:116
+#: backend/templates/sa_category.html:87 backend/templates/sa_user.html:168
+#: sales/templates/list.html:90 shops/templates/physical_shop.html:165
+msgid "("
+msgstr ""
+
+#: accounts/templates/operator.html:162 shops/templates/physical_shop.html:171
+msgid ") elements/page "
+msgstr ""
+
+#: accounts/templates/operator.html:178
+msgid "Add a new operator"
+msgstr ""
+
+#: accounts/templates/operator.html:189
+msgid "Are your sure you want to delete this operator?"
+msgstr ""
+
+#: accounts/templates/operator.html:220
+#: backend/templates/sa_attribute.html:178 backend/templates/sa_brand.html:146
+#: backend/templates/sa_branding.html:171
+#: backend/templates/sa_category.html:143 backend/templates/sa_user.html:233
+#: sales/templates/list.html:175 shops/templates/physical_shop.html:358
+msgid "Please enter a valid page number."
+msgstr ""
+
+#: attributes/models.py:12
+msgid "type of premium price"
+msgstr ""
+
+#: attributes/models.py:13
+msgid "amount of premium"
+msgstr ""
+
+#: attributes/models.py:14
+msgid "final price after premium"
+msgstr ""
+
+#: backend/forms.py:52
+msgid "Confirm password"
+msgstr ""
+
+#: backend/forms.py:127 backend/templates/sa_user.html:62
+#: backend/templates/sa_user.html.py:95
+msgid "Default language"
+msgstr ""
+
+#: backend/forms.py:128
+msgid "Default currency"
+msgstr ""
+
+#: backend/forms.py:130
+msgid "Administrator login"
+msgstr ""
+
+#: backend/forms.py:131
+msgid "Administrator e-mail"
+msgstr ""
+
+#: backend/forms.py:132
+msgid "New administrative password"
+msgstr ""
+
+#: backend/forms.py:133
+msgid "Confirm new password"
+msgstr ""
+
+#: backend/templates/sa_attribute.html:6
+#: backend/templates/sa_attribute.html:38
+msgid "Edit an item type"
+msgstr ""
+
+#: backend/templates/sa_attribute.html:8
+#: backend/templates/sa_attribute.html:40
+#: backend/templates/sa_attribute.html:145
+msgid "Add a new item type"
+msgstr ""
+
+#: backend/templates/sa_attribute.html:27
+#: backend/templates/sa_attribute.html:28 templates/sa_index.html:19
+#: templates/sa_index.html.py:20 templates/sa_quick_nav.html:12
+msgid "Items"
+msgstr ""
+
+#: backend/templates/sa_attribute.html:46
+msgid "Sales category"
+msgstr ""
+
+#: backend/templates/sa_attribute.html:51
+msgid "Item type"
+msgstr ""
+
+#: backend/templates/sa_attribute.html:60
+msgid "Item generic properties (e.g. sizes)"
+msgstr ""
+
+#: backend/templates/sa_attribute.html:67
+#: sales/templates/add_sale_product.html:88
+#: sales/templates/add_sale_product.html:128
+msgid "Add"
+msgstr ""
+
+#: backend/templates/sa_attribute.html:97
+msgid "Items types"
+msgstr ""
+
+#: backend/templates/sa_attribute.html:101 backend/templates/sa_brand.html:70
+#: backend/templates/sa_branding.html:90 backend/templates/sa_category.html:65
+#: shops/templates/physical_shop.html:139
+msgid "Name"
+msgstr ""
+
+#: backend/templates/sa_attribute.html:111
+msgid "The items types list is empty."
+msgstr ""
+
+#: backend/templates/sa_attribute.html:118 backend/templates/sa_brand.html:87
+#: backend/templates/sa_branding.html:111
+#: backend/templates/sa_category.html:82
+#: shops/templates/physical_shop.html:160
+#, python-format
+msgid ""
+"\n"
+"                Page <input type=\"text\" value=\"%(number)s\" id=\"page_num"
+"\"> of %(num_pages)s pages.\n"
+"                "
+msgstr ""
+
+#: backend/templates/sa_attribute.html:129 backend/templates/sa_brand.html:98
+#: backend/templates/sa_branding.html:122
+#: backend/templates/sa_category.html:93 backend/templates/sa_user.html:174
+#: sales/templates/list.html:96
+msgid " elements/page )"
+msgstr ""
+
+#: backend/templates/sa_attribute.html:156
+msgid "Are your sure you want to delete this item type?"
+msgstr ""
+
+#: backend/templates/sa_attribute.html:198
+msgid "Are your sure you want to delete this property?"
+msgstr ""
+
+#: backend/templates/sa_brand.html:6 backend/templates/sa_brand.html.py:38
+msgid "Edit a brand"
+msgstr ""
+
+#: backend/templates/sa_brand.html:8 backend/templates/sa_brand.html.py:40
+#: backend/templates/sa_brand.html:114
+#: sales/templates/add_sale_product.html:38
+#: sales/templates/add_sale_product.html:477
+msgid "Add a new brand"
+msgstr ""
+
+#: backend/templates/sa_brand.html:27 backend/templates/sa_brand.html.py:28
+#: templates/sa_index.html:7 templates/sa_index.html.py:8
+#: templates/sa_quick_nav.html:8
+msgid "Corporate accounts"
+msgstr ""
+
+#: backend/templates/sa_brand.html:66
+msgid "Brands list"
+msgstr ""
+
+#: backend/templates/sa_brand.html:80
+msgid "The brands list is empty."
+msgstr ""
+
+#: backend/templates/sa_brand.html:125
+msgid "Are your sure you want to delete this brand?"
+msgstr ""
+
+#: backend/templates/sa_branding.html:6 backend/templates/sa_branding.html:38
+msgid "Edit a slide"
+msgstr ""
+
+#: backend/templates/sa_branding.html:8 backend/templates/sa_branding.html:40
+#: backend/templates/sa_branding.html:138
+msgid "Add a new slide"
+msgstr ""
+
+#: backend/templates/sa_branding.html:27 backend/templates/sa_branding.html:28
+#: templates/sa_index.html:23 templates/sa_index.html.py:24
+#: templates/sa_quick_nav.html:10
+msgid "Frontpage"
+msgstr ""
+
+#: backend/templates/sa_branding.html:86
+msgid "Slides"
+msgstr ""
+
+#: backend/templates/sa_branding.html:91
+msgid "Picture"
+msgstr ""
+
+#: backend/templates/sa_branding.html:92
+msgid "Key"
+msgstr ""
+
+#: backend/templates/sa_branding.html:104
+msgid "The slides list is empty."
+msgstr ""
+
+#: backend/templates/sa_branding.html:149
+msgid "Are your sure you want to delete this slide?"
+msgstr ""
+
+#: backend/templates/sa_category.html:6 backend/templates/sa_category.html:38
+msgid "Edit a sales category"
+msgstr ""
+
+#: backend/templates/sa_category.html:8 backend/templates/sa_category.html:40
+#: backend/templates/sa_category.html:110
+msgid "Add a new sales category"
+msgstr ""
+
+#: backend/templates/sa_category.html:27 backend/templates/sa_category.html:28
+#: backend/templates/sa_category.html:61 templates/sa_index.html:15
+#: templates/sa_index.html.py:16 templates/sa_quick_nav.html:9
+msgid "Sales categories"
+msgstr ""
+
+#: backend/templates/sa_category.html:75
+msgid "The sales categories list is empty."
+msgstr ""
+
+#: backend/templates/sa_category.html:121
+msgid "Are your sure you want to delete this sales category?"
+msgstr ""
+
+#: backend/templates/sa_settings.html:5 backend/templates/sa_settings.html:23
+#: backend/templates/sa_settings.html:24 backend/templates/sa_settings.html:30
+#: templates/sa_index.html:27 templates/sa_index.html.py:28
+#: templates/sa_quick_nav.html:13
+msgid "Settings"
+msgstr ""
+
+#: backend/templates/sa_settings.html:67
+msgid ""
+"Please enter the current administrative password to save these settings:"
+msgstr ""
+
+#: backend/templates/sa_user.html:6 backend/templates/sa_user.html.py:38
+msgid "Edit user information"
+msgstr ""
+
+#: backend/templates/sa_user.html:8 backend/templates/sa_user.html.py:40
+#: backend/templates/sa_user.html:191
+msgid "Add a new user"
+msgstr ""
+
+#: backend/templates/sa_user.html:27 backend/templates/sa_user.html.py:28
+msgid "Users"
+msgstr ""
+
+#: backend/templates/sa_user.html:67 backend/templates/sa_user.html.py:100
+#: backend/templates/sa_user.html:122
+msgid "Corporate account"
+msgstr ""
+
+#: backend/templates/sa_user.html:116
+msgid "Users list"
+msgstr ""
+
+#: backend/templates/sa_user.html:123
+msgid "Select a brand"
+msgstr ""
+
+#: backend/templates/sa_user.html:137
+msgid "Brand"
+msgstr ""
+
+#: backend/templates/sa_user.html:202
+msgid "Are your sure you want to delete this user?"
+msgstr ""
+
+#: brandings/models.py:6
+msgid "Slide name"
+msgstr ""
+
+#: brandings/models.py:7
+msgid "Sort key"
+msgstr ""
+
+#: brandings/models.py:8
+msgid "Slide image"
+msgstr ""
+
+#: brandings/models.py:9
+msgid "landing URL"
+msgstr ""
+
+#: brandings/models.py:10
+msgid "Show from"
+msgstr ""
+
+#: brandings/models.py:11
+msgid "Show until"
+msgstr ""
+
+#: countries/models.py:22
+msgid "ISO alpha-2"
+msgstr ""
+
+#: countries/models.py:23
+msgid "Official name (CAPS)"
+msgstr ""
+
+#: countries/models.py:24
+msgid "Country name"
+msgstr ""
+
+#: countries/models.py:25
+msgid "ISO alpha-3"
+msgstr ""
+
+#: countries/models.py:26
+msgid "ISO numeric"
+msgstr ""
+
+#: countries/models.py:30 shops/models.py:15
+msgid "Country"
+msgstr ""
+
+#: countries/models.py:31
+msgid "Countries"
+msgstr ""
+
+#: countries/models.py:52
+msgid "State name"
+msgstr ""
+
+#: countries/models.py:53
+msgid "Abbreviation"
+msgstr ""
+
+#: countries/models.py:57
+msgid "US State"
+msgstr ""
+
+#: countries/models.py:58
+msgid "US States"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_AD/printable_name.py:2
+msgid "Andorra"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_AE/printable_name.py:2
+msgid "United Arab Emirates"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_AF/printable_name.py:2
+msgid "Afghanistan"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_AG/printable_name.py:2
+msgid "Antigua and Barbuda"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_AI/printable_name.py:2
+msgid "Anguilla"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_AL/printable_name.py:2
+msgid "Albania"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_AM/printable_name.py:2
+msgid "Armenia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_AN/printable_name.py:2
+msgid "Netherlands Antilles"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_AO/printable_name.py:2
+msgid "Angola"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_AQ/printable_name.py:2
+msgid "Antarctica"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_AR/printable_name.py:2
+msgid "Argentina"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_AS/printable_name.py:2
+msgid "American Samoa"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_AT/printable_name.py:2
+msgid "Austria"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_AU/printable_name.py:2
+msgid "Australia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_AW/printable_name.py:2
+msgid "Aruba"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_AX/printable_name.py:2
+msgid "Åland Islands"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_AZ/printable_name.py:2
+msgid "Azerbaijan"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_BA/printable_name.py:2
+msgid "Bosnia and Herzegovina"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_BB/printable_name.py:2
+msgid "Barbados"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_BD/printable_name.py:2
+msgid "Bangladesh"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_BE/printable_name.py:2
+msgid "Belgium"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_BF/printable_name.py:2
+msgid "Burkina Faso"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_BG/printable_name.py:2
+msgid "Bulgaria"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_BH/printable_name.py:2
+msgid "Bahrain"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_BI/printable_name.py:2
+msgid "Burundi"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_BJ/printable_name.py:2
+msgid "Benin"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_BM/printable_name.py:2
+msgid "Bermuda"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_BN/printable_name.py:2
+msgid "Brunei Darussalam"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_BO/printable_name.py:2
+msgid "Bolivia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_BR/printable_name.py:2
+msgid "Brazil"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_BS/printable_name.py:2
+msgid "Bahamas"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_BT/printable_name.py:2
+msgid "Bhutan"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_BV/printable_name.py:2
+msgid "Bouvet Island"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_BW/printable_name.py:2
+msgid "Botswana"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_BY/printable_name.py:2
+msgid "Belarus"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_BZ/printable_name.py:2
+msgid "Belize"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_CA/printable_name.py:2
+msgid "Canada"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_CC/printable_name.py:2
+msgid "Cocos (Keeling) Islands"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_CD/printable_name.py:2
+msgid "Democratic Republic of the Congo"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_CF/printable_name.py:2
+msgid "Central African Republic"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_CG/printable_name.py:2
+msgid "Congo"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_CH/printable_name.py:2
+msgid "Switzerland"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_CI/printable_name.py:2
+msgid "Côte d'Ivoire"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_CK/printable_name.py:2
+msgid "Cook Islands"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_CL/printable_name.py:2
+msgid "Chile"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_CM/printable_name.py:2
+msgid "Cameroon"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_CN/printable_name.py:2
+msgid "China"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_CO/printable_name.py:2
+msgid "Colombia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_CR/printable_name.py:2
+msgid "Costa Rica"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_CU/printable_name.py:2
+msgid "Cuba"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_CV/printable_name.py:2
+msgid "Cape Verde"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_CX/printable_name.py:2
+msgid "Christmas Island"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_CY/printable_name.py:2
+msgid "Cyprus"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_CZ/printable_name.py:2
+msgid "Czech Republic"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_DE/printable_name.py:2
+msgid "Germany"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_DJ/printable_name.py:2
+msgid "Djibouti"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_DK/printable_name.py:2
+msgid "Denmark"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_DM/printable_name.py:2
+msgid "Dominica"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_DO/printable_name.py:2
+msgid "Dominican Republic"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_DZ/printable_name.py:2
+msgid "Algeria"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_EC/printable_name.py:2
+msgid "Ecuador"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_EE/printable_name.py:2
+msgid "Estonia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_EG/printable_name.py:2
+msgid "Egypt"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_EH/printable_name.py:2
+msgid "Western Sahara"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_ER/printable_name.py:2
+msgid "Eritrea"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_ES/printable_name.py:2
+msgid "Spain"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_ET/printable_name.py:2
+msgid "Ethiopia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_FI/printable_name.py:2
+msgid "Finland"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_FJ/printable_name.py:2
+msgid "Fiji"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_FK/printable_name.py:2
+msgid "Falkland Islands (Malvinas)"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_FM/printable_name.py:2
+msgid "Micronesia, Federated States of"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_FO/printable_name.py:2
+msgid "Faeroe Islands"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_FR/printable_name.py:2
+msgid "France"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_GA/printable_name.py:2
+msgid "Gabon"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_GB/printable_name.py:2
+msgid "United Kingdom of Great Britain and Northern Ireland"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_GD/printable_name.py:2
+msgid "Grenada"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_GE/printable_name.py:2
+msgid "Georgia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_GF/printable_name.py:2
+msgid "French Guiana"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_GG/printable_name.py:2
+msgid "Guernsey"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_GH/printable_name.py:2
+msgid "Ghana"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_GI/printable_name.py:2
+msgid "Gibraltar"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_GL/printable_name.py:2
+msgid "Greenland"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_GM/printable_name.py:2
+msgid "Gambia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_GN/printable_name.py:2
+msgid "Guinea"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_GP/printable_name.py:2
+msgid "Guadeloupe"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_GQ/printable_name.py:2
+msgid "Equatorial Guinea"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_GR/printable_name.py:2
+msgid "Greece"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_GS/printable_name.py:2
+msgid "South Georgia and the South Sandwich Islands"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_GT/printable_name.py:2
+msgid "Guatemala"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_GU/printable_name.py:2
+msgid "Guam"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_GW/printable_name.py:2
+msgid "Guinea-Bissau"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_GY/printable_name.py:2
+msgid "Guyana"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_HK/printable_name.py:2
+msgid "Hong Kong Special Administrative Region of China"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_HM/printable_name.py:2
+msgid "Heard Island and Mcdonald Islands"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_HN/printable_name.py:2
+msgid "Honduras"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_HR/printable_name.py:2
+msgid "Croatia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_HT/printable_name.py:2
+msgid "Haiti"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_HU/printable_name.py:2
+msgid "Hungary"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_ID/printable_name.py:2
+msgid "Indonesia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_IE/printable_name.py:2
+msgid "Ireland"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_IL/printable_name.py:2
+msgid "Israel"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_IM/printable_name.py:2
+msgid "Isle of Man"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_IN/printable_name.py:2
+msgid "India"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_IO/printable_name.py:2
+msgid "British Indian Ocean Territory"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_IQ/printable_name.py:2
+msgid "Iraq"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_IR/printable_name.py:2
+msgid "Iran, Islamic Republic of"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_IS/printable_name.py:2
+msgid "Iceland"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_IT/printable_name.py:2
+msgid "Italy"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_JE/printable_name.py:2
+msgid "Jersey"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_JM/printable_name.py:2
+msgid "Jamaica"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_JO/printable_name.py:2
+msgid "Jordan"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_JP/printable_name.py:2
+msgid "Japan"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_KE/printable_name.py:2
+msgid "Kenya"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_KG/printable_name.py:2
+msgid "Kyrgyzstan"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_KH/printable_name.py:2
+msgid "Cambodia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_KI/printable_name.py:2
+msgid "Kiribati"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_KM/printable_name.py:2
+msgid "Comoros"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_KN/printable_name.py:2
+msgid "Saint Kitts and Nevis"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_KP/printable_name.py:2
+msgid "Democratic People's Republic of Korea"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_KR/printable_name.py:2
+msgid "Republic of Korea"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_KW/printable_name.py:2
+msgid "Kuwait"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_KY/printable_name.py:2
+msgid "Cayman Islands"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_KZ/printable_name.py:2
+msgid "Kazakhstan"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_LA/printable_name.py:2
+msgid "Lao People's Democratic Republic"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_LB/printable_name.py:2
+msgid "Lebanon"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_LC/printable_name.py:2
+msgid "Saint Lucia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_LI/printable_name.py:2
+msgid "Liechtenstein"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_LK/printable_name.py:2
+msgid "Sri Lanka"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_LR/printable_name.py:2
+msgid "Liberia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_LS/printable_name.py:2
+msgid "Lesotho"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_LT/printable_name.py:2
+msgid "Lithuania"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_LU/printable_name.py:2
+msgid "Luxembourg"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_LV/printable_name.py:2
+msgid "Latvia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_LY/printable_name.py:2
+msgid "Libyan Arab Jamahiriya"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_MA/printable_name.py:2
+msgid "Morocco"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_MC/printable_name.py:2
+msgid "Monaco"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_MD/printable_name.py:2
+msgid "Republic of Moldova"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_ME/printable_name.py:2
+msgid "Montenegro"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_MG/printable_name.py:2
+msgid "Madagascar"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_MH/printable_name.py:2
+msgid "Marshall Islands"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_MK/printable_name.py:2
+msgid "The former Yugoslav Republic of Macedonia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_ML/printable_name.py:2
+msgid "Mali"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_MM/printable_name.py:2
+msgid "Myanmar"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_MN/printable_name.py:2
+msgid "Mongolia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_MO/printable_name.py:2
+msgid "Macao Special Administrative Region of China"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_MP/printable_name.py:2
+msgid "Northern Mariana Islands"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_MQ/printable_name.py:2
+msgid "Martinique"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_MR/printable_name.py:2
+msgid "Mauritania"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_MS/printable_name.py:2
+msgid "Montserrat"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_MT/printable_name.py:2
+msgid "Malta"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_MU/printable_name.py:2
+msgid "Mauritius"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_MV/printable_name.py:2
+msgid "Maldives"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_MW/printable_name.py:2
+msgid "Malawi"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_MX/printable_name.py:2
+msgid "Mexico"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_MY/printable_name.py:2
+msgid "Malaysia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_MZ/printable_name.py:2
+msgid "Mozambique"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_NA/printable_name.py:2
+msgid "Namibia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_NC/printable_name.py:2
+msgid "New Caledonia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_NE/printable_name.py:2
+msgid "Niger"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_NF/printable_name.py:2
+msgid "Norfolk Island"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_NG/printable_name.py:2
+msgid "Nigeria"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_NI/printable_name.py:2
+msgid "Nicaragua"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_NL/printable_name.py:2
+msgid "Netherlands"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_NO/printable_name.py:2
+msgid "Norway"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_NP/printable_name.py:2
+msgid "Nepal"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_NR/printable_name.py:2
+msgid "Nauru"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_NU/printable_name.py:2
+msgid "Niue"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_NZ/printable_name.py:2
+msgid "New Zealand"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_OM/printable_name.py:2
+msgid "Oman"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_PA/printable_name.py:2
+msgid "Panama"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_PE/printable_name.py:2
+msgid "Peru"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_PF/printable_name.py:2
+msgid "French Polynesia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_PG/printable_name.py:2
+msgid "Papua New Guinea"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_PH/printable_name.py:2
+msgid "Philippines"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_PK/printable_name.py:2
+msgid "Pakistan"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_PL/printable_name.py:2
+msgid "Poland"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_PM/printable_name.py:2
+msgid "Saint Pierre and Miquelon"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_PN/printable_name.py:2
+msgid "Pitcairn"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_PR/printable_name.py:2
+msgid "Puerto Rico"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_PS/printable_name.py:2
+msgid "Occupied Palestinian Territory"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_PT/printable_name.py:2
+msgid "Portugal"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_PW/printable_name.py:2
+msgid "Palau"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_PY/printable_name.py:2
+msgid "Paraguay"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_QA/printable_name.py:2
+msgid "Qatar"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_RE/printable_name.py:2
+msgid "Réunion"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_RO/printable_name.py:2
+msgid "Romania"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_RS/printable_name.py:2
+msgid "Serbia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_RU/printable_name.py:2
+msgid "Russian Federation"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_RW/printable_name.py:2
+msgid "Rwanda"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_SA/printable_name.py:2
+msgid "Saudi Arabia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_SB/printable_name.py:2
+msgid "Solomon Islands"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_SC/printable_name.py:2
+msgid "Seychelles"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_SD/printable_name.py:2
+msgid "Sudan"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_SE/printable_name.py:2
+msgid "Sweden"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_SG/printable_name.py:2
+msgid "Singapore"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_SH/printable_name.py:2
+msgid "Saint Helena"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_SI/printable_name.py:2
+msgid "Slovenia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_SJ/printable_name.py:2
+msgid "Svalbard and Jan Mayen Islands"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_SK/printable_name.py:2
+msgid "Slovakia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_SL/printable_name.py:2
+msgid "Sierra Leone"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_SM/printable_name.py:2
+msgid "San Marino"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_SN/printable_name.py:2
+msgid "Senegal"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_SO/printable_name.py:2
+msgid "Somalia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_SR/printable_name.py:2
+msgid "Suriname"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_ST/printable_name.py:2
+msgid "Sao Tome and Principe"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_SV/printable_name.py:2
+msgid "El Salvador"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_SY/printable_name.py:2
+msgid "Syrian Arab Republic"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_SZ/printable_name.py:2
+msgid "Swaziland"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_TC/printable_name.py:2
+msgid "Turks and Caicos Islands"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_TD/printable_name.py:2
+msgid "Chad"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_TF/printable_name.py:2
+msgid "French Southern Territories"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_TG/printable_name.py:2
+msgid "Togo"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_TH/printable_name.py:2
+msgid "Thailand"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_TJ/printable_name.py:2
+msgid "Tajikistan"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_TK/printable_name.py:2
+msgid "Tokelau"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_TL/printable_name.py:2
+msgid "Timor-Leste"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_TM/printable_name.py:2
+msgid "Turkmenistan"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_TN/printable_name.py:2
+msgid "Tunisia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_TO/printable_name.py:2
+msgid "Tonga"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_TR/printable_name.py:2
+msgid "Turkey"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_TT/printable_name.py:2
+msgid "Trinidad and Tobago"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_TV/printable_name.py:2
+msgid "Tuvalu"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_TW/printable_name.py:2
+msgid "Taiwan, Province of China"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_TZ/printable_name.py:2
+msgid "United Republic of Tanzania"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_UA/printable_name.py:2
+msgid "Ukraine"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_UG/printable_name.py:2
+msgid "Uganda"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_UM/printable_name.py:2
+msgid "United States Minor Outlying Islands"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_US/printable_name.py:2
+msgid "United States of America"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_UY/printable_name.py:2
+msgid "Uruguay"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_UZ/printable_name.py:2
+msgid "Uzbekistan"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_VA/printable_name.py:2
+msgid "Holy See"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_VC/printable_name.py:2
+msgid "Saint Vincent and the Grenadines"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_VE/printable_name.py:2
+msgid "Venezuela (Bolivarian Republic of)"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_VG/printable_name.py:2
+msgid "British Virgin Islands"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_VI/printable_name.py:2
+msgid "United States Virgin Islands"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_VN/printable_name.py:2
+msgid "Viet Nam"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_VU/printable_name.py:2
+msgid "Vanuatu"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_WF/printable_name.py:2
+msgid "Wallis and Futuna Islands"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_WS/printable_name.py:2
+msgid "Samoa"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_YE/printable_name.py:2
+msgid "Yemen"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_YT/printable_name.py:2
+msgid "Mayotte"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_ZA/printable_name.py:2
+msgid "South Africa"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_ZM/printable_name.py:2
+msgid "Zambia"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_ZW/printable_name.py:2
+msgid "Zimbabwe"
+msgstr ""
+
+#: pictures/views.py:24 sales/views.py:45
+msgid "Please upload a picture."
+msgstr ""
+
+#: sales/forms.py:16
+msgid "Global"
+msgstr ""
+
+#: sales/forms.py:17
+msgid "Local"
+msgstr ""
+
+#: sales/forms.py:58
+msgid "Target market"
+msgstr ""
+
+#: sales/forms.py:69 sales/templates/add_sale_preview_shop.html:5
+msgid "Participating shops"
+msgstr ""
+
+#: sales/forms.py:88
+msgid "You must select at least one shop."
+msgstr ""
+
+#: sales/forms.py:111 sales/forms.py:212
+msgid "Product type"
+msgstr ""
+
+#: sales/forms.py:116 sales/forms.py:211
+msgid "Product category"
+msgstr ""
+
+#: sales/forms.py:120 sales/forms.py:213
+msgid "Product name"
+msgstr ""
+
+#: sales/forms.py:121 shops/models.py:20
+msgid "Description"
+msgstr ""
+
+#: sales/forms.py:122 sales/forms.py:217
+msgid "Price"
+msgstr ""
+
+#: sales/forms.py:127 sales/templates/_sale_details.html:7
+#: sales/templates/list.html:62
+msgid "From"
+msgstr ""
+
+#: sales/forms.py:128 sales/templates/_sale_details.html:7
+#: sales/templates/list.html:62
+msgid "To"
+msgstr ""
+
+#: sales/forms.py:153
+msgid "Starting date can not be set past this sale's expiration date."
+msgstr ""
+
+#: sales/forms.py:155
+msgid "Expiration date can not be set before today."
+msgstr ""
+
+#: sales/forms.py:161 shops/models.py:11
+msgid "Barcode"
+msgstr ""
+
+#: sales/forms.py:168
+msgid "Stock"
+msgstr ""
+
+#: sales/forms.py:168
+msgid "This field is required."
+msgstr ""
+
+#: sales/forms.py:174
+msgid "Invalid stock quantity."
+msgstr ""
+
+#: sales/forms.py:202
+msgid "Target gender"
+msgstr ""
+
+#: sales/forms.py:214 sales/templates/add_sale_stocks.html:71
+#: sales/templates/add_sale_stocks.html:74
+msgid "Initial stock quantity"
+msgstr ""
+
+#: sales/forms.py:215
+msgid "Available quantity"
+msgstr ""
+
+#: sales/forms.py:216 sales/templates/_sale_details.html:11
+#: sales/templates/_sale_details.html:24
+msgid "Sales"
+msgstr ""
+
+#: sales/forms.py:218 sales/templates/add_sale_product.html:65
+msgid "Discounted price"
+msgstr ""
+
+#: sales/forms.py:219
+msgid "Starting date"
+msgstr ""
+
+#: sales/forms.py:220
+msgid "Expiration date"
+msgstr ""
+
+#: sales/models.py:8
+msgid "Unapplicable"
+msgstr ""
+
+#: sales/models.py:9
+msgid "Male"
+msgstr ""
+
+#: sales/models.py:10
+msgid "Female"
+msgstr ""
+
+#: sales/models.py:16 sales/templates/add_sale_stocks.html:125
+msgid "Initial stock allocation"
+msgstr ""
+
+#: sales/models.py:17
+msgid "Initial stock quantities"
+msgstr ""
+
+#: sales/models.py:21 sales/templates/add_sale_product.html:92
+msgid "Percentage"
+msgstr ""
+
+#: sales/models.py:22 sales/templates/add_sale_product.html:93
+msgid "Amount"
+msgstr ""
+
+#: sales/views.py:57
+msgid "The brand has been successfully created."
+msgstr ""
+
+#: sales/views.py:70
+msgid "Please upload a logo."
+msgstr ""
+
+#: sales/views.py:86 templates/_quick_nav.html:10 templates/index.html:23
+#: templates/index.html.py:24
+msgid "History"
+msgstr ""
+
+#: sales/views.py:90
+msgid "Current Sales"
+msgstr ""
+
+#: sales/views.py:587
+msgid "Shops Selection"
+msgstr ""
+
+#: sales/views.py:605
+msgid "Sale Details"
+msgstr ""
+
+#: sales/views.py:613
+msgid "Stock Allocation"
+msgstr ""
+
+#: sales/views.py:623
+msgid "Target Demographics"
+msgstr ""
+
+#: sales/templates/_sale_details.html:8
+msgid "Total"
+msgstr ""
+
+#: sales/templates/_sale_details.html:10 sales/templates/_sale_details.html:23
+msgid "Initial"
+msgstr ""
+
+#: sales/templates/_sale_details.html:12 sales/templates/_sale_details.html:25
+msgid "On Hand"
+msgstr ""
+
+#: sales/templates/_sale_details.html:22
+msgid "Attribute"
+msgstr ""
+
+#: sales/templates/_sale_details_shop.html:6
+msgid "Select a participating shop"
+msgstr ""
+
+#: sales/templates/_sale_details_shop.html:8
+msgid "Shop"
+msgstr ""
+
+#: sales/templates/_sale_details_shop.html:10
+msgid "Select a shop"
+msgstr ""
+
+#: sales/templates/add_sale_base.html:5 sales/templates/add_sale_base.html:32
+#: sales/templates/add_sale_base.html:34 templates/_quick_nav.html:8
+#: templates/index.html:7 templates/index.html.py:8
+msgid "Add a new sale"
+msgstr ""
+
+#: sales/templates/add_sale_base.html:27
+#: sales/templates/edit_sale_base.html:25 sales/templates/list.html:18
+msgid "Page Top"
+msgstr ""
+
+#: sales/templates/add_sale_base.html:42
+#: sales/templates/edit_sale_base.html:40
+msgid "First step"
+msgstr ""
+
+#: sales/templates/add_sale_base.html:43
+#: sales/templates/edit_sale_base.html:41
+msgid "Back"
+msgstr ""
+
+#: sales/templates/add_sale_base.html:47
+#: sales/templates/edit_sale_base.html:45
+msgid "Next: Product"
+msgstr ""
+
+#: sales/templates/add_sale_base.html:50
+#: sales/templates/edit_sale_base.html:48
+msgid "Next: Stock Qty"
+msgstr ""
+
+#: sales/templates/add_sale_base.html:53
+#: sales/templates/edit_sale_base.html:51
+msgid "Next: Target"
+msgstr ""
+
+#: sales/templates/add_sale_base.html:56
+msgid "Create Sale"
+msgstr ""
+
+#: sales/templates/add_sale_base.html:65
+msgid ""
+"The information entered on this page will be lost. Do you want to continue?"
+msgstr ""
+
+#: sales/templates/add_sale_preview_product.html:5
+msgid "Preview"
+msgstr ""
+
+#: sales/templates/add_sale_preview_product.html:10
+#: sales/templates/add_sale_preview_product.html:11
+#: sales/templates/add_sale_preview_product.html:30
+#: sales/templates/add_sale_preview_product.html:36
+#: sales/templates/add_sale_preview_product.html:39
+#: sales/templates/add_sale_preview_product.html:65
+#: sales/templates/add_sale_product.html:65
+#: sales/templates/add_sale_product.html:554
+#: sales/templates/add_sale_product.html:555
+#: sales/templates/add_sale_product.html:556
+#: sales/templates/add_sale_product.html:569 sales/templates/list.html:63
+msgid "N/A"
+msgstr ""
+
+#: sales/templates/add_sale_preview_product.html:39
+msgid "Offer valid until"
+msgstr ""
+
+#: sales/templates/add_sale_preview_product.html:42
+msgid "Buy Now"
+msgstr ""
+
+#: sales/templates/add_sale_preview_product.html:43
+msgid "Make a Gift"
+msgstr ""
+
+#: sales/templates/add_sale_preview_product.html:72
+#: sales/templates/add_sale_product.html:613 sales/templates/list.html:58
+msgid "Product picture"
+msgstr ""
+
+#: sales/templates/add_sale_preview_product.html:78
+msgid "Learn more"
+msgstr ""
+
+#: sales/templates/add_sale_preview_target.html:7
+msgid "Gender"
+msgstr ""
+
+#: sales/templates/add_sale_product.html:27
+msgid "Product pictures"
+msgstr ""
+
+#: sales/templates/add_sale_product.html:37
+msgid "Brand name"
+msgstr ""
+
+#: sales/templates/add_sale_product.html:38
+msgid "or"
+msgstr ""
+
+#: sales/templates/add_sale_product.html:60
+msgid "BackToShops Price"
+msgstr ""
+
+#: sales/templates/add_sale_product.html:71
+msgid "Valid through"
+msgstr ""
+
+#: sales/templates/add_sale_product.html:76
+msgid "Brand attributes"
+msgstr ""
+
+#: sales/templates/add_sale_product.html:125
+#: sales/templates/add_sale_product.html:150
+msgid "Remove"
+msgstr ""
+
+#: sales/templates/add_sale_product.html:164
+msgid "Create Brand"
+msgstr ""
+
+#: sales/templates/add_sale_product.html:383
+msgid "Attribute name can not be left blank."
+msgstr ""
+
+#: sales/templates/add_sale_product.html:517 sales/templates/list.html:131
+#: sales/templates/list.html.py:136 sales/templates/list.html:144
+msgid "Loading..."
+msgstr ""
+
+#: sales/templates/add_sale_shop.html:77
+msgid ""
+"This shop will become frozen status instead of being removed, since it has "
+"sold stock record.\\nIs this ok?\\n"
+msgstr ""
+
+#: sales/templates/add_sale_shop.html:84
+msgid ""
+"This shop already has stocks as frozen status. Will you unfreeze them?\\n"
+msgstr ""
+
+#: sales/templates/add_sale_stocks.html:20
+#: sales/templates/add_sale_stocks.html:23
+msgid "Product Barcodes"
+msgstr ""
+
+#: sales/templates/add_sale_stocks.html:228
+msgid "Sorry, please check your input."
+msgstr ""
+
+#: sales/templates/added.html:5
+msgid "The sale has been successfully created."
+msgstr ""
+
+#: sales/templates/edit_sale_base.html:5
+#: sales/templates/edit_sale_base.html:30
+#: sales/templates/edit_sale_base.html:32
+msgid "Edit a sale"
+msgstr ""
+
+#: sales/templates/edit_sale_base.html:54
+msgid "Update Sale"
+msgstr ""
+
+#: sales/templates/list.html:35
+msgid "Sort by:"
+msgstr ""
+
+#: sales/templates/list.html:39
+msgid "Sort"
+msgstr ""
+
+#: sales/templates/list.html:63
+msgid "Available Qty:"
+msgstr ""
+
+#: sales/templates/list.html:63
+msgid "Sales:"
+msgstr ""
+
+#: sales/templates/list.html:63
+msgid "Initial Stock:"
+msgstr ""
+
+#: sales/templates/list.html:66
+msgid "Discounted price:"
+msgstr ""
+
+#: sales/templates/list.html:67
+msgid "Discount:"
+msgstr ""
+
+#: sales/templates/list.html:68
+msgid "Item price:"
+msgstr ""
+
+#: sales/templates/list.html:74
+msgid "Details per shop"
+msgstr ""
+
+#: sales/templates/list.html:76
+msgid "Details"
+msgstr ""
+
+#: sales/templates/list.html:85
+#, python-format
+msgid ""
+"\n"
+"        Page <input type=\"text\" value=\"%(number)s\" id=\"page_num\"> of "
+"%(num_pages)s pages.\n"
+"        "
+msgstr ""
+
+#: sales/templates/list.html:151
+msgid "Are you sure you want to delete this sale?"
+msgstr ""
+
+#: sales/templates/updated.html:5
+msgid "The sale was successfully updated."
+msgstr ""
+
+#: shops/forms.py:48
+msgid "Select a country"
+msgstr ""
+
+#: shops/models.py:10
+msgid "Internal name"
+msgstr ""
+
+#: shops/models.py:12
+msgid "Address"
+msgstr ""
+
+#: shops/models.py:13
+msgid "Postal code"
+msgstr ""
+
+#: shops/models.py:14 shops/templates/physical_shop.html:140
+msgid "City"
+msgstr ""
+
+#: shops/models.py:16
+msgid "Phone number"
+msgstr ""
+
+#: shops/models.py:17
+msgid "Shop name"
+msgstr ""
+
+#: shops/models.py:18
+msgid "Caption"
+msgstr ""
+
+#: shops/models.py:19
+msgid "Shop picture"
+msgstr ""
+
+#: shops/widgets.py:13
+msgid "Monday"
+msgstr ""
+
+#: shops/widgets.py:13
+msgid "Tuesday"
+msgstr ""
+
+#: shops/widgets.py:13
+msgid "Wednesday"
+msgstr ""
+
+#: shops/widgets.py:13
+msgid "Thursday"
+msgstr ""
+
+#: shops/widgets.py:14
+msgid "Friday"
+msgstr ""
+
+#: shops/widgets.py:14
+msgid "Saturday"
+msgstr ""
+
+#: shops/widgets.py:14
+msgid "Sunday"
+msgstr ""
+
+#: shops/widgets.py:19
+msgid "and"
+msgstr ""
+
+#: shops/templates/physical_shop.html:6 shops/templates/physical_shop.html:40
+msgid "Edit shop information"
+msgstr ""
+
+#: shops/templates/physical_shop.html:8 shops/templates/physical_shop.html:42
+#: shops/templates/physical_shop.html:188
+msgid "Add a new shop"
+msgstr ""
+
+#: shops/templates/physical_shop.html:29 shops/templates/physical_shop.html:30
+#: templates/_quick_nav.html:11 templates/index.html:11
+#: templates/index.html.py:12
+msgid "Shops"
+msgstr ""
+
+#: shops/templates/physical_shop.html:115
+msgid "Opening hours"
+msgstr ""
+
+#: shops/templates/physical_shop.html:125
+msgid "Please contact your administrator to add a new shop."
+msgstr ""
+
+#: shops/templates/physical_shop.html:135
+msgid "Shops list"
+msgstr ""
+
+#: shops/templates/physical_shop.html:153
+msgid "The shops list is empty."
+msgstr ""
+
+#: shops/templates/physical_shop.html:262
+msgid "Searching..."
+msgstr ""
+
+#: shops/templates/physical_shop.html:276
+#: shops/templates/physical_shop.html:282
+msgid "Found"
+msgstr ""
+
+#: shops/templates/physical_shop.html:282
+msgid "results"
+msgstr ""
+
+#: shops/templates/physical_shop.html:288
+msgid ""
+"No results found. Please check the address, postal code and city are correct."
+msgstr ""
+
+#: shops/templates/physical_shop.html:290
+msgid "An error occured, please try again later."
+msgstr ""
+
+#: shops/templates/physical_shop.html:330
+msgid "Are your sure you want to delete this shop?"
+msgstr ""
+
+#: templates/_quick_nav.html:5 templates/sa_quick_nav.html:5
+msgid "Home"
+msgstr ""
+
+#: templates/_quick_nav.html:9 templates/index.html:15
+#: templates/index.html.py:16
+msgid "Current sales"
+msgstr ""
+
+#: templates/_quick_nav.html:12 templates/index.html:19
+#: templates/index.html.py:20
+msgid "Statistics"
+msgstr ""
+
+#: templates/_quick_nav.html:13 templates/index.html:27
+#: templates/index.html.py:28
+msgid "Performance Map"
+msgstr ""
+
+#: templates/_quick_nav.html:14 templates/index.html:32
+#: templates/index.html.py:33
+msgid "Operators mgmt"
+msgstr ""
+
+#: templates/base.html:9 templates/sa_base.html:9
+msgid "Backoffice"
+msgstr ""
+
+#: templates/base.html:93 templates/sa_base.html:90
+msgid "Welcome"
+msgstr ""
+
+#: templates/base.html:102 templates/sa_base.html:99
+msgid "Logout"
+msgstr ""
+
+#: templates/base.html:105 templates/login.html:27 templates/sa_base.html:102
+msgid "Login"
+msgstr ""
+
+#: templates/login.html:8
+msgid "Your username and password didn't match. Please try again."
+msgstr ""
+
+#: templates/login.html:12
+msgid "BackToShops Login"
+msgstr ""
+
+#: templates/sa_base.html:84
+msgid "You're logged in as a super admin"
+msgstr ""
+
+#: templates/sa_index.html:11 templates/sa_index.html.py:12
+#: templates/sa_quick_nav.html:11
+msgid "User accounts"
+msgstr ""
