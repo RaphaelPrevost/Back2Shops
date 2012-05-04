@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-04-20 09:23+0200\n"
-"PO-Revision-Date: 2012-04-20 09:24\n"
+"POT-Creation-Date: 2012-04-24 03:28+0200\n"
+"PO-Revision-Date: 2012-04-24 10:07\n"
 "Last-Translator:   <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -18,11 +18,11 @@ msgstr ""
 "Language: \n"
 "X-Translated-Using: django-rosetta 0.6.2\n"
 
-#: settings_local.py:65 settings_production.py:50
+#: settings_local.py:67 settings_production.py:50
 msgid "English"
 msgstr "Anglais"
 
-#: settings_local.py:66 settings_production.py:51
+#: settings_local.py:68 settings_production.py:51
 msgid "French"
 msgstr "Français"
 
@@ -1500,7 +1500,7 @@ msgstr "Zambie"
 msgid "Zimbabwe"
 msgstr "Zimbabwe"
 
-#: pictures/views.py:24 sales/views.py:44
+#: pictures/views.py:24 sales/views.py:45
 msgid "Please upload a picture."
 msgstr "Veuillez sélectionner une image."
 
@@ -1636,36 +1636,36 @@ msgstr "Pourcentage"
 msgid "Amount"
 msgstr "Fixe"
 
-#: sales/views.py:56
+#: sales/views.py:57
 msgid "The brand has been successfully created."
 msgstr "La marque a été enregistrée avec succès."
 
-#: sales/views.py:69
+#: sales/views.py:70
 msgid "Please upload a logo."
 msgstr "Veuillez sélectionner un logo."
 
-#: sales/views.py:85 templates/_quick_nav.html:10 templates/index.html:23
+#: sales/views.py:86 templates/_quick_nav.html:10 templates/index.html:23
 #: templates/index.html.py:24
 msgid "History"
 msgstr "Historique des ventes"
 
-#: sales/views.py:89
+#: sales/views.py:90
 msgid "Current Sales"
 msgstr "Ventes en cours"
 
-#: sales/views.py:574
+#: sales/views.py:587
 msgid "Shops Selection"
 msgstr "Sélection des boutiques"
 
-#: sales/views.py:587
+#: sales/views.py:605
 msgid "Sale Details"
 msgstr "Paramètrage de la vente"
 
-#: sales/views.py:595
+#: sales/views.py:613
 msgid "Stock Allocation"
 msgstr "Allocation des stocks"
 
-#: sales/views.py:605
+#: sales/views.py:623
 msgid "Target Demographics"
 msgstr "Définition de la cible"
 
@@ -1829,6 +1829,18 @@ msgstr "Le nom de l’attribut ne peut pas être nul."
 #: sales/templates/list.html.py:136 sales/templates/list.html:144
 msgid "Loading..."
 msgstr "Chargement ..."
+
+#: sales/templates/add_sale_shop.html:77
+msgid ""
+"This shop will become frozen status instead of being removed, since it "
+"has sold stock record.\\nIs this ok?\\n"
+msgstr ""
+
+#: sales/templates/add_sale_shop.html:84
+msgid ""
+"This shop already has stocks as frozen status. Will you unfreeze "
+"them?\\n"
+msgstr ""
 
 #: sales/templates/add_sale_stocks.html:20
 #: sales/templates/add_sale_stocks.html:23

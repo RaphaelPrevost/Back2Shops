@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-16 17:50+0100\n"
-"PO-Revision-Date: 2012-01-18 07:05\n"
-"Last-Translator:   <raphael@princesseavis.com>\n"
+"POT-Creation-Date: 2012-04-24 03:28+0200\n"
+"PO-Revision-Date: 2012-04-24 16:06\n"
+"Last-Translator:   <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -18,19 +18,1502 @@ msgstr ""
 "Language: \n"
 "X-Translated-Using: django-rosetta 0.6.2\n"
 
-#: settings_local.py:65 settings_production.py:41
+#: settings_local.py:67 settings_production.py:50
 msgid "English"
 msgstr "英语"
 
-#: settings_local.py:66 settings_production.py:42
+#: settings_local.py:68 settings_production.py:51
 msgid "French"
 msgstr "法语"
 
-#: settings_production.py:43
+#: settings_production.py:52
 msgid "Chinese"
 msgstr "中文"
 
-#: pictures/views.py:24 sales/views.py:42
+#: accounts/forms.py:21 backend/forms.py:29
+msgid "Username"
+msgstr "用户名"
+
+#: accounts/forms.py:22 backend/forms.py:30 backend/templates/sa_user.html:52
+#: backend/templates/sa_user.html.py:90
+msgid "E-mail"
+msgstr "电子邮箱"
+
+#: accounts/forms.py:23 accounts/models.py:10 backend/forms.py:31
+msgid "language"
+msgstr "语言"
+
+#: accounts/forms.py:35 backend/forms.py:51 backend/forms.py:129
+msgid "Password"
+msgstr "密码"
+
+#: accounts/forms.py:36
+msgid "Password confirmation"
+msgstr "密码确认"
+
+#: accounts/forms.py:44 backend/forms.py:60 backend/forms.py:150
+msgid "A user with that username already exists."
+msgstr "用户使用的用户名已经存在。"
+
+#: accounts/forms.py:50 backend/forms.py:66 backend/forms.py:156
+msgid "The two password fields didn't match."
+msgstr "两次输入的密码不匹配。"
+
+#: accounts/forms.py:65 backend/forms.py:82
+#, fuzzy
+msgid "Active"
+msgstr "动作"
+
+#: accounts/models.py:9
+#, fuzzy
+msgid "shops"
+msgstr "商店"
+
+#: accounts/templates/operator.html:6
+#, fuzzy
+msgid "Edit an operator"
+msgstr "编辑一个商店"
+
+#: accounts/templates/operator.html:8
+#, fuzzy
+msgid "Add an operator"
+msgstr "添加一个商店"
+
+#: accounts/templates/operator.html:26 accounts/templates/operator.html:27
+msgid "Operators"
+msgstr "操作员"
+
+#: accounts/templates/operator.html:37
+#, fuzzy
+msgid "Edit operator"
+msgstr "编辑商店"
+
+#: accounts/templates/operator.html:39
+#, fuzzy
+msgid "New operator"
+msgstr "新商店"
+
+#: accounts/templates/operator.html:105 backend/templates/sa_attribute.html:79
+#: backend/templates/sa_brand.html:56 backend/templates/sa_branding.html:76
+#: backend/templates/sa_category.html:51 backend/templates/sa_settings.html:73
+#: backend/templates/sa_user.html:106 shops/templates/physical_shop.html:122
+msgid "Save"
+msgstr "节省"
+
+#: accounts/templates/operator.html:106 backend/templates/sa_attribute.html:80
+#: backend/templates/sa_brand.html:57 backend/templates/sa_branding.html:77
+#: backend/templates/sa_category.html:52 backend/templates/sa_settings.html:74
+#: backend/templates/sa_user.html:107 sales/templates/add_sale_base.html:45
+#: sales/templates/edit_sale_base.html:43
+#: shops/templates/physical_shop.html:123
+msgid "Cancel"
+msgstr "取消"
+
+#: accounts/templates/operator.html:115
+msgid "Operators list"
+msgstr "操作员列表"
+
+#: accounts/templates/operator.html:120 accounts/templates/operator.html:127
+#: backend/templates/sa_user.html:121 backend/templates/sa_user.html.py:136
+msgid "User"
+msgstr "用户"
+
+#: accounts/templates/operator.html:121 backend/templates/sa_user.html:130
+#, fuzzy
+msgid "Search"
+msgstr "查找中..."
+
+#: accounts/templates/operator.html:128
+#: backend/templates/sa_attribute.html:102 backend/templates/sa_brand.html:71
+#: backend/templates/sa_branding.html:93 backend/templates/sa_category.html:66
+#: backend/templates/sa_user.html:138 shops/templates/physical_shop.html:141
+msgid "Actions"
+msgstr "动作"
+
+#: accounts/templates/operator.html:133 backend/templates/sa_brand.html:76
+#: backend/templates/sa_branding.html:100
+#: backend/templates/sa_category.html:71 backend/templates/sa_user.html:144
+#: shops/templates/physical_shop.html:147
+#, fuzzy
+msgid "Edit"
+msgstr "编辑"
+
+#: accounts/templates/operator.html:133 backend/templates/sa_attribute.html:74
+#: backend/templates/sa_attribute.html:88 backend/templates/sa_brand.html:76
+#: backend/templates/sa_branding.html:100
+#: backend/templates/sa_category.html:71 backend/templates/sa_user.html:144
+#: shops/templates/physical_shop.html:148
+msgid "Delete"
+msgstr "删除"
+
+#: accounts/templates/operator.html:137 backend/templates/sa_user.html:148
+#: backend/templates/ajax/user_search.html:12
+#, fuzzy
+msgid "The users list is empty."
+msgstr "无商店登记信息"
+
+#: accounts/templates/operator.html:151 backend/templates/sa_user.html:163
+#, python-format
+msgid ""
+"\n"
+"                    Page <input type=\"text\" value=\"%(number)s\" id=\"page_num\"> of %(num_pages)s pages.\n"
+"                    "
+msgstr ""
+
+#: accounts/templates/operator.html:156
+#: backend/templates/sa_attribute.html:123 backend/templates/sa_brand.html:92
+#: backend/templates/sa_branding.html:116
+#: backend/templates/sa_category.html:87 backend/templates/sa_user.html:168
+#: sales/templates/list.html:90 shops/templates/physical_shop.html:165
+msgid "("
+msgstr ""
+
+#: accounts/templates/operator.html:162 shops/templates/physical_shop.html:171
+msgid ") elements/page "
+msgstr ""
+
+#: accounts/templates/operator.html:178
+#, fuzzy
+msgid "Add a new operator"
+msgstr "添加一个操作员"
+
+#: accounts/templates/operator.html:189
+#, fuzzy
+msgid "Are your sure you want to delete this operator?"
+msgstr "您确定要删除这个操作员吗？"
+
+#: accounts/templates/operator.html:220
+#: backend/templates/sa_attribute.html:178 backend/templates/sa_brand.html:146
+#: backend/templates/sa_branding.html:171
+#: backend/templates/sa_category.html:143 backend/templates/sa_user.html:233
+#: sales/templates/list.html:175 shops/templates/physical_shop.html:358
+msgid "Please enter a valid page number."
+msgstr ""
+
+#: attributes/models.py:12
+msgid "type of premium price"
+msgstr ""
+
+#: attributes/models.py:13
+msgid "amount of premium"
+msgstr ""
+
+#: attributes/models.py:14
+msgid "final price after premium"
+msgstr ""
+
+#: backend/forms.py:52
+msgid "Confirm password"
+msgstr "确认密码"
+
+#: backend/forms.py:127 backend/templates/sa_user.html:62
+#: backend/templates/sa_user.html.py:95
+msgid "Default language"
+msgstr "默认语言"
+
+#: backend/forms.py:128
+msgid "Default currency"
+msgstr "默认币种"
+
+#: backend/forms.py:130
+msgid "Administrator login"
+msgstr "管理员登陆"
+
+#: backend/forms.py:131
+msgid "Administrator e-mail"
+msgstr "管理员电子邮件"
+
+#: backend/forms.py:132
+msgid "New administrative password"
+msgstr "新管理密码"
+
+#: backend/forms.py:133
+msgid "Confirm new password"
+msgstr "确认新密码"
+
+#: backend/templates/sa_attribute.html:6
+#: backend/templates/sa_attribute.html:38
+msgid "Edit an item type"
+msgstr "编辑一个商品类型"
+
+#: backend/templates/sa_attribute.html:8
+#: backend/templates/sa_attribute.html:40
+#: backend/templates/sa_attribute.html:145
+#, fuzzy
+msgid "Add a new item type"
+msgstr "添加一个新的售卖"
+
+#: backend/templates/sa_attribute.html:27
+#: backend/templates/sa_attribute.html:28 templates/sa_index.html:19
+#: templates/sa_index.html.py:20 templates/sa_quick_nav.html:12
+msgid "Items"
+msgstr "商品"
+
+#: backend/templates/sa_attribute.html:46
+#, fuzzy
+msgid "Sales category"
+msgstr "商品类别"
+
+#: backend/templates/sa_attribute.html:51
+#, fuzzy
+msgid "Item type"
+msgstr "商品价格"
+
+#: backend/templates/sa_attribute.html:60
+msgid "Item generic properties (e.g. sizes)"
+msgstr "商品特性（例如:尺寸）"
+
+#: backend/templates/sa_attribute.html:67
+#: sales/templates/add_sale_product.html:88
+#: sales/templates/add_sale_product.html:128
+msgid "Add"
+msgstr "添加"
+
+#: backend/templates/sa_attribute.html:97
+#, fuzzy
+msgid "Items types"
+msgstr "商品类型"
+
+#: backend/templates/sa_attribute.html:101 backend/templates/sa_brand.html:70
+#: backend/templates/sa_branding.html:90 backend/templates/sa_category.html:65
+#: shops/templates/physical_shop.html:139
+msgid "Name"
+msgstr "名称"
+
+#: backend/templates/sa_attribute.html:111
+#, fuzzy
+msgid "The items types list is empty."
+msgstr "无商店登记信息"
+
+#: backend/templates/sa_attribute.html:118 backend/templates/sa_brand.html:87
+#: backend/templates/sa_branding.html:111
+#: backend/templates/sa_category.html:82
+#: shops/templates/physical_shop.html:160
+#, python-format
+msgid ""
+"\n"
+"                Page <input type=\"text\" value=\"%(number)s\" id=\"page_num\"> of %(num_pages)s pages.\n"
+"                "
+msgstr ""
+
+#: backend/templates/sa_attribute.html:129 backend/templates/sa_brand.html:98
+#: backend/templates/sa_branding.html:122
+#: backend/templates/sa_category.html:93 backend/templates/sa_user.html:174
+#: sales/templates/list.html:96
+msgid " elements/page )"
+msgstr ""
+
+#: backend/templates/sa_attribute.html:156
+#, fuzzy
+msgid "Are your sure you want to delete this item type?"
+msgstr "您确定要删除这个商店吗？"
+
+#: backend/templates/sa_attribute.html:198
+#, fuzzy
+msgid "Are your sure you want to delete this property?"
+msgstr "您确定要删除这个商店吗？"
+
+#: backend/templates/sa_brand.html:6 backend/templates/sa_brand.html.py:38
+#, fuzzy
+msgid "Edit a brand"
+msgstr "编辑一个售卖"
+
+#: backend/templates/sa_brand.html:8 backend/templates/sa_brand.html.py:40
+#: backend/templates/sa_brand.html:114
+#: sales/templates/add_sale_product.html:38
+#: sales/templates/add_sale_product.html:477
+msgid "Add a new brand"
+msgstr "添加一个新的品牌"
+
+#: backend/templates/sa_brand.html:27 backend/templates/sa_brand.html.py:28
+#: templates/sa_index.html:7 templates/sa_index.html.py:8
+#: templates/sa_quick_nav.html:8
+msgid "Corporate accounts"
+msgstr "公司账户"
+
+#: backend/templates/sa_brand.html:66
+msgid "Brands list"
+msgstr "品牌列表"
+
+#: backend/templates/sa_brand.html:80
+#, fuzzy
+msgid "The brands list is empty."
+msgstr "无品牌登记信息"
+
+#: backend/templates/sa_brand.html:125
+#, fuzzy
+msgid "Are your sure you want to delete this brand?"
+msgstr "您确定要删除这个品牌吗？"
+
+#: backend/templates/sa_branding.html:6 backend/templates/sa_branding.html:38
+#, fuzzy
+msgid "Edit a slide"
+msgstr "编辑一个售卖"
+
+#: backend/templates/sa_branding.html:8 backend/templates/sa_branding.html:40
+#: backend/templates/sa_branding.html:138
+#, fuzzy
+msgid "Add a new slide"
+msgstr "添加一个新的幻影"
+
+#: backend/templates/sa_branding.html:27 backend/templates/sa_branding.html:28
+#: templates/sa_index.html:23 templates/sa_index.html.py:24
+#: templates/sa_quick_nav.html:10
+msgid "Frontpage"
+msgstr ""
+
+#: backend/templates/sa_branding.html:86
+msgid "Slides"
+msgstr "幻影"
+
+#: backend/templates/sa_branding.html:91
+#, fuzzy
+msgid "Picture"
+msgstr "商品图片"
+
+#: backend/templates/sa_branding.html:92
+msgid "Key"
+msgstr ""
+
+#: backend/templates/sa_branding.html:104
+#, fuzzy
+msgid "The slides list is empty."
+msgstr "无幻影列表"
+
+#: backend/templates/sa_branding.html:149
+#, fuzzy
+msgid "Are your sure you want to delete this slide?"
+msgstr "您确定要删除这个幻影吗？"
+
+#: backend/templates/sa_category.html:6 backend/templates/sa_category.html:38
+#, fuzzy
+msgid "Edit a sales category"
+msgstr "编辑一个售卖类别"
+
+#: backend/templates/sa_category.html:8 backend/templates/sa_category.html:40
+#: backend/templates/sa_category.html:110
+#, fuzzy
+msgid "Add a new sales category"
+msgstr "添加一个新的售卖类别"
+
+#: backend/templates/sa_category.html:27 backend/templates/sa_category.html:28
+#: backend/templates/sa_category.html:61 templates/sa_index.html:15
+#: templates/sa_index.html.py:16 templates/sa_quick_nav.html:9
+msgid "Sales categories"
+msgstr "售卖类别"
+
+#: backend/templates/sa_category.html:75
+#, fuzzy
+msgid "The sales categories list is empty."
+msgstr "无售卖类别列表"
+
+#: backend/templates/sa_category.html:121
+#, fuzzy
+msgid "Are your sure you want to delete this sales category?"
+msgstr "您确定要删除这个售卖类别吗？"
+
+#: backend/templates/sa_settings.html:5 backend/templates/sa_settings.html:23
+#: backend/templates/sa_settings.html:24 backend/templates/sa_settings.html:30
+#: templates/sa_index.html:27 templates/sa_index.html.py:28
+#: templates/sa_quick_nav.html:13
+msgid "Settings"
+msgstr "设置"
+
+#: backend/templates/sa_settings.html:67
+msgid ""
+"Please enter the current administrative password to save these "
+"settings:"
+msgstr "请输入管理员密码来保存这些设置"
+
+#: backend/templates/sa_user.html:6 backend/templates/sa_user.html.py:38
+msgid "Edit user information"
+msgstr "编辑用户信息"
+
+#: backend/templates/sa_user.html:8 backend/templates/sa_user.html.py:40
+#: backend/templates/sa_user.html:191
+#, fuzzy
+msgid "Add a new user"
+msgstr "添加一个新的用户"
+
+#: backend/templates/sa_user.html:27 backend/templates/sa_user.html.py:28
+msgid "Users"
+msgstr "用户"
+
+#: backend/templates/sa_user.html:67 backend/templates/sa_user.html.py:100
+#: backend/templates/sa_user.html:122
+msgid "Corporate account"
+msgstr "公司账户"
+
+#: backend/templates/sa_user.html:116
+#, fuzzy
+msgid "Users list"
+msgstr "用户列表"
+
+#: backend/templates/sa_user.html:123
+#, fuzzy
+msgid "Select a brand"
+msgstr "选择一个品牌"
+
+#: backend/templates/sa_user.html:137
+#, fuzzy
+msgid "Brand"
+msgstr "品牌"
+
+#: backend/templates/sa_user.html:202
+#, fuzzy
+msgid "Are your sure you want to delete this user?"
+msgstr "您确定要删除这个用户吗？"
+
+#: brandings/models.py:6
+#, fuzzy
+msgid "Slide name"
+msgstr "幻影名字"
+
+#: brandings/models.py:7
+#, fuzzy
+msgid "Sort key"
+msgstr "排序关键字"
+
+#: brandings/models.py:8
+msgid "Slide image"
+msgstr ""
+
+#: brandings/models.py:9
+msgid "landing URL"
+msgstr ""
+
+#: brandings/models.py:10
+msgid "Show from"
+msgstr ""
+
+#: brandings/models.py:11
+msgid "Show until"
+msgstr ""
+
+#: countries/models.py:22
+msgid "ISO alpha-2"
+msgstr ""
+
+#: countries/models.py:23
+msgid "Official name (CAPS)"
+msgstr ""
+
+#: countries/models.py:24
+#, fuzzy
+msgid "Country name"
+msgstr "国家名字"
+
+#: countries/models.py:25
+msgid "ISO alpha-3"
+msgstr ""
+
+#: countries/models.py:26
+msgid "ISO numeric"
+msgstr ""
+
+#: countries/models.py:30 shops/models.py:15
+#, fuzzy
+msgid "Country"
+msgstr "国家"
+
+#: countries/models.py:31
+msgid "Countries"
+msgstr ""
+
+#: countries/models.py:52
+#, fuzzy
+msgid "State name"
+msgstr "国家名字"
+
+#: countries/models.py:53
+msgid "Abbreviation"
+msgstr ""
+
+#: countries/models.py:57
+msgid "US State"
+msgstr ""
+
+#: countries/models.py:58
+msgid "US States"
+msgstr ""
+
+#: locale/dbgettext/countries/country/Country_AD/printable_name.py:2
+msgid "Andorra"
+msgstr "安道尔"
+
+#: locale/dbgettext/countries/country/Country_AE/printable_name.py:2
+msgid "United Arab Emirates"
+msgstr "阿拉伯联合酋长国"
+
+#: locale/dbgettext/countries/country/Country_AF/printable_name.py:2
+msgid "Afghanistan"
+msgstr "阿富汗"
+
+#: locale/dbgettext/countries/country/Country_AG/printable_name.py:2
+msgid "Antigua and Barbuda"
+msgstr "安提瓜及巴布达"
+
+#: locale/dbgettext/countries/country/Country_AI/printable_name.py:2
+msgid "Anguilla"
+msgstr " 安圭拉岛"
+
+#: locale/dbgettext/countries/country/Country_AL/printable_name.py:2
+msgid "Albania"
+msgstr "阿尔巴尼亚"
+
+#: locale/dbgettext/countries/country/Country_AM/printable_name.py:2
+msgid "Armenia"
+msgstr "亚美尼亚"
+
+#: locale/dbgettext/countries/country/Country_AN/printable_name.py:2
+msgid "Netherlands Antilles"
+msgstr "荷属安的列斯"
+
+#: locale/dbgettext/countries/country/Country_AO/printable_name.py:2
+msgid "Angola"
+msgstr "安哥拉"
+
+#: locale/dbgettext/countries/country/Country_AQ/printable_name.py:2
+msgid "Antarctica"
+msgstr "南极洲"
+
+#: locale/dbgettext/countries/country/Country_AR/printable_name.py:2
+msgid "Argentina"
+msgstr "阿根廷"
+
+#: locale/dbgettext/countries/country/Country_AS/printable_name.py:2
+msgid "American Samoa"
+msgstr "美属萨摩亚"
+
+#: locale/dbgettext/countries/country/Country_AT/printable_name.py:2
+msgid "Austria"
+msgstr "奥地利"
+
+#: locale/dbgettext/countries/country/Country_AU/printable_name.py:2
+msgid "Australia"
+msgstr "澳大利亚"
+
+#: locale/dbgettext/countries/country/Country_AW/printable_name.py:2
+msgid "Aruba"
+msgstr "阿鲁巴"
+
+#: locale/dbgettext/countries/country/Country_AX/printable_name.py:2
+msgid "Åland Islands"
+msgstr "奥兰群岛"
+
+#: locale/dbgettext/countries/country/Country_AZ/printable_name.py:2
+msgid "Azerbaijan"
+msgstr "阿塞拜疆"
+
+#: locale/dbgettext/countries/country/Country_BA/printable_name.py:2
+msgid "Bosnia and Herzegovina"
+msgstr "波斯尼亚和黑塞哥维那"
+
+#: locale/dbgettext/countries/country/Country_BB/printable_name.py:2
+msgid "Barbados"
+msgstr "巴巴多斯"
+
+#: locale/dbgettext/countries/country/Country_BD/printable_name.py:2
+msgid "Bangladesh"
+msgstr "孟加拉共和国"
+
+#: locale/dbgettext/countries/country/Country_BE/printable_name.py:2
+msgid "Belgium"
+msgstr "比利时"
+
+#: locale/dbgettext/countries/country/Country_BF/printable_name.py:2
+msgid "Burkina Faso"
+msgstr "布基纳法索国"
+
+#: locale/dbgettext/countries/country/Country_BG/printable_name.py:2
+msgid "Bulgaria"
+msgstr "保加利亚"
+
+#: locale/dbgettext/countries/country/Country_BH/printable_name.py:2
+msgid "Bahrain"
+msgstr "巴林"
+
+#: locale/dbgettext/countries/country/Country_BI/printable_name.py:2
+msgid "Burundi"
+msgstr "布隆迪"
+
+#: locale/dbgettext/countries/country/Country_BJ/printable_name.py:2
+msgid "Benin"
+msgstr "贝宁"
+
+#: locale/dbgettext/countries/country/Country_BM/printable_name.py:2
+msgid "Bermuda"
+msgstr "百慕大"
+
+#: locale/dbgettext/countries/country/Country_BN/printable_name.py:2
+msgid "Brunei Darussalam"
+msgstr "文莱达鲁萨兰国"
+
+#: locale/dbgettext/countries/country/Country_BO/printable_name.py:2
+msgid "Bolivia"
+msgstr "玻利维亚"
+
+#: locale/dbgettext/countries/country/Country_BR/printable_name.py:2
+msgid "Brazil"
+msgstr "巴西"
+
+#: locale/dbgettext/countries/country/Country_BS/printable_name.py:2
+msgid "Bahamas"
+msgstr "巴哈马"
+
+#: locale/dbgettext/countries/country/Country_BT/printable_name.py:2
+msgid "Bhutan"
+msgstr "不丹"
+
+#: locale/dbgettext/countries/country/Country_BV/printable_name.py:2
+msgid "Bouvet Island"
+msgstr "布维岛"
+
+#: locale/dbgettext/countries/country/Country_BW/printable_name.py:2
+msgid "Botswana"
+msgstr "博茨瓦那"
+
+#: locale/dbgettext/countries/country/Country_BY/printable_name.py:2
+msgid "Belarus"
+msgstr "白俄罗斯"
+
+#: locale/dbgettext/countries/country/Country_BZ/printable_name.py:2
+msgid "Belize"
+msgstr "伯利兹"
+
+#: locale/dbgettext/countries/country/Country_CA/printable_name.py:2
+msgid "Canada"
+msgstr "加拿大"
+
+#: locale/dbgettext/countries/country/Country_CC/printable_name.py:2
+msgid "Cocos (Keeling) Islands"
+msgstr "科科斯(基林)群岛"
+
+#: locale/dbgettext/countries/country/Country_CD/printable_name.py:2
+msgid "Democratic Republic of the Congo"
+msgstr "刚果（金）"
+
+#: locale/dbgettext/countries/country/Country_CF/printable_name.py:2
+msgid "Central African Republic"
+msgstr "中非"
+
+#: locale/dbgettext/countries/country/Country_CG/printable_name.py:2
+msgid "Congo"
+msgstr "刚果（布）"
+
+#: locale/dbgettext/countries/country/Country_CH/printable_name.py:2
+msgid "Switzerland"
+msgstr "瑞士"
+
+#: locale/dbgettext/countries/country/Country_CI/printable_name.py:2
+msgid "Côte d'Ivoire"
+msgstr "科特迪瓦"
+
+#: locale/dbgettext/countries/country/Country_CK/printable_name.py:2
+msgid "Cook Islands"
+msgstr "库克群岛"
+
+#: locale/dbgettext/countries/country/Country_CL/printable_name.py:2
+msgid "Chile"
+msgstr "智利"
+
+#: locale/dbgettext/countries/country/Country_CM/printable_name.py:2
+msgid "Cameroon"
+msgstr "喀麦隆"
+
+#: locale/dbgettext/countries/country/Country_CN/printable_name.py:2
+msgid "China"
+msgstr "中国"
+
+#: locale/dbgettext/countries/country/Country_CO/printable_name.py:2
+msgid "Colombia"
+msgstr "哥伦比亚"
+
+#: locale/dbgettext/countries/country/Country_CR/printable_name.py:2
+msgid "Costa Rica"
+msgstr "哥斯达黎加"
+
+#: locale/dbgettext/countries/country/Country_CU/printable_name.py:2
+msgid "Cuba"
+msgstr "古巴"
+
+#: locale/dbgettext/countries/country/Country_CV/printable_name.py:2
+msgid "Cape Verde"
+msgstr "佛得角"
+
+#: locale/dbgettext/countries/country/Country_CX/printable_name.py:2
+msgid "Christmas Island"
+msgstr "圣诞岛"
+
+#: locale/dbgettext/countries/country/Country_CY/printable_name.py:2
+msgid "Cyprus"
+msgstr "塞浦路斯"
+
+#: locale/dbgettext/countries/country/Country_CZ/printable_name.py:2
+msgid "Czech Republic"
+msgstr "捷克"
+
+#: locale/dbgettext/countries/country/Country_DE/printable_name.py:2
+msgid "Germany"
+msgstr "德国"
+
+#: locale/dbgettext/countries/country/Country_DJ/printable_name.py:2
+msgid "Djibouti"
+msgstr "吉布提"
+
+#: locale/dbgettext/countries/country/Country_DK/printable_name.py:2
+msgid "Denmark"
+msgstr "丹麦"
+
+#: locale/dbgettext/countries/country/Country_DM/printable_name.py:2
+msgid "Dominica"
+msgstr "多米尼克"
+
+#: locale/dbgettext/countries/country/Country_DO/printable_name.py:2
+msgid "Dominican Republic"
+msgstr "多米尼加共和国"
+
+#: locale/dbgettext/countries/country/Country_DZ/printable_name.py:2
+msgid "Algeria"
+msgstr "阿尔及利亚"
+
+#: locale/dbgettext/countries/country/Country_EC/printable_name.py:2
+msgid "Ecuador"
+msgstr "厄瓜多尔"
+
+#: locale/dbgettext/countries/country/Country_EE/printable_name.py:2
+msgid "Estonia"
+msgstr "爱沙尼亚"
+
+#: locale/dbgettext/countries/country/Country_EG/printable_name.py:2
+msgid "Egypt"
+msgstr "埃及"
+
+#: locale/dbgettext/countries/country/Country_EH/printable_name.py:2
+msgid "Western Sahara"
+msgstr "西撒哈拉"
+
+#: locale/dbgettext/countries/country/Country_ER/printable_name.py:2
+msgid "Eritrea"
+msgstr "厄立特里亚省"
+
+#: locale/dbgettext/countries/country/Country_ES/printable_name.py:2
+msgid "Spain"
+msgstr "西班牙"
+
+#: locale/dbgettext/countries/country/Country_ET/printable_name.py:2
+msgid "Ethiopia"
+msgstr "埃塞俄比亚"
+
+#: locale/dbgettext/countries/country/Country_FI/printable_name.py:2
+msgid "Finland"
+msgstr "芬兰"
+
+#: locale/dbgettext/countries/country/Country_FJ/printable_name.py:2
+msgid "Fiji"
+msgstr "斐济"
+
+#: locale/dbgettext/countries/country/Country_FK/printable_name.py:2
+msgid "Falkland Islands (Malvinas)"
+msgstr "福克兰群岛（马尔维纳斯群岛）"
+
+#: locale/dbgettext/countries/country/Country_FM/printable_name.py:2
+msgid "Micronesia, Federated States of"
+msgstr "密克罗尼西亚联邦"
+
+#: locale/dbgettext/countries/country/Country_FO/printable_name.py:2
+msgid "Faeroe Islands"
+msgstr "法罗群岛"
+
+#: locale/dbgettext/countries/country/Country_FR/printable_name.py:2
+msgid "France"
+msgstr "法国"
+
+#: locale/dbgettext/countries/country/Country_GA/printable_name.py:2
+msgid "Gabon"
+msgstr "加蓬"
+
+#: locale/dbgettext/countries/country/Country_GB/printable_name.py:2
+msgid "United Kingdom of Great Britain and Northern Ireland"
+msgstr "英国"
+
+#: locale/dbgettext/countries/country/Country_GD/printable_name.py:2
+msgid "Grenada"
+msgstr "格林纳达"
+
+#: locale/dbgettext/countries/country/Country_GE/printable_name.py:2
+msgid "Georgia"
+msgstr "格鲁吉亚"
+
+#: locale/dbgettext/countries/country/Country_GF/printable_name.py:2
+msgid "French Guiana"
+msgstr "法属圭亚那"
+
+#: locale/dbgettext/countries/country/Country_GG/printable_name.py:2
+msgid "Guernsey"
+msgstr "格恩西"
+
+#: locale/dbgettext/countries/country/Country_GH/printable_name.py:2
+msgid "Ghana"
+msgstr "加纳"
+
+#: locale/dbgettext/countries/country/Country_GI/printable_name.py:2
+msgid "Gibraltar"
+msgstr "直布罗陀"
+
+#: locale/dbgettext/countries/country/Country_GL/printable_name.py:2
+msgid "Greenland"
+msgstr "格陵兰岛"
+
+#: locale/dbgettext/countries/country/Country_GM/printable_name.py:2
+msgid "Gambia"
+msgstr "冈比亚"
+
+#: locale/dbgettext/countries/country/Country_GN/printable_name.py:2
+msgid "Guinea"
+msgstr "几内亚"
+
+#: locale/dbgettext/countries/country/Country_GP/printable_name.py:2
+msgid "Guadeloupe"
+msgstr "瓜德罗普岛"
+
+#: locale/dbgettext/countries/country/Country_GQ/printable_name.py:2
+msgid "Equatorial Guinea"
+msgstr "赤道几内亚"
+
+#: locale/dbgettext/countries/country/Country_GR/printable_name.py:2
+msgid "Greece"
+msgstr "希腊"
+
+#: locale/dbgettext/countries/country/Country_GS/printable_name.py:2
+msgid "South Georgia and the South Sandwich Islands"
+msgstr "南佐治亚和南三明治群岛"
+
+#: locale/dbgettext/countries/country/Country_GT/printable_name.py:2
+msgid "Guatemala"
+msgstr "危地马拉"
+
+#: locale/dbgettext/countries/country/Country_GU/printable_name.py:2
+msgid "Guam"
+msgstr "关岛"
+
+#: locale/dbgettext/countries/country/Country_GW/printable_name.py:2
+msgid "Guinea-Bissau"
+msgstr "几内亚比绍"
+
+#: locale/dbgettext/countries/country/Country_GY/printable_name.py:2
+msgid "Guyana"
+msgstr "圭亚那"
+
+#: locale/dbgettext/countries/country/Country_HK/printable_name.py:2
+msgid "Hong Kong Special Administrative Region of China"
+msgstr "香港"
+
+#: locale/dbgettext/countries/country/Country_HM/printable_name.py:2
+msgid "Heard Island and Mcdonald Islands"
+msgstr "赫德岛和麦克唐纳群岛"
+
+#: locale/dbgettext/countries/country/Country_HN/printable_name.py:2
+msgid "Honduras"
+msgstr "洪都拉斯"
+
+#: locale/dbgettext/countries/country/Country_HR/printable_name.py:2
+msgid "Croatia"
+msgstr "克罗地亚"
+
+#: locale/dbgettext/countries/country/Country_HT/printable_name.py:2
+msgid "Haiti"
+msgstr "海地"
+
+#: locale/dbgettext/countries/country/Country_HU/printable_name.py:2
+msgid "Hungary"
+msgstr "匈牙利"
+
+#: locale/dbgettext/countries/country/Country_ID/printable_name.py:2
+msgid "Indonesia"
+msgstr "印度尼西亚"
+
+#: locale/dbgettext/countries/country/Country_IE/printable_name.py:2
+msgid "Ireland"
+msgstr "爱尔兰"
+
+#: locale/dbgettext/countries/country/Country_IL/printable_name.py:2
+msgid "Israel"
+msgstr "以色列"
+
+#: locale/dbgettext/countries/country/Country_IM/printable_name.py:2
+msgid "Isle of Man"
+msgstr "马恩岛"
+
+#: locale/dbgettext/countries/country/Country_IN/printable_name.py:2
+msgid "India"
+msgstr "印度"
+
+#: locale/dbgettext/countries/country/Country_IO/printable_name.py:2
+msgid "British Indian Ocean Territory"
+msgstr "英属印度洋领地"
+
+#: locale/dbgettext/countries/country/Country_IQ/printable_name.py:2
+msgid "Iraq"
+msgstr "伊拉克"
+
+#: locale/dbgettext/countries/country/Country_IR/printable_name.py:2
+msgid "Iran, Islamic Republic of"
+msgstr "伊朗"
+
+#: locale/dbgettext/countries/country/Country_IS/printable_name.py:2
+msgid "Iceland"
+msgstr "冰岛"
+
+#: locale/dbgettext/countries/country/Country_IT/printable_name.py:2
+msgid "Italy"
+msgstr "意大利"
+
+#: locale/dbgettext/countries/country/Country_JE/printable_name.py:2
+msgid "Jersey"
+msgstr "泽西岛"
+
+#: locale/dbgettext/countries/country/Country_JM/printable_name.py:2
+msgid "Jamaica"
+msgstr "牙买加"
+
+#: locale/dbgettext/countries/country/Country_JO/printable_name.py:2
+msgid "Jordan"
+msgstr "约旦"
+
+#: locale/dbgettext/countries/country/Country_JP/printable_name.py:2
+msgid "Japan"
+msgstr "日本"
+
+#: locale/dbgettext/countries/country/Country_KE/printable_name.py:2
+msgid "Kenya"
+msgstr "肯尼亚"
+
+#: locale/dbgettext/countries/country/Country_KG/printable_name.py:2
+msgid "Kyrgyzstan"
+msgstr "吉尔吉斯斯坦"
+
+#: locale/dbgettext/countries/country/Country_KH/printable_name.py:2
+msgid "Cambodia"
+msgstr "柬埔寨"
+
+#: locale/dbgettext/countries/country/Country_KI/printable_name.py:2
+msgid "Kiribati"
+msgstr "基里巴斯共和国"
+
+#: locale/dbgettext/countries/country/Country_KM/printable_name.py:2
+msgid "Comoros"
+msgstr "科摩洛"
+
+#: locale/dbgettext/countries/country/Country_KN/printable_name.py:2
+msgid "Saint Kitts and Nevis"
+msgstr "圣基茨和尼维斯"
+
+#: locale/dbgettext/countries/country/Country_KP/printable_name.py:2
+msgid "Democratic People's Republic of Korea"
+msgstr "北朝鲜"
+
+#: locale/dbgettext/countries/country/Country_KR/printable_name.py:2
+msgid "Republic of Korea"
+msgstr "韩国"
+
+#: locale/dbgettext/countries/country/Country_KW/printable_name.py:2
+msgid "Kuwait"
+msgstr "科威特"
+
+#: locale/dbgettext/countries/country/Country_KY/printable_name.py:2
+msgid "Cayman Islands"
+msgstr "开曼群岛"
+
+#: locale/dbgettext/countries/country/Country_KZ/printable_name.py:2
+msgid "Kazakhstan"
+msgstr "哈萨克斯坦"
+
+#: locale/dbgettext/countries/country/Country_LA/printable_name.py:2
+msgid "Lao People's Democratic Republic"
+msgstr "老挝"
+
+#: locale/dbgettext/countries/country/Country_LB/printable_name.py:2
+msgid "Lebanon"
+msgstr " 黎巴嫩"
+
+#: locale/dbgettext/countries/country/Country_LC/printable_name.py:2
+msgid "Saint Lucia"
+msgstr "圣露西亚"
+
+#: locale/dbgettext/countries/country/Country_LI/printable_name.py:2
+msgid "Liechtenstein"
+msgstr "列支敦士登"
+
+#: locale/dbgettext/countries/country/Country_LK/printable_name.py:2
+msgid "Sri Lanka"
+msgstr "斯里兰卡"
+
+#: locale/dbgettext/countries/country/Country_LR/printable_name.py:2
+msgid "Liberia"
+msgstr "利比里亚"
+
+#: locale/dbgettext/countries/country/Country_LS/printable_name.py:2
+msgid "Lesotho"
+msgstr "莱索托"
+
+#: locale/dbgettext/countries/country/Country_LT/printable_name.py:2
+msgid "Lithuania"
+msgstr "立陶宛"
+
+#: locale/dbgettext/countries/country/Country_LU/printable_name.py:2
+msgid "Luxembourg"
+msgstr "卢森堡"
+
+#: locale/dbgettext/countries/country/Country_LV/printable_name.py:2
+msgid "Latvia"
+msgstr "拉脱维亚"
+
+#: locale/dbgettext/countries/country/Country_LY/printable_name.py:2
+msgid "Libyan Arab Jamahiriya"
+msgstr "利比亚"
+
+#: locale/dbgettext/countries/country/Country_MA/printable_name.py:2
+msgid "Morocco"
+msgstr "摩洛哥"
+
+#: locale/dbgettext/countries/country/Country_MC/printable_name.py:2
+msgid "Monaco"
+msgstr "摩纳哥"
+
+#: locale/dbgettext/countries/country/Country_MD/printable_name.py:2
+msgid "Republic of Moldova"
+msgstr "摩尔多瓦共和国"
+
+#: locale/dbgettext/countries/country/Country_ME/printable_name.py:2
+msgid "Montenegro"
+msgstr "黑山共和国"
+
+#: locale/dbgettext/countries/country/Country_MG/printable_name.py:2
+msgid "Madagascar"
+msgstr "马达加斯加"
+
+#: locale/dbgettext/countries/country/Country_MH/printable_name.py:2
+msgid "Marshall Islands"
+msgstr "马绍尔群岛"
+
+#: locale/dbgettext/countries/country/Country_MK/printable_name.py:2
+msgid "The former Yugoslav Republic of Macedonia"
+msgstr "马其顿"
+
+#: locale/dbgettext/countries/country/Country_ML/printable_name.py:2
+msgid "Mali"
+msgstr "马里"
+
+#: locale/dbgettext/countries/country/Country_MM/printable_name.py:2
+msgid "Myanmar"
+msgstr "缅甸"
+
+#: locale/dbgettext/countries/country/Country_MN/printable_name.py:2
+msgid "Mongolia"
+msgstr "蒙古国"
+
+#: locale/dbgettext/countries/country/Country_MO/printable_name.py:2
+msgid "Macao Special Administrative Region of China"
+msgstr "澳门"
+
+#: locale/dbgettext/countries/country/Country_MP/printable_name.py:2
+msgid "Northern Mariana Islands"
+msgstr "北马里亚纳群岛"
+
+#: locale/dbgettext/countries/country/Country_MQ/printable_name.py:2
+msgid "Martinique"
+msgstr "马提尼克"
+
+#: locale/dbgettext/countries/country/Country_MR/printable_name.py:2
+msgid "Mauritania"
+msgstr "毛里塔尼亚"
+
+#: locale/dbgettext/countries/country/Country_MS/printable_name.py:2
+msgid "Montserrat"
+msgstr "蒙特塞拉特"
+
+#: locale/dbgettext/countries/country/Country_MT/printable_name.py:2
+msgid "Malta"
+msgstr "马耳他"
+
+#: locale/dbgettext/countries/country/Country_MU/printable_name.py:2
+msgid "Mauritius"
+msgstr "毛里求斯"
+
+#: locale/dbgettext/countries/country/Country_MV/printable_name.py:2
+msgid "Maldives"
+msgstr "马尔代夫"
+
+#: locale/dbgettext/countries/country/Country_MW/printable_name.py:2
+msgid "Malawi"
+msgstr "马拉维"
+
+#: locale/dbgettext/countries/country/Country_MX/printable_name.py:2
+msgid "Mexico"
+msgstr "墨西哥"
+
+#: locale/dbgettext/countries/country/Country_MY/printable_name.py:2
+msgid "Malaysia"
+msgstr "马来西亚"
+
+#: locale/dbgettext/countries/country/Country_MZ/printable_name.py:2
+msgid "Mozambique"
+msgstr "莫桑比克"
+
+#: locale/dbgettext/countries/country/Country_NA/printable_name.py:2
+msgid "Namibia"
+msgstr "纳米比亚"
+
+#: locale/dbgettext/countries/country/Country_NC/printable_name.py:2
+msgid "New Caledonia"
+msgstr "新喀里多尼亚"
+
+#: locale/dbgettext/countries/country/Country_NE/printable_name.py:2
+msgid "Niger"
+msgstr "尼日尔"
+
+#: locale/dbgettext/countries/country/Country_NF/printable_name.py:2
+msgid "Norfolk Island"
+msgstr "诺福克岛"
+
+#: locale/dbgettext/countries/country/Country_NG/printable_name.py:2
+msgid "Nigeria"
+msgstr "尼日利亚"
+
+#: locale/dbgettext/countries/country/Country_NI/printable_name.py:2
+msgid "Nicaragua"
+msgstr "尼加拉瓜"
+
+#: locale/dbgettext/countries/country/Country_NL/printable_name.py:2
+msgid "Netherlands"
+msgstr "荷兰"
+
+#: locale/dbgettext/countries/country/Country_NO/printable_name.py:2
+msgid "Norway"
+msgstr "挪威"
+
+#: locale/dbgettext/countries/country/Country_NP/printable_name.py:2
+msgid "Nepal"
+msgstr "尼泊尔"
+
+#: locale/dbgettext/countries/country/Country_NR/printable_name.py:2
+msgid "Nauru"
+msgstr "瑙鲁"
+
+#: locale/dbgettext/countries/country/Country_NU/printable_name.py:2
+msgid "Niue"
+msgstr "纽埃"
+
+#: locale/dbgettext/countries/country/Country_NZ/printable_name.py:2
+msgid "New Zealand"
+msgstr "新西兰"
+
+#: locale/dbgettext/countries/country/Country_OM/printable_name.py:2
+msgid "Oman"
+msgstr "阿曼"
+
+#: locale/dbgettext/countries/country/Country_PA/printable_name.py:2
+msgid "Panama"
+msgstr "巴拿马"
+
+#: locale/dbgettext/countries/country/Country_PE/printable_name.py:2
+msgid "Peru"
+msgstr "秘鲁"
+
+#: locale/dbgettext/countries/country/Country_PF/printable_name.py:2
+msgid "French Polynesia"
+msgstr "法属波利尼西亚"
+
+#: locale/dbgettext/countries/country/Country_PG/printable_name.py:2
+msgid "Papua New Guinea"
+msgstr "巴布亚新几内亚"
+
+#: locale/dbgettext/countries/country/Country_PH/printable_name.py:2
+msgid "Philippines"
+msgstr "菲律宾"
+
+#: locale/dbgettext/countries/country/Country_PK/printable_name.py:2
+msgid "Pakistan"
+msgstr "巴基斯坦"
+
+#: locale/dbgettext/countries/country/Country_PL/printable_name.py:2
+msgid "Poland"
+msgstr "波兰"
+
+#: locale/dbgettext/countries/country/Country_PM/printable_name.py:2
+msgid "Saint Pierre and Miquelon"
+msgstr "圣彼埃尔和密克隆岛"
+
+#: locale/dbgettext/countries/country/Country_PN/printable_name.py:2
+msgid "Pitcairn"
+msgstr "皮特凯恩"
+
+#: locale/dbgettext/countries/country/Country_PR/printable_name.py:2
+msgid "Puerto Rico"
+msgstr "波多黎各"
+
+#: locale/dbgettext/countries/country/Country_PS/printable_name.py:2
+msgid "Occupied Palestinian Territory"
+msgstr "巴勒斯坦国"
+
+#: locale/dbgettext/countries/country/Country_PT/printable_name.py:2
+msgid "Portugal"
+msgstr "葡萄牙"
+
+#: locale/dbgettext/countries/country/Country_PW/printable_name.py:2
+msgid "Palau"
+msgstr "帕劳"
+
+#: locale/dbgettext/countries/country/Country_PY/printable_name.py:2
+msgid "Paraguay"
+msgstr "巴拉圭"
+
+#: locale/dbgettext/countries/country/Country_QA/printable_name.py:2
+msgid "Qatar"
+msgstr "卡塔尔"
+
+#: locale/dbgettext/countries/country/Country_RE/printable_name.py:2
+msgid "Réunion"
+msgstr "留尼汪"
+
+#: locale/dbgettext/countries/country/Country_RO/printable_name.py:2
+msgid "Romania"
+msgstr "罗马尼亚"
+
+#: locale/dbgettext/countries/country/Country_RS/printable_name.py:2
+msgid "Serbia"
+msgstr "塞尔维亚"
+
+#: locale/dbgettext/countries/country/Country_RU/printable_name.py:2
+msgid "Russian Federation"
+msgstr "俄罗斯"
+
+#: locale/dbgettext/countries/country/Country_RW/printable_name.py:2
+msgid "Rwanda"
+msgstr "卢旺达"
+
+#: locale/dbgettext/countries/country/Country_SA/printable_name.py:2
+msgid "Saudi Arabia"
+msgstr "沙特阿拉伯"
+
+#: locale/dbgettext/countries/country/Country_SB/printable_name.py:2
+msgid "Solomon Islands"
+msgstr "所罗门群岛"
+
+#: locale/dbgettext/countries/country/Country_SC/printable_name.py:2
+msgid "Seychelles"
+msgstr "塞舌尔群岛"
+
+#: locale/dbgettext/countries/country/Country_SD/printable_name.py:2
+msgid "Sudan"
+msgstr "苏丹"
+
+#: locale/dbgettext/countries/country/Country_SE/printable_name.py:2
+msgid "Sweden"
+msgstr "瑞典"
+
+#: locale/dbgettext/countries/country/Country_SG/printable_name.py:2
+msgid "Singapore"
+msgstr "新加坡"
+
+#: locale/dbgettext/countries/country/Country_SH/printable_name.py:2
+msgid "Saint Helena"
+msgstr "圣海伦娜"
+
+#: locale/dbgettext/countries/country/Country_SI/printable_name.py:2
+msgid "Slovenia"
+msgstr "斯洛文尼亚"
+
+#: locale/dbgettext/countries/country/Country_SJ/printable_name.py:2
+msgid "Svalbard and Jan Mayen Islands"
+msgstr "斯瓦尔巴和扬马延群岛"
+
+#: locale/dbgettext/countries/country/Country_SK/printable_name.py:2
+msgid "Slovakia"
+msgstr "斯洛伐克"
+
+#: locale/dbgettext/countries/country/Country_SL/printable_name.py:2
+msgid "Sierra Leone"
+msgstr "塞拉利昂"
+
+#: locale/dbgettext/countries/country/Country_SM/printable_name.py:2
+msgid "San Marino"
+msgstr "圣马利诺"
+
+#: locale/dbgettext/countries/country/Country_SN/printable_name.py:2
+msgid "Senegal"
+msgstr "塞内加尔"
+
+#: locale/dbgettext/countries/country/Country_SO/printable_name.py:2
+msgid "Somalia"
+msgstr "索马里"
+
+#: locale/dbgettext/countries/country/Country_SR/printable_name.py:2
+msgid "Suriname"
+msgstr "苏里南"
+
+#: locale/dbgettext/countries/country/Country_ST/printable_name.py:2
+msgid "Sao Tome and Principe"
+msgstr "圣多美与普林西比共和国"
+
+#: locale/dbgettext/countries/country/Country_SV/printable_name.py:2
+msgid "El Salvador"
+msgstr "萨尔瓦多"
+
+#: locale/dbgettext/countries/country/Country_SY/printable_name.py:2
+msgid "Syrian Arab Republic"
+msgstr "叙利亚"
+
+#: locale/dbgettext/countries/country/Country_SZ/printable_name.py:2
+msgid "Swaziland"
+msgstr "斯威士兰"
+
+#: locale/dbgettext/countries/country/Country_TC/printable_name.py:2
+msgid "Turks and Caicos Islands"
+msgstr "特克斯和凯科斯群岛"
+
+#: locale/dbgettext/countries/country/Country_TD/printable_name.py:2
+msgid "Chad"
+msgstr "乍得"
+
+#: locale/dbgettext/countries/country/Country_TF/printable_name.py:2
+msgid "French Southern Territories"
+msgstr "法属南部领地"
+
+#: locale/dbgettext/countries/country/Country_TG/printable_name.py:2
+msgid "Togo"
+msgstr "多哥"
+
+#: locale/dbgettext/countries/country/Country_TH/printable_name.py:2
+msgid "Thailand"
+msgstr "泰国"
+
+#: locale/dbgettext/countries/country/Country_TJ/printable_name.py:2
+msgid "Tajikistan"
+msgstr "塔吉克斯坦"
+
+#: locale/dbgettext/countries/country/Country_TK/printable_name.py:2
+msgid "Tokelau"
+msgstr "托克劳群岛"
+
+#: locale/dbgettext/countries/country/Country_TL/printable_name.py:2
+msgid "Timor-Leste"
+msgstr "东帝汶"
+
+#: locale/dbgettext/countries/country/Country_TM/printable_name.py:2
+msgid "Turkmenistan"
+msgstr "土库曼"
+
+#: locale/dbgettext/countries/country/Country_TN/printable_name.py:2
+msgid "Tunisia"
+msgstr "突尼斯"
+
+#: locale/dbgettext/countries/country/Country_TO/printable_name.py:2
+msgid "Tonga"
+msgstr "汤加群岛"
+
+#: locale/dbgettext/countries/country/Country_TR/printable_name.py:2
+msgid "Turkey"
+msgstr "土耳其"
+
+#: locale/dbgettext/countries/country/Country_TT/printable_name.py:2
+msgid "Trinidad and Tobago"
+msgstr "特立尼达和多巴哥"
+
+#: locale/dbgettext/countries/country/Country_TV/printable_name.py:2
+msgid "Tuvalu"
+msgstr "吐瓦鲁"
+
+#: locale/dbgettext/countries/country/Country_TW/printable_name.py:2
+msgid "Taiwan, Province of China"
+msgstr "台湾"
+
+#: locale/dbgettext/countries/country/Country_TZ/printable_name.py:2
+msgid "United Republic of Tanzania"
+msgstr "坦桑尼亚联合共和国"
+
+#: locale/dbgettext/countries/country/Country_UA/printable_name.py:2
+msgid "Ukraine"
+msgstr "乌克兰"
+
+#: locale/dbgettext/countries/country/Country_UG/printable_name.py:2
+msgid "Uganda"
+msgstr "乌干达"
+
+#: locale/dbgettext/countries/country/Country_UM/printable_name.py:2
+msgid "United States Minor Outlying Islands"
+msgstr "美国本土外小岛屿"
+
+#: locale/dbgettext/countries/country/Country_US/printable_name.py:2
+msgid "United States of America"
+msgstr "美国"
+
+#: locale/dbgettext/countries/country/Country_UY/printable_name.py:2
+msgid "Uruguay"
+msgstr "乌拉圭"
+
+#: locale/dbgettext/countries/country/Country_UZ/printable_name.py:2
+msgid "Uzbekistan"
+msgstr "乌兹别克斯坦"
+
+#: locale/dbgettext/countries/country/Country_VA/printable_name.py:2
+msgid "Holy See"
+msgstr "梵蒂冈"
+
+#: locale/dbgettext/countries/country/Country_VC/printable_name.py:2
+msgid "Saint Vincent and the Grenadines"
+msgstr "圣文森特和格林纳丁斯"
+
+#: locale/dbgettext/countries/country/Country_VE/printable_name.py:2
+msgid "Venezuela (Bolivarian Republic of)"
+msgstr "委内瑞拉（玻利瓦尔共和国）"
+
+#: locale/dbgettext/countries/country/Country_VG/printable_name.py:2
+msgid "British Virgin Islands"
+msgstr "英属维尔京群岛"
+
+#: locale/dbgettext/countries/country/Country_VI/printable_name.py:2
+msgid "United States Virgin Islands"
+msgstr "美属维尔京群岛"
+
+#: locale/dbgettext/countries/country/Country_VN/printable_name.py:2
+msgid "Viet Nam"
+msgstr "越南"
+
+#: locale/dbgettext/countries/country/Country_VU/printable_name.py:2
+msgid "Vanuatu"
+msgstr "瓦努阿图"
+
+#: locale/dbgettext/countries/country/Country_WF/printable_name.py:2
+msgid "Wallis and Futuna Islands"
+msgstr "沃利斯和富图纳群岛"
+
+#: locale/dbgettext/countries/country/Country_WS/printable_name.py:2
+msgid "Samoa"
+msgstr "萨摩亚"
+
+#: locale/dbgettext/countries/country/Country_YE/printable_name.py:2
+msgid "Yemen"
+msgstr "也门"
+
+#: locale/dbgettext/countries/country/Country_YT/printable_name.py:2
+msgid "Mayotte"
+msgstr "马约特岛"
+
+#: locale/dbgettext/countries/country/Country_ZA/printable_name.py:2
+msgid "South Africa"
+msgstr "南非"
+
+#: locale/dbgettext/countries/country/Country_ZM/printable_name.py:2
+msgid "Zambia"
+msgstr "赞比亚"
+
+#: locale/dbgettext/countries/country/Country_ZW/printable_name.py:2
+msgid "Zimbabwe"
+msgstr "津巴布韦"
+
+#: pictures/views.py:24 sales/views.py:45
 msgid "Please upload a picture."
 msgstr "请添加一个图片。"
 
@@ -46,97 +1529,97 @@ msgstr "所在城市"
 msgid "Target market"
 msgstr "目标市场"
 
-#: sales/forms.py:62 sales/templates/add_sale_preview_shop.html:5
+#: sales/forms.py:69 sales/templates/add_sale_preview_shop.html:5
 msgid "Participating shops"
 msgstr "参与的商店"
 
-#: sales/forms.py:74
+#: sales/forms.py:88
 msgid "You must select at least one shop."
 msgstr "您必须至少选择一个商店"
 
-#: sales/forms.py:94 sales/forms.py:195
+#: sales/forms.py:111 sales/forms.py:212
 msgid "Product type"
 msgstr "商品种类"
 
-#: sales/forms.py:99 sales/forms.py:194
+#: sales/forms.py:116 sales/forms.py:211
 msgid "Product category"
 msgstr "商品类别"
 
-#: sales/forms.py:103 sales/forms.py:196
+#: sales/forms.py:120 sales/forms.py:213
 msgid "Product name"
 msgstr "商品名称"
 
-#: sales/forms.py:104 shops/models.py:18
+#: sales/forms.py:121 shops/models.py:20
 msgid "Description"
 msgstr "描述"
 
-#: sales/forms.py:105 sales/forms.py:200
+#: sales/forms.py:122 sales/forms.py:217
 msgid "Price"
 msgstr "价格"
 
-#: sales/forms.py:110 sales/templates/_sale_details.html:7
-#: sales/templates/list.html:59
+#: sales/forms.py:127 sales/templates/_sale_details.html:7
+#: sales/templates/list.html:62
 msgid "From"
 msgstr "从"
 
-#: sales/forms.py:111 sales/templates/_sale_details.html:7
-#: sales/templates/list.html:59
+#: sales/forms.py:128 sales/templates/_sale_details.html:7
+#: sales/templates/list.html:62
 msgid "To"
 msgstr "到"
 
-#: sales/forms.py:136
+#: sales/forms.py:153
 msgid "Starting date can not be set past this sale's expiration date."
-msgstr "开始日期不能设置在售卖失效日期之后"
+msgstr "开始日期设置不能超过售卖结束日期"
 
-#: sales/forms.py:138
+#: sales/forms.py:155
 msgid "Expiration date can not be set before today."
-msgstr "失效日期不能设置在今天之前"
+msgstr "结束日期不能设置在今天之前"
 
-#: sales/forms.py:144 shops/models.py:10
+#: sales/forms.py:161 shops/models.py:11
 msgid "Barcode"
 msgstr "条形码"
 
-#: sales/forms.py:151
+#: sales/forms.py:168
 msgid "Stock"
 msgstr "库存"
 
-#: sales/forms.py:151
+#: sales/forms.py:168
 msgid "This field is required."
-msgstr "这是必须填入的区域。"
+msgstr "这是必填的区域。"
 
-#: sales/forms.py:157
+#: sales/forms.py:174
 msgid "Invalid stock quantity."
 msgstr "无效库存量"
 
-#: sales/forms.py:185
+#: sales/forms.py:202
 msgid "Target gender"
 msgstr "目标性别"
 
-#: sales/forms.py:197 sales/templates/add_sale_stocks.html:71
+#: sales/forms.py:214 sales/templates/add_sale_stocks.html:71
 #: sales/templates/add_sale_stocks.html:74
 msgid "Initial stock quantity"
 msgstr "初始库存量"
 
-#: sales/forms.py:198
+#: sales/forms.py:215
 msgid "Available quantity"
 msgstr "可用数量"
 
-#: sales/forms.py:199 sales/templates/_sale_details.html:11
+#: sales/forms.py:216 sales/templates/_sale_details.html:11
 #: sales/templates/_sale_details.html:24
 msgid "Sales"
 msgstr "已售"
 
-#: sales/forms.py:201 sales/templates/add_sale_product.html:65
+#: sales/forms.py:218 sales/templates/add_sale_product.html:65
 msgid "Discounted price"
 msgstr "折扣价"
 
-#: sales/forms.py:202
+#: sales/forms.py:219
 msgid "Starting date"
 msgstr "开始日期"
 
-#: sales/forms.py:203
+#: sales/forms.py:220
 msgid "Expiration date"
-msgstr "失效日期"
+msgstr "结束日期"
 
 #: sales/models.py:8
 msgid "Unapplicable"
@@ -158,44 +1641,44 @@ msgstr "初始库存分配"
 msgid "Initial stock quantities"
 msgstr "初始库存量"
 
-#: sales/models.py:21
+#: sales/models.py:21 sales/templates/add_sale_product.html:92
 msgid "Percentage"
 msgstr "百分比"
 
-#: sales/models.py:22
+#: sales/models.py:22 sales/templates/add_sale_product.html:93
 msgid "Amount"
 msgstr "总数"
 
-#: sales/views.py:54
+#: sales/views.py:57
 msgid "The brand has been successfully created."
 msgstr "品牌被成功创建"
 
-#: sales/views.py:67
+#: sales/views.py:70
 msgid "Please upload a logo."
-msgstr "请下载一个标识"
+msgstr "请上载一个标识"
 
-#: sales/views.py:83 templates/_quick_nav.html:10 templates/index.html:23
+#: sales/views.py:86 templates/_quick_nav.html:10 templates/index.html:23
 #: templates/index.html.py:24
 msgid "History"
 msgstr "往期售卖"
 
-#: sales/views.py:87
+#: sales/views.py:90
 msgid "Current Sales"
 msgstr "当前售卖"
 
-#: sales/views.py:528
+#: sales/views.py:587
 msgid "Shops Selection"
 msgstr "商店选择"
 
-#: sales/views.py:541
+#: sales/views.py:605
 msgid "Sale Details"
 msgstr "售卖细节"
 
-#: sales/views.py:549
+#: sales/views.py:613
 msgid "Stock Allocation"
 msgstr "库存分配"
 
-#: sales/views.py:559
+#: sales/views.py:623
 msgid "Target Demographics"
 msgstr "目标人群"
 
@@ -209,7 +1692,7 @@ msgstr "初始"
 
 #: sales/templates/_sale_details.html:12 sales/templates/_sale_details.html:25
 msgid "On Hand"
-msgstr "预售"
+msgstr "在手"
 
 #: sales/templates/_sale_details.html:22
 msgid "Attribute"
@@ -234,9 +1717,9 @@ msgid "Add a new sale"
 msgstr "添加一个新的售卖"
 
 #: sales/templates/add_sale_base.html:27
-#: sales/templates/edit_sale_base.html:25 sales/templates/list.html:17
+#: sales/templates/edit_sale_base.html:25 sales/templates/list.html:18
 msgid "Page Top"
-msgstr "页面顶端"
+msgstr "页面顶部"
 
 #: sales/templates/add_sale_base.html:42
 #: sales/templates/edit_sale_base.html:40
@@ -247,12 +1730,6 @@ msgstr "第一步"
 #: sales/templates/edit_sale_base.html:41
 msgid "Back"
 msgstr "返回"
-
-#: sales/templates/add_sale_base.html:45
-#: sales/templates/edit_sale_base.html:43
-#: shops/templates/physical_shop.html:117
-msgid "Cancel"
-msgstr "取消"
 
 #: sales/templates/add_sale_base.html:47
 #: sales/templates/edit_sale_base.html:45
@@ -273,6 +1750,12 @@ msgstr "下一页:目标"
 msgid "Create Sale"
 msgstr "创建售卖"
 
+#: sales/templates/add_sale_base.html:65
+msgid ""
+"The information entered on this page will be lost. Do you want to "
+"continue?"
+msgstr "当前页面所键入的信息将被丢失。您想要继续吗？"
+
 #: sales/templates/add_sale_preview_product.html:5
 msgid "Preview"
 msgstr "预览"
@@ -284,9 +1767,10 @@ msgstr "预览"
 #: sales/templates/add_sale_preview_product.html:39
 #: sales/templates/add_sale_preview_product.html:65
 #: sales/templates/add_sale_product.html:65
-#: sales/templates/add_sale_product.html:455
-#: sales/templates/add_sale_product.html:456
-#: sales/templates/add_sale_product.html:457 sales/templates/list.html:60
+#: sales/templates/add_sale_product.html:554
+#: sales/templates/add_sale_product.html:555
+#: sales/templates/add_sale_product.html:556
+#: sales/templates/add_sale_product.html:569 sales/templates/list.html:63
 msgid "N/A"
 msgstr "无"
 
@@ -303,13 +1787,14 @@ msgid "Make a Gift"
 msgstr "馈赠"
 
 #: sales/templates/add_sale_preview_product.html:72
-#: sales/templates/add_sale_product.html:495 sales/templates/list.html:55
+#: sales/templates/add_sale_product.html:613 sales/templates/list.html:58
 msgid "Product picture"
 msgstr "商品图片"
 
 #: sales/templates/add_sale_preview_product.html:78
+#, fuzzy
 msgid "Learn more"
-msgstr "学习更多"
+msgstr "查看特供"
 
 #: sales/templates/add_sale_preview_target.html:7
 msgid "Gender"
@@ -327,45 +1812,47 @@ msgstr "品牌名称"
 msgid "or"
 msgstr "或者"
 
-#: sales/templates/add_sale_product.html:38
-#: sales/templates/add_sale_product.html:398
-msgid "Add a new brand"
-msgstr "添加一个新的品牌"
-
 #: sales/templates/add_sale_product.html:60
 msgid "BackToShops Price"
 msgstr "BackToShop上的销售价格"
 
 #: sales/templates/add_sale_product.html:71
 msgid "Valid through"
-msgstr "有效期到"
+msgstr "有效期"
 
 #: sales/templates/add_sale_product.html:76
 msgid "Brand attributes"
 msgstr "品牌特性"
 
-#: sales/templates/add_sale_product.html:87
-#: sales/templates/add_sale_product.html:111
-msgid "Add"
-msgstr "添加"
-
-#: sales/templates/add_sale_product.html:108
-#: sales/templates/add_sale_product.html:129
+#: sales/templates/add_sale_product.html:125
+#: sales/templates/add_sale_product.html:150
 msgid "Remove"
 msgstr "移动"
 
-#: sales/templates/add_sale_product.html:143
+#: sales/templates/add_sale_product.html:164
 msgid "Create Brand"
 msgstr "创建品牌"
 
-#: sales/templates/add_sale_product.html:312
+#: sales/templates/add_sale_product.html:383
 msgid "Attribute name can not be left blank."
 msgstr "特性名称不能为空"
 
-#: sales/templates/add_sale_product.html:433 sales/templates/list.html:98
-#: sales/templates/list.html.py:103 sales/templates/list.html:111
+#: sales/templates/add_sale_product.html:517 sales/templates/list.html:131
+#: sales/templates/list.html.py:136 sales/templates/list.html:144
 msgid "Loading..."
 msgstr "读取进度中..."
+
+#: sales/templates/add_sale_shop.html:77
+msgid ""
+"This shop will become frozen status instead of being removed, since it "
+"has sold stock record.\\nIs this ok?\\n"
+msgstr ""
+
+#: sales/templates/add_sale_shop.html:84
+msgid ""
+"This shop already has stocks as frozen status. Will you unfreeze "
+"them?\\n"
+msgstr ""
 
 #: sales/templates/add_sale_stocks.html:20
 #: sales/templates/add_sale_stocks.html:23
@@ -390,47 +1877,55 @@ msgstr "编辑一个售卖"
 msgid "Update Sale"
 msgstr "更新售卖"
 
-#: sales/templates/list.html:34
+#: sales/templates/list.html:35
 msgid "Sort by:"
 msgstr "按...分类"
 
-#: sales/templates/list.html:38
+#: sales/templates/list.html:39
 msgid "Sort"
 msgstr "分类"
 
-#: sales/templates/list.html:60
+#: sales/templates/list.html:63
 msgid "Available Qty:"
 msgstr "可用数量："
 
-#: sales/templates/list.html:60
+#: sales/templates/list.html:63
 msgid "Sales:"
 msgstr "已售："
 
-#: sales/templates/list.html:60
+#: sales/templates/list.html:63
 msgid "Initial Stock:"
 msgstr "初始库存："
 
-#: sales/templates/list.html:63
+#: sales/templates/list.html:66
 msgid "Discounted price:"
 msgstr "折扣价"
 
-#: sales/templates/list.html:64
+#: sales/templates/list.html:67
 msgid "Discount:"
 msgstr "折扣"
 
-#: sales/templates/list.html:65
+#: sales/templates/list.html:68
 msgid "Item price:"
 msgstr "商品价格"
 
-#: sales/templates/list.html:71
+#: sales/templates/list.html:74
 msgid "Details per shop"
 msgstr "按商店查看细节"
 
-#: sales/templates/list.html:73
+#: sales/templates/list.html:76
 msgid "Details"
 msgstr "查看全部细节"
 
-#: sales/templates/list.html:118
+#: sales/templates/list.html:85
+#, python-format
+msgid ""
+"\n"
+"        Page <input type=\"text\" value=\"%(number)s\" id=\"page_num\"> of %(num_pages)s pages.\n"
+"        "
+msgstr ""
+
+#: sales/templates/list.html:151
 msgid "Are you sure you want to delete this sale?"
 msgstr "您确定要删除这个售卖吗？"
 
@@ -438,76 +1933,82 @@ msgstr "您确定要删除这个售卖吗？"
 msgid "The sale was successfully updated."
 msgstr "这个售卖更新成功。"
 
-#: shops/models.py:9
+#: shops/forms.py:48
+#, fuzzy
+msgid "Select a country"
+msgstr "选择一个国家"
+
+#: shops/models.py:10
 msgid "Internal name"
 msgstr "内部名称"
 
-#: shops/models.py:11
+#: shops/models.py:12
 msgid "Address"
 msgstr "地址"
 
-#: shops/models.py:12
+#: shops/models.py:13
 msgid "Postal code"
 msgstr "邮编"
 
-#: shops/models.py:13 shops/templates/physical_shop.html:131
+#: shops/models.py:14 shops/templates/physical_shop.html:140
 msgid "City"
 msgstr "城市"
 
-#: shops/models.py:14
+#: shops/models.py:16
 msgid "Phone number"
 msgstr "电话"
 
-#: shops/models.py:15
+#: shops/models.py:17
 msgid "Shop name"
 msgstr "商店名称"
 
-#: shops/models.py:16
+#: shops/models.py:18
 msgid "Caption"
 msgstr "文本附件"
 
-#: shops/models.py:17
+#: shops/models.py:19
 msgid "Shop picture"
 msgstr "商店图片"
 
-#: shops/widgets.py:10
+#: shops/widgets.py:13
 msgid "Monday"
 msgstr "星期一"
 
-#: shops/widgets.py:10
+#: shops/widgets.py:13
 msgid "Tuesday"
 msgstr "星期二"
 
-#: shops/widgets.py:10
+#: shops/widgets.py:13
 msgid "Wednesday"
 msgstr "星期三"
 
-#: shops/widgets.py:10
+#: shops/widgets.py:13
 msgid "Thursday"
 msgstr "星期四"
 
-#: shops/widgets.py:11
+#: shops/widgets.py:14
 msgid "Friday"
 msgstr "星期五"
 
-#: shops/widgets.py:11
+#: shops/widgets.py:14
 msgid "Saturday"
 msgstr "星期六"
 
-#: shops/widgets.py:11
+#: shops/widgets.py:14
 msgid "Sunday"
 msgstr "星期日"
 
-#: shops/widgets.py:16
+#: shops/widgets.py:19
 msgid "and"
 msgstr "和"
 
-#: shops/templates/physical_shop.html:6
-msgid "Edit a Shop"
-msgstr "编辑一个商店"
+#: shops/templates/physical_shop.html:6 shops/templates/physical_shop.html:40
+msgid "Edit shop information"
+msgstr "编辑商店信息"
 
-#: shops/templates/physical_shop.html:8
-msgid "Add a Shop"
+#: shops/templates/physical_shop.html:8 shops/templates/physical_shop.html:42
+#: shops/templates/physical_shop.html:188
+msgid "Add a new shop"
 msgstr "添加一个商店"
 
 #: shops/templates/physical_shop.html:29 shops/templates/physical_shop.html:30
@@ -516,70 +2017,50 @@ msgstr "添加一个商店"
 msgid "Shops"
 msgstr "商店"
 
-#: shops/templates/physical_shop.html:40
-msgid "Edit Shop"
-msgstr "编辑商店"
-
-#: shops/templates/physical_shop.html:42
-msgid "New Shop"
-msgstr "新商店"
-
-#: shops/templates/physical_shop.html:109
+#: shops/templates/physical_shop.html:115
 msgid "Opening hours"
 msgstr "营业时间"
 
-#: shops/templates/physical_shop.html:116
-msgid "Save"
-msgstr "节省"
+#: shops/templates/physical_shop.html:125
+msgid "Please contact your administrator to add a new shop."
+msgstr "请联系您的管理员以添加一个新的商店。"
 
-#: shops/templates/physical_shop.html:126
+#: shops/templates/physical_shop.html:135
 msgid "Shops list"
 msgstr "商店列表"
 
-#: shops/templates/physical_shop.html:130
-msgid "Name"
-msgstr "名称"
-
-#: shops/templates/physical_shop.html:132
-msgid "Actions"
-msgstr "动作"
-
-#: shops/templates/physical_shop.html:143
+#: shops/templates/physical_shop.html:153
 msgid "The shops list is empty."
 msgstr "无商店登记信息"
 
-#: shops/templates/physical_shop.html:149
-msgid "Add a new shop"
-msgstr "添加一个商店"
-
-#: shops/templates/physical_shop.html:222
+#: shops/templates/physical_shop.html:262
 msgid "Searching..."
 msgstr "查找中..."
 
-#: shops/templates/physical_shop.html:229
-#: shops/templates/physical_shop.html:235
+#: shops/templates/physical_shop.html:276
+#: shops/templates/physical_shop.html:282
 msgid "Found"
 msgstr "找到"
 
-#: shops/templates/physical_shop.html:235
+#: shops/templates/physical_shop.html:282
 msgid "results"
 msgstr "结果"
 
-#: shops/templates/physical_shop.html:241
+#: shops/templates/physical_shop.html:288
 msgid ""
 "No results found. Please check the address, postal code and city are "
 "correct."
 msgstr "没有发现结果。检查地址，邮编和你所键入的城市是否正确"
 
-#: shops/templates/physical_shop.html:243
+#: shops/templates/physical_shop.html:290
 msgid "An error occured, please try again later."
 msgstr "错误发生，请稍后尝试。"
 
-#: shops/templates/physical_shop.html:296
+#: shops/templates/physical_shop.html:330
 msgid "Are your sure you want to delete this shop?"
 msgstr "您确定要删除这个商店吗？"
 
-#: templates/_quick_nav.html:5
+#: templates/_quick_nav.html:5 templates/sa_quick_nav.html:5
 msgid "Home"
 msgstr "首页"
 
@@ -598,19 +2079,24 @@ msgstr "品牌销量统计"
 msgid "Performance Map"
 msgstr "销售地图"
 
-#: templates/base.html:9
+#: templates/_quick_nav.html:14 templates/index.html:32
+#: templates/index.html.py:33
+msgid "Operators mgmt"
+msgstr ""
+
+#: templates/base.html:9 templates/sa_base.html:9
 msgid "Backoffice"
 msgstr "后台"
 
-#: templates/base.html:89
+#: templates/base.html:93 templates/sa_base.html:90
 msgid "Welcome"
 msgstr "欢迎"
 
-#: templates/base.html:98
+#: templates/base.html:102 templates/sa_base.html:99
 msgid "Logout"
 msgstr "注销"
 
-#: templates/base.html:101 templates/login.html:27
+#: templates/base.html:105 templates/login.html:27 templates/sa_base.html:102
 msgid "Login"
 msgstr "登陆"
 
@@ -621,6 +2107,33 @@ msgstr "您的用户名和密码不匹配。请重新输入。"
 #: templates/login.html:12
 msgid "BackToShops Login"
 msgstr "BackToShops登陆"
+
+#: templates/sa_base.html:84
+msgid "You're logged in as a super admin"
+msgstr "您以超级管理员的身份登录"
+
+#: templates/sa_index.html:11 templates/sa_index.html.py:12
+#: templates/sa_quick_nav.html:11
+msgid "User accounts"
+msgstr "用户账户"
+
+#~ msgid "add"
+#~ msgstr "添加"
+
+#~ msgid "Add a new main brand"
+#~ msgstr "添加一个新的品牌"
+
+#~ msgid "Add a new category"
+#~ msgstr "添加一个新的售卖"
+
+#~ msgid "Add a new branding slide"
+#~ msgstr "添加一个新的品牌"
+
+#~ msgid "Add a new admin"
+#~ msgstr "添加一个新的品牌"
+
+#~ msgid "Add a new attribute"
+#~ msgstr "添加一个新的售卖"
 
 #~ msgid "Add new brand"
 #~ msgstr "添加一个新的品牌"
