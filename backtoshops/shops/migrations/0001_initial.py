@@ -6,8 +6,10 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = ( ("countries", "0001_initial"), )
+
     def forwards(self, orm):
-        
+
         # Adding model 'Shop'
         db.create_table('shops_shop', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
