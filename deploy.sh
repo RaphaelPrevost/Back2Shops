@@ -6,14 +6,16 @@ set -ex
 
 CWD=$(pwd)
 DOMAIN=${DOMAIN:-sales.backtoshops.com}
-RESETDB=${RESETDB:-""}
+INITDB=${INITDB:-""}
+RESETDB=${RESETDB:-"$INITDB"}
 
 # sanity checks
 [ -r /etc/debian_version ] || echo "Warning: this script was made for Debian."
 [ -r $CWD/requirements/apps.txt ] || echo "Warning: requirements not found."
+grep -q 'UTF-8' /etc/postgresql/9.1/main/postgresql.conf || echo "Warning: postgresql needs to be configured in UTF-8"
 
 # assume availability of python2.7, python2.7-dev, libapache2-mod-wsgi,
-# libpq-dev, python-pip, but install virtualenv if it is not present
+# libpq-dev, python-pip, git but install virtualenv if it is not present
 [ -z $(pip freeze 2> /dev/null | grep virtualenv) ] && \
 pip install virtualenv
 
@@ -27,6 +29,9 @@ chmod 750 .
 
 # remove old sourcecode
 [ -d $CWD/backtoshops -a -d $CWD/public_html ] && rm -rf $CWD/public_html
+
+# remove unclean python environment
+[ -d $CWD/env -a ! -r $CWD/env/.clean ] && rm -rf $CWD/env
 
 # make the public_html directory
 if [ -d $CWD/backtoshops -a ! -d $CWD/public_html ]; then
@@ -59,10 +64,11 @@ if [ ! -d $CWD/env ]; then
     cd $CWD
     virtualenv --no-site-packages env
     python $CWD/env/bin/activate_this.py
-    pip -E env install -r $CWD/requirements/apps.txt"
+    $CWD/env/bin/pip install -r $CWD/requirements/apps.txt"
     ( su backtoshops -c "$PYENV" )
     # this user won't need shell anymore
     usermod -s /bin/false backtoshops
+    touch $CWD/env/.clean
 else
     echo "(i) Python environment OK"
 fi
@@ -125,8 +131,11 @@ if [ ! -z $RESETDB ]; then
     # possible errors related to the DB:
     # Peer/Ident authentication failed: check pg_hba.conf,
     # local connections should be trusted (or password)
-    su postgres -c "dropdb backtoshops"
-    su postgres -c "createuser -P bts"
+    if [ ! -z $INITDB ]; then
+        su postgres -c "psql postgres -tAc \"SELECT 1 FROM pg_roles WHERE rolname='bts'\" | grep -q 1 || createuser -P bts"
+    else
+        su postgres -c "dropdb backtoshops"
+    fi
     su postgres -c "createdb -E UNICODE backtoshops -O bts"
     su postgres -c "psql -U bts backtoshops -c 'grant all on database backtoshops to bts;'"
 fi
@@ -148,7 +157,7 @@ source $CWD/env/bin/activate
   ./manage.py migrate
 )
 
-[ -z $(grep "export LANG=C" /etc/apache2/envvars) ] || echo "Warning: using POSIX locale in /etc/apache2/envvars will break uploading files with unicode characters in their names."
+grep -q "export LANG=C" /etc/apache2/envvars && echo "Warning: using POSIX locale in /etc/apache2/envvars will break uploading files with unicode characters in their names."
 
 # restart apache
 /etc/init.d/apache2 restart
