@@ -155,6 +155,7 @@ source $CWD/env/bin/activate
 ( cd $CWD/public_html
   ./manage.py syncdb
   ./manage.py migrate
+  ./manage.py compilemessages --locale=zh_CN
 )
 
 grep -q "export LANG=C" /etc/apache2/envvars && echo "Warning: using POSIX locale in /etc/apache2/envvars will break uploading files with unicode characters in their names."
