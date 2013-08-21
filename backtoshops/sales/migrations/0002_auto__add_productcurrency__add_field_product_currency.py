@@ -17,8 +17,6 @@ class Migration(SchemaMigration):
             ('is_default', self.gf('django.db.models.fields.BooleanField')(default=False)),
         ))
         db.send_create_signal('sales', ['ProductCurrency'])
-        eur = ProductCurrency(id=1, code='EUR',description='Euro',is_default=True)
-        eur.save()
         # Adding field 'Product.currency'
         db.add_column('sales_product', 'currency', self.gf('django.db.models.fields.related.ForeignKey')(default=1, to=orm['sales.ProductCurrency']), keep_default=False)
 
