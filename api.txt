@@ -345,11 +345,127 @@ Called by the brand, the POS application...
 
 h1. Public users.backtoshops.com API:
 
-Called by the PHP front or the iPhone/Android application
+The basket (cart) is implemented purely on the Front-End side. It is only mandatory to keep the list of item IDs and quantity of each item, but clients may want to cache the price to be able to present a total amount estimation to the user.
 
-- /webservice/1.0/pub/connect (authenticate the user and retrieve its global session)
-- /webservice/1.0/pub/profile (get the user preferences to filter the sales)
-(mirror all the sales.backtoshops.com public API, but the results will be filtered using the user profile - if enabled)
+This means adding items to the cart, or viewing items, does not interact at all with the login system.
+
+Only confirming an Order, or accessing the user profile requires logging in.
+
+The system works as follow:
+- the Front-End maintains its own session or persistent state to remember the basket content.
+- When logging in, the user browser or client directly connects to users.backtoshops.com over https and sends a username and password
+
+Account creation
+
+Protected with an optional CAPTCHA
+
+Call: /webservice/1.0/pub/account
+POST request, parameters:
+action=create
+email=<email address>
+password=<password>
+captcha=<captcha text>
+
+The call should only be made over SSL.
+Does not require prior authentication (obviously) and no CSRF check.
+
+The system generate a large cryptographically secure random number (256 bits minimum), to be used as salt.
+This salt is added to the account.
+
+Recursive iterated hash function:
+H0(salt,password) = WHIRLPOOL(salt + password)
+Hx(salt,password) = WHIRLPOOL(Hx-1(salt, password) + password)
+
+The system records an iterated hash of the password: WHIRLPOOL(Hn), with n a random number between 2 and 256 (n is recorded in the account). This iterated hash is designed as authenticator z.
+
+So, in database:
+email: identifier
+salt: a cryptographically secure 256+ bits random number
+N: number of iterations used to compute the authenticator z
+z: iterated hash of the password
+
+res:
+SUCCESS
+FAILURE
+err:
+ERR_EMAIL
+ERR_PASSW
+ERR_SQLDB
+
+- /webservice/1.0/pub/connect
+
+The call should only be made over SSL.
+Does not require prior authentication (obviously) and no CSRF check.
+
+POST request, parameters:
+id=<email address>
+pw=<password of the user>
+
+Login:
+The user presents a user name, password and implicitly their IP address and HTTP headers to users.backtoshops.com
+
+users.backtoshops.com calculates c = Hn(salt, password) with n the number of iterations recorded in the account. If WHIRLPOOL(c) = z (the authenticator in database), access is granted.
+
+* A fingerprint of the terminal is recorded in database:
+- time of access
+- IP address
+- hash of relevant HTTP headers
+
+* A random CSRF token is recorded in database
+
+* A cookie is issued to the client:
+expiry=timestamp
+csrf=CSRF token
+auth=c
+digest=MAC(k)(expiry + csrf + auth)
+
+The digest is an HMAC computed using a MAC key k stored on the server, preferably as a file. The MAC key should be periodically renewed (every 24h?).
+
+res:
+SUCCESS
+FAILURE
+err:
+ERR_LOGIN
+
+Subsequent access:
+The user submit the cookie with their request.
+users.backtoshops.com checks the MAC, extracts c, compare WHIRLPOOL(c) to the authenticator z.
+If they match, users.backtoshops.com check if the IP or the hash of the HTTP headers is still the same. If anything changed, the session is destroyed and the user will need to relogin.
+If it is a POST request, verify the CSRF token.
+Renew the CSRF token each time.
+
+This scheme should provide decent protection against:
+- spoofing (browser fingerprinting)
+- replay attack (csrf token)
+- cookie data tempering (hmac)
+
+Account modification
+
+Call: /webservice/1.0/pub/account
+POST request, parameters:
+action=modify
+password=<password>
+profile=<json array>
+
+The call should only be made over SSL. It requires the authentication cookie.
+Additionnally, the password will be verified.
+
+The JSON object is simply a collection of key/value matching the keys retrieved with /pub/profile.
+
+Account profile display/retrieval
+
+Call: /webservice/1.0/pub/profile
+GET request, parameters:
+NONE
+
+The call should only be made over SSL. It requires the authentication cookie.
+
+Return a Profile JSON object containing a list of fields, their type, their current value and possible values. For example:
+
+"email": { "type": "text", "value": "test@test.com", "accept": {} },
+"gender": { "type": "select", "value": "F", "accept": { {"Male": "M"}, { "Female": "F" } }
+
+This object can be used to construct a form and display/edit the profile data.
 
 h1. Private users.backtoshops.com API:
 
