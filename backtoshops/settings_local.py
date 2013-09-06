@@ -15,6 +15,14 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+# this is for pagination
+CHOICE_PAGE_SIZE = (10, 20, 50, 100)
+DEFAULT_PAGE_SIZE = 10
+PAGE_NAV_SIZE = 10
+
+get_page_size = lambda request: int(request.session.get('page_size',DEFAULT_PAGE_SIZE))
+
+
 #DATABASES = {
 #    'default': {
 #        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
