@@ -238,8 +238,7 @@ class BaseCategoryView(SARequiredMixin):
     
 class CreateCategoryView(BaseCategoryView, CreateView):
     def get_success_url(self):
-        new_id = ProductCategory.objects.all().count()
-        return reverse('sa_edit_category',args=[new_id])
+        return reverse('sa_categories')
     
 class EditCategoryView(BaseCategoryView, UpdateView):
     def get_success_url(self):
