@@ -28,8 +28,12 @@
     <form id="main_form" method="post" enctype="multipart/form-data">
     {% csrf_token %}
         <h3>{% trans "Settings" %}</h3>
-        
+
         <fieldset>
+            {% if is_saved %}
+            <div class="formrow comments">{% trans "Saved Successfully" %}</div>
+            {% endif %}
+
             {{ form.default_language.errors }}
             <div class="formrow">
                 <label for="{{form.default_language.auto_id}}">{% trans form.default_language.label %}</label>

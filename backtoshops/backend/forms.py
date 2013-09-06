@@ -133,22 +133,15 @@ class SASettingsForm(forms.Form):
     new_password2 = forms.CharField(label=_('Confirm new password'), widget=forms.PasswordInput, required=False)
     
     def __init__(self, user=None, *args, **kwargs):
-        super(SASettingsForm,self).__init__(*args, **kwargs)
-        if not self.is_bound:
-            self.base_fields['username'].initial = user.__dict__.get('username','')
-            self.base_fields['email'].initial = user.__dict__.get('email','')
-            global_settings = GlobalSettings.objects.all()
-            for global_setting in global_settings: 
-                self.base_fields[global_setting.key].initial = global_setting.value
-    
-    def clean_username(self):
-        username = self.cleaned_data["username"]
-        try:
-            User.objects.get(username=username)
-        except User.DoesNotExist:
-            return username
-        raise forms.ValidationError(_("A user with that username already exists."))
-        
+        initial = kwargs.get('initial', {})
+        global_settings = GlobalSettings.objects.all()
+        for global_setting in global_settings: 
+            initial[global_setting.key] = global_setting.value
+        if user is not None:
+            initial['username'] = user.__dict__.get('username','')
+            initial['email'] = user.__dict__.get('email','')
+        super(SASettingsForm,self).__init__(initial=initial, *args, **kwargs)
+
     def clean_new_password2(self):
         new_password1 = self.cleaned_data.get("new_password1", "")
         new_password2 = self.cleaned_data["new_password2"]
