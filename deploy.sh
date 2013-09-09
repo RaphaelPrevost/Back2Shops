@@ -58,6 +58,8 @@ if [ -d $CWD/backtoshops -a ! -d $CWD/public_html ]; then
     chown -R backtoshops.www-data $CWD/public_html
     chmod -R 2750 $CWD/public_html
     # allow writing in the upload directories
+    mkdir -p $CWD/public_html/media/brand_logos
+    mkdir -p $CWD/public_html/media/product_brands
     chmod -R 2770 $CWD/public_html/media/brand_logos
     chmod -R 2770 $CWD/public_html/media/product_brands
 fi
