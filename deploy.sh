@@ -9,10 +9,29 @@ DOMAIN=${DOMAIN:-sales.backtoshops.com}
 INITDB=${INITDB:-""}
 RESETDB=${RESETDB:-"$INITDB"}
 
+DEPS=(libapache2-mod-wsgi python2.7-dev libpq-dev python-pip git \
+      libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev \
+      liblcms1-dev libwebp-dev)
+DPKG=$(dpkg -l)
+INST=""
+
 # sanity checks
 [ -r /etc/debian_version ] || echo "Warning: this script was made for Debian."
 [ -r $CWD/requirements/apps.txt ] || echo "Warning: requirements not found."
 grep -q 'UTF-8' /etc/postgresql/9.1/main/postgresql.conf || echo "Warning: postgresql needs to be configured in UTF-8"
+
+for pkg in ${DEPS[*]}; do
+    if echo $DPKG | grep -qw "ii $pkg"; then
+        echo "(i) $pkg already installed."
+    else
+        INST="$INST $pkg"
+    fi
+done
+
+if [ -n "$INST" ]; then
+    echo "Warning: please install$INST"
+    exit 1
+fi
 
 # assume availability of python2.7, python2.7-dev, libapache2-mod-wsgi,
 # libpq-dev, python-pip, git but install virtualenv if it is not present
