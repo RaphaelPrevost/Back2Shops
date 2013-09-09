@@ -1,6 +1,10 @@
 #! /bin/bash
 
-# This script assumes it has been svn co in /home
+# This script assumes the following commands have been executed:
+# cd /home
+# svn co http://trac.lbga.fr/svn/backtoshops/
+# cd /home/backtoshops
+#
 
 set -ex
 

@@ -20,6 +20,8 @@ class Migration(SchemaMigration):
         # Adding field 'Product.currency'
         db.add_column('sales_product', 'currency', self.gf('django.db.models.fields.related.ForeignKey')(default=1, to=orm['sales.ProductCurrency']), keep_default=False)
 
+        call_command("loaddata", "sales/fixtures/currency_fixtures.json")
+
 
     def backwards(self, orm):
         
