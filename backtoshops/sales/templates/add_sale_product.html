@@ -313,8 +313,7 @@
                 $("#ba_input").val("");
                 $("#premium_type").val("percentage");
                 $("#premium_amount").val("");
-                $("#premium_price_val").val("");
-                $("#premium_price").html("N/A");
+                calcDiscount();
                 $("#add_ba_form").data("ba_data", {});
                 _updateBackgroundImage($("#ba_preview_btn"), '{{ STATIC_URL }}img/empty_attr.png');
                 _updateBackgroundImage($("#ba_texture_btn"), '{{ STATIC_URL }}img/empty_attr.png');
