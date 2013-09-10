@@ -79,14 +79,14 @@
                 <div id="add_ba_form">
                     <div id="ba">
                         <input id="ba_input" type="text"/>
-                        
+
                         <img id="ba_texture_btn" role="button">
                         <input id="ba_texture_upload" type="file" name="texture_file"/>
                     </div>
                     <img id="ba_preview_btn" role="button" />
                     <input id="ba_preview_upload" type="file" name="files[]"/>
                     <a id="add_ba" href="#">{% trans "Add" %}</a>
-					
+
 					<span id="newPriceAttrib" class="contForm">
 						<select id="premium_type" name="premium_type">
 							<option value="percentage">{% trans "Percentage" %}</option>
@@ -215,7 +215,7 @@
     		$("#id_discount_price_marker").html($("#{{wizard.form.currency.auto_id}} option:selected").text())
     		$("#id_premium_price_marker").html($("#{{wizard.form.currency.auto_id}} option:selected").text())
     	});
-    	
+
         $(function(){
             function addProductPicture(result) {
                 var nb_of_forms = $("#{{ wizard.form.pictures.management_form.TOTAL_FORMS.auto_id }}").val();
@@ -314,7 +314,7 @@
                 $("#premium_type").val("percentage");
                 $("#premium_amount").val("");
                 $("#premium_price_val").val("");
-                $("#premium_price").val("");
+                $("#premium_price").html("N/A");
                 $("#add_ba_form").data("ba_data", {});
                 _updateBackgroundImage($("#ba_preview_btn"), '{{ STATIC_URL }}img/empty_attr.png');
                 _updateBackgroundImage($("#ba_texture_btn"), '{{ STATIC_URL }}img/empty_attr.png');
@@ -384,6 +384,11 @@
                     e.preventDefault();
                     return false;
                 }
+                _updateData({name: $("#ba_input").val(),
+                             premium_type:$("#premium_type").val(),
+                             premium_amount:$("#premium_amount").val(),
+                             premium_price:$("#premium_price_val").val(),
+                             ba_pk: -1});
                 var nb_of_forms = $("#{{ wizard.form.brand_attributes.management_form.TOTAL_FORMS.auto_id }}").val();
                 var form = $("#brand_attribute_template_form").html();
                 form = form.replace(/__prefix__/g, nb_of_forms.toString()); // counting start from 0, so just use nb_of_forms here
@@ -416,6 +421,7 @@
                 } else if (data_send.ba_pk != undefined) {
                     data_send.pk = data_send.ba_pk;
                 } else {
+
                     data_send.pk = -1;
                 }
                 $.post("{% url brand_attributes_view %}",
@@ -467,7 +473,7 @@
 						$("#brand_new_error").hide();
 					}
                     $("#add_new_brand_dialog").dialog("close");
-                
+
                 }
             });
 
@@ -503,7 +509,7 @@
             $("#main_form").change(function(elmt){
                 updateProductPreview(elmt);
             });
-            
+
             {# currency dropdown change event#}
             $("#{{wizard.form.currency.auto_id}}").change(function(e){
             	$("#id_discount_price_marker").html($("#{{wizard.form.currency.auto_id}} option:selected").text());
@@ -527,7 +533,7 @@
                 var premium_type = $("#premium_type").val();
                 var premium_amount = parseFloat($("#premium_amount").val());
                 var premium_price;
-                
+
                 if (discount_type == "percentage") { //percentage
                 	var tmp = normal_price - (normal_price * (discount / 100))
                     new_price = Math.round(tmp*100 +((tmp*1000%10>4)?1:0))/100;
@@ -536,7 +542,7 @@
                     new_price = normal_price - discount;
                     $("#discount_marker").html($("#{{wizard.form.currency.auto_id}} option:selected").text());
                 }
-                
+
                 if (premium_type == "percentage") { //percentage
                 	var tmp = new_price + (new_price * (premium_amount / 100))
                    	premium_price = Math.round(tmp*100 +((tmp*1000%10>4)?1:0))/100;
@@ -545,7 +551,7 @@
                     premium_price = new_price + premium_amount;
                     $("#premium_marker").html($("#{{wizard.form.currency.auto_id}} option:selected").text());
                 }
-                
+
                 if (new_price > 0) {
                     $("#{{ wizard.form.discount_price.auto_id }}").val(parseFloat(new_price));
                     $("#discount_price").html(new_price);
@@ -555,7 +561,7 @@
                     $("#discount_price").html("{% trans "N/A" %}");
                     $("#preview-{{ wizard.form.discount_price.auto_id }}").html("{% trans "N/A" %}");
                 }
-                
+
                 if (premium_price > 0) {
                     $("#premium_price_val").val(parseFloat(premium_price));
                     $("#premium_price").html(parseFloat(premium_price));
