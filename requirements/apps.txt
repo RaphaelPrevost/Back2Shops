@@ -20,4 +20,5 @@ wsgiref==0.1.2
 python-memcached==1.47
 postmarkup==1.1.4
 psycopg2==2.4.2
+Whirlpool=0.3
 git+http://github.com/tstone/django-uploadify.git
