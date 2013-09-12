@@ -51,7 +51,7 @@
 
     function _setMarker(shop_id) {
         var data = { shop_id: shop_id };
-        $.get("{% url shop_coordinates %}", data, function(ret) {
+        $.get("{% url 'shop_coordinates' %}", data, function(ret) {
             var latlng = new google.maps.LatLng(ret.latitude, ret.longitude);
             var shop = new google.maps.Marker({
                 map: map,

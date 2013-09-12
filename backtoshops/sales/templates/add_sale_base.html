@@ -35,7 +35,7 @@
             </h2>
         </div>
 
-        <form id="main_form" action="{% url add_sale %}" enctype="multipart/form-data" method="post">{% csrf_token %}
+        <form id="main_form" action="{% url 'add_sale' %}" enctype="multipart/form-data" method="post">{% csrf_token %}
             <h3><span>{{ wizard.steps.step1 }}/{{ wizard.steps.count }}</span>{{ form_title }}</h3>
             {% block form %}{% endblock %}
             {% if wizard.steps.prev %}
@@ -59,7 +59,7 @@
 
         {% block empty_forms %}{% endblock %}
     </div>
-    
+
     <script type="text/javascript">
     	$("#btn_first_step,#btn_prev_step").click(function(event){
     		if(confirm("{% trans "The information entered on this page will be lost. Do you want to continue?" %}")==false)

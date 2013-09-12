@@ -159,7 +159,7 @@
         </span>
     </span>
     <div id="add_new_brand_dialog" style="display: none;">
-        <form id="add_new_brand_form" action="{% url add_new_brand %}" method="post">{% csrf_token %}
+        <form id="add_new_brand_form" action="{% url 'add_new_brand' %}" method="post">{% csrf_token %}
             {{ product_brand_form.as_p }}
             <input type="submit" value="{% trans "Create Brand" %}"/>
         </form>
@@ -243,7 +243,7 @@
 
             $("#pp_upload").fileupload({
                 dataType: 'json',
-                url: '{% url upload_product_picture %}',
+                url: "{% url 'upload_product_picture' %}",
                 dropZone: $("#product_pictures"),
                 namespace: 'product_pictures',
                 add: function(e, data) {
@@ -321,7 +321,7 @@
 
             $("#ba_preview_upload").fileupload({
                 dataType: 'json',
-                url: '{% url upload_product_picture %}',
+                url: "{% url 'upload_product_picture' %}",
                 dropZone: $("#ba_preview"),
                 namespace: 'ba_preview',
                 formData: {is_brand_attribute: true},
@@ -337,7 +337,7 @@
 
             $("#ba_texture_upload").fileupload({
                 dataType: 'json',
-                url: '{% url brand_attributes_view %}',
+                url: "{% url 'brand_attributes_view' %}",
                 dropZone: $("#ba"),
                 namespace: 'ba_texture',
                 formData: {pk: _getFromData("texture_pk")},
@@ -353,7 +353,7 @@
 
             $("#ba_input").autocomplete({
                 autoFocus: true,
-                source: "{% url brand_attributes_view %}",
+                source: "{% url 'brand_attributes_view' %}",
                 min_length: 2,
                 html: true,
                 showTyping: true,
@@ -423,7 +423,7 @@
 
                     data_send.pk = -1;
                 }
-                $.post("{% url brand_attributes_view %}",
+                $.post("{% url 'brand_attributes_view' %}",
                        data_send,
                        function(data) {
                             if (data.success) {
@@ -520,7 +520,7 @@
                 var brand_id = $("#{{ wizard.form.brand.auto_id }} :selected").val();
                 if (brand_id) {
                     $("#preview-{{ wizard.form.brand.auto_id }}").html("{% trans "Loading..." %}");
-                    $("#preview-{{ wizard.form.brand.auto_id }}").load('{% url get_brand_logo %}'+brand_id+'/');
+                    $("#preview-{{ wizard.form.brand.auto_id }}").load("{% url 'get_brand_logo' %}"+brand_id+'/');
                 }
             });
 

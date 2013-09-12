@@ -2,10 +2,10 @@
 
 {% for user in users %}
 <tr id="user_{{ user.pk }}"><!-- class=new -->
-    <td><a href="{% url sa_edit_user user.pk %}">{{ user.username }}</a></td>
+    <td><a href="{% url 'sa_edit_user' user.pk %}">{{ user.username }}</a></td>
     <td>{{ user.is_superuser|yesno:"Y,N" }}</td>
     <td>{% firstof user.get_profile.work_for "N/A" %}</td>
-    <td><a class="modif" href="{% url sa_edit_user user.pk %}">edit</a><a class="out delete_user" href="{% url sa_delete_user user.pk %}">delete</a></td>
+    <td><a class="modif" href="{% url 'sa_edit_user' user.pk %}">edit</a><a class="out delete_user" href="{% url 'sa_delete_user' user.pk %}">delete</a></td>
 </tr>
 {% empty %}
 <tr class="noshop">

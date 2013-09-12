@@ -9,7 +9,7 @@
         <select id="shop">
             <option value="0">{% trans "Select a shop" %}</option>
             {% for shop in shops %}
-            <option value="{% url sale_details sale.pk shop.pk %}">{{ shop.name }}</option>
+            <option value="{% url 'sale_details' sale.pk shop.pk %}">{{ shop.name }}</option>
             {% endfor %}
         </select>
     </p>

@@ -30,9 +30,9 @@
 
     <!--FORM-->
     {% if pk %}
-    <form id="main_form" method="post" action="{% url sa_edit_category pk %}" enctype="multipart/form-data">{% csrf_token %}
+    <form id="main_form" method="post" action="{% url 'sa_edit_category' pk %}" enctype="multipart/form-data">{% csrf_token %}
     {% else %}
-    <form id="main_form" method="post" action="{% url sa_categories %}" enctype="multipart/form-data">{% csrf_token %}
+    <form id="main_form" method="post" action="{% url 'sa_categories' %}" enctype="multipart/form-data">{% csrf_token %}
     {% endif %}
     {% if pk %}
         <h3>{% trans "Edit a sales category" %}</h3>
@@ -67,8 +67,8 @@
             </tr>
             {% for category in page.object_list %}
             <tr id="category_{{ category.pk }}"><!-- class=new -->
-                <td><a href="{% url sa_edit_category category.pk %}">{{ category.name }}</a></td>
-                <td><a class="modif" href="{% url sa_edit_category category.pk %}">{% trans "Edit" %}</a><a class="out delete_category" href="{% url sa_delete_category category.pk %}">{% trans "Delete" %}</a></td>
+                <td><a href="{% url 'sa_edit_category' category.pk %}">{{ category.name }}</a></td>
+                <td><a class="modif" href="{% url 'sa_edit_category' category.pk %}">{% trans "Edit" %}</a><a class="out delete_category" href="{% url 'sa_delete_category' category.pk %}">{% trans "Delete" %}</a></td>
             </tr>
             {% empty %}
             <tr class="noshop">
@@ -107,7 +107,7 @@
         {% endif %}
     </div>
     <!--//Liste-Category-->
-    <a class="btn ajouter" href="{% url sa_categories %}">{% trans "Add a new sales category" %}</a>
+    <a class="btn ajouter" href="{% url 'sa_categories' %}">{% trans "Add a new sales category" %}</a>
 </div>
 <!--FIN content-right-->
 <div class="clear"></div>
@@ -122,7 +122,7 @@ $(document).ready(function(){
                 $.post(this.href, function(data){
                     $("#category_"+data.category_pk).remove();
                     if(data.category_pk == "{% firstof pk "0" %}") {
-                        location.replace("{% url sa_categories %}");
+                        location.replace("{% url 'sa_categories' %}");
                     }
                 });
             }
@@ -132,7 +132,7 @@ $(document).ready(function(){
     $("#page_size").change(function(event){
         location.href = location.pathname+'?page_size='+$(this).val();
     });
-    
+
      //go specific page by input
     $("#page_num").keypress(function(event){
         if(event.which == 13){ //'enter' key
@@ -143,7 +143,7 @@ $(document).ready(function(){
                 alert("{% trans "Please enter a valid page number." %}");
         }
     });
-});    
+});
 </script>
 
 {% endblock %}

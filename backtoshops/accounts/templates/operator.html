@@ -29,9 +29,9 @@
 
     <!--FORM-->
     {% if user_pk %}
-    <form id="main_form" method="post" action="{% url edit_operator user_pk %}" enctype="multipart/form-data">{% csrf_token %}
+    <form id="main_form" method="post" action="{% url 'edit_operator' user_pk %}" enctype="multipart/form-data">{% csrf_token %}
     {% else %}
-    <form id="main_form" method="post" action="{% url operators %}" enctype="multipart/form-data">{% csrf_token %}
+    <form id="main_form" method="post" action="{% url 'operators' %}" enctype="multipart/form-data">{% csrf_token %}
     {% endif %}
     {% if user_pk %}
         <h3>{% trans "Edit operator" %}</h3>
@@ -115,13 +115,13 @@
     <h4 class="titleRight">{% trans "Operators list" %}</h4>
     <form method="post">
     {% csrf_token %}
-    <div style='display:none'><input type='hidden' name='search' value='True' /></div>    
+    <div style='display:none'><input type='hidden' name='search' value='True' /></div>
     <div class="searchBox">
         <label for="id_searchUsername">{% trans "User" %}</label><input type="text" id="id_searchUsername" name="username" value="{{ search_username }}" />
         <input type="submit" value="{% trans "Search" %}" id="btnSearch" />
     </div>
     </form>
-    <div class="boxRight" id="listeUser"> 
+    <div class="boxRight" id="listeUser">
         <table cellpadding="0" cellspacing="0" border="0">
             <tr>
                 <th class="nom on"><a href="#">{% trans "User" %}</a></th>
@@ -129,8 +129,8 @@
             </tr>
             {% for user in users.object_list %}
             <tr id="user_{{ user.pk }}"><!-- class=new -->
-                <td><a href="{% url sa_edit_user user.pk %}">{{ user.username }}</a></td>
-                <td><a class="modif" href="{% url edit_operator user.pk %}">{% trans "Edit" %}</a><a class="out delete_user" href="{% url delete_operator user.pk %}">{% trans "Delete" %}</a></td>
+                <td><a href="{% url 'sa_edit_user' user.pk %}">{{ user.username }}</a></td>
+                <td><a class="modif" href="{% url 'edit_operator' user.pk %}">{% trans "Edit" %}</a><a class="out delete_user" href="{% url 'delete_operator' user.pk %}">{% trans "Delete" %}</a></td>
             </tr>
             {% empty %}
             <tr class="noshop">
@@ -165,7 +165,7 @@
                     <a href="1" class="pagination">|<</a>
                     <a href="{{ prev_10 }}" class="pagination"><</a>
                     {% for page_num in page_nav %}
-                    [{% if users.number != page_num %}<a href="{{ page_num }}" class="pagination">{{ page_num }}</a>{% else %}{{ page_num }}{% endif %}] 
+                    [{% if users.number != page_num %}<a href="{{ page_num }}" class="pagination">{{ page_num }}</a>{% else %}{{ page_num }}{% endif %}]
                     {% endfor %}
                     <a href="{{ next_10 }}" class="pagination">></a>
                     <a href="{{ users.paginator.num_pages }}" class="pagination">>|</a>
@@ -175,7 +175,7 @@
         {% endif %}
     </div>
     <!--//Liste-Brand-->
-    <a class="btn ajouter" href="{% url operators %}">{% trans "Add a new operator" %}</a>
+    <a class="btn ajouter" href="{% url 'operators' %}">{% trans "Add a new operator" %}</a>
 </div>
 <!--FIN content-right-->
 <div class="clear"></div>
@@ -190,13 +190,13 @@ $(document).ready(function(){
             $.post(this.href, function(data){
                 $("#user_"+data.user_pk).remove();
                 if(data.user_pk == "{% firstof user_pk "0" %}") {
-                    location.replace("{% url operators %}");
+                    location.replace("{% url 'operators' %}");
                 }
             });
         }
         return false;
     });
-    
+
     //set page size
     $("#page_size").change(function(event){
         $("#page_size_form").submit();
@@ -205,7 +205,7 @@ $(document).ready(function(){
     $(".pagination").click(function(event){
         $("#current_page").val($(this).attr('href'));
         $("#page_size_form").submit();
-        event.preventDefault();        
+        event.preventDefault();
     });
     //go specific page by input
     $("#page_num").keypress(function(event){
@@ -221,7 +221,7 @@ $(document).ready(function(){
         }
     });
 
-});    
+});
 </script>
 
 {% endblock %}

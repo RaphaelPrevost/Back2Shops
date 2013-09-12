@@ -33,7 +33,7 @@ urlpatterns += patterns('',
     url(r'^shops', include(settings.get_site_prefix()+'shops.urls')),
     url(r'^login', 'fouillis.views.login_staff', name='bo_login'),
     url(r'^$',
-        login_required(home_page, login_url="login"),
+        login_required(home_page, login_url="bo_login"),
         name='bo_index'),
     # Examples:
     # url(r'^$', 'backtoshops.views.home', name='home'),

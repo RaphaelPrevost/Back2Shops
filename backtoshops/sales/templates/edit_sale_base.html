@@ -33,7 +33,7 @@
             </h2>
         </div>
 
-        <form id="main_form" action="{% url edit_sale sale_id %}" enctype="multipart/form-data" method="post">{% csrf_token %}
+        <form id="main_form" action="{% url 'edit_sale sale_id' %}" enctype="multipart/form-data" method="post">{% csrf_token %}
             <h3><span>{{ wizard.steps.step1 }}/{{ wizard.steps.count }}</span>{{ form_title }}</h3>
             {% block form %}{% endblock %}
             {% if wizard.steps.prev %}
