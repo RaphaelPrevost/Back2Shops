@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block head %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script> 
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
 	<link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/admin_user.css">
 {% endblock %}
 
@@ -30,9 +30,9 @@
 
     <!--FORM-->
     {% if user_pk %}
-    <form id="main_form" method="post" action="{% url sa_edit_user user_pk %}" enctype="multipart/form-data">{% csrf_token %}
+    <form id="main_form" method="post" action="{% url 'sa_edit_user' user_pk %}" enctype="multipart/form-data">{% csrf_token %}
     {% else %}
-    <form id="main_form" method="post" action="{% url sa_users %}" enctype="multipart/form-data">{% csrf_token %}
+    <form id="main_form" method="post" action="{% url 'sa_users' %}" enctype="multipart/form-data">{% csrf_token %}
     {% endif %}
     {% if user_pk %}
         <h3>{% trans "Edit user information" %}</h3>
@@ -116,7 +116,7 @@
     <h4 class="titleRight">{% trans "Users list" %}</h4>
     <form method="post">
     {% csrf_token %}
-    <div style='display:none'><input type='hidden' name='search' value='True' /></div>    
+    <div style='display:none'><input type='hidden' name='search' value='True' /></div>
     <div class="searchBox">
         <label for="id_searchUsername">{% trans "User" %}</label><input type="text" id="id_searchUsername" name="username" value="{{ search_username }}" />
         <label for="id_searchCompany">{% trans "Corporate account" %}</label>
@@ -130,7 +130,7 @@
         <input type="submit" value="{% trans "Search" %}" class="btn select" id="btnSearch" />
     </div>
     </form>
-    <div class="boxRight listeRight" id="listeUser"> 
+    <div class="boxRight listeRight" id="listeUser">
         <table cellpadding="0" cellspacing="0" border="0">
             <tr>
                 <th class="nom on"><a href="#">{% trans "User" %}</a></th>
@@ -139,9 +139,9 @@
             </tr>
             {% for user in users.object_list %}
             <tr id="user_{{ user.pk }}"><!-- class=new -->
-                <td><a href="{% url sa_edit_user user.pk %}">{{ user.username }}</a></td>
+                <td><a href="{% url 'sa_edit_user' user.pk %}">{{ user.username }}</a></td>
                 <td>{% firstof user.get_profile.work_for "N/A" %}</td>
-                <td><a class="modif" href="{% url sa_edit_user user.pk %}">{% trans "Edit" %}</a><a class="out delete_user" href="{% url sa_delete_user user.pk %}">{% trans "Delete" %}</a></td>
+                <td><a class="modif" href="{% url 'sa_edit_user' user.pk %}">{% trans "Edit" %}</a><a class="out delete_user" href="{% url 'sa_delete_user' user.pk %}">{% trans "Delete" %}</a></td>
             </tr>
             {% empty %}
             <tr class="noshop">
@@ -188,7 +188,7 @@
         {% endif %}
     </div>
     <!--//Liste-Brand-->
-    <a class="btn ajouter" href="{% url sa_users %}">{% trans "Add a new user" %}</a>
+    <a class="btn ajouter" href="{% url 'sa_users' %}">{% trans "Add a new user" %}</a>
 </div>
 <!--FIN content-right-->
 <div class="clear"></div>
@@ -203,13 +203,13 @@ $(document).ready(function(){
             $.post(this.href, function(data){
                 $("#user_"+data.user_pk).remove();
                 if(data.user_pk == "{% firstof user_pk "0" %}") {
-                    location.replace("{% url sa_users %}");
+                    location.replace("{% url 'sa_users' %}");
                 }
             });
         }
         return false;
     });
-    
+
     //set page size
     $("#page_size").change(function(event){
         $("#page_size_form").submit();
@@ -218,7 +218,7 @@ $(document).ready(function(){
     $(".pagination").click(function(event){
         $("#current_page").val($(this).attr('href'));
         $("#page_size_form").submit();
-        event.preventDefault();        
+        event.preventDefault();
     });
     //go specific page by input
     $("#page_num").keypress(function(event){
@@ -233,19 +233,19 @@ $(document).ready(function(){
                 alert("{% trans "Please enter a valid page number." %}");
         }
     });
-    
+
     //search feature
     /*
     $("#btnSearch").click(function(){
         $("#listeUser table tbody").find("tr:gt(0)").remove();
-        $.post("{% url sa_ajax_user_search %}", 
-            {'username':$("#id_searchUsername").val(),'company':$("#id_searchCompany").val()}, 
+        $.post("{% url 'sa_ajax_user_search' %}",
+            {'username':$("#id_searchUsername").val(),'company':$("#id_searchCompany").val()},
             function(data){
                 $("#listeUser table tbody").append(data);
         });
     });
     */
-});    
+});
 </script>
 
 {% endblock %}

@@ -30,9 +30,9 @@
 
     <!--FORM-->
     {% if pk %}
-    <form id="main_form" method="post" action="{% url sa_edit_branding pk %}" enctype="multipart/form-data">{% csrf_token %}
+    <form id="main_form" method="post" action="{% url 'sa_edit_branding' pk %}" enctype="multipart/form-data">{% csrf_token %}
     {% else %}
-    <form id="main_form" method="post" action="{% url sa_brandings %}" enctype="multipart/form-data">{% csrf_token %}
+    <form id="main_form" method="post" action="{% url 'sa_brandings' %}" enctype="multipart/form-data">{% csrf_token %}
     {% endif %}
     {% if pk %}
         <h3>{% trans "Edit a slide" %}</h3>
@@ -94,10 +94,10 @@
             </tr>
             {% for branding in page.object_list %}
             <tr id="branding_{{ branding.pk }}"><!-- class=new -->
-                <td><a href="{% url sa_edit_branding branding.pk %}">{{ branding.name }}</a></td>
+                <td><a href="{% url 'sa_edit_branding' branding.pk %}">{{ branding.name }}</a></td>
                 <td>{{ branding.img }}</td>
                 <td>{{ branding.sort_key }}</td>
-                <td><a class="modif" href="{% url sa_edit_branding branding.pk %}">{% trans "Edit" %}</a><a class="out delete_branding" href="{% url sa_delete_branding branding.pk %}">{% trans "Delete" %}</a></td>
+                <td><a class="modif" href="{% url 'sa_edit_branding' branding.pk %}">{% trans "Edit" %}</a><a class="out delete_branding" href="{% url 'sa_delete_branding' branding.pk %}">{% trans "Delete" %}</a></td>
             </tr>
             {% empty %}
             <tr class="noshop">
@@ -135,7 +135,7 @@
         {% endif %}
     </div>
     <!--//Liste-Branding-->
-    <a class="btn ajouter" href="{% url sa_brandings %}">{% trans "Add a new slide" %}</a>
+    <a class="btn ajouter" href="{% url 'sa_brandings' %}">{% trans "Add a new slide" %}</a>
 </div>
 <!--FIN content-right-->
 <div class="clear"></div>
@@ -150,7 +150,7 @@ $(document).ready(function(){
                 $.post(this.href, function(data){
                     $("#branding_"+data.branding_pk).remove();
                     if(data.branding_pk == "{% firstof pk "0" %}") {
-                        location.replace("{% url sa_brandings %}");
+                        location.replace("{% url 'sa_brandings' %}");
                     }
                 });
             }
@@ -160,7 +160,7 @@ $(document).ready(function(){
     $("#page_size").change(function(event){
         location.href = location.pathname+'?page_size='+$(this).val();
     });
-    
+
     //go specific page by input
     $("#page_num").keypress(function(event){
         if(event.which == 13){ //'enter' key
@@ -171,7 +171,7 @@ $(document).ready(function(){
                 alert("{% trans "Please enter a valid page number." %}");
         }
     });
-});    
+});
 </script>
 
 {% endblock %}

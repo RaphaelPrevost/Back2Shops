@@ -2,14 +2,14 @@
 {% load active %}
 
 <div id="home_ico">
-    <a href="{% url bo_index %}">{% trans "Home" %}</a>
+    <a href="{% url 'bo_index' %}">{% trans "Home" %}</a>
 </div>
 <ul id="menu_ico">
-    <li><a class="link1 {% active request "sales/new" %}" href="{% url add_sale %}">{% trans "Add a new sale" %}</a></li>
-    <li><a class="link2 {% active request "sales/list/current" %}" href="{% url list_sales "current" %}">{% trans "Current sales" %}</a></li>
-    <li><a class="link3 {% active request "sales/list/old" %}" href="{% url list_sales "old" %}">{% trans "History" %}</a></li>
-    <li><a class="link4 {% active request "shops" %}" href="{% url page_shops %}">{% trans "Shops" %}</a></li>
+    <li><a class="link1 {% active request "sales/new" %}" href="{% url 'add_sale' %}">{% trans "Add a new sale" %}</a></li>
+    <li><a class="link2 {% active request "sales/list/current" %}" href="{% url 'list_sales' "current" %}">{% trans "Current sales" %}</a></li>
+    <li><a class="link3 {% active request "sales/list/old" %}" href="{% url 'list_sales' "old" %}">{% trans "History" %}</a></li>
+    <li><a class="link4 {% active request "shops" %}" href="{% url 'page_shops' %}">{% trans "Shops" %}</a></li>
     <li><a class="link5" href="_quick_nav.html#">{% trans "Statistics" %}</a></li>
     <li><a class="link6" href="_quick_nav.html#">{% trans "Performance Map" %}</a></li>
-	<li><a class="link7" href="{% url operators %}">{% trans "Operators mgmt" %}</a></li>
+	<li><a class="link7" href="{% url 'operators' %}">{% trans "Operators mgmt" %}</a></li>
 </ul>

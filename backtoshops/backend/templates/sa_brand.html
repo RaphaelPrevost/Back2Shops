@@ -30,9 +30,9 @@
 
     <!--FORM-->
     {% if pk %}
-    <form id="main_form" method="post" action="{% url sa_edit_brand pk %}" enctype="multipart/form-data">{% csrf_token %}
+    <form id="main_form" method="post" action="{% url 'sa_edit_brand' pk %}" enctype="multipart/form-data">{% csrf_token %}
     {% else %}
-    <form id="main_form" method="post" action="{% url sa_brands %}" enctype="multipart/form-data">{% csrf_token %}
+    <form id="main_form" method="post" action="{% url 'sa_brands' %}" enctype="multipart/form-data">{% csrf_token %}
     {% endif %}
     {% if pk %}
         <h3>{% trans "Edit a brand" %}</h3>
@@ -72,8 +72,8 @@
             </tr>
             {% for brand in page.object_list %}
             <tr id="brand_{{ brand.pk }}"><!-- class=new -->
-                <td><a href="{% url sa_edit_brand brand.pk %}">{{ brand.name }}</a></td>
-                <td><a class="modif" href="{% url sa_edit_brand brand.pk %}">{% trans "Edit" %}</a><a class="out delete_brand" href="{% url sa_delete_brand brand.pk %}">{% trans "Delete" %}</a></td>
+                <td><a href="{% url 'sa_edit_brand' brand.pk %}">{{ brand.name }}</a></td>
+                <td><a class="modif" href="{% url 'sa_edit_brand' brand.pk %}">{% trans "Edit" %}</a><a class="out delete_brand" href="{% url 'sa_delete_brand' brand.pk %}">{% trans "Delete" %}</a></td>
             </tr>
             {% empty %}
             <tr class="noshop">
@@ -111,7 +111,7 @@
         {% endif %}
     </div>
     <!--//Liste-Brand-->
-    <a class="btn ajouter" href="{% url sa_brands %}">{% trans "Add a new brand" %}</a>
+    <a class="btn ajouter" href="{% url 'sa_brands' %}">{% trans "Add a new brand" %}</a>
 </div>
 <!--FIN content-right-->
 <div class="clear"></div>
@@ -126,7 +126,7 @@ $(document).ready(function(){
                 $.post(this.href, function(data){
                     $("#brand_"+data.brand_pk).remove();
                     if(data.brand_pk == "{% firstof pk "0" %}") {
-                        location.replace("{% url sa_brands %}");
+                        location.replace("{% url 'sa_brands' %}");
                     }
                 });
             }
@@ -146,7 +146,7 @@ $(document).ready(function(){
                 alert("{% trans "Please enter a valid page number." %}");
         }
     });
-});    
+});
 </script>
 
 {% endblock %}

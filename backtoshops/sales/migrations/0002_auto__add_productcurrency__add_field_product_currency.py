@@ -9,13 +9,13 @@ from django.core.management import call_command
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Adding model 'ProductCurrency'
         db.create_table('sales_productcurrency', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('code', self.gf('django.db.models.fields.CharField')(max_length=3)),
             ('description', self.gf('django.db.models.fields.CharField')(max_length=200)),
-            ('is_default', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('is_default', self.gf('django.db.models.fields.BooleanField')(default=False, null=True)),
         ))
         db.send_create_signal('sales', ['ProductCurrency'])
         # Adding field 'Product.currency'
@@ -25,7 +25,7 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        
+
         # Deleting model 'ProductCurrency'
         db.delete_table('sales_productcurrency')
 

@@ -47,7 +47,7 @@ get_page_size = lambda request: int(request.session.get('page_size',DEFAULT_PAGE
 
 DATABASES = {
     'default': {
-        'ENGINE': 'postgresql_psycopg2', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'backtoshops',                      # Or path to database file if using sqlite3.
         'USER': 'postgres',                      # Not used with sqlite3.
         'PASSWORD': '123qwe',                  # Not used with sqlite3.
@@ -235,6 +235,7 @@ LOGGING = {
         },
         'mail_admins': {
             'level': 'ERROR',
+            #'filters': [],
             'class': 'django.utils.log.AdminEmailHandler'
         }
     },

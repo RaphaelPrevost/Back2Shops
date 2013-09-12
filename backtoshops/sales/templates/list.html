@@ -44,7 +44,7 @@
             {% for sale in page.object_list %}
             <div class="vente" sale="{{ sale.id }}">
                 <!--NOM, CATEGORIE, TYPE de Prod-->
-                <a href="{% url edit_sale sale_id=sale.pk step="shop" %}"><h3>{{ sale.product.name }}</h3></a>
+                <a href="{% url 'edit_sale' sale_id=sale.pk step="shop" %}"><h3>{{ sale.product.name }}</h3></a>
                 <h4>
                     {% if request.user.is_staff %}
                     <a class="delete" href="#">[X]</a>
@@ -71,9 +71,9 @@
                 <div class="clear"></div>
                 <!--Liens DETAIL-->
                 {% if sale.type_stock == "L" %}
-                <a href="{% url sale_details_shop sale.pk %}" class="seeDetail seeShop">{% trans "Details per shop" %}</a>
+                <a href="{% url 'sale_details_shop' sale.pk %}" class="seeDetail seeShop">{% trans "Details per shop" %}</a>
                 {% endif %}
-                <a href="{% url sale_details sale.pk %}" class="seeDetail seeMain">{% trans "Details" %}</a>
+                <a href="{% url 'sale_details' sale.pk %}" class="seeDetail seeMain">{% trans "Details" %}</a>
             </div>
             {% endfor %}
             <!--FIN VENTE-->
@@ -108,7 +108,7 @@
         </div>
     </div>
     {% endif %}
-        
+
 </div>
 
 <div id="content_Right">
@@ -145,7 +145,7 @@
                 $("#content_Right #detail").load($(this).val());
             }
         });
-        
+
         $('a.delete').click(function() {
             var $this = $(this);
             if (confirm('{% trans "Are you sure you want to delete this sale?" %}')) {
@@ -156,12 +156,12 @@
                 }, "json");
             }
         });
-        
+
         //set page size
         $("#page_size").change(function(event){
             location.href = location.pathname+'?page_size='+$(this).val();
         });
-        
+
         //go specific page by input
         $("#page_num").keypress(function(event){
             if(event.which == 13){ //'enter' key

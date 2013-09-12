@@ -33,13 +33,13 @@ class Sale(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
-        return '%d - %d' % (self.id, self.total_stock)
-    
+        return unicode('%d - %d' % (self.id, self.total_stock))
+
 class ShopsInSale(models.Model):
     sale = models.ForeignKey(Sale)
     shop = models.ForeignKey(Shop)
     is_freezed = models.BooleanField(default=False)
-    
+
     def __unicode__(self):
         return '%s-%s-%s' %(self.sale, self.shop, self.is_freezed)
 
@@ -61,15 +61,15 @@ class Product(models.Model):
 
     def __unicode__(self):
         return self.name
-    
+
 class ProductCurrency(models.Model):
     code = models.CharField(max_length=3)
     description = models.CharField(max_length=200)
-    
+
     def __unicode__(self):
         return self.code
 
-    
+
 class ProductPicture(models.Model):
     product = models.ForeignKey("Product", related_name="pictures", null=True, blank=True)
     is_brand_attribute = models.BooleanField(default=False)

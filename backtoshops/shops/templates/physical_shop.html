@@ -32,9 +32,9 @@
 
     <!--FORM-->
     {% if shop_pk %}
-    <form id="main_form" method="post" action="{% url edit_shop shop_pk %}" enctype="multipart/form-data">{% csrf_token %}
+    <form id="main_form" method="post" action="{% url 'edit_shop shop_pk' %}" enctype="multipart/form-data">{% csrf_token %}
     {% else %}
-    <form id="main_form" method="post" action="{% url page_shops %}{% if shop_pk %}/{{ shop_pk }}{% endif %}" enctype="multipart/form-data">{% csrf_token %}
+    <form id="main_form" method="post" action="{% url 'page_shops' %}{% if shop_pk %}/{{ shop_pk }}{% endif %}" enctype="multipart/form-data">{% csrf_token %}
     {% endif %}
         {% if shop_pk %}
         <h3>{% trans "Edit shop information" %}</h3>
@@ -142,10 +142,10 @@
             </tr>
             {% for shop in shops.object_list %}
             <tr id="shop_{{ shop.pk }}"><!-- class=new -->
-                <td><a href="{% url edit_shop shop.pk %}">{{ shop.name }}</a></td>
+                <td><a href="{% url 'edit_shop' shop.pk %}">{{ shop.name }}</a></td>
                 <td>{{ shop.city }}</td>
-                <td><a class="modif" href="{% url edit_shop shop.pk %}">{% trans "Edit" %}</a>
-                    {%if request.user.is_staff %}<a class="out delete_shop" href="{% url delete_shop shop.pk %}">{% trans "Delete" %}</a>{%endif%}
+                <td><a class="modif" href="{% url 'edit_shop' shop.pk %}">{% trans "Edit" %}</a>
+                    {%if request.user.is_staff %}<a class="out delete_shop" href="{% url 'delete_shop' shop.pk %}">{% trans "Delete" %}</a>{%endif%}
                     </td>
             </tr>
             {% empty %}
@@ -175,9 +175,9 @@
                 <a href="{{ prev_10 }}" class="pagination"><</a>
 
                 <a href="{{ page_num }}" class="pagination">{% for page_num in page_nav %}
-                [{% if page.number != page_num %}<a href="{{ page_num }}" class="pagination">{{ page_num }}</a>{% else %}{{ page_num }}{% endif %}] 
+                [{% if page.number != page_num %}<a href="{{ page_num }}" class="pagination">{{ page_num }}</a>{% else %}{{ page_num }}{% endif %}]
                 {% endfor %}</a>
-				
+
                 <a href="{{ next_10 }}" class="pagination">></a>
                 <a href="{{ page.paginator.num_pages }}" class="pagination">>|</a>
             </div>
@@ -204,7 +204,7 @@
         if (!latitude) latitude = 47;
         var longitude = parseFloat($("#{{ form.longitude.auto_id }}").val());
         if (!longitude) longitude = 2.352222;
-        
+
         var latlng = new google.maps.LatLng(latitude, longitude); // new google.maps.LatLng(47, 2.352222);
 
         var myOptions = {
@@ -262,13 +262,13 @@
         $("#localization_infos").html('{% trans "Searching..." %}')
         g.geocode({address: address}, function(results, status){
             if (status == google.maps.GeocoderStatus.OK) {
-                _clearShops();                
+                _clearShops();
                 if (results.length == 1) {
                     var country;
                     for(i=0;i<results[0].address_components.length;i++) {
                         if(results[0].address_components[i].types.indexOf("country")!= -1) {
                             country = results[0].address_components[i].short_name;
-                        } 
+                        }
                     }
                     $("#{{ form.latitude.auto_id }}").val(results[0].geometry.location.lat());
                     $("#{{ form.longitude.auto_id }}").val(results[0].geometry.location.lng());
@@ -324,14 +324,14 @@
             showTyping: false,
             html: false,
             minLength: 2
-        }); */ 
+        }); */
 
         $(".delete_shop").click(function() {
             if(confirm('{% trans "Are your sure you want to delete this shop?" %}')) {
                 $.post(this.href, function(data){
                     $("#shop_"+data.shop_pk).remove();
                     if(data.shop_pk == "{% firstof shop_pk "0" %}") {
-                        location.replace("{% url page_shops %}");
+                        location.replace("{% url 'page_shops' %}");
                     }
                 });
             }
@@ -342,12 +342,12 @@
         $("#{{ form.zipcode.auto_id }}").change(localization);
         $("#{{ form.city.auto_id }}").change(localization);
         $("#{{ form.country.auto_id }}").change(localization);
-        
+
         //set page size
         $("#page_size").change(function(event){
             location.href = location.pathname+'?page_size='+$(this).val();
         });
-        
+
          //go specific page by input
         $("#page_num").keypress(function(event){
             if(event.which == 13){ //'enter' key
@@ -358,7 +358,7 @@
                     alert("{% trans "Please enter a valid page number." %}");
             }
         });
-        
+
     });
 </script>
 
