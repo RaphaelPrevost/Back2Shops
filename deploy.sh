@@ -89,7 +89,7 @@ if [ ! -d $CWD/env ]; then
     cd $CWD
     virtualenv --no-site-packages env
     python $CWD/env/bin/activate_this.py
-    $CWD/env/bin/pip install -r $CWD/requirements/apps.txt"
+    $CWD/env/bin/pip install -r $CWD/requirements/adm.backtoshops.com.requirements.txt"
     ( su backtoshops -c "$PYENV" )
     # this user won't need shell anymore
     usermod -s /bin/false backtoshops
