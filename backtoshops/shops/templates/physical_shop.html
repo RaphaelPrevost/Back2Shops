@@ -32,7 +32,7 @@
 
     <!--FORM-->
     {% if shop_pk %}
-    <form id="main_form" method="post" action="{% url 'edit_shop shop_pk' %}" enctype="multipart/form-data">{% csrf_token %}
+    <form id="main_form" method="post" action="{% url 'edit_shop' shop_pk %}" enctype="multipart/form-data">{% csrf_token %}
     {% else %}
     <form id="main_form" method="post" action="{% url 'page_shops' %}{% if shop_pk %}/{{ shop_pk }}{% endif %}" enctype="multipart/form-data">{% csrf_token %}
     {% endif %}
