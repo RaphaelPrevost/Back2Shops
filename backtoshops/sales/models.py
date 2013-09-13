@@ -33,7 +33,7 @@ class Sale(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
-        return unicode('%d - %d' % (self.id, self.total_stock))
+        return unicode('%s - %s' % (self.id, self.total_stock))
 
 class ShopsInSale(models.Model):
     sale = models.ForeignKey(Sale)

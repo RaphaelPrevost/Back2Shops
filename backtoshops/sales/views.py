@@ -75,7 +75,7 @@ class BrandLogoView(LoginRequiredMixin, View, TemplateResponseMixin):
 class ListSalesView(LoginRequiredMixin, View, TemplateResponseMixin):
     template_name = 'list.html'
     list_current = True
-    
+
     def set_sales_list(self,request,sales_type=None):
         """
         this is just internal method to make the self.sales queryset.
@@ -88,13 +88,13 @@ class ListSalesView(LoginRequiredMixin, View, TemplateResponseMixin):
             self.sales = Sale.objects.filter(mother_brand=request.user.get_profile().work_for,
                                              product__valid_to__gte=date.today())
             self.page_title = _("Current Sales")
-        
+
         if not request.user.is_staff: #==operator
             self.sales = self.sales.filter(shops__in=request.user.get_profile().shops.all())
         #put extra fields
         self.sales = self.sales.extra(select={'total_sold_stock':'total_stock-total_rest_stock'})
         return
-    
+
     def make_page(self):
         """
         make a pagination
@@ -124,7 +124,7 @@ class ListSalesView(LoginRequiredMixin, View, TemplateResponseMixin):
         self.form = ListSalesForm()
         self.make_page()
         return self.render_to_response(self.__dict__)
-    
+
     def post(self, request, sales_type=None):
         self.set_sales_list(request, sales_type)
         self.form = ListSalesForm(request.POST)
@@ -136,7 +136,7 @@ class ListSalesView(LoginRequiredMixin, View, TemplateResponseMixin):
         return self.render_to_response(self.__dict__)
 
 class DeleteSalesView(BOLoginRequiredMixin, View):
-    
+
     def post(self, request, sale_id):
         try:
             sale = Sale.objects.get(pk=sale_id)
@@ -213,18 +213,18 @@ def add_sale(request, *args, **kwargs):
         (SaleWizardNew.STEP_STOCKS, StockStepForm),
         (SaleWizardNew.STEP_TARGET, TargetForm)
     ]
-    
+
     initial_product = {
         'currency': ProductCurrency.objects.get(code=get_setting('default_currency')),
     }
-    
+
     initials = {
         SaleWizardNew.STEP_PRODUCT: initial_product,
     }
 
     sale_wizard = login_required(SaleWizardNew.as_view(forms, initial_dict = initials,url_name="add_sale",
                                                        done_step_name="list_sales"),
-                                 login_url="login")
+                                 login_url="bo_login")
     return sale_wizard(request, *args, **kwargs)
 
 def edit_sale(request, *args, **kwargs):
@@ -239,11 +239,11 @@ def edit_sale(request, *args, **kwargs):
         return add_sale(request, *args, **kwargs)
     sale_id = kwargs['sale_id']
     sale = Sale.objects.get(pk=sale_id)
-    
+
     user = request.user
     if user.get_profile().work_for != sale.mother_brand: #if brand is different
         return HttpResponseRedirect("/")
-    
+
     if not user.is_staff and len([x for x in sale.shops.all() if x in user.get_profile().shops.all()])==0: #if operator and no shops are matching
         return HttpResponseRedirect("/")
 
@@ -333,7 +333,7 @@ def edit_sale(request, *args, **kwargs):
                                                        url_name="edit_sale",
                                                        done_step_name="list_sales",
                                                        **settings),
-                                 login_url="login")
+                                 login_url="bo_login")
 
     return sale_wizard(request, *args, **kwargs)
 
@@ -384,12 +384,11 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
         else:
             sale = Sale()
             product = Product()
-            sale.product = product
         sale.mother_brand = self.request.user.get_profile().work_for
         sale.type_stock = form_list[0].cleaned_data['target_market']
         sale.save()
         if sale.type_stock == STOCK_TYPE_DETAILED:
-            ShopsInSale.objects.filter(sale=sale).update(is_freezed=True) 
+            ShopsInSale.objects.filter(sale=sale).update(is_freezed=True)
             for shop in form_list[0].cleaned_data['shops']:
                 shops_in_sale, created = ShopsInSale.objects.get_or_create(sale=sale,shop=shop)
                 shops_in_sale.is_freezed = False
@@ -405,7 +404,7 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
                 sale.total_rest_stock -= removed_total_stock
             stocks_to_be_removed.delete()
             shops_to_be_removed.delete()
-                
+
         product_form = form_list[1].cleaned_data
         product.sale = sale
         product.brand = product_form['brand']
@@ -421,6 +420,7 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
         product.discount_price = product_form['discount_price']
         product.discount_type = product_form['discount_type']
         product.save()
+
 
         brand_attributes = form_list[1].brand_attributes
         ba_pks = []
@@ -447,7 +447,7 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
         for i in stock_step.stocks:
             if i.is_valid() and i.cleaned_data and i.cleaned_data['stock']:
                 ba_pk = i.cleaned_data['brand_attribute']
-                stock, created = ProductStock.objects.get_or_create(sale=sale, 
+                stock, created = ProductStock.objects.get_or_create(sale=sale,
                     shop=Shop.objects.get(pk=i.cleaned_data['shop']) if i.cleaned_data['shop'] else None,
                     common_attribute=CommonAttribute.objects.get(pk=i.cleaned_data['common_attribute']),
                     brand_attribute = BrandAttribute.objects.get(pk=ba_pk) if ba_pk else None,
@@ -456,7 +456,7 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
                 if stock.stock < stock.rest_stock:
                     stock.stock = stock.rest_stock
                 stock.save()
-                
+
         sale.total_rest_stock  = sale.detailed_stock.aggregate(Sum('rest_stock'))['rest_stock__sum']
         if sale.total_stock < sale.total_rest_stock:
             sale.total_stock = sale.total_rest_stock
@@ -480,6 +480,7 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
         target = form_list[3].cleaned_data
         sale.gender = target['gender']
         sale.complete = True
+        sale.product = product
         sale.save()
 
         if self.request.session.get('stocks_infos', None):
@@ -587,7 +588,7 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
                 'form_title': _("Shops Selection"),
                 'preview_shop': "blank",
                 'shops_cant_be_deleted': ','.join(list(set(
-                   [str(p.shop.pk) for p in ProductStock.objects.filter(sale=self.sale).exclude(stock=F('rest_stock')) 
+                   [str(p.shop.pk) for p in ProductStock.objects.filter(sale=self.sale).exclude(stock=F('rest_stock'))
                     if p.shop.pk in ShopsInSale.objects.filter(sale=self.sale,is_freezed=False).values_list('shop_id',flat=True)]
                    ))),
                 'freezed_shops': ','.join([str(s.shop.pk) for s in ShopsInSale.objects.filter(sale=self.sale,is_freezed=True)]),

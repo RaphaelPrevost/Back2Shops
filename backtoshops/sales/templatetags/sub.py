@@ -4,4 +4,7 @@ register = template.Library()
 
 @register.filter
 def sub(value, arg):
-    return value - arg
+    try:
+        return value - arg
+    except TypeError:
+        return 'N/A'
