@@ -10,19 +10,39 @@ email_pattern = re.compile(
 def is_valid_email(email):
     return email and email_pattern.match(email)
 
-def get_hexdigest(algorithm, iteration_count, salt, raw_password):
+def hashfn(algorithm, text):
+    # Retrieves the appropriate hash function
     if algorithm not in HASH_ALGORITHM_NAME:
-        raise ValueError("Got unknown password algorithm type in password.")
-
+        raise ValueError("Unknown algorithm.")
+    if text == "":
+        raise ValueError("Missing text.")
     h = hashlib.new(HASH_ALGORITHM_NAME[algorithm])
-    h.update(salt + raw_password)
-    result = h.hexdigest()
+    # XXX repeated calls to update() simply concatenate text!
+    h.update(text)
+    return h.hexdigest()
 
-    iteration_count = iteration_count - 1
-    if iteration_count > 0:
-        return get_hexdigest(algorithm, iteration_count, result, raw_password)
-    else:
-        return result
+def get_preimage(algorithm, iterations, salt, password):
+    # Computes the pre-image of the authenticator token.
+    # This pre-image is used in the user session cookie.
+    if iterations <= 0:
+        raise ValueError("Bad iterations count.")
+    if salt == "" or password == "":
+        raise ValueError("Empty salt or password.")
+    while iterations > 0:
+        salt = result = hashfn(algorithm, salt + password)
+        iterations -= 1
+    return result
+
+def get_authenticator(algorithm, preimage):
+    # Computes the authenticator from a pre-image.
+    # This can be used to check the user's cookie.
+    return hashfn(algorithm, preimage)
+
+def get_hexdigest(algorithm, iterations, salt, password):
+    # This function computes the authenticator.
+    # This authenticator is stored in database.
+    preimage = get_preimage(algorithm, iterations, salt, password)
+    return get_authenticator(algorithm, preimage)
 
 def parse_form_params(req, resp, params):
     if req.method == 'GET':
