@@ -1,4 +1,3 @@
-import ipdb
 from datetime import date
 import json
 from django.contrib import messages

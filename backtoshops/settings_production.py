@@ -44,12 +44,13 @@ TIME_ZONE = 'Europe/Paris'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'fr-fr' #change to fr-fr for production
+LANGUAGE_CODE = 'en-us'
 
 ugettext = lambda s: s
 LANGUAGES = (
     ('en', ugettext('English')),
-    ('fr', ugettext('French'))
+    ('fr', ugettext('French')),
+    ('zh', ugettext('Chinese')),
 )
 SITE_ID = 1
 
@@ -118,7 +119,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    #'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 ROOT_URLCONF = SITE_NAME+'.urls'
@@ -172,12 +172,9 @@ INSTALLED_APPS = (
     'form_utils',
     'formwizard',
     'sorl.thumbnail',
-    'fabtastic',
     'formwizard',
-    'uploadify',
     'misc',
     'multiwidgetlayout',
-
 )
 
 AUTH_PROFILE_MODULE='accounts.UserProfile'
