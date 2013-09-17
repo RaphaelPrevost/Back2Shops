@@ -1,10 +1,8 @@
 import psycopg2
 import pypgwrap
-import datetime
 
 import settings
 from common.error import DatabaseError
-from common.error import ServerError
 
 def init_db_pool():
     db_config = settings.DATABASE
@@ -31,3 +29,25 @@ def query(conn, table_name, **kwargs):
         conn.rollback()
         raise DatabaseError("%s:%s" % (e.pgcode, e.pgerror))
 
+def join(conn, tables, where=None, on=None, order=None,
+         columns=None, limit=None, offset=None):
+    try:
+        return conn.join(tables,
+                         where=where,
+                         on=on,
+                         order=order,
+                         columns=columns,
+                         limit=limit,
+                         offset=offset)
+    except psycopg2.Error, e:
+        conn.rollback()
+        raise DatabaseError("%s:%s" % (e.pgcode, e.pgerror))
+
+def update(conn, table, values, where=None, returning=None):
+    try:
+        return conn.update(table, values,
+                           where=where,
+                           returning=returning)
+    except psycopg2.Error, e:
+        conn.rollback()
+        raise DatabaseError("%s:%s" % (e.pgcode, e.pgerror))

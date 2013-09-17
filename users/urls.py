@@ -1,5 +1,5 @@
 from webservice.accounts import UserResource
-from webservice.accounts import UserLoginResource
+from webservice.auth import UserLoginResource
 
 urlpatterns = {
     '/webservice/1.0/pub/account': UserResource,
