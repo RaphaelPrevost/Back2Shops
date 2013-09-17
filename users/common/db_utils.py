@@ -51,3 +51,12 @@ def update(conn, table, values, where=None, returning=None):
     except psycopg2.Error, e:
         conn.rollback()
         raise DatabaseError("%s:%s" % (e.pgcode, e.pgerror))
+
+def delete(conn, table, where=None, returning=None):
+    try:
+        return conn.delete(table,
+                           where=where,
+                           returning=returning)
+    except psycopg2.Error, e:
+        conn.rollback()
+        raise DatabaseError("%s:%s" % (e.pgcode, e.pgerror))
