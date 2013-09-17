@@ -140,49 +140,50 @@ def gen_json_response(resp, data_dict):
     resp.body = ujson.dumps(data_dict)
     return resp
 
-def _mac_verify(user_auth):
+def _hmac_verify(user_auth):
     """ MAC verification.
     """
     secret_key = '' #TODO
     text = ";".join([user_auth['exp'], user_auth['csrf'], user_auth['auth']])
     expected_digest = get_hmac(secret_key, text)
     if user_auth['digest'] != expected_digest:
-        raise ValidationError('LOGIN_REQUIRED_ERR_INVALID_MAC')
+        raise ValidationError('LOGIN_REQUIRED_ERR_INVALID_HMAC')
 
-def _user_verify(conn, users_id, req_method, user_auth, ip, headers):
+def _user_verify(conn, users_id, user_auth, ip, headers):
     """ Verify user information for the request.
 
     conn: database connection.
     users_id: user's id.
-    req_method: request method, string of 'GET' or 'POST'.
     user_auth: pre-image for user's password.
     ip: IP address for the request.
     headers: request header information.
     """
-    columns = ('password', 'ip_address', 'headers', 'csrf_token',
-               'users_logins.id')
+
+    # XXX enforce expiry time
+    expiry = datetime.datetime.strptime(user_auth['exp'], _EXPIRY_FORMAT)
+    if expiry < datetime.datetime.utcnow():
+        raise ValidationError('LOGIN_REQUIRED_ERR_EXPIRED_AUTH')
+
+    columns = ('password', 'hash_algorithm',
+               'csrf_token', 'users_logins.id')
     result = db_utils.join(conn, ('users', 'users_logins'),
                             columns=columns,
                             on=[('users.id', 'users_logins.users_id')],
                             where={'users.id': users_id,
-                                   'users_logins.csrf_token': user_auth['csrf']},
+                                   'users_logins.headers': headers,
+                                   'users_logins.ip_address': ip},
                             limit=1)
     if not result or len(result) == 0:
         raise ValidationError('LOGIN_REQUIRED_ERR_INVALID_USER')
 
-    exp_auth, exp_ip, exp_headers, exp_csrf, login_id  = result[0]
-    cur_auth = get_authenticator(settings.DEFAULT_PASSWORD_HASH_ALGORITHM,
-                                 user_auth['auth'])
+    exp_auth, hash_algo, exp_csrf, login_id = result[0]
+    # XXX use the hash algorithm specified in the user account
+    cur_auth = get_authenticator(hash_algo, user_auth['auth'])
     if cur_auth != exp_auth:
         raise ValidationError('LOGIN_REQUIRED_ERR_INVALID_AUTH')
 
-    if ip != exp_ip:
-        raise ValidationError('LOGIN_REQUIRED_ERR_IP_CHANGED')
-
-    if headers != exp_headers:
-        raise ValidationError('LOGIN_REQUIRED_ERR_HEADERS_CHANGED')
-
-    if req_method == 'POST' and user_auth['csrf'] != exp_csrf:
+    # XXX always verify the CSRF token
+    if user_auth['csrf'] != exp_csrf:
         raise ValidationError('LOGIN_REQUIRED_ERR_INVALID_CSRF')
 
     return login_id
@@ -209,13 +210,13 @@ def cookie_verify(conn, req, resp):
     """
     cookie = get_cookie(req)
     if not cookie:
-        raise ValidationError('LOGIN_REQUIRED_ERR_INVALID_COOKIE')
+        raise ValidationError('LOGIN_REQUIRED_ERR_UNSET_COOKIE')
 
     # 'USER_AUTH' should be in the cookie.
     required_fields = [settings.USER_AUTH_COOKIE_NAME]
     for field in required_fields:
         if not cookie.has_key(field):
-            raise ValidationError('LOGIN_REQUIRED_ERR_INVALID_COOKIE')
+            raise ValidationError('LOGIN_REQUIRED_ERR_EMPTY_COOKIE')
 
     # authenticated information should be contained in 'USER_AUTH'
     auth_fields = ['exp', 'csrf', 'auth', 'digest', 'users_id']
@@ -223,16 +224,24 @@ def cookie_verify(conn, req, resp):
     user_auth = _parse_auth_cookie(user_auth)
     for field in auth_fields:
         if not user_auth.has_key(field):
-            raise ValidationError('LOGIN_REQUIRED_ERR_AUTH_FAILURE')
+            raise ValidationError('LOGIN_REQUIRED_ERR_MISSING_DATA')
+
+    # check if the cookie has been tampered with before going any further
+    _hmac_verify(user_auth)
 
     users_id = user_auth['users_id']
-    req_method = req.method.upper()
     ip = get_client_ip(req)
     headers = get_hashed_headers(req)
 
-    # cookie verify
-    _mac_verify(user_auth)
-    login_id = _user_verify(conn, users_id, req_method, user_auth, ip, headers)
+    try:
+        login_id = _user_verify(conn, users_id, user_auth, ip, headers)
+    except ValidationError, e:
+        # XXX delete the compromised session and propagate the exception
+        # TODO: Maybe log the attacker informations somewhere?
+        # That would be useful to display some Gmail-like warnings:
+        # Somebody from <somewhere> tried to access your account on <datetime>
+        db_utils.delete(conn, 'users_logins', where={'id': login_id})
+        raise e
 
     # set new csrf to cookie and database.
     csrf_token = binascii.b2a_hex(os.urandom(16))
