@@ -7,10 +7,12 @@ from common.constants import RESP_RESULT
 from common.error import DatabaseError
 from common.error import ValidationError
 from common import db_utils
+from common.utils import encrypt_password
 from common.utils import get_hexdigest
 from common.utils import gen_json_response
 from common.utils import is_valid_email
 from webservice.base import BaseResource
+
 
 class UserResource(BaseResource):
 
@@ -71,16 +73,8 @@ class UserResource(BaseResource):
         return captcha
 
     def insert(self, conn, email, raw_password):
-        hash_algorithm = settings.DEFAULT_PASSWORD_HASH_ALGORITHM
-        hash_iteration_count = random.randint(settings.HASH_MIN_ITERATIONS,
-                                              settings.HASH_MAX_ITERATIONS)
-        salt = binascii.b2a_hex(os.urandom(64))
-        password = get_hexdigest(hash_algorithm, hash_iteration_count,
-                                 salt, raw_password)
-        values = {"email": email,
-                  "password": password,
-                  "salt": salt,
-                  "hash_algorithm": hash_algorithm,
-                  "hash_iteration_count": hash_iteration_count}
+        _, result = encrypt_password(raw_password)
+        values = {"email": email}
+        values.update(result)
         return db_utils.insert(conn, "users", values=values)
 

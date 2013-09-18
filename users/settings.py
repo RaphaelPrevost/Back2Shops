@@ -21,3 +21,5 @@ USER_CREATION_CAPTCHA = "1234" # temporary solution for now
 USER_AUTH_COOKIE_NAME = 'USER_AUTH'
 USER_AUTH_COOKIE_EXPIRES = 8 * 3600
 USER_AUTH_COOKIE_DOMAIN = '.backtoshops.com'
+
+LOG_CONFIG_FILE = 'logging.cfg'
