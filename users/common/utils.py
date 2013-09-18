@@ -1,3 +1,4 @@
+import logging
 import binascii
 import cgi
 import Cookie
@@ -58,7 +59,7 @@ def get_hexdigest(algorithm, iterations, salt, password):
 def get_hmac(secret_key, text, algorithm=hashlib.sha256):
     return hmac.new(secret_key, text, algorithm).hexdigest()
 
-_EXPIRY_FORMAT = '%a, %d %b %Y %T UTC'
+_EXPIRY_FORMAT = '%a, %d %b %Y %H:%M:%S UTC'
 def gen_cookie_expiry(expiry_timelen):
     now = datetime.datetime.utcnow()
     delta = datetime.timedelta(seconds=expiry_timelen)
@@ -178,14 +179,24 @@ def _user_verify(conn, users_id, user_auth, ip, headers):
         raise ValidationError('LOGIN_REQUIRED_ERR_INVALID_USER')
 
     exp_auth, hash_algo, exp_csrf, login_id = result[0]
-    # XXX use the hash algorithm specified in the user account
-    cur_auth = get_authenticator(hash_algo, user_auth['auth'])
-    if cur_auth != exp_auth:
-        raise ValidationError('LOGIN_REQUIRED_ERR_INVALID_AUTH')
+    try:
+        # XXX use the hash algorithm specified in the user account
+        cur_auth = get_authenticator(hash_algo, user_auth['auth'])
+        if cur_auth != exp_auth:
+            raise ValidationError('LOGIN_REQUIRED_ERR_INVALID_AUTH')
 
-    # XXX always verify the CSRF token
-    if user_auth['csrf'] != exp_csrf:
-        raise ValidationError('LOGIN_REQUIRED_ERR_INVALID_CSRF')
+        # XXX always verify the CSRF token
+        if user_auth['csrf'] != exp_csrf:
+            raise ValidationError('LOGIN_REQUIRED_ERR_INVALID_CSRF')
+    except ValidationError, e:
+        # XXX delete the compromised session and propagate the exception
+        # TODO: Maybe log the attacker informations somewhere?
+        # That would be useful to display some Gmail-like warnings:
+        # Somebody from <somewhere> tried to access your account on <datetime>
+        logging.error('Delete compromised session for id %s '
+                      'with error:%s' % (login_id, str(e)))
+        db_utils.delete(conn, 'users_logins', where={'id': login_id})
+        raise e
 
     return login_id
 
@@ -234,15 +245,7 @@ def cookie_verify(conn, req, resp):
     ip = get_client_ip(req)
     headers = get_hashed_headers(req)
 
-    try:
-        login_id = _user_verify(conn, users_id, user_auth, ip, headers)
-    except ValidationError, e:
-        # XXX delete the compromised session and propagate the exception
-        # TODO: Maybe log the attacker informations somewhere?
-        # That would be useful to display some Gmail-like warnings:
-        # Somebody from <somewhere> tried to access your account on <datetime>
-        db_utils.delete(conn, 'users_logins', where={'id': login_id})
-        raise e
+    login_id = _user_verify(conn, users_id, user_auth, ip, headers)
 
     # set new csrf to cookie and database.
     csrf_token = binascii.b2a_hex(os.urandom(16))
