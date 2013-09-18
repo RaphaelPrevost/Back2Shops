@@ -5,6 +5,7 @@ import datetime
 import hashlib
 import hmac
 import os
+import random
 import re
 import ujson
 import settings
@@ -257,3 +258,18 @@ def cookie_verify(conn, req, resp):
                     'users_logins',
                     values={'csrf_token': csrf_token},
                     where={'id': login_id})
+
+def encrypt_password(raw_password):
+    hash_algorithm = settings.DEFAULT_PASSWORD_HASH_ALGORITHM
+    hash_iteration_count = random.randint(settings.HASH_MIN_ITERATIONS,
+                                          settings.HASH_MAX_ITERATIONS)
+    salt = binascii.b2a_hex(os.urandom(64))
+    auth_token = get_preimage(hash_algorithm, hash_iteration_count,
+                              salt, raw_password)
+    password = get_authenticator(hash_algorithm, auth_token)
+
+    values = {"password": password,
+              "salt": salt,
+              "hash_algorithm": hash_algorithm,
+              "hash_iteration_count": hash_iteration_count}
+    return auth_token, values

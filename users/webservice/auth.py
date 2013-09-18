@@ -6,6 +6,7 @@ from common.constants import RESP_RESULT
 from common.error import DatabaseError
 from common.error import ValidationError
 from common import db_utils
+from common.utils import encrypt_password
 from common.utils import get_authenticator
 from common.utils import gen_cookie_expiry
 from common.utils import get_client_ip
@@ -61,6 +62,10 @@ class UserLoginResource(BaseResource):
                                   salt, raw_password)
         if password != get_authenticator(hash_algorithm, auth_token):
             raise ValidationError('ERR_LOGIN')
+
+        if (hash_algorithm != settings.DEFAULT_PASSWORD_HASH_ALGORITHM or
+            hash_iteration_count < settings.HASH_MIN_ITERATIONS):
+            auth_token = self.auth_update(conn, users_id, raw_password)
         return users_id, auth_token
 
     def on_success_login(self, req, resp, conn, users_id, auth_token):
@@ -79,4 +84,12 @@ class UserLoginResource(BaseResource):
         set_cookie(resp, settings.USER_AUTH_COOKIE_NAME, auth_cookie,
                    domain=settings.USER_AUTH_COOKIE_DOMAIN,
                    expiry=expiry, secure=True)
+
+    def auth_update(self, conn, users_id, raw_password):
+        """ Re-calculate user's encrypted password. Update new password,
+        salt, hash_algorithm, hash_iteration_count into database.
+        """
+        auth_token, result = encrypt_password(raw_password)
+        db_utils.update(conn, 'users', values=result, where={'id': users_id})
+        return auth_token
 
