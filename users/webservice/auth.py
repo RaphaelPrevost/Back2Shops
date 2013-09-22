@@ -4,13 +4,13 @@ from datetime import datetime, timedelta
 
 import settings
 from common.constants import RESP_RESULT
-from common.error import DatabaseError
 from common.error import ValidationError
 from common import db_utils
 from common.utils import encrypt_password
 from common.utils import get_authenticator
 from common.utils import gen_cookie_expiry
 from common.utils import get_client_ip
+from common.utils import gen_csrf_token
 from common.utils import get_hashed_headers
 from common.utils import gen_json_response
 from common.utils import get_preimage
@@ -26,30 +26,19 @@ class UserLoginResource(BaseResource):
                      'err': 'INVALID_REQUEST'})
 
     def _on_post(self, req, resp, conn, **kwargs):
-        try:
-            email = req.get_param('email')
-            password = req.get_param('password')
+        email = req.get_param('email')
+        password = req.get_param('password')
 
-            users_id, auth_token = self.verify(conn, email, password)
-            self.on_success_login(req, resp, conn, users_id, auth_token)
-            return gen_json_response(resp,
-                    {"res": RESP_RESULT.S, "err": ""})
-
-        except ValidationError, e:
-            return gen_json_response(resp,
-                    {'res': RESP_RESULT.F,
-                     'err': str(e)})
-        except DatabaseError, e:
-            return gen_json_response(resp,
-                    {"res": RESP_RESULT.F,
-                     "err": "ERR_DB",
-                     "ERR_SQLDB": str(e)})
+        users_id, auth_token = self.verify(conn, email, password)
+        self.on_success_login(req, resp, conn, users_id, auth_token)
+        return gen_json_response(resp,
+                {"res": RESP_RESULT.S, "err": ""})
 
     def verify(self, conn, email, raw_password):
         if not email or not raw_password:
             raise ValidationError('ERR_LOGIN')
 
-        result = db_utils.query(conn, "users",
+        result = db_utils.select(conn, "users",
                                 columns=("id", "password", "salt",
                                          "hash_iteration_count",
                                          "hash_algorithm"),
@@ -72,7 +61,7 @@ class UserLoginResource(BaseResource):
     def on_success_login(self, req, resp, conn, users_id, auth_token):
         ip_address = get_client_ip(req)
         headers = get_hashed_headers(req)
-        csrf_token = binascii.b2a_hex(os.urandom(16))
+        csrf_token = gen_csrf_token()
         delta = timedelta(seconds=settings.USER_AUTH_COOKIE_EXPIRES)
         utc_expiry = datetime.utcnow() + delta
         values = {"users_id": users_id,

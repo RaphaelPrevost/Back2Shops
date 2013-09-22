@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 
 from common import db_utils
+from common.error import DatabaseError
 from common.error import ValidationError
 from common.utils import cookie_verify
 from common.utils import gen_json_response
@@ -25,13 +26,19 @@ class BaseResource:
                               % (req.method, datetime.utcnow(),
                                  req.uri, req._params))
                 if self.login_required.get(method_name):
-                    cookie_verify(conn, req, resp)
+                    users_id = cookie_verify(conn, req, resp)
+                    kwargs['users_id'] = users_id
                 method = getattr(self, '_on_' + method_name)
                 method(req, resp, conn, **kwargs)
             except ValidationError, e:
                 gen_json_response(resp,
                          {'res': RESP_RESULT.F,
                           'err': str(e)})
+            except DatabaseError, e:
+                return gen_json_response(resp,
+                        {"res": RESP_RESULT.F,
+                         "err": "DB_ERR",
+                         "ERR_SQLDB": str(e)})
             except Exception, e:
                 logging.error('Server Error: %s', (e,), exc_info=True)
                 gen_json_response(resp,
