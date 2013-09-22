@@ -60,13 +60,11 @@ def get_hmac(secret_key, text, algorithm=hashlib.sha256):
     return hmac.new(secret_key, text, algorithm).hexdigest()
 
 _EXPIRY_FORMAT = '%a, %d %b %Y %H:%M:%S UTC'
-def gen_cookie_expiry(expiry_timelen):
-    now = datetime.datetime.utcnow()
-    delta = datetime.timedelta(seconds=expiry_timelen)
-    return (now + delta).strftime(_EXPIRY_FORMAT)
+def gen_cookie_expiry(utc_expiry):
+    return utc_expiry.strftime(_EXPIRY_FORMAT)
 
 def make_auth_cookie(expiry, csrf_token, auth_token, users_id):
-    secret_key = '' #TODO
+    secret_key = hmac_secret_key()
     digest = get_hmac(secret_key,
                  ";".join([expiry, csrf_token, auth_token]))
     data = {'exp': expiry,
@@ -142,10 +140,17 @@ def gen_json_response(resp, data_dict):
     resp.body = ujson.dumps(data_dict)
     return resp
 
+def hmac_secret_key():
+    path = settings.HMAC_KEY_FILE_PATH
+    with open(path, 'r') as f:
+        secret_key = f.read()
+        f.close()
+        return secret_key
+
 def _hmac_verify(user_auth):
     """ MAC verification.
     """
-    secret_key = '' #TODO
+    secret_key = hmac_secret_key()
     text = ";".join([user_auth['exp'], user_auth['csrf'], user_auth['auth']])
     expected_digest = get_hmac(secret_key, text)
     if user_auth['digest'] != expected_digest:
@@ -173,7 +178,8 @@ def _user_verify(conn, users_id, user_auth, ip, headers):
                             on=[('users.id', 'users_logins.users_id')],
                             where={'users.id': users_id,
                                    'users_logins.headers': headers,
-                                   'users_logins.ip_address': ip},
+                                   'users_logins.ip_address': ip,
+                                   'users_logins.cookie_expiry__gt': datetime.datetime.utcnow()},
                             limit=1)
     if not result or len(result) == 0:
         raise ValidationError('LOGIN_REQUIRED_ERR_INVALID_USER')
@@ -187,6 +193,8 @@ def _user_verify(conn, users_id, user_auth, ip, headers):
 
         # XXX always verify the CSRF token
         if user_auth['csrf'] != exp_csrf:
+            logging.error("Invalid csrf: cur: %s, exp: %s"
+                          % (user_auth['csrf'], exp_csrf))
             raise ValidationError('LOGIN_REQUIRED_ERR_INVALID_CSRF')
     except ValidationError, e:
         # XXX delete the compromised session and propagate the exception
@@ -195,6 +203,7 @@ def _user_verify(conn, users_id, user_auth, ip, headers):
         # Somebody from <somewhere> tried to access your account on <datetime>
         logging.error('Delete compromised session for id %s '
                       'with error:%s' % (login_id, str(e)))
+
         db_utils.delete(conn, 'users_logins', where={'id': login_id})
         raise e
 
