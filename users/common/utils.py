@@ -5,6 +5,7 @@ import Cookie
 import datetime
 import hashlib
 import hmac
+import random
 import os
 import random
 import re
@@ -15,9 +16,15 @@ from common.constants import HASH_ALGORITHM_NAME
 from common.error import ValidationError
 from common import db_utils
 
+phone_num_reexp = r'^[0-9]+$'
+postal_code_reexp = r'^[0-9]+$'
+addr_reexp = r'^.+$'
+city_reexp = r'^.+$'
+# yyyy-mm-dd
+date_reexp = r"^(([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3})-(((0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01]))|((0[469]|11)-(0[1-9]|[12][0-9]|30))|(02-(0[1-9]|[1][0-9]|2[0-8]))))|((([0-9]{2})(0[48]|[2468][048]|[13579][26])|((0[48]|[2468][048]|[3579][26])00))-02-29)$"
 
-email_pattern = re.compile(
-    r"^([0-9a-zA-Z]+[-._+&amp;])*[0-9a-zA-Z]+@([-0-9a-zA-Z]+.)+[a-zA-Z]{2,6}$")
+email_reexp = r"^([0-9a-zA-Z]+[-._+&amp;])*[0-9a-zA-Z]+@([-0-9a-zA-Z]+.)+[a-zA-Z]{2,6}$"
+email_pattern = re.compile(email_reexp)
 
 def is_valid_email(email):
     return email and email_pattern.match(email)
@@ -218,6 +225,9 @@ def _parse_auth_cookie(auth_cookie):
     fields_list = [tuple(field.split('=')) for field in auth_fields]
     return dict(fields_list)
 
+def gen_csrf_token():
+    return binascii.b2a_hex(os.urandom(16))
+
 def cookie_verify(conn, req, resp):
     """ Verify cookie to check if user is in login status, update csrf
     token if pass cookie verification.
@@ -257,7 +267,7 @@ def cookie_verify(conn, req, resp):
     login_id = _user_verify(conn, users_id, user_auth, ip, headers)
 
     # set new csrf to cookie and database.
-    csrf_token = binascii.b2a_hex(os.urandom(16))
+    csrf_token = gen_csrf_token()
     auth_cookie = make_auth_cookie(user_auth['exp'],
                                    csrf_token,
                                    user_auth['auth'],
@@ -270,6 +280,7 @@ def cookie_verify(conn, req, resp):
                     'users_logins',
                     values={'csrf_token': csrf_token},
                     where={'id': login_id})
+    return users_id
 
 def encrypt_password(raw_password):
     hash_algorithm = settings.DEFAULT_PASSWORD_HASH_ALGORITHM

@@ -32,9 +32,23 @@ def insert(conn, table_name, **kwargs):
         conn.rollback()
         raise DatabaseError("%s:%s" % (e.pgcode, e.pgerror))
 
-def query(conn, table_name, **kwargs):
+def query(conn, sql, params=None):
+    try:
+        return conn.query(sql, params)
+    except psycopg2.Error, e:
+        conn.rollback()
+        raise DatabaseError("%s:%s" % (e.pgcode, e.pgerror))
+
+def select(conn, table_name, **kwargs):
     try:
         return conn.select(table_name, **kwargs)
+    except psycopg2.Error, e:
+        conn.rollback()
+        raise DatabaseError("%s:%s" % (e.pgcode, e.pgerror))
+
+def select_dict(conn, table_name, key, **kwargs):
+    try:
+        return conn.select_dict(table_name, key, **kwargs)
     except psycopg2.Error, e:
         conn.rollback()
         raise DatabaseError("%s:%s" % (e.pgcode, e.pgerror))
@@ -43,6 +57,20 @@ def join(conn, tables, where=None, on=None, order=None,
          columns=None, limit=None, offset=None):
     try:
         return conn.join(tables,
+                         where=where,
+                         on=on,
+                         order=order,
+                         columns=columns,
+                         limit=limit,
+                         offset=offset)
+    except psycopg2.Error, e:
+        conn.rollback()
+        raise DatabaseError("%s:%s" % (e.pgcode, e.pgerror))
+
+def join_dict(conn, tables, key, where=None, on=None, order=None,
+         columns=None, limit=None, offset=None):
+    try:
+        return conn.join_dict(tables, key,
                          where=where,
                          on=on,
                          order=order,
