@@ -23,3 +23,6 @@ USER_AUTH_COOKIE_EXPIRES = 8 * 3600
 USER_AUTH_COOKIE_DOMAIN = '.backtoshops.com'
 
 LOG_CONFIG_FILE = 'logging.cfg'
+
+HMAC_KEY_SIZE = 128
+HMAC_KEY_FILE_PATH = 'hmac.pem'

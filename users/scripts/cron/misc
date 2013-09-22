@@ -1,0 +1,3 @@
+
+# generate new HMAC key, delete expiry login records.
+0 0 * * * python home/backtoshops/users/script/gen_hmac.py

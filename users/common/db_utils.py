@@ -4,7 +4,14 @@ import pypgwrap
 import settings
 from common.error import DatabaseError
 
-def init_db_pool():
+
+global db_initialized
+db_initialized = False
+
+def init_db_pool(force=False):
+    global db_initialized
+    if db_initialized and not force:
+        return
     db_config = settings.DATABASE
     db_url = ('postgres://%(USER)s:%(PASSWORD)s@%(HOST)s:%(PORT)s/%(NAME)s'
               % db_config)
@@ -13,6 +20,9 @@ def init_db_pool():
                          url=db_url)
 
 def get_conn():
+    global db_initialized
+    if not db_initialized:
+        init_db_pool()
     return pypgwrap.connection()
 
 def insert(conn, table_name, **kwargs):

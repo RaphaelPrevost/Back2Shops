@@ -1,5 +1,6 @@
 import binascii
 import os
+from datetime import datetime, timedelta
 
 import settings
 from common.constants import RESP_RESULT
@@ -72,14 +73,23 @@ class UserLoginResource(BaseResource):
         ip_address = get_client_ip(req)
         headers = get_hashed_headers(req)
         csrf_token = binascii.b2a_hex(os.urandom(16))
+        delta = timedelta(seconds=settings.USER_AUTH_COOKIE_EXPIRES)
+        utc_expiry = datetime.utcnow() + delta
         values = {"users_id": users_id,
                   "ip_address": ip_address,
                   "headers": headers,
-                  "csrf_token": csrf_token}
+                  "csrf_token": csrf_token,
+                  "cookie_expiry": utc_expiry}
+        db_utils.update(conn, "users_logins",
+                        values={"cookie_expiry": datetime.utcnow()},
+                        where={"users_id": users_id,
+                               "ip_address": ip_address,
+                               "headers": headers,
+                               "cookie_expiry__gt": datetime.utcnow()})
         db_utils.insert(conn, "users_logins", values=values)
 
         # set cookie
-        expiry = gen_cookie_expiry(settings.USER_AUTH_COOKIE_EXPIRES)
+        expiry = gen_cookie_expiry(utc_expiry)
         auth_cookie = make_auth_cookie(expiry, csrf_token, auth_token, users_id)
         set_cookie(resp, settings.USER_AUTH_COOKIE_NAME, auth_cookie,
                    domain=settings.USER_AUTH_COOKIE_DOMAIN,
