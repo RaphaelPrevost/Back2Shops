@@ -15,7 +15,7 @@ RESETDB=${RESETDB:-"$INITDB"}
 
 DEPS=(libapache2-mod-wsgi python2.7-dev libpq-dev python-pip git \
       libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev \
-      liblcms1-dev libwebp-dev gettext)
+      liblcms1-dev libwebp-dev gettext libevent-dev)
 DPKG=$(dpkg -l)
 INST=""
 

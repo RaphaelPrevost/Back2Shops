@@ -252,7 +252,7 @@ INSERT INTO country VALUES ('ZW', 'ZIMBABWE', 'Zimbabwe', 'ZWE', 716);
 
 INSERT INTO country_calling_code VALUES ('CN', '86');
 INSERT INTO country_calling_code VALUES ('FR', '33');
-INSERT INTO country_calling_code VALUES ('US', '1 ');
+INSERT INTO country_calling_code VALUES ('US', '1');
 
 
 --
