@@ -1,5 +1,10 @@
+from gevent import monkey
+monkey.patch_all()
+import gevent_psycopg2
+gevent_psycopg2.monkey_patch()
+
 import falcon
-from wsgiref import simple_server
+from gevent.pywsgi import WSGIServer
 
 import settings
 from urls import urlpatterns
@@ -21,5 +26,6 @@ init_db_pool()
 if __name__ == '__main__':
     import logging
     logging.info('user server start on port 8100')
-    httpd = simple_server.make_server('0.0.0.0', 8100, app)
+
+    httpd = WSGIServer(('0.0.0.0', 8100), app)
     httpd.serve_forever()
