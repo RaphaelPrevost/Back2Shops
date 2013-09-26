@@ -77,7 +77,8 @@ CREATE TABLE users_address (
     postal_code character varying(25),
     country_code character varying(2) NOT NULL REFERENCES country(iso),
     province_code character varying(2),
-    address_desp character varying(128)
+    address_desp character varying(128),
+    valid boolean DEFAULT true NOT NULL
 );
 
 CREATE TABLE orders (
