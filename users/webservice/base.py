@@ -1,3 +1,4 @@
+import copy
 import logging
 import time
 from datetime import datetime
@@ -20,11 +21,15 @@ class BaseResource:
 
     def _msg_handler(self, method_name, req, resp, **kwargs):
         start_time = time.time() * 1000
+        params = req._params
+        if params.get('password'):
+            params = copy.copy(req._params)
+            params['password'] = 'XXX'
         with db_utils.get_conn() as conn:
             try:
-                logging.info('Got %s requet at %s UTC, %s with args %s'
+                logging.info('Got %s requet at %s UTC, %s with params %s'
                               % (req.method, datetime.utcnow(),
-                                 req.uri, req._params))
+                                 req.uri, params))
                 if self.login_required.get(method_name):
                     users_id = cookie_verify(conn, req, resp)
                     kwargs['users_id'] = users_id
@@ -35,7 +40,8 @@ class BaseResource:
                          {'res': RESP_RESULT.F,
                           'err': str(e)})
             except DatabaseError, e:
-                return gen_json_response(resp,
+                logging.error('Server DB Error: %s', (e,), exc_info=True)
+                gen_json_response(resp,
                         {"res": RESP_RESULT.F,
                          "err": "DB_ERR",
                          "ERR_SQLDB": str(e)})
@@ -45,9 +51,8 @@ class BaseResource:
                          {'res': RESP_RESULT.F,
                           'err': 'SERVER_ERR'})
         end_time = time.time() * 1000
-        logging.info('Response to %s request %s?%s with response: '
-                     '%s in %s ms'
-                     % (req.method, req.uri, req.query_string,
+        logging.info('Response %s Request: %s params: %s, With: %s in %s ms'
+                     % (req.method, req.uri, params,
                         resp.body, end_time - start_time))
 
     def _on_get(self, req, resp, conn, **kwargs):

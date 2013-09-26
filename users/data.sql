@@ -385,4 +385,6 @@ INSERT INTO province VALUES ('HK', '香港', 'CN');
 INSERT INTO province VALUES ('MC', '澳门', 'CN');
 INSERT INTO province VALUES ('TW', '台湾', 'CN');
 
+INSERT INTO currency VALUES (1, 'EUR', 'Euro');
+INSERT INTO currency VALUES (2, 'USD', 'US Dollar');
 COMMIT;
