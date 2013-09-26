@@ -4,13 +4,15 @@ import gevent_psycopg2
 gevent_psycopg2.monkey_patch()
 
 import falcon
+import gevent
 from gevent.pywsgi import WSGIServer
 
 import settings
-from urls import urlpatterns
 from common.db_utils import init_db_pool
 from common.utils import parse_form_params
 from common.log import setupLogging
+from urls import urlpatterns
+from webservice.sales import import_sales_list
 
 setupLogging()
 
@@ -22,6 +24,7 @@ for url, res in urlpatterns.iteritems():
     api.add_route(url, res())
 
 init_db_pool()
+gevent.spawn(import_sales_list)
 
 if __name__ == '__main__':
     import logging
