@@ -79,3 +79,133 @@ CREATE TABLE users_address (
     province_code character varying(2),
     address_desp character varying(128)
 );
+
+CREATE TABLE orders (
+    id serial PRIMARY KEY,
+    id_user integer NOT NULL,
+    confirmation_time timestamp without time zone DEFAULT now() NOT NULL
+);
+
+CREATE TABLE order_items (
+    id serial PRIMARY KEY,
+    id_sale BIGINT NOT NULL,
+    id_shop BIGINT NOT NULL,
+    price double precision NOT NULL,
+    name character varying(150) NOT NULL,
+    picture character varying(100),
+    description character varying(128),
+    copy_time timestamp without time zone DEFAULT now() NOT NULL
+);
+
+CREATE TABLE order_details (
+    id_order bigint REFERENCES orders(id),
+    id_item bigint REFERENCES order_items(id),
+    quantity integer NOT NULL
+);
+
+CREATE TABLE shipments (
+    id serial PRIMARY KEY,
+    id_order bigint REFERENCES orders(id),
+    id_address bigint REFERENCES users_address(id),
+    id_phone bigint REFERENCES users_phone_num(id),
+    id_postage bigint, -- TODO REFERENCES postage(id),
+    mail_tracking_number character varying(50),
+    status SMALLINT,
+    timestamp timestamp without time zone NOT NULL,
+    shipping_fee double precision DEFAULT 0.0 NOT NULL
+);
+
+CREATE TABLE shipping_list (
+    id_item BIGINT REFERENCES order_items(id),
+    id_shipment BIGINT REFERENCES shipments(id),
+    quantity INTEGER NOT NULL,
+    picture character varying(100)
+);
+
+CREATE TABLE currency (
+    id serial PRIMARY KEY,
+    code character varying(3) NOT NULL,
+    description character varying(200) NOT NULL
+);
+CREATE UNIQUE INDEX currency_code ON currency USING btree (code);
+
+CREATE TABLE invoices (
+    id serial PRIMARY KEY,
+    id_order BIGINT REFERENCES orders(id),
+    id_shipment BIGINT REFERENCES shipments(id),
+    id_address bigint REFERENCES users_address(id),
+    creation_time timestamp without time zone DEFAULT now() NOT NULL,
+    amount_due double precision NOT NULL,
+    amount_paid double precision DEFAULT 0.0 NOT NULL,
+    due_within BIGINT NOT NULL,
+    currency character varying(3) REFERENCES currency(code),
+    invoice_file character varying(100)
+);
+
+CREATE TABLE invoice_status(
+    id_invoice BIGINT REFERENCES invoices(id),
+    status SMALLINT DEFAULT 1 NOT NULL,
+    amount_paid double precision,
+    timestamp timestamp without time zone NOT NULL
+);
+---
+-- invoice_status: status
+-- 1 - INVOICE_OPEN,
+-- 2 - INVOICE_PART,
+-- 3 - INVOICE_VOID,
+-- 4 - INVOICE_PAID,
+-- 5 - INVOICE_LATE
+---
+
+CREATE TABLE shipment_status (
+    id_shipment BIGINT REFERENCES shipments(id),
+    status SMALLINT NOT NULL,
+    timestamp timestamp without time zone DEFAULT now() NOT NULL
+);
+
+---
+-- shipment_status: status
+-- 1 - SHIPMENT_PACKING,
+-- 2 - SHIPMENT_DELAYED,
+-- 3 - SHIPMENT_DELIVER
+---
+
+CREATE TABLE returns (
+    id serial PRIMARY KEY,
+    id_order BIGINT REFERENCES orders(id),
+    status SMALLINT NOT NULL,
+    timestamp timestamp without time zone DEFAULT now() NOT NULL,
+    amount double precision NOT NULL,
+    currency character varying(3) -- TODO, REFERENCES currency(code)
+ );
+
+CREATE TABLE return_items (
+    id_return BIGINT REFERENCES returns(id),
+    id_item BIGINT REFERENCES order_items(id),
+    quantity INTEGER NOT NULL,
+    picture character varying(100),
+    message character varying(300)
+);
+
+CREATE TABLE return_status (
+    id_return BIGINT REFERENCES returns(id),
+    status SMALLINT NOT NULL,
+    timestamp timestamp without time zone NOT NULL,
+    amount INTEGER NOT NULL
+);
+
+---
+-- return_status: status
+--  1    (1 << 0) - RETURN_ELIGIBLE,
+--  2    (1 << 1) - RETURN_REJECTED,
+--  4    (1 << 2) - RETURN_RECEIVED,
+--  8    (1 << 3) - RETURN_EXAMINED,
+--  16   (1 << 4) - RETURN_ACCEPTED,
+--  32   (1 << 5) - RETURN_REJECTED,
+--  64   (1 << 6) - RETURN_PROPOSAL,
+--  128  (1 << 7) - RETURN_REFUNDED,
+--  256  (1 << 8) - RETURN_REJECTED_FRAUD,
+--  512  (1 << 9) - RETURN_REJECTED_INVAL,
+--  1024 (1 << 10)  RETURN_PROPOSAL_ACCEPT,
+--  2048 (1 << 11) - RETURN_PROPOSAL_REJECT
+---

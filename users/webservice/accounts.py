@@ -201,6 +201,12 @@ class UserResource(BaseResource):
                                 values=number_dict[num_id])
 
         # users_address columns
+        self._update_address(conn, req, users_id)
+
+        return gen_json_response(resp,
+                {"res": RESP_RESULT.S, "err": ""})
+
+    def _update_address(self, conn, req, users_id):
         addr_dict = {}
         for p in req._params:
             if p.startswith('country_code_'):
@@ -221,16 +227,27 @@ class UserResource(BaseResource):
                 if c == 'postal_code' and not re.match(postal_code_reexp, p):
                     raise ValidationError('INVALID_POSTAL_CODE')
                 addr_dict[addr_id][c] = p
-            if addr_id.isdigit() and int(addr_id) > 0:
+
+            shipping_addr = db_utils.join(conn,
+                ('shipments', 'orders'),
+                columns=('id_address',),
+                on=[('shipments.id_order', 'orders.id')],
+                where={'orders.id_user': users_id})
+            billing_addr = db_utils.join(conn,
+                ('invoices', 'orders'),
+                columns=('id_address',),
+                on=[('invoices.id_order', 'orders.id')],
+                where={'orders.id_user': users_id})
+            reference = (addr_id.isdigit() and
+                         [int(addr_id)] in shipping_addr or
+                         [int(addr_id)] in billing_addr)
+            if addr_id.isdigit() and int(addr_id) == 0 or reference:
+                db_utils.insert(conn, "users_address",
+                                values=addr_dict[addr_id])
+            else:
                 db_utils.update(conn, "users_address",
                                 values=addr_dict[addr_id],
                                 where={'id': addr_id})
-            else:
-                db_utils.insert(conn, "users_address",
-                                values=addr_dict[addr_id])
-
-        return gen_json_response(resp,
-                {"res": RESP_RESULT.S, "err": ""})
 
     def create_account(self, req, resp, conn):
         email = self.get_email(req, conn)
