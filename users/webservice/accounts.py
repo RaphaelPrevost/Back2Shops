@@ -244,6 +244,11 @@ class UserResource(BaseResource):
             if addr_id.isdigit() and int(addr_id) == 0 or reference:
                 db_utils.insert(conn, "users_address",
                                 values=addr_dict[addr_id])
+                # mark old address as invalid.
+                if reference:
+                    db_utils.update(conn, 'users_address',
+                                    values={'valid': False},
+                                    where={'id': int(addr_id)})
             else:
                 db_utils.update(conn, "users_address",
                                 values=addr_dict[addr_id],
