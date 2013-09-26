@@ -12,6 +12,13 @@ DATABASE = {
     'MAX_CONN': 10,
     'CONN_EXPIRATION': 1, #minute
 }
+CENTRAL_REDIS = {
+    'HOST': 'localhost',
+    'PORT': 6379,
+}
+SALES_SERVER_API_URL = "http://localhost:8000/webservice/1.0/%(api)s"
+SALES_CACHE_TTL = 3600 #second
+
 
 DEFAULT_PASSWORD_HASH_ALGORITHM = HASH_ALGORITHM.WHIRLPOOL
 HASH_MIN_ITERATIONS = 2
