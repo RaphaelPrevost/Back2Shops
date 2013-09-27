@@ -65,7 +65,8 @@ CREATE TABLE users_phone_num (
     users_id integer NOT NULL,
     country_num character varying(2) NOT NULL REFERENCES country_calling_code(country_code),
     phone_num character varying(25) NOT NULL,
-    phone_num_desp character varying(128)
+    phone_num_desp character varying(128),
+    valid boolean DEFAULT true NOT NULL
 );
 
 CREATE TABLE users_address (
@@ -135,6 +136,7 @@ CREATE TABLE invoices (
     id_order BIGINT REFERENCES orders(id),
     id_shipment BIGINT REFERENCES shipments(id),
     id_address bigint REFERENCES users_address(id),
+    id_phone bigint REFERENCES users_phone_num(id),
     creation_time timestamp without time zone DEFAULT now() NOT NULL,
     amount_due double precision NOT NULL,
     amount_paid double precision DEFAULT 0.0 NOT NULL,
