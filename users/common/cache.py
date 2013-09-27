@@ -15,8 +15,13 @@ class CacheProxy:
         return result
 
     def refresh(self, name):
-        result = self._get_from_server(name)
-        self._save_to_redis(name, result)
+        try:
+            result = self._get_from_server(name)
+        except Exception, e:
+            logging.error('Server Error: %s', (e,), exc_info=True)
+            return '<res error="SERVER_ERR">%s</res>' % RESP_RESULT.F
+        else:
+            self._save_to_redis(name, result)
         return result
 
     def _get_from_redis(self, name):
@@ -37,13 +42,9 @@ class CacheProxy:
 
     def _get_from_server(self, name):
         logging.info('fetch from sales server : %s', name)
-        try:
-            #TODO #52 will implement a proper way to communicate with sales server
-            req = urllib2.Request(settings.SALES_SERVER_API_URL % {'api': name})
-            resp = urllib2.urlopen(req)
-            return "".join(resp.readlines())
-        except Exception, e:
-            logging.error('Server Error: %s', (e,), exc_info=True)
-            return '<res error="SERVER_ERR">%s</res>' % RESP_RESULT.F
+        #TODO #52 will implement a proper way to communicate with sales server
+        req = urllib2.Request(settings.SALES_SERVER_API_URL % {'api': name})
+        resp = urllib2.urlopen(req)
+        return "".join(resp.readlines())
 
 cache_proxy = CacheProxy()
