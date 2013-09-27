@@ -180,6 +180,15 @@ class UserResource(BaseResource):
             db_utils.insert(conn, "users_profile", values=values)
 
         # users_phone_num columns
+        self._update_phone_num(conn, req, users_id)
+
+        # users_address columns
+        self._update_address(conn, req, users_id)
+
+        return gen_json_response(resp,
+                {"res": RESP_RESULT.S, "err": ""})
+
+    def _update_phone_num(self, conn, req, users_id):
         number_dict = {}
         for p in req._params:
             if p.startswith('country_num_'):
@@ -192,19 +201,16 @@ class UserResource(BaseResource):
                 if c == 'phone_num' and not re.match(phone_num_reexp, p):
                     raise ValidationError('INVALID_PHONE_NUMBER')
                 number_dict[num_id][c] = p
-            if num_id.isdigit() and int(num_id) > 0:
+
+            num_referenced = self._is_filed_referenced(
+                conn, users_id, 'id_phone', 'users_phone_num', num_id)
+            if num_id.isdigit() and int(num_id) == 0 or num_referenced:
+                db_utils.insert(conn, "users_phone_num",
+                                values=number_dict[num_id])
+            else:
                 db_utils.update(conn, "users_phone_num",
                                 values=number_dict[num_id],
                                 where={'id': num_id})
-            else:
-                db_utils.insert(conn, "users_phone_num",
-                                values=number_dict[num_id])
-
-        # users_address columns
-        self._update_address(conn, req, users_id)
-
-        return gen_json_response(resp,
-                {"res": RESP_RESULT.S, "err": ""})
 
     def _update_address(self, conn, req, users_id):
         addr_dict = {}
@@ -228,31 +234,47 @@ class UserResource(BaseResource):
                     raise ValidationError('INVALID_POSTAL_CODE')
                 addr_dict[addr_id][c] = p
 
-            shipping_addr = db_utils.join(conn,
-                ('shipments', 'orders'),
-                columns=('id_address',),
-                on=[('shipments.id_order', 'orders.id')],
-                where={'orders.id_user': users_id})
-            billing_addr = db_utils.join(conn,
-                ('invoices', 'orders'),
-                columns=('id_address',),
-                on=[('invoices.id_order', 'orders.id')],
-                where={'orders.id_user': users_id})
-            reference = (addr_id.isdigit() and
-                         [int(addr_id)] in shipping_addr or
-                         [int(addr_id)] in billing_addr)
-            if addr_id.isdigit() and int(addr_id) == 0 or reference:
+            addr_referenced = self._is_filed_referenced(
+                conn, users_id, 'id_address', 'users_address', addr_id)
+            if addr_id.isdigit() and int(addr_id) == 0 or addr_referenced:
                 db_utils.insert(conn, "users_address",
                                 values=addr_dict[addr_id])
-                # mark old address as invalid.
-                if reference:
-                    db_utils.update(conn, 'users_address',
-                                    values={'valid': False},
-                                    where={'id': int(addr_id)})
             else:
                 db_utils.update(conn, "users_address",
                                 values=addr_dict[addr_id],
                                 where={'id': addr_id})
+
+    def _is_filed_referenced(self, conn, users_id, field,
+                             field_orig_table, check_id):
+        """ Check whether address/phone_num used by user in past and current
+        shipments or invoices. And Mark the old address/phone_num as invalid.
+        """
+        if not check_id.isdigit():
+            return False
+
+        assert field in ['id_address', 'id_phone']
+        assert field_orig_table in ['users_address', 'users_phone_num']
+
+        shipping_result = db_utils.join(conn,
+                                      ('shipments', 'orders'),
+                                      columns=(field,),
+                                      on=[('shipments.id_order', 'orders.id')],
+                                      where={'orders.id_user': users_id})
+        billing_result = db_utils.join(conn,
+                                     ('invoices', 'orders'),
+                                     columns=(field,),
+                                     on=[('invoices.id_order', 'orders.id')],
+                                     where={'orders.id_user': users_id})
+
+        referenced = ([int(check_id)] in shipping_result or
+                      [int(check_id)] in billing_result )
+
+        # mark old address/phone number as invalid.
+        if referenced:
+            db_utils.update(conn, field_orig_table,
+                            values={'valid': False},
+                            where={'id': int(check_id)})
+        return referenced
 
     def create_account(self, req, resp, conn):
         email = self.get_email(req, conn)
