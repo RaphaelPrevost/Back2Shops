@@ -3,6 +3,8 @@
 from common.constants import HASH_ALGORITHM
 
 DEBUG = True
+SERVER_PORT = 8100 # for development only
+
 DATABASE = {
     'NAME': 'users',
     'USER': 'postgres',
@@ -17,7 +19,6 @@ CENTRAL_REDIS = {
     'PORT': 6379,
 }
 SALES_SERVER_API_URL = "http://localhost:8000/webservice/1.0/%(api)s"
-SALES_CACHE_TTL = 3600 #second
 
 
 DEFAULT_PASSWORD_HASH_ALGORITHM = HASH_ALGORITHM.WHIRLPOOL

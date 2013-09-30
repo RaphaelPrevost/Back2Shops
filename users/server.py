@@ -28,7 +28,7 @@ gevent.spawn(import_sales_list)
 
 if __name__ == '__main__':
     import logging
-    logging.info('user server start on port 8100')
+    logging.info('user server start on port %s' % settings.SERVER_PORT)
 
-    httpd = WSGIServer(('0.0.0.0', 8100), app)
+    httpd = WSGIServer(('0.0.0.0', settings.SERVER_PORT), app)
     httpd.serve_forever()
