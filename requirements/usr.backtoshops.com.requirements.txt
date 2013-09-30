@@ -8,3 +8,4 @@ gevent==0.13.8
 gevent-psycopg2==0.0.3
 redis==2.8.0
 hiredis==0.1.1
+mechanize==0.2.5

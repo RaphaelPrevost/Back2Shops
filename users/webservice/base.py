@@ -24,7 +24,7 @@ class BaseResource:
         params = req._params
         if params.get('password'):
             params = copy.copy(req._params)
-            params['password'] = 'XXX'
+            params['password'] = '******'
         with db_utils.get_conn() as conn:
             try:
                 logging.info('Got %s requet at %s UTC, %s with params %s'

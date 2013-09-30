@@ -5,9 +5,9 @@ import Cookie
 import datetime
 import hashlib
 import hmac
-import random
 import os
 import random
+import string
 import re
 import ujson
 import settings
@@ -28,6 +28,11 @@ email_pattern = re.compile(email_reexp)
 
 def is_valid_email(email):
     return email and email_pattern.match(email)
+
+def generate_random_str(length=10):
+    population = string.ascii_letters + string.digits
+    times = length / len(population) + 1
+    return ''.join(random.sample(population * times, length))
 
 def hashfn(algorithm, text):
     # Retrieves the appropriate hash function

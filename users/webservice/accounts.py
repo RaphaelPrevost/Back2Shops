@@ -35,7 +35,7 @@ class UserResource(BaseResource):
                  left join users_profile
                     on (users.id=users_profile.users_id)
                  where users.id=%s limit 1"""
-        users_profile = db_utils.query(conn, sql, users_id)[0]
+        users_profile = db_utils.query(conn, sql, (users_id,))[0]
         email = users_profile[0]
         locale = users_profile[1] or 'en-US'
         title = users_profile[2] or ''

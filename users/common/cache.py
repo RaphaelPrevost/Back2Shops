@@ -36,13 +36,12 @@ class CacheProxy:
     def _save_to_redis(self, name, value):
         logging.info('save to redis: %s', name)
         try:
-            get_redis_cli().setex(name, value, settings.SALES_CACHE_TTL)
+            get_redis_cli().set(name, value)
         except RedisError, e:
             logging.error('Redis Error: %s', (e,), exc_info=True)
 
     def _get_from_server(self, name):
         logging.info('fetch from sales server : %s', name)
-        #TODO #52 will implement a proper way to communicate with sales server
         req = urllib2.Request(settings.SALES_SERVER_API_URL % {'api': name})
         resp = urllib2.urlopen(req)
         return "".join(resp.readlines())
