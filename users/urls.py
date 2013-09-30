@@ -2,10 +2,14 @@ from webservice.accounts import UserResource
 from webservice.auth import UserLoginResource
 from webservice.aux import AuxResource
 from webservice.sales import SalesResource
+from webservice.crypto import ApiKeyResource
+from webservice.crypto import CryptoTestResource
 
 urlpatterns = {
     '/webservice/1.0/pub/account': UserResource,
     '/webservice/1.0/pub/connect': UserLoginResource,
     '/webservice/1.0/pub/JSONAPI': AuxResource,
     '/webservice/1.0/pub/sales/list': SalesResource,
+    '/webservice/1.0/pub/apikey.pem': ApiKeyResource,
+    '/webservice/1.0/pub/crypto/test': CryptoTestResource, # TODO: remove, just for test
 }

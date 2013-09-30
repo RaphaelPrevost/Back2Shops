@@ -13,3 +13,10 @@
 
    * Max OS X
      $ brew install libevent redis
+
+3. install swig
+   * Ubuntu 12.04 LTS or Raspian Wheezy 7.0:
+     $ sudo apt-get install swig
+
+   * Max OS X
+     $ brew install swig

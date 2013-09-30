@@ -242,3 +242,11 @@ THUMBNAIL_DEBUG = True
 
 # geocoding
 GEONAMES_USERNAME = "moonstrap"
+
+# TODO: change according with product env.
+SERVER_APIKEY_URI_MAP = {
+    'USR': 'http://localhost:8100/webservice/1.0/pub/apikey.pem',
+}
+
+PRIVATE_KEY_PATH = 'static/keys/adm_pri.key'
+PUB_KEY_PATH = 'keys/adm_pub.key'
