@@ -8,6 +8,8 @@ from django.views.generic import View, ListView, DetailView
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
 from accounts.models import Brand
+from B2SCrypto.utils import gen_encrypt_json_context
+from B2SCrypto.constant import SERVICES
 from sales.models import Sale, ProductType, ProductCategory, STOCK_TYPE_DETAILED, STOCK_TYPE_GLOBAL,ShopsInSale
 from shops.models import Shop
 from barcodes.models import Barcode
@@ -23,7 +25,7 @@ class BaseWebservice(View):
             'mimetype': 'text/xml'
         })
         return super(BaseWebservice, self).render_to_response(context, **response_kwargs)
-    
+
     def get_context_data(self,**kwargs):
         kwargs.update({"settings":settings, })
         return kwargs
@@ -33,7 +35,7 @@ class BaseWebservice(View):
 #
 class SalesListView(BaseWebservice, ListView):
     template_name = "sales_list.xml"
-    
+
     def get_queryset(self):
         product_type = self.request.GET.get('type', None)
         category = self.request.GET.get('category', None)
@@ -52,7 +54,7 @@ class SalesListView(BaseWebservice, ListView):
 
 class ShopsListView(BaseWebservice, ListView):
     template_name = "shops_list.xml"
-    
+
     def get_queryset(self):
         brand = self.request.GET.get('seller', None)
         city = self.request.GET.get('city', None)
@@ -84,7 +86,7 @@ class TypesListView(BaseWebservice, ListView):
 
 class BrandListView(BaseWebservice, ListView):
     template_name = "brand_list.xml"
-    
+
     def get_queryset(self):
         product_type = self.request.GET.get('type', None)
         category = self.request.GET.get('category', None)
@@ -106,7 +108,7 @@ class BrandingsListView(BaseWebservice, ListView):
 class SalesInfoView(BaseWebservice, DetailView):
     template_name = "sales_info.xml"
     model = Sale
-        
+
 
 class ShopsInfoView(BaseWebservice, DetailView):
     template_name = "shops_info.xml"
@@ -131,7 +133,7 @@ def basic_auth(func):
             except Exception, ex:
                 return HttpResponse(json.dumps({'success': False, 'error': ex.message}), mimetype='text/json')
 	return wrapper
-	
+
 def is_authenticated(request):
     token = request.META['HTTP_AUTHORIZATION'].replace('Basic ', '')
     username, password = base64.decodestring(token).split(':')
@@ -144,7 +146,7 @@ def is_authenticated(request):
         shop = Shop.objects.get(upc=request.REQUEST['shop'])
     except Shop.DoesNotExist:
         raise Exception("Shop %s doesn't exist." % request.REQUEST['shop'])
-    
+
     if user.is_staff:
         return (shop.mother_brand.employee.filter(user__id=user.id).count() > 0)
     else: #operator
@@ -175,18 +177,18 @@ def stock_setter(request,val):
     token = request.META['HTTP_AUTHORIZATION'].replace('Basic ', '')
     username, password = base64.decodestring(token).split(':')
     user = _authenticate(username=username, password=password)
-    
+
     try:
         shop_upc = request.REQUEST['shop']
         shop = Shop.objects.get(upc=shop_upc)
     except:
-        return fail('shop upc must be given') 
+        return fail('shop upc must be given')
 
     sale = get_sale(shop_upc, request.REQUEST['item'])
 
     if sale is None:
         return fail('sale not found with given shop and item')
-    
+
     #if shop is frozen.
     try:
         if ShopsInSale.objects.get(shop=shop,sale=sale).is_freezed:
@@ -197,7 +199,7 @@ def stock_setter(request,val):
     if sale.type_stock == STOCK_TYPE_GLOBAL: #stocks at global level
         pass
     else: #stocks at shops level
-        if user.is_staff or shop in user.get_profile().shops.all(): # can update 
+        if user.is_staff or shop in user.get_profile().shops.all(): # can update
             try:
                 stock = sale.detailed_stock.get(shop=shop)
                 stock.rest_stock += val
@@ -210,7 +212,7 @@ def stock_setter(request,val):
                 return fail('stock of the given shop is invalid.')
         else: #this operator can't touch this shop.
             return fail('no access to this shop''s stock')
-    
+
     sale.total_rest_stock += val
     if sale.total_rest_stock < 0:
         sale.total_rest_stock = 0
@@ -224,14 +226,14 @@ def stock_setter(request,val):
 def barcode_increment(request):
     return stock_setter(request, 1)
 
-@csrf_exempt    
+@csrf_exempt
 @basic_auth
 def barcode_decrement(request):
     return stock_setter(request, -1)
 
 @csrf_exempt
 @basic_auth
-def barcode_returned(request):		
+def barcode_returned(request):
     return stock_setter(request, 1)
 
 
@@ -243,7 +245,7 @@ def filter_by_coordinate(query_set, lat, lng, radius):
     try:
         import pymongo
         from bson.son import SON
-        
+
         db = pymongo.Connection().backtoshops
         ret = db.command(SON([('geoNear', 'shops'), ('near', [float(lng), float(lat)]), ('spherical', True), ('maxDistance', float(radius) / 1000 / 6371)]))
         shops = [item['obj']['shop_id'] for item in ret['results']]
@@ -262,7 +264,7 @@ def filter_by_coordinate(query_set, lat, lng, radius):
 
 class VicinitySalesListView(BaseWebservice, ListView):
     template_name = "sales_list.xml"
-    
+
     def get_queryset(self):
         lat, lng = self.request.GET.get('lat', None), self.request.GET.get('lng', None)
         radius = self.request.GET.get('radius', None)
@@ -286,7 +288,7 @@ class VicinitySalesListView(BaseWebservice, ListView):
 
 class VicinityShopsListView(BaseWebservice, ListView):
     template_name = "shops_list.xml"
-    
+
     def get_queryset(self):
         lat, lng = self.request.GET.get('lat', None), self.request.GET.get('lng', None)
         radius = self.request.GET.get('radius', None)
@@ -300,3 +302,40 @@ class VicinityShopsListView(BaseWebservice, ListView):
         if lat and lng and radius:
             queryset = filter_by_coordinate(queryset, lat, lng, radius)
         return queryset
+
+def apikey(dummy=None):
+    with open('static/keys/adm_pub.key') as f:
+        key = f.read()
+        f.close()
+        return HttpResponse(key)
+
+class BaseCryptoWebService(View):
+    from_ = SERVICES.USR
+    def render_to_response(self, context, **response_kwargs):
+        response_kwargs.update({
+            'mimetype': 'application/json'
+        })
+        data = gen_encrypt_json_context(context,
+                                        settings.SERVER_APIKEY_URI_MAP[self.from_],
+                                        settings.PRIVATE_KEY_PATH)
+        return HttpResponse(data, **response_kwargs)
+
+    def get(self, request, *args, **kwargs):
+        self.from_ = request.GET.get('from', SERVICES.USR)
+        return self._get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.from_ = request.POST.get('from', SERVICES.USR)
+        return self._get(request, *args, **kwargs)
+
+    def _get(self, request, *args, **kwargs):
+        raise NotImplementedError
+
+    def _post(self, request, *args, **kwargs):
+        raise NotImplementedError
+
+# TODO: remove, just for test.
+class CryptoWebServiceMock(BaseCryptoWebService):
+    def get(self, request, *args, **kwargs):
+        context = 'crypto web service test'
+        return self.render_to_response(context)
