@@ -15,6 +15,6 @@ setup(
     description='Packages used to encrypt backtoshops request, decrypt backtoshops response',
     long_description=open('README.txt').read(),
     install_requires=[
-        'M2Crypto',
+        'M2Crypto==0.21.1.B2S',
         ],
     )

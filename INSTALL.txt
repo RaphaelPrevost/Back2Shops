@@ -21,7 +21,17 @@
    * Max OS X
      $ brew install swig
 
-4. install python-m2crypto
-   * Ubuntu 12.04 LTS or Raspian Wheezy 7.0:
-     $ sudo apt-get install python-m2crypto
+4. Add pip config to install M2Crypto
+   $ cd ~/.pip
+   $ touch pip.conf
+   Add following config into pip.conf (change the path to your real path, e.g. /home/jessica/svn/backtoshops/packages/dist)
+    {{{
+    [global]
+    find-links =
+        /path/to/backtoshops/packages/dist
+
+    [install]
+    find-links =
+        /path/to/backtoshops/packages/dist
+    }}}
 
