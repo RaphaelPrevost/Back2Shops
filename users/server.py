@@ -30,5 +30,7 @@ if __name__ == '__main__':
     import logging
     logging.info('user server start on port %s' % settings.SERVER_PORT)
 
-    httpd = WSGIServer(('0.0.0.0', settings.SERVER_PORT), app)
+    listener = ('0.0.0.0', settings.SERVER_PORT)
+    print "user server is running at http://%s:%s" % listener
+    httpd = WSGIServer(listener, app)
     httpd.serve_forever()

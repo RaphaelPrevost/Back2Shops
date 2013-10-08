@@ -16,7 +16,7 @@ class ApiKeyResource(BaseResource):
 # TODO: remove, just for encrypt test.
 class CryptoTestResource(BaseResource):
     def _on_get(self, req, resp, conn, **kwargs):
-        adm_test_uri = 'http://localhost:8080/webservice/1.0/pub/crypto/test?from=USR'
+        adm_test_uri = settings.SALES_SERVER_API_URL % {'api': 'pub/crypto/test?from=USR'}
         remote_server_name = SERVICES.ADM
         try:
             content = get_from_remote(adm_test_uri,

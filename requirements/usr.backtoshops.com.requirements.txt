@@ -1,5 +1,5 @@
 cython==0.19.1
-falcon==0.1.6.post3
+falcon==0.1.7
 ujson==1.33
 enum==0.4.4
 psycopg2==2.5.1

@@ -304,7 +304,7 @@ class VicinityShopsListView(BaseWebservice, ListView):
         return queryset
 
 def apikey(dummy=None):
-    with open('static/keys/adm_pub.key') as f:
+    with open(settings.PUB_KEY_PATH) as f:
         key = f.read()
         f.close()
         return HttpResponse(key)
