@@ -40,7 +40,7 @@ HMAC_KEY_FILE_PATH = 'hmac.pem'
 
 SERVER_APIKEY_URI_MAP = {
     'USR': 'http://localhost:8100/webservice/1.0/pub/apikey.pem',
-    'ADM': 'http://localhost:8080/webservice/1.0/pub/apikey.pem'
+    'ADM': 'http://localhost:8000/webservice/1.0/pub/apikey.pem'
 }
 
 PRIVATE_KEY_PATH = 'static/keys/usr_pri.key'

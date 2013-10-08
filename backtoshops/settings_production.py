@@ -249,4 +249,4 @@ SERVER_APIKEY_URI_MAP = {
 }
 
 PRIVATE_KEY_PATH = 'static/keys/adm_pri.key'
-PUB_KEY_PATH = 'keys/adm_pub.key'
+PUB_KEY_PATH = 'static/keys/adm_pub.key'
