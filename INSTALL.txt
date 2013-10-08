@@ -20,3 +20,8 @@
 
    * Max OS X
      $ brew install swig
+
+4. install python-m2crypto
+   * Ubuntu 12.04 LTS or Raspian Wheezy 7.0:
+     $ sudo apt-get install python-m2crypto
+

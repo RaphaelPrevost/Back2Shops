@@ -15,7 +15,7 @@ RESETDB=${RESETDB:-"$INITDB"}
 
 DEPS=(libapache2-mod-wsgi python2.7-dev libpq-dev python-pip git \
       libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev \
-      liblcms1-dev libwebp-dev gettext libevent-dev, swig)
+      liblcms1-dev libwebp-dev gettext libevent-dev, swig, python-m2crypto)
 DPKG=$(dpkg -l)
 INST=""
 
@@ -87,7 +87,7 @@ if [ ! -d $CWD/env ]; then
     usermod -s /bin/sh backtoshops
     PYENV="
     cd $CWD
-    virtualenv --no-site-packages env
+    virtualenv --system-site-packages env
     python $CWD/env/bin/activate_this.py
     $CWD/env/bin/pip install -r $CWD/requirements/adm.backtoshops.com.requirements.txt"
     ( su backtoshops -c "$PYENV" )
