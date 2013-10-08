@@ -6,7 +6,7 @@ from setuptools.command import install
 from B2SCrypto import __version__
 
 setup(
-    name='hnIAB',
+    name='B2SCrypto',
     version=__version__,
     author='BacktoShops',
     author_email='backtoshops@lbga.fr',
