@@ -275,3 +275,6 @@ SERVER_APIKEY_URI_MAP = {
 
 PRIVATE_KEY_PATH = 'static/keys/adm_pri.key'
 PUB_KEY_PATH = 'static/keys/adm_pub.key'
+
+CACHE_INVALIDATION_URL = "http://localhost:8100/webservice/protected/invalidate"
+

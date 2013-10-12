@@ -1,6 +1,11 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
+
 from accounts.models import Brand
+from common.cache_invalidation import post_delete_handler
 from shops.models import Shop
 from sorl.thumbnail import ImageField
 
@@ -98,4 +103,8 @@ class ProductBrand(models.Model):
 
     def __unicode__(self):
         return self.name
+
+@receiver(post_delete, sender=Sale, dispatch_uid='sales.models.Sale')
+def on_sale_deleted(sender, **kwargs):
+    post_delete_handler('sale', sender, **kwargs)
 
