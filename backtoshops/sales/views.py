@@ -24,6 +24,7 @@ from globalsettings import get_setting
 import settings
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.db.models import F
+from common.cache_invalidation import send_cache_invalidation
 
 class UploadProductPictureView(View, TemplateResponseMixin):
     template_name = ""
@@ -485,6 +486,8 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
         if self.request.session.get('stocks_infos', None):
             del(self.request.session['stocks_infos'])
 
+        send_cache_invalidation(self.edit_mode and "PUT" or "POST",
+                                'sale', sale.id)
         return redirect("list_sales")
 
     def dispatch(self, request, *args, **kwargs):

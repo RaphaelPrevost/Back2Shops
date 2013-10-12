@@ -5,7 +5,7 @@
      $ sudo apt-get install libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev liblcms1-dev libwebp-dev
 
    * Max OS X
-     $ brew install libtiff libjpeg webp littlecms libevent redis
+     $ brew install libtiff libjpeg webp littlecms
 
 2. install gevent / redis
    * Ubuntu 12.04 LTS or Raspian Wheezy 7.0:

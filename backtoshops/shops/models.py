@@ -1,9 +1,14 @@
 # coding:UTF-8
 from django.db import models
+from django.db.models.signals import post_save
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
+
 from accounts.models import Brand
 from sorl.thumbnail import ImageField
 from countries.models import Country
+from common.cache_invalidation import post_save_handler, post_delete_handler
 
 class Shop(models.Model):
     mother_brand = models.ForeignKey(Brand, related_name="shops")
@@ -31,3 +36,12 @@ class Shop(models.Model):
 
     def __unicode__(self):
         return self.name
+
+@receiver(post_save, sender=Shop, dispatch_uid='shops.models.Shop')
+def on_shop_saved(sender, **kwargs):
+    post_save_handler('shop', sender, **kwargs)
+
+@receiver(post_delete, sender=Shop, dispatch_uid='shops.models.Shop')
+def on_shop_deleted(sender, **kwargs):
+    post_delete_handler('shop', sender, **kwargs)
+
