@@ -11,3 +11,4 @@ hiredis==0.1.1
 mechanize==0.2.5
 M2Crypto==0.21.1.B2S
 B2SCrypto==0.0.1
+xmltodict==0.7.0
