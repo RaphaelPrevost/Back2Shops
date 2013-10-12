@@ -13,6 +13,7 @@ from common.utils import parse_form_params
 from common.log import setupLogging
 from urls import urlpatterns
 from webservice.sales import import_sales_list
+from webservice.shops import import_shops_list
 
 setupLogging()
 
@@ -25,6 +26,7 @@ for url, res in urlpatterns.iteritems():
 
 init_db_pool()
 gevent.spawn(import_sales_list)
+gevent.spawn(import_shops_list)
 
 if __name__ == '__main__':
     import logging
