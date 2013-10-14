@@ -1,13 +1,13 @@
 import logging
 import xmltodict
 import ujson
+import urllib
 import urllib2
 from collections import defaultdict
 from collections import OrderedDict
-from redis.exceptions import RedisError
+from redis.exceptions import RedisError, ConnectionError
 
 import settings
-from common.constants import RESP_RESULT
 from common.redis_utils import get_redis_cli
 
 ALL = 'ALL'
@@ -30,24 +30,35 @@ class CacheProxy:
     obj_key = None
 
     def get(self, **kw):
-        raise NotImplementedError
+        try:
+            return self._get_from_redis(**kw)
+        except Exception, e:
+            logging.error("Faled to get from Redis %s", e, exc_info=True)
+            return self._get_from_server(**kw)
 
     def refresh(self):
         try:
-            result = self._get_from_server()
+            self._get_from_server()
         except Exception, e:
-            logging.error('Server Error: %s', (e,), exc_info=True)
-            return '<res error="SERVER_ERR">%s</res>' % RESP_RESULT.F
-        else:
-            self._parse_xml(result)
-        return result
+            logging.error('Cache Proxy Refresh Error: %s',
+                          (e,),
+                          exc_info=True)
 
-    def _save_to_redis(self, name, value):
-        logging.info('save to redis: %s', name)
-        try:
-            get_redis_cli().set(name, value)
-        except RedisError, e:
-            logging.error('Redis Error: %s', (e,), exc_info=True)
+    def _get_from_redis(self, **kw):
+        raise NotImplementedError
+
+    def _get_from_server(self, **kw):
+        query = self._get_query_str(**kw)
+        logging.info('fetch from sales server : %s', self.api % query)
+        req = urllib2.Request(
+            settings.SALES_SERVER_API_URL % {'api': self.api % query})
+        resp = urllib2.urlopen(req)
+        is_entire_result = query == ''
+        return self._parse_xml("".join(resp.readlines()), is_entire_result)
+
+    def _set_to_redis(self, name, value):
+        logging.info('save to redis: %s - %s', name, value)
+        get_redis_cli().set(name, value)
 
     def _save_attrs_to_redis(self, key, data):
         """ Save attribute related info into redis to make the query easier.
@@ -59,15 +70,13 @@ class CacheProxy:
               value is a id list to be pushed into redis.
         """
         assert isinstance(data, dict)
-        try:
-            pipe = get_redis_cli().pipeline()
-            for id, values in data.iteritems():
-                if id is None:
-                    continue
-                pipe.rpush(key % id, *values)
-            pipe.execute()
-        except RedisError, e:
-            logging.error('Redis Error: %s', (e,), exc_info=True)
+        pipe = get_redis_cli().pipeline()
+        for id, values in data.iteritems():
+            if id is None:
+                continue
+            for v in values:
+                pipe.rpush(key % id, v)
+        pipe.execute()
 
     def _save_objs_to_redis(self, data_list):
         """ save parsed xml data list into redis.
@@ -76,27 +85,16 @@ class CacheProxy:
         """
         if not data_list:
             return
-        try:
-            pipe = get_redis_cli().pipeline()
-            for data in data_list:
-                data_id = data['@id']
-                data_str = ujson.dumps(data)
-                name = self.obj_key % data_id
-                self._rem_attrs_for_obj(data_id)
-                pipe.set(name, data_str)
-            pipe.execute()
-        except RedisError, e:
-            logging.error('Redis Error: %s', (e,), exc_info=True)
+        pipe = get_redis_cli().pipeline()
+        for data in data_list:
+            data_id = data['@id']
+            data_str = ujson.dumps(data)
+            name = self.obj_key % data_id
+            self._rem_attrs_for_obj(data_id)
+            pipe.set(name, data_str)
+        pipe.execute()
 
-
-    def _get_from_server(self):
-        logging.info('fetch from sales server : %s', self.api)
-        req = urllib2.Request(
-            settings.SALES_SERVER_API_URL % {'api': self.api})
-        resp = urllib2.urlopen(req)
-        return "".join(resp.readlines())
-
-    def _parse_xml(self, xml):
+    def _parse_xml(self, xml, is_entire_result):
         raise NotImplementedError
 
     def _filter_interact(self, key, id, pre_ids):
@@ -123,14 +121,27 @@ class CacheProxy:
     def _del_objs(self, *objs_name):
         if not objs_name:
             return
+        logging.info('delete from redis: %s', objs_name)
         get_redis_cli().delete(*objs_name)
+
+    @property
+    def query_options(self):
+        return ()
+
+    def _get_query_str(self, **kw):
+        return urllib.urlencode([(q, kw[q]) for q in kw.keys()
+                                 if q in self.query_options and kw[q]])
 
 
 class SalesCacheProxy(CacheProxy):
-    api = "pub/sales/list"
+    api = "pub/sales/list?%s"
     obj_key = SALE
 
-    def get(self, **kw):
+    @property
+    def query_options(self):
+        return ('category', 'shop', 'brand', 'type')
+
+    def _get_from_redis(self, **kw):
         # do filters.
         sales_id = set(get_redis_cli().lrange(SALES_ALL % ALL, 0, -1))
         sales_id = self._filter_interact(SALES_FOR_CATEGORY,
@@ -156,36 +167,43 @@ class SalesCacheProxy(CacheProxy):
         return sales
 
     def _rem_attrs_for_obj(self, id):
-        sale = get_redis_cli().get(SALE % id)
+        cli = get_redis_cli()
+        sale = cli.get(SALE % id)
         if not sale:
+            cli.lrem(SALES_ALL % ALL, id, 0)
             return
         sale = ujson.loads(sale)
-        try:
-            pipe = get_redis_cli().pipeline()
-            pipe.lrem(SALES_FOR_CATEGORY % sale['category']['@id'], id, 0)
-            pipe.lrem(SALES_FOR_TYPE % sale['type']['@id'], id, 0)
-            pipe.lrem(SALES_FOR_BRAND % sale['brand']['@id'], id, 0)
-            pipe.lrem(SALES_ALL % ALL, id, 0)
-            if sale.get('shop'):
-                pipe.lrem(SALES_FOR_SHOP % sale['shop']['@id'], id, 0)
-            pipe.execute()
-        except RedisError, e:
-            logging.error('Redis Error: %s', (e,), exc_info=True)
+        pipe = cli.pipeline()
+        pipe.lrem(SALES_FOR_CATEGORY % sale['category']['@id'], id, 0)
+        pipe.lrem(SALES_FOR_TYPE % sale['type']['@id'], id, 0)
+        pipe.lrem(SALES_FOR_BRAND % sale['brand']['@id'], id, 0)
+        pipe.lrem(SALES_ALL % ALL, id, 0)
+        if sale.get('shop'):
+            pipe.lrem(SALES_FOR_SHOP % sale['shop']['@id'], id, 0)
+        pipe.execute()
 
-    def _parse_xml(self, xml):
+    def _parse_xml(self, xml, is_entire_result):
+        logging.info('parse sales xml: %s, is_entire_result:%s',
+                     xml, is_entire_result)
         data = xmltodict.parse(xml)['sales']
-
-        # save version
         version = data['@version']
-        self._save_to_redis(SALES_VERSION, version)
         if 'sale' not in data.keys():
             sales = []
         else:
             sales = data['sale']
-
-        # parse sales data to get cate/type/shop/brand info.
         if isinstance(sales, OrderedDict):
             sales = [sales]
+
+        try:
+            self._refresh_redis(version, sales, is_entire_result)
+        except (RedisError, ConnectionError), e:
+            logging.error('Redis Error: %s', (e,), exc_info=True)
+        return dict([(sale['@id'], sale) for sale in sales])
+
+    def _refresh_redis(self, version, sales, is_entire_result):
+        # save version
+        self._set_to_redis(SALES_VERSION, version)
+        # parse sales data to get cate/type/shop/brand info.
         sales_all = defaultdict(list)
         cates_info = defaultdict(list)
         types_info = defaultdict(list)
@@ -212,14 +230,20 @@ class SalesCacheProxy(CacheProxy):
         self._save_attrs_to_redis(SALES_FOR_TYPE, types_info)
         self._save_attrs_to_redis(SALES_FOR_BRAND, brands_info)
         self._save_attrs_to_redis(SALES_FOR_SHOP, shops_info)
-        self._rem_diff_objs(SALES_ALL, sales_all[ALL])
+        if is_entire_result:
+            self._rem_diff_objs(SALES_ALL, sales_all[ALL])
         self._save_attrs_to_redis(SALES_ALL, sales_all)
 
+
 class ShopsCacheProxy(CacheProxy):
-    api = "pub/shops/list"
+    api = "pub/shops/list?%s"
     obj_key = SHOP
 
-    def get(self, **kw):
+    @property
+    def query_options(self):
+        return ('seller', 'city')
+
+    def _get_from_redis(self, **kw):
         # do filters.
         shops_id = set(get_redis_cli().lrange(SHOPS_ALL % ALL, 0, -1))
         shops_id = self._filter_interact(SHOPS_FOR_BRAND,
@@ -239,33 +263,42 @@ class ShopsCacheProxy(CacheProxy):
         return shops
 
     def _rem_attrs_for_obj(self, id):
-        shop = get_redis_cli().get(SHOP % id)
+        cli = get_redis_cli()
+        shop = cli.get(SHOP % id)
         if not shop:
+            cli.lrem(SHOPS_ALL % ALL, id, 0)
             return
         shop = ujson.loads(shop)
-        try:
-            pipe = get_redis_cli().pipeline()
-            pipe.lrem(SHOPS_FOR_BRAND % shop['brand']['@id'], id, 0)
-            pipe.lrem(SHOPS_FOR_CITY % shop['city'], id, 0)
-            pipe.lrem(SHOPS_ALL % ALL, id, 0)
-            pipe.execute()
-        except RedisError, e:
-            logging.error('Redis Error: %s', (e,), exc_info=True)
+        pipe = cli.pipeline()
+        pipe.lrem(SHOPS_FOR_BRAND % shop['brand']['@id'], id, 0)
+        pipe.lrem(SHOPS_FOR_CITY % shop['city'], id, 0)
+        pipe.lrem(SHOPS_ALL % ALL, id, 0)
+        pipe.execute()
 
-    def _parse_xml(self, xml):
+    def _parse_xml(self, xml, is_entire_result):
+        logging.info('parse shops xml: %s, is_entire_result:%s',
+                     xml, is_entire_result)
         data = xmltodict.parse(xml)['shops']
 
-        # save version
         version = data['@version']
-        self._save_to_redis(SHOPS_VERSION, version)
         if 'shop' not in data.keys():
             shops = []
         else:
             shops = data['shop']
 
-        # parse shops data to get brand/city information.
         if isinstance(shops, OrderedDict):
             shops = [shops]
+        try:
+            self._refresh_redis(version, shops, is_entire_result)
+        except (RedisError, ConnectionError), e:
+            logging.error('Redis Error: %s', (e,), exc_info=True)
+        return dict([(shop['@id'], shop) for shop in shops])
+
+    def _refresh_redis(self, version, shops, is_entire_result):
+        # save version
+        self._set_to_redis(SHOPS_VERSION, version)
+
+        # parse shops data to get brand/city information.
         cities_info = defaultdict(list)
         brands_info = defaultdict(list)
         shops_all = defaultdict(list)
@@ -284,8 +317,10 @@ class ShopsCacheProxy(CacheProxy):
         # save city/brand info into redis.
         self._save_attrs_to_redis(SHOPS_FOR_CITY, cities_info)
         self._save_attrs_to_redis(SHOPS_FOR_BRAND, brands_info)
-        self._rem_diff_objs(SHOPS_ALL, shops_all[ALL])
+        if is_entire_result:
+            self._rem_diff_objs(SHOPS_ALL, shops_all[ALL])
         self._save_attrs_to_redis(SHOPS_ALL, shops_all)
+
 
 sales_cache_proxy = SalesCacheProxy()
 shops_cache_proxy = ShopsCacheProxy()
