@@ -1,10 +1,12 @@
 import settings
+import gevent
 import logging
 import ujson
 
 from B2SCrypto.constant import SERVICES
 from B2SCrypto.utils import decrypt_json_resp
 from B2SCrypto.utils import gen_encrypt_json_context
+from common import cache
 from common.constants import RESP_RESULT
 from webservice.base import BaseResource
 
@@ -16,15 +18,15 @@ class InvalidationResource(BaseResource):
                                 settings.SERVER_APIKEY_URI_MAP[SERVICES.ADM],
                                 settings.PRIVATE_KEY_PATH)
             logging.info("Received cache invalidation %s" % data)
-            method, item_name, item_id = data.split('/')
+            method, obj_name, obj_id = data.split('/')
         except Exception, e:
             logging.error("Got exceptions when decrypting invalidation data",
                           exc_info=True)
             self.gen_resp(resp, {'res': RESP_RESULT.F})
         else:
-            #TODO update items in redis
-
             self.gen_resp(resp, {'res': RESP_RESULT.S})
+            gevent.spawn(self.refresh_redis, method, obj_name, obj_id)
+
 
     def gen_resp(self, resp, data_dict):
         resp.content_type = "application/json"
@@ -33,4 +35,11 @@ class InvalidationResource(BaseResource):
                             settings.SERVER_APIKEY_URI_MAP[SERVICES.ADM],
                             settings.PRIVATE_KEY_PATH)
         return resp
+
+    def refresh_redis(self, method, obj_name, obj_id):
+        proxy = getattr(cache, '%ss_cache_proxy' % obj_name)
+        if method == 'DELETE':
+            proxy.del_obj(obj_id)
+        else:
+            proxy.refresh(obj_id)
 
