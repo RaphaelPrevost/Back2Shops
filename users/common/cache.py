@@ -26,7 +26,8 @@ SHOPS_VERSION = 'SHOPS_VERSION'
 SHOPS_ALL = 'SHOPS:%s'
 
 class CacheProxy:
-    api = None
+    list_api = None
+    obj_api = None
     obj_key = None
 
     def get(self, **kw):
@@ -36,24 +37,34 @@ class CacheProxy:
             logging.error("Faled to get from Redis %s", e, exc_info=True)
             return self._get_from_server(**kw)
 
-    def refresh(self):
+    def refresh(self, obj_id=None):
         try:
-            self._get_from_server()
+            self._get_from_server(obj_id)
         except Exception, e:
             logging.error('Cache Proxy Refresh Error: %s',
                           (e,),
                           exc_info=True)
 
+    def del_obj(self, obj_id):
+        self._rem_attrs_for_obj(obj_id)
+        self._del_objs(self.obj_key % obj_id)
+
     def _get_from_redis(self, **kw):
         raise NotImplementedError
 
-    def _get_from_server(self, **kw):
-        query = self._get_query_str(**kw)
-        logging.info('fetch from sales server : %s', self.api % query)
+    def _get_from_server(self, obj_id=None, **kw):
+        if obj_id is None:
+            query = self._get_query_str(**kw)
+            api = self.list_api % query
+        else:
+            api = self.obj_api % obj_id
+
+        logging.info('fetch from sales server : %s', api)
         req = urllib2.Request(
-            settings.SALES_SERVER_API_URL % {'api': self.api % query})
+            settings.SALES_SERVER_API_URL % {'api': api})
         resp = urllib2.urlopen(req)
-        is_entire_result = query == ''
+
+        is_entire_result = (obj_id is None and query == '')
         return self._parse_xml("".join(resp.readlines()), is_entire_result)
 
     def _set_to_redis(self, name, value):
@@ -134,7 +145,8 @@ class CacheProxy:
 
 
 class SalesCacheProxy(CacheProxy):
-    api = "pub/sales/list?%s"
+    list_api = "pub/sales/list?%s"
+    obj_api = "pub/sales/info/%s"
     obj_key = SALE
 
     @property
@@ -185,7 +197,8 @@ class SalesCacheProxy(CacheProxy):
     def _parse_xml(self, xml, is_entire_result):
         logging.info('parse sales xml: %s, is_entire_result:%s',
                      xml, is_entire_result)
-        data = xmltodict.parse(xml)['sales']
+        data = xmltodict.parse(xml)
+        data = data.get('sales', data.get('info'))
         version = data['@version']
         if 'sale' not in data.keys():
             sales = []
@@ -236,7 +249,8 @@ class SalesCacheProxy(CacheProxy):
 
 
 class ShopsCacheProxy(CacheProxy):
-    api = "pub/shops/list?%s"
+    list_api = "pub/shops/list?%s"
+    obj_api = "pub/shops/info/%s"
     obj_key = SHOP
 
     @property
@@ -278,7 +292,8 @@ class ShopsCacheProxy(CacheProxy):
     def _parse_xml(self, xml, is_entire_result):
         logging.info('parse shops xml: %s, is_entire_result:%s',
                      xml, is_entire_result)
-        data = xmltodict.parse(xml)['shops']
+        data = xmltodict.parse(xml)
+        data = data.get('shops', data.get('info'))
 
         version = data['@version']
         if 'shop' not in data.keys():
