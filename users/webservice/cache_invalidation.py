@@ -25,21 +25,26 @@ class InvalidationResource(BaseResource):
             self.gen_resp(resp, {'res': RESP_RESULT.F})
         else:
             self.gen_resp(resp, {'res': RESP_RESULT.S})
-            gevent.spawn(self.refresh_redis, method, obj_name, obj_id)
+            gevent.spawn(refresh_cache, method, obj_name, obj_id)
 
 
     def gen_resp(self, resp, data_dict):
         resp.content_type = "application/json"
         resp.body = gen_encrypt_json_context(
-                            ujson.dumps({'res': RESP_RESULT.S}),
+                            ujson.dumps(data_dict),
                             settings.SERVER_APIKEY_URI_MAP[SERVICES.ADM],
                             settings.PRIVATE_KEY_PATH)
         return resp
 
-    def refresh_redis(self, method, obj_name, obj_id):
-        proxy = getattr(cache, '%ss_cache_proxy' % obj_name)
-        if method == 'DELETE':
-            proxy.del_obj(obj_id)
-        else:
-            proxy.refresh(obj_id)
+
+def refresh_cache(method, obj_name, obj_id):
+    proxy = getattr(cache, '%ss_cache_proxy' % obj_name, None)
+    if proxy is None:
+        logging.error("No cache_proxy object for %s" % obj_name)
+        return
+
+    if method == 'DELETE':
+        proxy.del_obj(obj_id)
+    else:
+        proxy.refresh(obj_id)
 
