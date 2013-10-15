@@ -3,6 +3,7 @@ import base64
 import math
 from datetime import date
 from django.contrib.auth import authenticate as _authenticate
+from django.db.models import Q, Max
 from django.http import HttpResponse, HttpResponseForbidden
 from django.views.generic import View, ListView, DetailView
 from django.views.decorators.csrf import csrf_exempt
@@ -14,6 +15,7 @@ from sales.models import Sale, ProductType, ProductCategory, STOCK_TYPE_DETAILED
 from shops.models import Shop
 from barcodes.models import Barcode
 from brandings.models import Branding
+from common.filter_utils import get_filter, get_order_by
 from datetime import datetime
 import settings
 
@@ -117,6 +119,47 @@ class ShopsInfoView(BaseWebservice, DetailView):
 class TypesInfoView(BaseWebservice, DetailView):
     template_name = "types_info.xml"
     model = ProductType
+
+class SalesFindView(BaseWebservice, ListView):
+    template_name = "sales_list.xml"
+
+    def get_queryset(self):
+        search = self.request.GET.get('search', None)
+        filters = self.request.GET.getlist('filter', [])
+        sorteds = self.request.GET.getlist('sorted', [])
+
+        queryset = Sale.objects.filter(
+                Q(product__name__contains=search)|
+                Q(product__description__contains=search)|
+                Q(mother_brand__name__contains=search)|
+                Q(product__type__name__contains=search)|
+                Q(product__brand_attributes__name__contains=search)).distinct()
+
+        if filters and not isinstance(filters, list):
+            filters = [filters]
+
+        if sorteds and not isinstance(sorteds, list):
+            sorteds = [sorteds]
+
+        q = None
+        for f in filters:
+            f = json.loads(f)
+            q = get_filter(f['parameter'])(f['operator'],
+                                           f['comparison'],
+                                           f['value'], q).toQ()
+        if q:
+            queryset = queryset.filter(q)
+
+        orderby = []
+        for o in sorteds:
+            o = json.loads(o)
+            orderby.append(get_order_by(o['parameter'], o['order']))
+
+        if orderby:
+            queryset = queryset.annotate(max__product__brand_attributes=Max('product__brand_attributes'))
+            queryset = queryset.order_by(*tuple(orderby)).distinct()
+
+        return queryset
 
 #
 # APIs for managing shop inventory
