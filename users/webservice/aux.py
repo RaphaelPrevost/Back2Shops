@@ -1,4 +1,6 @@
+import urlparse
 import settings
+from common.cache import find_cache_proxy
 from common.constants import RESP_RESULT
 from common.error import ValidationError
 from common import db_utils
@@ -11,6 +13,7 @@ class AuxResource(BaseResource):
         'titles': 'handle_titles',
         'countries': 'handle_countries',
         'provinces': 'handle_provinces',
+        'sales': 'handle_sales',
     }
 
     def _on_get(self, req, resp, conn, **kwargs):
@@ -61,3 +64,6 @@ class AuxResource(BaseResource):
                                             cur_val, dict(result))
         return gen_json_response(resp, field.toDict())
 
+    def handle_sales(self, req, resp, conn):
+        sales_list = find_cache_proxy.get(req.query_string)
+        return gen_json_response(resp, sales_list)
