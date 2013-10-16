@@ -1,4 +1,5 @@
 import logging
+import gevent
 import xmltodict
 import ujson
 import urllib
@@ -25,6 +26,12 @@ SHOPS_FOR_CITY = 'SHOPS_FOR_CITY:%s'
 SHOPS_VERSION = 'SHOPS_VERSION'
 SHOPS_ALL = 'SHOPS:%s'
 
+SALE_CACHED_QUERY = 'SALE:%s:CACHED_QUERY'
+SALES_QUERY = 'SALES:QUERY:%s'
+
+class NotExsitError(Exception):
+    pass
+
 class CacheProxy:
     list_api = None
     obj_api = None
@@ -48,6 +55,10 @@ class CacheProxy:
     def del_obj(self, obj_id):
         self._rem_attrs_for_obj(obj_id)
         self._del_objs(self.obj_key % obj_id)
+        self._del_cached_query(obj_id)
+
+    def _del_cached_query(self, obj_id):
+        pass
 
     def _get_from_redis(self, **kw):
         raise NotImplementedError
@@ -65,7 +76,7 @@ class CacheProxy:
         resp = urllib2.urlopen(req)
 
         is_entire_result = (obj_id is None and query == '')
-        return self._parse_xml("".join(resp.readlines()), is_entire_result)
+        return self.parse_xml("".join(resp.readlines()), is_entire_result)
 
     def _set_to_redis(self, name, value):
         logging.info('save to redis: %s - %s', name, value)
@@ -105,7 +116,7 @@ class CacheProxy:
             pipe.set(name, data_str)
         pipe.execute()
 
-    def _parse_xml(self, xml, is_entire_result):
+    def parse_xml(self, xml, is_entire_result):
         raise NotImplementedError
 
     def _filter_interact(self, key, id, pre_ids):
@@ -194,7 +205,7 @@ class SalesCacheProxy(CacheProxy):
             pipe.lrem(SALES_FOR_SHOP % sale['shop']['@id'], id, 0)
         pipe.execute()
 
-    def _parse_xml(self, xml, is_entire_result):
+    def parse_xml(self, xml, is_entire_result):
         logging.info('parse sales xml: %s, is_entire_result:%s',
                      xml, is_entire_result)
         data = xmltodict.parse(xml)
@@ -247,6 +258,19 @@ class SalesCacheProxy(CacheProxy):
             self._rem_diff_objs(SALES_ALL, sales_all[ALL])
         self._save_attrs_to_redis(SALES_ALL, sales_all)
 
+    def _del_cached_query(self, obj_id):
+        cli = get_redis_cli()
+        key = SALE_CACHED_QUERY % obj_id
+        query_list = cli.lrange(key, 0, -1)
+        pipe = cli.pipeline()
+        for query in query_list:
+            s_id_list = ujson.loads(cli.get(query))
+            for s_id in s_id_list:
+                pipe.lrem(SALE_CACHED_QUERY % s_id, query, 0)
+        pipe.delete(*query_list)
+        pipe.delete(key)
+        pipe.execute()
+
 
 class ShopsCacheProxy(CacheProxy):
     list_api = "pub/shops/list?%s"
@@ -289,7 +313,7 @@ class ShopsCacheProxy(CacheProxy):
         pipe.lrem(SHOPS_ALL % ALL, id, 0)
         pipe.execute()
 
-    def _parse_xml(self, xml, is_entire_result):
+    def parse_xml(self, xml, is_entire_result):
         logging.info('parse shops xml: %s, is_entire_result:%s',
                      xml, is_entire_result)
         data = xmltodict.parse(xml)
@@ -337,5 +361,48 @@ class ShopsCacheProxy(CacheProxy):
         self._save_attrs_to_redis(SHOPS_ALL, shops_all)
 
 
+class SalesFindProxy:
+    find_api = "pub/sales/find?%s"
+    def get(self, query):
+        try:
+            sales_list = self.get_from_redis(query)
+        except (NotExsitError, RedisError, ConnectionError):
+            sales_list = self.get_from_remote_server(query)
+        return sales_list
+
+    def get_from_redis(self, query):
+        query_key = self._get_query_key(query)
+        cli = get_redis_cli()
+        if not cli.exists(query_key):
+            raise NotExsitError('Query cache not exist for: %s' % query_key)
+        sales_id = cli.get(query_key)
+        return ujson.loads(sales_id)
+
+    def get_from_remote_server(self, query):
+        api = self.find_api % query
+        logging.info('sales_query: api %s', api)
+        req = urllib2.Request(
+            settings.SALES_SERVER_API_URL % {'api': api})
+        resp = urllib2.urlopen(req)
+        sales_list = self.parse_xml("".join(resp.readlines()))
+        gevent.spawn(self._save_query_redis, query, sales_list)
+        return sales_list
+
+    def _save_query_redis(self, query, sales_id):
+        query_key = self._get_query_key(query)
+        cli = get_redis_cli()
+        cli.set(query_key, ujson.dumps(sales_id))
+        for s_id in sales_id:
+            cli.rpush(SALE_CACHED_QUERY % s_id, query_key)
+
+    def _get_query_key(self, query):
+        return SALES_QUERY % query
+
+    def parse_xml(self, xml):
+        sales = sales_cache_proxy.parse_xml(xml, False)
+        return sales.keys()
+
+
 sales_cache_proxy = SalesCacheProxy()
 shops_cache_proxy = ShopsCacheProxy()
+find_cache_proxy = SalesFindProxy()

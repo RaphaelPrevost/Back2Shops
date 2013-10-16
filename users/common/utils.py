@@ -147,9 +147,9 @@ def get_hashed_headers(req):
             req.get_header('DNT') or ''])
     return hashfn(HASH_ALGORITHM.SHA256, headers)
 
-def gen_json_response(resp, data_dict):
+def gen_json_response(resp, data):
     resp.content_type = "application/json"
-    resp.body = ujson.dumps(data_dict)
+    resp.body = ujson.dumps(data)
     return resp
 
 def hmac_secret_key():
