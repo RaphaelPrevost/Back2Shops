@@ -48,3 +48,5 @@ def refresh_cache(method, obj_name, obj_id):
     else:
         proxy.refresh(obj_id)
 
+    proxy.cached_query_invalidate(obj_id, method)
+
