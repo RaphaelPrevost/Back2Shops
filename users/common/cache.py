@@ -26,7 +26,7 @@ SHOPS_FOR_CITY = 'SHOPS_FOR_CITY:%s'
 SHOPS_VERSION = 'SHOPS_VERSION'
 SHOPS_ALL = 'SHOPS:%s'
 
-SALE_CACHED_QUERY = 'SALE:%s:CACHED_QUERY'
+SALE_CACHED_QUERY = 'SALE_CACHED_QUERY:%s'
 SALES_QUERY = 'SALES:QUERY:%s'
 
 class NotExsitError(Exception):
@@ -55,9 +55,12 @@ class CacheProxy:
     def del_obj(self, obj_id):
         self._rem_attrs_for_obj(obj_id)
         self._del_objs(self.obj_key % obj_id)
-        self._del_cached_query(obj_id)
 
-    def _del_cached_query(self, obj_id):
+    def cached_query_invalidate(self, obj_id, method):
+        del_all = method.upper() == 'POST'
+        self._del_cached_query(obj_id, del_all)
+
+    def _del_cached_query(self, obj_id, del_all):
         pass
 
     def _get_from_redis(self, **kw):
@@ -94,7 +97,7 @@ class CacheProxy:
         assert isinstance(data, dict)
         pipe = get_redis_cli().pipeline()
         for id, values in data.iteritems():
-            if id is None:
+            if not id:
                 continue
             for v in values:
                 pipe.rpush(key % id, v)
@@ -258,17 +261,24 @@ class SalesCacheProxy(CacheProxy):
             self._rem_diff_objs(SALES_ALL, sales_all[ALL])
         self._save_attrs_to_redis(SALES_ALL, sales_all)
 
-    def _del_cached_query(self, obj_id):
+    def _del_cached_query(self, obj_id, del_all):
         cli = get_redis_cli()
-        key = SALE_CACHED_QUERY % obj_id
-        query_list = cli.lrange(key, 0, -1)
         pipe = cli.pipeline()
-        for query in query_list:
-            s_id_list = ujson.loads(cli.get(query))
-            for s_id in s_id_list:
-                pipe.lrem(SALE_CACHED_QUERY % s_id, query, 0)
-        pipe.delete(*query_list)
-        pipe.delete(key)
+        if del_all:
+            invalid_cached_query = cli.keys(SALE_CACHED_QUERY % '*')
+            invalid_query = cli.keys(SALES_QUERY % '*')
+            for key in invalid_cached_query + invalid_query:
+                pipe.delete(key)
+        else:
+            key = SALE_CACHED_QUERY % obj_id
+            query_list = cli.lrange(key, 0, -1)
+            for query in query_list:
+                s_id_list = ujson.loads(cli.get(query))
+                for s_id in s_id_list:
+                    pipe.lrem(SALE_CACHED_QUERY % s_id, query, 0)
+            for q in query_list:
+                pipe.delete(q)
+            pipe.delete(key)
         pipe.execute()
 
 
