@@ -301,3 +301,12 @@ def encrypt_password(raw_password):
               "hash_algorithm": hash_algorithm,
               "hash_iteration_count": hash_iteration_count}
     return auth_token, values
+
+
+def as_list(data):
+    if not data:
+        return []
+    if not isinstance(data, list):
+        return [data]
+    return data
+

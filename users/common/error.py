@@ -8,3 +8,5 @@ class ServerError(Exception):
 class DatabaseError(Exception):
     pass
 
+class NotExistError(Exception):
+    pass

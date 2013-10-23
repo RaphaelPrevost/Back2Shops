@@ -4,30 +4,33 @@ import xmltodict
 import ujson
 import urllib
 import urllib2
-from collections import defaultdict
-from collections import OrderedDict
 from redis.exceptions import RedisError, ConnectionError
 
 import settings
+from common.constants import ALL
+from common.constants import SALE
+from common.constants import SALES_FOR_TYPE
+from common.constants import SALES_FOR_CATEGORY
+from common.constants import SALES_FOR_SHOP
+from common.constants import SALES_FOR_BRAND
+from common.constants import SALES_VERSION
+from common.constants import SALES_ALL
+from common.constants import SHOP
+from common.constants import SHOPS_FOR_BRAND
+from common.constants import SHOPS_FOR_CITY
+from common.constants import SHOPS_VERSION
+from common.constants import SHOPS_ALL
+from common.constants import SALE_CACHED_QUERY
+from common.constants import SALES_QUERY
+from common.constants import BARCODE
+from common.constants import BARCODE_ATTR_ID
+from common.constants import BARCODE_SALE_ID
+from common.constants import BARCODE_VARIANT_ID
+from common.constants import BARCODE_SHOP
+from common.utils import as_list
 from common.redis_utils import get_redis_cli
+from models.sale import ActorSale
 
-ALL = 'ALL'
-SALE = 'SALE:%s'
-SALES_FOR_TYPE = 'SALES_FOR_TYPE:%s'
-SALES_FOR_CATEGORY = 'SALES_FOR_CATEGORY:%s'
-SALES_FOR_SHOP = 'SALES_FOR_SHOP:%s'
-SALES_FOR_BRAND = 'SALES_FOR_BRAND:%s'
-SALES_VERSION = 'SALES_VERSION'
-SALES_ALL = 'SALES:%s'
-
-SHOP = 'SHOP:%s'
-SHOPS_FOR_BRAND = 'SHOPS_FOR_BRAND:%s'
-SHOPS_FOR_CITY = 'SHOPS_FOR_CITY:%s'
-SHOPS_VERSION = 'SHOPS_VERSION'
-SHOPS_ALL = 'SHOPS:%s'
-
-SALE_CACHED_QUERY = 'SALE_CACHED_QUERY:%s'
-SALES_QUERY = 'SALES:QUERY:%s'
 
 class NotExsitError(Exception):
     pass
@@ -199,13 +202,17 @@ class SalesCacheProxy(CacheProxy):
             cli.lrem(SALES_ALL % ALL, id, 0)
             return
         sale = ujson.loads(sale)
+        act_sale = ActorSale(data=sale)
         pipe = cli.pipeline()
-        pipe.lrem(SALES_FOR_CATEGORY % sale['category']['@id'], id, 0)
-        pipe.lrem(SALES_FOR_TYPE % sale['type']['@id'], id, 0)
-        pipe.lrem(SALES_FOR_BRAND % sale['brand']['@id'], id, 0)
+        pipe.lrem(SALES_FOR_CATEGORY % act_sale.category.id, id, 0)
+        pipe.lrem(SALES_FOR_TYPE % act_sale.type.id, id, 0)
+        pipe.lrem(SALES_FOR_BRAND % act_sale.brand.id, id, 0)
         pipe.lrem(SALES_ALL % ALL, id, 0)
-        if sale.get('shop'):
-            pipe.lrem(SALES_FOR_SHOP % sale['shop']['@id'], id, 0)
+        for shop in act_sale.shops:
+            pipe.lrem(SALES_FOR_SHOP % shop.id, id, 0)
+        for stocks in act_sale.get_stocks_with_upc():
+            key = BARCODE % stocks.upc
+            pipe.delete(key)
         pipe.execute()
 
     def parse_xml(self, xml, is_entire_result):
@@ -214,12 +221,8 @@ class SalesCacheProxy(CacheProxy):
         data = xmltodict.parse(xml)
         data = data.get('sales', data.get('info'))
         version = data['@version']
-        if 'sale' not in data.keys():
-            sales = []
-        else:
-            sales = data['sale']
-        if isinstance(sales, OrderedDict):
-            sales = [sales]
+
+        sales = as_list(data.get('sale', None))
 
         try:
             self._refresh_redis(version, sales, is_entire_result)
@@ -230,36 +233,29 @@ class SalesCacheProxy(CacheProxy):
     def _refresh_redis(self, version, sales, is_entire_result):
         # save version
         self._set_to_redis(SALES_VERSION, version)
-        # parse sales data to get cate/type/shop/brand info.
-        sales_all = defaultdict(list)
-        cates_info = defaultdict(list)
-        types_info = defaultdict(list)
-        shops_info = defaultdict(list)
-        brands_info = defaultdict(list)
-        for sale in sales:
-            sale_id = sale['@id']
-            cate_id = sale['category']['@id']
-            type_id = sale['type']['@id']
-            shop_id = sale.get('shop', {}).get('@id', None)
-            brand_id = sale['brand']['@id']
-
-            cates_info[cate_id].append(sale_id)
-            types_info[type_id].append(sale_id)
-            brands_info[brand_id].append(sale_id)
-            shops_info[shop_id].append(sale_id)
-            sales_all[ALL].append(sale_id)
-
         # save sales info into redis
         self._save_objs_to_redis(sales)
 
-        # save cate/type/shop/brand info into redis.
-        self._save_attrs_to_redis(SALES_FOR_CATEGORY, cates_info)
-        self._save_attrs_to_redis(SALES_FOR_TYPE, types_info)
-        self._save_attrs_to_redis(SALES_FOR_BRAND, brands_info)
-        self._save_attrs_to_redis(SALES_FOR_SHOP, shops_info)
+        pipe = get_redis_cli().pipeline()
+        for sale in sales:
+            act_sale = ActorSale(data=sale)
+            sale_id = act_sale.id
+            pipe.rpush(SALES_FOR_CATEGORY % act_sale.category.id, sale_id)
+            pipe.rpush(SALES_FOR_TYPE % act_sale.type.id, sale_id)
+            pipe.rpush(SALES_FOR_BRAND % act_sale.brand.id, sale_id)
+            for shop in act_sale.shops:
+                pipe.rpush(SALES_FOR_SHOP % shop.id, sale_id)
+            pipe.rpush(SALES_ALL % ALL, sale_id)
+            # cache sales upc information.
+            for stocks in act_sale.get_stocks_with_upc():
+                key = BARCODE % stocks.upc
+                pipe.hset(key, BARCODE_VARIANT_ID, stocks.variant)
+                pipe.hset(key, BARCODE_SALE_ID, sale_id)
+                pipe.hset(key, BARCODE_ATTR_ID, stocks.attribute)
+        pipe.execute()
+
         if is_entire_result:
-            self._rem_diff_objs(SALES_ALL, sales_all[ALL])
-        self._save_attrs_to_redis(SALES_ALL, sales_all)
+            self._rem_diff_objs(SALES_ALL, [s['@id'] for s in sales])
 
     def _del_cached_query(self, obj_id, del_all):
         cli = get_redis_cli()
@@ -321,6 +317,7 @@ class ShopsCacheProxy(CacheProxy):
         pipe.lrem(SHOPS_FOR_BRAND % shop['brand']['@id'], id, 0)
         pipe.lrem(SHOPS_FOR_CITY % shop['city'], id, 0)
         pipe.lrem(SHOPS_ALL % ALL, id, 0)
+        pipe.delete(BARCODE_SHOP % id)
         pipe.execute()
 
     def parse_xml(self, xml, is_entire_result):
@@ -330,13 +327,7 @@ class ShopsCacheProxy(CacheProxy):
         data = data.get('shops', data.get('info'))
 
         version = data['@version']
-        if 'shop' not in data.keys():
-            shops = []
-        else:
-            shops = data['shop']
-
-        if isinstance(shops, OrderedDict):
-            shops = [shops]
+        shops = as_list(data.get('shop', None))
         try:
             self._refresh_redis(version, shops, is_entire_result)
         except (RedisError, ConnectionError), e:
@@ -347,28 +338,23 @@ class ShopsCacheProxy(CacheProxy):
         # save version
         self._set_to_redis(SHOPS_VERSION, version)
 
-        # parse shops data to get brand/city information.
-        cities_info = defaultdict(list)
-        brands_info = defaultdict(list)
-        shops_all = defaultdict(list)
+        # save shops info into redis
+        self._save_objs_to_redis(shops)
+
+        pipe = get_redis_cli().pipeline()
         for shop in shops:
             shop_id = shop['@id']
             city = shop['city']
             brand_id = shop['brand']['@id']
 
-            cities_info[city].append(shop_id)
-            brands_info[brand_id].append(shop_id)
-            shops_all[ALL].append(shop_id)
+            pipe.rpush(SHOPS_FOR_CITY % city, shop_id)
+            pipe.rpush(SHOPS_FOR_BRAND % brand_id, shop_id)
+            pipe.rpush(SHOPS_ALL % ALL, shop_id)
+            pipe.set(BARCODE_SHOP % shop['upc'], shop_id)
+        pipe.execute()
 
-        # save shops info into redis
-        self._save_objs_to_redis(shops)
-
-        # save city/brand info into redis.
-        self._save_attrs_to_redis(SHOPS_FOR_CITY, cities_info)
-        self._save_attrs_to_redis(SHOPS_FOR_BRAND, brands_info)
         if is_entire_result:
-            self._rem_diff_objs(SHOPS_ALL, shops_all[ALL])
-        self._save_attrs_to_redis(SHOPS_ALL, shops_all)
+            self._rem_diff_objs(SHOPS_ALL, [s['@id'] for s in shops])
 
 
 class SalesFindProxy:

@@ -91,12 +91,14 @@ CREATE TABLE orders (
 CREATE TABLE order_items (
     id serial PRIMARY KEY,
     id_sale BIGINT NOT NULL,
-    id_shop BIGINT NOT NULL,
+    id_shop BIGINT,
+    id_variant BIGINT,
     price double precision NOT NULL,
     name character varying(150) NOT NULL,
     picture character varying(100),
     description character varying(128),
-    copy_time timestamp without time zone DEFAULT now() NOT NULL
+    copy_time timestamp without time zone DEFAULT now() NOT NULL,
+    barcode character varying(50)
 );
 
 CREATE TABLE order_details (
