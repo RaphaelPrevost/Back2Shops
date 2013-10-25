@@ -1,22 +1,14 @@
-import ujson
+import logging
 from decimal import Decimal
 from common.constants import SALE
+from common.constants import BARCODE
+from common.constants import BARCODE_VARIANT_ID
+from common.constants import BARCODE_SALE_ID
 from common.error import NotExistError
 from common.utils import as_list
+from common.utils import order_img_download
 from common.redis_utils import get_redis_cli
-
-class BaseActor(object):
-    attrs_map = {}
-    def __init__(self, data=None, xml_data=None):
-        if xml_data:
-            self.data = ujson.loads(xml_data)
-        else:
-            self.data = data
-
-    def __getattr__(self, item):
-        assert item in self.attrs_map
-        item_name = self.attrs_map[item]
-        return self.data.get(item_name)
+from models.base_actor import BaseActor
 
 
 class ActorSaleCategory(BaseActor):
@@ -171,6 +163,13 @@ class ActorSale(BaseActor):
         raise NotExistError('Variant %s not exist for Sale %s'
                             % (id_variant, self.id))
 
+    def get_shop(self, id_shop):
+        for s in self.shops:
+            if int(id_shop) == int(s.id):
+                return s
+        raise NotExistError('Shop%s not exist for Sale %s'
+                            % (id_shop, self.id))
+
     def final_price(self, id_variant=0):
         def __diff_price(orig_price, obj):
             if obj.type == 'ratio':
@@ -201,17 +200,23 @@ class ActorSale(BaseActor):
                 stocks.append(s)
         return stocks
 
-    def get_picture(self):
-        """ Temp function to return only one picture path.
+    def get_main_picture(self, id_variant=0):
+        """ If id_variant set, return preview img of the variant.
+            else return the sale's first product img.
         """
-        if self.img:
-            return self.img[0]
-
-    def get_shop_id(self):
-        """ Temp function to return only on shop id.
-        """
-        if self.shops:
-            return self.shops[0].id
+        img_path = None
+        if int(id_variant):
+            v = self.get_variant(id_variant)
+            if v.img:
+                img_path = v.img
+        elif self.img:
+            img_path = self.img[0]
+        if img_path:
+            new_path = order_img_download(img_path)
+            return new_path
+        else:
+            logging.info('No main image for sale: %s, variant: %s',
+                         self.id, id_variant)
 
 
 class CachedSale:
@@ -245,3 +250,20 @@ class CachedSale:
         except NotExistError:
             return False
         return True
+
+    def valid_shop(self, id_shop):
+        try:
+            if int(id_shop):
+                self.sale.get_shop(id_shop)
+            elif len(self.sale.shops) > 0:
+                raise NotExistError()
+        except NotExistError:
+            return False
+        return True
+
+def get_sale_by_barcode(barcode):
+    cli = get_redis_cli()
+    key = BARCODE % barcode
+    id_sale = cli.hget(key, BARCODE_SALE_ID)
+    id_variant = cli.hget(key, BARCODE_VARIANT_ID)
+    return id_sale, id_variant

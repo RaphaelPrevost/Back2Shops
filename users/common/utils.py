@@ -10,11 +10,18 @@ import random
 import string
 import re
 import ujson
+import urllib
+import urllib2
 import settings
+
+from hashlib import sha1
+
 from common.constants import HASH_ALGORITHM
 from common.constants import HASH_ALGORITHM_NAME
 from common.error import ValidationError
 from common import db_utils
+from B2SCrypto.utils import get_from_remote
+from B2SCrypto.constant import SERVICES
 
 phone_num_reexp = r'^[0-9]+$'
 postal_code_reexp = r'^[0-9]+$'
@@ -310,3 +317,21 @@ def as_list(data):
         return [data]
     return data
 
+def order_img_download(img_path):
+    img_url = os.path.join(settings.ADM_ROOT_URI, img_path.strip('/'))
+    try:
+        resp = urllib2.urlopen(img_url)
+        img_content = resp.read()
+        _, ext = os.path.split(img_path)
+        new_name = sha1(img_content).hexdigest()
+        new_file = '.'.join([new_name, ext])
+        save_path = os.path.join(
+            settings.STATIC_ORDERS_IMG_PATH, new_file)
+        with open(save_path, 'w') as f:
+            f.write(img_content)
+            f.close()
+        return save_path
+    except Exception, e:
+        logging.error("Failed down load order's img: %s, err: %s",
+                      img_path, e, exc_info=True)
+        raise
