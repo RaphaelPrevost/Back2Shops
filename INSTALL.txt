@@ -1,5 +1,6 @@
 
 == Dependency ==
+=== For user.backtoshops.com ===
 1. Pillow dependency(Details reference: https://pypi.python.org/pypi/Pillow/2.1.0):
    * Ubuntu 12.04 LTS or Raspian Wheezy 7.0:
      $ sudo apt-get install libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev liblcms1-dev libwebp-dev
@@ -35,3 +36,13 @@
         /path/to/backtoshops/packages/dist
     }}}
 
+
+=== For finance.backtoshops.com ===
+1. Weasy Print
+   * Ubuntu 12.04 LTS or Raspian Wheezy 7.0:
+     $ sudo apt-get install swig
+     $ sudo apt-get install python-lxml libcairo2 libpango1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-data libxml2-dev libxslt1-dev
+
+
+   * Max OS X
+     $ brew install python cairo pango gdk-pixbuf libxml2 libxslt libffi

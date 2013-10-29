@@ -10,7 +10,6 @@ import random
 import string
 import re
 import ujson
-import urllib
 import urllib2
 import settings
 
@@ -18,10 +17,8 @@ from hashlib import sha1
 
 from common.constants import HASH_ALGORITHM
 from common.constants import HASH_ALGORITHM_NAME
-from common.error import ValidationError
-from common import db_utils
-from B2SCrypto.utils import get_from_remote
-from B2SCrypto.constant import SERVICES
+from B2SUtils.errors import ValidationError
+from B2SUtils import db_utils
 
 phone_num_reexp = r'^[0-9]+$'
 postal_code_reexp = r'^[0-9]+$'

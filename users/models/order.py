@@ -1,10 +1,9 @@
 import logging
 from datetime import datetime
 from common.constants import SHIPMENT_STATUS
-from common.constants import BARCODE_SHOP
-from common.db_utils import insert
-from common.redis_utils import get_redis_cli
 from models.sale import CachedSale
+from models.shop import get_shop_id
+from B2SUtils.db_utils import insert
 
 def _create_order(conn, users_id):
     values = {'id_user': users_id}
@@ -13,14 +12,10 @@ def _create_order(conn, users_id):
                  order_id, users_id)
     return order_id[0]
 
-def _get_shop_by_upc(upc_shop):
-    cli = get_redis_cli()
-    return cli.get(BARCODE_SHOP % upc_shop)
-
 def _create_order_item(conn, sale, id_variant, upc_shop=None,
                        barcode=None, id_shop=None):
     if upc_shop:
-        shop_id = _get_shop_by_upc(upc_shop)
+        shop_id = get_shop_id(upc_shop)
     else:
         shop_id = id_shop
 

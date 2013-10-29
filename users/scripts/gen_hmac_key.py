@@ -3,8 +3,8 @@ import os
 from datetime import datetime
 
 import settings
-from common import db_utils
 from common.log import setupLogging
+from B2SUtils import db_utils
 
 setupLogging()
 
@@ -19,7 +19,7 @@ def main():
         logging.info('HMAC key updated at %s UTC: %s'
                      % (datetime.utcnow(), hmac_key))
 
-    with db_utils.get_conn() as conn:
+    with db_utils.get_conn(settings.DATABASE) as conn:
         result = db_utils.delete(conn, 'users_logins',
                         where={'cookie_expiry__lt': datetime.utcnow()},
                         returning='*')

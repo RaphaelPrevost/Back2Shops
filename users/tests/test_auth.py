@@ -3,12 +3,12 @@ import datetime
 import urllib2
 
 import settings
-from common import db_utils
 from common.test_utils import BaseTestCase
 from common.test_utils import UsersBrowser
 from common.utils import generate_random_str
 from common.utils import gen_cookie_expiry
 from common.utils import _parse_auth_cookie
+from B2SUtils import db_utils
 
 class TestUserAuth(BaseTestCase):
     def setUp(self):

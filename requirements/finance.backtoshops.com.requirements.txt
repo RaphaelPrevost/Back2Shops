@@ -1,15 +1,11 @@
 cython==0.19.1
 falcon==0.1.7
-ujson==1.33
-enum==0.4.4
 psycopg2==2.5.1
 pypgwrap==0.1.4
 gevent==0.13.8
 gevent-psycopg2==0.0.3
-redis==2.8.0
-hiredis==0.1.1
-mechanize==0.2.5
 M2Crypto==0.21.1.B2S
 B2SCrypto==0.0.1
-xmltodict==0.7.0
+Jinja2==2.7.1
+WeasyPrint==0.19.2
 B2SUtils==0.0.1

@@ -4,8 +4,6 @@ from datetime import datetime, timedelta
 
 import settings
 from common.constants import RESP_RESULT
-from common.error import ValidationError
-from common import db_utils
 from common.utils import encrypt_password
 from common.utils import get_authenticator
 from common.utils import gen_cookie_expiry
@@ -17,6 +15,8 @@ from common.utils import get_preimage
 from common.utils import make_auth_cookie
 from common.utils import set_cookie
 from webservice.base import BaseResource
+from B2SUtils import db_utils
+from B2SUtils.errors import ValidationError
 
 class UserLoginResource(BaseResource):
 
