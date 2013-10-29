@@ -1,24 +1,20 @@
-import binascii
-import os
-import random
 import re
 
 import settings
 from common.constants import ADDR_TYPE
 from common.constants import GENDER
 from common.constants import RESP_RESULT
-from common.error import ValidationError
-from common import db_utils
 from common import field_utils
 from common.utils import cookie_verify
 from common.utils import addr_reexp, city_reexp
 from common.utils import date_reexp, email_reexp
 from common.utils import postal_code_reexp, phone_num_reexp
 from common.utils import encrypt_password
-from common.utils import get_hexdigest
 from common.utils import gen_json_response
 from common.utils import is_valid_email
 from webservice.base import BaseResource
+from B2SUtils import db_utils
+from B2SUtils.errors import ValidationError
 
 
 class UserResource(BaseResource):

@@ -1,12 +1,11 @@
-import urlparse
 import settings
 from common.cache import find_cache_proxy
 from common.constants import RESP_RESULT
-from common.error import ValidationError
-from common import db_utils
 from common import field_utils
 from common.utils import gen_json_response
 from webservice.base import BaseResource
+from B2SUtils import db_utils
+from B2SUtils.errors import ValidationError
 
 class AuxResource(BaseResource):
     get_res_func_map = {

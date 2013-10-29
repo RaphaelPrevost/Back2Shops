@@ -1,0 +1,4 @@
+== version 0.0.1 ==
+1. add common functions for databace access.
+2. add common function to setup logging config.
+3. add common errors userd by different applications.

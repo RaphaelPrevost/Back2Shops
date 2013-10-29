@@ -1,28 +1,29 @@
 import psycopg2
 import pypgwrap
-
-import settings
-from common.error import DatabaseError
+from B2SUtils.errors import DatabaseError
 
 
 global db_initialized
 db_initialized = False
 
-def init_db_pool(force=False):
+def init_db_pool(db_config, force=False):
     global db_initialized
     if db_initialized and not force:
         return
-    db_config = settings.DATABASE
     db_url = ('postgres://%(USER)s:%(PASSWORD)s@%(HOST)s:%(PORT)s/%(NAME)s'
               % db_config)
     pypgwrap.config_pool(max_pool=db_config['MAX_CONN'],
                          pool_expiration=db_config['CONN_EXPIRATION'],
                          url=db_url)
+    db_initialized = True
 
-def get_conn():
+def get_conn(db_config=None):
     global db_initialized
     if not db_initialized:
-        init_db_pool()
+        if db_config:
+            init_db_pool(db_config)
+        else:
+            raise DatabaseError("Database haven't! been initialized")
     return pypgwrap.connection()
 
 def insert(conn, table_name, **kwargs):

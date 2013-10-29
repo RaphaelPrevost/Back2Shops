@@ -3,12 +3,12 @@ import logging
 import time
 from datetime import datetime
 
-from common import db_utils
-from common.error import DatabaseError
-from common.error import ValidationError
 from common.utils import cookie_verify
 from common.utils import gen_json_response
 from common.constants import RESP_RESULT
+from B2SUtils import db_utils
+from B2SUtils.errors import DatabaseError
+from B2SUtils.errors import ValidationError
 
 class BaseResource:
     login_required = {'get': False, 'post': False}

@@ -3,15 +3,15 @@ import urlparse
 import ujson
 
 from common.constants import RESP_RESULT
-from common.error import ValidationError
 from common.error import NotExistError
-from common.db_utils import select
 from common.utils import gen_json_response
 from models.sale import get_sale_by_barcode
 from models.sale import CachedSale
 from models.shop import CachedShop
 from models.order import create_order
 from webservice.base import BaseResource
+from B2SUtils.db_utils import select
+from B2SUtils.errors import ValidationError
 
 
 class OrderResource(BaseResource):
