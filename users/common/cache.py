@@ -32,7 +32,7 @@ from common.redis_utils import get_redis_cli
 from models.sale import ActorSale
 
 
-class NotExsitError(Exception):
+class NotExistError(Exception):
     pass
 
 class CacheProxy:
@@ -362,7 +362,7 @@ class SalesFindProxy:
     def get(self, query):
         try:
             sales_list = self.get_from_redis(query)
-        except (NotExsitError, RedisError, ConnectionError):
+        except (NotExistError, RedisError, ConnectionError):
             sales_list = self.get_from_remote_server(query)
         return sales_list
 
@@ -370,7 +370,7 @@ class SalesFindProxy:
         query_key = self._get_query_key(query)
         cli = get_redis_cli()
         if not cli.exists(query_key):
-            raise NotExsitError('Query cache not exist for: %s' % query_key)
+            raise NotExistError('Query cache not exist for: %s' % query_key)
         sales_id = cli.get(query_key)
         return ujson.loads(sales_id)
 
