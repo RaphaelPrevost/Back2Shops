@@ -3,7 +3,7 @@ from datetime import datetime
 from common.constants import SHIPMENT_STATUS
 from models.sale import CachedSale
 from models.shop import get_shop_id
-from B2SUtils.db_utils import insert
+from B2SUtils.db_utils import insert, update, query
 
 def _create_order(conn, users_id):
     values = {'id_user': users_id}
@@ -97,3 +97,25 @@ def create_order(conn, users_id, telephone_id, order_items,
         _create_shipping_list(conn, item_id, order['quantity'],
                               id_shipment=id_shipment)
     return order_id
+
+def update_shipping_fee(conn, id_order, id_postage, shipping_fee):
+    try:
+        values={'id_postage': id_postage,
+                'shipping_fee': shipping_fee}
+        rst = update(conn, 'shipments',
+               values=values,
+               where={'id_order': id_order},
+               returning='id')
+        conn.commit()
+        logging.info('update_shipping_fee:'
+                     'id_order: %s,'
+                     'values: %s, '
+                     'for shipment: %s,'
+                     % (id_order, values, rst))
+    except Exception, e:
+        logging.error('update_shipping_fee err: %s, '
+                      'args: id_order: %s,'
+                      'id_postage: %s, '
+                      'shipping_fee: %s'
+                      % (e, id_order, id_postage, shipping_fee), exc_info=True)
+        raise
