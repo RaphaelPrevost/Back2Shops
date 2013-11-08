@@ -4,7 +4,7 @@ from webservice.aux import AuxResource
 from webservice.cache_invalidation import InvalidationResource
 from webservice.crypto import ApiKeyResource
 from webservice.crypto import CryptoTestResource
-from webservice.orders import OrderResource
+from webservice.orders import OrderResource, ShippingFeeResource
 from webservice.sales import SalesResource
 from webservice.shops import ShopsResource
 
@@ -20,4 +20,6 @@ urlpatterns = {
     '/webservice/1.0/pub/crypto/test': CryptoTestResource, # TODO: remove, just for test
 
     '/webservice/protected/invalidate': InvalidationResource,
+    '/webservice/protected/shipping/fee': ShippingFeeResource,
+
 }

@@ -1,4 +1,6 @@
 import logging
+import gevent
+import settings
 import urlparse
 import ujson
 
@@ -9,7 +11,12 @@ from models.sale import get_sale_by_barcode
 from models.sale import CachedSale
 from models.shop import CachedShop
 from models.order import create_order
+from models.order import update_shipping_fee
 from webservice.base import BaseResource
+from B2SCrypto.constant import SERVICES
+from B2SCrypto.utils import decrypt_json_resp
+from B2SCrypto.utils import gen_encrypt_json_context
+from B2SUtils import db_utils
 from B2SUtils.db_utils import select
 from B2SUtils.errors import ValidationError
 
@@ -168,3 +175,42 @@ class OrderResource(BaseResource):
             raise ValidationError('ORDER_ERR_INVALID_SALE_SHOP_%s' % id_shop)
         elif int(quantity) <= 0:
             raise ValidationError('ORDER_ERR_INVALID_QUANTITY_%s' % quantity)
+
+class ShippingFeeResource(BaseResource):
+    login_required = {'get': False, 'post': False}
+
+    def on_get(self, req, resp, conn, **kwargs):
+        return gen_json_response(resp,
+                                 {'res': RESP_RESULT.F,
+                                  'err': 'INVALID_REQUEST'})
+
+    def on_post(self, req, resp, **kwargs):
+        try:
+            logging.info('Shipping_fee_request: %s' % req.stream)
+            data = decrypt_json_resp(req.stream,
+                                     settings.SERVER_APIKEY_URI_MAP[SERVICES.ADM],
+                                     settings.PRIVATE_KEY_PATH)
+            logging.info("Received shipping fee %s" % data)
+            data = ujson.loads(data)
+        except Exception, e:
+            logging.error("Got exceptions when decrypting shipping fee %s" % e,
+                          exc_info=True)
+            self.gen_resp(resp, {'res': RESP_RESULT.F})
+        else:
+            self.gen_resp(resp, {'res': RESP_RESULT.S})
+            with db_utils.get_conn() as conn:
+                gevent.spawn(update_shipping_fee,
+                             conn,
+                             data['id_order'],
+                             data['id_postage'],
+                             data['shipping_fee'])
+
+    def gen_resp(self, resp, data_dict):
+        resp.content_type = "application/json"
+        resp.body = gen_encrypt_json_context(
+                            ujson.dumps(data_dict),
+                            settings.SERVER_APIKEY_URI_MAP[SERVICES.ADM],
+                            settings.PRIVATE_KEY_PATH)
+        return resp
+
+

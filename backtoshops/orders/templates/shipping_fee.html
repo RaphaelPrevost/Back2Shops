@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Edit a sale" %}{% endblock %}
+
+{% block head %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.form.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.ui.autocomplete.html.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.ui.datepicker-fr.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/fileupload/jquery.iframe-transport.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/fileupload/jquery.fileupload.js"></script>
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/shipping.css" />
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/ui-lightness/jquery-ui-1.8.16.custom.css" />
+{% endblock %}
+
+{% block navigation %}
+{% include "_quick_nav.html" %}
+{% endblock %}
+
+{% block content %}
+    <!--Lien Haut de Page -->
+    <a id="lienUP" href="#conteneur">{% trans "Page Top" %}</a>
+
+    <div id="content_Left">
+        <!--Title-->
+        <div id="title">
+            <span>{% trans "Create Shipment" %}</span>
+            <h2>
+                {% trans "Create Shipment" %}
+            </h2>
+        </div>
+
+        {% if shipping_pk %}
+        <form id="main_form" action="{% url 'shipment_edit' shipping_pk %}" enctype="multipart/form-data" method="post">{% csrf_token %}
+        {% else %}
+        <form id="main_form" action="{% url 'shipment_create' %}" enctype="multipart/form-data" method="post">{% csrf_token %}
+        {% endif %}
+            <fieldset>
+                {{ form.non_field_errors }}
+                {{ form.addr_orig.errors }}
+                <div class="formrow">
+                    <label for="{{form.addr_orig.auto_id}}">{% trans form.addr_orig.label %}</label>
+                    {{ form.addr_orig }}
+                </div>
+                {{ form.addr_dest.errors }}
+                <div class="formrow">
+                    <label for="{{form.addr_dest.auto_id}}">{% trans form.addr_dest.label %}</label>
+                    {{ form.addr_dest }}
+                </div>
+                {{ form.order.errors }}
+                <div class="formrow">
+                    <label for="{{form.order.auto_id}}">{% trans form.order.label %}</label>
+                    {{ form.order }}
+                </div>
+                {{ form.carrier.errors }}
+                <div class="formrow">
+                    <label for="{{form.carrier.auto_id}}">{% trans form.carrier.label %}</label>
+                    {{ form.carrier }}
+                </div>
+                {{ form.service.errors }}
+                <div class="formrow">
+                    <label for="{{form.service.auto_id}}">{% trans form.service.label %}</label>
+                    {{ form.service}}
+                </div>
+                {{ form.wight.errors }}
+                <div class="formrow">
+                    <label for="{{form.weight.auto_id}}">{% trans form.weight.label %}</label>
+                    {{ form.weight }}
+                </div>
+                {{ form.handling_fee.errors }}
+                <div class="formrow">
+                    <label for="{{form.handling_fee.auto_id}}">{% trans form.handling_fee.label %}</label>
+                    {{ form.handling_fee }}
+                </div>
+                {{ form.ship_and_handling_fee.errors }}
+                <div class="formrow">
+                    <label for="{{form.ship_and_handling_fee.auto_id}}">{% trans form.ship_and_handling_fee.label %}</label>
+                    {{ form.ship_and_handling_fee }}
+                </div>
+                {{ form.total_fee.errors }}
+                <div class="formrow">
+                    <label for="{{form.total_fee.auto_id}}">{% trans form.total_fee.label %}</label>
+                    {{ form.total_fee}}
+                </div>
+            </fieldset>
+            <input class="btn select" type="submit" value="{% trans "Confirm" %}"/>
+            <input id='id_compute_fee' class="btn select" type="button" value="{% trans "Compute Fee" %}"/>
+        </form>
+        {% block empty_forms %}{% endblock %}
+    </div>
+
+    <!--content-right-->
+    <div id="content_Right">
+
+    </div>
+    <!--FIN content-right-->
+    <div class="clear"></div>
+{% endblock %}
+
+
+{% block javascript %}
+<script type="text/javascript">
+    $(function(){
+        $("#id_compute_fee").click(function() {
+            data = $("#main_form").serialize();
+            $.get("{% url 'shipment_fees' %}", data, function(ret){
+                $('#id_total_fee').val(parseFloat(ret).toFixed(2));
+            });
+
+        });
+    });
+</script>
+{% endblock %}

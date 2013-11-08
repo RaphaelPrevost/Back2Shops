@@ -244,11 +244,13 @@ THUMBNAIL_DEBUG = True
 GEONAMES_USERNAME = "moonstrap"
 
 # TODO: change according with product env.
+USR_SERVER = 'http://localhost:8100'
 SERVER_APIKEY_URI_MAP = {
-    'USR': 'http://localhost:8100/webservice/1.0/pub/apikey.pem',
+    'USR': '%s/webservice/1.0/pub/apikey.pem' % USR_SERVER,
 }
 
 PRIVATE_KEY_PATH = 'static/keys/adm_pri.key'
 PUB_KEY_PATH = 'static/keys/adm_pub.key'
 
-CACHE_INVALIDATION_URL = "http://localhost:8100/webservice/protected/invalidate"
+CACHE_INVALIDATION_URL = "%s/webservice/protected/invalidate" % USR_SERVER
+SHIPPING_FEE_URL = "%s/webservice/protected/shipping/fee" % USR_SERVER
