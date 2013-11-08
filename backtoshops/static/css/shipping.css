@@ -1,0 +1,79 @@
+/*------------------------------*/
+/*  Ajouter une nouvelle vente  */
+/*------------------------------*/
+
+#menu_ico li a.link4 { background-color: #565656; }
+#title span { background-position: 0 -75px; }
+
+/*------------------------------------------------------ */
+/*                       content-left                    */
+/*------------------------------------------------------ */
+
+/*---------- FORM CSS Generales ----------*/
+#main_form { position: relative; }
+#main_form fieldset {
+		padding: 40px 20px 20px 20px;
+		background-color: #fff;
+		border: 1px solid #c8c8c8;
+}
+
+#main_form .formrow { min-height: 22px; margin-bottom: 10px; }
+#main_form .formrow.p_vide { height: 0; min-height: 0; margin: 0; }
+#main_form .formrow.marge { margin-bottom: 30px; }
+#main_form .formrow:after {
+		content: ".";
+		display: block;
+		height: 0;
+		clear: both;
+		visibility: hidden;
+}
+
+#main_form .formrow label,
+#main_form .formrow input,
+#main_form .formrow select,
+#main_form .formrow textarea,
+#main_form .formrow span,
+#main_form .contForm{
+		display: block;
+		float: left;
+}
+
+#main_form .formrow span { height: 22px; line-height: 22px; margin: 0 5px; }
+
+#main_form .formrow label { width: 145px; }
+#main_form .formrow select { width: 283px; }
+#main_form .formrow textarea,
+#main_form .formrow input { width: 271px; }
+
+#main_form .formrow select.dubble { width: 95px; }
+#main_form .btn { float: right; margin: 5px 0 0 5px; }
+
+.formrow #id_addr_orig,
+.formrow #id_addr_dest,
+.formrow #id_order,
+.formrow #id_total_fee {
+	  background-color: #BDBDBD;
+}
+
+/*------------------------------------------------------ */
+/*                       content-right                   */
+/*------------------------------------------------------ */
+
+.titleRight {
+	width: 388px;
+	height: 27px;
+    line-height: 27px;
+	margin: 0 0 7px 0;
+	padding: 0 5px 0 7px;
+    background: url(../img/pix_title.gif) repeat-x 0 0 #FFFFFF;
+}
+.boxRight {
+	width: 398px;
+	margin: 0 0 30px 0;
+	background-color: #fff;
+	border: 1px solid #c4c4c4;
+}
+
+/*--BTN--*/
+#content_Right .btn.ajouter { float: right; }
+
