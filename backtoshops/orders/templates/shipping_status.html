@@ -30,14 +30,14 @@
         <div class='shipping_list'>
             <table cellpadding="0" cellspacing="0" border="0">
                 <tr>
+                    <th class=""><a href="#">{% trans "Shipping" %}</a></th>
                     <th class=""><a href="#">{% trans "Shipment" %}</a></th>
-                    <th class=""><a href="#">{% trans "Order" %}</a></th>
                     <th class=""><a href="#">{% trans "Fee" %}</a></th>
                 </tr>
                 {% for shipping in shippings %}
                 <tr id="shipping_{{ shipping.id }}">
                     <td><a href="{% url 'shipment_edit' shipping.id %}">{{ shipping.id }}</a></td>
-                    <td>{{ shipping.order }}</td>
+                    <td>{{ shipping.shipment }}</td>
                     <td>{{ shipping.total_fee }}</td>
                     <td><a class="modify" href="{% url 'shipment_edit' shipping.id %}">{% trans "Edit" %}</a></td>
                 </tr>

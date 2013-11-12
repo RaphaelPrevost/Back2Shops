@@ -20,7 +20,7 @@ class ShippingForm(forms.ModelForm):
         self.fields['weight'].widget = forms.TextInput(attrs={'class': 'input_weight'})
         self.fields['handling_fee'].widget = forms.TextInput(attrs={'class': 'input_handling_fee'})
         self.fields['ship_and_handling_fee'].widget = forms.TextInput(attrs={'class': 'input_handling_fee'})
-        self.fields['order'] = forms.CharField(
+        self.fields['shipment'] = forms.CharField(
             widget=forms.TextInput(attrs={'readonly': 'readonly'}))
         self.fields['total_fee'] = forms.CharField(
             widget=forms.TextInput(attrs={'readonly': 'readonly'}))

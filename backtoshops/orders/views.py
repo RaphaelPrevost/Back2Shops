@@ -69,18 +69,18 @@ class BaseShippingView(LoginRequiredMixin):
         return kwargs
 
     def _send_shipping_fee(self, request):
-        id_order = request.POST.get('order')
+        id_shipment = request.POST.get('shipment')
         id_postage = request.POST.get('service')
         shipping_fee = request.POST.get('total_fee')
         try:
-            assert is_decimal(id_order), 'order: %s should be a digit' % id_order
+            assert is_decimal(id_shipment), 'shipment: %s should be a digit' % id_shipment
             assert is_decimal(id_postage), 'service: %s should be a digit' % id_postage
             assert is_decimal(shipping_fee), 'shipping fee: %s should be a digit' % shipping_fee
         except AssertionError, e:
             logging.error('send_shipping_fee args error: %s' % e,
                           exc_info=True)
             raise
-        send_shipping_fee(id_order, id_postage, shipping_fee)
+        send_shipping_fee(id_shipment, id_postage, shipping_fee)
 
     def _compute_total_fee(self, request):
         total_fee = compute_fee(request.POST)
@@ -92,7 +92,7 @@ class CreateShippingView(BaseShippingView, CreateView):
     def get_initial(self):
         initial = {"addr_orig": self.request.GET.get('addr_orig', 'orignal'),
                    "addr_dest": self.request.GET.get('addr_dest', 'dest'),
-                   "order": self.request.GET.get('order', 0),
+                   "shipment": self.request.GET.get('shipment', 0),
                    }
         return initial
 

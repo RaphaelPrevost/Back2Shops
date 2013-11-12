@@ -89,33 +89,26 @@ def create_order(conn, users_id, telephone_id, order_items,
                                      upc_shop=upc_shop,
                                      barcode=order.get('barcode', None))
         _create_order_details(conn, order_id, item_id, order['quantity'])
-        id_shipment = None
-        if shipaddr:
-            id_shipment = create_shipment(conn, order_id, shipaddr, telephone_id)
-        if billaddr:
-            create_shipment(conn, order_id, billaddr, telephone_id)
-        _create_shipping_list(conn, item_id, order['quantity'],
-                              id_shipment=id_shipment)
     return order_id
 
-def update_shipping_fee(conn, id_order, id_postage, shipping_fee):
+def update_shipping_fee(conn, id_shipment, id_postage, shipping_fee):
     try:
         values={'id_postage': id_postage,
                 'shipping_fee': shipping_fee}
         rst = update(conn, 'shipments',
                values=values,
-               where={'id_order': id_order},
+               where={'id': id_shipment},
                returning='id')
         conn.commit()
         logging.info('update_shipping_fee:'
                      'id_order: %s,'
                      'values: %s, '
                      'for shipment: %s,'
-                     % (id_order, values, rst))
+                     % (id_shipment, values, rst))
     except Exception, e:
         logging.error('update_shipping_fee err: %s, '
                       'args: id_order: %s,'
                       'id_postage: %s, '
                       'shipping_fee: %s'
-                      % (e, id_order, id_postage, shipping_fee), exc_info=True)
+                      % (e, id_shipment, id_postage, shipping_fee), exc_info=True)
         raise
