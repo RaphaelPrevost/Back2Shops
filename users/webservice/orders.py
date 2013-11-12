@@ -201,7 +201,7 @@ class ShippingFeeResource(BaseResource):
             with db_utils.get_conn() as conn:
                 gevent.spawn(update_shipping_fee,
                              conn,
-                             data['id_order'],
+                             data['id_shipment'],
                              data['id_postage'],
                              data['shipping_fee'])
 

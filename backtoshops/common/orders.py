@@ -6,9 +6,9 @@ from B2SCrypto.constant import SERVICES
 from B2SCrypto.utils import gen_encrypt_json_context
 from B2SCrypto.utils import get_from_remote
 
-def send_shipping_fee(id_order, id_postage, shipping_fee):
+def send_shipping_fee(id_shipment, id_postage, shipping_fee):
     try:
-        data = {'id_order': id_order,
+        data = {'id_shipment': id_shipment,
                 'id_postage': id_postage,
                 'shipping_fee': shipping_fee}
         data = ujson.dumps(data)

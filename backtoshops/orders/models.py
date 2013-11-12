@@ -26,7 +26,9 @@ class Shipping(models.Model):
                                     decimal_places=2,
                                     blank=True,
                                     null=True)
-    order = models.IntegerField(verbose_name='Order')
+    shipment = models.IntegerField(verbose_name='Order',
+                                   blank=False,
+                                   null=False)
 
     def __unicode__(self):
         return str(self.order)

@@ -50,7 +50,7 @@
 
 .formrow #id_addr_orig,
 .formrow #id_addr_dest,
-.formrow #id_order,
+.formrow #id_shipment,
 .formrow #id_total_fee {
 	  background-color: #BDBDBD;
 }
