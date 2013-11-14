@@ -84,6 +84,7 @@ else
 fi
 
 # create the python environment
+
 if [ ! -d $CWD/env ]; then
     echo "(-) Creating Python environment..."
     usermod -s /bin/sh backtoshops
@@ -97,6 +98,28 @@ if [ ! -d $CWD/env ]; then
     usermod -s /bin/false backtoshops
     touch $CWD/env/.clean
 else
+    source $CWD/env/bin/activate
+    for i in $(cat $CWD/requirements/adm.backtoshops.com.requirements.txt); do
+        lib_name=$i
+        if [ ${i:0:4} = git+ ]; then
+            lib_name=${i##*/}
+            lib_name=$(echo $lib_name | cut -d '.' -f 1)
+        fi
+    
+        if [ -z `pip freeze | grep $lib_name` ]; then
+            echo "Missed python package ${lib_name}"
+            usermod -s /bin/sh backtoshops
+            PYENV="
+            cd $CWD
+            python $CWD/env/bin/activate_this.py
+            $CWD/env/bin/pip install -r $CWD/requirements/adm.backtoshops.com.requirements.txt -f $CWD/packages/dist/"
+            ( su backtoshops -c "$PYENV" )
+            # this user won't need shell anymore
+            usermod -s /bin/false backtoshops
+            touch $CWD/env/.clean
+        fi
+    done
+    deactivate
     echo "(i) Python environment OK"
 fi
 
