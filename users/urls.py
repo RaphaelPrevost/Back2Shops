@@ -4,7 +4,12 @@ from webservice.aux import AuxResource
 from webservice.cache_invalidation import InvalidationResource
 from webservice.crypto import ApiKeyResource
 from webservice.crypto import CryptoTestResource
-from webservice.orders import OrderResource, ShippingFeeResource
+from webservice.orders import OrderDeleteResource
+from webservice.orders import OrderDetailResource
+from webservice.orders import OrderListResource
+from webservice.orders import OrderResource
+from webservice.orders import OrderStatusResource
+from webservice.orders import ShippingFeeResource
 from webservice.sales import SalesResource
 from webservice.shops import ShopsResource
 
@@ -21,5 +26,10 @@ urlpatterns = {
 
     '/webservice/protected/invalidate': InvalidationResource,
     '/webservice/protected/shipping/fee': ShippingFeeResource,
+
+    '/webservice/1.0/private/order/orders': OrderListResource,
+    '/webservice/1.0/private/order/detail': OrderDetailResource,
+    '/webservice/1.0/private/order/delete': OrderDeleteResource,
+    '/webservice/1.0/private/order/status': OrderStatusResource,
 
 }

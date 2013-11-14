@@ -37,3 +37,10 @@ class ShippingForm(forms.ModelForm):
             empty_label=_("Please select a Service"),
             widget=forms.widgets.Select(attrs={'readonly': 'readonly'})
         )
+
+
+class ListOrdersForm(forms.Form):
+    ORDER_BY_ITEMS = {('confirmation_time', _("Confirmation time")),
+                      }
+    order_by1 = forms.ChoiceField(required=False, choices=ORDER_BY_ITEMS)
+    order_by2 = forms.ChoiceField(required=False, choices=ORDER_BY_ITEMS)

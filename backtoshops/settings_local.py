@@ -283,3 +283,5 @@ PUB_KEY_PATH = 'static/keys/adm_pub.key'
 CACHE_INVALIDATION_URL = "%s/webservice/protected/invalidate" % USR_SERVER
 SHIPPING_FEE_URL = "%s/webservice/protected/shipping/fee" % USR_SERVER
 
+ORDER_LIST_URL = '%s/webservice/1.0/private/order/orders' % USR_SERVER
+ORDER_DETAIL_URL = '%s/webservice/1.0/private/order/detail' % USR_SERVER

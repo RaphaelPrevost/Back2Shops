@@ -4,17 +4,23 @@ import types
 import ujson
 
 from decimal import Decimal
+from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
-from django.views.generic.edit import CreateView, UpdateView
+from django.utils.translation import ugettext_lazy
 from django.views.generic.base import View, TemplateResponseMixin
+from django.views.generic.edit import CreateView, UpdateView
 from fouillis.views import LoginRequiredMixin
 
 from common import carriers
+from common.orders import get_order_detail
+from common.orders import get_order_list
 from common.orders import send_shipping_fee
-from orders.models import Shipping
+from orders.forms import ListOrdersForm
 from orders.forms import ShippingForm
+from orders.models import Shipping
 from shippings.models import Carrier, Service
+
 
 def _api_fee(carr_cls, data):
     handling_fee = Decimal(data.get('handling_fee') or 0)
@@ -146,3 +152,75 @@ class ShippingStatusView(LoginRequiredMixin, View, TemplateResponseMixin):
     def get(self, request, *args, **kwargs):
         self.get_shippings()
         return self.render_to_response(self.__dict__)
+
+
+class ListOrdersView(LoginRequiredMixin, View, TemplateResponseMixin):
+    template_name = 'order_list.html'
+    list_current = True
+
+    def set_orders_list(self, request):
+        self.orders = []
+        if request.user.is_staff:
+            order_list = get_order_list()
+            for order_id, _, _ in order_list:
+                detail = get_order_detail(order_id)
+                self.orders.append(detail)
+        else:
+            brand_id = request.user.get_profile().work_for.pk
+            order_list = get_order_list(brand_id)
+            for order_id, _, _ in order_list:
+                detail = get_order_detail(order_id, brand_id)
+                self.orders.append(detail)
+        self.page_title = ugettext_lazy("Current Orders")
+        return
+
+    def make_page(self):
+        """
+        make a pagination
+        """
+        try:
+            self.current_page = int(self.request.GET.get('page', '1'))
+            p_size = int(
+                self.request.GET.get('page_size',
+                                     settings.get_page_size(self.request)))
+            p_size = (p_size if p_size in settings.CHOICE_PAGE_SIZE
+                      else settings.DEFAULT_PAGE_SIZE)
+            self.request.session['page_size'] = p_size
+        except:
+            self.current_page = 1
+        paginator = Paginator(self.orders, settings.get_page_size(self.request))
+        try:
+            self.page = paginator.page(self.current_page)
+        except(EmptyPage, InvalidPage):
+            self.page = paginator.page(paginator.num_pages)
+            self.current_page = paginator.num_pages
+        self.range_start = self.current_page - (
+            self.current_page % settings.PAGE_NAV_SIZE)
+        self.choice_page_size = settings.CHOICE_PAGE_SIZE
+        self.current_page_size = settings.get_page_size(self.request)
+        self.prev_10 = (self.current_page-settings.PAGE_NAV_SIZE if
+                        self.current_page-settings.PAGE_NAV_SIZE > 1 else
+                        1)
+        self.next_10 = (self.current_page+settings.PAGE_NAV_SIZE if
+                        self.current_page+settings.PAGE_NAV_SIZE <= self.page.paginator.num_pages else
+                        self.page.paginator.num_pages)
+        self.page_nav = self.page.paginator.page_range[self.range_start:self.range_start+settings.PAGE_NAV_SIZE]
+
+    def get(self, request, orders_type=None):
+        self.set_orders_list(request)
+        self.form = ListOrdersForm()
+        self.make_page()
+        return self.render_to_response(self.__dict__)
+
+    def post(self, request, orders_type=None):
+        self.set_orders_list(request)
+        self.form = ListOrdersForm(request.POST)
+        if self.form.is_valid():
+            order_by1 = self.form.cleaned_data['order_by1']
+            order_by2 = self.form.cleaned_data['order_by2']
+            self._sort_orders(order_by1, order_by2)
+        self.make_page()
+        return self.render_to_response(self.__dict__)
+
+    def _sort_orders(self, order_by1, order_by2):
+        pass

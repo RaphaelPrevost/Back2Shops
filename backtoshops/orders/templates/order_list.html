@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load l10n %}
+{% load thumbnail %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block head %}
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/order-list.css" />
+{% endblock %}
+
+{% block navigation %}
+{% include "_quick_nav.html" %}
+{% endblock %}
+
+{% block content %}
+<!--Lien Haut de Page -->
+<a id="lienUP" href="#conteneur">{% trans "Page Top" %}</a>
+
+<!--content-left-->
+<div id="content_Left">
+
+    <!--Title-->
+    <div id="title">
+        <span>{{ page_title }}</span>
+        <h2>{{ page_title }}</h2>
+    </div>
+
+    <!--FORM-->
+    <form id="main_form" method="post">
+    {% csrf_token %}
+        <fieldset>
+            <!--SELECT TRIER PAR-->
+            <p id="triVente">
+                <label for="trie01">{% trans "Sort by:" %}</label>
+                {{ form.order_by1 }}
+                <span>+</span>
+                {{ form.order_by2 }}
+                <input type="submit" value="{% trans "Sort" %}" />
+            </p>
+            <!--FIN SELECT TRIER PAR-->
+
+            <!--VENTE-->
+            {% for order in page.object_list %}
+            <div class="vente" order="{{ order.id }}">
+                <!--NOM, CATEGORIE, TYPE de Prod-->
+                <a href=""><h3>#{{ order.id  }}</h3></a>
+                <h4>
+                    {% if request.user.is_staff %}
+                    <a class="delete" href="#">[X]</a>
+                    {% endif %}
+                    {{ order.user_info.last_name }} {{ order.user_info.first_name }}
+                </h4>
+                <!--INFOS VENTE-->
+                <div class="content">
+                    <a class="imgProd" href="#">
+                        {% thumbnail order.items.values.0.picture "40x43" as im %}
+                            <img style='margin:{{ im|margin:"40x43" }}' src="{{ im.url }}" alt='{% trans "Product picture" %} {{ order.items.values.0.name }}' width="{{ im.x }}" height="{{ im.y }}"/>
+                        {% endthumbnail %}
+                    </a>
+                    <div class="address_area">
+                        <em>{{ order.user_info.address.values.0.address }}</em>
+                        <span class="phone_city">
+                        <span class="phone_num">{{ order.user_info.phone_num.values.0.phone_num}}</span><span class="city">({{ order.user_info.address.values.0.city }})</span>
+                        </span>
+                    </div>
+                    <div class="prix">
+                        <span>&nbsp;</span>
+                        <span>&nbsp;</span>
+                        <span>&nbsp;</span>
+                    </div>
+                </div>
+                <div class="clear"></div>
+                <a href="" class="seeDetail seePacking">{% trans "Packing lists" %}</a>
+                <a href="" class="seeDetail seeInvoice">{% trans "Invoices" %}</a>
+                <a href="" class="seeDetail seeMain">{% trans "Details" %}</a>
+            </div>
+            {% endfor %}
+            <!--FIN VENTE-->
+        </fieldset>
+    </form>
+    {% if page.paginator.num_pages > 1%}
+    <div class="pag_nav">
+        <span class="page_info">
+        {% blocktrans with number=page.number num_pages=page.paginator.num_pages %}
+        Page <input type="text" value="{{ number }}" id="page_num"> of {{ num_pages }} pages.
+        {% endblocktrans %}
+    </span>
+        <span class="page_size">
+            {% trans '(' %}
+            <select id="page_size" name="page_size">
+            {% for page_size in choice_page_size %}
+                <option value="{{ page_size }}" {% if current_page_size == page_size %}selected="selected"{% endif %}>{{ page_size }}</option>
+            {% endfor %}
+            </select>
+            {% trans ' elements/page )' %}
+        </span>
+        <div class="page_ico">
+            <a href="{{ request.path }}?page=1" class="pagination prev2">|<</a>
+            <a href="{{ request.path }}?page={{ prev_10 }}" class="pagination prev1"><</a>
+            {% for page_num in page_nav %}
+            {% if page.number != page_num %}
+			<a href="{{ request.path }}?page={{ page_num }}" class="pagination">{{ page_num }}</a>
+			{% else %}<span class="pagination current">{{ page_num }}</span>{% endif %}
+            {% endfor %}
+            <a href="{{ request.path }}?page={{ next_10 }}" class="pagination next1">></a>
+            <a href="{{ request.path }}?page={{ page.paginator.num_pages }}" class="pagination next2">>|</a>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<div id="content_Right">
+    <div id="controls"></div>
+    <div id="detail"></div>
+</div>
+<!--FIN content-right-->
+<div class="clear"></div>
+
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+    $(function() {
+        $(".seeDetail").click(function(){
+            $("#content_Right #controls").html("");
+            $("#content_Right #detail").html("");
+        });
+        $(".seePacking").click(function(){
+            $("#content_Right #detail").html('{% trans "Loading..." %}');
+{#            $("#content_Right #detail").load($(this)[0].href);#}
+            return false;
+        });
+        $(".seeInvoice").click(function(){
+            $("#content_Right #controls").html('{% trans "Loading..." %}');
+{#            $("#content_Right #controls").load($(this)[0].href);#}
+            return false;
+        });
+        $(".seeMain").click(function(){
+            $("#content_Right #detail").html('{% trans "Loading..." %}');
+{#            $("#content_Right #detail").load($(this)[0].href);#}
+            return false;
+        });
+        $("#content_Right #controls #shop").live('change', function(){
+            if ($(this).val() == 0) {
+                $("#content_Right #detail").html("");
+            } else {
+                $("#content_Right #detail").html('{% trans "Loading..." %}');
+                $("#content_Right #detail").load($(this).val());
+            }
+        });
+
+        $('a.delete').click(function() {
+            var $this = $(this);
+            if (confirm('{% trans "Are you sure you want to delete this order?" %}')) {
+                var oid = $this.parent().parent().attr('order');
+                $.post('/orders/delete/' + oid, function(response) {
+                    if (response.success)
+                        $this.parent().parent().fadeOut();
+                }, "json");
+            }
+        });
+
+        //set page size
+        $("#page_size").change(function(event){
+            location.href = location.pathname+'?page_size='+$(this).val();
+        });
+
+        //go specific page by input
+        $("#page_num").keypress(function(event){
+            if(event.which == 13){ //'enter' key
+                var page_num = $(this).val();
+                if(!isNaN(page_num)&&parseInt(page_num)==page_num)
+                {
+                    location.href = '{{ request.path }}'+'?page='+page_num;
+                }
+                else
+                {
+                    alert("{% trans "Please enter a valid page number." %}");
+                }
+            }
+
+        });
+    });
+</script>
+{% endblock %}

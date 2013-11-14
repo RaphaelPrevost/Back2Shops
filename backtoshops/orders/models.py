@@ -1,7 +1,11 @@
 # coding:UTF-8
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from sorl.thumbnail import ImageField
+from accounts.models import Brand
+from sales.models import Sale
 from shippings.models import Carrier, Service
+from shops.models import Shop
 
 
 class Shipping(models.Model):
@@ -32,3 +36,33 @@ class Shipping(models.Model):
 
     def __unicode__(self):
         return str(self.order)
+
+
+class Order(models.Model):
+    id_user = models.IntegerField()
+    confirmation_time = models.DateTimeField()
+
+    class Meta:
+        db_table = 'orders'
+
+
+class OrderItems(models.Model):
+    id_sale = models.ForeignKey(Sale)
+    id_shop = models.ForeignKey(Shop)
+    id_variant = models.ForeignKey(Brand)
+    price = models.FloatField()
+    name = models.CharField(max_length=150)
+    picture = ImageField(upload_to='order_item')
+    description = models.TextField(max_length=128)
+    copy_time = models.DateTimeField()
+    barcode = models.CharField(max_length=50)
+
+    def __unicode__(self):
+        return self.name
+
+
+class OrderDetails(models.Model):
+    id_order = models.ForeignKey(Order)
+    id_item = models.ForeignKey(OrderItems)
+    quantity = models.IntegerField()
+
