@@ -49,3 +49,4 @@ PUB_KEY_PATH = 'static/keys/usr_pub.key'
 
 STATIC_ORDERS_IMG_PATH = 'static/orders_img/'
 
+ORDERS_QUERY_LIMIT = 100

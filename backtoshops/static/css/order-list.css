@@ -1,0 +1,205 @@
+/*-------------------------------*/
+/*       LISTE DES VENTES        */
+/*-------------------------------*/
+
+
+/*------------------------------------------------------ */
+/*                       content-left                    */
+/*------------------------------------------------------ */
+#lienUP { margin-top: 88px; }
+
+/*----SELECT TRIER PAR----*/
+#main_form fieldset { border: none 0; }
+
+#triVente { height: 22px; margin: 17px 0; }
+
+#triVente label,
+#triVente select,
+#triVente span { display: block; float: left; }
+
+#triVente label {
+    padding: 0;
+    background: none;
+    font-size: 12px;
+    color: #555555;
+}
+#triVente select {
+    width: 183px;
+    margin: 1px 0px 1px 6px;
+    background-color: #fff;
+}
+#triVente span { 
+    width: 20px;
+    height: 20px;
+    margin: 1px 0 1px 6px;
+    overflow: hidden;
+    text-indent: -1500px;
+    background: url(../img/icon.png) no-repeat 0 -350px;
+}
+#triVente input { 
+    width: 20px;
+    height: 20px;
+    margin: 1px 0 1px 8px;
+    overflow: hidden;
+    text-indent: -1500px;
+    background: url(../img/icon.png) no-repeat -2px -227px #000000;
+    border: none;
+    border-radius: 3px;
+        -moz-border-radius: 3px;
+        -webkit-border-radius: 3px;
+        -ms-border-radius: 3px;
+        -o-border-radius: 3px;
+    cursor: pointer;
+}
+#triVente input:hover { background-color: #555; }
+
+/*----LISTE DES VENTES----*/
+.vente {
+    position: relative;
+    width: 494px;
+    /*min-height: 82px;*/
+    margin-bottom: 37px;
+    padding: 1px 0 1px 1px;
+    border: 1px solid #cbcbcb;
+    background-color: #f9f9f9;
+}
+
+.vente a.delete { 
+    display: block; float: right;
+    width: 14px; height: 14px;
+    margin: 2px -7px 0 0;
+    overflow: hidden; text-indent: -1500px;
+    background: url(../img/out.gif) no-repeat -1px -1px;
+    border: 1px solid #A4A4A4;
+    border-radius: 2px;
+        -moz-border-radius: 2px;
+        -webkit-border-radius: 2px;
+        -ms-border-radius: 2px;
+        -o-border-radius: 2px;
+}
+.vente a.delete:hover { background: url(../img/out.gif) no-repeat -1px -17px; }
+
+
+/*NOM, CATEGORIE, TYPE de Prod*/
+.vente h3, .vente h4 { 
+    line-height: 20px;
+    margin-right: 1px;
+    padding: 0 10px;
+    font-size: 11px;
+}
+    .vente h3 {
+        float: left;
+        color: #fff;
+        background-color: #000;
+    }
+    .vente h4 {
+        font-weight: normal;
+        background-color: #c8c8c8;
+    }
+
+
+/*---INFOS VENTE---*/
+.content { 
+    width: 494px;
+    /*height: 62px;*/
+}
+    /*Image*/
+    .content .imgProd {
+        display: block;
+        float: left;
+        width: 40px;
+        height: 43px;
+        margin: 8px 5px 9px 5px;
+        border: 1px solid #d8d8d8;
+        background-color: #fff;
+    }
+
+    /*Date etat Vente*/
+    .content .address_area {
+        display: block;
+        float: left;
+        width: 303px;
+        /*height: 45px;*/
+        padding: 8px 0 9px 0;
+    }
+    .content .address_area em,
+    .content .address_area span {
+        display: block;
+        line-height: 22px;
+    }
+        .content .address_area em { font-style: normal; }
+        .content .address_area span.phone_city {
+            width: 297px;
+            padding: 0 3px;
+            letter-spacing: -1px;
+            background-color: #ffd016;
+        }
+        .content .address_area span.phone_num {
+            width: 100px;
+        }
+        .content .address_area span.city {
+            margin: -22px 0 0 200px;
+        }
+            .content .address_area span strong { letter-spacing: 0px; }
+
+    /*Prix*/
+    .content .prix {
+        display: block;
+        float: left;
+        width: 133px;
+        padding: 8px 3px 9px 3px;
+        overflow: hidden;
+        background-color: #fff;
+    }
+        .content .prix span {
+            display: block;
+            width: 133px;
+            line-height: 12px;
+            margin: 3px 0 0 0;
+            font-size: 10px;
+            color: #030303;
+            font-family: arial;
+        }
+            .content .prix span strong,
+            .content .prix span em {
+                display: block;
+                float: right;
+                width: auto;
+                text-align: right;
+                font-style: normal;
+                font-family: arial;
+                font-size: 12px;
+            }
+
+/*Liens DETAIL*/
+.seeDetail {
+    display: block;
+    position: absolute;
+    bottom: -18px;
+    height: 17px;
+    line-height: 17px;
+    padding-left: 5px;
+    font-size: 10px;
+    font-weight: bold;
+    color: #fff;
+    background-image: url(../img/icon.png);
+    background-repeat: no-repeat;
+}
+    .seeDetail.seePacking {
+        right: 341px;
+        width: 150px;
+        background-position: 133px -203px;
+        background-color: #555555;
+}
+    .seeDetail.seeInvoice {
+        right: 165px;
+        width: 170px;
+        background-position: 152px -203px;
+        background-color: #555555;
+    }
+    .seeDetail.seeMain {
+        right: -1px;
+        width: 160px;
+        background-position: 142px -203px;
+        background-color: #000;
+    }
