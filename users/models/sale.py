@@ -261,9 +261,9 @@ class CachedSale:
             return False
         return True
 
-def get_sale_by_barcode(barcode):
+def get_sale_by_barcode(barcode, shop_id):
     cli = get_redis_cli()
-    key = BARCODE % barcode
+    key = BARCODE % (barcode, shop_id)
     id_sale = cli.hget(key, BARCODE_SALE_ID)
     id_variant = cli.hget(key, BARCODE_VARIANT_ID)
     return id_sale, id_variant

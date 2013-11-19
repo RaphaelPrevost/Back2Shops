@@ -321,16 +321,16 @@
 		background-color: #DBF8D8;
 
 	}
-	
+
 	/*---Prix de Vente _ Coloris---*/
-	#main_form #newPriceAttrib { margin: 10px 0 20px 0; } 
+	#main_form #newPriceAttrib { margin: 10px 0 20px 0; }
 	#newPriceAttrib #premium_result {
 		margin: 5px 0 0 0;
 		padding: 0 5px;
 		background-color: #DBF8D8;
 	}
 
-	
+
 
 	/*--- Coloris ---*/ /*---Style non utilise au 07-26---*/
 	#main_form #coloris span{ margin: 0 5px 0 0; }
@@ -485,7 +485,7 @@
 		border: 1px solid #c9c9c9;
 	}
 
-	
+
 	/*-PRICE-*/
 	#main_form #brand_attributes .brand_attributes-premium {
 		width: 248px; height: 22px;
@@ -493,7 +493,7 @@
 		margin: 15px 0 0 -8px; padding: 0 5px;
 		background-color: #DBF8D8;
 	}
-	
+
 	/*-BOUTON SUPPR-*/
 	#main_form #brand_attributes .remove_brand_attribute {
 		position: absolute;
@@ -799,7 +799,6 @@
 	#main_form .accordion .taille label {
 		display: block;
 		float: left;
-		width: 22px;
 		height: 17px;
 		line-height: 17px;
 		margin: 0 0 3px 0;

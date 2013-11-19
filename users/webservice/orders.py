@@ -131,7 +131,7 @@ class OrderResource(BaseOrderResource):
         barcode, quantity = order.split(',')
         if not barcode or not quantity.isdigit():
             raise ValidationError('ORDER_ERR_WRONG_POS_FORMAT')
-        id_sale, id_variant = get_sale_by_barcode(barcode)
+        id_sale, id_variant = get_sale_by_barcode(barcode, id_shop)
         self._saleValidCheck(id_sale, id_variant, id_shop, quantity)
         return {'id_sale': id_sale,
                 'id_variant': id_variant,

@@ -8,7 +8,9 @@ from django.utils.encoding import force_unicode
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from sales.models import DISCOUNT_TYPE, ProductBrand, ProductType, ProductCategory, GENDERS, ProductCurrency
+from barcodes.models import Barcode
+from sales.models import DISCOUNT_TYPE, ProductBrand, ProductType,\
+    ProductCategory, GENDERS, ProductCurrency, Product
 from shops.models import Shop
 
 
@@ -56,22 +58,22 @@ class GroupedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
 
 class ShopForm(forms.Form):
     target_market = forms.ChoiceField(label=_("Target market"), choices=TARGET_MARKET, required=False)
-    
+
     def __init__(self, mother_brand=None, request=None, *args, **kwargs):
         super(ShopForm, self).__init__(*args, **kwargs)
         self.request = request
         search_arguments = {"mother_brand": mother_brand}
-        
+
         if not request.user.is_staff: #operator.
             search_arguments.update({"pk__in": request.user.get_profile().shops.all(),})
-            
+
         self.fields['shops'] = forms.ModelMultipleChoiceField(
             label=_("Participating shops"),
             queryset=Shop.objects.filter(**search_arguments).order_by('city'),
             widget=GroupedCheckboxSelectMultiple(),
             required=False
         )
-        
+
     def clean_target_market(self):
         if self.request.user.is_staff:
             return self.cleaned_data['target_market']
@@ -159,6 +161,7 @@ class BarcodeForm(forms.Form):
     brand_attribute = forms.IntegerField(required=False)
     common_attribute = forms.IntegerField()
     upc = forms.CharField(label=_("Barcode"), required=False)
+
 BarcodeFormset = formset_factory(BarcodeForm, can_delete=True, extra=0)
 
 class StockForm(forms.Form):
@@ -191,12 +194,47 @@ class StockStepForm(forms.Form):
             self.barcodes = BarcodeFormset(data=data, prefix="barcodes", initial=initial.get('barcodes_initials', None))
         else:
             self.barcodes = BarcodeFormset(data=data, prefix="barcodes")
-            
+
     def clean(self):
         if self.stocks.errors:
             for form in self.stocks.forms:
                 if form.errors:
                     raise forms.ValidationError(form.errors)
+        self._clean_barcodes()
+        return super(StockStepForm, self).clean()
+
+    def _clean_barcodes(self):
+        shops = []
+        for stock in self.stocks:
+            if stock.cleaned_data['shop']:
+                shops.append(stock.cleaned_data['shop'])
+
+        # In one shop, cannot have 2 same product barcode for two sale items.
+        upcs = []
+        for barcode in self.barcodes:
+            barcode.full_clean()
+            new_upc = barcode.cleaned_data['upc']
+            old_upc = barcode.initial.get('upc')
+            upcs.append(new_upc)
+            # skip valid check if upc didn't change when edit sale.
+            if old_upc and old_upc == new_upc:
+                continue
+            brs_with_same_upc = Barcode.objects.filter(upc=new_upc)
+            for br in brs_with_same_upc:
+                pro = Product.objects.get(sale=br.sale)
+                if pro.valid_to < date.today():
+                    continue
+                br_shops = br.sale.shops.all()
+                # check: 1. the same upc is in global shop when current sale in global shop.
+                #        2. the same upc is in same shop.
+                br_shops_id = [s.id for s in br_shops]
+                if len(br_shops_id) == 0 and len(shops) == 0:
+                    raise forms.ValidationError(_("product barcode %s already used in global market." % new_upc))
+                elif len(set(br_shops_id).intersection(set(shops))):
+                    raise forms.ValidationError(_("product barcode %s already used in your shop." % new_upc))
+
+        if len(upcs) > len(set(upcs)):
+            raise forms.ValidationError(_("You cannot use two same product barcodes."))
 
 class TargetForm(forms.Form):
     gender = forms.ChoiceField(choices=GENDERS, label=_("Target gender"))
@@ -221,4 +259,4 @@ class ListSalesForm(forms.Form):
                      }
     order_by1 = forms.ChoiceField(required=False,choices=ORDER_BY_ITEMS)
     order_by2 = forms.ChoiceField(required=False,choices=ORDER_BY_ITEMS)
-    
+
