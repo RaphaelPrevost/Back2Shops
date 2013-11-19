@@ -1,12 +1,12 @@
 import ujson
-from common.constants import BARCODE_SHOP
+from common.constants import SHOP_WITH_BARCODE
 from common.constants import SHOP
 from common.redis_utils import get_redis_cli
 from models.base_actor import BaseActor
 
 def get_shop_id(upc_shop):
     cli = get_redis_cli()
-    barcode_key = BARCODE_SHOP % upc_shop
+    barcode_key = SHOP_WITH_BARCODE % upc_shop
     return cli.get(barcode_key)
 
 def get_shop(upc_shop=None, id_shop=None):

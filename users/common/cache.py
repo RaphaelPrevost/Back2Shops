@@ -8,6 +8,7 @@ from redis.exceptions import RedisError, ConnectionError
 
 import settings
 from common.constants import ALL
+from common.constants import GLOBAL_MARKET
 from common.constants import SALE
 from common.constants import SALES_FOR_TYPE
 from common.constants import SALES_FOR_CATEGORY
@@ -26,7 +27,7 @@ from common.constants import BARCODE
 from common.constants import BARCODE_ATTR_ID
 from common.constants import BARCODE_SALE_ID
 from common.constants import BARCODE_VARIANT_ID
-from common.constants import BARCODE_SHOP
+from common.constants import SHOP_WITH_BARCODE
 from common.utils import as_list
 from common.redis_utils import get_redis_cli
 from models.sale import ActorSale
@@ -210,8 +211,11 @@ class SalesCacheProxy(CacheProxy):
         pipe.lrem(SALES_ALL % ALL, id, 0)
         for shop in act_sale.shops:
             pipe.lrem(SALES_FOR_SHOP % shop.id, id, 0)
-        for stocks in act_sale.get_stocks_with_upc():
-            key = BARCODE % stocks.upc
+            for stocks in act_sale.get_stocks_with_upc():
+                key = BARCODE % (stocks.upc, shop.id)
+                pipe.delete(key)
+        if len(act_sale.shops) == 0:
+            key = BARCODE % (stocks.upc, GLOBAL_MARKET)
             pipe.delete(key)
         pipe.execute()
 
@@ -245,17 +249,22 @@ class SalesCacheProxy(CacheProxy):
             pipe.rpush(SALES_FOR_BRAND % act_sale.brand.id, sale_id)
             for shop in act_sale.shops:
                 pipe.rpush(SALES_FOR_SHOP % shop.id, sale_id)
+                # cache sales upc information.
+                self._cache_sale_barcodes(pipe, shop.id, act_sale)
+            if len(act_sale.shops) == 0:
+                self._cache_sale_barcodes(pipe, GLOBAL_MARKET, act_sale)
             pipe.rpush(SALES_ALL % ALL, sale_id)
-            # cache sales upc information.
-            for stocks in act_sale.get_stocks_with_upc():
-                key = BARCODE % stocks.upc
-                pipe.hset(key, BARCODE_VARIANT_ID, stocks.variant)
-                pipe.hset(key, BARCODE_SALE_ID, sale_id)
-                pipe.hset(key, BARCODE_ATTR_ID, stocks.attribute)
         pipe.execute()
 
         if is_entire_result:
             self._rem_diff_objs(SALES_ALL, [s['@id'] for s in sales])
+
+    def _cache_sale_barcodes(self, pipe, shop_id, act_sale):
+        for stocks in act_sale.get_stocks_with_upc():
+            key = BARCODE % (stocks.upc, shop_id)
+            pipe.hset(key, BARCODE_VARIANT_ID, stocks.variant)
+            pipe.hset(key, BARCODE_SALE_ID, act_sale.id)
+            pipe.hset(key, BARCODE_ATTR_ID, stocks.attribute)
 
     def _del_cached_query(self, obj_id, del_all):
         cli = get_redis_cli()
@@ -317,7 +326,7 @@ class ShopsCacheProxy(CacheProxy):
         pipe.lrem(SHOPS_FOR_BRAND % shop['brand']['@id'], id, 0)
         pipe.lrem(SHOPS_FOR_CITY % shop['city'], id, 0)
         pipe.lrem(SHOPS_ALL % ALL, id, 0)
-        pipe.delete(BARCODE_SHOP % id)
+        pipe.delete(SHOP_WITH_BARCODE% id)
         pipe.execute()
 
     def parse_xml(self, xml, is_entire_result):
@@ -350,7 +359,7 @@ class ShopsCacheProxy(CacheProxy):
             pipe.rpush(SHOPS_FOR_CITY % city, shop_id)
             pipe.rpush(SHOPS_FOR_BRAND % brand_id, shop_id)
             pipe.rpush(SHOPS_ALL % ALL, shop_id)
-            pipe.set(BARCODE_SHOP % shop['upc'], shop_id)
+            pipe.set(SHOP_WITH_BARCODE % shop['upc'], shop_id)
         pipe.execute()
 
         if is_entire_result:

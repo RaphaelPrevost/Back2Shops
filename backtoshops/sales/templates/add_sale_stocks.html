@@ -14,6 +14,7 @@
     <fieldset>
         {{ wizard.form.barcodes.management_form }}
         {{ wizard.form.barcodes.non_field_errors }}
+        {{ wizard.form.non_field_errors }}
         <div id="barcodes_form">
             <div id="barcode_accordion" class="accordion">
                 <div>
@@ -183,7 +184,7 @@
                     return false;
                 }
             }
-            
+
             var barcodes = $("input[id*='-upc']");
             for (var i = 0; i < barcodes.length; i++) {
                 var val = $.trim($(barcodes[i]).val());
@@ -192,10 +193,10 @@
                     return false;
                 }
             }
-            
+
             return true;
         }
-        
+
         $(function(){
             $("#main_form").change(function(elmt){
                 var stocks = $("input[id*='-stock']");
@@ -226,7 +227,7 @@
                     return true;
                 } else {
                     alert('{% trans "Sorry, please check your input." %}');
-                    return false;    
+                    return false;
                 }
             });
             $("#barcode_accordion").accordion({ header: ".shopTitle" });
