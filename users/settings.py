@@ -5,6 +5,17 @@ from common.constants import HASH_ALGORITHM
 DEBUG = True
 SERVER_PORT = 8100 # for development only
 
+# For production deploy:
+# DATABASE = {
+#     'NAME': 'backtoshops',
+#     'USER': 'bts',
+#     'PASSWORD': 'backtoshops',
+#     'HOST': '',
+#     'PORT': '',
+#     'MAX_CONN': 10,
+#     'CONN_EXPIRATION': 1, #minute
+# }
+
 DATABASE = {
     'NAME': 'users',
     'USER': 'postgres',
