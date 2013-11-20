@@ -44,7 +44,7 @@ function usage() {
 }
 
 function sanity_checks() {
-    REQUIRMENT_FILE=$1
+    REQUIREMENT_FILE=$1
     [ -r /etc/debian_version ] || echo "Warning: this script was made for Debian."
     [ -r $REQUIREMENT_FILE ] || echo "Warning: $REQUIREMENT_FILE requirements not found."
     grep -q 'UTF-8' /etc/postgresql/9.1/main/postgresql.conf || echo "Warning: postgresql needs to be configured in UTF-8"
@@ -63,7 +63,7 @@ function sanity_checks() {
     fi
 
     # install virtualenv if it is not present
-	deactivate
+    deactivate || echo "Environment was not activated."
     [ -z $(pip freeze 2> /dev/null | grep virtualenv) ] && \
     pip install virtualenv
 
@@ -289,7 +289,7 @@ function setup_usr() {
 function deploy_user() {
     sanity_checks $USR_REQUIREMENT
     create_python_env $USR_REQUIREMENT
-    setup_db
+    #setup_db
     make_usr_src_dir
     setup_usr
     echo "(i) Deploy user server finished"
