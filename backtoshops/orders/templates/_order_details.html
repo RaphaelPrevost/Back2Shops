@@ -1,0 +1,33 @@
+{% load i18n %}
+{% load sub %}
+
+<!--ENSEMBLE EN DETAIL-->
+<div class="detail">
+    <h3>{{ order_id }}</h3>
+    <p>
+        {% trans "confirmation_time" %} : <strong>{{ order.confirmation_time }}</strong>
+    </p>
+
+        {% for oitems in order.order_items %}
+	     <div class="table">
+            <table cellpadding="0" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th class="col1">{% trans "Name" %}</th>
+                        <th>{% trans "Price" %}</th>
+                        <th>{% trans "Quantity" %}</th>
+                        <th>{% trans "Barcode" %}</th>
+                    </tr>
+                </thead>
+                {% for item_id, oitem in oitems.items %}
+                    <tr>
+                        <td class="col1">{{ oitem.name }}</td>
+                        <td>{{ oitem.price }}</td>
+                        <td>{{ oitem.quantity }}</td>
+                        <td>{{ oitem.barcode }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+	     <div class="clear"></div>
+	  </div>
+        {% endfor %}

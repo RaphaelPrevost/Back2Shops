@@ -9,8 +9,7 @@ from common.error import NotExistError
 from common.utils import gen_json_response
 from models.order import create_order
 from models.order import get_order_detail
-from models.order import get_orders
-from models.order import get_orders_filter_by_mother_brand
+from models.order import get_orders_list
 from models.order import update_shipping_fee
 from models.sale import CachedSale
 from models.sale import get_sale_by_barcode
@@ -39,7 +38,7 @@ class BaseOrderResource(BaseResource):
         return resp
 
 
-class OrderResource(BaseOrderResource):
+class OrderResource(BaseResource):
     login_required = {'get': False, 'post': True}
     post_action_func_map = {'create': 'order_create'}
     users_id = None
@@ -180,6 +179,7 @@ class OrderResource(BaseOrderResource):
 
     def _saleValidCheck(self, id_sale, id_variant, id_shop, quantity):
         sale = CachedSale(id_sale)
+
         if not sale.valid():
             raise ValidationError('ORDER_ERR_INVALID_SALE_ITEM_%s' % id_sale)
         elif int(id_variant) and not sale.valid_variant(id_variant):
@@ -231,12 +231,12 @@ class ShippingFeeResource(BaseResource):
 class OrderListResource(BaseOrderResource):
 
     def _on_get(self, req, resp, conn, **kwargs):
-        mother_brand_id = req.get_param('mother_brand_id')
-        if mother_brand_id:
-            orders = get_orders_filter_by_mother_brand(conn, mother_brand_id)
-        else:
-            orders = get_orders(conn)
-        #return gen_json_response(resp, orders)
+        brand_id = req.get_param('brand_id', None)
+        if brand_id is None:
+            raise ValidationError('INVALID_REQUEST')
+
+        orders = get_orders_list(conn, brand_id)
+        # return gen_json_response(resp, orders)
         return self.gen_encrypt_json_resp(resp, orders)
 
 
@@ -244,8 +244,11 @@ class OrderDetailResource(BaseOrderResource):
 
     def _on_get(self, req, resp, conn, **kwargs):
         order_id = req.get_param('id')
-        mother_brand_id = req.get_param('mother_brand_id')
-        order_detail = get_order_detail(conn, order_id, mother_brand_id)
+        brand_id = req.get_param('brand_id', None)
+        if not order_id or brand_id is None:
+            raise ValidationError('INVALID_REQUEST')
+
+        order_detail = get_order_detail(conn, order_id, brand_id)
         # return gen_json_response(resp, order_detail)
         return self.gen_encrypt_json_resp(resp, order_detail)
 
@@ -256,7 +259,6 @@ class OrderDeleteResource(BaseOrderResource):
         return gen_json_response(resp,
                                  {'res': RESP_RESULT.F,
                                   'err': 'INVALID_REQUEST'})
-
 
 
 class OrderStatusResource(BaseOrderResource):

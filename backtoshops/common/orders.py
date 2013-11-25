@@ -28,13 +28,10 @@ def send_shipping_fee(id_shipment, id_postage, shipping_fee):
                       exc_info=True)
 
 
-def get_order_list(mother_brand_id=None):
+def get_order_list(brand_id):
     try:
-        url = settings.ORDER_LIST_URL
-        if mother_brand_id:
-            url += '?mother_brand_id=%s' % mother_brand_id
         data = get_from_remote(
-            url,
+            '%s?brand_id=%s' % (settings.ORDER_LIST_URL, brand_id),
             settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
             settings.PRIVATE_KEY_PATH,
             headers={'Content-Type': 'application/json'}
@@ -43,13 +40,13 @@ def get_order_list(mother_brand_id=None):
     except Exception, e:
         logging.error('Failed to get order list from usr servers',
                       exc_info=True)
+        return []
 
 
-def get_order_detail(order_id, mother_brand_id=None):
+def get_order_detail(order_id, brand_id):
     try:
-        url = '%s?id=%s' % (settings.ORDER_DETAIL_URL, order_id)
-        if mother_brand_id:
-            url += '&mother_brand_id=%s' % mother_brand_id
+        url = '%s?id=%s&brand_id=%s' % (settings.ORDER_DETAIL_URL,
+                                        order_id, brand_id)
         data = get_from_remote(
             url,
             settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
@@ -60,3 +57,4 @@ def get_order_detail(order_id, mother_brand_id=None):
     except Exception, e:
         logging.error('Failed to get order(id=%s) detail from usr servers',
                       order_id, exc_info=True)
+        return {}

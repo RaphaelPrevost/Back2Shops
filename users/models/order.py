@@ -1,8 +1,9 @@
 import logging
 from datetime import datetime
 
+from common.constants import INVOICE_STATUS
+from common.constants import ORDER_STATUS
 from common.constants import SHIPMENT_STATUS
-from settings import ORDERS_QUERY_LIMIT
 
 from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import query
@@ -10,8 +11,6 @@ from B2SUtils.db_utils import select
 from B2SUtils.db_utils import update
 from models.sale import CachedSale
 from models.shop import get_shop_id
-from models.user import get_user_address
-from models.user import get_user_phone_num
 from models.user import get_user_profile
 
 
@@ -102,7 +101,8 @@ def create_order(conn, users_id, telephone_id, order_items,
         sale = CachedSale(order['id_sale']).sale
         item_id = _create_order_item(conn, sale, order['id_variant'],
                                      upc_shop=upc_shop,
-                                     barcode=order.get('barcode', None))
+                                     barcode=order.get('barcode', None),
+                                     id_shop=order['id_shop'])
         _create_order_details(conn, order_id, item_id, order['quantity'])
     return order_id
 
@@ -130,94 +130,203 @@ def update_shipping_fee(conn, id_shipment, id_postage, shipping_fee):
         raise
 
 
-def _get_orders(conn, where=None, columns=None, order_by=None, limit=None,
-                offset=None):
-    order_by = order_by or ('confirmation_time', )
-    orders = select(conn, 'orders', where=where, order=order_by,
-                    columns=columns, limit=limit, offset=offset)
-    return orders
+ORDER_FIELDS_COLUMNS = [('order_id', 'orders.id'),
+                        ('user_id', 'id_user'),
+                        ('confirmation_time', 'confirmation_time'),
+                        ]
+ORDER_ITEM_FIELDS_COLUMNS = [('item_id', 'order_items.id'),
+                             ('quantity', 'quantity'),
+                             ('sale_id', 'id_sale'),
+                             ('shop_id', 'id_shop'),
+                             ('brand_id', 'id_variant'),
+                             ('price', 'price'),
+                             ('name', 'name'),
+                             ('picture', 'picture'),
+                             ('description', 'description'),
+                             ('copy_time', 'copy_time'),
+                             ('barcode', 'barcode'),
+                             ]
 
 
-def get_orders(conn, limit=None, offset=0):
-    limit = limit or ORDERS_QUERY_LIMIT
-    orders = _get_orders(conn, limit=limit, offset=offset)
-    return orders
+def _valid_sale_brand(sale_id, brand_id):
+    if int(brand_id) == 0:
+        return True
+
+    sale = CachedSale(sale_id).sale
+    return sale and sale.brand and int(sale.brand.id) == int(brand_id)
 
 
-def get_orders_filter_by_confirmation_time(conn, start_time, end_time):
-    orders = _get_orders(conn, where={'confirmation_time__>=': start_time,
-                                      'confirmation_time__<': end_time})
-    return orders
+def _get_shipment_info_for_order_item(conn, item_id):
+    shipment_info = {}
+    fields, columns = zip(*[('address_id', 'id_address'),
+                            ('phone_id', 'id_phone'),
+                            ('status', 'status'),
+                            ('shipping_fee', 'shipping_fee'),
+                            ('shipping_list_quantity', 'quantity')])
+    query_str = (
+        "SELECT %s FROM shipping_list "
+        "LEFT JOIN shipments ON shipments.id = shipping_list.id_shipment "
+        "WHERE id_item = %%s") % ', '.join(columns)
+
+    results = query(conn, query_str, params=[item_id, ])
+    assert len(results) <= 1, 'One item has more than one shipping_list?'
+    if not results:
+        return shipment_info
+    shipment_info = dict(zip(fields, results[0]))
+
+    # get shipment address info
+    address_columns = ['addr_type', 'address', 'city', 'postal_code',
+                       'country_code', 'province_code', 'address_desp']
+    address_results = select(conn, 'users_address', columns=address_columns,
+                             where={'id': shipment_info.pop('address_id')})
+    if address_results:
+        address_info = dict(zip(address_columns, address_results[0]))
+        shipment_info.update({'shipment_address_info': address_info})
+
+    # get shipment phone info
+    phone_columns = ['country_num', 'phone_num', 'phone_num_desp']
+    phone_results = select(conn, 'users_phone_num', columns=phone_columns,
+                           where={'id': shipment_info.pop('phone_id')})
+    if phone_results:
+        phone_info = dict(zip(phone_columns, phone_results[0]))
+        shipment_info.update({'shipment_phone_info': phone_info})
+
+    return shipment_info
 
 
-def get_orders_filter_by_user(conn, user_id):
-    orders = _get_orders(conn, where={'id_user': user_id})
-    return orders
+def _get_invoice_info_for_order_item(conn, item_id):
+    # not implemented yet.
+    return {}
 
 
-def get_orders_filter_by_mother_brand(conn, mother_brand_id):
+def _get_order_status(order_items_list):
+    """
+    There is 4 status.
+    Pending order is the initial status.
+    When all the the shipments are created and matching invoices as well, the
+    order becomes "awaiting payment".
+    When all the invoices are paid, the order becomes "awaiting shipping".
+    When the merchant has set the status of all shipments as sent, the order
+    is "completed".
+    """
+    shipment_status_set = set()
+    invoice_status_set = set()
+    for order_item_dict in order_items_list:
+        for item_id, item_info in order_item_dict.iteritems():
+            shipment_status = item_info['shipment_info'].get('status', 0)
+            shipment_status_set.add(shipment_status)
+
+            invoice_status = item_info['invoice_info'].get('status', 0)
+            invoice_status_set.add(invoice_status)
+
+    if (invoice_status_set == set([INVOICE_STATUS.INVOICE_PAID]) and
+            shipment_status_set == set([SHIPMENT_STATUS.DELIVER])):
+        return ORDER_STATUS.COMPLETED
+
+    if (invoice_status_set == set([INVOICE_STATUS.INVOICE_PAID]) and
+            shipment_status_set != set([SHIPMENT_STATUS.DELIVER])):
+        return ORDER_STATUS.AWAITING_SHIPPING
+
+    if invoice_status_set != set([INVOICE_STATUS.INVOICE_PAID]):
+        return ORDER_STATUS.AWAITING_PAYMENT
+
+    return ORDER_STATUS.PENDING
+
+
+def _update_extra_info_for_order_item(conn, item_id, order_item):
+    order_item.update(
+        {'shipment_info': _get_shipment_info_for_order_item(conn, item_id),
+         'invoice_info': _get_invoice_info_for_order_item(conn, item_id),
+         })
+
+
+def get_orders_list(conn, brand_id, filter_where='', filter_params=None):
+    fields, columns = zip(*(ORDER_FIELDS_COLUMNS + ORDER_ITEM_FIELDS_COLUMNS))
     query_str = '''
-        SELECT id, id_user, confirmation_time
+        SELECT %s
         FROM orders
-        LEFT JOIN order_details ON order_details.id_order = order.id
+        LEFT JOIN order_details ON order_details.id_order = orders.id
         LEFT JOIN order_items ON order_items.id = order_details.id_item
-        LEFT JOIN shops_shop ON shops_shop.id = order_items.id_shop
-        WHERE order_items.mother_brand = %s
-        ORDER BY confirmation_time
-    '''
-    orders = query(conn, query_str, [mother_brand_id, ])
+        %s
+        ORDER BY confirmation_time, order_items.id
+    ''' % (', '.join(columns), filter_where)
+    params = filter_params or []
+    results = query(conn, query_str, params=params)
+
+    orders_dict = {}
+    sorted_order_ids = []
+    for result in results:
+        order_item = dict(zip(fields, result))
+        if not _valid_sale_brand(order_item['sale_id'], brand_id):
+            continue
+
+        order_id = order_item.pop('order_id')
+        if order_id not in orders_dict:
+            orders_dict[order_id] = {
+                'user_info': get_user_profile(conn, order_item['user_id']),
+                'user_id': order_item.pop('user_id'),
+                'confirmation_time': order_item.pop('confirmation_time'),
+                'first_sale_id': order_item['sale_id'],
+                'order_items': []}
+        item_id = order_item.pop('item_id')
+        _update_extra_info_for_order_item(conn, item_id, order_item)
+        orders_dict[order_id]['order_items'].append({item_id: order_item})
+
+        if order_id not in sorted_order_ids:
+            sorted_order_ids.append(order_id)
+
+    for order_id, order in orders_dict.iteritems():
+        order['order_status'] = _get_order_status(order['order_items'])
+
+    orders = []
+    for order_id in sorted_order_ids:
+        orders.append({order_id: orders_dict[order_id]})
     return orders
 
 
-def _get_order_items(conn, order_id, mother_brand_id):
-    # {'items': {item_1_id: {},
-    #            item_2_id: {},
-    #            ...}
+def get_orders_filter_by_confirmation_time(conn, brand_id, start_time,
+                                           end_time):
+    filter_where = ('WHERE confirmation_time >= %%s AND ',
+                    'confirmation_time < %%s')
+    filter_params = [start_time, end_time]
+    return get_orders_list(conn, brand_id, filter_where, filter_params)
+
+
+def get_orders_filter_by_user(conn, brand_id, user_id):
+    filter_where = 'WHERE id_user = %%s'
+    filter_params = [user_id, ]
+    return get_orders_list(conn, brand_id, filter_where, filter_params)
+
+
+def _get_order_items(conn, order_id, brand_id):
+    # {'order_items': [item_1_id: {},
+    #                  item_2_id: {},
+    #                  ...]
     # }
-    items = {'items': {}}
-    fields_columns = [('item_id', 'order_items.id'),
-                      ('quantity', 'quantity'),
-                      ('sale_id', 'id_sale'),
-                      ('shop_id', 'id_shop'),
-                      ('price', 'price'),
-                      ('name', 'name'),
-                      ('picture', 'picture'),
-                      ('description', 'description'),
-                      ('copy_time', 'copy_time'),
-                      ]
-    if mother_brand_id is not None:
-        query_str = (
-            "SELECT %s FROM order_details "
-            "LEFT JOIN order_items ON order_details.id_item = order_items.id "
-            "LEFT JOIN shops_shop ON shops_shop.id = order_items.id_shop "
-            "WHERE id_order=%%s AND id_shop=%%s"
-            ) % ', '.join([x[1] for x in fields_columns])
-        params = [order_id, mother_brand_id]
-    else:
-        query_str = (
-            "SELECT %s FROM order_details "
-            "LEFT JOIN order_items ON order_details.id_item = order_items.id "
-            "WHERE id_order=%%s") % ', '.join([x[1] for x in fields_columns])
-        params = [order_id, ]
-
-    results_list = query(conn, query_str, params=params)
-
+    items = {'order_items': []}
+    fields, columns = zip(*ORDER_ITEM_FIELDS_COLUMNS)
+    query_str = ("SELECT %s FROM order_details "
+                 "LEFT JOIN order_items ON "
+                 "order_details.id_item = order_items.id "
+                 "WHERE id_order = %%s") % ', '.join(columns)
+    results_list = query(conn, query_str, params=[order_id, ])
     for result in results_list:
-        item_id = result[0]
-        result = dict(zip([x[0] for x in fields_columns][1:], result[1:]))
-        items['items'].update({item_id: result})
+        order_item = dict(zip(fields, result))
+        if not _valid_sale_brand(order_item['sale_id'], brand_id):
+            continue
 
+        item_id = order_item.pop('item_id')
+        _update_extra_info_for_order_item(conn, item_id, order_item)
+        items['order_items'].append({item_id: order_item})
     return items
 
 
-def get_order_detail(conn, order_id, mother_brand_id):
-    columns = ['id', 'id_user', 'confirmation_time']
-    results = select(conn, 'orders', where={'id': order_id}, columns=columns,
-                     limit=1)
+def get_order_detail(conn, order_id, brand_id):
+    fields, columns = zip(*ORDER_FIELDS_COLUMNS)
+    results = select(conn, 'orders', where={'id': order_id}, columns=columns)
     if not results:
         return {}
-
-    details = dict(zip(columns, results[0]))
+    details = dict(zip(fields, results[0]))
 
     # details['user info']
     # user_info: {'address': {a1, a2, ...},
@@ -226,17 +335,17 @@ def get_order_detail(conn, order_id, mother_brand_id):
     #             'last_name': xxx,
     #             ...
     # }
-    user_id = details['id_user']
-    user_info_dict = get_user_profile(conn, user_id)
-    user_info_dict.update(get_user_address(conn, user_id))
-    user_info_dict.update(get_user_phone_num(conn, user_id))
-    details['user_info'] = user_info_dict
 
-    # details['items']
-    # items: {item_1_id: {xxx},
-    #         item_2_id: {xxx},
-    #         ...
-    # }
-    details.update(_get_order_items(conn, order_id, mother_brand_id))
+    details['user_info'] = get_user_profile(conn, details['user_id'])
 
+    # details['order_items']
+    # order_items: [item_1_id: {xxx},
+    #               item_2_id: {xxx},
+    #               ...
+    # ]
+    order_items = _get_order_items(conn, order_id, brand_id)
+    details.update(order_items)
+    details.update({
+        'first_sale_id': order_items['order_items'][0].values()[0]['sale_id'],
+        'order_status': _get_order_status(order_items['order_items'])})
     return details
