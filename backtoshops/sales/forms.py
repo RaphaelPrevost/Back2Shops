@@ -234,7 +234,9 @@ class StockStepForm(forms.Form):
                     raise forms.ValidationError(_("product barcode %s already used in your shop." % new_upc))
 
         if len(upcs) > len(set(upcs)):
-            raise forms.ValidationError(_("You cannot use two same product barcodes."))
+            # barcodes are now optional for global sales, so empty upcs are OK.
+            if not (shops == [] and set(upcs) == set([''])):
+                raise forms.ValidationError(_("You cannot use two same product barcodes."))
 
 class TargetForm(forms.Form):
     gender = forms.ChoiceField(choices=GENDERS, label=_("Target gender"))
