@@ -19,6 +19,7 @@ from common.orders import send_shipping_fee
 from orders.forms import ListOrdersForm
 from orders.forms import ShippingForm
 from orders.models import Shipping
+from sales.models import Sale
 from shippings.models import Carrier, Service
 
 
@@ -158,19 +159,26 @@ class ListOrdersView(LoginRequiredMixin, View, TemplateResponseMixin):
     template_name = 'order_list.html'
     list_current = True
 
+    def _get_order_thumbnail(self, sale_id):
+        """
+        Using the thumbnail of the first item from the order as the
+        order thumbanil image.
+        """
+        return Sale(sale_id).product.pictures.all()[0].picture
+
     def set_orders_list(self, request):
         self.orders = []
         if request.user.is_staff:
-            order_list = get_order_list()
-            for order_id, _, _ in order_list:
-                detail = get_order_detail(order_id)
-                self.orders.append(detail)
+            brand_id = 0
         else:
             brand_id = request.user.get_profile().work_for.pk
-            order_list = get_order_list(brand_id)
-            for order_id, _, _ in order_list:
-                detail = get_order_detail(order_id, brand_id)
-                self.orders.append(detail)
+
+        orders = get_order_list(brand_id)
+        for order_dict in orders:
+            for order_id, order in order_dict.iteritems():
+                order['thumbnail_img'] = \
+                    self._get_order_thumbnail(order['first_sale_id'])
+        self.orders = orders
         self.page_title = ugettext_lazy("Current Orders")
         return
 
@@ -224,3 +232,16 @@ class ListOrdersView(LoginRequiredMixin, View, TemplateResponseMixin):
 
     def _sort_orders(self, order_by1, order_by2):
         pass
+
+
+class OrderDetails(LoginRequiredMixin, View, TemplateResponseMixin):
+    template_name = "_order_details.html"
+
+    def get(self, request, order_id):
+        if request.user.is_staff:
+            brand_id = 0
+        else:
+            brand_id = request.user.get_profile().work_for.pk
+        self.order_id = order_id
+        self.order = get_order_detail(order_id, brand_id)
+        return self.render_to_response(self.__dict__)

@@ -145,30 +145,49 @@
     /*Prix*/
     .content .prix {
         display: block;
-        float: left;
         width: 133px;
-        padding: 8px 3px 9px 3px;
+        padding: 20px 3px 9px 3px;
         overflow: hidden;
         background-color: #fff;
     }
         .content .prix span {
             display: block;
-            width: 133px;
-            line-height: 12px;
+            width: 32px;
+            height: 25px;
             margin: 3px 0 0 0;
             font-size: 10px;
             color: #030303;
             font-family: arial;
+            float: left;
         }
+            .content .prix span.status-pending-gray {
+                background: url(../img/order-pending-gray.png) no-repeat 0 0;
+            }
+            .content .prix span.status-pending-blue {
+                /* no img provided now, use gray temp */
+                background: url(../img/order-pending-gray.png) no-repeat 0 0;
+            }
+            .content .prix span.status-payment-gray {
+                background: url(../img/order-payment-gray.png) no-repeat 0 0;
+            }
+            .content .prix span.status-payment-blue {
+                background: url(../img/order-payment-blue.png) no-repeat 0 0;
+            }
+            .content .prix span.status-shipping-gray {
+                background: url(../img/order-shipping-gray.png) no-repeat 0 0;
+            }
+            .content .prix span.status-shipping-blue {
+                background: url(../img/order-shipping-blue.png) no-repeat 0 0;
+            }
+            .content .prix span.status-next {
+                width: 15px;
+                background: url(../img/order-next-status.png) no-repeat 0 6px;
+            }
             .content .prix span strong,
             .content .prix span em {
                 display: block;
                 float: right;
                 width: auto;
-                text-align: right;
-                font-style: normal;
-                font-family: arial;
-                font-size: 12px;
             }
 
 /*Liens DETAIL*/
@@ -203,3 +222,25 @@
         background-position: 142px -203px;
         background-color: #000;
     }
+
+
+p#order-status-tabs {
+    width: 500px;
+    height: 40px;
+    background-color: #DDDDDD;
+}
+p#order-status-tabs span {
+    background-color: #EEEEEE;
+    border: 1px solid #cbcbcb;
+    line-height: 40px;
+    padding: 10px 5px;
+}
+
+div#detail table {
+    border: 1px solid #cbcbcb;
+}
+
+div#detail table th,
+div#detail table td {
+    border: 1px solid #cbcbcb;
+}
