@@ -33,6 +33,10 @@
             <a href="{% url 'operators' %}" class="bottom">{% trans "Operators mgmt" %}</a>
         </li>
         {% endif %}
+        <li>
+            <h3 class="link8">{% trans "Orders" %}</h3>
+            <a href="{% url 'list_orders' %}">{% trans "Orders" %}</a>
+        </li>
     </ul>
 
 {% endblock %}
