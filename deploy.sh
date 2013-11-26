@@ -5,6 +5,9 @@
 # svn co http://trac.lbga.fr/svn/backtoshops/
 # cd /home/backtoshops
 #
+# possible errors related to the DB:
+# Peer/Ident authentication failed: check pg_hba.conf,
+# local connections should be trusted (or password)
 
 set -ex
 
@@ -45,6 +48,7 @@ function usage() {
 
 function sanity_checks() {
     REQUIREMENT_FILE=$1
+    DEPS=$2
     [ -r /etc/debian_version ] || echo "Warning: this script was made for Debian."
     [ -r $REQUIREMENT_FILE ] || echo "Warning: $REQUIREMENT_FILE requirements not found."
     grep -q 'UTF-8' /etc/postgresql/9.1/main/postgresql.conf || echo "Warning: postgresql needs to be configured in UTF-8"
@@ -76,21 +80,6 @@ function sanity_checks() {
     chmod 750 .
 }
 
-function setup_db() {
-    if [ ! -z $RESETDB ]; then
-        # possible errors related to the DB:
-        # Peer/Ident authentication failed: check pg_hba.conf,
-        # local connections should be trusted (or password)
-        if [ ! -z $INITDB ]; then
-            su postgres -c "psql postgres -tAc \"SELECT 1 FROM pg_roles WHERE rolname='bts'\" | grep -q 1 || createuser -P bts"
-        else
-            su postgres -c "dropdb backtoshops"
-        fi
-        su postgres -c "createdb -E UNICODE backtoshops -O bts"
-        su postgres -c "psql -U bts backtoshops -c 'grant all on database backtoshops to bts;'"
-    fi
-}
-
 function create_python_env() {
     REQUIREMENT_FILE=$1
     if [ ! -d $CWD/env ]; then
@@ -114,7 +103,7 @@ function create_python_env() {
                 lib_name=$(echo $lib_name | cut -d '.' -f 1)
             fi
 
-            if [ -z `pip freeze | grep $lib_name` ]; then
+            if [ -z `pip freeze | grep -i $lib_name` ]; then
                 echo "Missed python package ${lib_name}"
                 usermod -s /bin/sh backtoshops
                 PYENV="
@@ -134,6 +123,18 @@ function create_python_env() {
 
 
 ########## adm related functions ##########
+
+function setup_adm_db() {
+    if [ ! -z $RESETDB ]; then
+        if [ ! -z $INITDB ]; then
+            su postgres -c "psql postgres -tAc \"SELECT 1 FROM pg_roles WHERE rolname='bts'\" | grep -q 1 || createuser -P bts"
+        else
+            su postgres -c "dropdb backtoshops"
+        fi
+        su postgres -c "createdb -E UNICODE backtoshops -O bts"
+        su postgres -c "psql -U bts backtoshops -c 'grant all on database backtoshops to bts;'"
+    fi
+}
 
 function make_adm_html_dir() {
     # remove old sourcecode
@@ -246,9 +247,9 @@ function sync_adm() {
 }
 
 function deploy_backoffice() {
-    sanity_checks $ADM_REQUIREMENT
+    sanity_checks $ADM_REQUIREMENT "${ADM_DEPS[*]}"
     create_python_env $ADM_REQUIREMENT
-    setup_db
+    setup_adm_db
     make_adm_html_dir
     make_adm_logs_dir
     setup_adm_wsgi
@@ -258,6 +259,13 @@ function deploy_backoffice() {
 
 
 ########## usr related functions ##########
+
+function setup_usr_db() {
+    if [ ! -z $RESETDB ]; then
+        su postgres -c "dropdb users"
+        su postgres -c "createdb -E UNICODE users -O postgres"
+    fi
+}
 
 function make_usr_src_dir() {
     # remove old sourcecode
@@ -287,9 +295,9 @@ function setup_usr() {
 }
 
 function deploy_user() {
-    sanity_checks $USR_REQUIREMENT
+    sanity_checks $USR_REQUIREMENT "${USR_DEPS[*]}"
     create_python_env $USR_REQUIREMENT
-    #setup_db
+    setup_usr_db
     make_usr_src_dir
     setup_usr
     echo "(i) Deploy user server finished"

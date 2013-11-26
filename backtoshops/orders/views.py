@@ -168,7 +168,7 @@ class ListOrdersView(LoginRequiredMixin, View, TemplateResponseMixin):
 
     def set_orders_list(self, request):
         self.orders = []
-        if request.user.is_staff:
+        if request.user.is_superuser:
             brand_id = 0
         else:
             brand_id = request.user.get_profile().work_for.pk
@@ -238,7 +238,7 @@ class OrderDetails(LoginRequiredMixin, View, TemplateResponseMixin):
     template_name = "_order_details.html"
 
     def get(self, request, order_id):
-        if request.user.is_staff:
+        if request.user.is_superuser:
             brand_id = 0
         else:
             brand_id = request.user.get_profile().work_for.pk
