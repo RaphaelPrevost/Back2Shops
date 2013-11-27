@@ -244,3 +244,9 @@ div#detail table th,
 div#detail table td {
     border: 1px solid #cbcbcb;
 }
+
+div.error_msg {
+    padding: 10px;
+    color: #ff5d36;
+    font-size: 14px;
+}

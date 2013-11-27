@@ -5,6 +5,7 @@ import ujson
 from B2SCrypto.constant import SERVICES
 from B2SCrypto.utils import gen_encrypt_json_context
 from B2SCrypto.utils import get_from_remote
+from common.error import UsersServerError
 
 def send_shipping_fee(id_shipment, id_postage, shipping_fee):
     try:
@@ -40,7 +41,7 @@ def get_order_list(brand_id):
     except Exception, e:
         logging.error('Failed to get order list from usr servers',
                       exc_info=True)
-        return []
+        raise UsersServerError
 
 
 def get_order_detail(order_id, brand_id):
@@ -57,4 +58,4 @@ def get_order_detail(order_id, brand_id):
     except Exception, e:
         logging.error('Failed to get order(id=%s) detail from usr servers',
                       order_id, exc_info=True)
-        return {}
+        raise UsersServerError

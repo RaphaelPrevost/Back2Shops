@@ -13,6 +13,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from fouillis.views import LoginRequiredMixin
 
 from common import carriers
+from common.error import UsersServerError
 from common.orders import get_order_detail
 from common.orders import get_order_list
 from common.orders import send_shipping_fee
@@ -167,13 +168,18 @@ class ListOrdersView(LoginRequiredMixin, View, TemplateResponseMixin):
         return Sale(sale_id).product.pictures.all()[0].picture
 
     def set_orders_list(self, request):
-        self.orders = []
+        orders = []
         if request.user.is_superuser:
             brand_id = 0
         else:
             brand_id = request.user.get_profile().work_for.pk
 
-        orders = get_order_list(brand_id)
+        try:
+            orders = get_order_list(brand_id)
+        except UsersServerError, e:
+            self.error_msg = (
+                "Sorry, the system meets some issues, our engineers have been "
+                "notified, please check back later.")
         for order_dict in orders:
             for order_id, order in order_dict.iteritems():
                 order['thumbnail_img'] = \
@@ -238,10 +244,17 @@ class OrderDetails(LoginRequiredMixin, View, TemplateResponseMixin):
     template_name = "_order_details.html"
 
     def get(self, request, order_id):
+        order_details = {}
         if request.user.is_superuser:
             brand_id = 0
         else:
             brand_id = request.user.get_profile().work_for.pk
         self.order_id = order_id
-        self.order = get_order_detail(order_id, brand_id)
+        try:
+            order_details = get_order_detail(order_id, brand_id)
+        except UsersServerError, e:
+            self.error_msg = (
+                "Sorry, the system meets some issues, our engineers have been "
+                "notified, please check back later.")
+        self.order = order_details
         return self.render_to_response(self.__dict__)
