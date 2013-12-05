@@ -154,6 +154,7 @@ TEMPLATE_DIRS = (
     SITE_ROOT+'/pictures/templates',
     SITE_ROOT+'/sale/templates',
     SITE_ROOT+'/shop/templates',
+    SITE_ROOT+'/orders/templates',
     SITE_ROOT+'/templates'
 )
 

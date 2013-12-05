@@ -1,10 +1,10 @@
 # Django settings for backtoshops project.
 import os
 
-SITE_ROOT = "/var/www/backtoshops/backtoshops/"
+SITE_ROOT = "/home/backtoshops/public_html"
 SITE_NAME = ""
 
-get_site_prefix = lambda : SITE_NAME+'.' if SITE_NAME != '' and SITE_NAME is not None else ''
+get_site_prefix = lambda : '' if SITE_NAME != '' and SITE_NAME is not None else ''
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -121,7 +121,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-ROOT_URLCONF = SITE_NAME+'.urls'
+ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -131,6 +131,7 @@ TEMPLATE_DIRS = (
     SITE_ROOT+'/sale/templates',
     SITE_ROOT+'/shop/templates',
     SITE_ROOT+'/accounts/templates',
+    SITE_ROOT+'/orders/templates',
     SITE_ROOT+'/templates',
 
 )
@@ -203,7 +204,7 @@ LOGGING = {
             'level': 'ERROR',
             'class': 'logging.handlers.WatchedFileHandler',
             'formatter': 'verbose',
-            'filename': os.path.join(SITE_ROOT, 'logs/error.log'),
+            'filename': os.path.join(SITE_ROOT, '../logs/error.log'),
             'mode': 'a'
         },
         'mail_admins': {
