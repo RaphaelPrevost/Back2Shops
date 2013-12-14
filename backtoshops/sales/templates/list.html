@@ -59,12 +59,25 @@
                         {% endthumbnail %}
                     </a>
                     <div class="date_etat">
-                        <em>{% trans "From" %} {{ sale.product.valid_from|date:"DATE_FORMAT" }} {% trans "To" %} {{ sale.product.valid_to|date:"DATE_FORMAT" }}</em>
+                        <em>{% trans "From" %} {{ sale.product.valid_from|date:"DATE_FORMAT" }} {% trans "To" %}
+                            {% if sale.product.valid_to %}
+                                {{ sale.product.valid_to|date:"DATE_FORMAT" }}
+                            {% else %}
+                                {% trans "Permanent" %}
+                            {% endif %}
+                        </em>
                         <span>{% trans "Available Qty:" %} <strong>{{ sale.total_rest_stock }}</strong> | {% trans "Sales:" %} <strong>{% trans "N/A" %}</strong> | {% trans "Initial Stock:" %} <strong>{{ sale.total_stock }}</strong></span>
                     </div>
                     <div class="prix">
                         <span>{% trans "Discounted price:" %}<strong>{{ sale.product.discount_price|floatformat }}&euro;</strong></span>
-                        <span>{% trans "Discount:" %} <strong>{{ sale.product.discount|floatformat }}{% if sale.product.discount_type == "percentage" %}%{% else %}&euro;{% endif %}</strong></span>
+                        <span>{% trans "Discount:" %} <strong>
+                            {% if sale.product.discount %}
+                                {{ sale.product.discount|floatformat }}
+                                {% if sale.product.discount_type == "percentage" %}%{% else %}&euro;{% endif %}
+                            {% else %}
+                                {% trans "N/A" %}
+                            {% endif %}
+                        </strong></span>
                         <span>{% trans "Item price:" %} <em>{{ sale.product.normal_price|floatformat }}&euro;</em></span>
                     </div>
                 </div>
@@ -178,5 +191,6 @@
 
         });
     });
+
 </script>
 {% endblock %}

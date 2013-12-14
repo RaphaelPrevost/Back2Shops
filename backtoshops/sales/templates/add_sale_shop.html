@@ -23,16 +23,16 @@
             </span>
             {% endcomment %}
 
-			<div id="physical_shops">
-				<div class="formrow">
-					<label for="{{ wizard.form.shops.auto_id }}">{{ wizard.form.shops.label }}</label>
-					<input type="text" id="shop_search" value="" name="shop_search" />
-					<div id="check_shops">
-						{{ wizard.form.shops }}
-					</div>
-					<div class="clear"></div>
-				</div>
-			</div>
+            <div id="physical_shops">
+                <div class="formrow">
+                    <label for="{{ wizard.form.shops.auto_id }}">{{ wizard.form.shops.label }}</label>
+                    <input type="text" id="shop_search" value="" name="shop_search" />
+                    <div id="check_shops">
+                        {{ wizard.form.shops }}
+                    </div>
+                    <div class="clear"></div>
+                </div>
+            </div>
         </div>
     </fieldset>
 {% endblock %}
@@ -53,9 +53,9 @@
         {% endif %}
 
         $("input[class=folder]").click(function(){
-        	var list = $(this).parent().parent();
+            var list = $(this).parent().parent();
             var tocheck = false;
-        	if (this.checked) {
+            if (this.checked) {
                tocheck = true;
             }
             $(this).prop('checked', tocheck);

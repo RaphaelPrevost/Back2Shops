@@ -3,10 +3,13 @@ from django.http import HttpResponse
 from django.template import loader
 from django.template.context import Context
 from django.views.generic.base import TemplateResponseMixin, View
-from models import BrandAttribute
+from sorl.thumbnail import get_thumbnail
+
+from attributes.models import BrandAttribute
+from attributes.models import CommonAttribute
 from fouillis.views import LoginRequiredMixin
 from sales.models import ProductPicture
-from sorl.thumbnail import get_thumbnail
+
 
 class BrandAttributeView(LoginRequiredMixin, View, TemplateResponseMixin):
     template_name = ""
@@ -77,3 +80,13 @@ class BrandAttributeView(LoginRequiredMixin, View, TemplateResponseMixin):
             p.save()
 
         return HttpResponse(json.dumps(to_ret), mimetype="application/json")
+
+
+def get_item_attributes(request, *args, **kwargs):
+    item_attrs_list = []
+    item_attrs = CommonAttribute.objects.filter(
+        for_type_id=kwargs.get('tid', None))
+    for attr in item_attrs:
+        item_attrs_list.append({'label': attr.name, 'value': attr.id})
+    return HttpResponse(json.dumps(item_attrs_list),
+                        mimetype='application/json')

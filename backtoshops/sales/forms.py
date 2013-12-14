@@ -1,6 +1,7 @@
 # coding:UTF-8
 from datetime import date
 from itertools import chain
+
 from django import forms
 from django.forms.formsets import formset_factory
 from django.forms.util import ErrorList
@@ -8,9 +9,14 @@ from django.utils.encoding import force_unicode
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+
 from barcodes.models import Barcode
-from sales.models import DISCOUNT_TYPE, ProductBrand, ProductType,\
-    ProductCategory, GENDERS, ProductCurrency, Product
+from sales.models import DISCOUNT_TYPE
+from sales.models import GENDERS
+from sales.models import Product
+from sales.models import ProductBrand
+from sales.models import ProductCategory
+from sales.models import ProductCurrency
 from shops.models import Shop
 
 
@@ -93,7 +99,7 @@ class ShopForm(forms.Form):
 class BrandAttributeForm(forms.Form):
     ba_id = forms.IntegerField(widget=forms.HiddenInput())
     name = forms.CharField(widget=forms.HiddenInput())
-    premium_type = forms.CharField(widget=forms.HiddenInput(),required=False)
+    premium_type = forms.CharField(widget=forms.HiddenInput(), required=False)
     premium_amount = forms.FloatField(widget=forms.HiddenInput(), required=False)
     premium_price = forms.FloatField(widget=forms.HiddenInput(), required=False)
     texture = forms.CharField(widget=forms.HiddenInput(), required=False)
@@ -103,37 +109,61 @@ class BrandAttributeForm(forms.Form):
     preview_pk = forms.IntegerField(widget=forms.HiddenInput(), required=False)
     # preview_thumb = forms.CharField(widget=forms.HiddenInput())
 
+
+class TypeAttributePriceForm(forms.Form):
+    tap_id = forms.IntegerField(widget=forms.HiddenInput())
+    type_attribute = forms.IntegerField(widget=forms.HiddenInput())
+    type_attribute_price = forms.FloatField(widget=forms.HiddenInput())
+
+
 class ProductPictureForm(forms.Form):
     pk = forms.IntegerField(widget=forms.HiddenInput())
     url = forms.CharField(widget=forms.HiddenInput())
     thumb_url = forms.CharField(widget=forms.HiddenInput())
 
-class ProductForm(forms.Form):
-    type = forms.ModelChoiceField(
-        label=_("Product type"),
-        queryset=ProductType.objects.all(),
-        empty_label=None
-    )
-    category = forms.ModelChoiceField(
-        label=_("Product category"),
-        queryset=ProductCategory.objects.all(),
-        empty_label=None
-    )
-    name = forms.CharField(label=_("Product name"), show_hidden_initial=True)
-    description = forms.CharField(label=_("Description"), widget=forms.Textarea())
-    normal_price = forms.FloatField(label=_("Price"),widget=forms.TextInput(attrs={'class': 'inputS'}))
-    currency = forms.ModelChoiceField(queryset=ProductCurrency.objects.all())
-    discount_price = forms.FloatField(widget=forms.TextInput(attrs={'class': 'inputXS', 'style': 'display: none;'}))
-    discount_type = forms.ChoiceField(choices=DISCOUNT_TYPE)
-    discount = forms.FloatField(widget=forms.TextInput(attrs={'class': 'inputXS'}))
-    valid_from = forms.DateField(label=_("From"), widget=forms.TextInput(attrs={'class': 'inputS'}), localize=True)
-    valid_to = forms.DateField(label=_("To"), widget=forms.TextInput(attrs={'class': 'inputS'}), localize=True)
 
-    def __init__(self, mother_brand=None, data=None, files=None, auto_id='id_%s', prefix=None,
-                 initial=None, error_class=ErrorList, label_suffix=':',
+class ProductForm(forms.Form):
+    category = forms.ModelChoiceField(
+        widget=forms.Select(attrs={'onChange': 'getTypeOptions(this.value)'}),
+        label=_("Product category"),
+        queryset=ProductCategory.objects.all())
+    type = forms.IntegerField(widget=forms.HiddenInput())
+    name = forms.CharField(label=_("Product name"), show_hidden_initial=True)
+    description = forms.CharField(
+        label=_("Description"),
+        widget=forms.Textarea())
+    normal_price = forms.FloatField(
+        widget=forms.HiddenInput(),
+        error_messages={'required': _(u'The Unified price is required')})
+    currency = forms.ModelChoiceField(
+        label=_("Currency"),
+        queryset=ProductCurrency.objects.all())
+    discount_price = forms.FloatField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={'class': 'inputXS', 'style': 'display: none;'}))
+    discount_type = forms.ChoiceField(required=False, choices=DISCOUNT_TYPE)
+    discount = forms.FloatField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'inputXS'}))
+    valid_from = forms.DateField(
+        required=False,
+        label=_("From"),
+        widget=forms.TextInput(attrs={'class': 'inputS'}),
+        localize=True)
+    valid_to = forms.DateField(
+        required=False,
+        label=_("To"),
+        widget=forms.TextInput(attrs={'class': 'inputS'}),
+        localize=True)
+
+    def __init__(self, mother_brand=None, data=None, files=None,
+                 auto_id='id_%s', prefix=None, initial=None,
+                 error_class=ErrorList, label_suffix=':',
                  empty_permitted=False):
-        super(ProductForm, self).__init__(data, files, auto_id, prefix, initial,
-                                          error_class, label_suffix, empty_permitted)
+        super(ProductForm, self).__init__(data, files, auto_id, prefix,
+                                          initial, error_class, label_suffix,
+                                          empty_permitted)
         self.fields['brand'] = forms.ModelChoiceField(
             queryset=ProductBrand.objects.filter(seller=mother_brand)
         )
@@ -150,12 +180,28 @@ class ProductForm(forms.Form):
         else:
             self.pictures = pictures_formset(data=data, prefix="product_pictures")
 
+        TypeAttributePriceFormSet = formset_factory(TypeAttributePriceForm,
+                                                    extra=0, can_delete=True)
+        if initial:
+            self.type_attribute_prices = TypeAttributePriceFormSet(
+                data=data, initial=initial.get('type_attribute_prices', None),
+                prefix="type_attribute_prices")
+        else:
+            self.type_attribute_prices = TypeAttributePriceFormSet(
+                data=data, prefix="type_attribute_prices")
+
     def clean_valid_to(self):
-        if self.cleaned_data['valid_to'] < self.cleaned_data['valid_from']:
-            raise forms.ValidationError(_("Starting date can not be set past this sale's expiration date."))
-        elif self.cleaned_data['valid_to'] < date.today():
-            raise forms.ValidationError(_("Expiration date can not be set before today."))
-        return self.cleaned_data['valid_to']
+        valid_to = self.cleaned_data['valid_to']
+        valid_from = self.cleaned_data['valid_from']
+        if valid_to and valid_to < valid_from:
+            raise forms.ValidationError(
+                _("Starting date can not be set past this sale's "
+                  "expiration date."))
+        elif valid_to and valid_to < date.today():
+            raise forms.ValidationError(
+                _("Expiration date can not be set before today."))
+        return valid_to
+
 
 class BarcodeForm(forms.Form):
     brand_attribute = forms.IntegerField(required=False)
@@ -163,6 +209,7 @@ class BarcodeForm(forms.Form):
     upc = forms.CharField(label=_("Barcode"), required=False)
 
 BarcodeFormset = formset_factory(BarcodeForm, can_delete=True, extra=0)
+
 
 class StockForm(forms.Form):
     brand_attribute = forms.IntegerField(required=False)
@@ -178,6 +225,7 @@ class StockForm(forms.Form):
         return int_data
 
 StockFormset = formset_factory(StockForm, can_delete=True, extra=0)
+
 
 class StockStepForm(forms.Form):
     def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None,
@@ -222,7 +270,7 @@ class StockStepForm(forms.Form):
             brs_with_same_upc = Barcode.objects.filter(upc=new_upc)
             for br in brs_with_same_upc:
                 pro = Product.objects.get(sale=br.sale)
-                if pro.valid_to < date.today():
+                if pro.valid_to and pro.valid_to < date.today():
                     continue
                 br_shops = br.sale.shops.all()
                 # check: 1. the same upc is in global shop when current sale in global shop.
