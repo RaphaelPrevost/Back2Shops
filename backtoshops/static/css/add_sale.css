@@ -423,7 +423,8 @@
 	}
 
 	/*-BOUTON AJOUT-*/
-	#add_ba {
+	#add_ba,
+    #add_tap {
 		position: absolute;
 		display: block;
 		top: 0;
@@ -1063,3 +1064,65 @@
 }
 
 
+#main_form #type_attribute_prices {
+    position: relative;
+}
+
+#add_tap_form {
+    width: 283px;
+    height: 20px;
+}
+
+span#type_attribute_prices span.type_attribute_name,
+span#type_attribute_prices span.normal_price_name {
+    width: 140px;
+    height: 22px;
+    line-height: 22px;
+    background-color: #030303;
+    color: white;
+    border: 1px solid #030303;
+    margin: 0;
+    font-weight: bold;
+    text-align: center;
+}
+
+span#type_attribute_prices span.type_attribute_price,
+span#type_attribute_prices span.normal_price_price {
+    width: 45px;
+    height: 22px;
+    line-height: 22px;
+    margin: 0;
+    padding-left: 5px;
+    border: 1px solid;
+}
+
+span#type_attribute_prices span.type_attribute_value {
+    display: none;
+}
+
+span#type_attribute_prices span.type_attribute_price_form,
+span#type_attribute_prices span.normal_price_form {
+    margin: 4px 0;
+}
+
+#main_form #type_attribute_prices .remove_normal_price,
+#main_form #type_attribute_prices .remove_type_attribute_price {
+    position: absolute;
+    right: 0;
+    top: 25;
+    display: block;
+    width: 16px;
+    height: 16px;
+    line-height: 12px;
+    margin: 2px 0 0 3px;
+    padding: 1px;
+    cursor: pointer;
+    overflow: hidden;
+    text-indent: -1500px;
+    border: 1px solid #E3E3E3;
+    background: url(../img/btn_navForm.png) no-repeat -304px -121px;
+}
+
+#main_form select#id_product-currency {
+    margin: 1px 5px 0 -5px;
+}

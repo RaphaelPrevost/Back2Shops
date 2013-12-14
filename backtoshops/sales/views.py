@@ -1,30 +1,59 @@
-from datetime import date
+import settings
 import json
+import logging
+from datetime import date
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage
+from django.core.paginator import EmptyPage
+from django.core.paginator import InvalidPage
+from django.core.paginator import Paginator
 from django.db import transaction
+from django.db.models import F
+from django.db.models import Q
 from django.db.models.aggregates import Sum
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import HttpResponse
+from django.http import HttpResponseBadRequest
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template import loader
 from django.template.context import Context
-from django.utils.translation import ugettext_lazy as _, ugettext
-from django.views.generic.base import View, TemplateResponseMixin
-from formwizard.views import SessionWizardView, NamedUrlSessionWizardView
+from django.utils.translation import ugettext
+from django.utils.translation import ugettext_lazy as _
+from django.views.generic.base import TemplateResponseMixin
+from django.views.generic.base import View
+from formwizard.views import NamedUrlSessionWizardView
 from sorl.thumbnail import get_thumbnail
-from attributes.models import BrandAttribute, BrandAttributePreview, CommonAttribute
+
+from attributes.models import BrandAttribute
+from attributes.models import BrandAttributePreview
+from attributes.models import CommonAttribute
 from barcodes.models import Barcode
-from fouillis.views import BOLoginRequiredMixin, LoginRequiredMixin
-from sales.forms import ShopForm, ProductBrandFormModel, ProductForm, StockStepForm, TargetForm,ListSalesForm
-from sales.models import Sale, Product, ProductBrand, ProductPicture, STOCK_TYPE_DETAILED, STOCK_TYPE_GLOBAL, ProductCurrency, ShopsInSale
+from common.cache_invalidation import send_cache_invalidation
+from fouillis.views import BOLoginRequiredMixin
+from fouillis.views import LoginRequiredMixin
+from globalsettings import get_setting
+from sales.forms import ListSalesForm
+from sales.forms import ProductBrandFormModel
+from sales.forms import ProductForm
+from sales.forms import ShopForm
+from sales.forms import StockStepForm
+from sales.forms import TargetForm
+from sales.models import Product
+from sales.models import ProductBrand
+from sales.models import ProductCurrency
+from sales.models import ProductPicture
+from sales.models import ProductType
+from sales.models import STOCK_TYPE_DETAILED
+from sales.models import STOCK_TYPE_GLOBAL
+from sales.models import Sale
+from sales.models import ShopsInSale
+from sales.models import TypeAttributePrice
 from shops.models import Shop
 from stocks.models import ProductStock
-from globalsettings import get_setting
-import settings
-from django.core.paginator import Paginator, EmptyPage, InvalidPage
-from django.db.models import F
-from common.cache_invalidation import send_cache_invalidation
+
 
 class UploadProductPictureView(View, TemplateResponseMixin):
     template_name = ""
@@ -81,12 +110,20 @@ class ListSalesView(LoginRequiredMixin, View, TemplateResponseMixin):
         this is just internal method to make the self.sales queryset.
         """
         if sales_type == "old":
-            self.sales = Sale.objects.filter(mother_brand=request.user.get_profile().work_for,
-                                             product__valid_to__lt=date.today())
+            self.sales = Sale.objects.filter(
+                mother_brand=request.user.get_profile().work_for
+            ).filter(
+                Q(product__valid_to__isnull=False) &
+                Q(product__valid_to__lt=date.today())
+            )
             self.page_title = _("History")
         else:
-            self.sales = Sale.objects.filter(mother_brand=request.user.get_profile().work_for,
-                                             product__valid_to__gte=date.today())
+            self.sales = Sale.objects.filter(
+                mother_brand=request.user.get_profile().work_for
+            ).filter(
+                Q(product__valid_to__isnull=True) |
+                Q(product__valid_to__gte=date.today())
+            )
             self.page_title = _("Current Sales")
 
         if not request.user.is_staff: #==operator
@@ -216,15 +253,19 @@ def add_sale(request, *args, **kwargs):
 
     initial_product = {
         'currency': ProductCurrency.objects.get(code=get_setting('default_currency')),
+        'category': None,
     }
 
     initials = {
         SaleWizardNew.STEP_PRODUCT: initial_product,
     }
 
-    sale_wizard = login_required(SaleWizardNew.as_view(forms, initial_dict = initials,url_name="add_sale",
-                                                       done_step_name="list_sales"),
-                                 login_url="bo_login")
+    sale_wizard = login_required(
+        SaleWizardNew.as_view(forms,
+                              initial_dict=initials,
+                              url_name="add_sale",
+                              done_step_name="list_sales"),
+        login_url="bo_login")
     return sale_wizard(request, *args, **kwargs)
 
 def edit_sale(request, *args, **kwargs):
@@ -274,6 +315,14 @@ def edit_sale(request, *args, **kwargs):
             'premium_price': i.premium_price
         })
 
+    type_attribute_prices = []
+    for i in TypeAttributePrice.objects.filter(sale=sale):
+        type_attribute_prices.append({
+            'tap_id': i.pk,
+            'type_attribute': i.type_attribute.id,
+            'type_attribute_price': i.type_attribute_price
+        })
+
     initial_product = {
         'brand': sale.product.brand.pk,
         'type': sale.product.type.pk,
@@ -288,7 +337,8 @@ def edit_sale(request, *args, **kwargs):
         'discount_price': sale.product.discount_price,
         'discount_type': sale.product.discount_type,
         'brand_attributes': brand_attributes,
-        'pictures': pictures
+        'pictures': pictures,
+        'type_attribute_prices': type_attribute_prices,
     }
 
     initial_stocks = []
@@ -365,7 +415,7 @@ class StocksInfos(object):
                         self.__dict__['barcodes_expired'] = True
         self.__dict__[key] = value
 
-class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
+class SaleWizardNew(NamedUrlSessionWizardView):
     STEP_SHOP = 'shop'
     STEP_PRODUCT = 'product'
     STEP_STOCKS = 'stocks'
@@ -408,17 +458,18 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
         product_form = form_list[1].cleaned_data
         product.sale = sale
         product.brand = product_form['brand']
-        product.type = product_form['type']
+        product.type = ProductType.objects.get(pk=product_form['type'])
         product.category = product_form['category']
         product.name = product_form['name']
         product.description = product_form['description']
-        product.valid_from = product_form['valid_from']
+        product.valid_from = product_form['valid_from'] or date.today()
         product.valid_to = product_form['valid_to']
         product.normal_price = product_form['normal_price']
         product.currency = product_form['currency']
         product.discount = product_form['discount']
         product.discount_price = product_form['discount_price']
-        product.discount_type = product_form['discount_type']
+        product.discount_type = \
+            product.discount and product_form['discount_type'] or None
         product.save()
 
 
@@ -482,6 +533,28 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
         sale.complete = True
         sale.product = product
         sale.save()
+
+        type_attribute_prices = form_list[1].type_attribute_prices
+        for tap in type_attribute_prices.cleaned_data:
+            if tap['DELETE']:
+                if tap['tap_id'] < 0:
+                    continue
+                try:
+                    tap_obj = TypeAttributePrice.objects.get(pk=tap['tap_id'])
+                    tap_obj.delete()
+                except ObjectDoesNotExist:
+                    logging.error('No TypeAttributePrice Object found for '
+                                  'id:%s' % tap['tap_id'])
+            else:
+                if tap['tap_id'] > 0:
+                    continue
+                ta = CommonAttribute.objects.get(pk=tap['type_attribute'])
+                s_tap = TypeAttributePrice.objects.create(
+                    sale=sale,
+                    type_attribute=ta,
+                    type_attribute_price=tap['type_attribute_price']
+                )
+                s_tap.save()
 
         if self.request.session.get('stocks_infos', None):
             del(self.request.session['stocks_infos'])
@@ -752,3 +825,14 @@ class SaleWizardNew(SessionWizardView, NamedUrlSessionWizardView):
             #     toret.update(self.stocks_infos.last_barcodes_initials)
             return toret
         return super(SaleWizardNew, self).get_form_initial(step)
+
+
+def get_product_types(request, *args, **kwargs):
+    product_types_list = []
+    product_types = ProductType.objects.filter(
+        category_id=kwargs.get('cat_id', None))
+    for type in product_types:
+        product_types_list.append({'label': type.name, 'value': type.id})
+    return HttpResponse(json.dumps(product_types_list),
+                        mimetype='application/json')
+

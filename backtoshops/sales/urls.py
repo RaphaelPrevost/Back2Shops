@@ -1,16 +1,19 @@
-from django.conf.urls.defaults import patterns, url
+import settings
+from django.conf.urls import patterns, url
 from django.contrib.auth.decorators import login_required
 from django.views.generic.base import TemplateView
-from sales.views import add_sale, BrandLogoView, edit_sale, ListSalesView, DeleteSalesView, ProductBrandView, SaleDetails, SaleDetailsShop, SaleWizardNew, UploadProductPictureView
-from sales.forms import ProductForm, ShopForm, StockFormset, TargetForm
-import settings
 
-forms = [
-    (SaleWizardNew.STEP_SHOP, ShopForm),
-    (SaleWizardNew.STEP_PRODUCT, ProductForm),
-    (SaleWizardNew.STEP_STOCKS, StockFormset),
-    (SaleWizardNew.STEP_TARGET, TargetForm)
-]
+from sales.views import BrandLogoView
+from sales.views import DeleteSalesView
+from sales.views import ListSalesView
+from sales.views import ProductBrandView
+from sales.views import SaleDetails
+from sales.views import SaleDetailsShop
+from sales.views import UploadProductPictureView
+from sales.views import add_sale
+from sales.views import edit_sale
+from sales.views import get_product_types
+
 
 urlpatterns = patterns(settings.get_site_prefix()+'sales',
     url(r'/picture/new/$',
@@ -22,8 +25,12 @@ urlpatterns = patterns(settings.get_site_prefix()+'sales',
     url(r'/brand/logo/(?:(?P<brand_id>\d+)/)?$',
         BrandLogoView.as_view(),
         name="get_brand_logo"),
-    url(r'/added/$', TemplateView.as_view(template_name="added.html"), name="sale_added"),
-    url(r'/updated/$', TemplateView.as_view(template_name="updated.html"), name="sale_updated"),
+    url(r'/added/$',
+        TemplateView.as_view(template_name="added.html"),
+        name="sale_added"),
+    url(r'/updated/$',
+        TemplateView.as_view(template_name="updated.html"),
+        name="sale_updated"),
     url(r'/new/(?:(?P<step>.+)/)?$',
         add_sale,
         name="add_sale"),
@@ -42,4 +49,7 @@ urlpatterns = patterns(settings.get_site_prefix()+'sales',
     url(r'/delete/(?P<sale_id>\d+)',
         login_required(DeleteSalesView.as_view(), login_url="bo_login"),
         name='delete_sales'),
+    url(r'/get_product_types/(?P<cat_id>\d+)',
+        login_required(get_product_types, login_url="bo_login"),
+        name='get_product_types'),
 )

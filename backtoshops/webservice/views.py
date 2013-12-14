@@ -1,23 +1,30 @@
-import json
+import settings
 import base64
+import json
 import math
 from datetime import date
+from datetime import datetime
+
 from django.contrib.auth import authenticate as _authenticate
-from django.db.models import Q, Max
+from django.db.models import Max
+from django.db.models import Q
 from django.http import HttpResponse, HttpResponseForbidden
 from django.views.generic import View, ListView, DetailView
 from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import get_object_or_404
-from accounts.models import Brand
+
 from B2SCrypto.utils import gen_encrypt_json_context
 from B2SCrypto.constant import SERVICES
-from sales.models import Sale, ProductType, ProductCategory, STOCK_TYPE_DETAILED, STOCK_TYPE_GLOBAL,ShopsInSale
-from shops.models import Shop
+
+from accounts.models import Brand
 from barcodes.models import Barcode
 from brandings.models import Branding
 from common.filter_utils import get_filter, get_order_by
-from datetime import datetime
-import settings
+from sales.models import ProductCategory
+from sales.models import ProductType
+from sales.models import STOCK_TYPE_GLOBAL
+from sales.models import Sale
+from sales.models import ShopsInSale
+from shops.models import Shop
 
 fail = lambda s: HttpResponse(json.dumps({'success': False, 'error': s}), mimetype='text/json')
 
@@ -43,7 +50,12 @@ class SalesListView(BaseWebservice, ListView):
         category = self.request.GET.get('category', None)
         shop = self.request.GET.get('shop', None)
         brand = self.request.GET.get('brand', None)
-        queryset = Sale.objects.filter(product__valid_from__lte=date.today()).filter(product__valid_to__gte=date.today())
+        queryset = Sale.objects.filter(
+            product__valid_from__lte=date.today()
+        ).filter(
+            Q(product__valid_to__isnull=True) |
+            Q(product__valid_to__gte=date.today())
+        )
         if product_type:
             queryset = queryset.filter(product__type=product_type)
         if category:
@@ -315,7 +327,12 @@ class VicinitySalesListView(BaseWebservice, ListView):
         category = self.request.GET.get('category', None)
         shop = self.request.GET.get('shop', None)
         brand = self.request.GET.get('brand', None)
-        queryset = Sale.objects.filter(product__valid_from__lte=date.today()).filter(product__valid_to__gte=date.today())
+        queryset = Sale.objects.filter(
+            product__valid_from__lte=date.today()
+        ).filter(
+            Q(product__valid_to__isnull=True) |
+            Q(product__valid_to__gte=date.today())
+        )
         if product_type:
             queryset = queryset.filter(product__type=product_type)
         if category:

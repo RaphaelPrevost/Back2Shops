@@ -1,8 +1,13 @@
 from django.db import models
-from accounts.models import Brand
-from sales.models import Product, ProductPicture, ProductType, DISCOUNT_TYPE
-from sorl.thumbnail import ImageField
 from django.utils.translation import ugettext_lazy as _
+from sorl.thumbnail import ImageField
+
+from accounts.models import Brand
+from sales.models import DISCOUNT_TYPE
+from sales.models import Product
+from sales.models import ProductPicture
+from sales.models import ProductType
+
 
 class BrandAttribute(models.Model):
     product = models.ManyToManyField(Product, through="BrandAttributePreview", related_name="brand_attributes")

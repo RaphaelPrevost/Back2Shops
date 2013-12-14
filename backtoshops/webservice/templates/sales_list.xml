@@ -2,7 +2,7 @@
 {% load l10n %}
 
 <sales version="1.0">
-	{% for object in object_list %}
+    {% for object in object_list %}
 <sale id="{{ object.pk }}">
     <!-- item category -->
     <category id="{{ object.product.category.pk }}" name="{{ object.product.category.name }}" />
@@ -28,9 +28,20 @@
         <img>{% if object.mother_brand.logo %}{{ object.mother_brand.logo.url }}{% endif %}</img>
     </brand>
     
-    <!-- default price and discount (type: "ratio" or "fixed" ) -->
+    <!-- default price -->
     <price currency="{{object.product.currency}}">{{ object.product.normal_price|floatformat }}</price>
-    <discount type="{% if object.product.discount_type == 'percentage' %}ratio{% else %}fixed{% endif %}">{{ object.product.discount|floatformat }}</discount>
+
+    <!-- type attribute prices -->
+    {% for tap in object.typeattributeprice_set.all %}
+        <price currency="{{ object.product.currency }}" attribute="{{ tap.type_attribute.id }}">
+            {{ tap.type_attribute_price }}
+        </price>
+    {% endfor %}
+
+    <!-- discount (type: "ratio" or "fixed" ) if it has -->
+    {% if object.product.discount %}
+        <discount type="{% if object.product.discount_type == 'percentage' %}ratio{% else %}fixed{% endif %}">{{ object.product.discount|floatformat }}</discount>
+    {% endif %}
 
     <!-- if there is some variants for this product, list them here -->
     {% for variant in object.product.brand_attributes.all %}
@@ -63,7 +74,11 @@
     {% endfor %}
     <!-- end of shops list -->
 
-    <available from="{{ object.product.valid_from|date:"c" }}" to="{{ object.product.valid_to|date:"c" }}" >
+    <available from="{{ object.product.valid_from|date:"c" }}"
+            {% if object.product.valid_to %}
+               to="{{ object.product.valid_to|date:"c" }}"
+            {% endif %}
+    >
     {% for ba in object.product.brand_attributes.all %}
         {% for ca in object.product.type.common_attributes.all %}
         <stocks variant="{{ ba.pk }}" attribute="{{ ca.pk }}">
@@ -97,5 +112,5 @@
     {% endfor %}
     </available>
 </sale>
-	{% endfor %}
+    {% endfor %}
 </sales>

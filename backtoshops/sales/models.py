@@ -1,13 +1,12 @@
 from django.db import models
-from django.db.models.signals import post_save
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
+from sorl.thumbnail import ImageField
 
 from accounts.models import Brand
 from common.cache_invalidation import post_delete_handler
 from shops.models import Shop
-from sorl.thumbnail import ImageField
 
 GENDERS = (
     ('U', _('Unapplicable')),
@@ -57,11 +56,12 @@ class Product(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(max_length=500)
     normal_price = models.FloatField()
-    discount_type = models.CharField(choices=DISCOUNT_TYPE, max_length=10, blank=False)
-    discount = models.FloatField()
-    discount_price = models.FloatField()
+    discount_type = models.CharField(choices=DISCOUNT_TYPE, max_length=10,
+                                     blank=False, null=True)
+    discount = models.FloatField(null=True)
+    discount_price = models.FloatField(null=True)
     valid_from = models.DateField()
-    valid_to = models.DateField()
+    valid_to = models.DateField(null=True)
     #brand_attributes = models.ManyToManyField("attributes.BrandAttribute", through="attributes.BrandAttributePreview")
 
     def __unicode__(self):
@@ -103,6 +103,14 @@ class ProductBrand(models.Model):
 
     def __unicode__(self):
         return self.name
+
+
+class TypeAttributePrice(models.Model):
+    from attributes.models import CommonAttribute
+    sale = models.ForeignKey(Sale)
+    type_attribute = models.ForeignKey(CommonAttribute)
+    type_attribute_price = models.FloatField()
+
 
 @receiver(post_delete, sender=Sale, dispatch_uid='sales.models.Sale')
 def on_sale_deleted(sender, **kwargs):
