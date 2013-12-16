@@ -7,6 +7,8 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = ( ("attributes", "0001_initial"), )
+
     def forwards(self, orm):
         # Adding model 'TypeAttributePrice'
         db.create_table(u'sales_typeattributeprice', (
