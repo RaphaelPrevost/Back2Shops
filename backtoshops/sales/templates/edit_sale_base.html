@@ -48,9 +48,12 @@
             <input class="btn select" type="submit" value="{% trans "Next: Stock Qty" %}"/>
             {% endif %}
             {% if wizard.steps.step0 == 2 %}
-            <input class="btn select" type="submit" value="{% trans "Next: Target" %}"/>
+            <input class="btn select" type="submit" value="{% trans "Next: Shipping" %}"/>
             {% endif %}
             {% if wizard.steps.step0 == 3 %}
+            <input class="btn select" type="submit" value="{% trans "Next: Target" %}"/>
+            {% endif %}
+            {% if wizard.steps.step0 == 4 %}
             <input class="btn select" type="submit" value="{% trans "Update Sale" %}"/>
             {% endif %}
         </form>

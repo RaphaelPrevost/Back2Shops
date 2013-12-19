@@ -5,8 +5,10 @@ from itertools import chain
 from django import forms
 from django.forms.formsets import formset_factory
 from django.forms.util import ErrorList
+from django.utils.encoding import force_text
 from django.utils.encoding import force_unicode
 from django.utils.html import conditional_escape
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
@@ -17,6 +19,11 @@ from sales.models import Product
 from sales.models import ProductBrand
 from sales.models import ProductCategory
 from sales.models import ProductCurrency
+from sales.models import SHIPPING_CALCULATION
+from sales.models import ShippingCarrierService
+from sales.models import ShippingCustomRule
+from shippings.models import CustomShippingRate
+from shippings.models import Service
 from shops.models import Shop
 
 
@@ -25,20 +32,34 @@ TARGET_MARKET = (
     ('L', _("Local"))
 )
 
+
 class GroupedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
+    def __init__(self, attrs=None, choices=(), render_attrs=None):
+        super(GroupedCheckboxSelectMultiple, self).__init__(attrs, choices)
+        self.render_attrs = render_attrs or {}
+
+    def _get_folder_label(self, queryset, attr_name):
+        return getattr(queryset, attr_name, '')
+
+    def _rende_checkboxinput(self, final_attrs, str_values):
+        return forms.CheckboxInput(final_attrs, check_test=lambda value: value in str_values)
+
     def render(self, name, value, attrs=None, choices=()):
         if value is None: value = []
         has_id = attrs and 'id' in attrs
-        group_by = 'city'
+        group_by = self.render_attrs.get('group_by', None) or 'id'
+        ul_id = self.render_attrs.get('ul_id', None)
+
         final_attrs = self.build_attrs(attrs, name=name)
-        output = [u'<ul id="shopfolders">']
+        output = ul_id and [u'<ul id="%s">' % ul_id] or [u'<ul>']
         # Normalize to strings
         str_values = set([force_unicode(v) for v in value])
         group_name = ""
         for i, (option_value, option_label) in enumerate(chain(self.choices, choices)):
             if group_name != self.choices.queryset[i].__dict__[group_by]:
                 group_name = self.choices.queryset[i].__dict__[group_by]
-                output.append(u'<li><label><input class="folder" type="checkbox"/>%s</label><ul>' % (group_name))
+                output.append(u'<li><label><input class="folder" type="checkbox"/>%s</label><ul>'
+                              % (self._get_folder_label(self.choices.queryset[i], group_by)))
 
             # If an ID attribute was given, add a numeric index as a suffix,
             # so that the checkboxes don't all have the same ID attribute.
@@ -48,7 +69,7 @@ class GroupedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
             else:
                 label_for = ''
 
-            cb = forms.CheckboxInput(final_attrs, check_test=lambda value: value in str_values)
+            cb = self._rende_checkboxinput(final_attrs, str_values)
             option_value = force_unicode(option_value)
             rendered_cb = cb.render(name, option_value)
             option_label = conditional_escape(force_unicode(option_label))
@@ -60,6 +81,49 @@ class GroupedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
                 output.append('</ul>')
         output.append(u'</ul>')
         return mark_safe(u'\n'.join(output))
+
+
+class ShippingServicesGroupedCheckboxSelectMultiple(GroupedCheckboxSelectMultiple):
+
+    def _get_folder_label(self, queryset, attr_name):
+        carrier = getattr(queryset, 'carrier', None)
+        return carrier and carrier.name or ''
+
+    def _rende_checkboxinput(self, final_attrs, str_values):
+        service_ids = [obj.service_id for obj in ShippingCarrierService.objects.filter(pk__in=str_values)]
+        return forms.CheckboxInput(final_attrs, check_test=lambda value: value in map(str, service_ids))
+
+
+class ShippingCustomRuleCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
+
+    def _rende_checkboxinput(self, final_attrs, str_values):
+        custom_rate_ids = [obj.custom_shipping_rate_id for obj in ShippingCustomRule.objects.filter(pk__in=str_values)]
+        return forms.CheckboxInput(final_attrs, check_test=lambda value: value in map(str, custom_rate_ids))
+
+    def render(self, name, value, attrs=None, choices=()):
+        if value is None: value = []
+        has_id = attrs and 'id' in attrs
+        final_attrs = self.build_attrs(attrs, name=name)
+        output = ['<ul>']
+        # Normalize to strings
+        str_values = set([force_text(v) for v in value])
+        for i, (option_value, option_label) in enumerate(chain(self.choices, choices)):
+            # If an ID attribute was given, add a numeric index as a suffix,
+            # so that the checkboxes don't all have the same ID attribute.
+            if has_id:
+                final_attrs = dict(final_attrs, id='%s_%s' % (attrs['id'], i))
+                label_for = format_html(' for="{0}"', final_attrs['id'])
+            else:
+                label_for = ''
+
+            cb = self._rende_checkboxinput(final_attrs, str_values)
+            option_value = force_text(option_value)
+            rendered_cb = cb.render(name, option_value)
+            option_label = force_text(option_label)
+            output.append(format_html('<li><label{0}>{1} {2}</label></li>',
+                                      label_for, rendered_cb, option_label))
+        output.append('</ul>')
+        return mark_safe('\n'.join(output))
 
 
 class ShopForm(forms.Form):
@@ -76,7 +140,9 @@ class ShopForm(forms.Form):
         self.fields['shops'] = forms.ModelMultipleChoiceField(
             label=_("Participating shops"),
             queryset=Shop.objects.filter(**search_arguments).order_by('city'),
-            widget=GroupedCheckboxSelectMultiple(),
+            widget=GroupedCheckboxSelectMultiple(
+                render_attrs={'group_by': 'city',
+                              'ul_id': 'shopfolders'}),
             required=False
         )
 
@@ -310,3 +376,39 @@ class ListSalesForm(forms.Form):
     order_by1 = forms.ChoiceField(required=False,choices=ORDER_BY_ITEMS)
     order_by2 = forms.ChoiceField(required=False,choices=ORDER_BY_ITEMS)
 
+
+class ShippingForm(forms.Form):
+    handling_fee = forms.FloatField(
+        label='Handling fee',
+        widget=forms.TextInput(attrs={'class': 'handling_fee_input'}))
+    allow_group_shipment = forms.BooleanField(
+        label='Allow group shipment',
+        required=False)
+    allow_pickup = forms.BooleanField(
+        label='Allow pick-up at the store',
+        required=False)
+    pickup_voids_handling_fee = forms.BooleanField(
+        label='Pickup voids handling fees',
+        required=False)
+    shipping_calculation = forms.ChoiceField(
+        label='Shipping calculation',
+        widget=forms.RadioSelect(attrs={'class': 'shipping-radio'}),
+        choices=SHIPPING_CALCULATION)
+    service = forms.ModelMultipleChoiceField(
+        label=_('Service'),
+        queryset=Service.objects.all(),
+        widget=ShippingServicesGroupedCheckboxSelectMultiple(
+            render_attrs={'group_by': 'carrier_id',
+                          'ul_id': 'service-folders'}),
+        required=False
+    )
+    set_as_default_shop_shipping = forms.BooleanField(required=False)
+
+    def __init__(self, mother_brand=None, request=None, *args, **kwargs):
+        super(ShippingForm, self).__init__(*args, **kwargs)
+
+        self.fields['custom_shipping_rate'] = forms.ModelMultipleChoiceField(
+            required=False,
+            queryset=CustomShippingRate.objects.filter(seller=mother_brand),
+            widget=ShippingCustomRuleCheckboxSelectMultiple()
+        )

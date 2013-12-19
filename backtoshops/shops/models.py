@@ -1,14 +1,16 @@
 # coding:UTF-8
 from django.db import models
-from django.db.models.signals import post_save
 from django.db.models.signals import post_delete
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
 from accounts.models import Brand
-from sorl.thumbnail import ImageField
+from common.cache_invalidation import post_delete_handler
+from common.cache_invalidation import post_save_handler
 from countries.models import Country
-from common.cache_invalidation import post_save_handler, post_delete_handler
+from sorl.thumbnail import ImageField
+
 
 class Shop(models.Model):
     mother_brand = models.ForeignKey(Brand, related_name="shops")
@@ -45,3 +47,8 @@ def on_shop_saved(sender, **kwargs):
 def on_shop_deleted(sender, **kwargs):
     post_delete_handler('shop', sender, **kwargs)
 
+
+class DefaultShipping(models.Model):
+    from sales.models import Shipping
+    shop = models.ForeignKey(Shop)
+    sales_shipping = models.ForeignKey(Shipping)
