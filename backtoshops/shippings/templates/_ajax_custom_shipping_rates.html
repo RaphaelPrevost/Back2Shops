@@ -1,0 +1,10 @@
+{% if errors %}
+    ERROR{{ errors }}
+{% else %}
+<li>
+    <label>
+    <input type="checkbox" value="{{ new_custom_shipping_rate.id }}" name="shipping-custom_shipping_rate" checked="checked">
+    {{ new_custom_shipping_rate }}
+    </label>
+</li>
+{% endif %}

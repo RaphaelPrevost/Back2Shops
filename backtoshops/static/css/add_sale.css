@@ -3,7 +3,7 @@
 /*------------------------------*/
 
 #menu_ico li a.link1 { background-color: #565656; }
-#title span {	background-position: 0 0; }
+#title span {    background-position: 0 0; }
 
 
 /*------------------------------------------------------ */
@@ -12,511 +12,507 @@
 
 /*---------- FORM CSS Generales ----------*/
 #main_form { position: relative; }
-	#main_form h3 {
-		display: block;
-		position: absolute;
-		top: 2px;
-		left: 2px;
-		width: 491px;
-		height: 22px;
-		line-height: 22px;
-		padding-left: 5px;
-		background-color: #000;
-		color: #fff;
-	}
-	#main_form h3 span { float: right; margin-right: 5px; color: #fff; }
+    #main_form h3 {
+        display: block;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 491px;
+        height: 22px;
+        line-height: 22px;
+        padding-left: 5px;
+        background-color: #000;
+        color: #fff;
+    }
+    #main_form h3 span { float: right; margin-right: 5px; color: #fff; }
 
-	#main_form fieldset {
-		padding: 40px 20px 20px 20px;
-		background-color: #fff;
-		border: 1px solid #c8c8c8;
-	}
+    #main_form fieldset {
+        padding: 40px 20px 20px 20px;
+        background-color: #fff;
+        border: 1px solid #c8c8c8;
+    }
 
-	#main_form .formrow { min-height: 22px; margin-bottom: 10px; }
-	#main_form .formrow.p_vide { height: 0; min-height: 0; margin: 0; }
-	#main_form .formrow.marge { margin-bottom: 30px; }
-	#main_form .formrow:after {
-		content: ".";
-		display: block;
-		height: 0;
-		clear: both;
-		visibility: hidden;
-	}
+    #main_form .formrow { min-height: 22px; margin-bottom: 10px; }
+    #main_form .formrow.p_vide { height: 0; min-height: 0; margin: 0; }
+    #main_form .formrow.marge { margin-bottom: 30px; }
+    #main_form .formrow:after {
+        content: ".";
+        display: block;
+        height: 0;
+        clear: both;
+        visibility: hidden;
+    }
 
-	#main_form .formrow label,
-	#main_form .formrow input,
-	#main_form .formrow select,
-	#main_form .formrow textarea,
-	#main_form .formrow span,
-	#main_form .contForm{
-		display: block;
-		float: left;
-	}
+    #main_form .formrow label,
+    #main_form .formrow input,
+    #main_form .formrow select,
+    #main_form .formrow textarea,
+    #main_form .formrow span,
+    #main_form .contForm{
+        display: block;
+        float: left;
+    }
 
-	#main_form .formrow span { height: 22px; line-height: 22px; margin: 0 5px; }
+    #main_form .formrow span { height: 22px; line-height: 22px; margin: 0 5px; }
 
-	#main_form .formrow label { width: 165px; }
-	#main_form .formrow select { width: 130px; }
-	#main_form .formrow textarea,
-	#main_form .formrow input { width: 271px; }
-	#main_form .formrow .inputXS { width: 40px; }
-	#main_form .formrow .inputS { width: 70px; }
-	#main_form .formrow .inputM { width: 180px; }
-	#main_form .formrow .selectS { width: 70px; }
-	#main_form .formrow .selectL { width: 190px; }
-	#main_form .formrow .selectXL { width: 260px; }
+    #main_form .formrow label { width: 165px; }
+    #main_form .formrow select { width: 130px; }
+    #main_form .formrow textarea,
+    #main_form .formrow input { width: 271px; }
+    #main_form .formrow .inputXS { width: 40px; }
+    #main_form .formrow .inputS { width: 70px; }
+    #main_form .formrow .inputM { width: 180px; }
+    #main_form .formrow .selectS { width: 70px; }
+    #main_form .formrow .selectL { width: 190px; }
+    #main_form .formrow .selectXL { width: 260px; }
 
-	#main_form .formrow select.dubble { width: 95px; }
-	#main_form .formrow #plus {
-    	background: url(../img/icon.png) no-repeat 0 -275px;
-   		display: block;
-    	float: left;
-    	height: 19px;
-    	margin: 1px 0 0 10px;
-    	overflow: hidden;
-    	text-indent: -1500px;
-    	width: 19px;
-	}
+    #main_form .formrow select.dubble { width: 95px; }
+    #main_form .formrow #plus {
+        background: url(../img/icon.png) no-repeat 0 -275px;
+           display: block;
+        float: left;
+        height: 19px;
+        margin: 1px 0 0 10px;
+        overflow: hidden;
+        text-indent: -1500px;
+        width: 19px;
+    }
 
-	#main_form .contForm,
-	#main_form .formrow .contForm{
-		width: 283px;
-		height: auto;
-		line-height: auto;
-		margin: auto;
-	}
+    #main_form .contForm,
+    #main_form .formrow .contForm{
+        width: 283px;
+        height: auto;
+        line-height: auto;
+        margin: auto;
+    }
 
-	#main_form .contForm.checkbox input{
-		width: auto;
-		margin: 1px 15px 0 -25px;
-		border: none 0;
-	}
-	#main_form .contForm.checkbox label{
-		width: 85px;
-		height: 20px;
-		line-height: 20px;
-		margin: 2 0 0 0;
-		padding: 0 35px 0 5px;
-		border: 1px solid #eee;
-		background: none;
-		background-color: #f8f8f8;
-	}
-	#main_form .contForm.checkbox.auto label{ width: auto; }
+    #main_form .contForm.checkbox input{
+        width: auto;
+        margin: 1px 15px 0 -25px;
+        border: none 0;
+    }
+    #main_form .contForm.checkbox label{
+        width: 85px;
+        height: 20px;
+        line-height: 20px;
+        margin: 2 0 0 0;
+        padding: 0 35px 0 5px;
+        border: 1px solid #eee;
+        background: none;
+        background-color: #f8f8f8;
+    }
+    #main_form .contForm.checkbox.auto label{ width: auto; }
 
-	#main_form .inactif { background-color: #d9d9d9; }
+    #main_form .inactif { background-color: #d9d9d9; }
 
-	#main_form .raw {
-		width: 8px;
-		overflow: hidden;
-		text-indent: -1500px;
-		background: url(../img/icon.png) no-repeat -10px -252px;
-	}
-	#main_form .btn { float: right; margin: 5px 0 0 5px; }
-
-
-	/*Btn First Step, Prev Step, Cancel*/
-	#main_form .navForm {
-		display: block;
-		float: left;
-		height: 22px;
-		margin: 5px 4px 0 0;
-		padding: 2px 7px;
-		border: 1px solid #D1D1D1;
-		background: url(../img/btn_navForm.png) no-repeat 0 0;
-   		border-radius: 5px 5px 5px 5px;
-		-moz-border-radius: 5px 5px 5px 5px;
-		-webkit-border-radius: 5px 5px 5px 5px;
-        	line-height: 12px;
-    		cursor: pointer;
-	}
-	#main_form #btn_first_step { background: url(../img/btn_navForm.png) no-repeat -2px -80px; padding-left: 30px; }
-	#main_form #btn_prev_step { background: url(../img/btn_navForm.png) no-repeat -2px -40px; padding-left: 22px; }
-	#main_form #btn_cancel { background: url(../img/btn_navForm.png) no-repeat right -120px; padding-right: 25px; }
+    #main_form .raw {
+        width: 8px;
+        overflow: hidden;
+        text-indent: -1500px;
+        background: url(../img/icon.png) no-repeat -10px -252px;
+    }
+    #main_form .btn { float: right; margin: 5px 0 0 5px; }
 
 
-
-
-
-
-	/*---------- FORM CSS PAGE 1 ----------*/
-	/*---Visuels Produit---*//*---Style non utilise au 07-26---*/
-	/*#main_form #visuelProd input { float: none; }
-	.visuelProd > a, #visuelProd > a > img {
-		display: block;
-		float: left;
-		width: 40px;
-		height: 43px;
-	}
-		.visuelProd > a {
-			margin: 5px 5px 0 0;
-			border: 1px solid #d1d1d1;
-			background-color: #eeeeee;
-			overflow: hidden;
-		}
-	.#visuelProd > a#selected { border: 1px solid #4989ff; }
-	*/
-
-
-	/*---Upload Files---*/
-	#pp_upload_btn {
-		display: block;
-   		width: 148px !important;
-		height: 47px;
-		line-height: 47px;
-		padding: 0 0 0 0px;
-		background: url(../img/ico_upload-img.png) 0 0 #fff no-repeat;
-		border: 0 none;
-   		color: #555555;
-		text-align: left;
-		cursor: pointer;
-	}
-
-	#pp_upload {
-		/*position: absolute;*/
-		width: 148px;
-		height: 47px;
-		line-height: 47px;
-		top: 0;
-		right: 0;
-		margin: 0;
-		border: solid transparent;
-		opacity: 0;
-		filter: alpha(opacity=0);
-		cursor: pointer;
-	}
-
-
-	#visuelProd .qq-upload-button{
-		display: block;
-    		width: 140px;
-		height: 47px;
-		line-height: 47px;
-		padding: 0 0 0 8px;
-		background: url(../img/ico_upload-img.png) 0 0 #fff;
-		border: 0 none;
-    		color: #555555;
-		text-align: left;
-		cursor: pointer;
-	}
-
-	#visuelProd .qq-upload-button:hover { background: url(../img/ico_upload-img.png) 0 -47px #fff; cursor: pointer; }
-	#visuelProd .qq-upload-button input, #visuelProd .qq-upload-button input:hover{ width: 148px; height: 47px; cursor: pointer; }
-
-
-	/*---Upload Files Vignettes---*/
-	#main_form .formrow #product_pictures-old { display: block;	float: left; width: 280px; }
-	#main_form .formrow #product_pictures-old span {
-		line-line-height: 47px;
-		height: 47px;
-		width: 140px;
-		background: url(../img/ico_upload-img.png) 0 0 #fff;
-		cursor: pointer;
-	}
-
-	#main_form .formrow #product_picture .visuelProd {
-      		display: block;
-		float: left;
-		width: 42px;
-		height: 45px;
-		line-height: auto;
-    		margin: 5px 5px 0 0;
-		border: 1px solid #d1d1d1;
-		padding:  0 0 0 8px;
-		border: 0 none;
-	}
-
-	#main_form .formrow #product_picture .visuelProd a {
-		display: block;
-		float: left;
-		width: 40px;
-		height: 43px;
-		border: 1px solid #fff;
-		background-color: #eeeeee;
-		overflow: hidden;
-	}
-	#main_form .formrow #product_picture .visuelProd a img {
-		display: block;
-		float: left;
-		width: 40px;
-		height: 43px;
-	}
-
-
-	/*---Box d'Upload---*/
-	#product_pictures_queue .uploadifyQueueItem {
-  	  	width: 285px;
-		margin-top: 5px;
-   	 	padding: 0px;
-		overflow: hidden;
-		font: 11px Verdana,Geneva,sans-serif;
-		border: 2px solid #E5E5E5;
-		background-color: #F5F5F5;
-	}
-	#product_pictures_queue .uploadifyError {
-    		background-color: #FDE5DD !important;
-    		border: 2px solid #FBCBBC !important;
-	}
-	#product_pictures_queue .uploadifyQueueItem .cancel {
-		float: right;
-		width: 30px;
-		margin-top: 3px;
-		padding: 5px 0 5px 10px;
-		background-color: #F5F5F5;
-	}
-	#product_pictures_queue .uploadifyQueue .completed { background-color: #E5E5E5; }
-	#product_pictures_queue .uploadifyProgress {
-		width: 90%;
-		height: 3px;
-		overflow: hidden;
-		margin: 15px 0 10px 10px;
-		background-color: #E5E5E5;
-	}
-	#product_pictures_queue .uploadifyProgressBar {
-		width: 1px;
-		height: 3px;
-		background-color: #74DD11;
-	}
-	#product_pictures_queue .uploadifyQueueItem .fileName { margin: 3px 5px 0 8px; }
-	#product_pictures_queue .uploadifyQueueItem .percentage { margin: 3px 5px 0 5px; }
+    /*Btn First Step, Prev Step, Cancel*/
+    #main_form .navForm {
+        display: block;
+        float: left;
+        height: 22px;
+        margin: 5px 4px 0 0;
+        padding: 2px 7px;
+        border: 1px solid #D1D1D1;
+        background: url(../img/btn_navForm.png) no-repeat 0 0;
+           border-radius: 5px 5px 5px 5px;
+        -moz-border-radius: 5px 5px 5px 5px;
+        -webkit-border-radius: 5px 5px 5px 5px;
+            line-height: 12px;
+            cursor: pointer;
+    }
+    #main_form #btn_first_step { background: url(../img/btn_navForm.png) no-repeat -2px -80px; padding-left: 30px; }
+    #main_form #btn_prev_step { background: url(../img/btn_navForm.png) no-repeat -2px -40px; padding-left: 22px; }
+    #main_form #btn_cancel { background: url(../img/btn_navForm.png) no-repeat right -120px; padding-right: 25px; }
 
 
 
 
 
 
-
-	/*---Visuels Marque---*/ /*---Style non utilise au 07-26---*/
-	#main_form #visuelMarque input { float: none; }
-	#visuelMarque a, #visuelMarque a img {
-		display: block;
-		width: 106px;
-		height: 34px;
-	}
-		#visuelMarque a {
-			margin: 5px 5px 0 0;
-			border: 1px solid #d1d1d1;
-			background-color: #eeeeee;
-			overflow: hidden;
-		}
-
-	/*Marque*/
-	#main_form #id_product-brand { width: 110px; margin: 1px 5px 0 0; }
-	#add_new_brand {
-		display: block;
-		float: right;
-		height: 14px;
-		margin: 0 0 0 0;
-		padding: 4px 28px 2px 5px;
-		border: 1px solid #d1d1d1;
-		border-radius: 5px;
-		-moz-border-radius: 5px;
-		-webkit-border-radius: 5px;
-		background: url(../img/btn_navForm.png) no-repeat right 0 #e8e8e8;
-	}
-
-	/*---Prix de Vente---*/
-	#newPrice #result {
-		margin: 5px 0 0 0;
-		padding: 0 5px;
-		background-color: #DBF8D8;
-
-	}
-
-	/*---Prix de Vente _ Coloris---*/
-	#main_form #newPriceAttrib { margin: 10px 0 20px 0; }
-	#newPriceAttrib #premium_result {
-		margin: 5px 0 0 0;
-		padding: 0 5px;
-		background-color: #DBF8D8;
-	}
+    /*---------- FORM CSS PAGE 1 ----------*/
+    /*---Visuels Produit---*//*---Style non utilise au 07-26---*/
+    /*#main_form #visuelProd input { float: none; }
+    .visuelProd > a, #visuelProd > a > img {
+        display: block;
+        float: left;
+        width: 40px;
+        height: 43px;
+    }
+        .visuelProd > a {
+            margin: 5px 5px 0 0;
+            border: 1px solid #d1d1d1;
+            background-color: #eeeeee;
+            overflow: hidden;
+        }
+    .#visuelProd > a#selected { border: 1px solid #4989ff; }
+    */
 
 
+    /*---Upload Files---*/
+    #pp_upload_btn {
+        display: block;
+           width: 148px !important;
+        height: 47px;
+        line-height: 47px;
+        padding: 0 0 0 0px;
+        background: url(../img/ico_upload-img.png) 0 0 #fff no-repeat;
+        border: 0 none;
+           color: #555555;
+        text-align: left;
+        cursor: pointer;
+    }
 
-	/*--- Coloris ---*/ /*---Style non utilise au 07-26---*/
-	#main_form #coloris span{ margin: 0 5px 0 0; }
-	#main_form #coloris label {
-		background: none;
-		padding: 0;
-		width: 65px;
-		clear: left;
-	}
-	#main_form #coloris label, #main_form #coloris input {  margin: 5px 10px 0 0; }
-
-
-
-	/*-------------------- Coloris --------------------*/
-	#main_form #brand_attributes { position: relative; }
-
-	/*-Box Form-*/
-	#add_ba_form {
-		width: 283px;
-		height: 45px;
-	}
-
-	/*-Box Input-*/
-	#ba {
-		width: 195px;
-		height: 32px;
-		padding: 11px 7px 0 7px;
-		background-color: #F2F9FF;
-		border: 1px solid #F1F1F1;
-	}
+    #pp_upload {
+        /*position: absolute;*/
+        width: 148px;
+        height: 47px;
+        line-height: 47px;
+        top: 0;
+        right: 0;
+        margin: 0;
+        border: solid transparent;
+        opacity: 0;
+        filter: alpha(opacity=0);
+        cursor: pointer;
+    }
 
 
-	/*-Input-*/
-	#main_form #brand_attributes #ba_input { width: 160px;  margin: 0; }
+    #visuelProd .qq-upload-button{
+        display: block;
+            width: 140px;
+        height: 47px;
+        line-height: 47px;
+        padding: 0 0 0 8px;
+        background: url(../img/ico_upload-img.png) 0 0 #fff;
+        border: 0 none;
+            color: #555555;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    #visuelProd .qq-upload-button:hover { background: url(../img/ico_upload-img.png) 0 -47px #fff; cursor: pointer; }
+    #visuelProd .qq-upload-button input, #visuelProd .qq-upload-button input:hover{ width: 148px; height: 47px; cursor: pointer; }
 
 
-	/*-Thumbnail__Input-file-*/
-	/*TEXTURE*/
-	#main_form #brand_attributes #ba_texture_btn {
-		position: absolute;
-		display: block;
-		top: 12px;
-		left: 180px;
-		width: 22px;
-		height: 22px;
-		overflow: hidden;
-		backgound: url(../img/empty_attr.png);
-		background-color: #b1cee7;
-		cursor: pointer;
-	}
-	#main_form #brand_attributes #ba_texture_upload {
-		position: absolute;
-		top: 12px;
-		left: 180px;
-		display: block;
-		width: 22px;
-		height: 22px;
-		opacity: 0;
-		filter: alpha(opacity=0);
-		cursor: pointer;
-		padding: 0;
-	}
+    /*---Upload Files Vignettes---*/
+    #main_form .formrow #product_pictures-old { display: block;    float: left; width: 280px; }
+    #main_form .formrow #product_pictures-old span {
+        line-line-height: 47px;
+        height: 47px;
+        width: 140px;
+        background: url(../img/ico_upload-img.png) 0 0 #fff;
+        cursor: pointer;
+    }
+
+    #main_form .formrow #product_picture .visuelProd {
+              display: block;
+        float: left;
+        width: 42px;
+        height: 45px;
+        line-height: auto;
+            margin: 5px 5px 0 0;
+        border: 1px solid #d1d1d1;
+        padding:  0 0 0 8px;
+        border: 0 none;
+    }
+
+    #main_form .formrow #product_picture .visuelProd a {
+        display: block;
+        float: left;
+        width: 40px;
+        height: 43px;
+        border: 1px solid #fff;
+        background-color: #eeeeee;
+        overflow: hidden;
+    }
+    #main_form .formrow #product_picture .visuelProd a img {
+        display: block;
+        float: left;
+        width: 40px;
+        height: 43px;
+    }
 
 
-	/*-Thumbnail__Input-file-*/
-	/*PREVIEW PROD*/
-	#main_form #brand_attributes #ba_preview_btn {
-		position: absolute;
-		display: block;
-		top: 0px;
-		right: 25px;
-		width: 39px;
-		height: 43px;
-		overflow: hidden;
-		backgound: url(../img/empty_attr.png);
-		background-color: #b1cee7;
-		border: 1px solid #c9c9c9;
-	}
-	#main_form #brand_attributes #ba_preview_upload {
-		position: absolute;
-		display: block;
-		top: 0px;
-		right: 25px;
-		width: 39px;
-		height: 43px;
-		opacity: 0;
-		filter: alpha(opacity=0);
-		cursor: pointer;
-		padding: 0;
-	}
+    /*---Box d'Upload---*/
+    #product_pictures_queue .uploadifyQueueItem {
+            width: 285px;
+        margin-top: 5px;
+            padding: 0px;
+        overflow: hidden;
+        font: 11px Verdana,Geneva,sans-serif;
+        border: 2px solid #E5E5E5;
+        background-color: #F5F5F5;
+    }
+    #product_pictures_queue .uploadifyError {
+            background-color: #FDE5DD !important;
+            border: 2px solid #FBCBBC !important;
+    }
+    #product_pictures_queue .uploadifyQueueItem .cancel {
+        float: right;
+        width: 30px;
+        margin-top: 3px;
+        padding: 5px 0 5px 10px;
+        background-color: #F5F5F5;
+    }
+    #product_pictures_queue .uploadifyQueue .completed { background-color: #E5E5E5; }
+    #product_pictures_queue .uploadifyProgress {
+        width: 90%;
+        height: 3px;
+        overflow: hidden;
+        margin: 15px 0 10px 10px;
+        background-color: #E5E5E5;
+    }
+    #product_pictures_queue .uploadifyProgressBar {
+        width: 1px;
+        height: 3px;
+        background-color: #74DD11;
+    }
+    #product_pictures_queue .uploadifyQueueItem .fileName { margin: 3px 5px 0 8px; }
+    #product_pictures_queue .uploadifyQueueItem .percentage { margin: 3px 5px 0 5px; }
 
-	/*-BOUTON AJOUT-*/
-	#add_ba,
+
+
+
+
+
+
+    /*---Visuels Marque---*/ /*---Style non utilise au 07-26---*/
+    #main_form #visuelMarque input { float: none; }
+    #visuelMarque a, #visuelMarque a img {
+        display: block;
+        width: 106px;
+        height: 34px;
+    }
+        #visuelMarque a {
+            margin: 5px 5px 0 0;
+            border: 1px solid #d1d1d1;
+            background-color: #eeeeee;
+            overflow: hidden;
+        }
+
+    /*Marque*/
+    #main_form #id_product-brand { width: 110px; margin: 1px 5px 0 0; }
+    #add_new_brand,
+    #add_new_custom_shipping_rate {
+        display: block;
+        float: right;
+        height: 14px;
+        margin: 0 0 0 0;
+        padding: 4px 28px 2px 5px;
+        border: 1px solid #d1d1d1;
+        border-radius: 5px;
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+        background: url(../img/btn_navForm.png) no-repeat right 0 #e8e8e8;
+    }
+
+    /*---Prix de Vente---*/
+    #newPrice #result {
+        margin: 5px 0 0 0;
+        padding: 0 5px;
+        background-color: #DBF8D8;
+
+    }
+
+    /*---Prix de Vente _ Coloris---*/
+    #main_form #newPriceAttrib { margin: 10px 0 20px 0; }
+    #newPriceAttrib #premium_result {
+        margin: 5px 0 0 0;
+        padding: 0 5px;
+        background-color: #DBF8D8;
+    }
+
+
+
+    /*--- Coloris ---*/ /*---Style non utilise au 07-26---*/
+    #main_form #coloris span{ margin: 0 5px 0 0; }
+    #main_form #coloris label {
+        background: none;
+        padding: 0;
+        width: 65px;
+        clear: left;
+    }
+    #main_form #coloris label, #main_form #coloris input {  margin: 5px 10px 0 0; }
+
+
+
+    /*-------------------- Coloris --------------------*/
+    #main_form #brand_attributes { position: relative; }
+
+    /*-Box Form-*/
+    #add_ba_form {
+        width: 283px;
+        height: 45px;
+    }
+
+    /*-Box Input-*/
+    #ba {
+        width: 195px;
+        height: 32px;
+        padding: 11px 7px 0 7px;
+        background-color: #F2F9FF;
+        border: 1px solid #F1F1F1;
+    }
+
+
+    /*-Input-*/
+    #main_form #brand_attributes #ba_input { width: 160px;  margin: 0; }
+
+
+    /*-Thumbnail__Input-file-*/
+    /*TEXTURE*/
+    #main_form #brand_attributes #ba_texture_btn {
+        position: absolute;
+        display: block;
+        top: 12px;
+        left: 180px;
+        width: 22px;
+        height: 22px;
+        overflow: hidden;
+        backgound: url(../img/empty_attr.png);
+        background-color: #b1cee7;
+        cursor: pointer;
+    }
+    #main_form #brand_attributes #ba_texture_upload {
+        position: absolute;
+        top: 12px;
+        left: 180px;
+        display: block;
+        width: 22px;
+        height: 22px;
+        opacity: 0;
+        filter: alpha(opacity=0);
+        cursor: pointer;
+        padding: 0;
+    }
+
+
+    /*-Thumbnail__Input-file-*/
+    /*PREVIEW PROD*/
+    #main_form #brand_attributes #ba_preview_btn {
+        position: absolute;
+        display: block;
+        top: 0px;
+        right: 25px;
+        width: 39px;
+        height: 43px;
+        overflow: hidden;
+        backgound: url(../img/empty_attr.png);
+        background-color: #b1cee7;
+        border: 1px solid #c9c9c9;
+    }
+    #main_form #brand_attributes #ba_preview_upload {
+        position: absolute;
+        display: block;
+        top: 0px;
+        right: 25px;
+        width: 39px;
+        height: 43px;
+        opacity: 0;
+        filter: alpha(opacity=0);
+        cursor: pointer;
+        padding: 0;
+    }
+
+    /*-BOUTON AJOUT-*/
+    #add_ba,
     #add_tap {
-		position: absolute;
-		display: block;
-		top: 0;
-		right: 0;
-		width: 16px;
-		height: 16px;
-		line-height: 12px;
-		padding: 1px;
-		cursor: pointer;
-		overflow: hidden;
-		text-indent: -1500px;
-		border: 1px solid #E3E3E3;
-		background: url(../img/btn_navForm.png) no-repeat -304px -2px;
-	}
+        position: absolute;
+        display: block;
+        top: 0;
+        right: 0;
+        width: 16px;
+        height: 16px;
+        line-height: 12px;
+        padding: 1px;
+        cursor: pointer;
+        overflow: hidden;
+        text-indent: -1500px;
+        border: 1px solid #E3E3E3;
+        background: url(../img/btn_navForm.png) no-repeat -304px -2px;
+    }
 
 
 
 
-	/*-LISTE des AJOUTS-*/
-	/*-BOX-ligne-*/
-	#main_form #brand_attributes .brand_attribute_form {
-   		position: relative;
-		display: block;
-		width: 195px;
-   		height: 32px;
-   		margin: 5px 0 30px 0;
-		padding: 11px 7px 0 7px;
-		border: 1px solid #F1F1F1;
-		background-color: #ecf6ff;
-	}
-	/*-Nom Prod-*/
-	#main_form #brand_attributes .brand_attribute_form .brand_attribute_name {
-		width: 160px;
-		height: 20px;
-		line-height: 20px;
-		margin: 0;
-		background-color: #F2FDFF;
-   		border: 1px solid #ffffff;
-		padding: 0 0 0 5px;
-	}
+    /*-LISTE des AJOUTS-*/
+    /*-BOX-ligne-*/
+    #main_form #brand_attributes .brand_attribute_form {
+           position: relative;
+        display: block;
+        width: 195px;
+           height: 32px;
+           margin: 5px 0 30px 0;
+        padding: 11px 7px 0 7px;
+        border: 1px solid #F1F1F1;
+        background-color: #ecf6ff;
+    }
+    /*-Nom Prod-*/
+    #main_form #brand_attributes .brand_attribute_form .brand_attribute_name {
+        width: 160px;
+        height: 20px;
+        line-height: 20px;
+        margin: 0;
+        background-color: #F2FDFF;
+           border: 1px solid #ffffff;
+        padding: 0 0 0 5px;
+    }
 
-	#main_form #brand_attributes .brand_attribute_form img.classtext {
-		position: absolute;
-		display: block;
-		top: 11px;
-		left: 179px;
-		width: 22px;
-		height: 22px;
-		background-color: #b1cee7;
-	}
-	#main_form #brand_attributes .brand_attribute_form img.classprod {
-		position: absolute;
-		display: block;
-		top: -1px;
-		right: -48px;
-		width: 39px;
-		height: 43px;
-		background-color: #b1cee7;
-		border: 1px solid #c9c9c9;
-	}
-
-
-	/*-PRICE-*/
-	#main_form #brand_attributes .brand_attributes-premium {
-		width: 248px; height: 22px;
-		line-height: 22px;
-		margin: 15px 0 0 -8px; padding: 0 5px;
-		background-color: #DBF8D8;
-	}
-
-	/*-BOUTON SUPPR-*/
-	#main_form #brand_attributes .remove_brand_attribute {
-		position: absolute;
-		display: block;
-		top: -3px;
-		right: -73px;
-		width: 16px;
-		height: 16px;
-		line-height: 12px;
-		margin: 2px 0 0 3px;
-		padding: 1px;
-		cursor: pointer;
-		overflow: hidden;
-		text-indent: -1500px;
-		border: 1px solid #E3E3E3;
-		background: url(../img/btn_navForm.png) no-repeat -304px -121px;
-	}
+    #main_form #brand_attributes .brand_attribute_form img.classtext {
+        position: absolute;
+        display: block;
+        top: 11px;
+        left: 179px;
+        width: 22px;
+        height: 22px;
+        background-color: #b1cee7;
+    }
+    #main_form #brand_attributes .brand_attribute_form img.classprod {
+        position: absolute;
+        display: block;
+        top: -1px;
+        right: -48px;
+        width: 39px;
+        height: 43px;
+        background-color: #b1cee7;
+        border: 1px solid #c9c9c9;
+    }
 
 
+    /*-PRICE-*/
+    #main_form #brand_attributes .brand_attributes-premium {
+        width: 248px; height: 22px;
+        line-height: 22px;
+        margin: 15px 0 0 -8px; padding: 0 5px;
+        background-color: #DBF8D8;
+    }
 
-
-
+    /*-BOUTON SUPPR-*/
+    #main_form #brand_attributes .remove_brand_attribute {
+        position: absolute;
+        display: block;
+        top: -3px;
+        right: -73px;
+        width: 16px;
+        height: 16px;
+        line-height: 12px;
+        margin: 2px 0 0 3px;
+        padding: 1px;
+        cursor: pointer;
+        overflow: hidden;
+        text-indent: -1500px;
+        border: 1px solid #E3E3E3;
+        background: url(../img/btn_navForm.png) no-repeat -304px -121px;
+    }
 
 
 
@@ -525,232 +521,246 @@
 
 
 
-	/*---------- FORM CSS PAGE 3 ----------*/
-	/*Choix SELECT*/
-	#pointVente .formrow label { width: 153px; }
-	#pointVente .formrow a {
-		display: block;
-		float: left;
-		width: 19px;
-		height: 19px;
-		margin: 1px 0px 0 15px;
-		overflow: hidden;
-		text-indent: -1500px;
-		background: url(../img/icon.png) no-repeat 0px -275px;
-	}
-
-	/*Choix GOOGLE MAP*/
-	#useMap {
-		display: block;
-		float: none;
-		clear: both;
-		margin: 20px 0 5px 0;
-	}
-	#useGoogleMap {
-		width: 456px;
-		height: 374px;
-		border: 1px solid #a9bbdf;
-		background-color: #f7faff;
-	}
-
-	/*LISTE BOUTIQUES*/
-	#listeShop {
-		display: block;
-		margin: 40px 0 5px 0;
-		padding: 6px;
-		background-color: #f7f7f7;
-		border-top: 1px solid #b2b2b2;
-	}
-	#ulListeShop { margin: 10px 0 20px 20px; }
-	#ulListeShop li {
-		list-style-type: square;
-		min-height: 16px;
-		margin-bottom: 4px;
-	}
-	#ulListeShop li a	{
-		display: block;
-		float: right;
-		width: 16px;
-		height: 16px;
-		margin: 0 5px;
-		overflow: hidden;
-		text-indent: -1500px;
-		background: url(../img/icon.png) no-repeat 0px -300px;
-	}
-	.lienGoogle {
-		display: block;
-		float: right;
-		margin: 2px -1px 0 0;
-		padding: 3px 8px;
-		background-color: #F7F7F7;
-		border: 1px solid #D2D2D2;
-		border-top: none 0;
-		border-radius: 0 0 4px 4px;
-		color: #555555;
-	}
-		.lienGoogle:hover { background-color: #e7e7e7; color: #000; }
-
-
-
-	/*styles_debug_dev*/
-	#main_form ul li label {
-		display: block;
-    		height: 24px;
-    		line-height: 24px;
-		margin-top: 4px;
-   		padding-left: 0px;
-		background: none;
-	}
-
-	#main_form ul li label input {
-		display: block;
-		float: left;
-    		margin: 2px 4px 2px 0;
-		border: 0;
-		background: none 0;
-	}
-
-
-	/*styles_debug_dev___19/09___*/
-	#physical_shops .formrow ul { display: block; float: left; }
-	#physical_shops .formrow ul li label { width: auto; }
-	#physical_shops .formrow ul li input { width: auto; float: left; }
 
 
 
 
 
-	/*--Nouveaux STYLES pour AddShop 2___20/09___--*/
-	#physical_shops #check_shops{
-		display: block;
-		float: left;
-	}
+    /*---------- FORM CSS PAGE 3 ----------*/
+    /*Choix SELECT*/
+    #pointVente .formrow label { width: 153px; }
+    #pointVente .formrow a {
+        display: block;
+        float: left;
+        width: 19px;
+        height: 19px;
+        margin: 1px 0px 0 15px;
+        overflow: hidden;
+        text-indent: -1500px;
+        background: url(../img/icon.png) no-repeat 0px -275px;
+    }
 
-	#physical_shops #check_shops .highlight{
-		margin: 0;
-		padding: 0;
-		background-color: yellow;
-	}
+    /*Choix GOOGLE MAP*/
+    #useMap {
+        display: block;
+        float: none;
+        clear: both;
+        margin: 20px 0 5px 0;
+    }
+    #useGoogleMap {
+        width: 456px;
+        height: 374px;
+        border: 1px solid #a9bbdf;
+        background-color: #f7faff;
+    }
+
+    /*LISTE BOUTIQUES*/
+    #listeShop {
+        display: block;
+        margin: 40px 0 5px 0;
+        padding: 6px;
+        background-color: #f7f7f7;
+        border-top: 1px solid #b2b2b2;
+    }
+    #ulListeShop { margin: 10px 0 20px 20px; }
+    #ulListeShop li {
+        list-style-type: square;
+        min-height: 16px;
+        margin-bottom: 4px;
+    }
+    #ulListeShop li a    {
+        display: block;
+        float: right;
+        width: 16px;
+        height: 16px;
+        margin: 0 5px;
+        overflow: hidden;
+        text-indent: -1500px;
+        background: url(../img/icon.png) no-repeat 0px -300px;
+    }
+    .lienGoogle {
+        display: block;
+        float: right;
+        margin: 2px -1px 0 0;
+        padding: 3px 8px;
+        background-color: #F7F7F7;
+        border: 1px solid #D2D2D2;
+        border-top: none 0;
+        border-radius: 0 0 4px 4px;
+        color: #555555;
+    }
+        .lienGoogle:hover { background-color: #e7e7e7; color: #000; }
+
+
+
+    /*styles_debug_dev*/
+    #main_form ul li label {
+        display: block;
+            height: 24px;
+            line-height: 24px;
+        margin-top: 4px;
+           padding-left: 0px;
+        background: none;
+    }
+
+    #main_form ul li label input {
+        display: block;
+        float: left;
+            margin: 2px 4px 2px 0;
+        border: 0;
+        background: none 0;
+    }
+
+
+    /*styles_debug_dev___19/09___*/
+    #physical_shops .formrow ul,
+    #carrier-services .formrow ul
+    { display: block; float: left; }
+    #physical_shops .formrow ul li label,
+    #carrier-services .formrow ul li label
+    { width: auto; }
+    #physical_shops .formrow ul li input,
+    #carrier-services .formrow ul li input
+    { width: auto; float: left; }
+
+
+
+
+
+    /*--Nouveaux STYLES pour AddShop 2___20/09___--*/
+    #physical_shops #check_shops,
+    #carrier-services #check-services {
+        display: block;
+        float: left;
+    }
+
+    #physical_shops #check_shops .highlight,
+    #carrier-services #check-services .highlight{
+        margin: 0;
+        padding: 0;
+        background-color: yellow;
+    }
 
 
 /*---------------------------TEMP------------------------------------------------------*/
-	/*#physical_shops #check_shops ul{
-		display: block;
-		float: none;
-		clear: both;
-	}
-	#physical_shops #check_shops ul li{ min-height: 28px;}
-	#physical_shops #check_shops ul li label { width: 280px; }*/
+    /*#physical_shops #check_shops ul{
+        display: block;
+        float: none;
+        clear: both;
+    }
+    #physical_shops #check_shops ul li{ min-height: 28px;}
+    #physical_shops #check_shops ul li label { width: 280px; }*/
 
 
 
-	/*-Listes imbriques-*/
-	#check_shops #shopfolders{
-		display: block;
-		float: none;
-		clear: both;
-		margin-top: 10px;
-		padding: 10px 7px 8px 5px;
-		border: 1px solid #dbdbdb;
-	}
-	#check_shops #shopfolders li{
-		width: 440px;
-		min-height: 28px;
-		background: url(../img/pointmap.gif) no-repeat 0 2px;
-	}
-	#check_shops #shopfolders li label {
-		width: 415px;
-		height: auto;
-		min-height: 24px;
-		float: none;
-		margin-top: 0;
-		margin-left: 20px;
-		padding-left: 5px;
-		border-bottom: 1px solid #DEDEDE;
-		background-color: #E6EDF4;
-	}
+    /*-Listes imbriques-*/
+    #check_shops #shopfolders,
+    #check-services #service-folders {
+        display: block;
+        clear: both;
+        margin-top: 10px;
+        padding: 10px 7px 8px 5px;
+        border: 1px solid #dbdbdb;
+    }
+    #check_shops #shopfolders li {
+        width: 440px;
+        min-height: 28px;
+    }
+    #check_shops #shopfolders li {
+        background: url(../img/pointmap.gif) no-repeat 0 2px;
+    }
+    #check_shops #shopfolders li label,
+    #check-services #service-folders li label {
+        width: 415px;
+        height: auto;
+        min-height: 24px;
+        float: none;
+        margin-top: 0;
+        margin-left: 20px;
+        padding-left: 5px;
+        border-bottom: 1px solid #DEDEDE;
+        background-color: #E6EDF4;
+    }
 
-	#check_shops #shopfolders li ul {
-		display: block;
-		float: none;
-		margin: 3px 0 3px 15px;
-		padding-left: 5px;
-	}
-	#check_shops #shopfolders li ul li {
-		width: 405px;
-		min-height: 20px;
-		margin-top: 2px;
-		padding-left: 15px;
-		float: none;
-		background: url(../img/filearbo.gif) no-repeat 5px 0px;
-	}
-	#check_shops #shopfolders li ul li label {
-		width: 400px;
-		height: auto;
-		min-height: 24px;
-		float: none;
-		margin-left: 0;
-		padding-left: 5px;
-		border-bottom: 1px solid #f1f1f1;
-		background-color:#F2F9FF;
-	}
-
-
-
-	#physical_shops #check_shops #add_shop {
-		display: block;
-		width: 45px;
-		height: 14px;
-		line-height: 12px;
-		margin-top: 10px;
-		padding: 4px 28px 2px 7px;
-		float: right;
-		clear: both;
-		border: 1px solid #D1D1D1;
-		border-radius: 5px;
-		-moz-border-radius: 5px;
-		-webkit-border-radius: 5px;
-		background: url("../img/btn_navForm.png") no-repeat scroll right 0 #E8E8E8;
-	}
+    #check_shops #shopfolders li ul,
+    #check-services #service-folders li ul {
+        display: block;
+        float: none;
+        margin: 3px 0 3px 15px;
+        padding-left: 5px;
+    }
+    #check_shops #shopfolders li ul li,
+    #check-services #service-folders li ul li {
+        width: 405px;
+        min-height: 20px;
+        margin-top: 2px;
+        padding-left: 15px;
+        float: none;
+        background: url(../img/filearbo.gif) no-repeat 5px 0px;
+    }
+    #check_shops #shopfolders li ul li label,
+    #check-services #service-folders li ul li label {
+        width: 400px;
+        height: auto;
+        min-height: 24px;
+        float: none;
+        margin-left: 0;
+        padding-left: 5px;
+        border-bottom: 1px solid #f1f1f1;
+        background-color:#F2F9FF;
+    }
 
 
 
-
-
-	/*LISTE BOUTIQUES ADDED (ds Accordion)*/
-	#listeShop {
-		display: block;
-		margin: 40px 0 5px 0;
-		padding: 6px;
-		background-color: #f7f7f7;
-		border-top: 1px solid #b2b2b2;
-	}
-	#accordion .div_accordion { margin-top: 10px; }
-	#accordion .boxlisteShop { padding: 0px;}
-	.ulListeShop {  }
-	.ulListeShop li {
-		list-style-type: none;
-		min-height: 16px;
-		padding: 7px 2px 4px 8px;
-		border-top: 1px solid #dbdbdb;
-		border-bottom: 1px solid #fff;
-		background-color: #F4FCFF;
-	}
-	.ulListeShop li a	{
-		display: block;
-		float: right;
-		width: 16px;
-		height: 16px;
-		margin: 0 5px;
-		overflow: hidden;
-		text-indent: -1500px;
-		background: url(../img/out.gif) no-repeat 0 0;
-	}
+    #physical_shops #check_shops #add_shop {
+        display: block;
+        width: 45px;
+        height: 14px;
+        line-height: 12px;
+        margin-top: 10px;
+        padding: 4px 28px 2px 7px;
+        float: right;
+        clear: both;
+        border: 1px solid #D1D1D1;
+        border-radius: 5px;
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+        background: url("../img/btn_navForm.png") no-repeat scroll right 0 #E8E8E8;
+    }
 
 
 
 
 
+    /*LISTE BOUTIQUES ADDED (ds Accordion)*/
+    #listeShop {
+        display: block;
+        margin: 40px 0 5px 0;
+        padding: 6px;
+        background-color: #f7f7f7;
+        border-top: 1px solid #b2b2b2;
+    }
+    #accordion .div_accordion { margin-top: 10px; }
+    #accordion .boxlisteShop { padding: 0px;}
+    .ulListeShop {  }
+    .ulListeShop li {
+        list-style-type: none;
+        min-height: 16px;
+        padding: 7px 2px 4px 8px;
+        border-top: 1px solid #dbdbdb;
+        border-bottom: 1px solid #fff;
+        background-color: #F4FCFF;
+    }
+    .ulListeShop li a    {
+        display: block;
+        float: right;
+        width: 16px;
+        height: 16px;
+        margin: 0 5px;
+        overflow: hidden;
+        text-indent: -1500px;
+        background: url(../img/out.gif) no-repeat 0 0;
+    }
 
 
 
@@ -760,83 +770,88 @@
 
 
 
-	/*---------- FORM CSS PAGE 4 ----------*/
-
-	/*-CheckBox-*/
-	#main_form #checkBox {
-		margin-bottom: 20px;
-		padding: 10px;
-		background-color: #F4F4F4;
-		border: 1px solid #dbdbdb;
-	}
-	#main_form #checkBox span {
-		height: auto;
-		margin: 10px 0 0 0;
-	}
-	#main_form #checkBox span label {
-		width: 390px;
-		height: auto;
-		line-height: 18px;
-		margin: 0 0 5px 0;
-		padding: 2px 25px 2px 8px;
-		background: url(images/ui-bg_glass_100_f6f6f6_1x400.png) repeat-x 50% 50% #F6F6F6;
-		border: 1px solid #CCCCCC;
-		border-radius: 4px 4px 4px 4px;
-		cursor: pointer;
-	}
-	#main_form #checkBox span input {
-		width: auto;
-		margin: 3px 15px 0 -25px;
-		border: 0 none;
-	}
 
 
 
 
-	/*--- Tailles ---*/
-	#main_form .accordion p em { display: block; width: 390px; margin: 5px 0 10px 0; font-style: normal; }
 
-	#main_form .accordion .taille strong { display: block; clear: both; padding: 5px 0 1px 0; }
-	#main_form .accordion .taille label {
-		display: block;
-		float: left;
-		height: 17px;
-		line-height: 17px;
-		margin: 0 0 3px 0;
-		padding: 0;
-		text-align: center;
-		background-image: none;
-		background-color: #353535;
-		border: 1px solid #292929;
-		font-weight: bold;
-		color: #fff;
-	}
-	#main_form .accordion .taille input {
-		display: block;
-		float: left;
-		width: 40px;
-		height: 16px;
-		line-height: 16px;
-		padding: 1px 0 0 2px;
-		margin: 0 3px 3px 0;
-		border-left: 0 none;
-	}
-	#main_form .accordion .btn.select { color: #fff; }
+    /*---------- FORM CSS PAGE 4 ----------*/
 
-	/*-Jquery Style Modif-*/
-	.ui-helper-reset { line-height: 1.2; }
-	#main_form .accordion .shopTitle a {
-		color: #000;
-	}
+    /*-CheckBox-*/
+    #main_form #checkBox {
+        margin-bottom: 20px;
+        padding: 10px;
+        background-color: #F4F4F4;
+        border: 1px solid #dbdbdb;
+    }
+    #main_form #checkBox span {
+        height: auto;
+        margin: 10px 0 0 0;
+    }
+    #main_form #checkBox span label {
+        width: 390px;
+        height: auto;
+        line-height: 18px;
+        margin: 0 0 5px 0;
+        padding: 2px 25px 2px 8px;
+        background: url(images/ui-bg_glass_100_f6f6f6_1x400.png) repeat-x 50% 50% #F6F6F6;
+        border: 1px solid #CCCCCC;
+        border-radius: 4px 4px 4px 4px;
+        cursor: pointer;
+    }
+    #main_form #checkBox span input {
+        width: auto;
+        margin: 3px 15px 0 -25px;
+        border: 0 none;
+    }
 
-	#main_form .accordion .ui-state-hover,
-	#main_form .accordion .ui-state-active { background: url(../img/back_flag.png) repeat-x 0 -30px; border: 1px solid #6EDCEF; }
 
-	/*Boutique VALIDEE*/
-	#main_form .accordion .done { background: url(../img/back_flag.png) repeat-x 0 -1px; }
-	#main_form .accordion .done a { background: url(../img/check.png) no-repeat 435px -1px; }
-	#main_form .accordion .done.ui-state-hover,
-	#main_form .accordion .done.ui-state-active {  border: 1px solid #A0ED87; }
+
+
+    /*--- Tailles ---*/
+    #main_form .accordion p em { display: block; width: 390px; margin: 5px 0 10px 0; font-style: normal; }
+
+    #main_form .accordion .taille strong { display: block; clear: both; padding: 5px 0 1px 0; }
+    #main_form .accordion .taille label {
+        display: block;
+        float: left;
+        height: 17px;
+        line-height: 17px;
+        margin: 0 0 3px 0;
+        padding: 0;
+        text-align: center;
+        background-image: none;
+        background-color: #353535;
+        border: 1px solid #292929;
+        font-weight: bold;
+        color: #fff;
+    }
+    #main_form .accordion .taille input {
+        display: block;
+        float: left;
+        width: 40px;
+        height: 16px;
+        line-height: 16px;
+        padding: 1px 0 0 2px;
+        margin: 0 3px 3px 0;
+        border-left: 0 none;
+    }
+    #main_form .accordion .btn.select { color: #fff; }
+
+    /*-Jquery Style Modif-*/
+    .ui-helper-reset { line-height: 1.2; }
+    #main_form .accordion .shopTitle a {
+        color: #000;
+    }
+
+    #main_form .accordion .ui-state-hover,
+    #main_form .accordion .ui-state-active { background: url(../img/back_flag.png) repeat-x 0 -30px; border: 1px solid #6EDCEF; }
+
+    /*Boutique VALIDEE*/
+    #main_form .accordion .done { background: url(../img/back_flag.png) repeat-x 0 -1px; }
+    #main_form .accordion .done a { background: url(../img/check.png) no-repeat 435px -1px; }
+    #main_form .accordion .done.ui-state-hover,
+    #main_form .accordion .done.ui-state-active {  border: 1px solid #A0ED87; }
 
 
 
@@ -846,18 +861,18 @@
 /*------------------------------------------------------ */
 
 .titleRight {
-	width: 388px;
-	height: 27px;
+    width: 388px;
+    height: 27px;
     line-height: 27px;
-	margin: 0 0 7px 0;
-	padding: 0 5px 0 7px;
+    margin: 0 0 7px 0;
+    padding: 0 5px 0 7px;
     background: url(../img/pix_title.gif) repeat-x 0 0 #FFFFFF;
 }
 .boxRight {
-	width: 398px;
-	margin: 0 0 30px 0;
-	background-color: #fff;
-	border: 1px solid #c4c4c4;
+    width: 398px;
+    margin: 0 0 30px 0;
+    background-color: #fff;
+    border: 1px solid #c4c4c4;
 }
 
 
@@ -872,156 +887,156 @@
 
 /*------Section gauche------*/
 .infoLeft {
-	position: relative;
-	width: 218px;
-	margin-left: 5px;
-	margin-right: 10px;
+    position: relative;
+    width: 218px;
+    margin-left: 5px;
+    margin-right: 10px;
 }
-	/*Titre*/
-	.descrProd {
-		width: 210px;
-		height: 28px;
-		margin-bottom: 8px;
-		overflow: hidden;
-	}
-		.descrProd strong,
-		.descrProd p { line-height: 13px; }
-		.descrProd p {  color: #555555; }
-		.descrProd strong { float: left; margin-right: 3px; text-transform: uppercase; }
+    /*Titre*/
+    .descrProd {
+        width: 210px;
+        height: 28px;
+        margin-bottom: 8px;
+        overflow: hidden;
+    }
+        .descrProd strong,
+        .descrProd p { line-height: 13px; }
+        .descrProd p {  color: #555555; }
+        .descrProd strong { float: left; margin-right: 3px; text-transform: uppercase; }
 
-	/*Marque*/
-	.marque {
-		width: 205px;
-		height: 70px;
-		overflow: hidden;
-		/*background: url(../img/marque.gif) no-repeat 0 0;*/
-		background-color: #F8F8F8;
-	}
-		.marque img { font-size: 20px; line-height: 70px; }
+    /*Marque*/
+    .marque {
+        width: 205px;
+        height: 70px;
+        overflow: hidden;
+        /*background: url(../img/marque.gif) no-repeat 0 0;*/
+        background-color: #F8F8F8;
+    }
+        .marque img { font-size: 20px; line-height: 70px; }
 
-	/*Prix Date*/
-	.prix_date { height: 30px; margin: 5px 0 7px 0; }
-	.prix_date strong {
-		font-size: 14px;
-		color: #f25500;
-	}
-	.prix_date em {
-		font-size: 12px;
-		font-style: normal;
-		color: #646364;
-		text-decoration: line-through;
-		margin-left: 10px;
-	}
-	.prix_date span {
-		display: block;
-		margin-top: 2px;
-		font-family: arial,Tahoma,Helvetica,Sans-Serif;
-		font-size: 10px;
-		color: #000;
-	}
-		.prix_date span strong {
-			font-size: 10px;
-			font-family: verdana,Tahoma,Helvetica,Sans-Serif;
-			color: #000;
-		}
+    /*Prix Date*/
+    .prix_date { height: 30px; margin: 5px 0 7px 0; }
+    .prix_date strong {
+        font-size: 14px;
+        color: #f25500;
+    }
+    .prix_date em {
+        font-size: 12px;
+        font-style: normal;
+        color: #646364;
+        text-decoration: line-through;
+        margin-left: 10px;
+    }
+    .prix_date span {
+        display: block;
+        margin-top: 2px;
+        font-family: arial,Tahoma,Helvetica,Sans-Serif;
+        font-size: 10px;
+        color: #000;
+    }
+        .prix_date span strong {
+            font-size: 10px;
+            font-family: verdana,Tahoma,Helvetica,Sans-Serif;
+            color: #000;
+        }
 
-	/*Boutons*/
-	.bouton {
-		height: 25px;
-		padding: 0px;
-	}
-		.bouton a {
-			display: block;
-			float: left;
-			width: 100px;
-			height: 23px;
-			line-height: 23px;
-			margin-right: 5px;
-			text-align: center;
-			font-size: 12px;
-			font-weight: bold;
-			color: #4f0000;
-			border: 1px solid #fff;
-			background: url(../img/pix_btn_prod.gif) repeat-x center #fed000;
-			box-shadow: 0px 0px 2px #eea401;
-			-moz-box-shadow: 0px 0px 2px #eea401;
-			-webkit-box-shadow: 0px 0px 4px #eea401;
-			text-shadow: 1px 1px 1px #fffb99;
-			-moz-text-shadow: 1px 1px 1px #fffb99;
-			-webkit-text-shadow: 1px 1px 1px #fffb99;
-		}
+    /*Boutons*/
+    .bouton {
+        height: 25px;
+        padding: 0px;
+    }
+        .bouton a {
+            display: block;
+            float: left;
+            width: 100px;
+            height: 23px;
+            line-height: 23px;
+            margin-right: 5px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #4f0000;
+            border: 1px solid #fff;
+            background: url(../img/pix_btn_prod.gif) repeat-x center #fed000;
+            box-shadow: 0px 0px 2px #eea401;
+            -moz-box-shadow: 0px 0px 2px #eea401;
+            -webkit-box-shadow: 0px 0px 4px #eea401;
+            text-shadow: 1px 1px 1px #fffb99;
+            -moz-text-shadow: 1px 1px 1px #fffb99;
+            -webkit-text-shadow: 1px 1px 1px #fffb99;
+        }
 
-	/*Partage FB TW*/
-	.partage {
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		width: 218px;
-		height: 18px;
-	}
-		.partage a {
-			display: block;
-			float: left;
-			width: 56px;
-			height: 18px;
-			overflow: hidden;
-			text-indent: -1500px;
-			margin-right: 5px;
-			background-image: url(../img/partage_prod.gif);
-			background-repeat: no-repeat;
+    /*Partage FB TW*/
+    .partage {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 218px;
+        height: 18px;
+    }
+        .partage a {
+            display: block;
+            float: left;
+            width: 56px;
+            height: 18px;
+            overflow: hidden;
+            text-indent: -1500px;
+            margin-right: 5px;
+            background-image: url(../img/partage_prod.gif);
+            background-repeat: no-repeat;
 
-		}
-			.partage a.faceBook { background-position: 0 0; }
-			.partage a.faceBook:hover { background-position: 0 -18px; }
-			.partage a.twitter { background-position: 0 -36px; }
-			.partage a.twitter:hover { background-position: 0 -54px; }
+        }
+            .partage a.faceBook { background-position: 0 0; }
+            .partage a.faceBook:hover { background-position: 0 -18px; }
+            .partage a.twitter { background-position: 0 -36px; }
+            .partage a.twitter:hover { background-position: 0 -54px; }
 
 
 /*------Section droite------*/
 .imgRight {
-	position: relative;
-	width: 160px;
-	margin-right: 5px;
+    position: relative;
+    width: 160px;
+    margin-right: 5px;
 }
 
-	.imgRight .imgProd,
-	.imgRight #preview-product-picture {
-		display: block;
-		width: 158px;
-		height: 173px;
-		border: 1px solid #d6d6d6;
-		background: url(../img/prev_product.png) no-repeat 1px 1px;
-	}
-	.imgRight .imgProd img,
-	.imgRight #preview-product-picture img { border: 1px solid #fff; }
+    .imgRight .imgProd,
+    .imgRight #preview-product-picture {
+        display: block;
+        width: 158px;
+        height: 173px;
+        border: 1px solid #d6d6d6;
+        background: url(../img/prev_product.png) no-repeat 1px 1px;
+    }
+    .imgRight .imgProd img,
+    .imgRight #preview-product-picture img { border: 1px solid #fff; }
 
-	.tag {
-		position: absolute;
-		top: -15px;
-		left: -10px;
-		width: 66px;
-		height: 22px;
-		padding: 6px 0 0 6px;
-		color: #fff;
-		font-size: 13px;
-		font-weight: bold;
-		background: url(../img/tag.png) no-repeat 0 0;
-	}
-	.tag span { color: #fff; }
-	.voirOffre {
-		display: block;
-		width: 160px;
-		height: 26px;
-		line-height: 25px;
-		padding: 6px 0 6px 0;
-		text-align: center;
-		background: url(../img/voirOffre.jpg) no-repeat center #fff;
-		color: #2c5fbe;
-		font-size: 12px;
-		font-weight: bold;
-		text-transform: uppercase;
-		letter-spacing: -0.5px;
-	}
+    .tag {
+        position: absolute;
+        top: -15px;
+        left: -10px;
+        width: 66px;
+        height: 22px;
+        padding: 6px 0 0 6px;
+        color: #fff;
+        font-size: 13px;
+        font-weight: bold;
+        background: url(../img/tag.png) no-repeat 0 0;
+    }
+    .tag span { color: #fff; }
+    .voirOffre {
+        display: block;
+        width: 160px;
+        height: 26px;
+        line-height: 25px;
+        padding: 6px 0 6px 0;
+        text-align: center;
+        background: url(../img/voirOffre.jpg) no-repeat center #fff;
+        color: #2c5fbe;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: -0.5px;
+    }
 
 
 
@@ -1031,36 +1046,36 @@
 
 .ficheCible ul li span,
 .ficheCible ul li strong {
-	display: block;
-	height: 20px;
-	line-height: 20px;
-	padding: 0 10px;
-	margin: 0 2px;
+    display: block;
+    height: 20px;
+    line-height: 20px;
+    padding: 0 10px;
+    margin: 0 2px;
 }
 
 .ficheCible ul li span {
-	float: left;
-	clear: left;
-	width: 30%;
-	color: #555555;
-	border-bottom: 1px solid #d2d2d2;
-	background-color: #f7f7f7;
+    float: left;
+    clear: left;
+    width: 30%;
+    color: #555555;
+    border-bottom: 1px solid #d2d2d2;
+    background-color: #f7f7f7;
 }
 .ficheCible ul li strong {
-	background-color: #e6f9ff;
-	float: left;
-	width: 55%;
-	border-bottom: 1px solid #95d9ee;
+    background-color: #e6f9ff;
+    float: left;
+    width: 55%;
+    border-bottom: 1px solid #95d9ee;
 }
 
 
 /*------------------- LES POINTS DE VENTE -------------------*/
 #googleMap {
-	width: 366px;
-	height: 335px;
-	margin: 15px 15px 30px 15px;
-	border: 1px solid #a9bbdf;
-	background-color: #f7faff;
+    width: 366px;
+    height: 335px;
+    margin: 15px 15px 30px 15px;
+    border: 1px solid #a9bbdf;
+    background-color: #f7faff;
 }
 
 
@@ -1125,4 +1140,157 @@ span#type_attribute_prices span.normal_price_form {
 
 #main_form select#id_product-currency {
     margin: 1px 5px 0 -5px;
+}
+
+#main_form input.handling_fee_input {
+    width: 160px;
+}
+
+#main_form span.handling_fee_currency {
+    padding: 2px;
+}
+
+#main_form span.shipping-checkbox input {
+    width: 20px;
+}
+
+#main_form div.pickup_voids_handling_fee {
+    min-height: 22px;
+    clear: both;
+    padding: 15px 0 0 80px;
+    display: none;
+}
+
+#main_form input.shipping-radio {
+    width: 20px;
+}
+
+#main_form div.shipping-calculations {
+    clear: both;
+}
+
+#main_form div.shipping-calculations li {
+    height: 25px;
+    padding-left: 55px;
+}
+#main_form div.shipping-calculations li label {
+    clear: both;
+}
+
+#main_form #carrier-services {
+    display: none;
+}
+
+#check-services #service-folders li ul {
+    display: none;
+}
+
+div.add-new-csr-dialog {
+    width: 420px !important;
+}
+div.add-new-csr-dialog p {
+    margin-bottom: 5px;
+}
+div.add-new-csr-dialog input {
+    width: 100px;
+}
+div.add-new-csr-dialog select {
+    width: 112px;
+}
+div.add-new-csr-dialog label {
+    float: left;
+    width: 120px;
+}
+div.add-new-csr-dialog input#id_shipment_type {
+    width: 100px;
+}
+
+div.add-new-csr-dialog p.between {
+    margin-left: 125px;
+    font-size: 9px;
+}
+div.add-new-csr-dialog p.between span {
+    padding: 0 5px;
+    font-size: 12px;
+}
+div.add-new-csr-dialog p.between input {
+    width: 50px;
+}
+
+#main_form div#custom-shipping-rates {
+    clear: both;
+    display: none;
+    margin-bottom: 20px;
+}
+
+#main_form div#custom-shipping-rates li {
+    height: 25px;
+    padding-left: 55px;
+}
+#main_form div#custom-shipping-rates li label {
+    clear: both;
+    width: auto;
+}
+#main_form div#custom-shipping-rates li label input {
+    width: 20px;
+}
+
+#add_new_custom_shipping_rate {
+    margin: 10px 0 0 50px;
+    padding-top: 0;
+    height: 20px;
+}
+
+
+#main_form div.shipping-and-delivery-options {
+    clear: both;
+}
+
+#main_form div.shipping-and-delivery-options div {
+    height: 25px;
+    padding-left: 55px;
+}
+
+#main_form div.shipping-and-delivery-options label {
+    background: none;
+}
+
+#main_form div.shipping-calculations span.add_new_csr_span {
+    float: left;
+    margin-bottom: 20px;
+}
+#check-services #service-folders li label {
+    width: 300px;
+}
+#check-services #service-folders li ul li label {
+    width: 285px;
+}
+#check-services #service-folders li {
+    width: 340px;
+    min-height: 28px;
+}
+
+#main_form span.shop-default-shipping-span {
+    height: 20px;
+    line-height: 20px;
+}
+#main_form span.shop-default-shipping-span label {
+    width: 300px;
+}
+#save-as-shop-default-shipping {
+    margin: 10px 5px 0 0;
+    height: 22px;
+    line-height: 22px;
+    padding: 9px 12px 7px 10px;
+    border: 1px solid #d1d1d1;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    background: url(../img/btn_navForm.png) no-repeat 0 0 #E8E8E8;
+}
+
+#set-default-shipping-dialog p {
+    margin: auto;
+    padding: auto;
+    font-size: 12px;
 }

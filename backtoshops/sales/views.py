@@ -38,6 +38,7 @@ from globalsettings import get_setting
 from sales.forms import ListSalesForm
 from sales.forms import ProductBrandFormModel
 from sales.forms import ProductForm
+from sales.forms import ShippingForm
 from sales.forms import ShopForm
 from sales.forms import StockStepForm
 from sales.forms import TargetForm
@@ -46,11 +47,16 @@ from sales.models import ProductBrand
 from sales.models import ProductCurrency
 from sales.models import ProductPicture
 from sales.models import ProductType
+from sales.models import SC_CARRIER_SHIPPING_RATE
+from sales.models import SC_CUSTOM_SHIPPING_RATE
 from sales.models import STOCK_TYPE_DETAILED
 from sales.models import STOCK_TYPE_GLOBAL
 from sales.models import Sale
+from sales.models import Shipping
 from sales.models import ShopsInSale
 from sales.models import TypeAttributePrice
+from shippings.forms import CustomShippingRateFormModel
+from shops.models import DefaultShipping
 from shops.models import Shop
 from stocks.models import ProductStock
 
@@ -248,7 +254,8 @@ def add_sale(request, *args, **kwargs):
         (SaleWizardNew.STEP_SHOP, ShopForm),
         (SaleWizardNew.STEP_PRODUCT, ProductForm),
         (SaleWizardNew.STEP_STOCKS, StockStepForm),
-        (SaleWizardNew.STEP_TARGET, TargetForm)
+        (SaleWizardNew.STEP_SHIPPING, ShippingForm),
+        (SaleWizardNew.STEP_TARGET, TargetForm),
     ]
 
     initial_product = {
@@ -273,7 +280,8 @@ def edit_sale(request, *args, **kwargs):
         (SaleWizardNew.STEP_SHOP, ShopForm),
         (SaleWizardNew.STEP_PRODUCT, ProductForm),
         (SaleWizardNew.STEP_STOCKS, StockStepForm),
-        (SaleWizardNew.STEP_TARGET, TargetForm)
+        (SaleWizardNew.STEP_SHIPPING, ShippingForm),
+        (SaleWizardNew.STEP_TARGET, TargetForm),
     ]
 
     if not 'sale_id' in kwargs:
@@ -367,11 +375,33 @@ def edit_sale(request, *args, **kwargs):
         'gender': sale.gender
     }
 
+    initial_shipping = {}
+    if hasattr(sale, 'shipping'):
+        initial_shipping = {
+            'handling_fee': sale.shipping.handling_fee,
+            'allow_group_shipment': sale.shipping.allow_group_shipment,
+            'allow_pickup': sale.shipping.allow_pickup,
+            'pickup_voids_handling_fee': sale.shipping.pickup_voids_handling_fee,
+            'shipping_calculation': sale.shipping.shipping_calculation,
+            'service': [],
+            'custom_shipping_rate': [],
+        }
+
+        if sale.shipping.shipping_calculation == SC_CARRIER_SHIPPING_RATE:
+            initial_shipping.update({
+                'service': sale.shippingcarrierservice_set.all()
+            })
+        if sale.shipping.shipping_calculation == SC_CUSTOM_SHIPPING_RATE:
+            initial_shipping.update({
+                'custom_shipping_rate': sale.shippingcustomrule_set.all()
+            })
+
     initials = {
         SaleWizardNew.STEP_SHOP: initial_shop,
         SaleWizardNew.STEP_PRODUCT: initial_product,
         SaleWizardNew.STEP_STOCKS: initial_stocks_step,
-        SaleWizardNew.STEP_TARGET: initial_target
+        SaleWizardNew.STEP_TARGET: initial_target,
+        SaleWizardNew.STEP_SHIPPING: initial_shipping,
     }
 
     settings = {
@@ -420,20 +450,25 @@ class SaleWizardNew(NamedUrlSessionWizardView):
     STEP_PRODUCT = 'product'
     STEP_STOCKS = 'stocks'
     STEP_TARGET = 'target'
+    STEP_SHIPPING = 'shipping'
     file_storage = FileSystemStorage()
     base_template = "add_sale_base.html"
     edit_mode = False
     sale = None
-    stock_form = None
 
     @transaction.commit_on_success
     def done(self, form_list, **kwargs):
         if self.edit_mode:
             sale = self.sale
             product = sale.product
+            if hasattr(sale, 'shipping'):
+                shipping = sale.shipping
+            else:
+                shipping = Shipping()
         else:
             sale = Sale()
             product = Product()
+            shipping = Shipping()
         sale.mother_brand = self.request.user.get_profile().work_for
         sale.type_stock = form_list[0].cleaned_data['target_market']
         sale.save()
@@ -528,7 +563,57 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 if i.brand_attribute and i.brand_attribute.pk not in ba_pks:
                     i.delete()
 
-        target = form_list[3].cleaned_data
+        shipping_data = form_list[3].cleaned_data
+        shipping.sale = sale
+        shipping.handling_fee = shipping_data['handling_fee']
+        shipping.allow_group_shipment = shipping_data['allow_group_shipment']
+        shipping.allow_pickup = shipping_data['allow_pickup']
+        shipping.pickup_voids_handling_fee = (shipping_data['allow_pickup'] and
+                                              shipping_data['pickup_voids_handling_fee'])
+        shipping.shipping_calculation = shipping_data['shipping_calculation']
+        shipping.save()
+
+        if shipping_data['set_as_default_shop_shipping']:
+            for shop in form_list[0].cleaned_data['shops']:
+                DefaultShipping.objects.create(shop=shop, sales_shipping=shipping).save()
+
+        sale.shipping = shipping
+        if self.edit_mode:
+            # Remove useless records.
+            if int(shipping.shipping_calculation) != int(SC_CARRIER_SHIPPING_RATE):
+                sale.shippingcarrierservice_set.all().delete()
+            if int(shipping.shipping_calculation) != int(SC_CUSTOM_SHIPPING_RATE):
+                sale.shippingcustomrule_set.all().delete()
+
+            # Merge records:
+            if int(shipping.shipping_calculation) == int(SC_CARRIER_SHIPPING_RATE):
+                old_service_ids = set([scs.service.id for scs in sale.shippingcarrierservice_set.all()])
+                new_service_ids = set([service.id for service in shipping_data['service']])
+
+                for s_id in old_service_ids - new_service_ids:
+                    sale.shippingcarrierservice_set.get(sale=sale, service_id=s_id).delete()
+                for s_id in new_service_ids - old_service_ids:
+                    sale.shippingcarrierservice_set.create(sale=sale, service_id=s_id)
+
+            if int(shipping.shipping_calculation) == int(SC_CUSTOM_SHIPPING_RATE):
+                old_rate_ids = set([scr.custom_shipping_rate.id for scr in sale.shippingcustomrule_set.all()])
+                new_rate_ids = set([csr.id for csr in shipping_data['custom_shipping_rate']])
+
+                for c_id in old_rate_ids - new_rate_ids:
+                    sale.shippingcustomrule_set.get(sale=sale, custom_shipping_rate_id=c_id).delete()
+                for c_id in new_rate_ids - old_rate_ids:
+                    sale.shippingcustomrule_set.create(sale=sale, custom_shipping_rate_id=c_id)
+        else:
+            if int(shipping.shipping_calculation) == int(SC_CARRIER_SHIPPING_RATE):
+                for service in shipping_data['service']:
+                    sale.shippingcarrierservice_set.create(
+                        sale=sale, service=service)
+            if int(shipping.shipping_calculation) == int(SC_CUSTOM_SHIPPING_RATE):
+                for shipping_rate in shipping_data['custom_shipping_rate']:
+                    sale.shippingcustomrule_set.create(
+                        sale=sale, shipping_rate=shipping_rate)
+
+        target = form_list[4].cleaned_data
         sale.gender = target['gender']
         sale.complete = True
         sale.product = product
@@ -694,6 +779,14 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 'shops': self.shops,
                 'global_stock': True if self.target_market == "N" else False
             })
+        elif self.steps.current == self.STEP_SHIPPING:
+            context.update({
+                'form_title': _("Shipping"),
+                'preview_shop': self._render_preview(self.STEP_SHOP),
+                'preview_product': self._render_preview(self.STEP_PRODUCT),
+                'currency': self.currency,
+                'custom_shipping_rate_form': CustomShippingRateFormModel,
+            })
         elif self.steps.current == self.STEP_TARGET:
             context.update({
                 'form_title': _("Target Demographics"),
@@ -704,7 +797,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         return context
 
     def get_form_kwargs(self, step=None):
-        if step == self.STEP_SHOP or step == self.STEP_PRODUCT:
+        if step in (self.STEP_SHOP, self.STEP_PRODUCT, self.STEP_SHIPPING):
             kwargs = {}
             if step == self.STEP_SHOP:
                 kwargs.update({"request": self.request,})
@@ -824,6 +917,13 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             # else:
             #     toret.update(self.stocks_infos.last_barcodes_initials)
             return toret
+        if step == self.STEP_SHIPPING:
+            product_obj = self.get_form(self.STEP_PRODUCT,
+                                        data=self.storage.get_step_data(self.STEP_PRODUCT),
+                                        files=self.storage.get_step_files(self.STEP_PRODUCT)
+            )
+            if product_obj.is_valid():
+                self.currency = product_obj.cleaned_data['currency']
         return super(SaleWizardNew, self).get_form_initial(step)
 
 
@@ -835,4 +935,5 @@ def get_product_types(request, *args, **kwargs):
         product_types_list.append({'label': type.name, 'value': type.id})
     return HttpResponse(json.dumps(product_types_list),
                         mimetype='application/json')
+
 

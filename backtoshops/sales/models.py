@@ -6,6 +6,7 @@ from sorl.thumbnail import ImageField
 
 from accounts.models import Brand
 from common.cache_invalidation import post_delete_handler
+from shippings.models import Service
 from shops.models import Shop
 
 GENDERS = (
@@ -25,6 +26,20 @@ DISCOUNT_TYPE = (
     ('percentage', _('Percentage')),
     ('amount', _('Amount'))
 )
+
+SC_FREE_SHIPPING = 1
+SC_FLAT_RATE = 2
+SC_CARRIER_SHIPPING_RATE = 3
+SC_CUSTOM_SHIPPING_RATE = 4
+SC_INVOICE = 5
+SHIPPING_CALCULATION = (
+    (SC_FREE_SHIPPING, _('Free shipping')),
+    (SC_FLAT_RATE, _('Flat rate')),
+    (SC_CARRIER_SHIPPING_RATE, _('Carrier Shipping Rate')),
+    (SC_CUSTOM_SHIPPING_RATE, _('Custom Shipping Rate')),
+    (SC_INVOICE, _('Invoice')),
+)
+
 
 class Sale(models.Model):
     direct_sale = models.BooleanField(default=False)
@@ -116,3 +131,23 @@ class TypeAttributePrice(models.Model):
 def on_sale_deleted(sender, **kwargs):
     post_delete_handler('sale', sender, **kwargs)
 
+
+class Shipping(models.Model):
+    sale = models.OneToOneField("Sale", blank=True, null=True)
+    handling_fee = models.FloatField(null=True)
+    allow_group_shipment = models.BooleanField()
+    allow_pickup = models.BooleanField()
+    pickup_voids_handling_fee = models.BooleanField()
+    shipping_calculation = models.SmallIntegerField(
+        choices=SHIPPING_CALCULATION)
+
+
+class ShippingCarrierService(models.Model):
+    sale = models.ForeignKey(Sale)
+    service = models.ForeignKey(Service)
+
+
+class ShippingCustomRule(models.Model):
+    from shippings.models import CustomShippingRate
+    sale = models.ForeignKey(Sale)
+    custom_shipping_rate = models.ForeignKey(CustomShippingRate)

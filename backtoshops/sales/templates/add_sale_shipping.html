@@ -1,0 +1,243 @@
+{% extends base_template %}
+{% load i18n %}
+{% load thumbnail %}
+{% load static %}
+
+{#Form to add product#}
+
+{% block form %}
+    {{ wizard.management_form }}
+    <fieldset>
+        <div class="p_vide formrow">
+            {{ wizard.form.non_field_errors }}
+        </div>
+        {{ wizard.form.handling_fee.errors }}
+        <div class="formrow">
+            <label for="{{ wizard.form.handling_fee.auto_id }}">{% trans wizard.form.handling_fee.label %}</label>
+            {{ wizard.form.handling_fee }}
+            <span class="handling_fee_currency">{{ currency }}</span>
+        </div>
+
+
+        <div class="formrow">
+            <label>{% trans "Shipping and delivery options" %}</label>
+
+            <div class="shipping-and-delivery-options">
+                {{ wizard.form.allow_group_ship.errors }}
+                <div>
+                    <span class="shipping-checkbox">
+                    {{ wizard.form.allow_group_shipment }}
+                    </span>
+                    <label for="{{ wizard.form.allow_group_shipment.auto_id }}">{% trans wizard.form.allow_group_shipment.label %}</label>
+                </div>
+                {{ wizard.form.allow_pickup.errors }}
+                <div>
+                    <span class="shipping-checkbox">
+                    {{ wizard.form.allow_pickup }}
+                    </span>
+                    <label for="{{ wizard.form.allow_pickup.auto_id }}">{% trans wizard.form.allow_pickup.label %}</label>
+
+
+                    {{ wizard.form.pickup_voids_handling_fee.errors }}
+                    <div class="pickup_voids_handling_fee">
+                        <span class="shipping-checkbox">
+                        {{ wizard.form.pickup_voids_handling_fee }}
+                        </span>
+                        <label for="{{ wizard.form.pickup_voids_handling_fee.auto_id }}">{% trans wizard.form.pickup_voids_handling_fee.label %}</label>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{ wizard.form.shipping_calculation.errors }}
+        <div class="marge formrow">
+            <label for="{{ wizard.form.shipping_calculation.auto_id }}">{% trans wizard.form.shipping_calculation.label %}</label>
+            <div class="shipping-calculations">
+                {{ wizard.form.shipping_calculation }}
+                <div id="carrier-services">
+                    <div class="formrow">
+                        <div id="check-services">
+                            {{ wizard.form.service }}
+                        </div>
+                        <div class="clear"></div>
+                    </div>
+                </div>
+
+                {{ wizard.form.custom_shipping_rate.errors }}
+                <div id="custom-shipping-rates">
+                    <div class="custom-shipping-rates-checkboxes">
+                        {{ wizard.form.custom_shipping_rate }}
+                    </div>
+                    <span class="add_new_csr_span">
+                        <a href="#" id="add_new_custom_shipping_rate">{% trans "Add new Shipping Calculation Rule" %}</a>
+                    </span>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="marge formrow">
+            <span class="shop-default-shipping-span">
+                <label>
+                    <a href="#" id="save-as-shop-default-shipping">{% trans "Save as default settings" %}</a>
+                    <span style="display: none">
+                    {{ wizard.form.set_as_default_shop_shipping }}
+                    </span>
+                </label>
+            </span>
+        </div>
+    </fieldset>
+{% endblock %}
+
+{% block empty_forms %}
+    <div id="add_new_csr_dialog" style="display: none;">
+        <form id="add_new_csr_form" action="{% url "add_new_custom_shipping_rate" %}" method="post">{% csrf_token %}
+            <p>
+                <label for="{{ custom_shipping_rate_form.shipment_type.auto_id }}">{{ custom_shipping_rate_form.shipment_type.label }}</label>
+                {{ custom_shipping_rate_form.shipment_type }}
+            </p>
+            <p>
+                <label for="{{ custom_shipping_rate_form.total_order_type.auto_id }}">{{ custom_shipping_rate_form.total_order_type.label }}</label>
+                {{ custom_shipping_rate_form.total_order_type }}
+                <p class="between">
+                    <span> {% trans "between" %} </span>
+                    {{ custom_shipping_rate_form.total_order_lower }} {{ currency }}
+                    <span> {% trans "and" %} </span>
+                    {{ custom_shipping_rate_form.total_order_upper }}  {{ currency }}
+                </p>
+            </p>
+            <p>
+                <label for="{{ custom_shipping_rate_form.shipping_rate.auto_id }}">{{ custom_shipping_rate_form.shipping_rate.label }}</label>
+                {{ custom_shipping_rate_form.shipping_rate }} {{ currency }}
+            </p>
+            <p class="error-message"></p>
+        </form>
+    </div>
+    <div id="set-default-shipping-dialog" style="display:none">
+        <p>{% trans "Save the options as the shop default shipping settings?" %}</p>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+
+    /****************** pickup voids handling fee **********************/
+    function toggle_pickup_voids_handling_fee_input() {
+        if ($("#{{ wizard.form.allow_pickup.auto_id }}").prop("checked")) {
+            $("div.pickup_voids_handling_fee").show();
+        }
+    }
+    $("#{{ wizard.form.allow_pickup.auto_id }}").click(toggle_pickup_voids_handling_fee_input);
+
+
+    /****************** carrier - services form **********************/
+    function toggle_carriers() {
+        var carrier_shipping_rate = $("input[id^={{ wizard.form.shipping_calculation.auto_id }}][value=3]");
+        if (carrier_shipping_rate.prop("checked")) {
+            if (carrier_shipping_rate.parents("li:first").find($("#carrier-services")).length > 0) {
+                $("#carrier-services").show();
+            } else {
+                $("#carrier-services").show().appendTo(carrier_shipping_rate.parents("li:first"));
+            }
+            $("#check-services #service-folders ul").each(function(){
+                if ($(this).find("input:checkbox:checked").length > 0) {
+                    $(this).show();
+                }
+            });
+        } else {
+            $("#check-services #service-folders ul").hide();
+            $("#carrier-services").hide();
+        }
+    }
+
+    function toggle_services(e) {
+        var carrier_input = $(e.target);
+        if (carrier_input.prop("checked")) {
+            carrier_input.parents("li:first").find("ul").show();
+        }
+    }
+    $("#check-services input.folder:checkbox").click(function(e){
+        $(this).parents("li:first").find("ul").find("input:checkbox").prop("checked", $(this).prop("checked"));
+        toggle_services(e);
+    });
+    $("input:checkbox[name={{ wizard.form.service.html_name }}]").click(function(){
+        if ($(this).prop("checked") == false) {
+            $(this).parents("ul:first").siblings("label").find("input.folder").prop("checked", false);
+
+        }
+    });
+
+
+    /****************** custom shipping rate form **********************/
+    $("#add_new_csr_form").ajaxForm({
+        success: function(responseText) {
+            if(responseText.search("ERROR") > 0) {
+                $("#add_new_csr_form p.error-message").html(responseText).show().find("ul.errorlist:first").removeClass("errorlist");
+            } else {
+                $("div.custom-shipping-rates-checkboxes ul").append(responseText);
+                $("#add_new_csr_dialog").dialog("close");
+            }
+        }
+    });
+    $("#add_new_custom_shipping_rate").click(function(){
+        $("#add_new_csr_dialog").dialog({
+            modal: true,
+            title: "{% trans "Add a new custom shipping rate" %}",
+            buttons: {
+                "Save": function() {
+                    $("#add_new_csr_form").submit();
+                },
+                "Cancel": function() {
+                    $(this).dialog("close");
+                }
+            },
+            dialogClass: "add-new-csr-dialog"
+        });
+        return false;
+    });
+    function toggle_custom_shipping_rates() {
+        var custom_shipping_rate_radio = $("input[id^={{ wizard.form.shipping_calculation.auto_id }}][value=4]");
+        if (custom_shipping_rate_radio.prop("checked")) {
+            if (custom_shipping_rate_radio.parents("li:first").find("#custom-shipping-rates").length > 0) {
+                $("#custom-shipping-rates").show();
+            } else {
+                $("#custom-shipping-rates").show().appendTo(custom_shipping_rate_radio.parents("li:first"));
+            }
+        } else {
+            $("#custom-shipping-rates").hide();
+        }
+    }
+
+
+    /****************** save as shop default shipping **********************/
+    $("#save-as-shop-default-shipping").click(function(){
+        $("#set-default-shipping-dialog").dialog({
+            modal: true,
+            buttons: {
+                "Yes": function() {
+                    $("#{{ wizard.form.set_as_default_shop_shipping.auto_id }}").prop("checked", true);
+                    $(this).dialog("close");
+                },
+                "No": function() {
+                    $("#{{ wizard.form.set_as_default_shop_shipping.auto_id }}").prop("checked", false);
+                    $(this).dialog("close");
+                }
+            }
+        });
+        return false;
+    });
+
+
+    /****************** on page load **********************/
+    $("input[name={{ wizard.form.shipping_calculation.html_name }}]").change(function(){
+        toggle_carriers();
+        toggle_custom_shipping_rates();
+    });
+    toggle_pickup_voids_handling_fee_input();
+    toggle_carriers();
+    toggle_custom_shipping_rates();
+</script>
+{% endblock %}

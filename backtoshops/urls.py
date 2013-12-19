@@ -48,5 +48,6 @@ urlpatterns += patterns('',
     url(r'^setlang/',settings.get_site_prefix()+'accounts.views.set_language'),
     url(r'^sa/', include(settings.get_site_prefix()+'backend.urls')),
     url(r'^accounts/', include(settings.get_site_prefix()+'accounts.urls')),
+    url(r'^shippings', include(settings.get_site_prefix()+'shippings.urls')),
 )
 
