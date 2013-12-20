@@ -275,6 +275,7 @@
 
                 isRTL: false
             };
+            $.datepicker.setDefaults($.datepicker.regional[_get_datepicker_locale("{{ LANGUAGE_CODE }}")]);
         }
     );
 
@@ -834,7 +835,6 @@
     if ("{{ wizard.form.category.value }}") {
         $("#{{ wizard.form.category.auto_id }}").change();
     }
-    $.datepicker.setDefaults($.datepicker.regional[_get_datepicker_locale('{{ LANGUAGE_CODE }}')]);
     $("#{{ wizard.form.valid_from.auto_id }}").datepicker();
     $("#{{ wizard.form.valid_to.auto_id }}").datepicker({
         onSelect: function(dateText, inst) {
