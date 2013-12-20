@@ -264,9 +264,10 @@ class ProductForm(forms.Form):
                 data=data, prefix="type_attribute_prices")
 
     def clean_valid_to(self):
-        valid_to = self.cleaned_data['valid_to']
         valid_from = self.cleaned_data['valid_from']
-        if valid_to and valid_to < valid_from:
+        valid_to = self.cleaned_data['valid_to']
+
+        if valid_from and valid_to and valid_to < valid_from:
             raise forms.ValidationError(
                 _("Starting date can not be set past this sale's "
                   "expiration date."))
