@@ -1,6 +1,21 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from accounts.models import Brand
 from globalsettings import get_setting
+
+SC_FREE_SHIPPING = 1
+SC_FLAT_RATE = 2
+SC_CARRIER_SHIPPING_RATE = 3
+SC_CUSTOM_SHIPPING_RATE = 4
+SC_INVOICE = 5
+SHIPPING_CALCULATION = (
+    (SC_FREE_SHIPPING, _('Free shipping')),
+    (SC_FLAT_RATE, _('Flat rate')),
+    (SC_CARRIER_SHIPPING_RATE, _('Carrier Shipping Rate')),
+    (SC_CUSTOM_SHIPPING_RATE, _('Custom Shipping Rate')),
+    (SC_INVOICE, _('Invoice')),
+)
+
 
 STOY_WEIGHT = 'W'
 STOY_PRICE = 'P'
@@ -26,8 +41,17 @@ class Service(models.Model):
         return self.carrier.name + ' - ' + self.name
 
 
+class Shipping(models.Model):
+   #sale = models.OneToOneField("Sale", blank=True, null=True)
+    handling_fee = models.FloatField(null=True)
+    allow_group_shipment = models.BooleanField()
+    allow_pickup = models.BooleanField()
+    pickup_voids_handling_fee = models.BooleanField()
+    shipping_calculation = models.SmallIntegerField(
+        choices=SHIPPING_CALCULATION)
+
+
 class CustomShippingRate(models.Model):
-    from sales.models import Brand
     seller = models.ForeignKey(Brand)
     shipment_type = models.CharField(max_length=50)
     total_order_type = models.CharField(max_length=2,
@@ -46,3 +70,13 @@ class CustomShippingRate(models.Model):
                 % (self.shipping_rate, self.shipment_type, t_type,
                    self.total_order_lower, t_unit,
                    self.total_order_upper, t_unit))
+
+
+class ServiceInShipping(models.Model):
+    shipping = models.ForeignKey(Shipping)
+    service = models.ForeignKey(Service)
+
+
+class CustomShippingRateInShipping(models.Model):
+    shipping = models.ForeignKey(Shipping)
+    custom_shipping_rate = models.ForeignKey(CustomShippingRate)

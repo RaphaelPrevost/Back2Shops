@@ -19,11 +19,11 @@ from sales.models import Product
 from sales.models import ProductBrand
 from sales.models import ProductCategory
 from sales.models import ProductCurrency
-from sales.models import SHIPPING_CALCULATION
-from sales.models import ShippingCarrierService
-from sales.models import ShippingCustomRule
 from shippings.models import CustomShippingRate
+from shippings.models import CustomShippingRateInShipping
+from shippings.models import SHIPPING_CALCULATION
 from shippings.models import Service
+from shippings.models import ServiceInShipping
 from shops.models import Shop
 
 
@@ -90,15 +90,22 @@ class ShippingServicesGroupedCheckboxSelectMultiple(GroupedCheckboxSelectMultipl
         return carrier and carrier.name or ''
 
     def _rende_checkboxinput(self, final_attrs, str_values):
-        service_ids = [obj.service_id for obj in ShippingCarrierService.objects.filter(pk__in=str_values)]
-        return forms.CheckboxInput(final_attrs, check_test=lambda value: value in map(str, service_ids))
+        service_ids = [obj.service_id for obj in
+                       ServiceInShipping.objects.filter(pk__in=str_values)]
+        return forms.CheckboxInput(
+            final_attrs,
+            check_test=lambda value: value in map(str, service_ids))
 
 
 class ShippingCustomRuleCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
 
     def _rende_checkboxinput(self, final_attrs, str_values):
-        custom_rate_ids = [obj.custom_shipping_rate_id for obj in ShippingCustomRule.objects.filter(pk__in=str_values)]
-        return forms.CheckboxInput(final_attrs, check_test=lambda value: value in map(str, custom_rate_ids))
+        custom_rate_ids = [obj.custom_shipping_rate_id for obj in
+                           CustomShippingRateInShipping.objects.filter(
+                               pk__in=str_values)]
+        return forms.CheckboxInput(
+            final_attrs,
+            check_test=lambda value: value in map(str, custom_rate_ids))
 
     def render(self, name, value, attrs=None, choices=()):
         if value is None: value = []

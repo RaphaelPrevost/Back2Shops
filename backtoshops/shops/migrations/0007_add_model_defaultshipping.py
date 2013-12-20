@@ -12,7 +12,7 @@ class Migration(SchemaMigration):
         db.create_table(u'shops_defaultshipping', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('shop', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['shops.Shop'])),
-            ('sales_shipping', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['sales.Shipping'])),
+            ('shipping', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['shippings.Shipping'])),
         ))
         db.send_create_signal(u'shops', ['DefaultShipping'])
 
@@ -37,39 +37,19 @@ class Migration(SchemaMigration):
             'numcode': ('django.db.models.fields.PositiveSmallIntegerField', [], {'null': 'True'}),
             'printable_name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },
-        u'sales.sale': {
-            'Meta': {'object_name': 'Sale'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'direct_sale': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'gender': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True', 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'mother_brand': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'sales'", 'on_delete': 'models.DO_NOTHING', 'to': u"orm['accounts.Brand']"}),
-            'shops': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['shops.Shop']", 'null': 'True', 'through': u"orm['sales.ShopsInSale']", 'blank': 'True'}),
-            'total_rest_stock': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'total_stock': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'type_stock': ('django.db.models.fields.CharField', [], {'max_length': '1', 'null': 'True', 'blank': 'True'})
-        },
-        u'sales.shipping': {
+        u'shippings.shipping': {
             'Meta': {'object_name': 'Shipping'},
             'allow_group_shipment': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'allow_pickup': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'handling_fee': ('django.db.models.fields.FloatField', [], {'null': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'pickup_voids_handling_fee': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'sale': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['sales.Sale']", 'unique': 'True', 'null': 'True', 'blank': 'True'}),
             'shipping_calculation': ('django.db.models.fields.SmallIntegerField', [], {})
-        },
-        u'sales.shopsinsale': {
-            'Meta': {'object_name': 'ShopsInSale'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_freezed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'sale': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['sales.Sale']"}),
-            'shop': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['shops.Shop']"})
         },
         u'shops.defaultshipping': {
             'Meta': {'object_name': 'DefaultShipping'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'sales_shipping': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['sales.Shipping']"}),
+            'shipping': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['shippings.Shipping']"}),
             'shop': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['shops.Shop']"})
         },
         u'shops.shop': {
@@ -93,4 +73,4 @@ class Migration(SchemaMigration):
         }
     }
 
-    complete_apps = ['shops']
+    complete_apps = ['shops', 'shops']

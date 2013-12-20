@@ -9,6 +9,7 @@ from accounts.models import Brand
 from common.cache_invalidation import post_delete_handler
 from common.cache_invalidation import post_save_handler
 from countries.models import Country
+from shippings.models import Shipping
 from sorl.thumbnail import ImageField
 
 
@@ -49,6 +50,5 @@ def on_shop_deleted(sender, **kwargs):
 
 
 class DefaultShipping(models.Model):
-    from sales.models import Shipping
     shop = models.ForeignKey(Shop)
-    sales_shipping = models.ForeignKey(Shipping)
+    shipping = models.ForeignKey(Shipping)
