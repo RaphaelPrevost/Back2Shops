@@ -8,44 +8,18 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'ShippingCarrierService'
-        db.create_table(u'sales_shippingcarrierservice', (
+        # Adding model 'ShippingInSale'
+        db.create_table(u'sales_shippinginsale', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('sale', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['sales.Sale'])),
-            ('service', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['shippings.Service'])),
+            ('sale', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['sales.Sale'], unique=True)),
+            ('shipping', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['shippings.Shipping'], unique=True)),
         ))
-        db.send_create_signal(u'sales', ['ShippingCarrierService'])
-
-        # Adding model 'Shipping'
-        db.create_table(u'sales_shipping', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('sale', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['sales.Sale'], unique=True, null=True, blank=True)),
-            ('handling_fee', self.gf('django.db.models.fields.FloatField')(null=True)),
-            ('allow_group_shipment', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('allow_pickup', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('pickup_voids_handling_fee', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('shipping_calculation', self.gf('django.db.models.fields.SmallIntegerField')()),
-        ))
-        db.send_create_signal(u'sales', ['Shipping'])
-
-        # Adding model 'ShippingCustomRule'
-        db.create_table(u'sales_shippingcustomrule', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('sale', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['sales.Sale'])),
-            ('custom_shipping_rate', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['shippings.CustomShippingRate'])),
-        ))
-        db.send_create_signal(u'sales', ['ShippingCustomRule'])
+        db.send_create_signal(u'sales', ['ShippingInSale'])
 
 
     def backwards(self, orm):
-        # Deleting model 'ShippingCarrierService'
-        db.delete_table(u'sales_shippingcarrierservice')
-
-        # Deleting model 'Shipping'
-        db.delete_table(u'sales_shipping')
-
-        # Deleting model 'ShippingCustomRule'
-        db.delete_table(u'sales_shippingcustomrule')
+        # Deleting model 'ShippingInSale'
+        db.delete_table(u'sales_shippinginsale')
 
 
     models = {
@@ -129,27 +103,11 @@ class Migration(SchemaMigration):
             'total_stock': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'type_stock': ('django.db.models.fields.CharField', [], {'max_length': '1', 'null': 'True', 'blank': 'True'})
         },
-        u'sales.shipping': {
-            'Meta': {'object_name': 'Shipping'},
-            'allow_group_shipment': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'allow_pickup': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'handling_fee': ('django.db.models.fields.FloatField', [], {'null': 'True'}),
+        u'sales.shippinginsale': {
+            'Meta': {'object_name': 'ShippingInSale'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'pickup_voids_handling_fee': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'sale': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['sales.Sale']", 'unique': 'True', 'null': 'True', 'blank': 'True'}),
-            'shipping_calculation': ('django.db.models.fields.SmallIntegerField', [], {})
-        },
-        u'sales.shippingcarrierservice': {
-            'Meta': {'object_name': 'ShippingCarrierService'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'sale': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['sales.Sale']"}),
-            'service': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['shippings.Service']"})
-        },
-        u'sales.shippingcustomrule': {
-            'Meta': {'object_name': 'ShippingCustomRule'},
-            'custom_shipping_rate': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['shippings.CustomShippingRate']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'sale': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['sales.Sale']"})
+            'sale': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['sales.Sale']", 'unique': 'True'}),
+            'shipping': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['shippings.Shipping']", 'unique': 'True'})
         },
         u'sales.shopsinsale': {
             'Meta': {'object_name': 'ShopsInSale'},
@@ -165,27 +123,14 @@ class Migration(SchemaMigration):
             'type_attribute': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['attributes.CommonAttribute']"}),
             'type_attribute_price': ('django.db.models.fields.FloatField', [], {})
         },
-        u'shippings.carrier': {
-            'Meta': {'object_name': 'Carrier'},
-            'flag': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
+        u'shippings.shipping': {
+            'Meta': {'object_name': 'Shipping'},
+            'allow_group_shipment': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'allow_pickup': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'handling_fee': ('django.db.models.fields.FloatField', [], {'null': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
-        },
-        u'shippings.customshippingrate': {
-            'Meta': {'object_name': 'CustomShippingRate'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'seller': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounts.Brand']"}),
-            'shipment_type': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
-            'shipping_rate': ('django.db.models.fields.FloatField', [], {}),
-            'total_order_lower': ('django.db.models.fields.FloatField', [], {}),
-            'total_order_type': ('django.db.models.fields.CharField', [], {'max_length': '2'}),
-            'total_order_upper': ('django.db.models.fields.FloatField', [], {})
-        },
-        u'shippings.service': {
-            'Meta': {'object_name': 'Service'},
-            'carrier': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'services'", 'to': u"orm['shippings.Carrier']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
+            'pickup_voids_handling_fee': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'shipping_calculation': ('django.db.models.fields.SmallIntegerField', [], {})
         },
         u'shops.shop': {
             'Meta': {'object_name': 'Shop'},

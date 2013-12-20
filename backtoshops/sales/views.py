@@ -47,15 +47,16 @@ from sales.models import ProductBrand
 from sales.models import ProductCurrency
 from sales.models import ProductPicture
 from sales.models import ProductType
-from sales.models import SC_CARRIER_SHIPPING_RATE
-from sales.models import SC_CUSTOM_SHIPPING_RATE
 from sales.models import STOCK_TYPE_DETAILED
 from sales.models import STOCK_TYPE_GLOBAL
 from sales.models import Sale
-from sales.models import Shipping
+from sales.models import ShippingInSale
 from sales.models import ShopsInSale
 from sales.models import TypeAttributePrice
 from shippings.forms import CustomShippingRateFormModel
+from shippings.models import SC_CARRIER_SHIPPING_RATE
+from shippings.models import SC_CUSTOM_SHIPPING_RATE
+from shippings.models import Shipping
 from shops.models import DefaultShipping
 from shops.models import Shop
 from stocks.models import ProductStock
@@ -376,24 +377,26 @@ def edit_sale(request, *args, **kwargs):
     }
 
     initial_shipping = {}
-    if hasattr(sale, 'shipping'):
+    if hasattr(sale, 'shippinginsale') and sale.shippinginsale:
+        shipping = sale.shippinginsale.shipping
         initial_shipping = {
-            'handling_fee': sale.shipping.handling_fee,
-            'allow_group_shipment': sale.shipping.allow_group_shipment,
-            'allow_pickup': sale.shipping.allow_pickup,
-            'pickup_voids_handling_fee': sale.shipping.pickup_voids_handling_fee,
-            'shipping_calculation': sale.shipping.shipping_calculation,
+            'handling_fee': shipping.handling_fee,
+            'allow_group_shipment': shipping.allow_group_shipment,
+            'allow_pickup': shipping.allow_pickup,
+            'pickup_voids_handling_fee': shipping.pickup_voids_handling_fee,
+            'shipping_calculation': shipping.shipping_calculation,
             'service': [],
             'custom_shipping_rate': [],
         }
 
-        if sale.shipping.shipping_calculation == SC_CARRIER_SHIPPING_RATE:
+        if shipping.shipping_calculation == SC_CARRIER_SHIPPING_RATE:
             initial_shipping.update({
-                'service': sale.shippingcarrierservice_set.all()
+                'service': shipping.serviceinshipping_set.all()
             })
-        if sale.shipping.shipping_calculation == SC_CUSTOM_SHIPPING_RATE:
+        if shipping.shipping_calculation == SC_CUSTOM_SHIPPING_RATE:
             initial_shipping.update({
-                'custom_shipping_rate': sale.shippingcustomrule_set.all()
+                'custom_shipping_rate':
+                    shipping.customshippingrateinshipping_set.all()
             })
 
     initials = {
@@ -461,8 +464,8 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         if self.edit_mode:
             sale = self.sale
             product = sale.product
-            if hasattr(sale, 'shipping'):
-                shipping = sale.shipping
+            if hasattr(sale, 'shippinginsale') and sale.shippinginsale:
+                shipping = sale.shippinginsale.shipping
             else:
                 shipping = Shipping()
         else:
@@ -568,50 +571,65 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         shipping.handling_fee = shipping_data['handling_fee']
         shipping.allow_group_shipment = shipping_data['allow_group_shipment']
         shipping.allow_pickup = shipping_data['allow_pickup']
-        shipping.pickup_voids_handling_fee = (shipping_data['allow_pickup'] and
-                                              shipping_data['pickup_voids_handling_fee'])
+        shipping.pickup_voids_handling_fee = (
+            shipping_data['allow_pickup'] and
+            shipping_data['pickup_voids_handling_fee'])
         shipping.shipping_calculation = shipping_data['shipping_calculation']
         shipping.save()
 
         if shipping_data['set_as_default_shop_shipping']:
             for shop in form_list[0].cleaned_data['shops']:
-                DefaultShipping.objects.create(shop=shop, sales_shipping=shipping).save()
+                DefaultShipping.objects.create(
+                    shop=shop, shipping=shipping
+                ).save()
 
-        sale.shipping = shipping
         if self.edit_mode:
             # Remove useless records.
             if int(shipping.shipping_calculation) != int(SC_CARRIER_SHIPPING_RATE):
-                sale.shippingcarrierservice_set.all().delete()
+                shipping.serviceinshipping_set.all().delete()
             if int(shipping.shipping_calculation) != int(SC_CUSTOM_SHIPPING_RATE):
-                sale.shippingcustomrule_set.all().delete()
+                shipping.customshippingrateinshipping_set.all().delete()
 
             # Merge records:
             if int(shipping.shipping_calculation) == int(SC_CARRIER_SHIPPING_RATE):
-                old_service_ids = set([scs.service.id for scs in sale.shippingcarrierservice_set.all()])
-                new_service_ids = set([service.id for service in shipping_data['service']])
+                old_service_ids = set([scs.service.id for scs in
+                                       shipping.serviceinshipping_set.all()])
+                new_service_ids = set([service.id for service in
+                                       shipping_data['service']])
 
                 for s_id in old_service_ids - new_service_ids:
-                    sale.shippingcarrierservice_set.get(sale=sale, service_id=s_id).delete()
+                    shipping.serviceinshipping_set.get(
+                        shipping=shipping, service_id=s_id
+                    ).delete()
                 for s_id in new_service_ids - old_service_ids:
-                    sale.shippingcarrierservice_set.create(sale=sale, service_id=s_id)
+                    shipping.serviceinshipping_set.create(
+                        shipping=shipping, service_id=s_id)
 
             if int(shipping.shipping_calculation) == int(SC_CUSTOM_SHIPPING_RATE):
-                old_rate_ids = set([scr.custom_shipping_rate.id for scr in sale.shippingcustomrule_set.all()])
-                new_rate_ids = set([csr.id for csr in shipping_data['custom_shipping_rate']])
+                old_rate_ids = set([csr.custom_shipping_rate.id for csr in
+                                    shipping.customshippingrateinshipping_set.all()])
+                new_rate_ids = set([csr.id for csr in
+                                    shipping_data['custom_shipping_rate']])
 
                 for c_id in old_rate_ids - new_rate_ids:
-                    sale.shippingcustomrule_set.get(sale=sale, custom_shipping_rate_id=c_id).delete()
+                    shipping.customshippingrateinshipping_set.get(
+                        shipping=shipping, custom_shipping_rate_id=c_id
+                    ).delete()
                 for c_id in new_rate_ids - old_rate_ids:
-                    sale.shippingcustomrule_set.create(sale=sale, custom_shipping_rate_id=c_id)
+                    shipping.customshippingrateinshipping_set.create(
+                        shipping=shipping, custom_shipping_rate_id=c_id)
         else:
             if int(shipping.shipping_calculation) == int(SC_CARRIER_SHIPPING_RATE):
                 for service in shipping_data['service']:
-                    sale.shippingcarrierservice_set.create(
-                        sale=sale, service=service)
+                    shipping.serviceinshipping_set.create(
+                        shipping=shipping, service=service)
             if int(shipping.shipping_calculation) == int(SC_CUSTOM_SHIPPING_RATE):
                 for shipping_rate in shipping_data['custom_shipping_rate']:
-                    sale.shippingcustomrule_set.create(
-                        sale=sale, shipping_rate=shipping_rate)
+                    shipping.customshippingrateinshipping_set.create(
+                        shipping=shipping, shipping_rate=shipping_rate)
+            sale.shippinginsale = ShippingInSale.objects.create(
+                sale=sale, shipping=shipping)
+
 
         target = form_list[4].cleaned_data
         sale.gender = target['gender']
