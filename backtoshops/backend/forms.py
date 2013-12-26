@@ -8,6 +8,7 @@ from accounts.models import Brand, UserProfile
 from sales.models import ProductCategory, ProductType
 from brandings.models import Branding
 from sales.models import ProductCurrency
+from sales.models import WeightUnit
 from globalsettings.models import GlobalSettings
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
@@ -126,6 +127,7 @@ class SASettingsForm(forms.Form):
     
     default_language = forms.ChoiceField(choices=[(k, _(v)) for k, v in settings.LANGUAGES], label=_('Default language'))
     default_currency = forms.ChoiceField(choices=[(s,s) for s in ProductCurrency.objects.all().values_list('code',flat=True)], label=_('Default currency'))
+    default_weight_unit = forms.ChoiceField(choices=[(s,s) for s in WeightUnit.objects.all().values_list('key',flat=True)], label=_('Default weight unit'))
     password = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
     username = forms.CharField(label=_('Administrator login'))
     email = forms.EmailField(label=_('Administrator e-mail'))

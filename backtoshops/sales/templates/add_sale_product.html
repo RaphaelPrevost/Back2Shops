@@ -51,11 +51,24 @@
             {{ wizard.form.description }}
         </div>
 
+        {{ wizard.form.weight.errors }}
+        {{ wizard.form.weight_unit.errors }}
+        <div class="formrow">
+            <label>{% trans "Weight" %}</label>
+            <span class="contForm">
+                <div id="add_weight_form">
+                    {{wizard.form.weight}}
+                    <span>{{wizard.form.weight_unit}}</span>
+                </div>
+            </span>
+        </div>
+
         {{ wizard.form.currency.errors }}
         <div class="formrow">
             <label for="{{ wizard.form.currency.auto_id }}">{% trans wizard.form.currency.label %}</label>
             <span>{{wizard.form.currency}}</span>
         </div>
+
 
         {{ wizard.form.normal_price.errors }}
         <div class="marge formrow">

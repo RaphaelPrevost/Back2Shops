@@ -19,6 +19,7 @@ from sales.models import Product
 from sales.models import ProductBrand
 from sales.models import ProductCategory
 from sales.models import ProductCurrency
+from sales.models import WeightUnit
 from shippings.models import CustomShippingRate
 from shippings.models import CustomShippingRateInShipping
 from shippings.models import SHIPPING_CALCULATION
@@ -205,6 +206,13 @@ class ProductForm(forms.Form):
     description = forms.CharField(
         label=_("Description"),
         widget=forms.Textarea())
+    weight_unit = forms.ModelChoiceField(
+        label=_("Weight Unit"),
+        queryset=WeightUnit.objects.all())
+    weight = forms.FloatField(
+        required=False,
+        initial=0,
+        widget=forms.TextInput(attrs={'class': 'inputS'}))
     normal_price = forms.FloatField(
         widget=forms.HiddenInput(),
         error_messages={'required': _(u'The Unified price is required')})

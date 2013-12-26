@@ -44,6 +44,11 @@
                 <label for="{{ form.default_currency.auto_id }}">{% trans form.default_currency.label %}</label>
                 {{ form.default_currency }}
             </div>
+            {{ form.default_weight_unit.errors }}
+            <div class="formrow">
+                <label for="{{ form.default_weight_unit.auto_id }}">{% trans form.default_weight_unit.label %}</label>
+                {{ form.default_weight_unit}}
+            </div>
             <hr />
             {{ form.username.errors }}
             <div class="formrow">
