@@ -53,6 +53,7 @@ from sales.models import Sale
 from sales.models import ShippingInSale
 from sales.models import ShopsInSale
 from sales.models import TypeAttributePrice
+from sales.models import WeightUnit
 from shippings.forms import CustomShippingRateFormModel
 from shippings.models import SC_CARRIER_SHIPPING_RATE
 from shippings.models import SC_CUSTOM_SHIPPING_RATE
@@ -261,6 +262,7 @@ def add_sale(request, *args, **kwargs):
 
     initial_product = {
         'currency': ProductCurrency.objects.get(code=get_setting('default_currency')),
+        'weight_unit': WeightUnit.objects.get(key=get_setting('default_weight_unit')),
         'category': None,
     }
 
@@ -338,6 +340,8 @@ def edit_sale(request, *args, **kwargs):
         'category': sale.product.category.pk,
         'name': sale.product.name,
         'description': sale.product.description,
+        'weight_unit': sale.product.weight_unit,
+        'weight': sale.product.weight,
         'valid_from': sale.product.valid_from,
         'valid_to': sale.product.valid_to,
         'normal_price': sale.product.normal_price,
@@ -500,6 +504,8 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         product.category = product_form['category']
         product.name = product_form['name']
         product.description = product_form['description']
+        product.weight_unit = product_form['weight_unit']
+        product.weight = product_form['weight']
         product.valid_from = product_form['valid_from'] or date.today()
         product.valid_to = product_form['valid_to']
         product.normal_price = product_form['normal_price']

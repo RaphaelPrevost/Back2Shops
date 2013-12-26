@@ -2,7 +2,8 @@ from django.db import models
 
 SETTING_KEY_CHOICES = (
                        ('default_language','default language'),
-                       ('default_currency','default currency')
+                       ('default_currency','default currency'),
+                       ('default_weight_unit','default weight unit'),
                        )
 
 # Create your models here.

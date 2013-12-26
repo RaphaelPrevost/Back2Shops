@@ -6,6 +6,7 @@ from sorl.thumbnail import ImageField
 
 from accounts.models import Brand
 from common.cache_invalidation import post_delete_handler
+from globalsettings import get_setting
 from shippings.models import Shipping
 from shops.models import Shop
 
@@ -58,6 +59,8 @@ class Product(models.Model):
     currency = models.ForeignKey("ProductCurrency",blank=False)
     name = models.CharField(max_length=50)
     description = models.TextField(max_length=500)
+    weight_unit = models.ForeignKey("WeightUnit",blank=False,default=get_setting('default_weight_unit'))
+    weight = models.FloatField(null=True, default=0)
     normal_price = models.FloatField()
     discount_type = models.CharField(choices=DISCOUNT_TYPE, max_length=10,
                                      blank=False, null=True)
@@ -123,3 +126,14 @@ def on_sale_deleted(sender, **kwargs):
 class ShippingInSale(models.Model):
     sale = models.OneToOneField(Sale)
     shipping = models.OneToOneField(Shipping)
+
+ITEM_WEIGHT_CHOICES = (('kg', 'Kilogram'),
+                       ('g', 'Gram'),
+                       ('lb', 'Pound'),
+                       ('oz', 'Ounce'))
+class WeightUnit(models.Model):
+    key = models.CharField(max_length=2,primary_key=True,choices=ITEM_WEIGHT_CHOICES)
+    description = models.CharField(max_length=200, null=True)
+
+    def __unicode__(self):
+        return self.key

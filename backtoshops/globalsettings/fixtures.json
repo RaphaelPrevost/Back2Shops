@@ -1,1 +1,4 @@
-[{"pk": "default_currency", "model": "globalsettings.globalsettings", "fields": {"value": "EUR"}}, {"pk": "default_language", "model": "globalsettings.globalsettings", "fields": {"value": "en"}}]
+[{"pk": "default_currency", "model": "globalsettings.globalsettings", "fields": {"value": "EUR"}},
+ {"pk": "default_language", "model": "globalsettings.globalsettings", "fields": {"value": "en"}},
+ {"pk": "default_weight_unit", "model": "globalsettings.globalsettings", "fields": {"value": "kg"}}
+]
