@@ -175,7 +175,6 @@ class BrandAttributeForm(forms.Form):
     name = forms.CharField(widget=forms.HiddenInput())
     premium_type = forms.CharField(widget=forms.HiddenInput(), required=False)
     premium_amount = forms.FloatField(widget=forms.HiddenInput(), required=False)
-    premium_price = forms.FloatField(widget=forms.HiddenInput(), required=False)
     texture = forms.CharField(widget=forms.HiddenInput(), required=False)
     # texture_thumb = forms.CharField(widget=forms.HiddenInput())
     # preview_pk = forms.IntegerField(widget=forms.HiddenInput())
@@ -215,18 +214,22 @@ class ProductForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'inputS'}))
     normal_price = forms.FloatField(
         widget=forms.HiddenInput(),
-        error_messages={'required': _(u'The Unified price is required')})
+        required=False)
     currency = forms.ModelChoiceField(
         label=_("Currency"),
         queryset=ProductCurrency.objects.all())
-    discount_price = forms.FloatField(
-        required=False,
-        widget=forms.TextInput(
-            attrs={'class': 'inputXS', 'style': 'display: none;'}))
     discount_type = forms.ChoiceField(required=False, choices=DISCOUNT_TYPE)
     discount = forms.FloatField(
         required=False,
         widget=forms.TextInput(attrs={'class': 'inputXS'}))
+    preview_discount_price_str = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={'class': 'inputXS', 'style': 'display: none;'}))
+    preview_base_price = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={'class': 'inputXS', 'style': 'display: none;'}))
     valid_from = forms.DateField(
         required=False,
         label=_("From"),
@@ -283,6 +286,16 @@ class ProductForm(forms.Form):
             raise forms.ValidationError(
                 _("Expiration date can not be set before today."))
         return valid_to
+
+    def clean_normal_price(self):
+        valid_taps = [tap for tap in self.type_attribute_prices.cleaned_data
+                      if not tap['DELETE']]
+        normal_price = self.cleaned_data.get('normal_price', None)
+        if not valid_taps and not normal_price:
+            raise forms.ValidationError(_(
+                'You must enter a Unified price, or enter a price for at '
+                'least one type of item.'))
+        return normal_price
 
 
 class BarcodeForm(forms.Form):

@@ -4,6 +4,7 @@
 {% load static %}
 {% load get_ta_name %}
 {% load get_cur_name %}
+{% load calc_premium_price %}
 
 {#Form to add product#}
 
@@ -85,6 +86,8 @@
                     <a id="add_tap" href="#">{% trans "Add" %}</a>
                 </div>
 
+            {{ wizard.form.preview_base_price }}
+
             {{ wizard.form.normal_price }}
             {% if wizard.form.normal_price.value %}
                 <span class="normal_price_form">
@@ -113,11 +116,10 @@
         {{ wizard.form.discount.errors }}
         {{ wizard.form.discount_type.errors }}
         <div class="marge formrow">
-            {{ wizard.form.discount_price.errors }}
             <label for="prixBTS">{% trans "BackToShops Price" %}</label>
             <span class="contForm" id="newPrice">
                 {{ wizard.form.discount_type }}
-                {{ wizard.form.discount_price }}
+                {{ wizard.form.preview_discount_price_str }}
                 <span class="raw">></span>{{ wizard.form.discount }}<span id="discount_marker" class="discount_marker">%</span>
                 <span id="result">{% trans "Discounted price" %} : <strong id="discount_price">{% trans "N/A" %}</strong> <strong id="id_discount_price_marker">&nbsp;</strong></span>
             </span>
@@ -165,10 +167,13 @@
                     {{ f.preview_pk }}
                     {{ f.premium_type }}
                     {{ f.premium_amount }}
-                    {{ f.premium_price }}
                     <input style="display: none;" type="checkbox" name="{{ f.DELETE.html_name }}" id="{{ f.DELETE.auto_id }}" {% if f.DELETE.value == "on" %}checked="checked"{% endif %}>
                     <span id="{{ f.prefix }}-name" class="brand_attribute_name">{{ f.name.value }}</span>
-                    <span id="{{ f.prefix }}-premium">{{ f.premium_price.value }}</span>
+                    <span id="{{ f.prefix }}-premium">
+                        {% if wizard.form.normal_price.value %}
+                            {% calc_premium_price f.premium_type.value f.premium_amount.value wizard.form.normal_price.value %}
+                        {% endif %}
+                    </span>
                     {% if f.texture.value %}
                     <img class="classtext" role="button" src="{{ f.texture.value }}"/>
                     {% else %}
@@ -199,7 +204,6 @@
             {{ wizard.form.brand_attributes.empty_form.preview_pk }}
             {{ wizard.form.brand_attributes.empty_form.premium_type }}
             {{ wizard.form.brand_attributes.empty_form.premium_amount }}
-            {{ wizard.form.brand_attributes.empty_form.premium_price }}
             <input style="display: none;" type="checkbox" name="{{ wizard.form.brand_attributes.empty_form.DELETE.html_name }}" id="{{ wizard.form.brand_attributes.empty_form.DELETE.auto_id }}">
             <span id="{{ wizard.form.brand_attributes.empty_form.prefix }}-name" class="brand_attribute_name"></span>
             <span class="brand_attributes-premium" id="{{ wizard.form.brand_attributes.empty_form.prefix }}-premium"></span>
@@ -449,7 +453,12 @@
             return false;
         },
         select: function(event, ui) {
-            _updateData({name: ui.item.name, ba_pk: ui.item.value, premium_type: ui.item.premium_type, premium_amount: ui.item.premium_amount, premium_price: ui.item.premium_price, texture_pk: ui.item.value, type_pk: 'exist'});
+            _updateData({name: ui.item.name,
+                         ba_pk: ui.item.value,
+                         premium_type: ui.item.premium_type,
+                         premium_amount: ui.item.premium_amount,
+                         texture_pk: ui.item.value,
+                         type_pk: 'exist'});
             $(this).val(ui.item.name);
             $(this).siblings("#premium_amount").val(ui.item.premium_amount);
             $(this).siblings("#premium_type").val(ui.item.premium_type);
@@ -461,7 +470,10 @@
     });
 
     $("#ba").change(function(){
-        _updateData({name: $("#ba_input").val(), premium_type:$("#premium_type").val(), premium_amount:$("#premium_amount").val(), premium_price:$("#premium_price_val").val(), ba_pk: -1})
+        _updateData({name: $("#ba_input").val(),
+                     premium_type:$("#premium_type").val(),
+                     premium_amount:$("#premium_amount").val(),
+                     ba_pk: -1})
     });
 
     $("#add_ba").click(function(e) {
@@ -473,7 +485,6 @@
         _updateData({name: $("#ba_input").val(),
                      premium_type:$("#premium_type").val(),
                      premium_amount:$("#premium_amount").val(),
-                     premium_price:$("#premium_price_val").val(),
                      ba_pk: -1});
         var nb_of_forms = $("#{{ wizard.form.brand_attributes.management_form.TOTAL_FORMS.auto_id }}").val();
         var form = $("#brand_attribute_template_form").html();
@@ -483,7 +494,6 @@
         var span_name = "#{{ wizard.form.brand_attributes.empty_form.prefix }}-name".replace(/__prefix__/g, nb_of_forms.toString());
         var premium_type = "#{{ wizard.form.brand_attributes.empty_form.premium_type.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
         var premium_amount = "#{{ wizard.form.brand_attributes.empty_form.premium_amount.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
-        var premium_price = "#{{ wizard.form.brand_attributes.empty_form.premium_price.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
         var span_premium_price = "#{{ wizard.form.brand_attributes.empty_form.prefix }}-premium".replace(/__prefix__/g, nb_of_forms.toString());
         var texture = "#{{ wizard.form.brand_attributes.empty_form.texture.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
         var preview = "#{{ wizard.form.brand_attributes.empty_form.preview.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
@@ -526,7 +536,6 @@
                     $(span_name).html($("#ba_input").val());
                     $(premium_type).val($("#premium_type").val());
                     $(premium_amount).val($("#premium_amount").val());
-                    $(premium_price).val($("#premium_price_val").val());
                     $(span_premium_price).html($("#premium_price").html());
                     nb_of_forms++;
                     $("#{{ wizard.form.brand_attributes.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
@@ -587,55 +596,94 @@
 
 
     /********************** Discount ***********************/
+    function _is_use_item_type_price() {
+        return ($("span.normal_price_form:visible").length < 1 &&
+                    $("span.type_attribute_price_form:visible").length > 0);
+    }
+
+    function _get_lowest_type_attribute_price() {
+        var ta_prices = new Array();
+        $("span.type_attribute_price_form:visible").each(function(){
+            ta_prices.push(parseFloat($(this).find(".type_attribute_price").text()));
+        });
+        return ta_prices.length > 1 ? Math.min.apply(Math, ta_prices) : Math.min(ta_prices);
+    }
+    function _calc_discount_price(discount_type, discount, base_price) {
+        if (discount_type == "percentage") { //percentage
+            var tmp = base_price - (base_price * (discount / 100))
+            return Math.round(tmp*100 +((tmp*1000%10>4)?1:0))/100;
+        } else {
+            return base_price - discount;
+        }
+    }
+    function _calc_premium_price(premium_type, premium_amount, price) {
+        if (premium_type == "percentage") { //percentage
+            var tmp = price + (price * (premium_amount / 100))
+            return Math.round(tmp*100 +((tmp*1000%10>4)?1:0))/100;
+        } else {
+            return price + premium_amount;
+        }
+    }
     function calcDiscount() {
-        var normal_price = parseFloat($("#{{ wizard.form.normal_price.auto_id }}").val());
+        var use_item_type_price = _is_use_item_type_price();
+
         var discount = parseFloat($("#{{ wizard.form.discount.auto_id }}").val());
         if (isNaN(discount)) discount = 0;
         var discount_type = $("#{{ wizard.form.discount_type.auto_id }}").val();
-        var new_price;
-        var premium_type = $("#premium_type").val();
-        var premium_amount = parseFloat($("#premium_amount").val());
-        var premium_price;
 
-        if (discount_type == "percentage") { //percentage
-            var tmp = normal_price - (normal_price * (discount / 100))
-            new_price = Math.round(tmp*100 +((tmp*1000%10>4)?1:0))/100;
-            $("#discount_marker").html("%");
-        } else {
-            new_price = normal_price - discount;
-            $("#discount_marker").html($("#{{wizard.form.currency.auto_id}} option:selected").text());
-        }
+        var discount_price_str_input = $("#{{ wizard.form.preview_discount_price_str.auto_id }}");
+        var base_price_input = $("#{{ wizard.form.preview_base_price.auto_id }}");
+        var discount_preview = $("#preview-{{ wizard.form.preview_discount_price_str.auto_id }}");
+        var base_price_preview = $("#preview-{{ wizard.form.preview_base_price.auto_id }}");
 
-        if (premium_type == "percentage") { //percentage
-            var tmp = new_price + (new_price * (premium_amount / 100))
-               premium_price = Math.round(tmp*100 +((tmp*1000%10>4)?1:0))/100;
-            $("#premium_marker").html("%");
-        } else {
-            premium_price = new_price + premium_amount;
-            $("#premium_marker").html($("#{{wizard.form.currency.auto_id}} option:selected").text());
-        }
+        var selected_cur = $("#{{wizard.form.currency.auto_id}} option:selected").text();
+        $("#discount_marker").html(discount_type == "percentage" ? "%": selected_cur);
 
-        if (new_price > 0) {
-            $("#{{ wizard.form.discount_price.auto_id }}").val(parseFloat(new_price));
-            $("#discount_price").html(new_price);
-            $("#preview-{{ wizard.form.discount_price.auto_id }}").html(new_price+$("#{{wizard.form.currency.auto_id}} option:selected").text());
-        } else {
-            $("#{{ wizard.form.discount_price.auto_id }}").val(normal_price);
-            $("#discount_price").html(normal_price);
-            $("#preview-{{ wizard.form.discount_price.auto_id }}").html(normal_price);
-        }
+        if (use_item_type_price) {
+            var lowest_type_attribute_price = _get_lowest_type_attribute_price();
+            var start_price = _calc_discount_price(discount_type, discount, lowest_type_attribute_price);
 
-        if (premium_price > 0) {
-            $("#premium_price_val").val(parseFloat(premium_price));
-            $("#premium_price").html(parseFloat(premium_price));
+            // disable discount and premiums preview if there is no Unified price.
+            $("span#result").hide();
+            $("span#premium_result").hide();
+
+            // preview start price on the right-preview.
+            var display_discount_price = "{% trans "Starting at " %}"
+                    + (start_price > 0 ? start_price : lowest_type_attribute_price);
+            base_price_input.val(lowest_type_attribute_price);
+            base_price_preview.html(lowest_type_attribute_price + selected_cur);
+            discount_price_str_input.val(display_discount_price);
+            discount_preview.html(display_discount_price + selected_cur);
         } else {
-            if (new_price > 0) {
-                $("#premium_price_val").val(parseFloat(new_price));
-                $("#premium_price").html(new_price);
-            }
-            else {
-                $("#premium_price_val").val("");
-                $("#premium_price").html("{% trans "N/A" %}");
+            var normal_price = parseFloat($("#{{ wizard.form.normal_price.auto_id }}").val());
+            var new_price = _calc_discount_price(discount_type, discount, normal_price);
+            var premium_type = $("#premium_type").val();
+            var premium_amount = parseFloat($("#premium_amount").val());
+            var premium_price = _calc_premium_price(premium_type, premium_amount, new_price);
+            $("#premium_marker").html(discount_type == "percentage" ? "%": selected_cur);
+
+            $("span#result").show();
+            $("span#premium_result").show();
+
+            var display_price = new_price > 0 ? new_price : normal_price;
+            $("#discount_price").html(display_price);
+            base_price_input.val(normal_price);
+            base_price_preview.html(normal_price + selected_cur);
+            discount_price_str_input.val(display_price);
+            discount_preview.html(display_price + selected_cur);
+
+            if (premium_price > 0) {
+                $("#premium_price_val").val(parseFloat(premium_price));
+                $("#premium_price").html(parseFloat(premium_price));
+            } else {
+                if (new_price > 0) {
+                    $("#premium_price_val").val(parseFloat(new_price));
+                    $("#premium_price").html(new_price);
+                }
+                else {
+                    $("#premium_price_val").val("");
+                    $("#premium_price").html("{% trans "N/A" %}");
+                }
             }
         }
     }
@@ -665,22 +713,19 @@
     function updateProductPreview(elmt) {
         var name = $("#{{ wizard.form.name.auto_id }}").val();
         var description = $("#{{ wizard.form.description.auto_id }}").val();
-        var discount_price = $("#{{ wizard.form.discount_price.auto_id }}").val();
-        var normal_price = $("#{{ wizard.form.normal_price.auto_id }}").val();
+        var valid_to = $("#{{ wizard.form.valid_to.auto_id }}").val();
         var discount = $("#{{ wizard.form.discount.auto_id }}").val();
         var discount_type = $("#{{ wizard.form.discount_type.auto_id }}").val();
-        if (discount_type == "percentage") {
-            discount += "%";
-        } else {
-            discount += $("#{{wizard.form.currency.auto_id}} option:selected").text();
-        }
-        var valid_to = $("#{{ wizard.form.valid_to.auto_id }}").val();
+        var selected_cur = $("#{{wizard.form.currency.auto_id}} option:selected").text();
+        var discount_price = $("#{{ wizard.form.preview_discount_price_str.auto_id }}").val();
+        var base_price = $("#{{ wizard.form.preview_base_price.auto_id }}").val();
+
         $("#preview-{{ wizard.form.name.auto_id }}").html(name);
         $("#preview-{{ wizard.form.description.auto_id }}").html(description);
-        $("#preview-{{ wizard.form.discount_price.auto_id }}").html(discount_price+$("#{{wizard.form.currency.auto_id}} option:selected").text());
-        $("#preview-{{ wizard.form.normal_price.auto_id }}").html(normal_price+$("#{{wizard.form.currency.auto_id}} option:selected").text());
-        $("#preview-{{ wizard.form.discount.auto_id }}").html(discount);
         $("#preview-{{ wizard.form.valid_to.auto_id }}").html(valid_to||"N/A");
+        $("#preview-{{ wizard.form.discount.auto_id }}").html(discount + (discount_type == "percentage" ? "%" : selected_cur));
+        $("#preview-{{ wizard.form.preview_discount_price_str.auto_id }}").html(discount_price + selected_cur);
+        $("#preview-{{ wizard.form.preview_base_price.auto_id }}").html(base_price + selected_cur);
     }
 
 
@@ -721,7 +766,7 @@
         // TYPE ATTRIBUTE PRICE
         {% with wizard.form.type_attribute_prices.empty_form as tap_empty %}
         // this type attribute price has been added.
-        if ($("#type_attribute_prices span.type_attribute_value:[data-value="+select_ta+"]").length > 0) {
+        if ($("#type_attribute_prices type_attribute_price_form:visible span.type_attribute_value:[data-value="+select_ta+"]").length > 0) {
             alert("The price of \"" + select_ta_name + "\" has been added!");
             return false;
         }
@@ -752,15 +797,26 @@
         nb_of_forms++;
         $("#{{ wizard.form.type_attribute_prices.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
 
+        // Remove normal price option and input
+        $("#type_attribute_selector option[value=0]").remove();
+        $("span.normal_price_form").remove();
+        $("#{{ wizard.form.normal_price.auto_id }}").val("").change();
+
         return false;
     });
 
     $("span.remove_type_attribute_price").live("click", function(){
         $(this).siblings("input:checkbox[id*=DELETE]").prop("checked", true);
         $(this).parent().hide();
+        // Reappear normal price option
+        if ($("span.type_attribute_price_form:visible").length < 1 &&
+                $("#type_attribute_selector option[value=0]").length < 1) {
+            $("#type_attribute_selector").prepend($("<option>", {value: 0, text: "{% trans "Unified price" %}"}));
+        }
+        calcDiscount();
     });
     $("span.remove_normal_price").live("click", function(){
-        $("#{{ wizard.form.normal_price.auto_id }}").val("");
+        $("#{{ wizard.form.normal_price.auto_id }}").val("").change();
         $(this).parent().remove();
     });
 
@@ -800,7 +856,10 @@
                 dataType:"json",
                 success: function(data, textStatus){
                     $("#type_attribute_selector").empty();
-                    $("#type_attribute_selector").append($("<option>", {value: 0, text: "{% trans "Unified price" %}"}));
+                    if ($("span.type_attribute_price_form:visible").length < 1 &&
+                            $("#type_attribute_selector option[value=0]").length < 1) {
+                        $("#type_attribute_selector").prepend($("<option>", {value: 0, text: "{% trans "Unified price" %}"}));
+                    }
                     $.each(data, function(i, option){
                         $("#type_attribute_selector").append($("<option>", {value: option.value, text: option.label}));
                     });

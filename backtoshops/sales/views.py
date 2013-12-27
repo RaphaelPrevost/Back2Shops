@@ -323,7 +323,6 @@ def edit_sale(request, *args, **kwargs):
             'preview_pk': bap.preview.pk if bap.preview else None,
             'premium_type': i.premium_type,
             'premium_amount': i.premium_amount,
-            'premium_price': i.premium_price
         })
 
     type_attribute_prices = []
@@ -347,7 +346,6 @@ def edit_sale(request, *args, **kwargs):
         'normal_price': sale.product.normal_price,
         'currency': sale.product.currency,
         'discount': sale.product.discount,
-        'discount_price': sale.product.discount_price,
         'discount_type': sale.product.discount_type,
         'brand_attributes': brand_attributes,
         'pictures': pictures,
@@ -511,11 +509,9 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         product.normal_price = product_form['normal_price']
         product.currency = product_form['currency']
         product.discount = product_form['discount']
-        product.discount_price = product_form['discount_price']
         product.discount_type = \
             product.discount and product_form['discount_type'] or None
         product.save()
-
 
         brand_attributes = form_list[1].brand_attributes
         ba_pks = []
@@ -624,6 +620,9 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 for c_id in new_rate_ids - old_rate_ids:
                     shipping.customshippingrateinshipping_set.create(
                         shipping=shipping, custom_shipping_rate_id=c_id)
+            if not hasattr(sale, 'shippinginsale') or not sale.shippinginsale:
+                sale.shippinginsale = ShippingInSale.objects.create(
+                    sale=sale, shipping=shipping)
         else:
             if int(shipping.shipping_calculation) == int(SC_CARRIER_SHIPPING_RATE):
                 for service in shipping_data['service']:
@@ -635,7 +634,6 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                         shipping=shipping, shipping_rate=shipping_rate)
             sale.shippinginsale = ShippingInSale.objects.create(
                 sale=sale, shipping=shipping)
-
 
         target = form_list[4].cleaned_data
         sale.gender = target['gender']
@@ -742,7 +740,8 @@ class SaleWizardNew(NamedUrlSessionWizardView):
 
     def _render_preview(self, step):
         context = {
-            'context': self.get_form(step, self.storage.get_step_data(step), self.storage.get_step_files(step))
+            'context': self.get_form(step, self.storage.get_step_data(step),
+                                     self.storage.get_step_files(step))
         }
         if step == self.STEP_PRODUCT:
             if context['context'].is_valid():

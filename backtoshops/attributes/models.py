@@ -16,7 +16,6 @@ class BrandAttribute(models.Model):
     texture = ImageField(null=True, upload_to="product_pictures")
     premium_type = models.CharField(choices=DISCOUNT_TYPE, max_length=10, blank=True, verbose_name=_('type of premium price'),null=True)
     premium_amount = models.FloatField(verbose_name=_('amount of premium'),null=True)
-    premium_price = models.FloatField(verbose_name=_('final price after premium'),null=True)
 
     def __unicode__(self):
         return self.name
