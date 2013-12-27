@@ -62,6 +62,7 @@ class CustomShippingRate(models.Model):
     shipping_rate = models.FloatField(verbose_name='Set shipping rate to')
 
     def __unicode__(self):
+
         t_type = dict(SHIPPING_TOTAL_ORDER_TYPE
                     ).get(self.total_order_type).lower()
         #TODO: the weight unit shoule be implemented in #63.
@@ -80,3 +81,8 @@ class ServiceInShipping(models.Model):
 class CustomShippingRateInShipping(models.Model):
     shipping = models.ForeignKey(Shipping)
     custom_shipping_rate = models.ForeignKey(CustomShippingRate)
+
+
+class FlatRateInShipping(models.Model):
+    shipping = models.ForeignKey(Shipping)
+    flat_rate = models.FloatField(blank=True, null=True)
