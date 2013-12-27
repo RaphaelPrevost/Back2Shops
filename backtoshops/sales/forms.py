@@ -441,3 +441,8 @@ class ShippingForm(forms.Form):
             queryset=CustomShippingRate.objects.filter(seller=mother_brand),
             widget=ShippingCustomRuleCheckboxSelectMultiple()
         )
+
+        self.fields['flat_rate'] = forms.FloatField(
+            label=_('Flat rate'),
+            widget=forms.TextInput(attrs={'class': 'inputM'}),
+            required=False)

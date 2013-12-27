@@ -66,6 +66,12 @@
                     </div>
                 </div>
 
+                {{ wizard.form.flat_rate.errors }}
+                <div id="flat-rate">
+                    {{ wizard.form.flat_rate }}
+                    <span class="handling_fee_currency">{{ currency }}</span>
+                </div>
+
                 {{ wizard.form.custom_shipping_rate.errors }}
                 <div id="custom-shipping-rates">
                     <div class="custom-shipping-rates-checkboxes">
@@ -211,6 +217,18 @@
         }
     }
 
+    function toggle_flat_rate() {
+        var flat_rate_radio = $("input[id^={{ wizard.form.shipping_calculation.auto_id }}][value=2]");
+        if (flat_rate_radio.prop("checked")) {
+            if (flat_rate_radio.parents("li:first").find("#flat-rate").length > 0) {
+                $("#flat-rate").show();
+            } else {
+                $("#flat-rate").show().appendTo(flat_rate_radio.parents("li:first"));
+            }
+        } else {
+            $("#flat-rate").hide();
+        }
+    }
 
     /****************** save as shop default shipping **********************/
     $("#save-as-shop-default-shipping").click(function(){
@@ -235,9 +253,11 @@
     $("input[name={{ wizard.form.shipping_calculation.html_name }}]").change(function(){
         toggle_carriers();
         toggle_custom_shipping_rates();
+        toggle_flat_rate();
     });
     toggle_pickup_voids_handling_fee_input();
     toggle_carriers();
     toggle_custom_shipping_rates();
+    toggle_flat_rate();
 </script>
 {% endblock %}

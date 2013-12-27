@@ -1217,10 +1217,15 @@ div.add-new-csr-dialog p.between input {
     width: 50px;
 }
 
+#main_form div#flat-rate,
 #main_form div#custom-shipping-rates {
     clear: both;
     display: none;
     margin-bottom: 20px;
+}
+
+#main_form div#flat-rate {
+    padding-left: 55px;
 }
 
 #main_form div#custom-shipping-rates li {
@@ -1294,3 +1299,4 @@ div.add-new-csr-dialog p.between input {
     padding: auto;
     font-size: 12px;
 }
+

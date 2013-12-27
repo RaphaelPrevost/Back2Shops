@@ -57,7 +57,9 @@ from sales.models import WeightUnit
 from shippings.forms import CustomShippingRateFormModel
 from shippings.models import SC_CARRIER_SHIPPING_RATE
 from shippings.models import SC_CUSTOM_SHIPPING_RATE
+from shippings.models import SC_FLAT_RATE
 from shippings.models import Shipping
+from shippings.models import FlatRateInShipping
 from shops.models import DefaultShipping
 from shops.models import Shop
 from stocks.models import ProductStock
@@ -400,6 +402,12 @@ def edit_sale(request, *args, **kwargs):
                 'custom_shipping_rate':
                     shipping.customshippingrateinshipping_set.all()
             })
+        if shipping.shipping_calculation == SC_FLAT_RATE:
+            fr_shipping = FlatRateInShipping.objects.filter(shipping=shipping)
+            if fr_shipping:
+                initial_shipping.update({
+                    'flat_rate': fr_shipping[0].flat_rate
+                })
 
     initials = {
         SaleWizardNew.STEP_SHOP: initial_shop,
@@ -591,6 +599,8 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 shipping.serviceinshipping_set.all().delete()
             if int(shipping.shipping_calculation) != int(SC_CUSTOM_SHIPPING_RATE):
                 shipping.customshippingrateinshipping_set.all().delete()
+            if int(shipping.shipping_calculation) != int(SC_FLAT_RATE):
+                FlatRateInShipping.objects.filter(shipping=shipping).delete()
 
             # Merge records:
             if int(shipping.shipping_calculation) == int(SC_CARRIER_SHIPPING_RATE):
@@ -620,6 +630,12 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 for c_id in new_rate_ids - old_rate_ids:
                     shipping.customshippingrateinshipping_set.create(
                         shipping=shipping, custom_shipping_rate_id=c_id)
+
+            if int(shipping.shipping_calculation) == int(SC_FLAT_RATE):
+                fr_shipping, _  = FlatRateInShipping.objects.get_or_create(shipping=shipping)
+                fr_shipping.flat_rate = shipping_data['flat_rate']
+                fr_shipping.save()
+
             if not hasattr(sale, 'shippinginsale') or not sale.shippinginsale:
                 sale.shippinginsale = ShippingInSale.objects.create(
                     sale=sale, shipping=shipping)
@@ -631,7 +647,10 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             if int(shipping.shipping_calculation) == int(SC_CUSTOM_SHIPPING_RATE):
                 for shipping_rate in shipping_data['custom_shipping_rate']:
                     shipping.customshippingrateinshipping_set.create(
-                        shipping=shipping, shipping_rate=shipping_rate)
+                        shipping=shipping, custom_shipping_rate=shipping_rate)
+            if int(shipping.shipping_calculation) == int(SC_FLAT_RATE):
+                FlatRateInShipping.objects.create(
+                    shipping=shipping, flat_rate=shipping_data['flat_rate'])
             sale.shippinginsale = ShippingInSale.objects.create(
                 sale=sale, shipping=shipping)
 
