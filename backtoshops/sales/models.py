@@ -29,7 +29,6 @@ DISCOUNT_TYPE = (
 )
 
 
-
 class Sale(models.Model):
     direct_sale = models.BooleanField(default=False)
     mother_brand = models.ForeignKey(Brand, related_name="sales", on_delete=models.DO_NOTHING)
@@ -61,11 +60,10 @@ class Product(models.Model):
     description = models.TextField(max_length=500)
     weight_unit = models.ForeignKey("WeightUnit",blank=False,default=get_setting('default_weight_unit'))
     weight = models.FloatField(null=True, default=0)
-    normal_price = models.FloatField()
+    normal_price = models.FloatField(null=True)
     discount_type = models.CharField(choices=DISCOUNT_TYPE, max_length=10,
                                      blank=False, null=True)
     discount = models.FloatField(null=True)
-    discount_price = models.FloatField(null=True)
     valid_from = models.DateField()
     valid_to = models.DateField(null=True)
     #brand_attributes = models.ManyToManyField("attributes.BrandAttribute", through="attributes.BrandAttributePreview")

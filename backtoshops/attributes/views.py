@@ -18,7 +18,9 @@ class BrandAttributeView(LoginRequiredMixin, View, TemplateResponseMixin):
         term = request.GET.get('term', None)
         if not term:
             return HttpResponse(json.dumps(''))
-        attrs = BrandAttribute.objects.filter(mother_brand=request.user.get_profile().work_for).filter(name__icontains=term)
+        attrs = BrandAttribute.objects.filter(
+            mother_brand=request.user.get_profile().work_for
+        ).filter(name__icontains=term)
         ret_json = []
         t = loader.get_template("_brand_attribute_list_item.html")
         for attr in attrs:
@@ -28,7 +30,6 @@ class BrandAttributeView(LoginRequiredMixin, View, TemplateResponseMixin):
                 'label': t.render(c),
                 'premium_type': attr.premium_type,
                 'premium_amount': attr.premium_amount,
-                'premium_price':attr.premium_price,
                 'name': attr.name,
                 'texture': get_thumbnail(attr.texture, "15x15").url if attr.texture else None
             })
@@ -45,10 +46,6 @@ class BrandAttributeView(LoginRequiredMixin, View, TemplateResponseMixin):
             premium_amount = request.POST.get('premium_amount',None)
         except:
             premium_amount = None
-        try:
-            premium_price = request.POST.get('premium_price',None)
-        except:
-            premium_price = None
         texture = request.FILES.get('texture_file', None)
         preview_pk = request.POST.get('preview_pk', None)
 
@@ -63,7 +60,6 @@ class BrandAttributeView(LoginRequiredMixin, View, TemplateResponseMixin):
         if name: ba.name = name
         if premium_type: ba.premium_type = premium_type
         if premium_amount: ba.premium_amount = premium_amount
-        if premium_price: ba.premium_price = premium_price
         if texture: ba.texture = texture
         ba.save()
         pk = ba.pk
@@ -71,11 +67,17 @@ class BrandAttributeView(LoginRequiredMixin, View, TemplateResponseMixin):
         texture_thumb = None
         if ba.texture:
             texture_thumb = get_thumbnail(ba.texture, "15x15").url
-        to_ret.update({'pk': pk, 'success': success, 'premium_type':premium_type,'premium_amount':premium_amount, 'premium_price': premium_price, 'texture_thumb': texture_thumb})
+        to_ret.update({'pk': pk,
+                       'success': success,
+                       'premium_type': premium_type,
+                       'premium_amount': premium_amount,
+                       'texture_thumb': texture_thumb})
 
         if preview_pk:
             p = ProductPicture.objects.get(pk=preview_pk)
-            to_ret.update({'preview_thumb': get_thumbnail(p.picture, "39x43").url, 'preview_pk': p.pk})
+            to_ret.update({
+                'preview_thumb': get_thumbnail(p.picture, "39x43").url,
+                'preview_pk': p.pk})
             p.brand_attribute = ba
             p.save()
 
