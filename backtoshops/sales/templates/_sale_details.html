@@ -4,11 +4,9 @@
 <!--ENSEMBLE EN DETAIL-->
 <div class="detail">
     <h3>{{ sale.product.name }}</h3>
-    <em>{% trans "From" %} {{ sale.product.valid_from }} {% trans "To" %}
+    <em>
         {% if sale.product.valid_to %}
-            {{ sale.product.valid_to }}
-        {% else %}
-            {% trans "Permanent" %}
+            {% trans "From" %} {{ sale.product.valid_from }} {% trans "To" %} {{ sale.product.valid_to }}
         {% endif %}
     </em>
     <span>{% trans "Total" %} : </span>

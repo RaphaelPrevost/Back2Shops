@@ -36,13 +36,14 @@
                     {% trans "N/A" %}
                 {% endif %}&euro;
             </em>
-            <span>{% trans "Offer valid until" %}
-                <strong id="preview-{{ wizard.form.valid_to.auto_id }}">
-                    {% if context and context.valid_to.value %}
-                        {{ context.valid_to.value }}
-                    {% else %}
-                        {% trans "N/A" %}
+            <span
+                    {% if not context or not context.valid_to.value %}
+                        style="display: none"
                     {% endif %}
+                    >
+                {% trans "Offer valid until" %}
+                <strong id="preview-{{ wizard.form.valid_to.auto_id }}">
+                        {{ context.valid_to.value }}
                 </strong>
             </span>
         </p>

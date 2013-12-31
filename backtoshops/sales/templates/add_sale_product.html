@@ -722,7 +722,11 @@
 
         $("#preview-{{ wizard.form.name.auto_id }}").html(name);
         $("#preview-{{ wizard.form.description.auto_id }}").html(description);
-        $("#preview-{{ wizard.form.valid_to.auto_id }}").html(valid_to||"N/A");
+        if (valid_to) {
+            $("#preview-{{ wizard.form.valid_to.auto_id }}").html(valid_to).parents("span:first").show();
+        } else {
+            $("#preview-{{ wizard.form.valid_to.auto_id }}").html("").parents("span:first").hide();
+        }
         $("#preview-{{ wizard.form.discount.auto_id }}").html(discount + (discount_type == "percentage" ? "%" : selected_cur));
         $("#preview-{{ wizard.form.preview_discount_price_str.auto_id }}").html(discount_price + selected_cur);
         $("#preview-{{ wizard.form.preview_base_price.auto_id }}").html(base_price + selected_cur);
@@ -910,7 +914,7 @@
     $("#{{ wizard.form.valid_from.auto_id }}").datepicker();
     $("#{{ wizard.form.valid_to.auto_id }}").datepicker({
         onSelect: function(dateText, inst) {
-            $("#preview-{{ wizard.form.valid_to.auto_id }}").html(dateText);
+            $("#preview-{{ wizard.form.valid_to.auto_id }}").html(dateText).parents("span:first").show();
         }
     });
 </script>
