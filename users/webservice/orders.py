@@ -88,13 +88,14 @@ class OrderResource(BaseResource):
 
 
     def _wwwOrder(self, req, resp, conn):
-        """ wwwOrder: an urlencoded json array of { "id_sale": xxx, "id_variant": xxx, "quantity": xxx } tuples
+        """ wwwOrder: an urlencoded json array:
+        [{ "id_sale": xxx, "id_variant": xxx, "quantity": xxx, 'id_shop': xxx},
+         { "id_sale": xxx, "id_variant": xxx, "quantity": xxx, 'id_shop': xxx}]
         """
-        params = urlparse.parse_qs(req.query_string)
-        wwwOrder = params.get('wwwOrder', [])
+        wwwOrder = req.get_param('wwwOrder', '[]')
+        wwwOrder = ujson.loads(wwwOrder)
         order_items = []
-        for item in wwwOrder:
-            order_item = ujson.loads(item)
+        for order_item in wwwOrder:
             self._wwwOrderValidCheck(conn, order_item)
             order_items.append(order_item)
         return self._createWWWOrder(conn, req, resp, order_items)
@@ -135,6 +136,7 @@ class OrderResource(BaseResource):
         return {'id_sale': id_sale,
                 'id_variant': id_variant,
                 'quantity': quantity,
+                'id_shop': id_shop,
                 'barcode': barcode}
 
     def _wwwOrderValidCheck(self, conn, order):

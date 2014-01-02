@@ -6,6 +6,7 @@ from mechanize import Cookie
 
 import settings
 from common.constants import RESP_RESULT
+from B2SUtils.db_utils import init_db_pool
 
 class BaseBrowser(Browser):
     def get_cookies(self, host='localhost.local', path='/'):
@@ -15,7 +16,7 @@ class BaseBrowser(Browser):
         self._ua_handlers['_cookies'].cookiejar.clear()
 
     def set_cookies(self, cookies, domain='localhost.local', path='/'):
-        """  
+        """
         1. Set the cookies for this browser. The argument 'cookies' is better
         be a dict whose keys and values are strings like:
         browser.set_cookies({'key1': 'value2', 'key2': 'value2'})
@@ -85,6 +86,7 @@ class UsersBrowser(BaseBrowser):
 
 class BaseTestCase(unittest.TestCase):
     def setUp(self):
+        init_db_pool(settings.DATABASE)
         self.b = UsersBrowser()
 
     def register(self, email, password, browser=None):

@@ -17,6 +17,7 @@ DATABASE = {
 CENTRAL_REDIS = {
     'HOST': 'localhost',
     'PORT': 6379,
+    'TEST_PORT': 6279
 }
 SALES_SERVER_API_URL = "http://localhost:8000/webservice/1.0/%(api)s"
 
@@ -50,3 +51,4 @@ PUB_KEY_PATH = 'static/keys/usr_pub.key'
 STATIC_ORDERS_IMG_PATH = 'static/orders_img/'
 
 ORDERS_QUERY_LIMIT = 100
+RUNNING_TEST = False

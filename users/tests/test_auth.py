@@ -1,6 +1,4 @@
-import Cookie
 import datetime
-import urllib2
 
 import settings
 from common.test_utils import BaseTestCase
