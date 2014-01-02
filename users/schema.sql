@@ -95,7 +95,7 @@ CREATE TABLE order_items (
     id_variant BIGINT,
     price double precision NOT NULL,
     name character varying(150) NOT NULL,
-    picture character varying(100),
+    picture character varying(200),
     description character varying(128),
     copy_time timestamp without time zone DEFAULT now() NOT NULL,
     barcode character varying(50)
@@ -123,7 +123,7 @@ CREATE TABLE shipping_list (
     id_item BIGINT REFERENCES order_items(id),
     id_shipment BIGINT REFERENCES shipments(id),
     quantity INTEGER NOT NULL,
-    picture character varying(100)
+    picture character varying(200)
 );
 
 CREATE TABLE currency (
@@ -188,7 +188,7 @@ CREATE TABLE return_items (
     id_return BIGINT REFERENCES returns(id),
     id_item BIGINT REFERENCES order_items(id),
     quantity INTEGER NOT NULL,
-    picture character varying(100),
+    picture character varying(200),
     message character varying(300)
 );
 

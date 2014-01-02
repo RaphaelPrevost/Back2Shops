@@ -3,6 +3,7 @@ monkey.patch_all()
 import gevent_psycopg2
 gevent_psycopg2.monkey_patch()
 
+import argparse
 import falcon
 import gevent
 from gevent.pywsgi import WSGIServer
@@ -29,6 +30,14 @@ gevent.spawn(import_sales_list)
 gevent.spawn(import_shops_list)
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='User Server',
+                                     add_help=False)
+    parser.add_argument('--test', action='store_true', default=False)
+    args = parser.parse_args()
+    settings.RUNNING_TEST = args.test
+    if settings.RUNNING_TEST:
+        print 'Start server for running test ...'
+
     import logging
     logging.info('user server start on port %s' % settings.SERVER_PORT)
 

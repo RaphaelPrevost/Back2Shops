@@ -7,8 +7,13 @@ class RedisConnPool(object):
     def __new__(cls):
         if not cls._pool:
             redis_config = settings.CENTRAL_REDIS
+            if settings.RUNNING_TEST:
+                port = redis_config['TEST_PORT']
+            else:
+                port = redis_config['PORT']
+
             cls._pool = redis.ConnectionPool(host=redis_config['HOST'],
-                                             port=redis_config['PORT'])
+                                             port=port)
         return cls._pool
 
 

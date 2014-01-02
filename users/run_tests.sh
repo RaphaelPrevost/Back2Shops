@@ -10,7 +10,24 @@ if [ "$PID" != "" ]; then
     exit 1
 fi
 
-python server.py > /dev/null 2>&1 &
+function waiting()
+{
+    sec=$1
+    msg=$2
+    while [ $sec -gt 0 ]
+    do
+      sec=`expr $sec - 1`
+      echo $msg $sec
+      sleep 1
+    done
+}
+
+bash start_redis.sh --test
+waiting 3 'Waiting for redis server ...'
+
+python server.py --test > /dev/null 2>&1 &
+waiting 3 'Waiting for user server loading data ...'
+
 python -m unittest discover -s tests -p test_*.py -v
 
 get_pid && kill $PID

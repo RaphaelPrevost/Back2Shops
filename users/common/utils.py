@@ -38,6 +38,16 @@ def generate_random_str(length=10):
     times = length / len(population) + 1
     return ''.join(random.sample(population * times, length))
 
+def generate_random_digits_str(length=10, none_zero_start=True):
+    if none_zero_start:
+        l = length - 1
+    population = string.digits
+    times = length / len(population) + 1
+    r = ''.join(random.sample(population * times, length))
+    if none_zero_start:
+        r = random.sample(population[1:], 1)[0] + r
+    return r
+
 def hashfn(algorithm, text):
     # Retrieves the appropriate hash function
     if algorithm not in HASH_ALGORITHM_NAME:
@@ -328,6 +338,10 @@ def order_img_download(img_path):
             f.write(img_content)
             f.close()
         return save_path
+    except urllib2.URLError, e:
+        if settings.RUNNING_TEST:
+            return ''
+        raise
     except Exception, e:
         logging.error("Failed down load order's img: %s, err: %s",
                       img_path, e, exc_info=True)
