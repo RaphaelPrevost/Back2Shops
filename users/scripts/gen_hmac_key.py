@@ -3,10 +3,8 @@ import os
 from datetime import datetime
 
 import settings
-from common.log import setupLogging
 from B2SUtils import db_utils
 
-setupLogging()
 
 def main():
     size = settings.HMAC_KEY_SIZE

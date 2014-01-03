@@ -10,6 +10,10 @@ if [ "$PID" != "" ]; then
     exit 1
 fi
 
+if [ ! -f 'hmac.pem' ]; then
+    python scripts/gen_hmac_key.py
+fi
+
 function waiting()
 {
     sec=$1
