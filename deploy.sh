@@ -290,6 +290,9 @@ function setup_usr() {
     # start redis
     bash start_redis.sh
 
+    # generate HMAC key
+    python scripts/gen_hmac_key.py
+
     # start server
     nohup python server.py &
 }
