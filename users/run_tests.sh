@@ -35,3 +35,5 @@ waiting 3 'Waiting for user server loading data ...'
 python -m unittest discover -s tests -p test_*.py -v
 
 get_pid && kill $PID
+redis-cli -p 6279 shutdown
+svn revert central-redis-6279.rdb

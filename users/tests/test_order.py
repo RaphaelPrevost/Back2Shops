@@ -132,10 +132,10 @@ class TestOrder(BaseTestCase):
         # test wwwOrder items in unique shop.
         # order:
         wwwOrder = [
-            {'id_sale': 1, 'id_variant': 1, 'quantity': 5, 'id_shop': 1},
-            {'id_sale': 1, 'id_variant': 2, 'quantity': 6, 'id_shop': 1},
-            {'id_sale': 2, 'id_variant': 3, 'quantity': 7, 'id_shop': 1},
-            {'id_sale': 2, 'id_variant': 4, 'quantity': 8, 'id_shop': 1}
+            {'id_sale': 1000001, 'id_variant': 1000001, 'quantity': 5, 'id_shop': 1000001},
+            {'id_sale': 1000001, 'id_variant': 1000002, 'quantity': 6, 'id_shop': 1000001},
+            {'id_sale': 1000002, 'id_variant': 1000003, 'quantity': 7, 'id_shop': 1000001},
+            {'id_sale': 1000002, 'id_variant': 1000004, 'quantity': 8, 'id_shop': 1000001}
         ]
         self.success_wwwOrder(telephone, shipaddr, billaddr, wwwOrder)
 
@@ -164,10 +164,10 @@ class TestOrder(BaseTestCase):
         # test wwwOrder items in unique shop.
         # order:
         wwwOrder = [
-            {'id_sale': 1, 'id_variant': 1, 'quantity': 5, 'id_shop': 1},
-            {'id_sale': 1, 'id_variant': 2, 'quantity': 6, 'id_shop': 1},
-            {'id_sale': 3, 'id_variant': 5, 'quantity': 7, 'id_shop': 2},
-            {'id_sale': 3, 'id_variant': 6, 'quantity': 8, 'id_shop': 2}
+            {'id_sale': 1000001, 'id_variant': 1000001, 'quantity': 5, 'id_shop': 1000001},
+            {'id_sale': 1000001, 'id_variant': 1000002, 'quantity': 6, 'id_shop': 1000001},
+            {'id_sale': 1000003, 'id_variant': 1000005, 'quantity': 7, 'id_shop': 1000002},
+            {'id_sale': 1000003, 'id_variant': 1000006, 'quantity': 8, 'id_shop': 1000002}
         ]
         self.success_wwwOrder(telephone, shipaddr, billaddr, wwwOrder)
 
@@ -196,10 +196,10 @@ class TestOrder(BaseTestCase):
         # test wwwOrder items in unique shop.
         # order:
         wwwOrder = [
-            {'id_sale': 1, 'id_variant': 1, 'quantity': 5, 'id_shop': 1},
-            {'id_sale': 1, 'id_variant': 2, 'quantity': 6, 'id_shop': 1},
-            {'id_sale': 4, 'id_variant': 7, 'quantity': 7, 'id_shop': 3},
-            {'id_sale': 4, 'id_variant': 8, 'quantity': 8, 'id_shop': 3}
+            {'id_sale': 1000001, 'id_variant': 1000001, 'quantity': 5, 'id_shop': 1000001},
+            {'id_sale': 1000001, 'id_variant': 1000002, 'quantity': 6, 'id_shop': 1000001},
+            {'id_sale': 1000004, 'id_variant': 1000007, 'quantity': 7, 'id_shop': 1000003},
+            {'id_sale': 1000004, 'id_variant': 1000008, 'quantity': 8, 'id_shop': 1000003}
         ]
         self.success_wwwOrder(telephone, shipaddr, billaddr, wwwOrder)
 

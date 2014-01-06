@@ -25,9 +25,12 @@ app = api = falcon.API(before=[parse_form_params])
 for url, res in urlpatterns.iteritems():
     api.add_route(url, res())
 
-init_db_pool(settings.DATABASE)
-gevent.spawn(import_sales_list)
-gevent.spawn(import_shops_list)
+def init_db():
+    init_db_pool(settings.DATABASE)
+
+def load_redis_data():
+    gevent.spawn(import_sales_list)
+    gevent.spawn(import_shops_list)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='User Server',
@@ -37,6 +40,10 @@ if __name__ == '__main__':
     settings.RUNNING_TEST = args.test
     if settings.RUNNING_TEST:
         print 'Start server for running test ...'
+    else:
+        load_redis_data()
+
+    init_db()
 
     import logging
     logging.info('user server start on port %s' % settings.SERVER_PORT)
