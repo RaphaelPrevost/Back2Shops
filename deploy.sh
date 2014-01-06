@@ -291,7 +291,7 @@ function setup_usr() {
     bash start_redis.sh
 
     # generate HMAC key
-    python scripts/gen_hmac_key.py
+    PYTHONPATH=$CWD/users_src python scripts/gen_hmac_key.py
 
     # start server
     nohup python server.py &
