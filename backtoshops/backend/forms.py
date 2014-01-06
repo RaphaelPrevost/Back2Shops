@@ -9,6 +9,7 @@ from sales.models import ProductCategory, ProductType
 from brandings.models import Branding
 from sales.models import ProductCurrency
 from sales.models import WeightUnit
+from shippings.models import Carrier
 from globalsettings.models import GlobalSettings
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
@@ -113,6 +114,13 @@ class SAAttributeForm(forms.ModelForm):
     
     class Meta:
         model = ProductType
+
+class SACarrierForm(forms.ModelForm):
+    error_css_class = 'error'
+    required_css_class = 'required'
+
+    class Meta:
+        model = Carrier
 
 class SABrandingForm(forms.ModelForm):
     error_css_class = 'error'

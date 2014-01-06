@@ -28,4 +28,11 @@ urlpatterns = patterns(settings.get_site_prefix()+'backend',
     url(r'brandings/(?P<pk>\d+)/edit/(?P<page>\d+)$', EditBrandingView.as_view()),
     url(r'brandings/(?P<pk>\d+)/delete/$', DeleteBrandingView.as_view(), name='sa_delete_branding'),
     url(r'settings/$', settings_view, name='sa_settings' ),
+
+    url(r'carriers/$', CreateCarrierView.as_view(), name='sa_carriers'),
+    url(r'carriers/(?P<page>\d+)$', CreateCarrierView.as_view()),
+    url(r'carriers/(?P<pk>\d+)/edit/$', EditCarrierView.as_view(), name='sa_edit_carrier'),
+    url(r'carriers/(?P<pk>\d+)/edit/(?P<page>\d+)$', EditCarrierView.as_view()),
+    url(r'carriers/(?P<pk>\d+)/delete/$', DeleteCarrierView.as_view(), name='sa_delete_carrier'),
+
 )

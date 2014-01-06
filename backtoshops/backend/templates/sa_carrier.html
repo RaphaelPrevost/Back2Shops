@@ -1,0 +1,207 @@
+{% extends "sa_base.html" %}
+{% load i18n %}
+
+{% block title %}
+{% if pk %}
+{% trans "Edit a carrier" %}
+{% else %}
+{% trans "Add a new carrier" %}
+{% endif %}
+{% endblock %}
+
+{% block head %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+	<link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/admin_carrier.css" />
+{% endblock %}
+
+{% block navigation %}
+    {% include "sa_quick_nav.html" %}
+{% endblock %}
+
+{% block content %}
+<!--content-left-->
+<div id="content_Left">
+
+    <!--Title-->
+    <div id="title">
+        <span>{% trans "Carriers" %}</span>
+        <h2>{% trans "Carriers" %}</h2>
+    </div>
+
+    <!--FORM-->
+    {% if pk %}
+    <form id="main_form" method="post" action="{% url 'sa_edit_carrier' pk %}" enctype="multipart/form-data">{% csrf_token %}
+    {% else %}
+    <form id="main_form" method="post" action="{% url 'sa_carriers' %}" enctype="multipart/form-data">{% csrf_token %}
+    {% endif %}
+    {% if pk %}
+        <h3>{% trans "Edit a carrier" %}</h3>
+    {% else %}
+        <h3>{% trans "Add a new carrier" %}</h3>
+    {% endif %}
+
+        <fieldset>
+            {{ form.name.errors }}
+            <div class="formrow">
+                <label for="{{form.name.auto_id}}">{% trans "Carrier Name" %}</label>
+                {{ form.name }}
+            </div>
+            {{ form.flag.errors }}
+            <div class="formrow">
+                <label for="{{form.flag.auto_id}}">{% trans "Carrier Flag" %}</label>
+                {{ form.flag }}
+            </div>
+        </fieldset>
+        <!--BOUTONS-->
+
+        <fieldset id="subform">
+
+
+			<h3>{% trans "Carrier Services" %}</h3>
+			<div>{{ formset.management_form }}</div>
+
+            <div class="add_subform">
+				<div class="formrow">
+					<label for="new_service_name">{% trans "Service name" %}</label>
+					<input type="text" id="new_service_name" />
+					<input type="button" id="add_service" value="{% trans "Add" %}" />
+				</div>
+            </div>
+        {% for subform in formset.forms %}
+            <div class="formrow">
+                <label for="{{subform.name.auto_id}}">{% trans "Service name" %}</label>
+                {{ subform.id }}{{ subform.name }}
+                <input type="button" class="del_service" value="{% trans "Delete" %}" />
+                <input style="display: none;" type="checkbox" name="{{subform.DELETE.html_name}}" id="{{subform.DELETE.auto_id}}" />
+            </div>
+        {% endfor %}
+        </fieldset>
+        <input class="btn valider" type="submit" value="{% trans 'Save' %}"/>
+        <button type="reset" class="btn annuler">{% trans "Cancel" %}</button>
+    </form>
+    <!--FIN FORM-->
+    <div id="add_service_form" style="display:none;">
+        <div class="formrow">
+            <label for="{{ formset.empty_form.name.auto_id }}">{% trans formset.empty_form.name.label %}</label>
+            {{ formset.empty_form.id }}{{ formset.empty_form.name }}
+            <input style="display: none;" type="checkbox" name="{{formset.empty_form.DELETE.html_name}}" id="{{formset.empty_form.DELETE.auto_id}}" />
+            <input type="button" class="del_service" value="{% trans "Delete" %}" />
+        </div>
+    </div>
+</div>
+<!--FIN content-left-->
+
+<!--content-right-->
+<div id="content_Right">
+    <!--Liste-carriers-->
+    <h4 class="titleRight">{% trans "Carriers" %}</h4>
+    <div class="boxRight listeRight" id="listeCarrier">
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <th class="nom on"><a href="#">{% trans "Name" %}</a></th>
+                <th class="action"><a href="#">{% trans "Actions" %}</a></th>
+            </tr>
+            {% for carrier in page.object_list %}
+            <tr id="carrier_{{ carrier.pk }}"><!-- class=new -->
+                <td><a href="{% url 'sa_edit_carrier' carrier.pk %}">{{ carrier.name }}</a></td>
+                <td><a class="modif" href="{% url 'sa_edit_carrier' carrier.pk %}">edit</a><a class="out delete_carrier" href="{% url 'sa_delete_carrier' carrier.pk %}">delete</a></td>
+            </tr>
+            {% empty %}
+            <tr class="noshop">
+                <td colspan="2">{% trans "The carriers list is empty." %}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% if page.paginator.num_pages > 1 %}
+        <div class="pag_nav">
+            <span class="page_info">
+                {% blocktrans with number=page.number num_pages=page.paginator.num_pages %}
+                Page <input type="text" value="{{ number }}" id="page_num"> of {{ num_pages }} pages.
+                {% endblocktrans %}
+            </span>
+            <span class="page_size">
+                {% trans '(' %}
+                <select id="page_size" name="page_size">
+                {% for page_size in choice_page_size %}
+                    <option value="{{ page_size }}" {% if current_page_size == page_size %}selected="selected"{% endif %}>{{ page_size }}</option>
+                {% endfor %}
+                </select>
+                {% trans ' elements/page )' %}
+            </span>
+            <div class="page_ico">
+                <a href="1" class="pagination prev2">|<</a>
+                <a href="{{ prev_10 }}" class="pagination prev1"><</a>
+                {% for page_num in page_nav %}
+                {% if page.number != page_num %}<a href="{{ page_num }}" class="pagination">{{ page_num }}</a>
+				{% else %}<span class="pagination current">{{ page_num }}</span>{% endif %}
+                {% endfor %}
+                <a href="{{ next_10 }}" class="pagination next1">></a>
+                <a href="{{ page.paginator.num_pages }}" class="pagination next2">>|</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <!--//Liste-carriers-->
+    <a class="btn ajouter" href="{% url 'sa_carriers' %}">{% trans "Add a new carrier" %}</a>
+</div>
+<!--FIN content-right-->
+<div class="clear"></div>
+{% endblock %}
+
+{% block javascript %}
+
+<script type="text/javascript">
+$(document).ready(function(){
+    $(".delete_carrier").click(function() {
+            if(confirm('{% trans "Are your sure you want to delete this carrier?" %}')) {
+                $.post(this.href, function(data){
+                    $("#carrier_"+data.carrier_pk).remove();
+                    if(data.carrier_pk == "{% firstof pk "0" %}") {
+                        location.replace("{% url 'sa_carriers' %}");
+                    }
+                });
+            }
+            return false;
+    });
+    //set page size
+    $("#page_size").change(function(event){
+        location.href = location.pathname+'?page_size='+$(this).val();
+    });
+
+    //go specific page by input
+    $("#page_num").keypress(function(event){
+        if(event.which == 13){ //'enter' key
+            var page_num = $(this).val();
+            if(!isNaN(page_num)&&parseInt(page_num)==page_num)
+                location.href = page_num;
+            else
+                alert("{% trans "Please enter a valid page number." %}");
+        }
+    });
+
+    //adding new subform
+    $("#add_service").click(function(){
+        if (! $('#new_service_name').val()) return;
+        var new_subform = $("#add_service_form").html();
+        var total_forms = $("#{{ formset.management_form.TOTAL_FORMS.auto_id }}").val();
+        var new_name = $('#new_service_name').val();
+        new_subform = new_subform.replace(/__prefix__/g,total_forms.toString());
+        $('#new_service_name').val('');
+        $("#subform").append(new_subform);
+        $('#{{formset.empty_form.name.auto_id}}'.replace(/__prefix__/g,total_forms.toString())).val(new_name);
+        total_forms++;
+        $("#{{ formset.management_form.TOTAL_FORMS.auto_id }}").val(total_forms);
+    });
+
+    //deleting subform
+    $(".del_service").live("click", function(){
+        if(confirm('{% trans "Are your sure you want to delete this service?" %}')) {
+            $(this).parent().hide();
+            $(this).siblings("input[type='checkbox']").attr('checked','checked');
+        }
+    });
+
+});
+</script>
+
+{% endblock %}
