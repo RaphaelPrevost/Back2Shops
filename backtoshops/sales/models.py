@@ -58,7 +58,7 @@ class Product(models.Model):
     currency = models.ForeignKey("ProductCurrency",blank=False)
     name = models.CharField(max_length=50)
     description = models.TextField(max_length=500)
-    weight_unit = models.ForeignKey("WeightUnit",blank=False,default=get_setting('default_weight_unit'))
+    weight_unit = models.ForeignKey("WeightUnit",blank=False,default='kg')
     weight = models.FloatField(null=True, default=0)
     normal_price = models.FloatField(null=True)
     discount_type = models.CharField(choices=DISCOUNT_TYPE, max_length=10,
