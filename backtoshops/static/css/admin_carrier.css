@@ -1,0 +1,32 @@
+/*------------------------------*/
+/*  Ajouter une nouvelle vente  */
+/*------------------------------*/
+
+#menu_ico li a.link5 { background-color: #565656; }
+#title span { background-position: 0 -475px; }
+
+
+#main_form #subform { position: relative; margin-top: 10px; }
+#main_form #subform h3 { top: 1px; left: 1px; }
+#main_form .formrow label { width: 105px; }
+
+#main_form .formrow #add_service {
+    display: block;
+    width: 22px; height: 22px;
+    line-height: 12px;
+    margin-left: 5px; padding: 1px;
+    overflow: hidden; text-indent: -1500px;
+    border: 1px solid #E3E3E3;
+    cursor: pointer;
+	background: url(../img/btn_navForm.png) no-repeat -303px 0;
+}
+#main_form .formrow .del_service {
+    display: block;
+    width: 22px; height: 22px;
+    line-height: 12px;
+    margin-left: 5px; padding: 1px;
+    overflow: hidden; text-indent: -1500px;
+    border: 1px solid #E3E3E3;
+    cursor: pointer;
+	background: url(../img/btn_navForm.png) no-repeat -303px -120px;
+}

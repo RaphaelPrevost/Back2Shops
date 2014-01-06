@@ -13,6 +13,7 @@ from django.forms.models import inlineformset_factory
 from accounts.models import Brand, UserProfile
 from attributes.models import CommonAttribute
 from sales.models import ProductCategory, ProductType
+from shippings.models import Carrier, Service
 from globalsettings.models import GlobalSettings
 from brandings.models import Branding
 from globalsettings import get_setting
@@ -231,11 +232,12 @@ def ajax_user_search(request):
         
     return render_to_response('ajax/user_search.html', {'users':users,}, mimetype='text/html')
 
+
 class BaseCategoryView(SARequiredMixin):
     template_name = "sa_category.html"
     form_class = forms.SACategoryForm
     model = ProductCategory
-    
+
 class CreateCategoryView(BaseCategoryView, CreateView):
     def get_success_url(self):
         return reverse('sa_categories')
@@ -251,7 +253,66 @@ class DeleteCategoryView(BaseCategoryView, DeleteView):
         self.object.delete()
         return HttpResponse(content=json.dumps({"category_pk": self.kwargs.get('pk', None)}),
                             mimetype="application/json")
-        
+
+
+class BaseCarrierView(SARequiredMixin):
+    template_name = "sa_carrier.html"
+    form_class = forms.SACarrierForm
+    model = Carrier
+    formset = inlineformset_factory(Carrier, Service, extra=0)
+
+    def get_context_data(self, **kwargs):
+        kwargs.update({"formset": self.formset,})
+        return super(BaseCarrierView, self).get_context_data(**kwargs)
+
+class CreateCarrierView(BaseCarrierView, CreateView):
+    def get_success_url(self):
+        return reverse('sa_carriers')
+
+    def post(self, request, *args, **kwargs):
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            carrier=form.save(commit=False)
+            formset = self.formset(data=self.request.POST, instance=carrier)
+            if formset.is_valid():
+                form.save(commit=True)
+                formset.save()
+                return self.form_valid(form)
+        return self.form_invalid(form)
+
+class EditCarrierView(BaseCarrierView, UpdateView):
+    def get_success_url(self):
+        pk = self.kwargs.get('pk', None)
+        return reverse("sa_edit_carrier",args=[pk])
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        formset = inlineformset_factory(Carrier, Service, extra=0)
+        self.formset = formset(instance = self.get_object())
+        return super(BaseCarrierView,self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            carrier=form.save(commit=False)
+            formset = self.formset(data=self.request.POST, instance=carrier)
+            if formset.is_valid():
+                form.save(commit=True)
+                formset.save()
+                return self.form_valid(form)
+        return self.form_invalid(form)
+
+class DeleteCarrierView(BaseCarrierView, DeleteView):
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.delete()
+        return HttpResponse(content=json.dumps({"carrier_pk": self.kwargs.get('pk', None)}),
+                            mimetype="application/json")
+
 class BaseAttributeView(SARequiredMixin):
     template_name = "sa_attribute.html"
     form_class = forms.SAAttributeForm
