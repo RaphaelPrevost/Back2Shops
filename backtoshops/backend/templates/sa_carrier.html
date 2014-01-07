@@ -44,22 +44,27 @@
             {{ form.name.errors }}
             <div class="formrow">
                 <label for="{{form.name.auto_id}}">{% trans "Carrier Name" %}</label>
-                {{ form.name }}
+                {% if form.flag.value %}
+                    <span>{{ form.name.value }}</span>
+                {% else %}
+                    {{ form.name }}
+                {% endif %}
             </div>
-            {{ form.flag.errors }}
-            <div class="formrow">
-                <label for="{{form.flag.auto_id}}">{% trans "Carrier Flag" %}</label>
-                {{ form.flag }}
-            </div>
+            {% if form.flag.value %}
+                {{ form.flag.errors }}
+                <div class="formrow">
+                    <label for="{{form.flag.auto_id}}">{% trans "Carrier Flag" %}</label>
+                    <span>{{ form.flag.value }}</span>
+                </div>
+            {% endif %}
         </fieldset>
         <!--BOUTONS-->
 
         <fieldset id="subform">
-
-
 			<h3>{% trans "Carrier Services" %}</h3>
 			<div>{{ formset.management_form }}</div>
 
+            {% if not form.flag.value %}
             <div class="add_subform">
 				<div class="formrow">
 					<label for="new_service_name">{% trans "Service name" %}</label>
@@ -67,16 +72,25 @@
 					<input type="button" id="add_service" value="{% trans "Add" %}" />
 				</div>
             </div>
+            {% endif %}
         {% for subform in formset.forms %}
             <div class="formrow">
                 <label for="{{subform.name.auto_id}}">{% trans "Service name" %}</label>
-                {{ subform.id }}{{ subform.name }}
-                <input type="button" class="del_service" value="{% trans "Delete" %}" />
-                <input style="display: none;" type="checkbox" name="{{subform.DELETE.html_name}}" id="{{subform.DELETE.auto_id}}" />
+                {% if form.flag.value %}
+                    <span>{{ subform.name.value }}</span>
+                {% else %}
+                    {{ subform.id }}{{ subform.name }}
+                    <input type="button" class="del_service" value="{% trans "Delete" %}" />
+                    <input style="display: none;" type="checkbox" name="{{subform.DELETE.html_name}}" id="{{subform.DELETE.auto_id}}" />
+                {% endif %}
             </div>
         {% endfor %}
         </fieldset>
-        <input class="btn valider" type="submit" value="{% trans 'Save' %}"/>
+        {% if form.flag.value %}
+            <input class="btn valider" type="button" disabled='disabled' value="{% trans 'Not Editable' %}"/>
+        {% else %}
+            <input class="btn valider" type="submit" value="{% trans 'Save' %}"/>
+        {% endif %}
         <button type="reset" class="btn annuler">{% trans "Cancel" %}</button>
     </form>
     <!--FIN FORM-->
