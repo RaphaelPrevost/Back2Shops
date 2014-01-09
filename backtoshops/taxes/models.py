@@ -16,6 +16,7 @@ class Rate(models.Model):
     apply_after = models.IntegerField(null=True, blank=True)
     enabled = models.BooleanField()
     display_on_front = models.NullBooleanField(null=True, blank=True)
+    taxable = models.NullBooleanField(null=True, blank=True)
 
     def __unicode__(self):
         return '%s - %s - %s%%' % (self.name, self.region, self.rate)

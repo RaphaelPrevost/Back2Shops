@@ -468,5 +468,5 @@ class DeleteTaxView(BaseTaxView, DeleteView):
     def delete(self, request, *args, **kwargs):
         self.object.delete()
         return HttpResponse(
-            content=json.dumps({"rate_pk": self.object.pk}),
+            content=json.dumps({"rate_pk": self.kwargs.get('pk', None)}),
             mimetype="application/json")

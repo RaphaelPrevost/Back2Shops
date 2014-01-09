@@ -203,22 +203,11 @@ class SATaxForm(forms.ModelForm):
     class Meta:
         model = Rate
         widgets = {
-            'region': forms.Select(
-                attrs={'onChange': 'getStates(this.value, "tax_region");'
-                                   'getRatesList4ApplyAfter();'}),
-            'province': forms.Select(
-                attrs={'onChange': 'getRatesList4ApplyAfter();'}
-            ),
-            'shipping_to_region': forms.Select(
-                attrs={'onChange': 'toggleDisplayOnFront(this.value);'
-                                   'getStates(this.value, "");'
-                                   'getRatesList4ApplyAfter();'}
-            ),
-            'shipping_to_province': forms.Select(
-                attrs={'onChange': 'getRatesList4ApplyAfter();'}
-            ),
+            'province': forms.Select,
+            'shipping_to_province': forms.Select,
             'apply_after': forms.Select,
             'display_on_front': forms.CheckboxInput,
+            'taxable': forms.CheckboxInput,
         }
 
     def __init__(self, *args, **kwargs):
@@ -229,4 +218,6 @@ class SATaxForm(forms.ModelForm):
     def clean(self):
         if self.cleaned_data['shipping_to_region']:
             self.cleaned_data['display_on_front'] = None
+        if self.cleaned_data['applies_to']:
+            self.cleaned_data['taxable'] = None
         return self.cleaned_data
