@@ -1,0 +1,297 @@
+{% extends "sa_base.html" %}
+{% load i18n %}
+
+{% block title %}
+{% if pk %}
+{% trans "Edit a tax rate" %}
+{% else %}
+{% trans "Add a new tax rate" %}
+{% endif %}
+{% endblock %}
+
+{% block head %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/admin_tax.css" />
+{% endblock %}
+
+{% block navigation %}
+    {% include "sa_quick_nav.html" %}
+{% endblock %}
+
+{% block content %}
+<!--content-left-->
+<div id="content_Left">
+
+    <!--Title-->
+    <div id="title">
+        <span>{% trans "Tax Rates" %}</span>
+        <h2>{% trans "Tax Rates" %}</h2>
+    </div>
+
+    <!--FORM-->
+    {% if pk %}
+    <form id="main_form" method="post" action="{% url 'sa_edit_tax' pk %}" enctype="multipart/form-data">{% csrf_token %}
+    {% else %}
+    <form id="main_form" method="post" action="{% url 'sa_taxes' %}" enctype="multipart/form-data">{% csrf_token %}
+    {% endif %}
+    {% if pk %}
+        <h3>{% trans "Edit a tax rate" %}</h3>
+    {% else %}
+        <h3>{% trans "Add a new tax rate" %}</h3>
+    {% endif %}
+
+        <fieldset>
+            {{ form.name.errors }}
+            <div class="formrow">
+                <label for="{{form.name.auto_id}}">{% trans form.name.label %}</label>
+                {{ form.name }}
+            </div>
+            {{ form.region.errors }}
+            <div class="formrow">
+                <label for="{{form.region.auto_id}}">{% trans form.region.label %}</label>
+                {{ form.region }}
+            </div>
+            {{ form.province.errors }}
+            <div class="formrow province">
+                <label for="{{form.province.auto_id}}">{% trans form.province.label %}</label>
+                {{ form.province }}
+            </div>
+            {{ form.applies_to.errors }}
+            <div class="formrow">
+                <label for="{{form.applies_to.auto_id}}">{% trans form.applies_to.label %}</label>
+                {{ form.applies_to }}
+            </div>
+            {{ form.shipping_to_region.errors }}
+            <div class="formrow">
+                <label for="{{form.shipping_to_region.auto_id}}">{% trans form.shipping_to_region.label %}</label>
+                {{ form.shipping_to_region }}
+            </div>
+            {{ form.shipping_to_province.errors }}
+            <div class="formrow province">
+                <label for="{{form.shipping_to_province.auto_id}}">{% trans form.shipping_to_province.label %}</label>
+                {{ form.shipping_to_province }}
+            </div>
+            {{ form.rate.errors }}
+            <div class="formrow rate">
+                <label for="{{form.rate.auto_id}}">{% trans form.rate.label %}</label>
+                {{ form.rate }}
+                <span class="percentage_marker"> % </span>
+            </div>
+            {{ form.apply_after.errors }}
+            <div class="formrow apply_after">
+                <label for="{{form.apply_after.auto_id}}">{% trans form.apply_after.label %}</label>
+                {{ form.apply_after }}
+            </div>
+            {{ form.enabled.errors }}
+            <div class="formrow">
+                <label for="{{form.enabled.auto_id}}">{% trans form.enabled.label %}</label>
+                {{ form.enabled }}
+            </div>
+            {{ form.display_on_front.errors }}
+            <div class="formrow">
+                <label for="{{form.display_on_front.auto_id}}">{% trans form.display_on_front.label %}</label>
+                {{ form.display_on_front }}
+            </div>
+        </fieldset>
+        <!--BOUTONS-->
+
+        <input class="btn valider" type="submit" value="{% trans 'Save' %}"/>
+        <button type="reset" class="btn annuler">{% trans "Cancel" %}</button>
+    </form>
+    <!--FIN FORM-->
+</div>
+<!--FIN content-left-->
+
+<!--content-right-->
+<div id="content_Right">
+    <!--Liste-Rates-->
+    <h4 class="titleRight">{% trans "Taxes Rates" %}</h4>
+    <div class="boxRight listeRight">
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <th class="nom on"><a href="#">{% trans "Name" %}</a></th>
+                <th class="action"><a href="#">{% trans "Actions" %}</a></th>
+            </tr>
+            {% for rate in page.object_list %}
+            <tr id="rate_{{ rate.pk }}"><!-- class=new -->
+                <td><a href="{% url 'sa_edit_tax' rate.pk %}">{{ rate }}</a></td>
+                <td><a class="modif" href="{% url 'sa_edit_tax' rate.pk %}">edit</a><a class="out delete_rate" href="{% url 'sa_delete_tax' rate.pk %}">delete</a></td>
+            </tr>
+            {% empty %}
+            <tr class="noshop">
+                <td colspan="2">{% trans "The taxes rates list is empty." %}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% if page.paginator.num_pages > 1 %}
+        <div class="pag_nav">
+            <span class="page_info">
+                {% blocktrans with number=page.number num_pages=page.paginator.num_pages %}
+                Page <input type="text" value="{{ number }}" id="page_num"> of {{ num_pages }} pages.
+                {% endblocktrans %}
+            </span>
+            <span class="page_size">
+                {% trans '(' %}
+                <select id="page_size" name="page_size">
+                {% for page_size in choice_page_size %}
+                    <option value="{{ page_size }}" {% if current_page_size == page_size %}selected="selected"{% endif %}>{{ page_size }}</option>
+                {% endfor %}
+                </select>
+                {% trans ' elements/page )' %}
+            </span>
+            <div class="page_ico">
+                <a href="1" class="pagination prev2">|<</a>
+                <a href="{{ prev_10 }}" class="pagination prev1"><</a>
+                {% for page_num in page_nav %}
+                {% if page.number != page_num %}<a href="{{ page_num }}" class="pagination">{{ page_num }}</a>
+                {% else %}<span class="pagination current">{{ page_num }}</span>{% endif %}
+                {% endfor %}
+                <a href="{{ next_10 }}" class="pagination next1">></a>
+                <a href="{{ page.paginator.num_pages }}" class="pagination next2">>|</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <!--//Liste-Rates-->
+    <a class="btn ajouter" href="{% url 'sa_taxes' %}">{% trans "Add a new tax rate" %}</a>
+</div>
+<!--FIN content-right-->
+<div class="clear"></div>
+{% endblock %}
+
+{% block javascript %}
+
+<script type="text/javascript">
+    function _removeRate(data) {
+        $("#rate_"+data.rate_pk).remove();
+        if(data.rate_pk == "{% firstof pk "0" %}") {
+            location.replace("{% url 'sa_taxes' %}");
+        }
+    }
+
+    $(".delete_rate").click(function() {
+            if(confirm('{% trans "are your sure you want to delete this tax rate?" %}')) {
+                var url = this.href;
+                $.post(url, function(data){
+                    if (data.note) {
+                        if (confirm(data.note)) {
+                            $.post(url+'?double_confirm=true', function(data){
+                                _removeRate(data);
+                            });
+                        }
+                    } else {
+                        _removeRate(data);
+                    }
+                });
+            }
+            return false;
+    });
+    //set page size
+    $("#page_size").change(function(event){
+        location.href = location.pathname+'?page_size='+$(this).val();
+    });
+
+    //go specific page by input
+    $("#page_num").keypress(function(event){
+        if(event.which == 13){ //'enter' key
+            var page_num = $(this).val();
+            if(!isNaN(page_num) && parseInt(page_num)==page_num)
+                location.href = page_num;
+            else
+                alert("{% trans "please enter a valid page number." %}");
+        }
+    });
+
+    // get states or provinces for selected country
+    function getStates(country_id, region_type) {
+        var province_field;
+        var selected_val;
+        if (region_type == "tax_region") {
+            province_field = $("#{{ form.province.auto_id }}");
+            selected_val = "{{ form.province.value }}";
+        } else {
+            province_field = $("#{{ form.shipping_to_province.auto_id }}");
+            selected_val = "{{ form.shipping_to_province.value }}";
+        }
+        if (country_id) {
+            $.ajax({
+                type: "get",
+                url: "/countries/get_states/" + country_id,
+                datatype:"json",
+                success: function(data, textstatus){
+                    if (data.length > 0) {
+                        province_field.empty().append(
+                                $("<option>", {value: "", text: "{% trans "Countrywide" %}"})
+                            ).parents("div.province").show();
+                        $.each(data, function(i, option){
+                            province_field.append($("<option>", {value: option.value, text: option.label}));
+                        });
+                        if (selected_val) {
+                            province_field.val(selected_val);
+                        }
+                    } else {
+                        province_field.empty().parents("div.province").hide();
+                    }
+                }
+            });
+        } else {
+            province_field.empty().parents("div.province").hide();
+        }
+    }
+
+    // the "Display on front" option would be disabled` if the "Shipping to" field is filled.
+    // It is only enabled if "Shipping to" is set to "Worldwide".
+    function toggleDisplayOnFront(shipping_to_region) {
+        if (shipping_to_region) {
+            $("#{{ form.display_on_front.auto_id }}").prop("checked", false);
+        }
+        $("#{{ form.display_on_front.auto_id }}").prop("disabled", shipping_to_region)
+                .parents("div.formrow:first").toggleClass("disabled", shipping_to_region!="");
+    }
+
+    // Get the list of taxes already registered for both Tax region Country and/or State/Province.
+    function getRatesList4ApplyAfter() {
+        var rid = $("#{{ form.region.auto_id }}").val();
+        var pname = $("#{{ form.province.auto_id }}").val();
+        var srid = $("#{{ form.shipping_to_region.auto_id }}").val();
+        var spname = $("#{{ form.shipping_to_province.auto_id }}").val();
+        var url = "/taxes/get_rates/" + rid + "?";
+        if (pname) url += "pname=" + pname + "&";
+        if (srid) url += "srid=" + srid + "&";
+        if (spname) url += "spname=" + spname + "&";
+
+        var selector = $("#{{ form.apply_after.auto_id }}");
+        var default_option = $("<option>", {value: "", text: "{% trans "Sale" %}"});
+
+        if (rid) {
+            $.ajax({
+                type: "get",
+                url: url,
+                datatype:"json",
+                success: function(data, textstatus){
+                    if (data.length > 0) {
+                        selector.empty().append(default_option);
+                        $.each(data, function(i, option){
+                            if (option.value != "{{ pk }}") {
+                                selector.append($("<option>", {value: option.value, text: option.label}));
+                            }
+                        });
+                        var selected_val = "{{ form.apply_after.value }}";
+                        if (selected_val) {
+                            $("#{{ form.apply_after.auto_id }}").val(selected_val);
+                        }
+                    } else {
+                        selector.empty().append(default_option);
+                    }
+                }
+            });
+        } else {
+            selector.empty().append(default_option);
+        }
+    }
+
+    $("#{{ form.region.auto_id }}").change();
+    $("#{{ form.shipping_to_region.auto_id }}").change();
+</script>
+
+{% endblock %}

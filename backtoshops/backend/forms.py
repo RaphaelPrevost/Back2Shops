@@ -1,20 +1,25 @@
-'''
+"""
 Created on 2012. 3. 28.
 
 @author: Julian
-'''
+"""
+import settings
 from django import forms
-from accounts.models import Brand, UserProfile
-from sales.models import ProductCategory, ProductType
+from django.contrib.auth.models import User
+from django.utils.translation import ugettext_lazy as _
+
+from accounts.models import Brand
+from accounts.models import UserProfile
 from brandings.models import Branding
+from globalsettings.models import GlobalSettings
+from sales.models import ProductCategory
 from sales.models import ProductCurrency
+from sales.models import ProductType
 from sales.models import WeightUnit
 from shippings.models import Carrier
-from globalsettings.models import GlobalSettings
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User
-import settings
+from taxes.models import Rate
 from widgets import AdvancedFileInput
+
 
 class SABrandForm(forms.ModelForm):
     error_css_class = 'error'
@@ -24,34 +29,41 @@ class SABrandForm(forms.ModelForm):
     
     class Meta:
         model = Brand
-        
+
+
 class BaseUserForm(forms.ModelForm):
     error_css_class = 'error'
     required_css_class = 'required'
     username = forms.CharField(label=_("Username"))
     email = forms.EmailField(label=_("E-mail"))
-    language = forms.ChoiceField(label=_("language"), choices=[(k, _(v)) for k, v in settings.LANGUAGES])
+    language = forms.ChoiceField(
+        label=_("language"),
+        choices=[(k, _(v)) for k, v in settings.LANGUAGES])
 #    is_superuser = forms.BooleanField(label=_("Super admin"), required=False)
     
     class Meta:
         model = UserProfile
-        exclude=('user',)
+        exclude = ('user',)
 
-#    def clean(self):
-#        cleaned_data = super(BaseUserForm,self).clean()
-#        is_superuser = cleaned_data.get('is_superuser')
-#        work_for = cleaned_data.get('work_for')
-#        if is_superuser:
-#            cleaned_data['work_for'] = None
-#        else:
-#            if work_for is None:
-#                self._errors['work_for'] = self.error_class([_('Normal admin must select a brand.')])
-#                del cleaned_data['work_for']
-#        return cleaned_data
+   # def clean(self):
+   #     cleaned_data = super(BaseUserForm,self).clean()
+   #     is_superuser = cleaned_data.get('is_superuser')
+   #     work_for = cleaned_data.get('work_for')
+   #     if is_superuser:
+   #         cleaned_data['work_for'] = None
+   #     else:
+   #         if work_for is None:
+   #             self._errors['work_for'] = self.error_class(
+   #                 [_('Normal admin must select a brand.')])
+   #             del cleaned_data['work_for']
+   #     return cleaned_data
+
 
 class SACreateUserForm(BaseUserForm):
-    password1 = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
-    password2 = forms.CharField(label=_("Confirm password"), widget=forms.PasswordInput)
+    password1 = forms.CharField(label=_("Password"),
+                                widget=forms.PasswordInput)
+    password2 = forms.CharField(label=_("Confirm password"),
+                                widget=forms.PasswordInput)
     
     def clean_username(self):
         username = self.cleaned_data["username"]
@@ -59,18 +71,22 @@ class SACreateUserForm(BaseUserForm):
             User.objects.get(username=username)
         except User.DoesNotExist:
             return username
-        raise forms.ValidationError(_("A user with that username already exists."))
+        raise forms.ValidationError(
+            _("A user with that username already exists."))
         
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1", "")
         password2 = self.cleaned_data["password2"]
         if password1 != password2:
-            raise forms.ValidationError(_("The two password fields didn't match."))
+            raise forms.ValidationError(
+                _("The two password fields didn't match."))
         return password2
     
     def save(self, commit=True):
-        user_profile = super(SACreateUserForm,self).save(commit=False)
-        user = User.objects.create_user(self.cleaned_data["username"], self.cleaned_data["email"], self.cleaned_data["password1"])
+        user_profile = super(SACreateUserForm, self).save(commit=False)
+        user = User.objects.create_user(self.cleaned_data["username"],
+                                        self.cleaned_data["email"],
+                                        self.cleaned_data["password1"])
         user.is_staff = True
 #        user.is_superuser = self.cleaned_data['is_superuser']
         user.is_superuser = False
@@ -79,7 +95,8 @@ class SACreateUserForm(BaseUserForm):
         if commit:
             user_profile.save()
         return user_profile
-    
+
+
 class SAUserForm(BaseUserForm):
     is_active = forms.BooleanField(label=_("Active"), required=False)
     
@@ -100,20 +117,23 @@ class SAUserForm(BaseUserForm):
         if commit:
             self.instance.save()
         return self.instance
-    
+
+
 class SACategoryForm(forms.ModelForm):
     error_css_class = 'error'
     required_css_class = 'required'
     
     class Meta:
         model = ProductCategory
-            
+
+
 class SAAttributeForm(forms.ModelForm):
     error_css_class = 'error'
     required_css_class = 'required'
     
     class Meta:
         model = ProductType
+
 
 class SACarrierForm(forms.ModelForm):
     error_css_class = 'error'
@@ -122,25 +142,40 @@ class SACarrierForm(forms.ModelForm):
     class Meta:
         model = Carrier
 
+
 class SABrandingForm(forms.ModelForm):
     error_css_class = 'error'
     required_css_class = 'required'
     
     class Meta:
         model = Branding
-        
+
+
 class SASettingsForm(forms.Form):
     error_css_class = 'error'
     required_css_class = 'required'
     
-    default_language = forms.ChoiceField(choices=[(k, _(v)) for k, v in settings.LANGUAGES], label=_('Default language'))
-    default_currency = forms.ChoiceField(choices=[(s,s) for s in ProductCurrency.objects.all().values_list('code',flat=True)], label=_('Default currency'))
-    default_weight_unit = forms.ChoiceField(choices=[(s,s) for s in WeightUnit.objects.all().values_list('key',flat=True)], label=_('Default weight unit'))
+    default_language = forms.ChoiceField(
+        choices=[(k, _(v)) for k, v in settings.LANGUAGES],
+        label=_('Default language'))
+    default_currency = forms.ChoiceField(
+        choices=[(s, s) for s in
+                 ProductCurrency.objects.all().values_list('code', flat=True)],
+        label=_('Default currency'))
+    default_weight_unit = forms.ChoiceField(
+        choices=[(s, s) for s in
+                 WeightUnit.objects.all().values_list('key', flat=True)],
+        label=_('Default weight unit'))
     password = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
     username = forms.CharField(label=_('Administrator login'))
     email = forms.EmailField(label=_('Administrator e-mail'))
-    new_password1 = forms.CharField(label=_('New administrative password'), widget=forms.PasswordInput, required=False)
-    new_password2 = forms.CharField(label=_('Confirm new password'), widget=forms.PasswordInput, required=False)
+    new_password1 = forms.CharField(
+        label=_('New administrative password'),
+        widget=forms.PasswordInput, required=False)
+    new_password2 = forms.CharField(
+        label=_('Confirm new password'),
+        widget=forms.PasswordInput,
+        required=False)
     
     def __init__(self, user=None, *args, **kwargs):
         initial = kwargs.get('initial', {})
@@ -148,13 +183,50 @@ class SASettingsForm(forms.Form):
         for global_setting in global_settings: 
             initial[global_setting.key] = global_setting.value
         if user is not None:
-            initial['username'] = user.__dict__.get('username','')
-            initial['email'] = user.__dict__.get('email','')
-        super(SASettingsForm,self).__init__(initial=initial, *args, **kwargs)
+            initial['username'] = user.__dict__.get('username', '')
+            initial['email'] = user.__dict__.get('email', '')
+        super(SASettingsForm, self).__init__(initial=initial, *args, **kwargs)
 
     def clean_new_password2(self):
         new_password1 = self.cleaned_data.get("new_password1", "")
         new_password2 = self.cleaned_data["new_password2"]
         if new_password1 != new_password2:
-            raise forms.ValidationError(_("The two password fields didn't match."))
+            raise forms.ValidationError(
+                _("The two password fields didn't match."))
         return new_password2
+
+
+class SATaxForm(forms.ModelForm):
+    error_css_class = 'error'
+    required_css_class = 'required'
+
+    class Meta:
+        model = Rate
+        widgets = {
+            'region': forms.Select(
+                attrs={'onChange': 'getStates(this.value, "tax_region");'
+                                   'getRatesList4ApplyAfter();'}),
+            'province': forms.Select(
+                attrs={'onChange': 'getRatesList4ApplyAfter();'}
+            ),
+            'shipping_to_region': forms.Select(
+                attrs={'onChange': 'toggleDisplayOnFront(this.value);'
+                                   'getStates(this.value, "");'
+                                   'getRatesList4ApplyAfter();'}
+            ),
+            'shipping_to_province': forms.Select(
+                attrs={'onChange': 'getRatesList4ApplyAfter();'}
+            ),
+            'apply_after': forms.Select,
+            'display_on_front': forms.CheckboxInput,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(SATaxForm, self).__init__(*args, **kwargs)
+        self.fields['applies_to'].empty_label = _('Everything')
+        self.fields['shipping_to_region'].empty_label = _('Worldwide')
+
+    def clean(self):
+        if self.cleaned_data['shipping_to_region']:
+            self.cleaned_data['display_on_front'] = None
+        return self.cleaned_data

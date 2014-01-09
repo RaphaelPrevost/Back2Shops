@@ -1725,4 +1725,57 @@
         <field type="CharField" name="name">Armed Forces Pacific</field>
         <field type="CharField" name="abbrev">AP</field>
     </object>
+
+    <object pk="1" model="countries.caprovince">
+        <field type="CharField" name="name">Alberta</field>
+        <field type="CharField" name="abbrev">AB</field>
+    </object>
+    <object pk="2" model="countries.caprovince">
+        <field type="CharField" name="name">British Columbia</field>
+        <field type="CharField" name="abbrev">BC</field>
+    </object>
+    <object pk="3" model="countries.caprovince">
+        <field type="CharField" name="name">Manitoba</field>
+        <field type="CharField" name="abbrev">MB</field>
+    </object>
+    <object pk="4" model="countries.caprovince">
+        <field type="CharField" name="name">New Brunswick</field>
+        <field type="CharField" name="abbrev">NB</field>
+    </object>
+    <object pk="5" model="countries.caprovince">
+        <field type="CharField" name="name">Newfoundland and Labrador</field>
+        <field type="CharField" name="abbrev">NL</field>
+    </object>
+    <object pk="6" model="countries.caprovince">
+        <field type="CharField" name="name">Nova Scotia</field>
+        <field type="CharField" name="abbrev">NS</field>
+    </object>
+    <object pk="7" model="countries.caprovince">
+        <field type="CharField" name="name">Ontario</field>
+        <field type="CharField" name="abbrev">ON</field>
+    </object>
+    <object pk="8" model="countries.caprovince">
+        <field type="CharField" name="name">Prince Edward Island</field>
+        <field type="CharField" name="abbrev">PE</field>
+    </object>
+    <object pk="9" model="countries.caprovince">
+        <field type="CharField" name="name">Quebec</field>
+        <field type="CharField" name="abbrev">QC</field>
+    </object>
+    <object pk="10" model="countries.caprovince">
+        <field type="CharField" name="name">Saskatchewan</field>
+        <field type="CharField" name="abbrev">SK</field>
+    </object>
+    <object pk="11" model="countries.caprovince">
+        <field type="CharField" name="name">Northwest Territories</field>
+        <field type="CharField" name="abbrev">NT</field>
+    </object>
+    <object pk="12" model="countries.caprovince">
+        <field type="CharField" name="name">Nunavut</field>
+        <field type="CharField" name="abbrev">NU</field>
+    </object>
+    <object pk="13" model="countries.caprovince">
+        <field type="CharField" name="name">Yukon</field>
+        <field type="CharField" name="abbrev">YT</field>
+    </object>
 </django-objects>

@@ -1,0 +1,21 @@
+div.province {
+    display: none;
+    padding-left: 20px;
+    margin-bottom: 25px !important;
+}
+
+#main_form .formrow input[type=checkbox] {
+    width: 20px;
+}
+#main_form .formrow select {
+    width: 260px;
+}
+#main_form .rate input[type=text] {
+    width: 60px;
+}
+
+div.disabled {
+    background-color: #e3e3e3;
+    color: #555555;
+    font-style: oblique;
+}

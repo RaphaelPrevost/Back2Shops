@@ -1,6 +1,7 @@
-from django.conf.urls.defaults import patterns, url
 import settings
-from views import *
+from django.conf.urls import patterns
+from django.conf.urls import url
+from backend.views import *
 
 urlpatterns = patterns(settings.get_site_prefix()+'backend',
     url(r'brands/$', CreateBrandView.as_view(), name='sa_brands'),
@@ -21,10 +22,10 @@ urlpatterns = patterns(settings.get_site_prefix()+'backend',
     url(r'attributes/(?P<page>\d+)$', CreateAttributeView.as_view()),
     url(r'attributes/(?P<pk>\d+)/edit/$', EditAttributeView.as_view(), name='sa_edit_attribute'),
     url(r'attributes/(?P<pk>\d+)/edit/(?P<page>\d+)$', EditAttributeView.as_view()),
-    url(r'attributes/(?P<pk>\d+)/delete/$', DeleteAttributeView.as_view(), name='sa_delete_attribute'),    
+    url(r'attributes/(?P<pk>\d+)/delete/$', DeleteAttributeView.as_view(), name='sa_delete_attribute'),
     url(r'brandings/$', CreateBrandingView.as_view(), name='sa_brandings'),
     url(r'brandings/(?P<page>\d+)$', CreateBrandingView.as_view()),
-    url(r'brandings/(?P<pk>\d+)/edit/$', EditBrandingView.as_view(), name='sa_edit_branding'),    
+    url(r'brandings/(?P<pk>\d+)/edit/$', EditBrandingView.as_view(), name='sa_edit_branding'),
     url(r'brandings/(?P<pk>\d+)/edit/(?P<page>\d+)$', EditBrandingView.as_view()),
     url(r'brandings/(?P<pk>\d+)/delete/$', DeleteBrandingView.as_view(), name='sa_delete_branding'),
     url(r'settings/$', settings_view, name='sa_settings' ),
@@ -34,5 +35,11 @@ urlpatterns = patterns(settings.get_site_prefix()+'backend',
     url(r'carriers/(?P<pk>\d+)/edit/$', EditCarrierView.as_view(), name='sa_edit_carrier'),
     url(r'carriers/(?P<pk>\d+)/edit/(?P<page>\d+)$', EditCarrierView.as_view()),
     url(r'carriers/(?P<pk>\d+)/delete/$', DeleteCarrierView.as_view(), name='sa_delete_carrier'),
+
+    url(r'taxes/$', CreateTaxView.as_view(), name='sa_taxes'),
+    url(r'taxes/(?P<page>\d+)$', CreateTaxView.as_view()),
+    url(r'taxes/(?P<pk>\d+)/edit/$', EditTaxView.as_view(), name='sa_edit_tax'),
+    url(r'taxes/(?P<pk>\d+)/edit/(?P<page>\d+)$', EditTaxView.as_view()),
+    url(r'taxes/(?P<pk>\d+)/delete/$', DeleteTaxView.as_view(), name='sa_delete_tax'),
 
 )
