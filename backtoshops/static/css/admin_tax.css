@@ -19,3 +19,8 @@ div.disabled {
     color: #555555;
     font-style: oblique;
 }
+
+#main_form .formrow span.taxable-msg {
+    font-size: 10px;
+    margin-right: 0;
+}

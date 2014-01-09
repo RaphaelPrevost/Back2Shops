@@ -18,5 +18,5 @@ def get_country_states(request, *args, **kwargs):
         if state_model:
             states = state_model.objects.all()
             for state in states:
-                states_list.append({'label': state.name, 'value': state.name})
+                states_list.append({'label': state.name, 'value': state.abbrev})
     return HttpResponse(json.dumps(states_list), mimetype='application/json')

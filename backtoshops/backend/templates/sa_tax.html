@@ -92,6 +92,12 @@
                 <label for="{{form.display_on_front.auto_id}}">{% trans form.display_on_front.label %}</label>
                 {{ form.display_on_front }}
             </div>
+            {{ form.taxable.errors }}
+            <div class="formrow">
+                <label for="{{form.taxable.auto_id}}">{% trans form.taxable.label %}</label>
+                {{ form.taxable }}
+                <span class="taxable-msg">({% trans "Shipping and delivery charges are subject to tax" %})</span>
+            </div>
         </fieldset>
         <!--BOUTONS-->
 
@@ -249,6 +255,15 @@
                 .parents("div.formrow:first").toggleClass("disabled", shipping_to_region!="");
     }
 
+    function toggleTaxable(applies_to) {
+        if (applies_to) {
+            $("#{{ form.taxable.auto_id }}").prop("checked", false);
+        }
+        $("#{{ form.taxable.auto_id }}").prop("disabled", applies_to)
+                .parents("div.formrow:first").toggleClass("disabled", applies_to!="");
+    }
+
+
     // Get the list of taxes already registered for both Tax region Country and/or State/Province.
     function getRatesList4ApplyAfter() {
         var rid = $("#{{ form.region.auto_id }}").val();
@@ -290,8 +305,34 @@
         }
     }
 
+
+    // selectors change events
+    $("#{{ form.region.auto_id }}").change(function(){
+        getStates($(this).val(), "tax_region");
+        getRatesList4ApplyAfter();
+    });
+    $("#{{ form.province.auto_id }}").change(function(){
+        getRatesList4ApplyAfter();
+    });
+
+    $("#{{ form.shipping_to_region.auto_id }}").change(function(){
+        toggleDisplayOnFront($(this).val());
+        getStates($(this).val(), "shipping_to_region");
+        getRatesList4ApplyAfter();
+    });
+    $("#{{ form.shipping_to_province.auto_id }}").change(function(){
+        getRatesList4ApplyAfter();
+    });
+    $("#{{ form.applies_to.auto_id }}").change(function(){
+        toggleTaxable($(this).val());
+    });
+
+
     $("#{{ form.region.auto_id }}").change();
+    $("#{{ form.province.auto_id }}").change();
     $("#{{ form.shipping_to_region.auto_id }}").change();
+    $("#{{ form.shipping_to_province.auto_id }}").change();
+    $("#{{ form.applies_to.auto_id }}").change();
 </script>
 
 {% endblock %}
