@@ -321,9 +321,7 @@
         nb_of_forms++;
         $("#{{ wizard.form.pictures.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
 
-        if ($("#preview-product-picture").find("img").length == 0) {
-            $("#preview-product-picture").html(result.preview_html);
-        }
+        $("#preview-product-picture").html(result.preview_html);
     }
 
     $("#pp_upload").fileupload({

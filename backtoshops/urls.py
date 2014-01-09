@@ -3,10 +3,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from accounts.views import home_page
 import settings
+from init import monkey_patch
+monkey_patch()
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
+
 
 urlpatterns = staticfiles_urlpatterns()
 if settings.DEBUG:
