@@ -193,6 +193,7 @@ INSTALLED_APPS = (
     get_site_prefix()+'brandings',
     get_site_prefix()+'countries',
     get_site_prefix()+'orders',
+    get_site_prefix()+'taxes',
     'south',
     'form_utils',
     'formwizard',

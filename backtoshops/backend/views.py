@@ -1,24 +1,34 @@
 # Create your views here.
+import settings
 import json
-from django.http import HttpResponse
-from django.template import RequestContext
-from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.shortcuts import render_to_response
-from django.core.urlresolvers import reverse
-from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.core.paginator import EmptyPage
+from django.core.paginator import InvalidPage
+from django.core.paginator import Paginator
+from django.core.urlresolvers import reverse
 from django.forms.models import inlineformset_factory
-from accounts.models import Brand, UserProfile
+from django.http import HttpResponse
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+from django.views.generic.edit import CreateView
+from django.views.generic.edit import DeleteView
+from django.views.generic.edit import UpdateView
+
+from accounts.models import Brand
+from accounts.models import UserProfile
 from attributes.models import CommonAttribute
-from sales.models import ProductCategory, ProductType
-from shippings.models import Carrier, Service
-from globalsettings.models import GlobalSettings
+from backend import forms
 from brandings.models import Branding
 from globalsettings import get_setting
-import forms
-import settings
+from globalsettings.models import GlobalSettings
+from sales.models import ProductCategory
+from sales.models import ProductType
+from shippings.models import Carrier
+from shippings.models import Service
+from taxes.models import Rate
+
 
 def superadmin_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
     """
@@ -415,3 +425,48 @@ def settings_view(request):
         form = forms.SASettingsForm(user=request.user)
         
     return render_to_response('sa_settings.html',{'form':form, 'is_saved':is_saved, 'request':request, }, context_instance=RequestContext(request))
+
+
+class BaseTaxView(SARequiredMixin):
+    template_name = "sa_tax.html"
+    form_class = forms.SATaxForm
+    model = Rate
+
+
+class CreateTaxView(BaseTaxView, CreateView):
+    def get_success_url(self):
+        return reverse('sa_edit_tax', args=[self.object.pk])
+
+
+class EditTaxView(BaseTaxView, UpdateView):
+    def get_success_url(self):
+        pk = self.kwargs.get('pk', None)
+        return reverse("sa_edit_tax", args=[pk])
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super(BaseTaxView, self).get(request, *args, **kwargs)
+
+
+class DeleteTaxView(BaseTaxView, DeleteView):
+    def post(self, *args, **kwargs):
+
+        self.object = self.get_object()
+        if self.request.GET.get('double_confirm', None):
+            return self.delete(*args, **kwargs)
+
+        applied_after = Rate.objects.filter(apply_after=self.object.pk)
+        if applied_after:
+            note = ('Note! Another ates %s apply after this rate! '
+                    'Are you sure you want to delete it?!' % applied_after)
+            return HttpResponse(
+                content=json.dumps({'note': note}),
+                mimetype="application/json")
+        else:
+            return self.delete(*args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        self.object.delete()
+        return HttpResponse(
+            content=json.dumps({"rate_pk": self.object.pk}),
+            mimetype="application/json")
