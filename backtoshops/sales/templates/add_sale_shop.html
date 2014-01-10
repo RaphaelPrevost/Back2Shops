@@ -39,7 +39,7 @@
 
 {% block javascript %}
 <script type="text/javascript">
-    
+
     $(function(){
         {% if request.user.is_staff %}
         $("#{{ wizard.form.target_market.auto_id }}").change(function(){
@@ -67,11 +67,11 @@
 
             });
         });
-        
+
         $("input[name='shop-shops']").change(function(event){
             var x =[{{ shops_cant_be_deleted }}];
             var y =[{{ freezed_shops }}];
-            var given = parseInt($(this).val()); 
+            var given = parseInt($(this).val());
             if(x.indexOf(given) != -1 && !this.checked){
                 var q = confirm("{% trans 'This shop will become frozen status instead of being removed, since it has sold stock record.\nIs this ok?\n' %}");
                 if(!q){
