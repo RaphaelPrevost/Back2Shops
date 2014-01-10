@@ -1,0 +1,14 @@
+{% load l10n %}
+
+<taxes version="1.0" country="{{ country }}" {% if province %}province="{{ province }}"{% endif %}>
+	{% for object in object_list %}
+<tax id="{{ object.pk }}">
+    <name>{{ object.name }}</name>
+    {% if object.applies_to_id or object.apply_after %}
+        <apply {% if object.applies_to_id %}to="{{ object.applies_to_id }}"{% endif %} {% if object.apply_after %}after="{{ object.apply_after }}"{% endif %}/>
+    {% endif %}
+    <shipping country="{{ object.shipping_to_region_id }}" {% if object.shipping_to_province %}province="{{ object.shipping_to_province }}"{% endif %} taxable="{{ object.taxable }}"/>
+    <rate>{{ object.rate }}</rate>
+</tax>
+	{% endfor %}
+</taxes>
