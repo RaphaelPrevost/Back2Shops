@@ -233,7 +233,7 @@
                             province_field.append($("<option>", {value: option.value, text: option.label}));
                         });
                         if (selected_val) {
-                            province_field.val(selected_val);
+                            province_field.val(selected_val).change();
                         }
                     } else {
                         province_field.empty().parents("div.province").hide();
@@ -327,12 +327,15 @@
         toggleTaxable($(this).val());
     });
 
-
-    $("#{{ form.region.auto_id }}").change();
-    $("#{{ form.province.auto_id }}").change();
-    $("#{{ form.shipping_to_region.auto_id }}").change();
-    $("#{{ form.shipping_to_province.auto_id }}").change();
-    $("#{{ form.applies_to.auto_id }}").change();
+    if ("{{ form.region.value }}") {
+        $("#{{ form.region.auto_id }}").change();
+    }
+    if ("{{ form.shipping_to_region.value }}") {
+        $("#{{ form.shipping_to_region.auto_id }}").change();
+    }
+    if ("{{ form.applies_to.value }}") {
+        $("#{{ form.applies_to.auto_id }}").change();
+    }
 </script>
 
 {% endblock %}
