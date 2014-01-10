@@ -25,6 +25,7 @@ from sales.models import STOCK_TYPE_GLOBAL
 from sales.models import Sale
 from sales.models import ShopsInSale
 from shops.models import Shop
+from taxes.models import Rate
 
 fail = lambda s: HttpResponse(json.dumps({'success': False, 'error': s}), mimetype='text/json')
 
@@ -369,33 +370,52 @@ def apikey(dummy=None):
         f.close()
         return HttpResponse(key)
 
-class BaseCryptoWebService(View):
+class BaseCryptoWebService(BaseWebservice):
     from_ = SERVICES.USR
     def render_to_response(self, context, **response_kwargs):
+        resp = super(BaseCryptoWebService, self).render_to_response(context, **response_kwargs)
+        resp.render()
+        if self.request.method == 'GET':
+            self.from_ = self.request.GET.get('from', SERVICES.USR)
+        elif self.request.method == 'POST':
+            self.from_ = self.request.POST.get('from', SERVICES.USR)
+        content = gen_encrypt_json_context(
+            resp.content,
+            settings.SERVER_APIKEY_URI_MAP[self.from_],
+            settings.PRIVATE_KEY_PATH)
         response_kwargs.update({
             'mimetype': 'application/json'
         })
-        data = gen_encrypt_json_context(context,
-                                        settings.SERVER_APIKEY_URI_MAP[self.from_],
-                                        settings.PRIVATE_KEY_PATH)
-        return HttpResponse(data, **response_kwargs)
+        return HttpResponse(content, **response_kwargs)
 
-    def get(self, request, *args, **kwargs):
-        self.from_ = request.GET.get('from', SERVICES.USR)
-        return self._get(request, *args, **kwargs)
+class TaxesListView(BaseCryptoWebService, ListView):
+    template_name = "taxes_list.xml"
 
-    def post(self, request, *args, **kwargs):
-        self.from_ = request.POST.get('from', SERVICES.USR)
-        return self._get(request, *args, **kwargs)
+    def get_queryset(self):
+        fromCountry = self.request.GET.get('fromCountry', None)
+        fromProvince = self.request.GET.get('fromProvince', None)
+        toCountry = self.request.GET.get('toCountry', None)
+        toProvince = self.request.GET.get('toProvince', None)
 
-    def _get(self, request, *args, **kwargs):
-        raise NotImplementedError
+        if fromCountry is None or toCountry is None:
+            return []
 
-    def _post(self, request, *args, **kwargs):
-        raise NotImplementedError
+        queryset = Rate.objects.filter(
+            region_id=fromCountry
+        ).filter(
+            shipping_to_region_id=toCountry
+        )
+        if fromProvince:
+            queryset = queryset.filter(province=fromProvince)
+        if toProvince:
+            queryset = queryset.filter(province=toProvince)
 
-# TODO: remove, just for test.
-class CryptoWebServiceMock(BaseCryptoWebService):
-    def get(self, request, *args, **kwargs):
-        context = 'crypto web service test'
-        return self.render_to_response(context)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        fromCountry = self.request.GET.get('fromCountry', None)
+        fromProvince = self.request.GET.get('fromProvince', None)
+        kwargs.update({'country': fromCountry})
+        if fromProvince:
+            kwargs.update({'province': fromProvince})
+        return kwargs
