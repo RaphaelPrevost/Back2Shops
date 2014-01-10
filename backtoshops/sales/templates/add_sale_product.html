@@ -637,6 +637,9 @@
         var selected_cur = $("#{{wizard.form.currency.auto_id}} option:selected").text();
         $("#discount_marker").html(discount_type == "percentage" ? "%": selected_cur);
 
+        var premium_type = $("#premium_type").val();
+        $("#premium_marker").html(premium_type == "percentage" ? "%": selected_cur);
+
         if (use_item_type_price) {
             var lowest_type_attribute_price = _get_lowest_type_attribute_price();
             var start_price = _calc_discount_price(discount_type, discount, lowest_type_attribute_price);
@@ -655,10 +658,8 @@
         } else {
             var normal_price = parseFloat($("#{{ wizard.form.normal_price.auto_id }}").val());
             var new_price = _calc_discount_price(discount_type, discount, normal_price);
-            var premium_type = $("#premium_type").val();
             var premium_amount = parseFloat($("#premium_amount").val());
             var premium_price = _calc_premium_price(premium_type, premium_amount, new_price);
-            $("#premium_marker").html(discount_type == "percentage" ? "%": selected_cur);
 
             $("span#result").show();
             $("span#premium_result").show();
@@ -768,7 +769,7 @@
         // TYPE ATTRIBUTE PRICE
         {% with wizard.form.type_attribute_prices.empty_form as tap_empty %}
         // this type attribute price has been added.
-        if ($("#type_attribute_prices type_attribute_price_form:visible span.type_attribute_value:[data-value="+select_ta+"]").length > 0) {
+        if ($("#type_attribute_prices span.type_attribute_price_form:visible span.type_attribute_value:[data-value="+select_ta+"]").length > 0) {
             alert("The price of \"" + select_ta_name + "\" has been added!");
             return false;
         }
