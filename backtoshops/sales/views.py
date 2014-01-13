@@ -140,6 +140,12 @@ class ListSalesView(LoginRequiredMixin, View, TemplateResponseMixin):
             self.sales = self.sales.filter(shops__in=request.user.get_profile().shops.all())
         #put extra fields
         self.sales = self.sales.extra(select={'total_sold_stock':'total_stock-total_rest_stock'})
+        for sale in self.sales:
+            type_attribute_prices = TypeAttributePrice.objects.filter(sale=sale)
+            prices = [i.type_attribute_price for i in type_attribute_prices]
+            if prices:
+                sale.max_type_attribute_price = max(prices)
+                sale.min_type_attribute_price = min(prices)
         return
 
     def make_page(self):

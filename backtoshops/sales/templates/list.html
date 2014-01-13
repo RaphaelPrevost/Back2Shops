@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load l10n %}
 {% load thumbnail %}
+{% load calc_discount_price %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
@@ -69,16 +70,28 @@
                         <span>{% trans "Available Qty:" %} <strong>{{ sale.total_rest_stock }}</strong> | {% trans "Sales:" %} <strong>{% trans "N/A" %}</strong> | {% trans "Initial Stock:" %} <strong>{{ sale.total_stock }}</strong></span>
                     </div>
                     <div class="prix">
-                        <span>{% trans "Discounted price:" %}<strong>{{ sale.product.discount_price|floatformat }}&euro;</strong></span>
-                        <span>{% trans "Discount:" %} <strong>
-                            {% if sale.product.discount %}
+                        {% if sale.product.discount %}
+                            {% if sale.product.normal_price %}
+                                <span>{% trans "Discounted price:" %}
+                                    <strong>{% calc_discount_price sale.product.discount_type sale.product.discount sale.product.normal_price %}
+                                    &euro;
+                                    </strong>
+                                </span>
+                            {% endif %}
+                            <span>{% trans "Discount:" %} <strong>
                                 {{ sale.product.discount|floatformat }}
                                 {% if sale.product.discount_type == "percentage" %}%{% else %}&euro;{% endif %}
+                            </strong></span>
+                        {% endif %}
+                        <span>{% trans "Item price:" %} <em>
+                            {% if sale.product.normal_price %}
+                                {{ sale.product.normal_price|floatformat }}
                             {% else %}
-                                {% trans "N/A" %}
+                                {{ sale.min_type_attribute_price|floatformat }} {% trans "to" %} {{ sale.max_type_attribute_price|floatformat }}
                             {% endif %}
-                        </strong></span>
-                        <span>{% trans "Item price:" %} <em>{{ sale.product.normal_price|floatformat }}&euro;</em></span>
+                            &euro;
+                            </em>
+                        </span>
                     </div>
                 </div>
                 <div class="clear"></div>
