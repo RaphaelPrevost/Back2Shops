@@ -409,7 +409,8 @@ class ListSalesForm(forms.Form):
 class ShippingForm(forms.Form):
     handling_fee = forms.FloatField(
         label='Handling fee',
-        widget=forms.TextInput(attrs={'class': 'handling_fee_input'}))
+        widget=forms.TextInput(attrs={'class': 'handling_fee_input'}),
+        required=False)
     allow_group_shipment = forms.BooleanField(
         label='Allow group shipment',
         required=False)
