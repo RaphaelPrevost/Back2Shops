@@ -59,7 +59,7 @@ class Product(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(max_length=500)
     weight_unit = models.ForeignKey("WeightUnit",blank=False,default='kg')
-    weight = models.FloatField(null=True, default=0)
+    standard_weight = models.FloatField(null=True, blank=True)
     normal_price = models.FloatField(null=True)
     discount_type = models.CharField(choices=DISCOUNT_TYPE, max_length=10,
                                      blank=False, null=True)
@@ -114,6 +114,13 @@ class TypeAttributePrice(models.Model):
     sale = models.ForeignKey(Sale)
     type_attribute = models.ForeignKey(CommonAttribute)
     type_attribute_price = models.FloatField()
+
+
+class TypeAttributeWeight(models.Model):
+    from attributes.models import CommonAttribute
+    sale = models.ForeignKey(Sale)
+    type_attribute = models.ForeignKey(CommonAttribute)
+    type_attribute_weight = models.FloatField()
 
 
 @receiver(post_delete, sender=Sale, dispatch_uid='sales.models.Sale')

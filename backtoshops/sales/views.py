@@ -53,6 +53,7 @@ from sales.models import Sale
 from sales.models import ShippingInSale
 from sales.models import ShopsInSale
 from sales.models import TypeAttributePrice
+from sales.models import TypeAttributeWeight
 from sales.models import WeightUnit
 from shippings.forms import CustomShippingRateFormModel
 from shippings.models import SC_CARRIER_SHIPPING_RATE
@@ -341,6 +342,14 @@ def edit_sale(request, *args, **kwargs):
             'type_attribute_price': i.type_attribute_price
         })
 
+    type_attribute_weights = []
+    for i in TypeAttributeWeight.objects.filter(sale=sale):
+        type_attribute_weights.append({
+            'taw_id': i.pk,
+            'type_attribute': i.type_attribute.id,
+            'type_attribute_weight': i.type_attribute_weight,
+        })
+
     initial_product = {
         'brand': sale.product.brand.pk,
         'type': sale.product.type.pk,
@@ -348,7 +357,7 @@ def edit_sale(request, *args, **kwargs):
         'name': sale.product.name,
         'description': sale.product.description,
         'weight_unit': sale.product.weight_unit,
-        'weight': sale.product.weight,
+        'standard_weight': sale.product.standard_weight,
         'valid_from': sale.product.valid_from,
         'valid_to': sale.product.valid_to,
         'normal_price': sale.product.normal_price,
@@ -358,6 +367,7 @@ def edit_sale(request, *args, **kwargs):
         'brand_attributes': brand_attributes,
         'pictures': pictures,
         'type_attribute_prices': type_attribute_prices,
+        'type_attribute_weights': type_attribute_weights,
     }
 
     initial_stocks = []
@@ -517,7 +527,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         product.name = product_form['name']
         product.description = product_form['description']
         product.weight_unit = product_form['weight_unit']
-        product.weight = product_form['weight']
+        product.standard_weight = product_form['standard_weight']
         product.valid_from = product_form['valid_from'] or date.today()
         product.valid_to = product_form['valid_to']
         product.normal_price = product_form['normal_price']
@@ -687,6 +697,27 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                     type_attribute_price=tap['type_attribute_price']
                 )
                 s_tap.save()
+
+        type_attribute_weights = form_list[1].type_attribute_weights
+        for taw in type_attribute_weights.cleaned_data:
+            if taw['DELETE']:
+                if taw['taw_id'] < 0:
+                    continue
+                try:
+                    taw_obj = TypeAttributeWeight.objects.get(pk=taw['taw_id'])
+                    taw_obj.delete()
+                except ObjectDoesNotExist:
+                    logging.error('No TypeAttributeWeight Object found for '
+                                  'id:%s' % taw['taw_id'])
+            else:
+                if taw['taw_id'] > 0:
+                    continue
+                ta = CommonAttribute.objects.get(pk=taw['type_attribute'])
+                s_taw = TypeAttributeWeight.objects.create(
+                    sale=sale,
+                    type_attribute=ta,
+                    type_attribute_weight=taw['type_attribute_weight'])
+                s_taw.save()
 
         if self.request.session.get('stocks_infos', None):
             del(self.request.session['stocks_infos'])

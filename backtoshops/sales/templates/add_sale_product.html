@@ -52,15 +52,49 @@
             {{ wizard.form.description }}
         </div>
 
-        {{ wizard.form.weight.errors }}
         {{ wizard.form.weight_unit.errors }}
         <div class="formrow">
+            <label for="{{ wizard.form.weight_unit.auto_id }}">{% trans wizard.form.weight_unit.label %}</label>
+            <span>{{wizard.form.weight_unit }}</span>
+        </div>
+
+        {{ wizard.form.standard_weight.errors }}
+        <div class="marge formrow">
+            {{ wizard.form.type_attribute_weights.management_form }}
             <label>{% trans "Weight" %}</label>
-            <span class="contForm">
-                <div id="add_weight_form">
-                    {{wizard.form.weight}}
-                    <span>{{wizard.form.weight_unit}}</span>
+            <span class="contForm" id="type_attribute_weights">
+                <div id="add_taw_form">
+                    <select id="type_attribute_weight_selector" name="type_attribute_weight_selector">
+                        <option value="0">{% trans "Standard Weight" %}</option>
+                    </select>
+                    <span class="raw">></span>
+                    <input id="type_attribute_weight_input" class="inputXS" type="text" name="type_attribute_weight_input"/>
+                    <span id="taw_weight_unit">{{ wizard.form.weight_unit.value }}</span>
+                    <a id="add_taw" href="#">{% trans "Add" %}</a>
                 </div>
+
+                {{ wizard.form.standard_weight }}
+                {% if wizard.form.standard_weight.value %}
+                    <span class="standard_weight_form">
+                    <span class="standard_weight_name">{% trans "Standard Weight" %}</span>
+                    <span class="standard_weight">{{ wizard.form.standard_weight.value }}</span>
+                    <span class="standard_weight_unit">{{ wizard.form.weight_unit.value }}</span>
+                    <span class="remove_standard_weight">{% trans "Remove" %}</span>
+                </span>
+                {% endif %}
+                {% for f in wizard.form.type_attribute_weights %}
+                    <span id="{{ f.prefix }}-row" class="type_attribute_weight_form" {% if f.DELETE.value %}style="display: none;"{% endif %}>
+                    {{ f.taw_id }}
+                    {{ f.type_attribute }}
+                    {{ f.type_attribute_weight }}
+                    <input style="display: none;" type="checkbox" name="{{ f.DELETE.html_name }}" id="{{ f.DELETE.auto_id }}" {% if f.DELETE.value %}checked="checked"{% endif %}>
+                    <span id="{{ f.prefix }}-type_attribute" class="type_attribute_value">{{ f.type_attribute.value }}</span>
+                    <span id="{{ f.prefix }}-type_attribute_name" class="type_attribute_name">{% get_ta_name f.type_attribute.value %}</span>
+                    <span id="{{ f.prefix }}-type_attribute_weight" class="type_attribute_weight">{{ f.type_attribute_weight.value }}</span>
+                    <span id="{{ f.prefix }}-type_attribute_weight_unit" class="type_attribute_weight_unit">{{ wizard.form.weight_unit.value }}</span>
+                    <span class="remove_type_attribute_weight">{% trans "Remove" %}</span>
+                </span>
+                {% endfor %}
             </span>
         </div>
 
@@ -69,7 +103,6 @@
             <label for="{{ wizard.form.currency.auto_id }}">{% trans wizard.form.currency.label %}</label>
             <span>{{wizard.form.currency}}</span>
         </div>
-
 
         {{ wizard.form.normal_price.errors }}
         <div class="marge formrow">
@@ -232,6 +265,27 @@
         <span class="normal_price_price"></span>
         <span class="normal_price_currency"></span>
         <span class="remove_normal_price">{% trans "Remove" %}</span>
+    </span>
+    <span id="type_attribute_weight_template_form" style="display: none;">
+        {% with wizard.form.type_attribute_weights.empty_form as taw_empty %}
+            <span id="{{ taw_empty.prefix }}-row" class="type_attribute_weight_form">
+            {{ taw_empty.taw_id }}
+            {{ taw_empty.type_attribute }}
+            {{ taw_empty.type_attribute_weight}}
+            <input style="display: none;" type="checkbox" name="{{ taw_empty.DELETE.html_name }}" id="{{ taw_empty.DELETE.auto_id }}">
+            <span id="{{ taw_empty.prefix }}-type_attribute" class="type_attribute_value"></span>
+            <span id="{{ taw_empty.prefix }}-type_attribute_name" class="type_attribute_name"></span>
+            <span id="{{ taw_empty.prefix }}-type_attribute_weight" class="type_attribute_weight"></span>
+            <span id="{{ taw_empty.prefix }}-type_attribute_weight_unit" class="type_attribute_weight_unit"></span>
+            <span class="remove_type_attribute_weight">{% trans "Remove" %}</span>
+        </span>
+        {% endwith %}
+    </span>
+    <span id="standard_weight_template_form" style="display: none;">
+        <span class="standard_weight_name">{% trans "Standard Weight" %}</span>
+        <span class="standard_weight"></span>
+        <span class="standard_weight_unit"></span>
+        <span class="remove_standard_weight">{% trans "Remove" %}</span>
     </span>
     <span id="product_picture_template_form" style="display: none;">
         <span id="{{ wizard.form.pictures.empty_form.prefix }}-row" class="product_picture_form visuelProd">
@@ -824,6 +878,106 @@
     });
 
 
+    /********************** Type Attribute Weight ***********************/
+    $("#add_taw").click(function(e) {
+        // blank weight
+        var ta_weight = $("#type_attribute_weight_input").val();
+        if (!ta_weight) {
+            alert("{% trans "The weight can not be left blank." %}");
+            e.preventDefault();
+            return false;
+        }
+
+        var select_ta = $("#type_attribute_weight_selector").val();
+        var select_ta_name = $("#type_attribute_weight_selector option:selected").text();
+        var select_wu = $("#{{wizard.form.weight_unit.auto_id}} option:selected").text();
+
+        // Standard Weight
+        if (select_ta == 0) {
+            // Standard weight has been added.
+            if ($("#type_attribute_weights span.standard_weight").length > 0) {
+                alert("The {% trans "Standard Weight" %} has been added!");
+                return false;
+            }
+
+            // Add standard weight, fill input values and display
+            $("<span>").addClass("standard_weight_form")
+                    .append($("#standard_weight_template_form").html())
+                    .appendTo($("#type_attribute_weights"));
+            $("#{{ wizard.form.standard_weight.auto_id }}").val(ta_weight).change();
+            $("#type_attribute_weights span.standard_weight").text(ta_weight);
+            $("#type_attribute_weights span.standard_weight_unit").text(select_wu);
+            return false;
+        }
+
+        // TYPE ATTRIBUTE WEIGHT
+        {% with wizard.form.type_attribute_weights.empty_form as taw_empty %}
+            // this type attribute weight has been added.
+            if ($("#type_attribute_weights span.type_attribute_weight_form:visible span.type_attribute_value:[data-value="+select_ta+"]").length > 0) {
+                alert("The weight of \"" + select_ta_name + "\" has been added!");
+                return false;
+            }
+            // add type attribute weight
+            var nb_of_forms = $("#{{ wizard.form.type_attribute_weights.management_form.TOTAL_FORMS.auto_id }}").val();
+            var nb_of_forms_str = nb_of_forms.toString();
+            var form = $("#type_attribute_weight_template_form").html();
+            form = replace_form_prefix(form, nb_of_forms_str);
+
+            var taw_id_input = replace_form_prefix("#{{ taw_empty.taw_id.auto_id }}", nb_of_forms_str);
+            var type_attribute_input = replace_form_prefix("#{{ taw_empty.type_attribute.auto_id }}", nb_of_forms_str);
+            var type_attribute_weight_input = replace_form_prefix("#{{ taw_empty.type_attribute_weight.auto_id }}", nb_of_forms_str);
+            var ta_span = replace_form_prefix("#{{ taw_empty.prefix }}-type_attribute", nb_of_forms_str);
+            var ta_name_span = replace_form_prefix("#{{ taw_empty.prefix }}-type_attribute_name", nb_of_forms_str);
+            var taw_span = replace_form_prefix("#{{ taw_empty.prefix }}-type_attribute_weight", nb_of_forms_str);
+            var tawu_span = replace_form_prefix("#{{ taw_empty.prefix }}-type_attribute_weight_unit", nb_of_forms);
+        {% endwith %}
+
+        $("#type_attribute_weights").append(form);
+        $(taw_id_input).val(-1);
+        $(type_attribute_input).val(select_ta);
+        $(type_attribute_weight_input).val(ta_weight);
+        $(ta_span).attr("data-value", select_ta);
+        $(ta_name_span).text(select_ta_name);
+        $(taw_span).text(ta_weight);
+        $(tawu_span).text(select_wu);
+
+        nb_of_forms++;
+        $("#{{ wizard.form.type_attribute_weights.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
+
+        // Remove standard weight option and input
+        $("#type_attribute_weight_selector option[value=0]").remove();
+        $("span.standard_weight_form").remove();
+        $("#{{ wizard.form.standard_weight.auto_id }}").val("").change();
+
+        return false;
+    });
+
+    $("span.remove_type_attribute_weight").live("click", function(){
+        $(this).siblings("input:checkbox[id*=DELETE]").prop("checked", true);
+        $(this).parent().hide();
+        // Reappear standard weight option
+        if ($("span.type_attribute_weight_form:visible").length < 1 &&
+                $("#type_attribute_weight_selector option[value=0]").length < 1) {
+            $("#type_attribute_weight_selector").prepend($("<option>", {value: 0, text: "{% trans "Standard Weight" %}"}));
+        }
+    });
+    $("span.remove_standard_weight").live("click", function(){
+        $("#{{ wizard.form.standard_weight.auto_id }}").val("").change();
+        $(this).parent().remove();
+    });
+
+    {# weight unit dropdown change event#}
+    function weight_unit_changed() {
+        var selected_cur = $("#{{wizard.form.weight_unit.auto_id}} option:selected").text();
+        $("#taw_weight_unit").html(selected_cur);
+        $("#type_attribute_weights span.standard_weight_unit").text(selected_cur);
+        $(".type_attribute_weight_unit").each(function(){
+            $(this).text(selected_cur);
+        });
+    }
+    $("#{{wizard.form.weight_unit.auto_id}}").change(function(e){
+        weight_unit_changed();
+    });
 
     /********************** Utils ***********************/
     // Get product types by selected product category
@@ -858,6 +1012,7 @@
                 url: "/attributes/get_item_attrs/" + type_id,
                 dataType:"json",
                 success: function(data, textStatus){
+                    // initialise Price selector
                     $("#type_attribute_selector").empty();
                     if ($("span.type_attribute_price_form:visible").length < 1 &&
                             $("#type_attribute_selector option[value=0]").length < 1) {
@@ -866,11 +1021,23 @@
                     $.each(data, function(i, option){
                         $("#type_attribute_selector").append($("<option>", {value: option.value, text: option.label}));
                     });
+
+                    // initialise weight selector
+                    $("#type_attribute_weight_selector").empty();
+                    if ($("span.type_attribute_weight_form:visible").length < 1 &&
+                            $("#type_attribute_weight_selector option[value=0]").length < 1) {
+                        $("#type_attribute_weight_selector").prepend($("<option>", {value: 0, text: "{% trans "Standard Weight" %}"}));
+                    }
+                    $.each(data, function(i, option){
+                        $("#type_attribute_weight_selector").append($("<option>", {value: option.value, text: option.label}));
+                    });
                 }
             });
         } else {
             $("#type_attribute_selector").empty();
             $("#type_attribute_selector").append($("<option>", {value: 0, text: "{% trans "Unified price" %}"}));
+            $("#type_attribute_weight_selector").empty();
+            $("#type_attribute_weight_selector").append($("<option>", {value: 0, text: "{% trans "Standard Weight" %}"}));
         }
     }
 
