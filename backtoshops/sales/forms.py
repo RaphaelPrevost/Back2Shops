@@ -189,6 +189,12 @@ class TypeAttributePriceForm(forms.Form):
     type_attribute_price = forms.FloatField(widget=forms.HiddenInput())
 
 
+class TypeAttributeWeightForm(forms.Form):
+    taw_id = forms.IntegerField(widget=forms.HiddenInput())
+    type_attribute = forms.IntegerField(widget=forms.HiddenInput())
+    type_attribute_weight = forms.FloatField(widget=forms.HiddenInput())
+
+
 class ProductPictureForm(forms.Form):
     pk = forms.IntegerField(widget=forms.HiddenInput())
     url = forms.CharField(widget=forms.HiddenInput())
@@ -208,10 +214,9 @@ class ProductForm(forms.Form):
     weight_unit = forms.ModelChoiceField(
         label=_("Weight Unit"),
         queryset=WeightUnit.objects.all())
-    weight = forms.FloatField(
+    standard_weight = forms.FloatField(
         required=False,
-        initial=0,
-        widget=forms.TextInput(attrs={'class': 'inputS'}))
+        widget=forms.HiddenInput())
     normal_price = forms.FloatField(
         widget=forms.HiddenInput(),
         required=False)
@@ -274,6 +279,16 @@ class ProductForm(forms.Form):
             self.type_attribute_prices = TypeAttributePriceFormSet(
                 data=data, prefix="type_attribute_prices")
 
+        TypeAttributeWeightFormSet = formset_factory(TypeAttributeWeightForm,
+                                                     extra=0, can_delete=True)
+        if initial:
+            self.type_attribute_weights = TypeAttributeWeightFormSet(
+                data=data, initial=initial.get('type_attribute_weights', None),
+                prefix="type_attribute_weights")
+        else:
+            self.type_attribute_weights = TypeAttributeWeightFormSet(
+                data=data, prefix="type_attribute_weights")
+
     def clean_valid_to(self):
         valid_from = self.cleaned_data['valid_from']
         valid_to = self.cleaned_data['valid_to']
@@ -286,6 +301,16 @@ class ProductForm(forms.Form):
             raise forms.ValidationError(
                 _("Expiration date can not be set before today."))
         return valid_to
+
+    def clean_standard_weight(self):
+        valid_taws = [taw for taw in self.type_attribute_weights.cleaned_data
+                      if not taw['DELETE']]
+        standard_weight = self.cleaned_data.get('standard_weight', None)
+        if not valid_taws and not standard_weight:
+            raise forms.ValidationError(_(
+                'You must enter a Standard Weight, or enter a weight for at '
+                'least one type of item.'))
+        return standard_weight
 
     def clean_normal_price(self):
         valid_taps = [tap for tap in self.type_attribute_prices.cleaned_data
