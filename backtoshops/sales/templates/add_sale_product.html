@@ -202,9 +202,21 @@
                     {{ f.premium_amount }}
                     <input style="display: none;" type="checkbox" name="{{ f.DELETE.html_name }}" id="{{ f.DELETE.auto_id }}" {% if f.DELETE.value == "on" %}checked="checked"{% endif %}>
                     <span id="{{ f.prefix }}-name" class="brand_attribute_name">{{ f.name.value }}</span>
-                    <span id="{{ f.prefix }}-premium">
+                    <span id="{{ f.prefix }}-premium" class="brand_attributes-premium"
+                          data-premium_type={{ f.premium_type.value }}
+                          data-premium_amount={{ f.premium_amount.value }}>
                         {% if wizard.form.normal_price.value %}
-                            {% calc_premium_price f.premium_type.value f.premium_amount.value wizard.form.normal_price.value %}
+                            <span>{% trans "Premium pricre" %}:</span>
+                            <span>{% calc_premium_price f.premium_type.value f.premium_amount.value wizard.form.normal_price.value %}</span>
+                            <span class="premium_currency_marker"></span>
+                        {% else %}
+                            <span>{% trans "Premium" %}:</span>
+                            {% if f.premium_type.value == 'percentage' %}
+                                <span>{{ f.premium_amount.value }}%</span>
+                            {% else %}
+                                <span>{{ f.premium_amount.value }}</span>
+                                <span class="premium_currency_marker"></span>
+                            {% endif %}
                         {% endif %}
                     </span>
                     {% if f.texture.value %}
@@ -528,6 +540,40 @@
                      ba_pk: -1})
     });
 
+    function render_premium_result(premium_price_node, premium_type, premium_amount){
+        $(premium_price_node).fadeOut(function() {
+            premium_price_node.html("");
+            var selected_cur = $("#{{wizard.form.currency.auto_id}} option:selected").text();
+            var normal_price = parseFloat($("#{{ wizard.form.normal_price.auto_id }}").val());
+            premium_amount = parseFloat(premium_amount);
+            if (normal_price) {
+                $("<span>").html('{% trans "Premium price" %}:')
+                        .appendTo(premium_price_node);
+                $("<span>").html(_calc_premium_price(premium_type, premium_amount, normal_price))
+                        .appendTo(premium_price_node);
+                $("<span>").addClass("premium_currency_marker")
+                        .html(selected_cur)
+                        .appendTo(premium_price_node);
+            } else {
+                $("<span>").html('{% trans "Premium" %}:')
+                        .appendTo(premium_price_node);
+                if (premium_type == 'percentage') {
+                    $("<span>").html(premium_amount + "%")
+                            .appendTo(premium_price_node);
+                } else {
+                    $("<span>").html(premium_amount)
+                            .appendTo(premium_price_node);
+                    $("<span>").addClass("premium_currency_marker")
+                            .html(selected_cur)
+                            .appendTo(premium_price_node);
+                }
+            }
+            premium_price_node.attr('data-premium_type', premium_type);
+            premium_price_node.attr('data-premium_amount', premium_amount);
+
+        }).fadeIn();
+    };
+
     $("#add_ba").click(function(e) {
         if (!$("#ba_input").val()) {
             alert('{% trans "Attribute name can not be left blank." %}');
@@ -588,7 +634,9 @@
                     $(span_name).html($("#ba_input").val());
                     $(premium_type).val($("#premium_type").val());
                     $(premium_amount).val($("#premium_amount").val());
-                    $(span_premium_price).html($("#premium_price").html());
+                    render_premium_result($(span_premium_price),
+                                          $('#premium_type').val(),
+                                          $('#premium_amount').val());
                     nb_of_forms++;
                     $("#{{ wizard.form.brand_attributes.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
                     _clearBaForm();
@@ -785,6 +833,16 @@
         $("#preview-{{ wizard.form.preview_base_price.auto_id }}").html(base_price + selected_cur);
     }
 
+    function update_ba_premium() {
+        $('.brand_attributes-premium').each(function (){
+            var premium_type = $(this).attr('data-premium_type');
+            var premium_amount = $(this).attr('data-premium_amount');
+
+            if (premium_type && premium_amount) {
+                render_premium_result($(this), premium_type, premium_amount);
+            }
+        });
+    }
 
     /********************** Type Attribute Price ***********************/
     $("#add_tap").click(function(e) {
@@ -816,6 +874,7 @@
             $("#{{ wizard.form.normal_price.auto_id }}").val(ta_price).change();
             $("#type_attribute_prices span.normal_price_price").text(ta_price);
             $("#type_attribute_prices span.normal_price_currency").text(select_cur);
+            update_ba_premium();
             return false;
         }
 
@@ -858,6 +917,7 @@
         $("#type_attribute_selector option[value=0]").remove();
         $("span.normal_price_form").remove();
         $("#{{ wizard.form.normal_price.auto_id }}").val("").change();
+        update_ba_premium();
 
         return false;
     });
@@ -1057,6 +1117,9 @@
         $("#tap_currency").html(selected_cur);
         $("#type_attribute_prices span.normal_price_currency").text(selected_cur);
         $(".type_attribute_price_currency").each(function(){
+            $(this).text(selected_cur);
+        });
+        $(".premium_currency_marker").each(function(){
             $(this).text(selected_cur);
         });
         calcDiscount();
