@@ -111,7 +111,7 @@ COPY sales_sale (id, direct_sale, mother_brand_id, type_stock, total_stock, tota
 -- Data for Name: sales_product; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY sales_product (id, sale_id, category_id, type_id, brand_id, name, description, normal_price, discount_type, discount, valid_from, valid_to, currency_id, weight_unit_id, weight) FROM stdin;
+COPY sales_product (id, sale_id, category_id, type_id, brand_id, name, description, normal_price, discount_type, discount, valid_from, valid_to, currency_id, weight_unit_id, standard_weight) FROM stdin;
 1000003	1000003	1000002	1000003	1000001	product name 3	product 3	30	percentage	1	2013-12-30	\N	1	kg	30
 1000004	1000004	1000001	1000001	1000002	product 4 name	product 4	40	percentage	1	2013-12-30	\N	1	kg	40
 1000002	1000002	1000001	1000001	1000001	product name 2	product 2	10	percentage	1	2013-12-30	\N	1	kg	10

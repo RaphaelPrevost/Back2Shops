@@ -228,6 +228,8 @@ label {
             .link6 { background-position: 0 -125px; }
             .link7 { background-position: 0 -400px; }
             .link8 { background-position: 0 -525px; }
+            .link9 { background-position: 0 -600px; }
+            .link10 { background-position: 0 -675px; }
 
 
 
@@ -504,7 +506,7 @@ label {
     background-color: #F2F9FF;
     border: 1px solid #E1E6EA;
 }
-.page_info{ 
+.page_info{
     display: block; float: left;
     height: 30px; line-height: 30px;
     padding: 0 0 0 5px;
@@ -512,7 +514,7 @@ label {
     font-family: arial;
 }
 #page_num { width: 23px; height:15px; }
-.page_size{ 
+.page_size{
     display: block; float: right;
     width: 140px;
     margin: 5px;
@@ -521,13 +523,13 @@ label {
 }
 .page_size select { width: 50px; height: 17px; padding: 0px; }
 
-.pag_nav div{ 
+.pag_nav div{
     position: absolute;
     top: 30px; right: -3px;
     height: 30px;
 }
 
-.pagination { 
+.pagination {
     display: block; float: left;
     width: 20px; height: 20px;
     text-align: center; line-height: 18px;
@@ -535,8 +537,8 @@ label {
     background: url(../img/icon_pagination.png) no-repeat 0 -80px;
     color: #00A2FD; font-weight: bold;
     border: 1px solid #D5D5D5;
-} 
-.pagination:hover, .pagination:focus { border: 1px solid #2DA3E1; } 
+}
+.pagination:hover, .pagination:focus { border: 1px solid #2DA3E1; }
 
 .pagination.current { text-decoration: underline; }
 .pagination.prev1 { background-position: 0 0px; overflow: hidden; text-indent: -1500px; }
