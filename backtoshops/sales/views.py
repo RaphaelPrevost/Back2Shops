@@ -217,16 +217,18 @@ class SaleDetails(LoginRequiredMixin, View, TemplateResponseMixin):
                                                       sale=self.sale)\
                                               .aggregate(stock_sum=Sum('stock'), rest_stock_sum=Sum('rest_stock'))
 
+            stock_sum = results and results['stock_sum'] or 0
+            rest_stock_sum = results and results['rest_stock_sum'] or 0
             rows.append({
                 'common_attribute': common_attribute.name,
-                'base': results['stock_sum'] if results else 0,
-                'to_sell': results['rest_stock_sum'] if results else 0,
-                'sold': results['stock_sum'] - results['rest_stock_sum'] if results else 0,
-                'stock': results['rest_stock_sum'] if results else 0
+                'base': stock_sum,
+                'to_sell': rest_stock_sum,
+                'sold': stock_sum - rest_stock_sum,
+                'stock': rest_stock_sum
             })
             if shop_id:
-                self.total_stock += results['stock_sum'] if results else 0
-                self.total_rest_stock += results['rest_stock_sum'] if results else 0
+                self.total_stock += stock_sum
+                self.total_rest_stock += rest_stock_sum
         return rows
 
 
@@ -512,10 +514,6 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             #update sale's total stock and rest_stock
             shops_to_be_removed = ShopsInSale.objects.filter(is_freezed = True, shop__in = [p.shop for p in ProductStock.objects.filter(sale=self.sale,stock=F('rest_stock'))])
             stocks_to_be_removed = ProductStock.objects.filter(sale=sale,shop__in=[s.shop for s in shops_to_be_removed])
-            removed_total_stock = stocks_to_be_removed.aggregate(Sum('stock'))['stock__sum']
-            if removed_total_stock is not None:
-                sale.total_stock -= removed_total_stock
-                sale.total_rest_stock -= removed_total_stock
             stocks_to_be_removed.delete()
             shops_to_be_removed.delete()
 
@@ -540,10 +538,10 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         brand_attributes = form_list[1].brand_attributes
         ba_pks = []
         for ba in brand_attributes.cleaned_data:
+            preview=None
+            if ba['preview_pk']:
+                preview=ProductPicture.objects.get(pk=ba['preview_pk'])
             if not ba['DELETE']:
-                preview=None
-                if ba['preview_pk']:
-                    preview=ProductPicture.objects.get(pk=ba['preview_pk'])
                 (bap, created) = BrandAttributePreview.objects.get_or_create(
                     brand_attribute=BrandAttribute.objects.get(pk=ba['ba_id']),
                     product=product,
@@ -551,6 +549,13 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 )
                 bap.save()
                 ba_pks.append(ba['ba_id'])
+            else:
+                bap = BrandAttributePreview.objects.get(
+                    brand_attribute=BrandAttribute.objects.get(pk=ba['ba_id']),
+                    product=product,
+                    preview=preview)
+                if bap:
+                    bap.delete()
 
         pictures = form_list[1].pictures
         pp_pks = [int(pp['pk']) for pp in pictures.cleaned_data if not pp['DELETE']]
@@ -572,7 +577,19 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                     stock.stock = stock.rest_stock
                 stock.save()
 
-        sale.total_rest_stock  = sale.detailed_stock.aggregate(Sum('rest_stock'))['rest_stock__sum']
+        if self.edit_mode:
+            # Let's check if there is orphan stocks, if there is delete them
+            for i in ProductStock.objects.filter(sale=sale):
+                is_orphan_stock = ((i.brand_attribute and
+                                    i.brand_attribute.pk not in ba_pks) or
+                                   (ba_pks and i.brand_attribute is None))
+                if is_orphan_stock:
+                    i.delete()
+
+        sale_stock_sum = sale.detailed_stock.aggregate(stock_sum=Sum('stock'),
+                                                       rest_stock_sum=Sum('rest_stock'))
+        sale.total_stock = sale_stock_sum['stock_sum'] or 0
+        sale.total_rest_stock = sale_stock_sum['rest_stock_sum'] or 0
         if sale.total_stock < sale.total_rest_stock:
             sale.total_stock = sale.total_rest_stock
 
@@ -586,11 +603,6 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 barcode.upc = i.cleaned_data['upc']
                 barcode.save()
 
-        if self.edit_mode:
-            # Let's check if there is orphan stocks, if there is delete them
-            for i in ProductStock.objects.filter(sale=sale):
-                if i.brand_attribute and i.brand_attribute.pk not in ba_pks:
-                    i.delete()
 
         shipping_data = form_list[3].cleaned_data
         shipping.sale = sale
