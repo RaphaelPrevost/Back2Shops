@@ -864,6 +864,8 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 'preview_shop': self._render_preview(self.STEP_SHOP),
                 'preview_product': self._render_preview(self.STEP_PRODUCT),
                 'currency': self.currency,
+                'default_weight_unit': get_setting('default_weight_unit'),
+                'default_currency': get_setting('default_currency'),
                 'custom_shipping_rate_form': CustomShippingRateFormModel,
             })
         elif self.steps.current == self.STEP_TARGET:

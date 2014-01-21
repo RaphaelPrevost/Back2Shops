@@ -65,8 +65,9 @@ class CustomShippingRate(models.Model):
 
         t_type = dict(SHIPPING_TOTAL_ORDER_TYPE
                     ).get(self.total_order_type).lower()
-        #TODO: the weight unit shoule be implemented in #63.
-        t_unit = self.total_order_type == STOY_PRICE and get_setting('default_currency') or 'kg'
+        t_unit = (self.total_order_type == STOY_PRICE and
+                  get_setting('default_currency') or
+                  get_setting('default_weight_unit'))
         return ('%s: %s, %s between %s %s and %s %s'
                 % (self.shipping_rate, self.shipment_type, t_type,
                    self.total_order_lower, t_unit,

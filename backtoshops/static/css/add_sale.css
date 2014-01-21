@@ -1192,14 +1192,18 @@ span#type_attribute_prices span.normal_price_form {
 
 #main_form #carrier-services {
     display: none;
+    float: left;
 }
 
 #check-services #service-folders li ul {
     display: none;
 }
+#check-services #service-folders li {
+    height: auto;
+}
 
 div.add-new-csr-dialog {
-    width: 420px !important;
+    width: 450px !important;
 }
 div.add-new-csr-dialog p {
     margin-bottom: 5px;
