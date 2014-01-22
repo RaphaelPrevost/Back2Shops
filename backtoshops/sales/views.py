@@ -617,9 +617,11 @@ class SaleWizardNew(NamedUrlSessionWizardView):
 
         if shipping_data['set_as_default_shop_shipping']:
             for shop in form_list[0].cleaned_data['shops']:
-                DefaultShipping.objects.create(
-                    shop=shop, shipping=shipping
-                ).save()
+                df_shipping, _ = DefaultShipping.objects.get_or_create(
+                    shop=shop,
+                    defaults={'shipping': shipping})
+                df_shipping.shipping = shipping
+                df_shipping.save()
 
         if self.edit_mode:
             # Remove useless records.
