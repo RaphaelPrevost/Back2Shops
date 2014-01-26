@@ -1,7 +1,8 @@
-import settings
 import base64
 import json
 import math
+import settings
+from collections import defaultdict
 from datetime import date
 from datetime import datetime
 
@@ -15,15 +16,28 @@ from django.views.decorators.csrf import csrf_exempt
 from B2SCrypto.utils import gen_encrypt_json_context
 from B2SCrypto.constant import SERVICES
 
+from attributes.models import BrandAttributePreview
+from attributes.models import CommonAttribute
 from accounts.models import Brand
 from barcodes.models import Barcode
 from brandings.models import Branding
 from common.filter_utils import get_filter, get_order_by
+from common.error import InvalidRequestError
+from common.error import ParamsValidCheckError
+from common.fees import compute_fee
 from sales.models import ProductCategory
 from sales.models import ProductType
 from sales.models import STOCK_TYPE_GLOBAL
 from sales.models import Sale
 from sales.models import ShopsInSale
+from sales.models import TypeAttributeWeight
+from shippings.models import CustomShippingRateInShipping
+from shippings.models import SC_CARRIER_SHIPPING_RATE
+from shippings.models import SC_CUSTOM_SHIPPING_RATE
+from shippings.models import SC_FLAT_RATE
+from shippings.models import FlatRateInShipping
+from shippings.models import ServiceInShipping
+from shippings.models import Carrier, Service
 from shops.models import Shop
 from taxes.models import Rate
 
@@ -374,6 +388,9 @@ class BaseCryptoWebService(BaseWebservice):
     from_ = SERVICES.USR
     def render_to_response(self, context, **response_kwargs):
         resp = super(BaseCryptoWebService, self).render_to_response(context, **response_kwargs)
+        debugging = self.request.GET.get('debugging', False)
+        if settings.CRYPTO_RESP_DEBUGING and debugging:
+            return resp
         resp.render()
         if self.request.method == 'GET':
             self.from_ = self.request.GET.get('from', SERVICES.USR)
@@ -386,6 +403,7 @@ class BaseCryptoWebService(BaseWebservice):
         response_kwargs.update({
             'mimetype': 'application/json'
         })
+
         return HttpResponse(content, **response_kwargs)
 
 class TaxesListView(BaseCryptoWebService, ListView):
@@ -419,3 +437,161 @@ class TaxesListView(BaseCryptoWebService, ListView):
         if fromProvince:
             kwargs.update({'province': fromProvince})
         return kwargs
+
+
+def populate_carriers(carrier_services=None, shipping=None):
+    """
+    """
+    if carrier_services:
+        carrier_services = dict(carrier_services)
+    else:
+        carrier_services = defaultdict(list)
+    carrier_services.pop(0, None)
+    if shipping:
+        services_in_shipping = ServiceInShipping.objects.filter(
+            shipping=shipping)
+        for item in services_in_shipping:
+            carrier_services[item.service.carrier.pk].append(item.service.pk)
+
+    if not carrier_services:
+        raise ParamsValidCheckError("invalid_shipping_or_carrier_services: "
+                                    "shipping-%s, carrier_services-%s"
+                                    % shipping, carrier_services)
+    carriers = Carrier.objects.filter(pk__in=carrier_services.keys())
+    for carrier in carriers:
+        kwargs = {'carrier': carrier}
+        services_id = carrier_services.get(carrier.pk)
+        if services_id:
+            kwargs['pk__in'] = services_id
+        services = Service.objects.filter(**kwargs)
+        setattr(carrier, 'carrier_services', services)
+
+    return carriers
+
+def get_custom_rules(custom_rules=None, shipping=None):
+    kwargs = defaultdict()
+    if shipping:
+        kwargs['shipping'] = shipping
+    if custom_rules:
+        kwargs['pk__in'] = custom_rules
+
+    rules_in_shipping = CustomShippingRateInShipping.objects.filter(**kwargs)
+    return [item.custom_shipping_rate for item in rules_in_shipping]
+
+class ShippingInfoView(BaseCryptoWebService, ListView):
+    template_name = "shipping_info.xml"
+
+    def get_queryset(self):
+        sale_id = self.request.GET.get('sale', None)
+        sales_id = self.request.GET.get('sales', None)
+        if sale_id:
+            sales_id = [int(sale_id)]
+        else:
+            sales_id = json.loads(sales_id)
+        if not sales_id:
+            raise InvalidRequestError(
+                "invalid_shipping_info_request_Miss_param: %s"
+                % self.request.GET)
+
+        queryset = Sale.objects.filter(pk__in=sales_id)
+        for object in queryset:
+            self._populate_type_attrs(object)
+            self._populate_brand_attrs(object)
+            self._populate_type_attrs_weight(object)
+            self._populate_shipping_rate(object)
+
+        return queryset
+
+    def _populate_type_attrs(self, sale):
+        """ populate type attributes info for this sale item.
+        """
+        tp_attrs = CommonAttribute.objects.filter(
+            for_type=sale.product.type)
+        setattr(sale, 'type_attributes', tp_attrs)
+        return sale
+
+    def _populate_brand_attrs(self, sale):
+        """ populate brand attributes info for this sale item.
+        """
+        br_attrs_prevs = BrandAttributePreview.objects.filter(
+            product=sale.product)
+        br_attrs = [br_prev.brand_attribute for br_prev in br_attrs_prevs]
+        setattr(sale, 'brand_attributes', br_attrs)
+        return sale
+
+    def _populate_type_attrs_weight(self, sale):
+        attrs_weight = TypeAttributeWeight.objects.filter(sale=sale)
+        if attrs_weight:
+            setattr(sale,
+                    'attributes_weight',
+                    attrs_weight)
+
+    def _populate_shipping_rate(self, sale):
+        """ populate carrier/custom/flat shipping rate
+        """
+        sp_calc_method = sale.shippinginsale.shipping.shipping_calculation
+        shipping = sale.shippinginsale.shipping
+        if sp_calc_method == SC_CARRIER_SHIPPING_RATE:
+            carriers = populate_carriers(shipping=shipping)
+            setattr(sale, 'carriers', carriers)
+
+        elif sp_calc_method == SC_CUSTOM_SHIPPING_RATE:
+            custom_rules = get_custom_rules(shipping=shipping)
+            setattr(sale, 'custom_rules', custom_rules)
+
+        elif sp_calc_method == SC_FLAT_RATE:
+            ft_in_shipping = FlatRateInShipping.objects.get(shipping=shipping)
+            setattr(sale,
+                    'flat_rate',
+                    ft_in_shipping.flat_rate)
+        return sale
+
+
+class ShippingFeesView(BaseCryptoWebService, ListView):
+    template_name = "shipping_fees.xml"
+
+    def get_context_data(self, **kwargs):
+        carriers, custom_rules = kwargs.get('object_list') or ([], [])
+        kwargs['carriers'] = carriers
+        kwargs['custom_rules'] = custom_rules
+        return kwargs
+
+    def get_queryset(self):
+        carrier_services = self.request.GET.get('carrier_services', None)
+        weight = self.request.GET.get('weight')
+        weight_unit = self.request.GET.get('unit')
+        dest = self.request.GET.get('dest')
+        orig = self.request.GET.get('orig')
+
+        if carrier_services:
+            carrier_services = json.loads(carrier_services)
+
+        if (weight is None or
+            weight_unit is None or
+            dest is None or
+            not carrier_services):
+            raise InvalidRequestError(
+                "invalide_shipping_fees_request_miss_params %s"
+                % self.request.GET)
+
+        # carrier id is 0 for custom rules.
+        rules = [item[1] for item in carrier_services
+                         if item[0] == 0]
+        carriers = populate_carriers(carrier_services)
+        custom_rules = get_custom_rules(custom_rules=rules)
+
+        # calculate fees for services.
+        for carrier in carriers:
+            for service in carrier.carrier_services:
+                data = {'carrier': carrier.pk,
+                        'addr_orig': orig,
+                        'addr_dest': dest,
+                        'service': service.pk,
+                        'weight': weight,
+                        'weight_unit': weight_unit}
+                fee = compute_fee(data)
+                setattr(service, 'shipping_fee', fee)
+
+        return [carriers, custom_rules]
+
+

@@ -1,6 +1,5 @@
 import logging
 import settings
-import types
 import ujson
 
 from decimal import Decimal
@@ -12,8 +11,8 @@ from django.views.generic.base import View, TemplateResponseMixin
 from django.views.generic.edit import CreateView, UpdateView
 from fouillis.views import LoginRequiredMixin
 
-from common import carriers
 from common.error import UsersServerError
+from common.fees import compute_fee
 from common.orders import get_order_detail
 from common.orders import get_order_list
 from common.orders import send_shipping_fee
@@ -21,33 +20,8 @@ from orders.forms import ListOrdersForm
 from orders.forms import ShippingForm
 from orders.models import Shipping
 from sales.models import Sale
-from shippings.models import Carrier, Service
 
 
-def _api_fee(carr_cls, data):
-    handling_fee = Decimal(data.get('handling_fee') or 0)
-    addr_orig = data.get('addr_orig')
-    addr_dest = data.get('addr_dest')
-    service = data.get('service')
-    weight = float(data.get('weight') or 0)
-
-    rate = carr_cls.getRate(addr_orig, addr_dest, service, weight)
-    return Decimal(rate) + handling_fee
-
-def _no_api_fee(data):
-    return Decimal(data.get('ship_and_handling_fee') or 0)
-
-def compute_fee(data):
-    carrer_id = data.get('carrier')
-    carr = Carrier.objects.get(pk=carrer_id)
-    carr_flag = carr and carr.flag
-    cls_name = carr_flag.upper() + carriers.CARRIER_CLS_SURFFIX
-    cls = getattr(carriers, cls_name)
-    if cls and type(cls) is types.ClassType:
-        total_fee = _api_fee(cls, data)
-    else:
-        total_fee = _no_api_fee(data)
-    return total_fee
 
 def is_decimal(val):
     try:

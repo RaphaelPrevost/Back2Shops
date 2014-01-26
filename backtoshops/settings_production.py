@@ -263,3 +263,7 @@ SHIPPING_FEE_URL = "%s/webservice/protected/shipping/fee" % USR_SERVER
 
 ORDER_LIST_URL = '%s/webservice/1.0/private/order/orders' % USR_SERVER
 ORDER_DETAIL_URL = '%s/webservice/1.0/private/order/detail' % USR_SERVER
+
+# config to see decrypt content for response,
+# only used for debugging
+CRYPTO_RESP_DEBUGING = False
