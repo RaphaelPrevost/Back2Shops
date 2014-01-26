@@ -1,0 +1,86 @@
+{% load l10n %}
+{% load i18n %}
+{% load get_preview %}
+{% load is_flat_rate %}
+{% load is_free_shipping %}
+{% load is_carrier_shipping_rate %}
+{% load is_custom_shipping_rate %}
+{% load get_setting %}
+
+<shipping version="1.0">
+	{% for object in object_list %}
+        <settings for="{{ object.pk }}">
+            <name>{{ object.product.name }}</name>
+            {% if not object.product.standard_weight %}
+                <type id="{{ object.product.type.pk }}">
+                    <name>{{ object.product.type.name }}</name>
+                    {% for ta in object.type_attributes %}
+                        <attribute id="{{ ta.pk }}" name="{{ ta.name }}"/>
+                    {% endfor %}
+                </type>
+            {% endif %}
+
+            {% for br in object.brand_attributes %}
+                <variant id="{{ br.pk }}">
+                    <name>{{ br.name }}</name>
+                </variant>
+            {% endfor %}
+
+            {% if object.product.standard_weight %}
+                <weight unit="{{ object.product.weight_unit.key }}">
+                    {{ object.product.standard_weight }}
+                </weight>
+            {% elif object.attributes_weight %}
+                {% for attr_weight in object.attributes_weight %}
+                    <attribute_weight unit="{{ object.product.weight_unit.key }}" attr_id="{{ attr_weight.type_attribute.pk }}">
+                        {{ attr_weight.type_attribute_weight }}
+                    </attribute_weight>
+                {% endfor %}
+            {% endif %}
+
+            <options>
+                <option name="groupShipment" value="{{ object.shippinginsale.shipping.allow_group_shipment }}" />
+                <option name="localPickup" value="{{ object.shippinginsale.shipping.allow_pickup }}" />
+                <option name="voidHandling" value="{{ object.shippinginsale.shipping.pickup_voids_handling_fee }}" />
+                <option name="freeShipping" value="{% is_free_shipping object.shippinginsale.shipping.shipping_calculation %}" />
+                <option name="flatRate" value="{% is_flat_rate object.shippinginsale.shipping.shipping_calculation %}" />
+            </options>
+
+            {% if object.shippinginsale.shipping.shipping_calculation|is_carrier_shipping_rate %}
+                {% for carrier in object.carriers %}
+                    <carrier id="{{ carrier.id }}">
+                        <name>{{ carrier.name }}</name>
+                        {% for service in carrier.carrier_services %}
+                            <service id="{{ service.id }}">
+                                <name>{{ service.name }}</name>
+                            </service>
+                        {% endfor %}
+                    </carrier>
+                {% endfor %}
+            {% endif %}
+
+            {% if object.shippinginsale.shipping.shipping_calculation|is_custom_shipping_rate %}
+                <carrier id="0">
+                    <name>{% trans "Custom Shipping Rate" %}</name>
+                    {% for rule in object.custom_rules %}
+                        <service id="{{ rule.id }}">
+                            <name>{{ rule.shipment_type }}</name>
+                        </service>
+                    {% endfor %}
+                </carrier>
+            {% endif %}
+
+            <fees>
+                <handling currency="{% get_setting 'default_currency' %}"/>
+                {% if object.shippinginsale.shipping.shipping_calculation|is_free_shipping %}
+                    <shipping currency="{% get_setting 'default_currency' %}">0</shipping>
+                {% elif object.shippinginsale.shipping.shipping_calculation|is_flat_rate %}
+                    <shipping currency="{% get_setting 'default_currency' %}">
+                        {{ object.flat_rate }}
+                    </shipping>
+                {% endif %}
+            </fees>
+
+        </settings>
+	{% endfor %}
+</shipping>
