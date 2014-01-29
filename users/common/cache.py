@@ -215,8 +215,9 @@ class SalesCacheProxy(CacheProxy):
                 key = BARCODE % (stocks.upc, shop.id)
                 pipe.delete(key)
         if len(act_sale.shops) == 0:
-            key = BARCODE % (stocks.upc, GLOBAL_MARKET)
-            pipe.delete(key)
+            for stocks in act_sale.get_stocks_with_upc():
+                key = BARCODE % (stocks.upc, GLOBAL_MARKET)
+                pipe.delete(key)
         pipe.execute()
 
     def parse_xml(self, xml, is_entire_result):

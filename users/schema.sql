@@ -116,7 +116,8 @@ CREATE TABLE shipments (
     mail_tracking_number character varying(50),
     status SMALLINT,
     timestamp timestamp without time zone NOT NULL,
-    shipping_fee double precision DEFAULT 0.0 NOT NULL
+    shipping_fee double precision,
+    supported_services text
 );
 
 CREATE TABLE shipping_list (

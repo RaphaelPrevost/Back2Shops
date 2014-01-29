@@ -112,12 +112,19 @@ class ActorSaleAvailable(BaseActor):
         stocks_list = as_list(self.data.get('stocks', None))
         return [ActorStocks(data=stock) for stock in stocks_list]
 
-
 class ActorSale(BaseActor):
     attrs_map = {'id': '@id',
                  'name': 'name',
                  'desc': 'desc',
                  }
+
+    # attributes set/used in orders
+    order_props = None
+    shipping_setting = None
+
+    def __repr__(self):
+        return "ActorSale:" + '-'.join([self.id, self.name, self.desc])
+
     @property
     def category(self):
         return ActorSaleCategory(data=self.data['category'])
@@ -140,7 +147,8 @@ class ActorSale(BaseActor):
 
     @property
     def discount(self):
-        return ActorSaleDiscount(data=self.data['discount'])
+        if self.data.get('discount'):
+            return ActorSaleDiscount(data=self.data['discount'])
 
     @property
     def variant(self):
@@ -172,6 +180,9 @@ class ActorSale(BaseActor):
 
     def final_price(self, id_variant=0):
         def __diff_price(orig_price, obj):
+            if obj is None:
+                return 0
+
             if obj.type == 'ratio':
                 return Decimal(orig_price) * Decimal(obj.text) / 100
             else:

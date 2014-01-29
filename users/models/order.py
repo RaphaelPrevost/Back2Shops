@@ -1,5 +1,6 @@
 import logging
-from datetime import datetime
+import ujson
+import xmltodict
 
 from common.constants import INVOICE_STATUS
 from common.constants import ORDER_STATUS
@@ -10,6 +11,7 @@ from B2SUtils.db_utils import query
 from B2SUtils.db_utils import select
 from B2SUtils.db_utils import update
 from models.sale import CachedSale
+from models.shipments import wwwOrderShipments
 from models.shop import get_shop_id
 from models.user import get_user_profile
 
@@ -36,7 +38,6 @@ def _create_order_item(conn, sale, id_variant, upc_shop=None,
         'price': sale.final_price(id_variant),
         'name': sale.whole_name(id_variant),
         'description': sale.desc,
-        'barcode': upc_shop or ''
     }
     main_picture = sale.get_main_picture()
     if main_picture:
@@ -50,24 +51,6 @@ def _create_order_item(conn, sale, id_variant, upc_shop=None,
                  item_id, item_value)
     return item_id[0]
 
-
-def create_shipment(conn, id_order, addr_id, id_phone):
-    sm_values = {
-        'id_order': id_order,
-        'id_address': addr_id,
-        'id_phone': id_phone,
-        #'id_postage': '?',
-        #'mail_tracking_num': '?',
-        'status': SHIPMENT_STATUS.PACKING,
-        #'shipping_fee': '?',
-        'timestamp': datetime.utcnow(),
-    }
-    sm_id = insert(conn, 'shipments', values=sm_values, returning='id')
-    logging.info('shipment create: id: %s, values: %s',
-                 sm_id[0], sm_values)
-    return sm_id[0]
-
-
 def _create_order_details(conn, id_order, id_item, quantity):
     details_value = {
         'id_order': id_order,
@@ -77,21 +60,6 @@ def _create_order_details(conn, id_order, id_item, quantity):
     insert(conn, 'order_details', values=details_value)
     logging.info('order_details create: %s', details_value)
 
-
-def _create_shipping_list(conn, id_item, quantity,
-                          id_shipment=None, picture=None):
-    shipping_value = {
-        'id_item': id_item,
-        'quantity': quantity,
-        }
-
-    if id_shipment:
-        shipping_value['id_shipment'] = id_shipment
-    if picture:
-        shipping_value['picture'] = picture
-
-    insert(conn, 'shipping_list', values=shipping_value)
-    logging.info('shipping_list create: %s', shipping_value)
 
 
 def create_order(conn, users_id, telephone_id, order_items,
@@ -103,7 +71,20 @@ def create_order(conn, users_id, telephone_id, order_items,
                                      upc_shop=upc_shop,
                                      barcode=order.get('barcode', None),
                                      id_shop=order['id_shop'])
+        # populate id_order_item into order params, it will be
+        # used when create shipping list.
+        order['id_order_item'] = item_id
         _create_order_details(conn, order_id, item_id, order['quantity'])
+    if upc_shop is None:
+        wwwOrderShipments(conn,
+                          order_id,
+                          order_items,
+                          telephone_id,
+                          shipaddr).create()
+    else:
+        # TODO: Create fake shipments for posOrder items.
+        pass
+
     return order_id
 
 

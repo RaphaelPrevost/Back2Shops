@@ -5,6 +5,7 @@
 {% load is_free_shipping %}
 {% load is_carrier_shipping_rate %}
 {% load is_custom_shipping_rate %}
+{% load is_invoice_shipping_rate %}
 {% load get_setting %}
 
 <shipping version="1.0">
@@ -14,29 +15,21 @@
             {% if not object.product.standard_weight %}
                 <type id="{{ object.product.type.pk }}">
                     <name>{{ object.product.type.name }}</name>
-                    {% for ta in object.type_attributes %}
-                        <attribute id="{{ ta.pk }}" name="{{ ta.name }}"/>
-                    {% endfor %}
+                    {% if object.type_attribute %}
+                        <attribute id="{{ object.type_attribute.pk }}" name="{{ object.type_attribute.name }}"/>
+                    {% endif %}
                 </type>
             {% endif %}
 
-            {% for br in object.brand_attributes %}
-                <variant id="{{ br.pk }}">
-                    <name>{{ br.name }}</name>
+            {% if object.brand_attribute %}
+                <variant id="{{ object.brand_attribute.pk }}">
+                    <name>{{ object.brand_attribute.name }}</name>
                 </variant>
-            {% endfor %}
-
-            {% if object.product.standard_weight %}
-                <weight unit="{{ object.product.weight_unit.key }}">
-                    {{ object.product.standard_weight }}
-                </weight>
-            {% elif object.attributes_weight %}
-                {% for attr_weight in object.attributes_weight %}
-                    <attribute_weight unit="{{ object.product.weight_unit.key }}" attr_id="{{ attr_weight.type_attribute.pk }}">
-                        {{ attr_weight.type_attribute_weight }}
-                    </attribute_weight>
-                {% endfor %}
             {% endif %}
+
+            <weight unit="{{ object.product.weight_unit.key }}">
+                {{ object.weight }}
+            </weight>
 
             <options>
                 <option name="groupShipment" value="{{ object.shippinginsale.shipping.allow_group_shipment }}" />
@@ -44,6 +37,9 @@
                 <option name="voidHandling" value="{{ object.shippinginsale.shipping.pickup_voids_handling_fee }}" />
                 <option name="freeShipping" value="{% is_free_shipping object.shippinginsale.shipping.shipping_calculation %}" />
                 <option name="flatRate" value="{% is_flat_rate object.shippinginsale.shipping.shipping_calculation %}" />
+                <option name="carrierShippingRate" value="{% is_carrier_shipping_rate object.shippinginsale.shipping.shipping_calculation %}" />
+                <option name="customShippingRate" value="{% is_custom_shipping_rate object.shippinginsale.shipping.shipping_calculation %}" />
+                <option name="invoiceShippingRate" value="{% is_invoice_shipping_rate object.shippinginsale.shipping.shipping_calculation %}" />
             </options>
 
             {% if object.shippinginsale.shipping.shipping_calculation|is_carrier_shipping_rate %}
@@ -71,7 +67,9 @@
             {% endif %}
 
             <fees>
-                <handling currency="{% get_setting 'default_currency' %}"/>
+                <handling currency="{% get_setting 'default_currency' %}">
+                    {{ object.shippinginsale.shipping.handling_fee }}
+                </handling>
                 {% if object.shippinginsale.shipping.shipping_calculation|is_free_shipping %}
                     <shipping currency="{% get_setting 'default_currency' %}">0</shipping>
                 {% elif object.shippinginsale.shipping.shipping_calculation|is_flat_rate %}
