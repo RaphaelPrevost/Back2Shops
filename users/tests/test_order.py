@@ -1,6 +1,5 @@
 import ujson
 from random import choice
-import settings
 
 from common.constants import ADDR_TYPE
 from common.constants import GENDER
@@ -8,7 +7,6 @@ from common.test_utils import BaseTestCase
 from common.test_utils import UsersBrowser
 from common.utils import generate_random_str
 from common.utils import generate_random_digits_str
-from common.utils import gen_cookie_expiry
 from common.utils import _parse_auth_cookie
 from B2SUtils import db_utils
 
@@ -132,10 +130,10 @@ class TestOrder(BaseTestCase):
         # test wwwOrder items in unique shop.
         # order:
         wwwOrder = [
-            {'id_sale': 1000001, 'id_variant': 1000001, 'quantity': 5, 'id_shop': 1000001},
-            {'id_sale': 1000001, 'id_variant': 1000002, 'quantity': 6, 'id_shop': 1000001},
-            {'id_sale': 1000002, 'id_variant': 1000003, 'quantity': 7, 'id_shop': 1000001},
-            {'id_sale': 1000002, 'id_variant': 1000004, 'quantity': 8, 'id_shop': 1000001}
+            {'id_sale': 1000001, 'id_variant': 1000001, 'quantity': 5, 'id_shop': 1000001, 'id_weight_type': 0},
+            {'id_sale': 1000001, 'id_variant': 1000002, 'quantity': 6, 'id_shop': 1000001, 'id_weight_type': 0},
+            {'id_sale': 1000002, 'id_variant': 1000003, 'quantity': 7, 'id_shop': 1000001, 'id_weight_type': 0},
+            {'id_sale': 1000002, 'id_variant': 1000004, 'quantity': 8, 'id_shop': 1000001, 'id_weight_type': 0}
         ]
         self.success_wwwOrder(telephone, shipaddr, billaddr, wwwOrder)
 
@@ -164,10 +162,10 @@ class TestOrder(BaseTestCase):
         # test wwwOrder items in unique shop.
         # order:
         wwwOrder = [
-            {'id_sale': 1000001, 'id_variant': 1000001, 'quantity': 5, 'id_shop': 1000001},
-            {'id_sale': 1000001, 'id_variant': 1000002, 'quantity': 6, 'id_shop': 1000001},
-            {'id_sale': 1000003, 'id_variant': 1000005, 'quantity': 7, 'id_shop': 1000002},
-            {'id_sale': 1000003, 'id_variant': 1000006, 'quantity': 8, 'id_shop': 1000002}
+            {'id_sale': 1000001, 'id_variant': 1000001, 'quantity': 5, 'id_shop': 1000001, 'id_weight_type': 0},
+            {'id_sale': 1000001, 'id_variant': 1000002, 'quantity': 6, 'id_shop': 1000001, 'id_weight_type': 0},
+            {'id_sale': 1000003, 'id_variant': 1000005, 'quantity': 7, 'id_shop': 1000002, 'id_weight_type': 0},
+            {'id_sale': 1000003, 'id_variant': 1000006, 'quantity': 8, 'id_shop': 1000002, 'id_weight_type': 0}
         ]
         self.success_wwwOrder(telephone, shipaddr, billaddr, wwwOrder)
 
@@ -196,10 +194,10 @@ class TestOrder(BaseTestCase):
         # test wwwOrder items in unique shop.
         # order:
         wwwOrder = [
-            {'id_sale': 1000001, 'id_variant': 1000001, 'quantity': 5, 'id_shop': 1000001},
-            {'id_sale': 1000001, 'id_variant': 1000002, 'quantity': 6, 'id_shop': 1000001},
-            {'id_sale': 1000004, 'id_variant': 1000007, 'quantity': 7, 'id_shop': 1000003},
-            {'id_sale': 1000004, 'id_variant': 1000008, 'quantity': 8, 'id_shop': 1000003}
+            {'id_sale': 1000001, 'id_variant': 1000001, 'quantity': 5, 'id_shop': 1000001, 'id_weight_type': 0},
+            {'id_sale': 1000001, 'id_variant': 1000002, 'quantity': 6, 'id_shop': 1000001, 'id_weight_type': 0},
+            {'id_sale': 1000004, 'id_variant': 1000007, 'quantity': 7, 'id_shop': 1000003, 'id_weight_type': 0},
+            {'id_sale': 1000004, 'id_variant': 1000008, 'quantity': 8, 'id_shop': 1000003, 'id_weight_type': 0}
         ]
         self.success_wwwOrder(telephone, shipaddr, billaddr, wwwOrder)
 

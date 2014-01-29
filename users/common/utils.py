@@ -10,13 +10,18 @@ import random
 import string
 import re
 import ujson
+import urllib
 import urllib2
 import settings
+import xmltodict
 
 from hashlib import sha1
 
+
 from common.constants import HASH_ALGORITHM
 from common.constants import HASH_ALGORITHM_NAME
+from B2SCrypto.utils import get_from_remote
+from B2SCrypto.constant import SERVICES
 from B2SUtils.errors import ValidationError
 from B2SUtils import db_utils
 
@@ -346,3 +351,36 @@ def order_img_download(img_path):
         logging.error("Failed down load order's img: %s, err: %s",
                       img_path, e, exc_info=True)
         raise
+
+def remote_xml_shipping_fee(carrier_services, weight, unit, dest, orig):
+    uri = 'protected/shipping/fees'
+    if isinstance(carrier_services, list):
+        carrier_services = ujson.dumps(carrier_services)
+    if isinstance(dest, dict):
+        dest = ujson.dumps(dest)
+    if isinstance(orig, dict):
+        orig = ujson.dumps(orig)
+
+    query = {'carrier_services': carrier_services,
+             'weight': weight,
+             'unit': unit,
+             'dest': dest,
+             'orig': orig}
+    content = get_from_sale_server(uri, **query)
+    return content
+
+def get_from_sale_server(uri, **query):
+    remote_uri = settings.SALES_SERVER_API_URL % {'api': uri}
+    if query:
+        query_str = urllib.urlencode(query)
+        remote_uri = '?'.join([remote_uri, query_str])
+
+    remote_server_name = SERVICES.ADM
+    try:
+        content = get_from_remote(remote_uri,
+                                  settings.SERVER_APIKEY_URI_MAP[remote_server_name],
+                                  settings.PRIVATE_KEY_PATH)
+    except Exception, e:
+        logging.error('get_from_sale_server_error: %s', e, exc_info=True)
+        raise
+    return content

@@ -137,7 +137,8 @@ class OrderResource(BaseResource):
                 'id_variant': id_variant,
                 'quantity': quantity,
                 'id_shop': id_shop,
-                'barcode': barcode}
+                'barcode': barcode,
+                'id_weight_type': None}
 
     def _wwwOrderValidCheck(self, conn, order):
         try:
@@ -146,6 +147,7 @@ class OrderResource(BaseResource):
                 assert order.get('id_sale') is not None, 'id_sale'
                 assert order.get('id_variant') is not None, 'id_variant'
                 assert order.get('quantity') is not None, 'quantity'
+                assert order.get('id_weight_type') is not None, 'id_weight_type'
             except AssertionError, e:
                 raise
 

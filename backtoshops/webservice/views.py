@@ -1,4 +1,5 @@
 import base64
+import logging
 import json
 import math
 import settings
@@ -7,6 +8,7 @@ from datetime import date
 from datetime import datetime
 
 from django.contrib.auth import authenticate as _authenticate
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Max
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseForbidden
@@ -79,6 +81,10 @@ class SalesListView(BaseWebservice, ListView):
             queryset = queryset.filter(shops__in=[shop])
         if brand:
             queryset = queryset.filter(mother_brand=brand)
+
+        for sale in queryset:
+            populate_shipping_rate(sale)
+
         return queryset
 
 class ShopsListView(BaseWebservice, ListView):
@@ -142,6 +148,12 @@ class SalesInfoView(BaseWebservice, DetailView):
 class ShopsInfoView(BaseWebservice, DetailView):
     template_name = "shops_info.xml"
     model = Shop
+
+    def get_queryset(self):
+        queryset = super(ShopsInfoView, self).get_queryset()
+        for sale in queryset:
+            populate_shipping_rate(sale)
+        return queryset
 
 class TypesInfoView(BaseWebservice, DetailView):
     template_name = "types_info.xml"
@@ -478,73 +490,138 @@ def get_custom_rules(custom_rules=None, shipping=None):
     rules_in_shipping = CustomShippingRateInShipping.objects.filter(**kwargs)
     return [item.custom_shipping_rate for item in rules_in_shipping]
 
+def populate_shipping_rate(sale):
+    """ populate carrier/custom/flat shipping rate
+    """
+    sp_calc_method = sale.shippinginsale.shipping.shipping_calculation
+    shipping = sale.shippinginsale.shipping
+    if sp_calc_method == SC_CARRIER_SHIPPING_RATE:
+        carriers = populate_carriers(shipping=shipping)
+        setattr(sale, 'carriers', carriers)
+
+    elif sp_calc_method == SC_CUSTOM_SHIPPING_RATE:
+        custom_rules = get_custom_rules(shipping=shipping)
+        setattr(sale, 'custom_rules', custom_rules)
+
+    elif sp_calc_method == SC_FLAT_RATE:
+        ft_in_shipping = FlatRateInShipping.objects.get(shipping=shipping)
+        setattr(sale,
+                'flat_rate',
+                ft_in_shipping.flat_rate)
+    return sale
+
 class ShippingInfoView(BaseCryptoWebService, ListView):
     template_name = "shipping_info.xml"
 
-    def get_queryset(self):
-        sale_id = self.request.GET.get('sale', None)
-        sales_id = self.request.GET.get('sales', None)
-        if sale_id:
-            sales_id = [int(sale_id)]
-        else:
-            sales_id = json.loads(sales_id)
-        if not sales_id:
-            raise InvalidRequestError(
-                "invalid_shipping_info_request_Miss_param: %s"
-                % self.request.GET)
+    def requestValidCheck(self):
+        sales = self.request.GET.get('sales', None)
+        try:
+            if not sales:
+                raise ParamsValidCheckError(
+                    "shipping_info_view_Miss_param: %s"
+                    % self.request.GET)
+            sales = json.loads(sales)
+            for sale_id, props in sales:
+                if ('variant' not in props or
+                    'weight_type' not in props):
+                    raise ValueError("Miss variant or type attribute")
 
-        queryset = Sale.objects.filter(pk__in=sales_id)
-        for object in queryset:
-            self._populate_type_attrs(object)
-            self._populate_brand_attrs(object)
-            self._populate_type_attrs_weight(object)
-            self._populate_shipping_rate(object)
+        except ValueError, e:
+            logging.error('shipping_info_valid_check_failure: %s'
+                          % e, exc_info=True)
+            raise ParamsValidCheckError(
+                "shipping_info_view_Invalid_sale_param: %s"
+                % sales)
+        return sales
+
+    def typeAttrValidCheck(self, sale, type_attr_id):
+        # type_attr_id is None or 0 means no type attribute selected.
+        if type_attr_id is None or int(type_attr_id) == 0:
+            return
+
+        try:
+            tp_attr = CommonAttribute.objects.get(pk=type_attr_id)
+        except ObjectDoesNotExist, e:
+            logging.error('shipping_info_type_attr_check_failure:'
+                          '%s' % e, exc_info=True)
+            error = ("shipping_info_invalid_type_attr:"
+                     "sale: %s, type_attr: %s"
+                     % (sale.pk, type_attr_id))
+            raise ParamsValidCheckError(error)
+
+        if tp_attr.for_type != sale.product.type:
+            error = ("shipping_info_inconsistent_type_attr:"
+                     "sale: %s, type_attr: %s"
+                     % (sale.pk, type_attr_id))
+            raise ParamsValidCheckError(error)
+        return tp_attr
+
+    def brandAttrValidCheck(self, sale, variant_id):
+        # variant_id is None or 0 means no brand attribute selected.
+        if variant_id is None or int(variant_id) == 0:
+            return
+
+        try:
+            br_attr_prev = BrandAttributePreview.objects.get(
+                product_id=sale.product.pk, brand_attribute_id=variant_id)
+        except ObjectDoesNotExist, e:
+            logging.error('shipping_info_brand_attr_check_failure:'
+                          '%s' % e, exc_info=True)
+            error = ("shipping_info_invlaid_brand_attr:"
+                     "sale: %s, brand_attr: %s"
+                     % (sale.pk, variant_id))
+            raise ParamsValidCheckError(error)
+        return br_attr_prev.brand_attribute
+
+    def typeAttributeWeightValidCheck(self, sale, type_attr):
+        if type_attr is None:
+            return
+
+        try:
+            tp_attr_weight = TypeAttributeWeight.objects.get(
+                sale=sale, type_attribute=type_attr)
+        except ObjectDoesNotExist, e:
+            logging.error('shipping_info_type_attr_weight_check_failure:'
+                          '%s' % e, exc_info=True)
+            error = ("shipping_info_invlaid_type_attr_for_weight:"
+                     "sale: %s, type attr: %s"
+                     % (sale.pk, type_attr.pk))
+            raise ParamsValidCheckError(error)
+        return tp_attr_weight
+
+    def get_queryset(self):
+        sales = self.requestValidCheck()
+
+        queryset = []
+        for sale_id, prop in sales:
+            try:
+                sale = Sale.objects.get(pk=sale_id)
+            except ObjectDoesNotExist, e:
+                logging.warning("shipping_info_sale_not_exist:"
+                                "sale-%s" % sale_id)
+                continue
+
+
+            type_attr_id = prop['weight_type']
+            variant_id = prop['variant']
+            type_attr = self.typeAttrValidCheck(sale, type_attr_id)
+            brand_attr = self.brandAttrValidCheck(sale, variant_id)
+            tp_attr_weight = self.typeAttributeWeightValidCheck(sale, type_attr)
+
+            setattr(sale, 'type_attribute', type_attr)
+            setattr(sale, 'brand_attribute', brand_attr)
+
+            if not tp_attr_weight:
+                weight = sale.product.standard_weight
+            else:
+                weight = tp_attr_weight.type_attribute_weight
+
+            setattr(sale, 'weight', weight)
+
+            populate_shipping_rate(sale)
+            queryset.append(sale)
 
         return queryset
-
-    def _populate_type_attrs(self, sale):
-        """ populate type attributes info for this sale item.
-        """
-        tp_attrs = CommonAttribute.objects.filter(
-            for_type=sale.product.type)
-        setattr(sale, 'type_attributes', tp_attrs)
-        return sale
-
-    def _populate_brand_attrs(self, sale):
-        """ populate brand attributes info for this sale item.
-        """
-        br_attrs_prevs = BrandAttributePreview.objects.filter(
-            product=sale.product)
-        br_attrs = [br_prev.brand_attribute for br_prev in br_attrs_prevs]
-        setattr(sale, 'brand_attributes', br_attrs)
-        return sale
-
-    def _populate_type_attrs_weight(self, sale):
-        attrs_weight = TypeAttributeWeight.objects.filter(sale=sale)
-        if attrs_weight:
-            setattr(sale,
-                    'attributes_weight',
-                    attrs_weight)
-
-    def _populate_shipping_rate(self, sale):
-        """ populate carrier/custom/flat shipping rate
-        """
-        sp_calc_method = sale.shippinginsale.shipping.shipping_calculation
-        shipping = sale.shippinginsale.shipping
-        if sp_calc_method == SC_CARRIER_SHIPPING_RATE:
-            carriers = populate_carriers(shipping=shipping)
-            setattr(sale, 'carriers', carriers)
-
-        elif sp_calc_method == SC_CUSTOM_SHIPPING_RATE:
-            custom_rules = get_custom_rules(shipping=shipping)
-            setattr(sale, 'custom_rules', custom_rules)
-
-        elif sp_calc_method == SC_FLAT_RATE:
-            ft_in_shipping = FlatRateInShipping.objects.get(shipping=shipping)
-            setattr(sale,
-                    'flat_rate',
-                    ft_in_shipping.flat_rate)
-        return sale
 
 
 class ShippingFeesView(BaseCryptoWebService, ListView):
@@ -593,5 +670,3 @@ class ShippingFeesView(BaseCryptoWebService, ListView):
                 setattr(service, 'shipping_fee', fee)
 
         return [carriers, custom_rules]
-
-

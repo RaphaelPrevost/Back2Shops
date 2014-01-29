@@ -3,20 +3,23 @@
 {% load get_setting %}
 
 <carriers version="1.0">
-	{% for object in carriers %}
-        <carrier id="{{ object.pk }}">
-            <name>{{ object.name }}</name>
-            {% for service in object.carrier_services %}
-                <service id="{{ service.pk }}">
-                    <name>{{ service.name }}</name>
-                    <fee currency="{% get_setting 'default_currency' %}}">
-                        {{ service.shipping_fee }}
-                    </fee>
-                </service>
-            {% endfor %}
-        </carrier>
-	{% endfor %}
+    {% if carriers %}
+        {% for object in carriers %}
+            <carrier id="{{ object.pk }}">
+                <name>{{ object.name }}</name>
+                {% for service in object.carrier_services %}
+                    <service id="{{ service.pk }}">
+                        <name>{{ service.name }}</name>
+                        <fee currency="{% get_setting 'default_currency' %}}">
+                            {{ service.shipping_fee }}
+                        </fee>
+                    </service>
+                {% endfor %}
+            </carrier>
+        {% endfor %}
+    {% endif %}
 
+    {% if custom_rules %}
         <carrier id="0">
             <name>{% trans "Custom Shipping Rate" %}</name>
             {% for rule in custom_rules %}
@@ -26,4 +29,5 @@
                 </service>
             {% endfor %}
         </carrier>
+    {% endif %}
 </carriers>
