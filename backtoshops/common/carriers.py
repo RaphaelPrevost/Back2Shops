@@ -12,7 +12,7 @@ class EMSCarrier():
     @classmethod
     def getRate(cls, origin_addr, dest_addr, service_type, weight):
         # TODO: calculate fee according with different case.
-        return 5.0
+        return float(weight) * 2.0
 
     @classmethod
     def printLable(cls, origin_addr, dest_addr, service_type, weight):

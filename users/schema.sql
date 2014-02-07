@@ -127,6 +127,12 @@ CREATE TABLE shipping_list (
     picture character varying(200)
 );
 
+CREATE TABLE free_sales_fee (
+    id_shipment BIGINT UNIQUE,
+    fee double precision,
+    FOREIGN KEY (id_shipment) REFERENCES shipments (id)
+);
+
 CREATE TABLE currency (
     id serial PRIMARY KEY,
     code character varying(3) NOT NULL,

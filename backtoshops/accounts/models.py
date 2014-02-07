@@ -3,6 +3,8 @@ from django.db import models
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
+from countries.models import Country
+
 class UserProfile(models.Model):
     user = models.ForeignKey(User, unique=True)
     work_for = models.ForeignKey("Brand", related_name="employee")
@@ -15,7 +17,13 @@ class UserProfile(models.Model):
 class Brand(models.Model):
     name = models.CharField(max_length=50)
     logo = models.ImageField(upload_to="brand_logos")
+    address = models.CharField(verbose_name=_("Address"), max_length=250, blank=True, null=True)
+    zipcode = models.IntegerField(verbose_name=_("Postal code"), blank=True, null=True)
+    city = models.CharField(verbose_name=_("City"), max_length=100)
+    country = models.ForeignKey(Country, verbose_name=_('Country'), blank=True, null=True)
 
     def __str__(self):
         return self.name
 
+    def clean_city(self):
+        return self.city.upper()

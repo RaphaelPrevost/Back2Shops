@@ -638,7 +638,8 @@ class ShippingFeesView(BaseCryptoWebService, ListView):
         weight = self.request.GET.get('weight')
         weight_unit = self.request.GET.get('unit')
         dest = self.request.GET.get('dest')
-        orig = self.request.GET.get('orig')
+        id_shop = self.request.GET.get('id_shop')
+        id_corporate_account = self.request.GET.get('id_corporate_account')
 
         if carrier_services:
             carrier_services = json.loads(carrier_services)
@@ -646,7 +647,8 @@ class ShippingFeesView(BaseCryptoWebService, ListView):
         if (weight is None or
             weight_unit is None or
             dest is None or
-            not carrier_services):
+            not carrier_services or
+            not (id_shop or id_corporate_account)):
             raise InvalidRequestError(
                 "invalide_shipping_fees_request_miss_params %s"
                 % self.request.GET)
@@ -657,6 +659,7 @@ class ShippingFeesView(BaseCryptoWebService, ListView):
         carriers = populate_carriers(carrier_services)
         custom_rules = get_custom_rules(custom_rules=rules)
 
+        orig = self.get_orig_address(id_shop, id_corporate_account)
         # calculate fees for services.
         for carrier in carriers:
             for service in carrier.carrier_services:
@@ -670,3 +673,22 @@ class ShippingFeesView(BaseCryptoWebService, ListView):
                 setattr(service, 'shipping_fee', fee)
 
         return [carriers, custom_rules]
+
+    def get_orig_address(self, id_shop=None, id_corporate_account=None):
+        if id_shop and id_shop != 'None' and int(id_shop):
+            shop = Shop.objects.get(pk=id_shop)
+            address = {'address': shop.address,
+                       'city': shop.city,
+                       'country': shop.country,
+                       'postalcode': shop.zipcode}
+            return address
+        elif (id_corporate_account and
+              id_corporate_account != 'None' and
+              int(id_corporate_account)):
+            corporate = Brand.objects.get(pk=id_corporate_account)
+            address = {'address': corporate.address,
+                       'city': corporate.city,
+                       'country': corporate.country,
+                       'postalcode': corporate.zipcode}
+            return address
+

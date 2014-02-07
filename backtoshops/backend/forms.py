@@ -11,6 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from accounts.models import Brand
 from accounts.models import UserProfile
 from brandings.models import Branding
+from countries.models import Country
 from globalsettings.models import GlobalSettings
 from sales.models import ProductCategory
 from sales.models import ProductCurrency
@@ -20,15 +21,24 @@ from shippings.models import Carrier
 from taxes.models import Rate
 from widgets import AdvancedFileInput
 
+class CountryField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return _(obj.printable_name)
 
 class SABrandForm(forms.ModelForm):
     error_css_class = 'error'
     required_css_class = 'required'
     
     logo = forms.ImageField(widget=AdvancedFileInput)
-    
+
     class Meta:
         model = Brand
+
+    def __init__(self, *args, **kwargs):
+        super(SABrandForm, self).__init__(*args, **kwargs)
+        self.fields['zipcode'].widget = forms.TextInput(attrs={'class': 'inputXS'})
+        self.fields['city'].widget = forms.TextInput(attrs={'class': 'inputM'})
+        self.fields['country'] = CountryField(queryset=Country.objects.all(), empty_label=_('Select a country'))
 
 
 class BaseUserForm(forms.ModelForm):

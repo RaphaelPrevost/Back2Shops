@@ -49,3 +49,18 @@ def get_user_profile(conn, user_id):
     if results:
         user_profile = dict(zip(columns, results[0]))
     return user_profile
+
+def get_user_address(conn, user_id, addr_id):
+    user_address = {}
+    columns = ['address', 'city', 'country_code', 'province_code',
+               'postal_code']
+
+    results = select(conn,
+                     'users_address',
+                     where={'users_id': user_id,
+                            'id': int(addr_id)},
+                     columns=columns)
+    if results:
+        user_address = dict(zip(columns, results[0]))
+
+    return user_address
