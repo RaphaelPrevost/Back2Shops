@@ -51,6 +51,26 @@
                 <label for="{{form.logo.auto_id}}">{% trans form.logo.label %}</label>
                 {{ form.logo }}
             </div>
+            {{ form.address.errors }}
+            <div class="formrow">
+                <label for="{{form.address.auto_id}}">{% trans form.address.label %}</label>
+                {{ form.address }}
+            </div>
+            {{ form.zipcode.errors }}
+            <div class="formrow">
+                <label for="{{form.zipcode.auto_id}}">{% trans form.zipcode.label %}</label>
+                {{ form.zipcode }}
+            </div>
+            {{ form.city.errors }}
+            <div class="formrow">
+                <label for="{{form.city.auto_id}}">{% trans form.city.label %}</label>
+                {{ form.city }}
+            </div>
+            {{ form.country.errors }}
+            <div class="formrow">
+                <label for="{{form.country.auto_id}}">{% trans form.country.label %}</label>
+                {{ form.country }}
+            </div>
         </fieldset>
         <!--BOUTONS-->
         <input class="btn valider" type="submit" value='{% trans "Save" %}'/>

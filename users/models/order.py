@@ -12,6 +12,7 @@ from B2SUtils.db_utils import select
 from B2SUtils.db_utils import update
 from models.sale import CachedSale
 from models.shipments import wwwOrderShipments
+from models.shipments import posOrderShipments
 from models.shop import get_shop_id
 from models.user import get_user_profile
 
@@ -80,8 +81,16 @@ def create_order(conn, users_id, telephone_id, order_items,
                           order_id,
                           order_items,
                           telephone_id,
-                          shipaddr).create()
+                          shipaddr,
+                          users_id).create()
     else:
+        posOrderShipments(conn,
+                          order_id,
+                          order_items,
+                          telephone_id,
+                          None,
+                          users_id).create()
+
         # TODO: Create fake shipments for posOrder items.
         pass
 

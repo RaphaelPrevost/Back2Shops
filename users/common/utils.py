@@ -352,20 +352,20 @@ def order_img_download(img_path):
                       img_path, e, exc_info=True)
         raise
 
-def remote_xml_shipping_fee(carrier_services, weight, unit, dest, orig):
+def remote_xml_shipping_fee(carrier_services, weight, unit, dest,
+                            id_shop=None, id_corporate_account=None):
     uri = 'protected/shipping/fees'
     if isinstance(carrier_services, list):
         carrier_services = ujson.dumps(carrier_services)
     if isinstance(dest, dict):
         dest = ujson.dumps(dest)
-    if isinstance(orig, dict):
-        orig = ujson.dumps(orig)
 
     query = {'carrier_services': carrier_services,
              'weight': weight,
              'unit': unit,
              'dest': dest,
-             'orig': orig}
+             'id_shop': id_shop,
+             'id_corporate_account': id_corporate_account}
     content = get_from_sale_server(uri, **query)
     return content
 

@@ -26,7 +26,7 @@ function waiting()
     done
 }
 
-bash start_redis.sh --test
+bash start_redis.sh --test &
 waiting 3 'Waiting for redis server ...'
 
 python server.py --test > /dev/null 2>&1 &
