@@ -34,6 +34,7 @@ from sales.models import Sale
 from sales.models import ShopsInSale
 from sales.models import TypeAttributeWeight
 from shippings.models import CustomShippingRateInShipping
+from shippings.models import CustomShippingRate
 from shippings.models import SC_CARRIER_SHIPPING_RATE
 from shippings.models import SC_CUSTOM_SHIPPING_RATE
 from shippings.models import SC_FLAT_RATE
@@ -452,13 +453,13 @@ class TaxesListView(BaseCryptoWebService, ListView):
 
 
 def populate_carriers(carrier_services=None, shipping=None):
-    """
-    """
+    if not carrier_services and not shipping:
+        return []
+
     if carrier_services:
         carrier_services = dict(carrier_services)
     else:
         carrier_services = defaultdict(list)
-    carrier_services.pop(0, None)
     if shipping:
         services_in_shipping = ServiceInShipping.objects.filter(
             shipping=shipping)
@@ -468,7 +469,7 @@ def populate_carriers(carrier_services=None, shipping=None):
     if not carrier_services:
         raise ParamsValidCheckError("invalid_shipping_or_carrier_services: "
                                     "shipping-%s, carrier_services-%s"
-                                    % shipping, carrier_services)
+                                    % (shipping, carrier_services))
     carriers = Carrier.objects.filter(pk__in=carrier_services.keys())
     for carrier in carriers:
         kwargs = {'carrier': carrier}
@@ -480,15 +481,17 @@ def populate_carriers(carrier_services=None, shipping=None):
 
     return carriers
 
-def get_custom_rules(custom_rules=None, shipping=None):
-    kwargs = defaultdict()
-    if shipping:
-        kwargs['shipping'] = shipping
-    if custom_rules:
-        kwargs['pk__in'] = custom_rules
-
+def get_custom_rules_by_shipping(shipping):
+    kwargs = {'shipping': shipping}
     rules_in_shipping = CustomShippingRateInShipping.objects.filter(**kwargs)
     return [item.custom_shipping_rate for item in rules_in_shipping]
+
+def get_custom_rules_by_id(custom_rules):
+    if custom_rules:
+        kwargs = {'pk__in': custom_rules}
+        return CustomShippingRate.objects.filter(**kwargs)
+    else:
+        return CustomShippingRate.objects.all()
 
 def populate_shipping_rate(sale):
     """ populate carrier/custom/flat shipping rate
@@ -500,7 +503,7 @@ def populate_shipping_rate(sale):
         setattr(sale, 'carriers', carriers)
 
     elif sp_calc_method == SC_CUSTOM_SHIPPING_RATE:
-        custom_rules = get_custom_rules(shipping=shipping)
+        custom_rules = get_custom_rules_by_shipping(shipping)
         setattr(sale, 'custom_rules', custom_rules)
 
     elif sp_calc_method == SC_FLAT_RATE:
@@ -654,10 +657,22 @@ class ShippingFeesView(BaseCryptoWebService, ListView):
                 % self.request.GET)
 
         # carrier id is 0 for custom rules.
-        rules = [item[1] for item in carrier_services
-                         if item[0] == 0]
-        carriers = populate_carriers(carrier_services)
-        custom_rules = get_custom_rules(custom_rules=rules)
+        custom_services = []
+        carrier_services_without_custom = []
+        custom_required = False
+        for item in carrier_services:
+            if int(item[0]) == 0:
+                custom_services.extend(item[1])
+                custom_required = True
+            else:
+                carrier_services_without_custom.append(item)
+
+        if custom_required:
+            custom_rules = get_custom_rules_by_id(custom_services)
+        else:
+            custom_rules = []
+
+        carriers = populate_carriers(carrier_services_without_custom)
 
         orig = self.get_orig_address(id_shop, id_corporate_account)
         # calculate fees for services.

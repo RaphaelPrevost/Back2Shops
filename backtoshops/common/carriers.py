@@ -18,4 +18,13 @@ class EMSCarrier():
     def printLable(cls, origin_addr, dest_addr, service_type, weight):
         pass
 
+class USPSCarrier():
+    @classmethod
+    def getRate(cls, origin_addr, dest_addr, service_type, weight):
+        # TODO: calculate fee according with different case.
+        return float(weight) * 3.0
+
+    @classmethod
+    def printLable(cls, origin_addr, dest_addr, service_type, weight):
+        pass
 CARRIER_CLS_SURFFIX = 'Carrier'

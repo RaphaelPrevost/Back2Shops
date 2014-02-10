@@ -35,7 +35,7 @@ def create_shipment(conn, id_order, id_shipaddr, id_phone,
         }
     if supported_services:
         sm_values['supported_services'] = supported_services
-    if shipping_fee:
+    if shipping_fee is not None:
         sm_values['shipping_fee'] = shipping_fee
     if id_postage:
         sm_values['id_postage'] = id_postage
@@ -238,16 +238,15 @@ class wwwOrderShipments(BaseShipments):
                                       1,
                                       id_shipment = id_shipment)
 
-    def handleSeparateFreeSales(self, sales):
+    def handleSeparateFreeShippingSales(self, sales):
         for sale in sales:
             id_order_item = sale.order_props['id_order_item']
-            handling_fee = self.getMaxHandlingFee([sale])
             for _ in range(int(sale.order_props['quantity'])):
                 id_shipment = create_shipment(self.conn,
                                               self.id_order,
                                               self.id_shipaddr,
                                               self.id_telephone,
-                                              shipping_fee=handling_fee)
+                                              shipping_fee=0)
                 _create_shipping_list(self.conn,
                                       id_order_item,
                                       1,
@@ -313,9 +312,10 @@ class wwwOrderShipments(BaseShipments):
         self.handleCarrierShippingSales(carrier_sales)
         self.handleCustomShippingSales(custom_sales)
         self.handleInvoiceShippingSales(invoice_sales)
-        self.handleSeparateFreeSales(free_sales)
+        self.handleSeparateFreeShippingSales(free_sales)
 
-        self.handleGroupCarrierShippingSales(carrier_sales_group, free_sales_group)
+        self.handleGroupCarrierShippingSales(carrier_sales_group,
+                                             free_sales_group)
         self.handleGroupCustomShippingSales(custom_sales_group)
 
     def groupByMostCommonService(self, sales, free_sales_group):
@@ -328,10 +328,14 @@ class wwwOrderShipments(BaseShipments):
             service_carrier_map.update(sale.shipping_setting.supported_services)
 
         # sort services id by count
+        def __sort_func(x, y):
+            if x[1] == y[1]:
+                return cmp(x[0], y[0])
+            else:
+                return cmp(y[1], x[1])
         service_count_map = supported_services_count.items()
         service_count_map = sorted(service_count_map,
-                                   key=lambda x: x[1],
-                                   reverse=True)
+                                   cmp=__sort_func)
 
         group_sales = []
         group_services = []
@@ -364,7 +368,7 @@ class wwwOrderShipments(BaseShipments):
                                    for id_service in group_services])
 
         shipping_fee = None
-        free_sales_fee = None
+        free_shipping_fee = None
         if len(group_services) == 1:
             weight = self.totalWeight(group_sales)
             unit = DEFAULT_WEIGHT_UNIT
@@ -390,7 +394,7 @@ class wwwOrderShipments(BaseShipments):
                     unit,
                     dest,
                     **orig_param)
-                free_sales_fee = (float(shipping_fee_with_free_sales) -
+                free_shipping_fee = (float(shipping_fee_with_free_sales) -
                                   float(shipping_fee))
 
             handling_fee = self.getMaxHandlingFee(group_sales)
@@ -412,7 +416,7 @@ class wwwOrderShipments(BaseShipments):
                                   id_shipment=id_shipment)
 
         return ([sale for sale in sales if sale not in group_sales],
-                free_sales_fee,
+                free_shipping_fee,
                 id_shipment)
 
     def separateShipments(self, sales):
@@ -511,7 +515,7 @@ class wwwOrderShipments(BaseShipments):
             self.dest_addr = ujson.dumps(address)
         return self.dest_addr
 
-    def _shippingListForFreeSalesGroup(self, free_sales_group, spm_id, fee):
+    def _shippingListForFreeShippingSalesGroup(self, free_sales_group, spm_id, fee):
         for sale in free_sales_group:
             id_order_item = sale.order_props['id_order_item']
             quantity = sale.order_props['quantity']
@@ -521,15 +525,14 @@ class wwwOrderShipments(BaseShipments):
                                   id_shipment=spm_id)
         values = {'id_shipment': spm_id,
                   'fee': fee}
-        insert(self.conn, 'free_sales_fee', values=values)
+        insert(self.conn, 'free_shipping_fee', values=values)
 
-    def _groupShipmentForFreeSales(self, free_sales_group):
-        handling_fee = self.getMaxHandlingFee(free_sales_group)
+    def _groupShipmentForFreeShippingSales(self, free_sales_group):
         id_shipment = create_shipment(self.conn,
                                       self.id_order,
                                       self.id_shipaddr,
                                       self.id_telephone,
-                                      shipping_fee=handling_fee)
+                                      shipping_fee=0)
         for sale in free_sales_group:
             id_order_item = sale.order_props['id_order_item']
             quantity = sale.order_props['quantity']
@@ -541,18 +544,18 @@ class wwwOrderShipments(BaseShipments):
     def _groupShippingSales(self, sales, free_sales_group):
         if not sales:
             return
-        free_sales_fee = None
+        free_shipping_fee = None
         free_sales_shipment = None
         while sales:
             sales, fs_fee, spm_id = self.groupByMostCommonService(sales, free_sales_group)
             if fs_fee is not None:
-                if (free_sales_fee is None or
-                        (free_sales_fee is not None and
-                                 fs_fee < free_sales_fee)):
-                    free_sales_fee, free_sales_shipment = fs_fee, spm_id
-        if free_sales_fee is not None:
-            self._shippingListForFreeSalesGroup(free_sales_group,
+                if (free_shipping_fee is None or
+                        (free_shipping_fee is not None and
+                         fs_fee < free_shipping_fee)):
+                    free_shipping_fee, free_sales_shipment = fs_fee, spm_id
+        if free_shipping_fee is not None:
+            self._shippingListForFreeShippingSalesGroup(free_sales_group,
                                                 free_sales_shipment,
-                                                free_sales_fee)
+                                                free_shipping_fee)
         elif free_sales_group:
-            self._groupShipmentForFreeSales(free_sales_group)
+            self._groupShipmentForFreeShippingSales(free_sales_group)
