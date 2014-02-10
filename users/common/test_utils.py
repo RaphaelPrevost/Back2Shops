@@ -1,3 +1,4 @@
+import os
 import unittest
 import ujson
 import urllib
@@ -118,4 +119,12 @@ class BaseTestCase(unittest.TestCase):
         resp = ujson.loads(browser.get_users_info())
         self.assertEquals(resp,
                          {"res": RESP_RESULT.F, "err": err})
+
+def is_backoffice_server_running():
+    if len( os.popen(
+            "ps -aef | grep 'manage.py runserver' | grep -v 'grep' | awk '{ print $3 }'")\
+        .read().strip().split( '\n' ) ) > 1:
+        return True
+    else:
+        return False
 

@@ -127,7 +127,7 @@ CREATE TABLE shipping_list (
     picture character varying(200)
 );
 
-CREATE TABLE free_sales_fee (
+CREATE TABLE free_shipping_fee (
     id_shipment BIGINT UNIQUE,
     fee double precision,
     FOREIGN KEY (id_shipment) REFERENCES shipments (id)
