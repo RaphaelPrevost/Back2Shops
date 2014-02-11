@@ -77,6 +77,14 @@
                 <label for="{{form.country.auto_id}}">{% trans form.country.label %}</label>
                 {{ form.country }}
             </div>
+            {{ form.province_code.errors }}
+            <div class="formrow">
+                <label for="{{form.province_code.auto_id}}">{% trans form.province_code.label %}</label>
+                {{ form.province_code }}
+                <select id="province_selector" name="province_selector">
+                    <option value="">{% trans "Please selec a province" %}</option>
+                </select>
+            </div>
             <div id="localization">
                 <span id="localization_infos"></span>
                 <div id="googleMap" style="width: 280px; height: 250px; margin-bottom: 5px;">
@@ -253,11 +261,31 @@
         }
     }
 
+    function _selected_province_text() {
+        var province_code = $("#province_selector").val();
+        if (province_code) {
+            return "," + $("#province_selector").find("option:selected").text();
+        } else {
+            return "";
+        }
+    }
+
+    function _selected_country_text() {
+        var country_code = $("#{{ form.country.auto_id }}").val();
+        if (country_code) {
+            return "," + $("#{{ form.country.auto_id }}").find("option:selected").text();
+        } else {
+            return ""
+        }
+
+    }
+
     function localization(){
         var address = $("#{{ form.address.auto_id }}").val() +
                       "," + $("#{{ form.zipcode.auto_id }}").val() +
                       "," + $("#{{ form.city.auto_id }}").val() +
-                      "," + $("#{{ form.country.auto_id }}").val();
+                      _selected_province_text() +
+                      _selected_country_text();
         var g = new google.maps.Geocoder();
         $("#localization_infos").html('{% trans "Searching..." %}')
         g.geocode({address: address}, function(results, status){
@@ -272,8 +300,17 @@
                     }
                     $("#{{ form.latitude.auto_id }}").val(results[0].geometry.location.lat());
                     $("#{{ form.longitude.auto_id }}").val(results[0].geometry.location.lng());
+
+                    var selected_country = $("#{{ form.country.auto_id }}").val();
                     $("#{{ form.country.auto_id }}").val(country);
-                    $("#localization_infos").html('{% trans "Found" %}');
+                    if ( selected_country != country) {
+                        loadStates();
+                        var inconsistency_country = '{% trans ", but the address country is not your selected country, please double check your address" %}';
+                        $("#localization_infos").html(
+                                '{% trans "Found" %}' + inconsistency_country);
+                    } else {
+                        $("#localization_infos").html('{% trans "Found" %}');
+                    }
                     var latitude = parseFloat($("#{{ form.latitude.auto_id }}").val());
                     var longitude = parseFloat($("#{{ form.longitude.auto_id }}").val());
                     map.setCenter(new google.maps.LatLng(latitude, longitude));
@@ -292,6 +329,57 @@
         });
     }
 
+    function loadStates(selected_state) {
+        if (selected_state) {
+            $("#{{ form.province_code.auto_id }}").val(selected_state);
+        } else {
+            $("#{{ form.province_code.auto_id }}").val("");
+            $("#province_selector").val("");
+        }
+        var country_id = $("#{{ form.country.auto_id }}").val();
+
+        var empty_label = $("<option>", {value: "", text: '{% trans "Please select a province" %}'});
+        var province_selector = $("#province_selector");
+        if (country_id) {
+            $.ajax({
+                type: "GET",
+                url: "/countries/get_states/" + country_id,
+                dataType: "json",
+                success: function(states, textState) {
+                    province_selector.empty();
+                    province_selector.append(empty_label);
+                    $.each(states, function(i, option) {
+                        $('#province_selector').append(
+                                $("<option>", {value: option.value, text: option.label}));
+
+                    });
+                    if (selected_state) {
+                        $("#province_selector").val(selected_state);
+                    } else {
+                        $("#province_selector").val("");
+                    }
+                },
+                error: function(err) {
+                    province_selector.empty();
+                    province_selector.append(empty_label);
+                }
+            })
+        } else  {
+            province_selector.empty();
+            province_selector.append(empty_label);
+        }
+    }
+
+    function countryChange() {
+        loadStates();
+        localization();
+    }
+
+    function stateChange() {
+        var province_code = $("#province_selector").val();
+        $("#{{ form.province_code.auto_id }}").val(province_code);
+        localization();
+    }
 
     $(function(){
         initMap(); // Define in add_sale_preview_shop.html template
@@ -341,7 +429,8 @@
         $("#{{ form.address.auto_id }}").change(localization);
         $("#{{ form.zipcode.auto_id }}").change(localization);
         $("#{{ form.city.auto_id }}").change(localization);
-        $("#{{ form.country.auto_id }}").change(localization);
+        $("#{{ form.country.auto_id }}").change(countryChange);
+        $("#province_selector").change(stateChange);
 
         //set page size
         $("#page_size").change(function(event){
@@ -357,6 +446,10 @@
                 else
                     alert("{% trans "Please enter a valid page number." %}");
             }
+        });
+
+        $(document).ready(function(){
+            loadStates($("#{{ form.province_code.auto_id }}").val());
         });
 
     });

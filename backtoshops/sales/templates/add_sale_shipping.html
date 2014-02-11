@@ -258,16 +258,33 @@
         return false;
     });
 
+    /****************** free shipping form **********************/
+    function toggle_handling_fee() {
+        var free_shipping = $("input[id^={{ wizard.form.shipping_calculation.auto_id }}][value=1]");
+        if (free_shipping.prop("checked")) {
+            $("#{{ wizard.form.handling_fee.auto_id }}")
+                    .attr('readonly', 'readonly')
+                    .addClass('free_shipping_handling_fee_input')
+                    .val('');
+        } else {
+            $("#{{ wizard.form.handling_fee.auto_id }}")
+                    .removeAttr('readonly')
+                    .removeClass('free_shipping_handling_fee_input');
+        }
+
+    }
 
     /****************** on page load **********************/
     $("input[name={{ wizard.form.shipping_calculation.html_name }}]").change(function(){
         toggle_carriers();
         toggle_custom_shipping_rates();
         toggle_flat_rate();
+        toggle_handling_fee();
     });
     toggle_pickup_voids_handling_fee_input();
     toggle_carriers();
     toggle_custom_shipping_rates();
     toggle_flat_rate();
+    toggle_handling_fee();
 </script>
 {% endblock %}

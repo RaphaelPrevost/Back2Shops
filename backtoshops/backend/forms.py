@@ -39,6 +39,7 @@ class SABrandForm(forms.ModelForm):
         self.fields['zipcode'].widget = forms.TextInput(attrs={'class': 'inputXS'})
         self.fields['city'].widget = forms.TextInput(attrs={'class': 'inputM'})
         self.fields['country'] = CountryField(queryset=Country.objects.all(), empty_label=_('Select a country'))
+        self.fields['province_code'].widget = forms.HiddenInput()
 
 
 class BaseUserForm(forms.ModelForm):
