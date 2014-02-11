@@ -695,6 +695,7 @@ class ShippingFeesView(BaseCryptoWebService, ListView):
             address = {'address': shop.address,
                        'city': shop.city,
                        'country': shop.country,
+                       'province': shop.province_code,
                        'postalcode': shop.zipcode}
             return address
         elif (id_corporate_account and
@@ -704,6 +705,7 @@ class ShippingFeesView(BaseCryptoWebService, ListView):
             address = {'address': corporate.address,
                        'city': corporate.city,
                        'country': corporate.country,
+                       'province': corporate.province_code,
                        'postalcode': corporate.zipcode}
             return address
 

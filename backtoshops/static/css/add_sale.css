@@ -1159,6 +1159,10 @@ span#type_attribute_prices span.normal_price_form {
     width: 160px;
 }
 
+#main_form input.free_shipping_handling_fee_input {
+    background-color: #BDBDBD;
+}
+
 #main_form span.handling_fee_currency {
     padding: 2px;
 }

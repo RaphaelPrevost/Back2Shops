@@ -212,9 +212,17 @@
                         {% else %}
                             <span>{% trans "Premium" %}:</span>
                             {% if f.premium_type.value == 'percentage' %}
-                                <span>{{ f.premium_amount.value }}%</span>
+                                {% if f.premium_amount.value  %}
+                                    <span>{{ f.premium_amount.value }}%</span>
+                                {% else %}
+                                    <span>0%</span>
+                                {% endif %}
                             {% else %}
-                                <span>{{ f.premium_amount.value }}</span>
+                                {% if f.premium_amount.value  %}
+                                    <span>{{ f.premium_amount.value }}</span>
+                                {% else %}
+                                    <span>0</span>
+                                {% endif %}
                                 <span class="premium_currency_marker"></span>
                             {% endif %}
                         {% endif %}
@@ -557,6 +565,7 @@
             } else {
                 $("<span>").html('{% trans "Premium" %}:')
                         .appendTo(premium_price_node);
+                premium_amount = premium_amount || 0;
                 if (premium_type == 'percentage') {
                     $("<span>").html(premium_amount + "%")
                             .appendTo(premium_price_node);
@@ -717,11 +726,15 @@
         }
     }
     function _calc_premium_price(premium_type, premium_amount, price) {
-        if (premium_type == "percentage") { //percentage
-            var tmp = price + (price * (premium_amount / 100))
-            return Math.round(tmp*100 +((tmp*1000%10>4)?1:0))/100;
+        if (premium_amount) {
+            if (premium_type == "percentage") { //percentage
+                var tmp = price + (price * (premium_amount / 100))
+                return Math.round(tmp*100 +((tmp*1000%10>4)?1:0))/100;
+            } else {
+                return price + premium_amount;
+            }
         } else {
-            return price + premium_amount;
+            return price;
         }
     }
     function calcDiscount() {

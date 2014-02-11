@@ -5,6 +5,8 @@ register = template.Library()
 
 @register.simple_tag
 def calc_premium_price(premium_type, premium_amount, price):
+    if premium_amount is None:
+        return price
     try:
         premium_amount = float(premium_amount)
         price = float(price)

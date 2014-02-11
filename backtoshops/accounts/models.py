@@ -21,9 +21,12 @@ class Brand(models.Model):
     zipcode = models.IntegerField(verbose_name=_("Postal code"), blank=True, null=True)
     city = models.CharField(verbose_name=_("City"), max_length=100)
     country = models.ForeignKey(Country, verbose_name=_('Country'), blank=True, null=True)
+    province_code = models.CharField(verbose_name=_('Province'), max_length=2, blank=True, null=True)
 
     def __str__(self):
         return self.name
 
     def clean_city(self):
         return self.city.upper()
+
+
