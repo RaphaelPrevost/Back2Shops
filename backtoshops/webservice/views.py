@@ -481,6 +481,29 @@ def populate_carriers(carrier_services=None, shipping=None):
 
     return carriers
 
+def populate_carrier_and_custom_services(carrier_services_map):
+    """
+    @param carrier_services_map:
+           carrier services map tuple list:
+                [(carrier_id1, [service_1, service_2]), ...]
+                carrier_id(0) is for custom services.
+    """
+    custom_services = []
+    carrier_services = []
+    for item in carrier_services_map:
+        if int(item[0]) == 0:
+            custom_services.extend(item[1])
+        else:
+            carrier_services.append(item)
+
+    if custom_services:
+        custom_rules = get_custom_rules_by_id(custom_services)
+    else:
+        custom_rules = []
+
+    carrier_rules = populate_carriers(carrier_services)
+    return custom_rules, carrier_rules
+
 def get_custom_rules_by_shipping(shipping):
     kwargs = {'shipping': shipping}
     rules_in_shipping = CustomShippingRateInShipping.objects.filter(**kwargs)
@@ -631,52 +654,37 @@ class ShippingFeesView(BaseCryptoWebService, ListView):
     template_name = "shipping_fees.xml"
 
     def get_context_data(self, **kwargs):
-        carriers, custom_rules = kwargs.get('object_list') or ([], [])
-        kwargs['carriers'] = carriers
+        carrier_rules, custom_rules = kwargs.get('object_list') or ([], [])
+        kwargs['carrier_rules'] = carrier_rules
         kwargs['custom_rules'] = custom_rules
         return kwargs
 
     def get_queryset(self):
-        carrier_services = self.request.GET.get('carrier_services', None)
+        carrier_services_map = self.request.GET.get('carrier_services', None)
         weight = self.request.GET.get('weight')
         weight_unit = self.request.GET.get('unit')
         dest = self.request.GET.get('dest')
         id_shop = self.request.GET.get('id_shop')
         id_corporate_account = self.request.GET.get('id_corporate_account')
 
-        if carrier_services:
-            carrier_services = json.loads(carrier_services)
+        if carrier_services_map:
+            carrier_services_map = json.loads(carrier_services_map)
 
         if (weight is None or
             weight_unit is None or
             dest is None or
-            not carrier_services or
+            not carrier_services_map or
             not (id_shop or id_corporate_account)):
             raise InvalidRequestError(
                 "invalide_shipping_fees_request_miss_params %s"
                 % self.request.GET)
 
-        # carrier id is 0 for custom rules.
-        custom_services = []
-        carrier_services_without_custom = []
-        custom_required = False
-        for item in carrier_services:
-            if int(item[0]) == 0:
-                custom_services.extend(item[1])
-                custom_required = True
-            else:
-                carrier_services_without_custom.append(item)
-
-        if custom_required:
-            custom_rules = get_custom_rules_by_id(custom_services)
-        else:
-            custom_rules = []
-
-        carriers = populate_carriers(carrier_services_without_custom)
+        custom_rules, carrier_rules = populate_carrier_and_custom_services(
+            carrier_services_map)
 
         orig = self.get_orig_address(id_shop, id_corporate_account)
         # calculate fees for services.
-        for carrier in carriers:
+        for carrier in carrier_rules:
             for service in carrier.carrier_services:
                 data = {'carrier': carrier.pk,
                         'addr_orig': orig,
@@ -687,7 +695,7 @@ class ShippingFeesView(BaseCryptoWebService, ListView):
                 fee = compute_fee(data)
                 setattr(service, 'shipping_fee', fee)
 
-        return [carriers, custom_rules]
+        return [carrier_rules, custom_rules]
 
     def get_orig_address(self, id_shop=None, id_corporate_account=None):
         if id_shop and id_shop != 'None' and int(id_shop):
@@ -709,3 +717,24 @@ class ShippingFeesView(BaseCryptoWebService, ListView):
                        'postalcode': corporate.zipcode}
             return address
 
+
+class ShippingServicesInfoView(BaseCryptoWebService, ListView):
+    template_name = "shipping_services_info.xml"
+
+    def get_context_data(self, **kwargs):
+        carrier_rules, custom_rules = kwargs.get('object_list') or ([], [])
+        kwargs['carrier_rules'] = carrier_rules
+        kwargs['custom_rules'] = custom_rules
+        return kwargs
+
+    def get_queryset(self):
+        carrier_services_map = self.request.GET.get('carrier_services', None)
+        if carrier_services_map:
+            carrier_services_map = json.loads(carrier_services_map)
+        else:
+            return []
+
+        custom_rules, carrier_rules = populate_carrier_and_custom_services(
+            carrier_services_map)
+
+        return [carrier_rules, custom_rules]

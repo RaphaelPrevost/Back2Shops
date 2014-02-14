@@ -6,7 +6,6 @@ import ujson
 
 from common.constants import RESP_RESULT
 from common.error import NotExistError
-from common.utils import gen_json_response
 from models.order import create_order
 from models.order import get_order_detail
 from models.order import get_orders_list
@@ -14,31 +13,25 @@ from models.order import update_shipping_fee
 from models.sale import CachedSale
 from models.sale import get_sale_by_barcode
 from models.shop import CachedShop
-from webservice.base import BaseResource
+from webservice.base import BaseEncryptJsonResource
+from webservice.base import BaseJsonResource
 from B2SCrypto.constant import SERVICES
 from B2SCrypto.utils import decrypt_json_resp
 from B2SCrypto.utils import gen_encrypt_json_context
 from B2SUtils import db_utils
 from B2SUtils.db_utils import select
 from B2SUtils.errors import ValidationError
+from B2SRespUtils.generate import gen_json_resp
 
 
-class BaseOrderResource(BaseResource):
+class BaseOrderResource(BaseEncryptJsonResource):
     def on_post(self, req, resp, conn, **kwargs):
-        return gen_json_response(resp,
-                                 {'res': RESP_RESULT.F,
-                                  'err': 'INVALID_REQUEST'})
-
-    def gen_encrypt_json_resp(self, resp, data_dict):
-        resp.content_type = "application/json"
-        resp.body = gen_encrypt_json_context(
-            ujson.dumps(data_dict),
-            settings.SERVER_APIKEY_URI_MAP[SERVICES.ADM],
-            settings.PRIVATE_KEY_PATH)
-        return resp
+        return gen_json_resp(resp,
+                             {'res': RESP_RESULT.F,
+                              'err': 'INVALID_REQUEST'})
 
 
-class OrderResource(BaseResource):
+class OrderResource(BaseJsonResource):
     login_required = {'get': False, 'post': True}
     post_action_func_map = {'create': 'order_create'}
     users_id = None
@@ -64,7 +57,7 @@ class OrderResource(BaseResource):
         except Exception, e:
             logging.error('Create order for %s failed for error: %s',
                           req.query_string, e, exc_info=True)
-            return gen_json_response(resp, 0)
+            return 0
 
     def _posOrder(self, upc_shop, req, resp, conn):
         """ posOrder: CSV string with format
@@ -84,7 +77,7 @@ class OrderResource(BaseResource):
         telephone = req.get_param('telephone')
         order_id = create_order(conn, self.users_id, telephone,
                                 order_items,  upc_shop=upc_shop)
-        return gen_json_response(resp, order_id)
+        return order_id
 
 
     def _wwwOrder(self, req, resp, conn):
@@ -107,7 +100,7 @@ class OrderResource(BaseResource):
         order_id = create_order(conn, self.users_id, telephone,
                                     order_items, shipaddr=shipaddr,
                                     billaddr=billaddr)
-        return gen_json_response(resp, order_id)
+        return order_id
 
     def _requestValidCheck(self, conn, req):
         try:
@@ -128,13 +121,14 @@ class OrderResource(BaseResource):
             raise ValidationError('ORDER_ERR_MISSED_PARAM_%s' % e)
 
     def _posOrderValidCheck(self, conn, order, id_shop):
-        barcode, quantity = order.split(',')
+        barcode, quantity, id_price_type = order.split(',')
         if not barcode or not quantity.isdigit():
             raise ValidationError('ORDER_ERR_WRONG_POS_FORMAT')
         id_sale, id_variant = get_sale_by_barcode(barcode, id_shop)
         self._saleValidCheck(id_sale, id_variant, id_shop, quantity)
         return {'id_sale': id_sale,
                 'id_variant': id_variant,
+                'id_price_type': int(id_price_type),
                 'quantity': quantity,
                 'id_shop': id_shop,
                 'barcode': barcode,
@@ -148,6 +142,7 @@ class OrderResource(BaseResource):
                 assert order.get('id_variant') is not None, 'id_variant'
                 assert order.get('quantity') is not None, 'quantity'
                 assert order.get('id_weight_type') is not None, 'id_weight_type'
+                assert order.get('id_price_type') is not None, 'id_price_type'
             except AssertionError, e:
                 raise
 
@@ -194,13 +189,13 @@ class OrderResource(BaseResource):
             raise ValidationError('ORDER_ERR_INVALID_QUANTITY_%s' % quantity)
 
 
-class ShippingFeeResource(BaseResource):
+class ShippingFeeResource(BaseJsonResource):
     login_required = {'get': False, 'post': False}
 
     def on_get(self, req, resp, conn, **kwargs):
-        return gen_json_response(resp,
-                                 {'res': RESP_RESULT.F,
-                                  'err': 'INVALID_REQUEST'})
+        return gen_json_resp(resp,
+                             {'res': RESP_RESULT.F,
+                             'err': 'INVALID_REQUEST'})
 
     def on_post(self, req, resp, **kwargs):
         try:
@@ -240,8 +235,7 @@ class OrderListResource(BaseOrderResource):
             raise ValidationError('INVALID_REQUEST')
 
         orders = get_orders_list(conn, brand_id)
-        # return gen_json_response(resp, orders)
-        return self.gen_encrypt_json_resp(resp, orders)
+        return orders
 
 
 class OrderDetailResource(BaseOrderResource):
@@ -253,21 +247,20 @@ class OrderDetailResource(BaseOrderResource):
             raise ValidationError('INVALID_REQUEST')
 
         order_detail = get_order_detail(conn, order_id, brand_id)
-        # return gen_json_response(resp, order_detail)
-        return self.gen_encrypt_json_resp(resp, order_detail)
+        return order_detail
 
 
 class OrderDeleteResource(BaseOrderResource):
     # A stub function for now, needs to implemented later
     def on_get(self, req, resp, conn, **kwargs):
-        return gen_json_response(resp,
-                                 {'res': RESP_RESULT.F,
-                                  'err': 'INVALID_REQUEST'})
+        return gen_json_resp(resp,
+                             {'res': RESP_RESULT.F,
+                             'err': 'INVALID_REQUEST'})
 
 
 class OrderStatusResource(BaseOrderResource):
     # A stub function for now, needs to implemented later
     def on_get(self, req, resp, conn, **kwargs):
-        return gen_json_response(resp,
-                                 {'res': RESP_RESULT.F,
-                                  'err': 'INVALID_REQUEST'})
+        return gen_json_resp(resp,
+                             {'res': RESP_RESULT.F,
+                             'err': 'INVALID_REQUEST'})

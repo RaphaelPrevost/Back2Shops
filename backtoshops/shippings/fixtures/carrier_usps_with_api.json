@@ -1,3 +1,0 @@
-[{"pk": 2, "model": "shippings.carrier", "fields": {"name": "USPS", "flag": "USPS"}},
- {"pk": 2, "model": "shippings.service", "fields": {"name": "Express", "carrier": 2}}
-]

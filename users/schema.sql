@@ -93,6 +93,8 @@ CREATE TABLE order_items (
     id_sale BIGINT NOT NULL,
     id_shop BIGINT,
     id_variant BIGINT,
+    id_weight_type BIGINT,
+    id_price_type BIGINT,
     price double precision NOT NULL,
     name character varying(150) NOT NULL,
     picture character varying(200),
@@ -112,12 +114,28 @@ CREATE TABLE shipments (
     id_order bigint REFERENCES orders(id),
     id_address bigint REFERENCES users_address(id),
     id_phone bigint REFERENCES users_phone_num(id),
-    id_postage bigint, -- TODO REFERENCES postage(id),
     mail_tracking_number character varying(50),
     status SMALLINT,
     timestamp timestamp without time zone NOT NULL,
+    handling_fee double precision,
     shipping_fee double precision,
-    supported_services text
+    calculation_method smallint
+);
+
+CREATE TABLE shipments_supported_services (
+    id serial PRIMARY KEY,
+    id_shipment bigint,
+    id_postage bigint,
+    supported_services text,
+    FOREIGN KEY (id_shipment) REFERENCES shipments (id)
+);
+
+CREATE TABLE shipments_fee (
+    id serial PRIMARY KEY,
+    id_shipment bigint,
+    handling_fee double precision,
+    shipping_fee double precision,
+    FOREIGN KEY (id_shipment) REFERENCES shipments (id)
 );
 
 CREATE TABLE shipping_list (

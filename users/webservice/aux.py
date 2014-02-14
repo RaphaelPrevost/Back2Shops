@@ -2,12 +2,13 @@ import settings
 from common.cache import find_cache_proxy
 from common.constants import RESP_RESULT
 from common import field_utils
-from common.utils import gen_json_response
-from webservice.base import BaseResource
+from webservice.base import BaseJsonResource
 from B2SUtils import db_utils
 from B2SUtils.errors import ValidationError
+from B2SRespUtils.generate import gen_json_resp
 
-class AuxResource(BaseResource):
+
+class AuxResource(BaseJsonResource):
     get_res_func_map = {
         'titles': 'handle_titles',
         'countries': 'handle_countries',
@@ -24,7 +25,7 @@ class AuxResource(BaseResource):
         return func(req, resp, conn)
 
     def on_post(self, req, resp, **kwargs):
-        return gen_json_response(resp,
+        return gen_json_resp(resp,
                     {'res': RESP_RESULT.F,
                      'err': 'INVALID_REQUEST'})
 
@@ -37,7 +38,7 @@ class AuxResource(BaseResource):
                                 where={'locale': dep_val})
         field = field_utils.SelectFieldType("Title",
                                             cur_val, dict(result))
-        return gen_json_response(resp, field.toDict())
+        return field.toDict()
 
     def handle_countries(self, req, resp, conn):
         dep_val = req.get_param('dep') or ''
@@ -47,7 +48,7 @@ class AuxResource(BaseResource):
                                 columns=("printable_name", "iso"))
         field = field_utils.SelectFieldType("Country",
                                             cur_val, dict(result))
-        return gen_json_response(resp, field.toDict())
+        return field.toDict()
 
     def handle_provinces(self, req, resp, conn):
         dep_val = req.get_param('dep') or ''
@@ -61,8 +62,8 @@ class AuxResource(BaseResource):
                                 where={'country_code': dep_val})
         field = field_utils.SelectFieldType("Province",
                                             cur_val, dict(result))
-        return gen_json_response(resp, field.toDict())
+        return field.toDict()
 
     def handle_sales(self, req, resp, conn):
         sales_list = find_cache_proxy.get(req.query_string)
-        return gen_json_response(resp, sales_list)
+        return sales_list

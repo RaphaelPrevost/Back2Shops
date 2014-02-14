@@ -10,18 +10,18 @@ from common.utils import gen_cookie_expiry
 from common.utils import get_client_ip
 from common.utils import gen_csrf_token
 from common.utils import get_hashed_headers
-from common.utils import gen_json_response
 from common.utils import get_preimage
 from common.utils import make_auth_cookie
 from common.utils import set_cookie
-from webservice.base import BaseResource
+from webservice.base import BaseJsonResource
 from B2SUtils import db_utils
 from B2SUtils.errors import ValidationError
+from B2SRespUtils.generate import gen_json_resp
 
-class UserLoginResource(BaseResource):
+class UserLoginResource(BaseJsonResource):
 
     def on_get(self, req, resp, **kwargs):
-        return gen_json_response(resp,
+        return gen_json_resp(resp,
                     {'res': RESP_RESULT.F,
                      'err': 'INVALID_REQUEST'})
 
@@ -31,8 +31,7 @@ class UserLoginResource(BaseResource):
 
         users_id, auth_token = self.verify(conn, email, password)
         self.on_success_login(req, resp, conn, users_id, auth_token)
-        return gen_json_response(resp,
-                {"res": RESP_RESULT.S, "err": ""})
+        return {"res": RESP_RESULT.S, "err": ""}
 
     def verify(self, conn, email, raw_password):
         if not email or not raw_password:

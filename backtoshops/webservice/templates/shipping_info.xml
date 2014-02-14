@@ -49,6 +49,7 @@
                         {% for service in carrier.carrier_services %}
                             <service id="{{ service.id }}">
                                 <name>{{ service.name }}</name>
+                                <desc>{{ service.desc }}</desc>
                             </service>
                         {% endfor %}
                     </carrier>
@@ -61,6 +62,7 @@
                     {% for rule in object.custom_rules %}
                         <service id="{{ rule.id }}">
                             <name>{{ rule.shipment_type }}</name>
+                            <desc>{{ rule.desc}}</desc>
                         </service>
                     {% endfor %}
                 </carrier>

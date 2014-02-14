@@ -1,6 +1,5 @@
 {% load l10n %}
 {% load i18n %}
-{% load get_setting %}
 
 <carriers version="1.0">
     {% if carrier_rules %}
@@ -11,9 +10,6 @@
                     <service id="{{ service.pk }}">
                         <name>{{ service.name }}</name>
                         <desc>{{ service.desc }}</desc>
-                        <fee currency="{% get_setting 'default_currency' %}}">
-                            {{ service.shipping_fee }}
-                        </fee>
                     </service>
                 {% endfor %}
             </carrier>
@@ -23,11 +19,10 @@
     {% if custom_rules %}
         <carrier id="0">
             <name>{% trans "Custom Shipping Rate" %}</name>
-            {% for rule in custom_rules %}
-                <service id="{{ rule.id }}">
-                    <name>{{ rule.shipment_type }}</name>
-                    <desc>{{ rule.desc}}</desc>
-                    <fee currency="{% get_setting 'default_currency' %}">{{ rule.shipping_rate }}</fee>
+            {% for service in custom_rules %}
+                <service id="{{ service.id }}">
+                    <name>{{ service.shipment_type }}</name>
+                    <desc>{{ service.desc }}</desc>
                 </service>
             {% endfor %}
         </carrier>

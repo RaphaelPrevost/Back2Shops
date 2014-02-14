@@ -8,9 +8,9 @@ from B2SCrypto.utils import decrypt_json_resp
 from B2SCrypto.utils import gen_encrypt_json_context
 from common import cache
 from common.constants import RESP_RESULT
-from webservice.base import BaseResource
+from webservice.base import BaseJsonResource
 
-class InvalidationResource(BaseResource):
+class InvalidationResource(BaseJsonResource):
 
     def on_post(self, req, resp, **kwargs):
         try:

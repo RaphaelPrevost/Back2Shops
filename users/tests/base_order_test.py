@@ -5,6 +5,7 @@ from common.constants import ADDR_TYPE
 from common.constants import GENDER
 from common.test_utils import BaseTestCase
 from common.test_utils import UsersBrowser
+from common.utils import _parse_auth_cookie
 from common.utils import generate_random_str
 from common.utils import generate_random_digits_str
 from B2SUtils import db_utils
@@ -18,7 +19,7 @@ class OrderBrowser(UsersBrowser):
         """ order format: [(barcode1, quantity1),
                            (barcode2, quantity2)]
         """
-        o = [','.join([str(bc), str(qtt)]) for bc, qtt in order]
+        o = [','.join([str(bc), str(qtt), str(tp)]) for bc, qtt, tp in order]
         o = '\\r\\n'.join(o)
         resp = self._access("webservice/1.0/pub/order",
                             {'action': 'create',
@@ -69,7 +70,7 @@ class OrderBrowser(UsersBrowser):
             }
 
         # address info
-        addr = {
+        ship_addr = {
             'addr_type_0': ADDR_TYPE.Shipping,
             'address_0': generate_random_str(15),
             'city_0': 'Alabama',
@@ -77,21 +78,30 @@ class OrderBrowser(UsersBrowser):
             'country_code_0': 'US',
             'province_code_0': 'AL',
             'address_desp_0': 'test address',
-
-            'addr_type_1': ADDR_TYPE.Billing,
-            'address_1': generate_random_str(15),
-            'city_1': 'Alabama',
-            'postal_code_1': generate_random_digits_str(6),
-            'country_code_1': 'US',
-            'province_code_1': 'AL',
-            'address_desp_1': 'test address'
+        }
+        bill_addr = {
+            'addr_type_0': ADDR_TYPE.Billing,
+            'address_0': generate_random_str(15),
+            'city_0': 'Alabama',
+            'postal_code_0': generate_random_digits_str(6),
+            'country_code_0': 'US',
+            'province_code_0': 'AL',
+            'address_desp_0': 'test address'
         }
         account = {'action': 'modify',
                    'email': email}
         account.update(profile)
         account.update(phone)
-        account.update(addr)
+        account.update(ship_addr)
 
+        resp = self._access("webservice/1.0/pub/account",
+                            account)
+
+        account = {'action': 'modify',
+                   'email': email}
+        account.update(profile)
+        account.update(phone)
+        account.update(bill_addr)
         resp = self._access("webservice/1.0/pub/account",
                             account)
         return resp.get_data(), account
@@ -104,6 +114,12 @@ class BaseOrderTestCase(BaseTestCase):
         self.email = "%s@example.com" % generate_random_str()
         self.password = generate_random_str()
         self.register()
+
+        auth_cookie = self.login()
+        user = _parse_auth_cookie(auth_cookie.value.strip('"'))
+        self.users_id = user['users_id']
+        (self.telephone, self.shipaddr,
+         self.billaddr) = self.get_user_info(self.users_id)
 
     def success_posOrder(self, telephone, upc_shop, posOrder):
         r = self.b.do_posOrder(telephone, upc_shop, posOrder)

@@ -41,11 +41,6 @@ class INVOICE_STATUS(CustomEnum):
     INVOICE_PAID = 4
     INVOICE_LATE = 5
 
-class SHIPMENT_STATUS(CustomEnum):
-    PACKING = 1
-    DELAYED = 2
-    DELIVER = 3
-
 class RETURN_STATUS(CustomEnum):
     RETURN_ELIGIBLE = 1
     RETURN_REJECTED = 2 #1 << 1
