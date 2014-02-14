@@ -1,8 +1,7 @@
 from common.cache import sales_cache_proxy
-from common.utils import gen_json_response
-from webservice.base import BaseResource
+from webservice.base import BaseJsonResource
 
-class SalesResource(BaseResource):
+class SalesResource(BaseJsonResource):
 
     def _on_get(self, req, resp, conn, **kwargs):
         content = sales_cache_proxy.get(
@@ -10,7 +9,7 @@ class SalesResource(BaseResource):
             shop=req._params.get('shop'),
             brand=req._params.get('brand'),
             type=req._params.get('type'))
-        return gen_json_response(resp, content)
+        return content
 
 def import_sales_list():
     sales_cache_proxy.refresh()

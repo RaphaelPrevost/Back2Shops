@@ -4,15 +4,15 @@ import xmltodict
 from collections import defaultdict
 from datetime import datetime
 
-from common.constants import SHIPMENT_STATUS
 from common.error import ServerError
 from common.utils import get_from_sale_server
 from common.utils import remote_xml_shipping_fee
+from common.utils import remote_xml_shipping_services
 
+from B2SProtocol.constants import SHIPMENT_STATUS
+from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS
 from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import query
-from B2SUtils.db_utils import select
-from B2SUtils.db_utils import update
 from models.sale import CachedSale
 from models.shipping import ActorShipping
 from models.shipping_fees import ActorShippingFees
@@ -21,9 +21,10 @@ from models.user import get_user_address
 DEFAULT_WEIGHT_UNIT = 'kg'
 
 def create_shipment(conn, id_order, id_shipaddr, id_phone,
-                    id_postage=None,
+                    handling_fee=None,
                     shipping_fee=None,
-                    supported_services=None):
+                    supported_services=None,
+                    calculation_method=None):
     if isinstance(supported_services, dict):
         supported_services = ujson.dumps(supported_services)
     sm_values = {
@@ -33,21 +34,53 @@ def create_shipment(conn, id_order, id_shipaddr, id_phone,
         'status': SHIPMENT_STATUS.PACKING,
         'timestamp': datetime.utcnow(),
         }
-    if supported_services:
-        sm_values['supported_services'] = supported_services
-    if shipping_fee is not None:
-        sm_values['shipping_fee'] = shipping_fee
-    if id_postage:
-        sm_values['id_postage'] = id_postage
-    elif (supported_services and
-          len(supported_services) == 1 and
-          len(supported_services.values()[0]) == 1):
-        sm_values['id_postage'] = supported_services.values[0][0]
+    if calculation_method is not None:
+        sm_values['calculation_method'] = calculation_method
 
     sm_id = insert(conn, 'shipments', values=sm_values, returning='id')
-    logging.info('shipment create: id: %s, values: %s',
+    logging.info('shipment created: id: %s, values: %s',
                  sm_id[0], sm_values)
+
+    if handling_fee is not None or shipping_fee is not None:
+        _add_shipments_fee(conn, sm_id[0], handling_fee, shipping_fee)
+
+    if supported_services is not None:
+        _add_shipments_supported_services(conn,
+                                          sm_id[0],
+                                          supported_services)
+
     return sm_id[0]
+
+def _add_shipments_supported_services(conn, id_shipment,
+                                      supported_services):
+    values = {
+        "id_shipment": id_shipment,
+        'supported_services': supported_services}
+
+    if (supported_services and
+        len(supported_services) == 1 and
+        len(supported_services.values()[0]) == 1):
+        values['id_postage'] = supported_services.values[0][0]
+    id = insert(conn,
+                'shipments_supported_services',
+                values=values,
+                returning='id')
+    logging.info('shipment supported services added: id: %s, values: %s',
+                 id[0], values)
+
+def _add_shipments_fee(conn, id_shipment,
+                       handling_fee,
+                       shipping_fee):
+    values = {
+        "id_shipment": id_shipment,
+        'handling_fee': handling_fee,
+        'shipping_fee': shipping_fee}
+    id = insert(conn,
+                'shipments_fee',
+                values=values,
+                returning='id')
+    logging.info('shipment fee added: id: %s, values: %s',
+                 id[0], values)
 
 def _create_shipping_list(conn, id_item, quantity,
                           id_shipment=None, picture=None):
@@ -108,8 +141,7 @@ class posOrderShipments(BaseShipments):
         id_shipment = create_shipment(self.conn,
                                       self.id_order,
                                       self.id_shipaddr,
-                                      self.id_telephone,
-                                      shipping_fee=0)
+                                      self.id_telephone)
         for item in self.order_items:
             quantity = item['quantity']
             id_order_item = item['id_order_item']
@@ -191,6 +223,7 @@ class wwwOrderShipments(BaseShipments):
         logging.info('shipment_local_sales_handled: %s', groups)
 
     def handleFlatRateShippingSales(self, sales):
+        cal_method = SHIPPING_CALCULATION_METHODS.FLAT_RATE
         for sale in sales:
             handling_fee = float(sale.shipping_setting.fees.handling.value)
             shipping_fee = float(sale.shipping_setting.fees.shipping.value)
@@ -201,7 +234,9 @@ class wwwOrderShipments(BaseShipments):
                                 self.id_order,
                                 self.id_shipaddr,
                                 self.id_telephone,
-                                shipping_fee=handling_fee + shipping_fee)
+                                handling_fee=handling_fee,
+                                shipping_fee=shipping_fee,
+                                calculation_method=cal_method)
                 _create_shipping_list(self.conn,
                                       id_order_item,
                                       1,
@@ -211,34 +246,32 @@ class wwwOrderShipments(BaseShipments):
 
     def handleGroupCarrierShippingSales(self, sales, free_sales_group):
         logging.info('shipment_carrier_sales_group_handling: %s', sales)
-        self._groupShippingSales(sales, free_sales_group)
+        self._groupShippingSales(
+            sales,
+            free_sales_group,
+            SHIPPING_CALCULATION_METHODS.CARRIER_SHIPPING_RATE)
 
     def handleCarrierShippingSales(self, sales):
         logging.info('shipment_carrier_sales_separate_handling: %s', sales)
-        self.separateShipments(sales)
+        self.separateShipments(
+            sales,
+            SHIPPING_CALCULATION_METHODS.CARRIER_SHIPPING_RATE)
 
     def handleGroupCustomShippingSales(self, sales):
         logging.info('shipment_custom_sales_group_handling: %s', sales)
-        self._groupShippingSales(sales, [])
+        self._groupShippingSales(
+            sales,
+            [],
+            SHIPPING_CALCULATION_METHODS.CUSTOM_SHIPPING_RATE)
 
     def handleCustomShippingSales(self, sales):
         logging.info('shipment_custom_sales_separate_handling: %s', sales)
-        self.separateShipments(sales)
+        self.separateShipments(
+            sales,
+            SHIPPING_CALCULATION_METHODS.CUSTOM_SHIPPING_RATE)
 
     def handleInvoiceShippingSales(self, sales):
-        for sale in sales:
-            id_order_item = sale.order_props['id_order_item']
-            for _ in range(int(sale.order_props['quantity'])):
-                id_shipment = create_shipment(self.conn,
-                                              self.id_order,
-                                              self.id_shipaddr,
-                                              self.id_telephone)
-                _create_shipping_list(self.conn,
-                                      id_order_item,
-                                      1,
-                                      id_shipment = id_shipment)
-
-    def handleSeparateFreeShippingSales(self, sales):
+        cal_method = SHIPPING_CALCULATION_METHODS.INVOICE
         for sale in sales:
             id_order_item = sale.order_props['id_order_item']
             for _ in range(int(sale.order_props['quantity'])):
@@ -246,7 +279,22 @@ class wwwOrderShipments(BaseShipments):
                                               self.id_order,
                                               self.id_shipaddr,
                                               self.id_telephone,
-                                              shipping_fee=0)
+                                              calculation_method=cal_method)
+                _create_shipping_list(self.conn,
+                                      id_order_item,
+                                      1,
+                                      id_shipment = id_shipment)
+
+    def handleSeparateFreeShippingSales(self, sales):
+        cal_method = SHIPPING_CALCULATION_METHODS.FREE_SHIPPING
+        for sale in sales:
+            id_order_item = sale.order_props['id_order_item']
+            for _ in range(int(sale.order_props['quantity'])):
+                id_shipment = create_shipment(self.conn,
+                                              self.id_order,
+                                              self.id_shipaddr,
+                                              self.id_telephone,
+                                              calculation_method=cal_method)
                 _create_shipping_list(self.conn,
                                       id_order_item,
                                       1,
@@ -318,7 +366,7 @@ class wwwOrderShipments(BaseShipments):
                                              free_sales_group)
         self.handleGroupCustomShippingSales(custom_sales_group)
 
-    def groupByMostCommonService(self, sales, free_sales_group):
+    def groupByMostCommonService(self, sales, free_sales_group, cal_method):
         supported_services_count = defaultdict(int)
         service_carrier_map = defaultdict()
         # calculate sales count for each services.
@@ -397,16 +445,15 @@ class wwwOrderShipments(BaseShipments):
                 free_shipping_fee = (float(shipping_fee_with_free_sales) -
                                   float(shipping_fee))
 
-            handling_fee = self.getMaxHandlingFee(group_sales)
-            shipping_fee += handling_fee
-
-
+        handling_fee = self.getMaxHandlingFee(group_sales)
         id_shipment = create_shipment(self.conn,
                                       self.id_order,
                                       self.id_shipaddr,
                                       self.id_telephone,
+                                      handling_fee=handling_fee,
                                       shipping_fee=shipping_fee,
-                                      supported_services=supported_services)
+                                      supported_services=supported_services,
+                                      calculation_method=cal_method)
         for sale in group_sales:
             id_order_item = sale.order_props['id_order_item']
             quantity = sale.order_props['quantity']
@@ -419,7 +466,7 @@ class wwwOrderShipments(BaseShipments):
                 free_shipping_fee,
                 id_shipment)
 
-    def separateShipments(self, sales):
+    def separateShipments(self, sales, cal_method):
         for sale in sales:
             service_carrier_map = sale.shipping_setting.supported_services
             shipping_fee = None
@@ -435,17 +482,19 @@ class wwwOrderShipments(BaseShipments):
                     unit,
                     dest,
                     **orig_param)
-                handling_fee = self.getMaxHandlingFee([sale])
-                shipping_fee += handling_fee
 
+            handling_fee = self.getMaxHandlingFee([sale])
             id_order_item = sale.order_props['id_order_item']
             for _ in range(int(sale.order_props['quantity'])):
-                id_shipment = create_shipment(self.conn,
-                                              self.id_order,
-                                              self.id_shipaddr,
-                                              self.id_telephone,
-                                              shipping_fee=shipping_fee,
-                                              supported_services=service_carrier_map)
+                id_shipment = create_shipment(
+                    self.conn,
+                    self.id_order,
+                    self.id_shipaddr,
+                    self.id_telephone,
+                    handling_fee=handling_fee,
+                    shipping_fee=shipping_fee,
+                    supported_services=service_carrier_map,
+                    calculation_method=cal_method)
                 _create_shipping_list(self.conn,
                                       id_order_item,
                                       1,
@@ -528,11 +577,12 @@ class wwwOrderShipments(BaseShipments):
         insert(self.conn, 'free_shipping_fee', values=values)
 
     def _groupShipmentForFreeShippingSales(self, free_sales_group):
+        cal_method = SHIPPING_CALCULATION_METHODS.FREE_SHIPPING
         id_shipment = create_shipment(self.conn,
                                       self.id_order,
                                       self.id_shipaddr,
                                       self.id_telephone,
-                                      shipping_fee=0)
+                                      calculation_method=cal_method)
         for sale in free_sales_group:
             id_order_item = sale.order_props['id_order_item']
             quantity = sale.order_props['quantity']
@@ -541,13 +591,15 @@ class wwwOrderShipments(BaseShipments):
                                   quantity,
                                   id_shipment=id_shipment)
 
-    def _groupShippingSales(self, sales, free_sales_group):
+    def _groupShippingSales(self, sales, free_sales_group, cal_method):
         if not sales:
             return
         free_shipping_fee = None
         free_sales_shipment = None
         while sales:
-            sales, fs_fee, spm_id = self.groupByMostCommonService(sales, free_sales_group)
+            sales, fs_fee, spm_id = self.groupByMostCommonService(sales,
+                                                                  free_sales_group,
+                                                                  cal_method)
             if fs_fee is not None:
                 if (free_shipping_fee is None or
                         (free_shipping_fee is not None and
@@ -559,3 +611,83 @@ class wwwOrderShipments(BaseShipments):
                                                 free_shipping_fee)
         elif free_sales_group:
             self._groupShipmentForFreeShippingSales(free_sales_group)
+
+
+SHIPMENT_FIELDS = ['id', 'id_order', 'id_address',
+                   'id_phone', 'mail_tracking_number',
+                   'status', 'timestamp', 'calculation_method']
+def get_shipping_shipments_by_order(conn, id_order):
+    query_str = ("SELECT %s "
+                   "FROM shipments "
+                  "WHERE id_order=%%s "
+                    "AND calculation_method in (%%s, %%s)"
+                 % ", ".join(SHIPMENT_FIELDS))
+    r = query(conn,
+              query_str,
+              (id_order,
+               SHIPPING_CALCULATION_METHODS.CARRIER_SHIPPING_RATE,
+               SHIPPING_CALCULATION_METHODS.CUSTOM_SHIPPING_RATE))
+    shipment_list = []
+    for item in r:
+        shipment_list.append(dict(zip(SHIPMENT_FIELDS, item)))
+    return shipment_list
+
+SHIPMENT_SERVICES_FIELDS = [
+    'id', 'id_shipment', 'id_postage', 'supported_services']
+def get_supported_services(conn, id_shipment):
+    query_str = ("SELECT %s "
+                   "FROM shipments_supported_services "
+                  "WHERE id_shipment = %%s"
+                 % ", ".join(SHIPMENT_SERVICES_FIELDS))
+    r = query(conn, query_str, (id_shipment,))
+    serv_list = []
+    for item in r:
+        serv_list.append(dict(zip(SHIPMENT_SERVICES_FIELDS, item)))
+
+
+    carrier_services_map = defaultdict(list)
+    for item in serv_list:
+        supported_services = ujson.loads(item['supported_services'])
+        for id_service, id_carrier in supported_services.iteritems():
+            carrier_services_map[id_carrier].append(id_service)
+
+    carrier_services = carrier_services_map.items()
+    return remote_xml_shipping_services(carrier_services)
+
+SHIPMENT_FEE_FIELDS = [
+    'id', 'id_shipment', 'handling_fee', 'shipping_fee'
+]
+def get_shipment_fee(conn, id_shipment):
+    query_str = ("SELECT %s "
+                   "FROM shipments_fee "
+                  "WHERE id_shipment = %%s"
+                 % ", ".join(SHIPMENT_FEE_FIELDS))
+    r = query(conn, query_str, (id_shipment,))
+    assert len(r) != 0, 'No fee info for shipment %s' % id_shipment
+    assert len(r) == 1, ("One shipment should only have one "
+                         "fee record: shipment:%s, result: %s"
+                         % (id_shipment, r))
+
+    return dict(zip(SHIPMENT_FEE_FIELDS, r[0]))
+
+SHIPPING_ITEM_FIELDS = [
+    ('id_item', 'spl.id_item'),
+    ('id_shipment', 'spl.id_shipment'),
+    ('quantity', 'spl.quantity'),
+    ('id_sale', 'oi.id_sale'),
+    ('id_variant', 'oi.id_variant'),
+    ('id_weight_type', 'oi.id_weight_type')]
+
+def get_shipping_list(conn, id_shipment):
+    query_str = ("SELECT %s "
+                   "FROM shipping_list as spl "
+                   "JOIN order_items as oi "
+                     "ON spl.id_item = oi.id "
+                  "WHERE spl.id_shipment = %%s"
+                 % ", ".join([field[1] for field in SHIPPING_ITEM_FIELDS]))
+    r = query(conn, query_str, (id_shipment,))
+    shipping_list = []
+    for item in r:
+        shipping_list.append(dict(
+            zip([field[0] for field in SHIPPING_ITEM_FIELDS], item)))
+    return shipping_list

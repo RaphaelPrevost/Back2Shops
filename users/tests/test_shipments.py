@@ -1,23 +1,13 @@
-import ujson
 import unittest
 
-from common.constants import SHIPMENT_STATUS
 from common.test_utils import is_backoffice_server_running
-from common.utils import _parse_auth_cookie
 from tests.base_order_test import BaseOrderTestCase
+from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SUtils import db_utils
 
 SKIP_REASON = "Please run backoffice server before running this test"
 
 class TestShipment(BaseOrderTestCase):
-    def setUp(self):
-        BaseOrderTestCase.setUp(self)
-        auth_cookie = self.login()
-        user = _parse_auth_cookie(auth_cookie.value.strip('"'))
-        users_id = user['users_id']
-        (self.telephone, self.shipaddr,
-         self.billaddr) = self.get_user_info(users_id)
-
     def _freeShippingCheck(self, id_shipment, expecte_shipping_fee):
         sql = """SELECT fee
                    FROM free_shipping_fee
@@ -53,55 +43,106 @@ class TestShipment(BaseOrderTestCase):
     def _successShipment(self, id_shipment,
                          expect_order=None, expect_status=None,
                          expect_shipping_fee=None,
+                         expect_handling_fee=None,
                          expect_none_shipping_fee=False,
+                         expect_none_handling_fee=False,
                          expect_supported_services=None):
-        columns = ["id_order", "status", "shipping_fee",
-                   "supported_services"]
-        sql = """SELECT %s
-                   FROM shipments
-                  WHERE id=%%s
-         """ % ", ".join(columns)
-        with db_utils.get_conn() as conn:
-            results = db_utils.query(conn, sql,
-                                     (id_shipment, ))
-        self.assertTrue(len(results) > 0,
-                        'Shipment-%s not exist' % id_shipment)
+        def __shipment_check():
+            columns = ["id_order", "status"]
+            sql = """SELECT %s
+                       FROM shipments
+                      WHERE id=%%s
+             """ % ", ".join(columns)
+            with db_utils.get_conn() as conn:
+                results = db_utils.query(conn, sql,
+                                         (id_shipment, ))
+            self.assertTrue(len(results) > 0,
+                            'Shipment-%s not exist' % id_shipment)
 
-        r = dict(zip(tuple(columns), tuple(results[0])))
-        if expect_order is not None:
-            self.assertEqual(
-                r['id_order'],
-                expect_order,
-                'shipment(id_order) is not as expected: %s-%s'
-                % (r['id_order'], expect_order))
+            r = dict(zip(tuple(columns), tuple(results[0])))
+            if expect_order is not None:
+                self.assertEqual(
+                    r['id_order'],
+                    expect_order,
+                    'shipment(id_order) is not as expected: %s-%s'
+                    % (r['id_order'], expect_order))
 
-        if expect_status is not None:
-            self.assertEqual(
-                r['status'],
-                expect_status,
-                'shipment(status) is not as expected: %s-%s'
-                % (r['status'], expect_status))
+            if expect_status is not None:
+                self.assertEqual(
+                    r['status'],
+                    expect_status,
+                    'shipment(status) is not as expected: %s-%s'
+                    % (r['status'], expect_status))
 
-        if expect_shipping_fee is not None:
-            self.assertEqual(
-                r['shipping_fee'],
-                expect_shipping_fee,
-                'shipment(shipping_fee) is not as expected: %s-%s'
-                % (r['shipping_fee'], expect_shipping_fee))
+        def __shipping_fee_check():
+            columns = ["id_shipment", "handling_fee", "shipping_fee"]
+            sql = """SELECT %s
+                       FROM shipments_fee
+                      WHERE id_shipment=%%s
+             """ % ", ".join(columns)
+            with db_utils.get_conn() as conn:
+                results = db_utils.query(conn, sql,
+                                         (id_shipment, ))
+            if (expect_handling_fee is not None or
+                expect_shipping_fee is not None):
+                self.assert_(
+                    len(results),
+                    'There is no fee for shipment: %s'
+                    % id_shipment)
 
-        if expect_none_shipping_fee:
-            self.assertEqual(
-                r['shipping_fee'],
-                None,
-                'shipment(shipping_fee) is not as expected: %s-%s'
-                % (r['shipping_fee'], None))
+            r = results and results[0] or None
+            if expect_none_shipping_fee:
+                self.assert_(
+                    r is None or r['shipping_fee'] is None,
+                    'shipment(shipping_fee) is not as expected: %s-%s'
+                    % (r and r['shipping_fee'] or None, None))
 
-        if expect_supported_services is not None:
-            self.assertEqual(
-                r['supported_services'],
-                expect_supported_services,
-                'shipment(supported_services) is not as expected: %s-%s'
-                % (r['supported_services'], expect_supported_services))
+            if expect_none_handling_fee:
+                self.assert_(
+                    r is None or r['shipping_fee'] is None,
+                    'shipment(handling_fee) is not as expected: %s-%s'
+                    % (r and r['handling_fee'] or None, None))
+
+
+            if expect_shipping_fee is not None:
+                self.assertEqual(
+                    r['shipping_fee'],
+                    expect_shipping_fee,
+                    'shipment(shipping_fee) is not as expected: %s-%s'
+                    % (r['shipping_fee'], expect_shipping_fee))
+
+            if expect_handling_fee is not None:
+                self.assertEqual(
+                    r['handling_fee'],
+                    expect_handling_fee,
+                    'shipment(handling_fee) is not as expected: %s-%s'
+                    % (r['handling_fee'], expect_handling_fee))
+
+        def __support_services_check():
+            if expect_supported_services is None:
+                return
+            columns = ["id_shipment", "id_postage", "supported_services"]
+            sql = """SELECT %s
+                       FROM shipments_supported_services
+                      WHERE id_shipment=%%s
+             """ % ", ".join(columns)
+            with db_utils.get_conn() as conn:
+                results = db_utils.query(conn, sql,
+                                         (id_shipment, ))
+            self.assert_(
+                len(results),
+                'There is no supported services for shipment: %s'
+                % id_shipment)
+            r = results[0]
+            if expect_supported_services is not None:
+                self.assertEqual(
+                    r['supported_services'],
+                    expect_supported_services,
+                    'shipment(supported_services) is not as expected: %s-%s'
+                    % (r['supported_services'], expect_supported_services))
+        __shipment_check()
+        __support_services_check()
+        __shipping_fee_check()
 
     @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
     def testShipmentGroupInOneShop(self):
@@ -122,33 +163,41 @@ class TestShipment(BaseOrderTestCase):
             'id_variant': 0,
             'quantity': 1,
             'id_shop': 1000006,
+            'id_price_type': 0,
             'id_weight_type': 0}
-        item1_shipping_fee = 12.0 + 1.05*2
+        item1_handling_fee= 12.0
+        item1_shipping_fee = 1.05*2
         carrier_shipping_item2 ={
             'id_sale': 1000007,
             'id_variant': 0,
             'quantity': 1,
             'id_shop': 1000006,
+            'id_price_type': 0,
             'id_weight_type': 0}
-        item2_shipping_fee = 23.0 + 2.0*2
+        item2_handling_fee = 23.0
+        item2_shipping_fee = 2.0*2
         invoice_shipping_item3 = {
             'id_sale': 1000008,
             'id_variant': 0,
             'quantity': 1,
             'id_shop': 1000006,
+            'id_price_type': 0,
             'id_weight_type': 0}
         flat_rate_shipping_item4 = {
             'id_sale': 1000009,
             'id_variant': 0,
             'quantity': 1,
             'id_shop': 1000006,
+            'id_price_type': 0,
             'id_weight_type': 0}
-        item4_shipping_fee = 21.0 + 15.0
+        item4_handling_fee = 21.0
+        item4_shipping_fee = 15.0
         free_shipping_item5 = {
             'id_sale': 1000010,
             'id_variant': 0,
             'quantity': 1,
             'id_shop': 1000006,
+            'id_price_type': 0,
             'id_weight_type': 0}
         item5_fake_fee = 9.0 * 2
         custom_shipping_item6 = {
@@ -156,8 +205,10 @@ class TestShipment(BaseOrderTestCase):
             'id_variant': 0,
             'quantity': 1,
             'id_shop': 1000006,
+            'id_price_type': 0,
             'id_weight_type': 0}
-        item6_shipping_fee = 23.0 + 5.0
+        item6_handling_fee = 23.0
+        item6_shipping_fee = 5.0
 
         # order:
         wwwOrder = [carrier_shipping_item1,
@@ -174,24 +225,28 @@ class TestShipment(BaseOrderTestCase):
         self._successShipment(id_spm_flat_rate,
                               expect_order=id_order,
                               expect_status=SHIPMENT_STATUS.PACKING,
+                              expect_handling_fee=item4_handling_fee,
                               expect_shipping_fee=item4_shipping_fee)
         self._successShipment(id_spm_invoice,
                               expect_order=id_order,
                               expect_status=SHIPMENT_STATUS.PACKING,
+                              expect_none_handling_fee=True,
                               expect_none_shipping_fee=True)
+        expect_handling_fee = max([item1_handling_fee, item2_handling_fee])
         expect_shipping_fee = (item1_shipping_fee +
-                               item2_shipping_fee -
-                               12)
+                               item2_shipping_fee)
         services = '{"1":"1"}'
         self._successShipment(id_spm_carrier,
                               expect_order=id_order,
                               expect_status=SHIPMENT_STATUS.PACKING,
+                              expect_handling_fee=expect_handling_fee,
                               expect_shipping_fee=expect_shipping_fee,
                               expect_supported_services=services)
         services = '{"1000001":"0"}'
         self._successShipment(id_spm_custom,
                               expect_order=id_order,
                               expect_status=SHIPMENT_STATUS.PACKING,
+                              expect_handling_fee=item6_handling_fee,
                               expect_shipping_fee=item6_shipping_fee,
                               expect_supported_services=services)
         self._freeShippingCheck(id_spm_carrier, item5_fake_fee)
@@ -214,12 +269,14 @@ class TestShipment(BaseOrderTestCase):
             'id_variant': 0,
             'quantity': 1,
             'id_shop': 1000005,
+            'id_price_type': 0,
             'id_weight_type': 0}
         item2_in_shop6 ={
             'id_sale': 1000028,
             'id_variant': 0,
             'quantity': 1,
             'id_shop': 1000006,
+            'id_price_type': 0,
             'id_weight_type': 0}
         wwwOrder = [item1_in_shop5,
                     item2_in_shop6]
@@ -244,6 +301,7 @@ class TestShipment(BaseOrderTestCase):
             'id_variant': 0,
             'quantity': 1,
             'id_shop': 0,
+            'id_price_type': 0,
             'id_weight_type': 0}
 
         item2_for_corporate4 = {
@@ -251,6 +309,7 @@ class TestShipment(BaseOrderTestCase):
             'id_variant': 0,
             'quantity': 1,
             'id_shop': 0,
+            'id_price_type': 0,
             'id_weight_type': 0}
 
         wwwOrder = [item1_for_corporate3, item2_for_corporate4]
@@ -284,6 +343,7 @@ class TestShipment(BaseOrderTestCase):
             'id_variant': 0,
             'quantity': 3,
             'id_shop': 1000006,
+            'id_price_type': 0,
             'id_weight_type': 0}
         item1_handling_fee = 11.0
         item1_weight = 1.0
@@ -293,6 +353,7 @@ class TestShipment(BaseOrderTestCase):
             'id_variant': 0,
             'quantity': 2,
             'id_shop': 1000006,
+            'id_price_type': 0,
             'id_weight_type': 0}
         item2_weight = 2.0
         item2_handling_fee = 12.0
@@ -302,6 +363,7 @@ class TestShipment(BaseOrderTestCase):
             'id_variant': 0,
             'quantity': 2,
             'id_shop': 1000006,
+            'id_price_type': 0,
             'id_weight_type': 0}
         item3_weight = 3.0
         item3_handling_fee = 13.0
@@ -311,6 +373,7 @@ class TestShipment(BaseOrderTestCase):
             'id_variant': 0,
             'quantity': 2,
             'id_shop': 1000006,
+            'id_price_type': 0,
             'id_weight_type': 0}
         item4_weight = 4.0
         item4_handling_fee = 14.0
@@ -322,23 +385,28 @@ class TestShipment(BaseOrderTestCase):
         spm1, spm2 = self._shipmentsCountCheck(id_order, 2)
 
 
-        fee = (max([item1_handling_fee,
+        expect_handling_fee = max([item1_handling_fee,
                     item2_handling_fee,
-                    item4_handling_fee]) +
-               2.0 * (item1_weight + item2_weight + item4_weight))
+                    item4_handling_fee])
+        expect_shipping_fee =  2.0 * (item1_weight +
+                                      item2_weight +
+                                      item4_weight)
         services = '{"1":"1"}'
         self._successShipment(spm1,
                               expect_order=id_order,
                               expect_status=SHIPMENT_STATUS.PACKING,
-                              expect_shipping_fee=fee,
+                              expect_handling_fee=expect_handling_fee,
+                              expect_shipping_fee=expect_shipping_fee,
                               expect_supported_services=services)
 
-        fee = item3_handling_fee + 3.0 * item3_weight
+        expect_handling_fee = item3_handling_fee
+        expect_shipping_fee = 3.0 * item3_weight
         services = '{"2":"2"}'
         self._successShipment(spm2,
                               expect_order=id_order,
                               expect_status=SHIPMENT_STATUS.PACKING,
-                              expect_shipping_fee=fee,
+                              expect_handling_fee=expect_handling_fee,
+                              expect_shipping_fee=expect_shipping_fee,
                               expect_supported_services=services)
 
     @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
@@ -359,6 +427,7 @@ class TestShipment(BaseOrderTestCase):
             'id_variant': 0,
             'quantity': 3,
             'id_shop': 1000006,
+            'id_price_type': 0,
             'id_weight_type': 0}
         item1_handling_fee = 17.0
 
@@ -367,6 +436,7 @@ class TestShipment(BaseOrderTestCase):
             'id_variant': 0,
             'quantity': 2,
             'id_shop': 1000006,
+            'id_price_type': 0,
             'id_weight_type': 0}
         item2_handling_fee = 18.0
 
@@ -375,6 +445,7 @@ class TestShipment(BaseOrderTestCase):
             'id_variant': 0,
             'quantity': 2,
             'id_shop': 1000006,
+            'id_price_type': 0,
             'id_weight_type': 0}
         item3_handling_fee = 19.0
 
@@ -383,6 +454,7 @@ class TestShipment(BaseOrderTestCase):
             'id_variant': 0,
             'quantity': 2,
             'id_shop': 1000006,
+            'id_price_type': 0,
             'id_weight_type': 0}
         item4_handling_fee = 20.0
 
@@ -394,23 +466,23 @@ class TestShipment(BaseOrderTestCase):
         id_order = self.success_wwwOrder(self.telephone, self.shipaddr,
                                          self.billaddr, wwwOrder)
         spm1, spm2 = self._shipmentsCountCheck(id_order, 2)
-        fee = (max(item1_handling_fee,
+        expect_handling_fee = max(item1_handling_fee,
                    item2_handling_fee,
-                   item3_handling_fee) +
-               custom1_fee)
+                   item3_handling_fee)
         services = '{"1000001":"0"}'
         self._successShipment(spm1,
                               expect_order=id_order,
                               expect_status=SHIPMENT_STATUS.PACKING,
-                              expect_shipping_fee=fee,
+                              expect_handling_fee=expect_handling_fee,
+                              expect_shipping_fee=custom1_fee,
                               expect_supported_services=services)
 
         services = '{"1000002":"0"}'
-        fee = item4_handling_fee + custom2_fee
         self._successShipment(spm2,
                               expect_order=id_order,
                               expect_status=SHIPMENT_STATUS.PACKING,
-                              expect_shipping_fee=fee,
+                              expect_handling_fee=item4_handling_fee,
+                              expect_shipping_fee=custom2_fee,
                               expect_supported_services=services)
 
     @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
@@ -431,6 +503,7 @@ class TestShipment(BaseOrderTestCase):
             'id_variant': 0,
             'quantity': 2,
             'id_shop': 1000006,
+            'id_price_type': 0,
             'id_weight_type': 0}
 
         item2_with_flat_rate = {
@@ -438,6 +511,7 @@ class TestShipment(BaseOrderTestCase):
             'id_variant': 0,
             'quantity': 3,
             'id_shop': 1000006,
+            'id_price_type': 0,
             'id_weight_type': 0}
 
         item3_with_carrier_shipping = {
@@ -445,6 +519,7 @@ class TestShipment(BaseOrderTestCase):
             'id_variant': 0,
             'quantity': 2,
             'id_shop': 1000006,
+            'id_price_type': 0,
             'id_weight_type': 0}
 
         item4_with_custom_shipping = {
@@ -452,6 +527,7 @@ class TestShipment(BaseOrderTestCase):
             'id_variant': 0,
             'quantity': 3,
             'id_shop': 1000006,
+            'id_price_type': 0,
             'id_weight_type': 0}
 
         item5_with_invoice_shipping = {
@@ -459,6 +535,7 @@ class TestShipment(BaseOrderTestCase):
             'id_variant': 0,
             'quantity': 2,
             'id_shop': 1000006,
+            'id_price_type': 0,
             'id_weight_type': 0}
 
         wwwOrder = [item1_with_free_shipping,

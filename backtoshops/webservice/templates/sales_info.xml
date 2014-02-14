@@ -26,7 +26,24 @@
         <name>{{ object.mother_brand.name }}</name>
         <img>{% if object.mother_brand.logo %}{{ object.mother_brand.logo.url }}{% endif %}</img>
     </brand>
-    
+
+    <!-- weight unit -->
+    <weight_unit>{{object.product.weight_unit_id}}</weight_unit>
+
+    <!-- sale's weight -->
+    {% if object.product.standard_weight %}
+        <standard_weight>
+            {{ object.product.standard_weight|floatformat }}
+        </standard_weight>
+    {% else %}
+        {% for tap in object.typeattributeweight_set.all %}
+            <type_weight id="{{ tap.type_attribute.id }}">
+                <name>{{ tap.type_attribute.name }}</name>
+                <weight>{{ tap.type_attribute_weight|floatformat }}</weight>
+            </type_weight>
+        {% endfor %}
+    {% endif %}
+
     <!-- default price -->
     <price currency="{{object.product.currency}}">{{ object.product.normal_price|floatformat }}</price>
 

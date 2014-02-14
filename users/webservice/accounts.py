@@ -10,14 +10,13 @@ from common.utils import addr_reexp, city_reexp
 from common.utils import date_reexp, email_reexp
 from common.utils import postal_code_reexp, phone_num_reexp
 from common.utils import encrypt_password
-from common.utils import gen_json_response
 from common.utils import is_valid_email
-from webservice.base import BaseResource
+from webservice.base import BaseJsonResource
 from B2SUtils import db_utils
 from B2SUtils.errors import ValidationError
 
 
-class UserResource(BaseResource):
+class UserResource(BaseJsonResource):
     login_required = {'get': True, 'post': False}
     post_action_func_map = {'create': 'create_account',
                             'modify': 'update_account'}
@@ -135,7 +134,7 @@ class UserResource(BaseResource):
 
         for f in fields_dict:
             fields_dict[f] = fields_dict[f].toDict()
-        return gen_json_response(resp, fields_dict)
+        return fields_dict
 
     def _on_post(self, req, resp, conn, **kwargs):
         action = req.get_param('action')
@@ -181,8 +180,7 @@ class UserResource(BaseResource):
         # users_address columns
         self._update_address(conn, req, users_id)
 
-        return gen_json_response(resp,
-                {"res": RESP_RESULT.S, "err": ""})
+        return {"res": RESP_RESULT.S, "err": ""}
 
     def _update_phone_num(self, conn, req, users_id):
         number_dict = {}
@@ -278,8 +276,7 @@ class UserResource(BaseResource):
         captcha = self.get_captcha(req)
 
         self.insert(conn, email, password)
-        return gen_json_response(resp,
-                {"res": RESP_RESULT.S, "err": ""})
+        return {"res": RESP_RESULT.S, "err": ""}
 
     def get_email(self, req, conn, users_id=None):
         email = req.get_param('email')

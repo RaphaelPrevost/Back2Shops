@@ -9,10 +9,25 @@ from django.core.management import call_command
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        call_command("loaddata", "shippings/fixtures/carrier_usps_with_api.json")
+        # Adding field 'CustomShippingRate.desc'
+        db.add_column(u'shippings_customshippingrate', 'desc',
+                      self.gf('django.db.models.fields.TextField')(max_length=500, null=True, blank=True),
+                      keep_default=False)
+
+        # Adding field 'Service.desc'
+        db.add_column(u'shippings_service', 'desc',
+                      self.gf('django.db.models.fields.TextField')(max_length=500, null=True, blank=True),
+                      keep_default=False)
+        call_command("loaddata", "shippings/fixtures/carriers_with_api.json")
+
 
     def backwards(self, orm):
-        pass
+        # Deleting field 'CustomShippingRate.desc'
+        db.delete_column(u'shippings_customshippingrate', 'desc')
+
+        # Deleting field 'Service.desc'
+        db.delete_column(u'shippings_service', 'desc')
+
 
     models = {
         u'accounts.brand': {
@@ -23,6 +38,7 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'logo': ('django.db.models.fields.files.ImageField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
+            'province_code': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True', 'blank': 'True'}),
             'zipcode': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'})
         },
         u'countries.country': {
@@ -41,6 +57,7 @@ class Migration(SchemaMigration):
         },
         u'shippings.customshippingrate': {
             'Meta': {'object_name': 'CustomShippingRate'},
+            'desc': ('django.db.models.fields.TextField', [], {'max_length': '500', 'null': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'seller': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounts.Brand']"}),
             'shipment_type': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
@@ -64,6 +81,7 @@ class Migration(SchemaMigration):
         u'shippings.service': {
             'Meta': {'object_name': 'Service'},
             'carrier': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'services'", 'to': u"orm['shippings.Carrier']"}),
+            'desc': ('django.db.models.fields.TextField', [], {'max_length': '500', 'null': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
         },

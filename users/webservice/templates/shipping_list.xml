@@ -1,0 +1,49 @@
+<shipments version="1.0">
+    {% for shipment in object_list %}
+        <shipment id="{{ shipment.id }}">
+            <delivery status="{{ shipment.status }}">
+                {% for carrier in shipment.carriers %}
+                    <carrier id="{{ carrier.id }}">
+                        <name>{{ carrier.name }}</name>
+                        {% for service in carrier.services %}
+                            <service id="{{ service.id }}">
+                                <name>{{ service.name }}</name>
+                                <desc>{{ service.desc }}</desc>
+                            </service>
+                        {% endfor %}
+                    </carrier>
+                {% endfor %}
+            </delivery>
+            <fees>
+                <handling currency="{{ shipping_currency }}">
+                    {{ shipment.fee_info.handling_fee }}
+                </handling>
+                {% if shipment.fee_info.shipping_fee %}
+                    <shipping currency="{{ shipping_currency }}">
+                        {{ shipment.fee_info.shipping_fee }}
+                    </shipping>
+                {% endif %}
+            </fees>
+            {% for shipping in shipment.shipping_list %}
+                <item sale="{{ shipping.id_sale }}">
+                    <name>{{ shipping.sale_item.name }}</name>
+                    {% if shipping.sale_item.sel_weight_type %}
+                        <type id="{{ shipping.sale_item.type.id }}">
+                            <name>{{ shipping.sale_item.type.name }}</name>
+                            <attribute id="{{ shipping.sale_item.sel_weight_type.id }}" name="{{ shipping.sale_item.sel_weight_type.name }}"/>
+                        </type>
+                    {% endif %}
+                    {% if shipping.sale_item.sel_variant %}
+                        <variant id="{{ shipping.sale_item.sel_variant.id }}">
+                            <name>{{ shipping.sale_item.sel_variant.name }}</name>
+                        </variant>
+                    {% endif %}
+                    <weight unit="{{ shipping.sale_item.weight_unit }}">
+                        {{ shipping.sale_item.weight }}
+                    </weight>
+                    <quantity>{{ shipping.sale_item.quantity }}</quantity>
+                </item>
+            {% endfor %}
+        </shipment>
+    {% endfor %}
+</shipments>

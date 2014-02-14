@@ -369,6 +369,14 @@ def remote_xml_shipping_fee(carrier_services, weight, unit, dest,
     content = get_from_sale_server(uri, **query)
     return content
 
+def remote_xml_shipping_services(carrier_services):
+    uri = 'private/shipping/services/info'
+    if isinstance(carrier_services, list):
+        carrier_services = ujson.dumps(carrier_services)
+    query = {'carrier_services': carrier_services}
+    content = get_from_sale_server(uri, **query)
+    return content
+
 def get_from_sale_server(uri, **query):
     remote_uri = settings.SALES_SERVER_API_URL % {'api': uri}
     if query:

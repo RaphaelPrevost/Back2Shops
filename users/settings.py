@@ -52,3 +52,7 @@ STATIC_ORDERS_IMG_PATH = 'static/orders_img/'
 
 ORDERS_QUERY_LIMIT = 100
 RUNNING_TEST = False
+
+# config to see decrypt content for response,
+# only used for debugging
+CRYPTO_RESP_DEBUGING = True

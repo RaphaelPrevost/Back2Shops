@@ -1,0 +1,2 @@
+== version 0.0.1 ==
+1. add constants enum used by user server, backoffice server.

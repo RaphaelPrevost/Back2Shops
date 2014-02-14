@@ -1,3 +1,4 @@
+import logging
 import os
 import unittest
 import ujson
@@ -65,6 +66,7 @@ class UsersBrowser(BaseBrowser):
         url = "http://localhost:%s/%s" % (settings.SERVER_PORT, path)
         if post_data is not None:
             post_data = urllib.urlencode(post_data)
+        logging.info("Browser access %s: %s" % (url, post_data))
         return self.open(url, post_data)
 
     def create_account(self, email, password):

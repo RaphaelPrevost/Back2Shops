@@ -13,3 +13,5 @@ M2Crypto==0.21.1.B2S
 B2SCrypto==0.0.1
 xmltodict==0.7.0
 B2SUtils==0.0.1
+B2SRespUtils==0.0.1
+B2SProtocol==0.0.1

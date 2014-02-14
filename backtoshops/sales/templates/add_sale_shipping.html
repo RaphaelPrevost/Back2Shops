@@ -106,18 +106,22 @@
                 {{ custom_shipping_rate_form.shipment_type }}
             </p>
             <p>
+                <label for="{{ custom_shipping_rate_form.desc.auto_id }}">{{ custom_shipping_rate_form.desc.label }}</label>
+                {{ custom_shipping_rate_form.desc }}
+            </p>
+            <p>
                 <label for="{{ custom_shipping_rate_form.total_order_type.auto_id }}">{{ custom_shipping_rate_form.total_order_type.label }}</label>
                 {{ custom_shipping_rate_form.total_order_type }}
                 <p class="between">
                     <span> {% trans "between" %} </span>
-                    {{ custom_shipping_rate_form.total_order_lower }} <span class='cst_total_order_type_unit'>{{ default_currency }}</span>
+                    {{ custom_shipping_rate_form.total_order_lower }} <span class='cst_total_order_type_unit'>{{ shipping_currency }}</span>
                     <span> {% trans "and" %} </span>
-                    {{ custom_shipping_rate_form.total_order_upper }} <span class='cst_total_order_type_unit'>{{ default_currency }}</span>
+                    {{ custom_shipping_rate_form.total_order_upper }} <span class='cst_total_order_type_unit'>{{ shipping_currency }}</span>
                 </p>
             </p>
             <p>
                 <label for="{{ custom_shipping_rate_form.shipping_rate.auto_id }}">{{ custom_shipping_rate_form.shipping_rate.label }}</label>
-                {{ custom_shipping_rate_form.shipping_rate }} {{ default_currency }}
+                {{ custom_shipping_rate_form.shipping_rate }} {{ shipping_currency }}
             </p>
             <p class="error-message"></p>
         </form>
@@ -208,9 +212,9 @@
     $("#{{custom_shipping_rate_form.total_order_type.auto_id}}").change(function(){
         var selected = $("#{{custom_shipping_rate_form.total_order_type.auto_id}} option:selected").val();
         if (selected == 'W') {
-            $('.cst_total_order_type_unit').html("{{ default_weight_unit }}");
+            $('.cst_total_order_type_unit').html("{{ shipping_weight_unit }}");
         } else {
-            $('.cst_total_order_type_unit').html("{{ default_currency }}");
+            $('.cst_total_order_type_unit').html("{{ shipping_currency }}");
         }
     });
 

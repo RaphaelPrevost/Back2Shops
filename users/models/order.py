@@ -1,11 +1,9 @@
 import logging
-import ujson
-import xmltodict
 
 from common.constants import INVOICE_STATUS
 from common.constants import ORDER_STATUS
-from common.constants import SHIPMENT_STATUS
 
+from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import query
 from B2SUtils.db_utils import select
@@ -26,7 +24,9 @@ def _create_order(conn, users_id):
 
 
 def _create_order_item(conn, sale, id_variant, upc_shop=None,
-                       barcode=None, id_shop=None):
+                       barcode=None, id_shop=None,
+                       id_weight_type=None,
+                       id_price_type=None):
     if upc_shop:
         shop_id = get_shop_id(upc_shop)
     else:
@@ -36,7 +36,7 @@ def _create_order_item(conn, sale, id_variant, upc_shop=None,
         'id_sale': sale.id,
         'id_variant': id_variant,
         'id_shop': shop_id,
-        'price': sale.final_price(id_variant),
+        'price': sale.final_price(id_variant, id_price_type or 0),
         'name': sale.whole_name(id_variant),
         'description': sale.desc,
     }
@@ -45,6 +45,10 @@ def _create_order_item(conn, sale, id_variant, upc_shop=None,
         item_value['picture'] = main_picture
     if barcode:
         item_value['barcode'] = barcode
+    if id_weight_type is not None:
+        item_value['id_weight_type'] = id_weight_type
+    if id_price_type is not None:
+        item_value['id_price_type'] = id_price_type
 
     item_id = insert(conn, 'order_items',
                      values=item_value, returning='id')
@@ -71,7 +75,9 @@ def create_order(conn, users_id, telephone_id, order_items,
         item_id = _create_order_item(conn, sale, order['id_variant'],
                                      upc_shop=upc_shop,
                                      barcode=order.get('barcode', None),
-                                     id_shop=order['id_shop'])
+                                     id_shop=order['id_shop'],
+                                     id_price_type=order.get('id_price_type', None),
+                                     id_weight_type=order.get('id_weight_type', None))
         # populate id_order_item into order params, it will be
         # used when create shipping list.
         order['id_order_item'] = item_id

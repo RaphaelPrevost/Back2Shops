@@ -67,7 +67,8 @@ class ActorOptions(BaseActor):
 
 class ActorService(BaseActor):
     attrs_map = {'id': '@id',
-                 'name': 'name'}
+                 'name': 'name',
+                 'desc': 'desc'}
 
 class ActorCarrier(BaseActor):
     attrs_map = {'id': '@id',
@@ -153,3 +154,9 @@ class ActorShipping(BaseActor):
         setting_list = as_list(self.data.get('settings'))
         return [ActorSetting(data=item) for item in setting_list]
 
+
+class ActorCarriers(BaseActor):
+    @property
+    def carriers(self):
+        carriers_list = as_list(self.data.get('carrier'))
+        return [ActorCarrier(data=item) for item in carriers_list]

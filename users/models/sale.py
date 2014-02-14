@@ -31,6 +31,11 @@ class ActorSaleType(BaseActor):
         return [ActorSaleCommonAttr(data=attr) for attr in attrs]
 
 
+class ActorSaleTypeWeight(BaseActor):
+    attrs_map = {'id': '@id',
+                 'name': 'name',
+                 'weight': 'weight'}
+
 class ActorSaleBrand(BaseActor):
     attrs_map = {'id': '@id',
                  'name': 'name',
@@ -39,7 +44,8 @@ class ActorSaleBrand(BaseActor):
 
 class ActorSalePrice(BaseActor):
     attrs_map = {'currency': '@currency',
-                 'text': '#text'}
+                 'text': '#text',
+                 'attribute': '@attribute'}
 
 
 class ActorSaleDiscount(BaseActor):
@@ -116,6 +122,8 @@ class ActorSale(BaseActor):
     attrs_map = {'id': '@id',
                  'name': 'name',
                  'desc': 'desc',
+                 'weight_unit': 'weight_unit',
+                 'standard_weight': 'standard_weight',
                  }
 
     # attributes set/used in orders
@@ -143,7 +151,8 @@ class ActorSale(BaseActor):
 
     @property
     def price(self):
-        return ActorSalePrice(data=self.data['price'])
+        price_list = as_list(self.data['price'])
+        return [ActorSalePrice(data=data) for data in price_list]
 
     @property
     def discount(self):
@@ -164,6 +173,34 @@ class ActorSale(BaseActor):
     def available(self):
         return ActorSaleAvailable(data=self.data.get('available'))
 
+    @property
+    def typeWeights(self):
+        weight_list = as_list(self.data.get('type_weight', None))
+        return [ActorSaleTypeWeight(data=item) for item in weight_list]
+
+    def get_type_weight(self, id_type):
+        for tw in self.typeWeights:
+            if int(id_type) == int(tw.id):
+                return tw
+        raise NotExistError('weight for type %s not exist for Sale %s'
+                            % (id_type, self.id))
+
+    def get_type_price(self, id_type, raise_not_exist=True):
+        for p in self.price:
+            if p.exist('attribute') and int(p.attribute) == int(id_type):
+                return p
+        if raise_not_exist:
+            raise NotExistError('price for type %s not exist for Sale %s'
+                                % (id_type, self.id))
+
+    def get_normal_price(self, raise_not_exist=True):
+        for p in self.price:
+            if not p.exist('attribute'):
+                return p
+        if raise_not_exist:
+            raise NotExistError('normal price not exist for Sale %s'
+                                % (self.id,))
+
     def get_variant(self, id_variant):
         for v in self.variant:
             if int(id_variant) == int(v.id):
@@ -178,7 +215,7 @@ class ActorSale(BaseActor):
         raise NotExistError('Shop%s not exist for Sale %s'
                             % (id_shop, self.id))
 
-    def final_price(self, id_variant=0):
+    def final_price(self, id_variant=0, id_price_type=0):
         def __diff_price(orig_price, obj):
             if obj is None:
                 return 0
@@ -188,9 +225,18 @@ class ActorSale(BaseActor):
             else:
                 return Decimal(obj.text)
 
-        normal_price = Decimal(self.price.text)
-        _discount = __diff_price(normal_price, self.discount)
-        price = normal_price - _discount
+        def __base_price():
+            if int(id_price_type):
+                p = self.get_type_price(id_price_type,
+                                        raise_not_exist=False)
+            else:
+                p = self.get_normal_price()
+
+            return Decimal(p.text)
+
+        base_price = Decimal(__base_price())
+        _discount = __diff_price(base_price, self.discount)
+        price = base_price - _discount
         if int(id_variant):
             v = self.get_variant(id_variant)
             premium = __diff_price(price, v.premium)

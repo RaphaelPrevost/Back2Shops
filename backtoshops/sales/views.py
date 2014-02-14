@@ -64,6 +64,8 @@ from shippings.models import FlatRateInShipping
 from shops.models import DefaultShipping
 from shops.models import Shop
 from stocks.models import ProductStock
+from B2SProtocol.settings import SHIPPING_CURRENCY
+from B2SProtocol.settings import SHIPPING_WEIGHT_UNIT
 
 
 class UploadProductPictureView(View, TemplateResponseMixin):
@@ -878,8 +880,8 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 'preview_shop': self._render_preview(self.STEP_SHOP),
                 'preview_product': self._render_preview(self.STEP_PRODUCT),
                 'currency': self.currency,
-                'default_weight_unit': get_setting('default_weight_unit'),
-                'default_currency': get_setting('default_currency'),
+                'shipping_weight_unit': SHIPPING_WEIGHT_UNIT,
+                'shipping_currency': SHIPPING_CURRENCY,
                 'custom_shipping_rate_form': CustomShippingRateFormModel,
             })
         elif self.steps.current == self.STEP_TARGET:
