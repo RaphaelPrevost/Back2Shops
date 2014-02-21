@@ -353,7 +353,7 @@ def order_img_download(img_path):
         raise
 
 def remote_xml_shipping_fee(carrier_services, weight, unit, dest,
-                            id_shop=None, id_corporate_account=None):
+                            id_address):
     uri = 'protected/shipping/fees'
     if isinstance(carrier_services, list):
         carrier_services = ujson.dumps(carrier_services)
@@ -364,16 +364,17 @@ def remote_xml_shipping_fee(carrier_services, weight, unit, dest,
              'weight': weight,
              'unit': unit,
              'dest': dest,
-             'id_shop': id_shop,
-             'id_corporate_account': id_corporate_account}
+             'id_address': id_address}
     content = get_from_sale_server(uri, **query)
     return content
 
-def remote_xml_shipping_services(carrier_services):
+def remote_xml_shipping_services(carrier_services=None, id_sale=None):
     uri = 'private/shipping/services/info'
     if isinstance(carrier_services, list):
         carrier_services = ujson.dumps(carrier_services)
-    query = {'carrier_services': carrier_services}
+        query = {'carrier_services': carrier_services}
+    else:
+        query = {'id_sale': id_sale}
     content = get_from_sale_server(uri, **query)
     return content
 
@@ -392,3 +393,28 @@ def get_from_sale_server(uri, **query):
         logging.error('get_from_sale_server_error: %s', e, exc_info=True)
         raise
     return content
+
+
+OZ_GRAM_CONVERSION = 28.3495231
+LB_GRAM_CONVERSION = 453.59237
+GRAM_KILOGRAM_CONVERSION = 0.001
+
+def oz_to_gram(weight):
+    return weight * OZ_GRAM_CONVERSION
+
+def gram_to_kilogram(weight):
+    return weight * GRAM_KILOGRAM_CONVERSION
+
+def lb_to_gram(weight):
+    return weight * LB_GRAM_CONVERSION
+
+def weight_convert(from_unit, weight):
+    weight = float(weight)
+    if from_unit == 'kg':
+        return weight
+    if from_unit == 'oz':
+        weight_in_gram = oz_to_gram(weight)
+        return gram_to_kilogram(weight_in_gram)
+    elif from_unit == 'lb':
+        weight_in_gram = oz_to_gram(weight)
+        return gram_to_kilogram(weight_in_gram)
