@@ -33,4 +33,12 @@ CREATE TABLE shipments_fee (
     shipping_fee double precision,
     FOREIGN KEY (id_shipment) REFERENCES shipments (id)
 );
+
+ALTER TABLE shipping_list ADD COLUMN free_shipping boolean DEFAULT false NOT NULL;
+
+/* alter tables name */
+ALTER TABLE shipments_supported_services RENAME TO shipping_supported_services;
+ALTER TABLE shipments_fee RENAME TO shipping_fee;
+
+
 COMMIT;
