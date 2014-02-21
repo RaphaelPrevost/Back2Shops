@@ -8,15 +8,17 @@ from common.error import ServerError
 from common.utils import get_from_sale_server
 from common.utils import remote_xml_shipping_fee
 from common.utils import remote_xml_shipping_services
+from common.utils import weight_convert
 
 from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS
 from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import query
-from models.sale import CachedSale
-from models.shipping import ActorShipping
-from models.shipping_fees import ActorShippingFees
-from models.user import get_user_address
+from B2SUtils.db_utils import update
+from models.actors.sale import CachedSale
+from models.actors.shipping_fees import ActorShippingFees
+from models.actors.shipping import ActorShipping
+from models.user import get_user_dest_addr
 
 DEFAULT_WEIGHT_UNIT = 'kg'
 
@@ -25,8 +27,6 @@ def create_shipment(conn, id_order, id_shipaddr, id_phone,
                     shipping_fee=None,
                     supported_services=None,
                     calculation_method=None):
-    if isinstance(supported_services, dict):
-        supported_services = ujson.dumps(supported_services)
     sm_values = {
         'id_order': id_order,
         'id_address': id_shipaddr,
@@ -42,33 +42,38 @@ def create_shipment(conn, id_order, id_shipaddr, id_phone,
                  sm_id[0], sm_values)
 
     if handling_fee is not None or shipping_fee is not None:
-        _add_shipments_fee(conn, sm_id[0], handling_fee, shipping_fee)
+        _add_shipping_fee(conn, sm_id[0], handling_fee, shipping_fee)
 
     if supported_services is not None:
-        _add_shipments_supported_services(conn,
+        _add_shipping_supported_services(conn,
                                           sm_id[0],
                                           supported_services)
 
     return sm_id[0]
 
-def _add_shipments_supported_services(conn, id_shipment,
+def _add_shipping_supported_services(conn, id_shipment,
                                       supported_services):
-    values = {
-        "id_shipment": id_shipment,
-        'supported_services': supported_services}
+    values = {"id_shipment": id_shipment}
+
+    if isinstance(supported_services, str):
+        supported_services = ujson.loads(supported_services)
 
     if (supported_services and
-        len(supported_services) == 1 and
-        len(supported_services.values()[0]) == 1):
-        values['id_postage'] = supported_services.values[0][0]
+        len(supported_services) == 1):
+        values['id_postage'] = supported_services.keys()[0]
+
+    if isinstance(supported_services, dict):
+        supported_services = ujson.dumps(supported_services)
+    values['supported_services'] = supported_services
+
     id = insert(conn,
-                'shipments_supported_services',
+                'shipping_supported_services',
                 values=values,
                 returning='id')
     logging.info('shipment supported services added: id: %s, values: %s',
                  id[0], values)
 
-def _add_shipments_fee(conn, id_shipment,
+def _add_shipping_fee(conn, id_shipment,
                        handling_fee,
                        shipping_fee):
     values = {
@@ -76,14 +81,15 @@ def _add_shipments_fee(conn, id_shipment,
         'handling_fee': handling_fee,
         'shipping_fee': shipping_fee}
     id = insert(conn,
-                'shipments_fee',
+                'shipping_fee',
                 values=values,
                 returning='id')
     logging.info('shipment fee added: id: %s, values: %s',
                  id[0], values)
 
 def _create_shipping_list(conn, id_item, quantity,
-                          id_shipment=None, picture=None):
+                          id_shipment=None, picture=None,
+                          free_shipping=None):
     shipping_value = {
         'id_item': id_item,
         'quantity': quantity,
@@ -93,33 +99,12 @@ def _create_shipping_list(conn, id_item, quantity,
         shipping_value['id_shipment'] = id_shipment
     if picture:
         shipping_value['picture'] = picture
+    if free_shipping:
+        shipping_value['free_shipping'] = free_shipping
 
     insert(conn, 'shipping_list', values=shipping_value)
     logging.info('shipping_list create: %s', shipping_value)
 
-
-OZ_GRAM_CONVERSION = 28.3495231
-LB_GRAM_CONVERSION = 453.59237
-GRAM_KILOGRAM_CONVERSION = 0.001
-
-def oz_to_gram(weight):
-    return weight * OZ_GRAM_CONVERSION
-
-def gram_to_kilogram(weight):
-    return weight * GRAM_KILOGRAM_CONVERSION
-
-def lb_to_gram(weight):
-    return weight * LB_GRAM_CONVERSION
-
-def weight_convert(from_unit, weight):
-    if from_unit == 'kg':
-        return weight
-    if from_unit == 'oz':
-        weight_in_gram = oz_to_gram(weight)
-        return gram_to_kilogram(weight_in_gram)
-    elif from_unit == 'lb':
-        weight_in_gram = oz_to_gram(weight)
-        return gram_to_kilogram(weight_in_gram)
 
 
 class BaseShipments:
@@ -298,7 +283,8 @@ class wwwOrderShipments(BaseShipments):
                 _create_shipping_list(self.conn,
                                       id_order_item,
                                       1,
-                                      id_shipment=id_shipment)
+                                      id_shipment=id_shipment,
+                                      free_shipping=True)
 
     def handleSalesByShipping(self, sales):
         if not sales:
@@ -421,14 +407,14 @@ class wwwOrderShipments(BaseShipments):
             weight = self.totalWeight(group_sales)
             unit = DEFAULT_WEIGHT_UNIT
             dest = self.getDestAddr()
-            orig_param = self._getShippingFeeOrigParam(group_sales[0])
+            id_address = self._getShippingFeeOrigAddress(group_sales[0])
             shipping_fee = self.getShippingFee(
                 service_carrier_map[group_services[0]],
                 group_services[0],
                 weight,
                 unit,
                 dest,
-                **orig_param)
+                id_address)
 
             if free_sales_group:
                 all_group_sales = []
@@ -441,7 +427,7 @@ class wwwOrderShipments(BaseShipments):
                     weight,
                     unit,
                     dest,
-                    **orig_param)
+                    id_address)
                 free_shipping_fee = (float(shipping_fee_with_free_sales) -
                                   float(shipping_fee))
 
@@ -474,14 +460,14 @@ class wwwOrderShipments(BaseShipments):
                 weight = self.totalWeight([sale])
                 unit = DEFAULT_WEIGHT_UNIT
                 dest = self.getDestAddr()
-                orig_param = self._getShippingFeeOrigParam(sale)
+                id_address = self._getShippingFeeOrigAddress(sale)
                 shipping_fee = self.getShippingFee(
                     service_carrier_map.values()[0],
                     service_carrier_map.keys()[0],
                     weight,
                     unit,
                     dest,
-                    **orig_param)
+                    id_address)
 
             handling_fee = self.getMaxHandlingFee([sale])
             id_order_item = sale.order_props['id_order_item']
@@ -507,15 +493,14 @@ class wwwOrderShipments(BaseShipments):
         return handlings and max(handlings) or 0
 
     def getShippingFee(self, id_carrier, id_service, weight, unit,
-                       desc, id_shop=None, id_corporate_account=None):
+                       dest, id_address):
         logging.info('shipment_shipping_fee: id_carrier: %s, service: %s', (id_carrier, id_service))
         xml_fee = remote_xml_shipping_fee(
             [(id_carrier, [id_service])],
             weight,
             unit,
-            desc,
-            id_shop=id_shop,
-            id_corporate_account=id_corporate_account)
+            dest,
+            id_address)
         dict_fee = xmltodict.parse(xml_fee)
         shipping_fee = ActorShippingFees(dict_fee['carriers'])
         return float(shipping_fee.carriers[0].services[0].fee.value)
@@ -532,36 +517,26 @@ class wwwOrderShipments(BaseShipments):
 
         return weight
 
-    def _getShippingFeeOrigParam(self, sale):
-        """ get sale's shop for local sale or corporate account
-            for internet sale.
+    def _getShippingFeeOrigAddress(self, sale):
+        """ get sale's shop address for local sale or corporate account
+            address for internet sale.
 
             sale - ActorSale object.
-            return - {'id_shop': $id_shop} for local sale
-                     {'id_corporate_account': $id_corporate_account} for
-                        internet sale.
+            return - $id_address: destination address id.
         """
         id_shop = int(sale.order_props['id_shop'])
         if id_shop:
-            return {'id_shop': id_shop}
+            return sale.get_shop(id_shop).id_address
         else:
-            return {'id_corporate_account': sale.brand.id}
+            return sale.brand.id_address
 
     def getDestAddr(self):
         """ Get destination address according with user and shipping address.
         """
         if self.dest_addr is None:
-            user_address = get_user_address(self.conn, self.id_user, self.id_shipaddr)
-            if not user_address:
-                raise ServerError('shipment_user_dest_addr_not_exist:'
-                                  'user: %s, destination address: %s'
-                                  % (self.id_user, self.id_shipaddr))
-            address = {'address': user_address['address'],
-                       'city': user_address['city'],
-                       'country': user_address['country_code'],
-                       'province': user_address['province_code'],
-                       'postalcode': user_address['postal_code']}
-            self.dest_addr = ujson.dumps(address)
+            self.dest_addr = get_user_dest_addr(self.conn,
+                                                self.id_user,
+                                                self.id_shipaddr)
         return self.dest_addr
 
     def _shippingListForFreeShippingSalesGroup(self, free_sales_group, spm_id, fee):
@@ -571,7 +546,8 @@ class wwwOrderShipments(BaseShipments):
             _create_shipping_list(self.conn,
                                   id_order_item,
                                   quantity,
-                                  id_shipment=spm_id)
+                                  id_shipment=spm_id,
+                                  free_shipping=True)
         values = {'id_shipment': spm_id,
                   'fee': fee}
         insert(self.conn, 'free_shipping_fee', values=values)
@@ -589,7 +565,8 @@ class wwwOrderShipments(BaseShipments):
             _create_shipping_list(self.conn,
                                   id_order_item,
                                   quantity,
-                                  id_shipment=id_shipment)
+                                  id_shipment=id_shipment,
+                                  free_shipping=True)
 
     def _groupShippingSales(self, sales, free_sales_group, cal_method):
         if not sales:
@@ -634,32 +611,34 @@ def get_shipping_shipments_by_order(conn, id_order):
 
 SHIPMENT_SERVICES_FIELDS = [
     'id', 'id_shipment', 'id_postage', 'supported_services']
-def get_supported_services(conn, id_shipment):
+def get_shipping_supported_services(conn, id_shipment):
     query_str = ("SELECT %s "
-                   "FROM shipments_supported_services "
-                  "WHERE id_shipment = %%s"
+                 "FROM shipping_supported_services "
+                 "WHERE id_shipment = %%s"
                  % ", ".join(SHIPMENT_SERVICES_FIELDS))
     r = query(conn, query_str, (id_shipment,))
     serv_list = []
     for item in r:
         serv_list.append(dict(zip(SHIPMENT_SERVICES_FIELDS, item)))
 
-
     carrier_services_map = defaultdict(list)
     for item in serv_list:
         supported_services = ujson.loads(item['supported_services'])
         for id_service, id_carrier in supported_services.iteritems():
             carrier_services_map[id_carrier].append(id_service)
+    return carrier_services_map.items()
 
-    carrier_services = carrier_services_map.items()
+
+def remote_get_supported_services(conn, id_shipment):
+    carrier_services = get_shipping_supported_services(conn, id_shipment)
     return remote_xml_shipping_services(carrier_services)
 
 SHIPMENT_FEE_FIELDS = [
     'id', 'id_shipment', 'handling_fee', 'shipping_fee'
 ]
-def get_shipment_fee(conn, id_shipment):
+def get_shipping_fee(conn, id_shipment):
     query_str = ("SELECT %s "
-                   "FROM shipments_fee "
+                   "FROM shipping_fee "
                   "WHERE id_shipment = %%s"
                  % ", ".join(SHIPMENT_FEE_FIELDS))
     r = query(conn, query_str, (id_shipment,))
@@ -674,7 +653,9 @@ SHIPPING_ITEM_FIELDS = [
     ('id_item', 'spl.id_item'),
     ('id_shipment', 'spl.id_shipment'),
     ('quantity', 'spl.quantity'),
+    ('free_shipping', 'spl.free_shipping'),
     ('id_sale', 'oi.id_sale'),
+    ('id_shop', 'oi.id_shop'),
     ('id_variant', 'oi.id_variant'),
     ('id_weight_type', 'oi.id_weight_type')]
 
@@ -691,3 +672,34 @@ def get_shipping_list(conn, id_shipment):
         shipping_list.append(dict(
             zip([field[0] for field in SHIPPING_ITEM_FIELDS], item)))
     return shipping_list
+
+def user_accessable_shipment(conn, id_shipment, id_user):
+    query_str = ("SELECT * "
+                   "FROM shipments as spm "
+                   "JOIN orders as o "
+                     "ON spm.id_order = o.id "
+                  "WHERE spm.id = %s "
+                    "AND o.id_user = %s")
+
+    r = query(conn, query_str, (id_shipment, id_user))
+    return len(r) > 0
+
+def conf_shipping_service(conn, id_shipment, id_service,
+                          fee, fee_for_free=None):
+    where = {'id_shipment': id_shipment}
+    update(conn,
+           "shipping_supported_services",
+            values={'id_postage': id_service},
+            where=where)
+
+    update(conn,
+           "shipping_fee",
+           values={"shipping_fee": fee},
+           where=where)
+
+    if fee_for_free:
+        update(conn,
+               "free_shipping_fee",
+               values={'fee': fee_for_free},
+               where=where)
+

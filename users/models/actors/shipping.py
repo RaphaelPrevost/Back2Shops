@@ -1,5 +1,5 @@
 from common.utils import as_list
-from models.base_actor import BaseActor
+from models.actors.base_actor import BaseActor
 
 
 class ActorTypeAttribute(BaseActor):

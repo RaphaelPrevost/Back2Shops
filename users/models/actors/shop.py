@@ -1,8 +1,7 @@
-import ujson
 from common.constants import SHOP_WITH_BARCODE
 from common.constants import SHOP
 from common.redis_utils import get_redis_cli
-from models.base_actor import BaseActor
+from models.actors.base_actor import BaseActor
 
 def get_shop_id(upc_shop):
     cli = get_redis_cli()
