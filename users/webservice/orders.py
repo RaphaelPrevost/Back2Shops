@@ -10,10 +10,10 @@ from models.order import create_order
 from models.order import get_order_detail
 from models.order import get_orders_list
 from models.order import update_shipping_fee
-from models.sale import CachedSale
-from models.sale import get_sale_by_barcode
-from models.shop import CachedShop
-from webservice.base import BaseEncryptJsonResource
+from models.actors.sale import CachedSale
+from models.actors.sale import get_sale_by_barcode
+from models.actors.shop import CachedShop
+from webservice.base import BaseJsonResource
 from webservice.base import BaseJsonResource
 from B2SCrypto.constant import SERVICES
 from B2SCrypto.utils import decrypt_json_resp
@@ -24,7 +24,8 @@ from B2SUtils.errors import ValidationError
 from B2SRespUtils.generate import gen_json_resp
 
 
-class BaseOrderResource(BaseEncryptJsonResource):
+class BaseOrderResource(BaseJsonResource):
+    encrypt = True
     def on_post(self, req, resp, conn, **kwargs):
         return gen_json_resp(resp,
                              {'res': RESP_RESULT.F,
