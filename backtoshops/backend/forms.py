@@ -6,8 +6,11 @@ Created on 2012. 3. 28.
 import settings
 from django import forms
 from django.contrib.auth.models import User
+from django.forms.models import model_to_dict
+from django.forms.models import fields_for_model
 from django.utils.translation import ugettext_lazy as _
 
+from address.models import Address
 from accounts.models import Brand
 from accounts.models import UserProfile
 from brandings.models import Branding
@@ -33,14 +36,37 @@ class SABrandForm(forms.ModelForm):
 
     class Meta:
         model = Brand
+        exclude = ('address', )
 
-    def __init__(self, *args, **kwargs):
-        super(SABrandForm, self).__init__(*args, **kwargs)
-        self.fields['zipcode'].widget = forms.TextInput(attrs={'class': 'inputXS'})
-        self.fields['city'].widget = forms.TextInput(attrs={'class': 'inputM'})
-        self.fields['country'] = CountryField(queryset=Country.objects.all(), empty_label=_('Select a country'))
-        self.fields['province_code'].widget = forms.HiddenInput()
+    def __init__(self, instance=None, *args, **kwargs):
+        _fields = ('address', 'zipcode', 'city', 'country', 'province_code')
+        _initial = model_to_dict(instance.address, _fields) if instance is not None else {}
 
+        widgets = {
+            'zipcode': forms.TextInput(attrs={'class': 'inputXS'}),
+            'city': forms.TextInput(attrs={'class': 'inputM'}),
+            #'country': CountryField(queryset=Country.objects.all(), empty_label=_('Select a country'), to_field_name='country'),
+            'province_code': forms.HiddenInput()
+        }
+        kwargs['initial'].update(_initial)
+        super(SABrandForm, self).__init__(instance=instance, *args, **kwargs)
+        self.fields.update(fields_for_model(Address, _fields, widgets=widgets))
+
+    def save(self, *args, **kwargs):
+        if self.instance.address_id:
+            addr = self.instance.address
+        else:
+            addr = Address()
+        addr.address = self.cleaned_data['address']
+        addr.zipcode = self.cleaned_data['zipcode']
+        addr.city = self.cleaned_data['city']
+        addr.country = self.cleaned_data['country']
+        addr.province_code = self.cleaned_data['province_code']
+        addr.save()
+
+        self.instance.address = addr
+        brand = super(SABrandForm, self).save(*args, **kwargs)
+        return brand
 
 class BaseUserForm(forms.ModelForm):
     error_css_class = 'error'
