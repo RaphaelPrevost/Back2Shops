@@ -18,6 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from B2SCrypto.utils import gen_encrypt_json_context
 from B2SCrypto.constant import SERVICES
 
+from address.models import Address
 from attributes.models import BrandAttributePreview
 from attributes.models import CommonAttribute
 from accounts.models import Brand
@@ -43,6 +44,8 @@ from shippings.models import ServiceInShipping
 from shippings.models import Carrier, Service
 from shops.models import Shop
 from taxes.models import Rate
+
+from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS
 
 fail = lambda s: HttpResponse(json.dumps({'success': False, 'error': s}), mimetype='text/json')
 
@@ -82,9 +85,6 @@ class SalesListView(BaseWebservice, ListView):
             queryset = queryset.filter(shops__in=[shop])
         if brand:
             queryset = queryset.filter(mother_brand=brand)
-
-        for sale in queryset:
-            populate_shipping_rate(sale)
 
         return queryset
 
@@ -149,12 +149,6 @@ class SalesInfoView(BaseWebservice, DetailView):
 class ShopsInfoView(BaseWebservice, DetailView):
     template_name = "shops_info.xml"
     model = Shop
-
-    def get_queryset(self):
-        queryset = super(ShopsInfoView, self).get_queryset()
-        for sale in queryset:
-            populate_shipping_rate(sale)
-        return queryset
 
 class TypesInfoView(BaseWebservice, DetailView):
     template_name = "types_info.xml"
@@ -664,8 +658,7 @@ class ShippingFeesView(BaseCryptoWebService, ListView):
         weight = self.request.GET.get('weight')
         weight_unit = self.request.GET.get('unit')
         dest = self.request.GET.get('dest')
-        id_shop = self.request.GET.get('id_shop')
-        id_corporate_account = self.request.GET.get('id_corporate_account')
+        id_address = self.request.GET.get('id_address')
 
         if carrier_services_map:
             carrier_services_map = json.loads(carrier_services_map)
@@ -674,7 +667,7 @@ class ShippingFeesView(BaseCryptoWebService, ListView):
             weight_unit is None or
             dest is None or
             not carrier_services_map or
-            not (id_shop or id_corporate_account)):
+            not id_address):
             raise InvalidRequestError(
                 "invalide_shipping_fees_request_miss_params %s"
                 % self.request.GET)
@@ -682,7 +675,7 @@ class ShippingFeesView(BaseCryptoWebService, ListView):
         custom_rules, carrier_rules = populate_carrier_and_custom_services(
             carrier_services_map)
 
-        orig = self.get_orig_address(id_shop, id_corporate_account)
+        orig = self.get_orig_address(id_address)
         # calculate fees for services.
         for carrier in carrier_rules:
             for service in carrier.carrier_services:
@@ -697,25 +690,14 @@ class ShippingFeesView(BaseCryptoWebService, ListView):
 
         return [carrier_rules, custom_rules]
 
-    def get_orig_address(self, id_shop=None, id_corporate_account=None):
-        if id_shop and id_shop != 'None' and int(id_shop):
-            shop = Shop.objects.get(pk=id_shop)
-            address = {'address': shop.address,
-                       'city': shop.city,
-                       'country': shop.country,
-                       'province': shop.province_code,
-                       'postalcode': shop.zipcode}
-            return address
-        elif (id_corporate_account and
-              id_corporate_account != 'None' and
-              int(id_corporate_account)):
-            corporate = Brand.objects.get(pk=id_corporate_account)
-            address = {'address': corporate.address,
-                       'city': corporate.city,
-                       'country': corporate.country,
-                       'province': corporate.province_code,
-                       'postalcode': corporate.zipcode}
-            return address
+    def get_orig_address(self, id_address):
+        addr = Address.objects.get(pk=id_address)
+        address = {'address': addr.address,
+                   'city': addr.city,
+                   'country': addr.country,
+                   'province': addr.province_code,
+                   'postalcode': addr.zipcode}
+        return address
 
 
 class ShippingServicesInfoView(BaseCryptoWebService, ListView):
@@ -729,12 +711,44 @@ class ShippingServicesInfoView(BaseCryptoWebService, ListView):
 
     def get_queryset(self):
         carrier_services_map = self.request.GET.get('carrier_services', None)
+        id_sale = self.request.GET.get('id_sale', None)
         if carrier_services_map:
             carrier_services_map = json.loads(carrier_services_map)
-        else:
+        elif id_sale:
+            carrier_services_map = self._get_services_by_sale(id_sale)
+
+        if not carrier_services_map:
             return []
 
         custom_rules, carrier_rules = populate_carrier_and_custom_services(
             carrier_services_map)
 
         return [carrier_rules, custom_rules]
+
+    def _get_services_by_sale(self, id_sale):
+        sale = Sale.objects.get(pk=id_sale)
+        cu_sr = SHIPPING_CALCULATION_METHODS.CUSTOM_SHIPPING_RATE
+        ca_sr = SHIPPING_CALCULATION_METHODS.CARRIER_SHIPPING_RATE
+        sale_shipping = sale.shippinginsale.shipping
+
+        if sale_shipping.shipping_calculation == cu_sr:
+            services = self._get_sale_custom_services(sale_shipping)
+        elif sale_shipping.shipping_calculation == ca_sr:
+            services = self._get_sale_carrier_services(sale_shipping)
+        else:
+            services = []
+
+        return services
+
+    def _get_sale_custom_services(self, shipping):
+        custom_rules = get_custom_rules_by_shipping(shipping)
+        return [0, custom_rules]
+
+    def _get_sale_carrier_services(self, shipping):
+        services = ServiceInShipping.objects.filter(shipping=shipping)
+
+        carrier_services = defaultdict(list)
+        for serv_in_shipping in services:
+            service = serv_in_shipping.service
+            carrier_services[service.carrier_id].append(service.pk)
+        return carrier_services.items()

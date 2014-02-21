@@ -12,10 +12,11 @@
     <desc>{{ object.description }}</desc>
     <caption>{{ object.catcher }}</caption>
     <img>{% if object.image %}{{ object.image.url }}{% endif %}</img>
-    <addr>{{ object.address }}</addr>
-    <zip>{{ object.zipcode }}</zip>
-    <city>{{ object.city }}</city>
-    <country>{{ object.country.iso }}</country>
+    <addr>{{ object.address.address }}</addr>
+    <zip>{{ object.address.zipcode }}</zip>
+    <city>{{ object.address.city }}</city>
+    <country>{{ object.address.country.iso }}</country>
+    <province_code>{{ object.address.province_code }}</province_code>
     <upc>{% if object.upc %}{{ object.upc }}{% endif %}</upc>
     <location lat="{{ object.latitude|unlocalize }}" long="{{ object.longitude|unlocalize }}" />
     <hours>{{ object.opening_hours }}</hours>
