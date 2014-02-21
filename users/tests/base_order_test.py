@@ -111,15 +111,7 @@ class BaseOrderTestCase(BaseTestCase):
     def setUp(self):
         BaseTestCase.setUp(self)
         self.b = OrderBrowser()
-        self.email = "%s@example.com" % generate_random_str()
-        self.password = generate_random_str()
-        self.register()
-
-        auth_cookie = self.login()
-        user = _parse_auth_cookie(auth_cookie.value.strip('"'))
-        self.users_id = user['users_id']
-        (self.telephone, self.shipaddr,
-         self.billaddr) = self.get_user_info(self.users_id)
+        self.login_with_new_user()
 
     def success_posOrder(self, telephone, upc_shop, posOrder):
         r = self.b.do_posOrder(telephone, upc_shop, posOrder)
@@ -171,3 +163,15 @@ class BaseOrderTestCase(BaseTestCase):
         return BaseTestCase.login(self, self.email, self.password,
                                   browser=browser)
 
+
+    def login_with_new_user(self):
+        self.b.clear_cookies()
+        self.email = "%s@example.com" % generate_random_str()
+        self.password = generate_random_str()
+        self.register()
+
+        auth_cookie = self.login()
+        user = _parse_auth_cookie(auth_cookie.value.strip('"'))
+        self.users_id = user['users_id']
+        (self.telephone, self.shipaddr,
+         self.billaddr) = self.get_user_info(self.users_id)

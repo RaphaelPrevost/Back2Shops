@@ -1,13 +1,23 @@
 import unittest
+import ujson
+import urllib
 
+from common.constants import SUCCESS
+from common.constants import FAILURE
+from common.error import ErrorCode as E_C
 from common.test_utils import is_backoffice_server_running
+from common.test_utils import MockResponse
 from tests.base_order_test import BaseOrderTestCase
+
+from B2SRespUtils.generate import gen_xml_resp
 from B2SProtocol.constants import SHIPMENT_STATUS
+from B2SProtocol.settings import SHIPPING_CURRENCY
 from B2SUtils import db_utils
 
 SKIP_REASON = "Please run backoffice server before running this test"
 
-class TestShipment(BaseOrderTestCase):
+
+class BaseShipmentTestCase(BaseOrderTestCase):
     def _freeShippingCheck(self, id_shipment, expecte_shipping_fee):
         sql = """SELECT fee
                    FROM free_shipping_fee
@@ -77,7 +87,7 @@ class TestShipment(BaseOrderTestCase):
         def __shipping_fee_check():
             columns = ["id_shipment", "handling_fee", "shipping_fee"]
             sql = """SELECT %s
-                       FROM shipments_fee
+                       FROM shipping_fee
                       WHERE id_shipment=%%s
              """ % ", ".join(columns)
             with db_utils.get_conn() as conn:
@@ -123,7 +133,7 @@ class TestShipment(BaseOrderTestCase):
                 return
             columns = ["id_shipment", "id_postage", "supported_services"]
             sql = """SELECT %s
-                       FROM shipments_supported_services
+                       FROM shipping_supported_services
                       WHERE id_shipment=%%s
              """ % ", ".join(columns)
             with db_utils.get_conn() as conn:
@@ -144,6 +154,17 @@ class TestShipment(BaseOrderTestCase):
         __support_services_check()
         __shipping_fee_check()
 
+    def _xml_resp_check(self, template, data, resp_content):
+        mock_resp = MockResponse()
+        expect_resp = gen_xml_resp(template, mock_resp, **data)
+
+        self.assertEqual(expect_resp.body.strip(),
+                         resp_content.strip(),
+                         "Xml response is not as expected: \n"
+                         "Resp: %s \n"
+                         "Expected: %s" % (resp_content, expect_resp.body))
+
+class TestShipment(BaseShipmentTestCase):
     @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
     def testShipmentGroupInOneShop(self):
         """ Test case:
@@ -546,3 +567,340 @@ class TestShipment(BaseOrderTestCase):
         id_order = self.success_wwwOrder(self.telephone, self.shipaddr,
                                          self.billaddr, wwwOrder)
         self._shipmentsCountCheck(id_order, 12)
+
+
+class TestShippingList(BaseShipmentTestCase):
+    @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
+    def test(self):
+        item_with_carrier_shipping = {
+            'id_sale': 1000029,
+            'id_variant': 1000011,
+            'quantity': 2,
+            'id_shop': 1000002,
+            'id_price_type': 1000003,
+            'id_weight_type': 1000003}
+
+        wwwOrder = [item_with_carrier_shipping]
+        id_order = self.success_wwwOrder(self.telephone, self.shipaddr,
+                                         self.billaddr, wwwOrder)
+        id_shp = self._shipmentsCountCheck(id_order, 1)[0]
+        resp_content = self._shippingList(id_order)
+        shipping_data = {
+            'object_list': [
+                {'carriers': [
+                    {'id': u'1',
+                     'name': u'EMS',
+                     'services': [
+                         {'desc': u'EMS express service',
+                          'id': u'1',
+                          'name': u'Express'}]
+                    }],
+                 'fee_info': {'handling_fee': 5.0,
+                              'id': 349,
+                              'id_shipment': 427L,
+                              'shipping_fee': 3.0},
+                 'id': 431,
+                 'shipping_list': [
+                     {'id_sale': 1000029L,
+                      'id_variant': 1000011L,
+                      'id_weight_type': 1000003L,
+                      'quantity': 2,
+                      'sale_item': {
+                          'id': u'1000029',
+                          'name': u'item1 type weight type price with variant',
+                          'quantity': 2,
+                          'sel_variant': {
+                              'id': u'1000011',
+                              'name': u'product brand attr for test',
+                              'premium': {'text': u'1.0', 'type': u'ratio'},
+                              'thumb': None},
+                          'sel_weight_type': {
+                              'id': u'1000003',
+                              'name': u'common attr1 for product type 1',
+                              'weight': u'1.5'},
+                          'type': {
+                              'id': u'1000001',
+                              'name': u'product type 1'},
+                          'weight': u'3.0',
+                          'weight_unit': u'kg'}}],
+                 'status': 1,
+                 'tracking_info': None}],
+            'shipping_currency': 'EUR',
+            'shipping_weight_unit': 'kg'}
+        shipping_data['object_list'][0]['id'] = id_shp
+        self._xml_resp_check('shipping_list.xml',
+                            shipping_data,
+                            resp_content)
+
+    def _shippingList(self, id_order):
+        params = urllib.urlencode({'id_order': id_order})
+        url = "webservice/1.0/pub/shipping/list?%s" % params
+        resp = self.b._access(url)
+        return resp.get_data()
+
+
+class TestShippingFee(BaseShipmentTestCase):
+    @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
+    def testShipmentShippingFee(self):
+        item = {
+            'id_sale': 1000031,
+            'id_variant': 1000012,
+            'quantity': 2,
+            'id_shop': 1000002,
+            'id_price_type': 1000003,
+            'id_weight_type': 1000003}
+
+        wwwOrder = [item]
+        id_order = self.success_wwwOrder(self.telephone, self.shipaddr,
+                                         self.billaddr, wwwOrder)
+        id_shp = self._shipmentsCountCheck(id_order, 1)[0]
+        id_carrier1 = 1
+        id_carrier2 = 2
+        id_service1 = 1
+        id_service2 = 2
+
+        exp_fee_1 = {
+            'pk': id_carrier1,
+            'name': 'EMS',
+            'carrier_services': [
+                {'pk': id_service1,
+                 'name': 'Express',
+                 'desc': 'EMS express service',
+                 'shipping_fee': 8}]
+        }
+
+        exp_fee_2 = {
+            'pk': id_carrier2,
+            'name': 'USPS',
+            'carrier_services': [
+                {'pk': id_service2,
+                 'name': 'Express',
+                 'desc': 'USPS express service',
+                 'shipping_fee': 12}]
+        }
+
+        # test shipping fee for shipment without specify service
+        resp_content = self._shipping_fee({'shipment': id_shp})
+        exp = {'carrier_rules': [exp_fee_1, exp_fee_2],
+               'default_currency': SHIPPING_CURRENCY}
+
+        self._xml_resp_check('shipping_fees_test.xml',
+                             exp,
+                             resp_content)
+
+        # test shipping fee for shipment with specify service
+        resp_content = self._shipping_fee({'shipment': id_shp,
+                                           'carrier': id_carrier1,
+                                           'service': id_service1})
+        exp = {'carrier_rules': [exp_fee_1],
+               'default_currency': SHIPPING_CURRENCY}
+
+        self._xml_resp_check('shipping_fees_test.xml',
+                             exp,
+                             resp_content)
+
+        # test shipping fee for shipment with not supported service
+        resp_content = self._shipping_fee({'shipment': id_shp,
+                                           'carrier': id_carrier1,
+                                           'service': id_service1 + 10})
+        exp = {'error': E_C.SPSF_NOT_SUPPORT_SERVICE[0]}
+
+        self._xml_resp_check('error.xml',
+                             exp,
+                             resp_content)
+
+    @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
+    def testSaleShippingFee(self):
+        id_sale = 1000031
+        id_weight_type = 1000003
+
+        id_carrier1 = 1
+        id_carrier2 = 2
+        id_service1 = 1
+        id_service2 = 2
+
+        exp_fee_1 = {
+            'pk': id_carrier1,
+            'name': 'EMS',
+            'carrier_services': [
+                {'pk': id_service1,
+                 'name': 'Express',
+                 'desc': 'EMS express service',
+                 'shipping_fee': 4}]
+        }
+
+        exp_fee_2 = {
+            'pk': id_carrier2,
+            'name': 'USPS',
+            'carrier_services': [
+                {'pk': id_service2,
+                 'name': 'Express',
+                 'desc': 'USPS express service',
+                 'shipping_fee': 6}]
+        }
+
+        # test shipping fee for sale without specify service
+        resp_content = self._shipping_fee({'sale': id_sale,
+                                           'weight_type': id_weight_type,
+                                           'shop': 1000002})
+        exp = {'carrier_rules': [exp_fee_1, exp_fee_2],
+               'default_currency': SHIPPING_CURRENCY}
+
+        self._xml_resp_check('shipping_fees_test.xml',
+                             exp,
+                             resp_content)
+
+        # test shipping fee for sale with specify service
+        resp_content = self._shipping_fee({'sale': id_sale,
+                                           'weight_type': id_weight_type,
+                                           'shop': 1000002,
+                                           'carrier': id_carrier1,
+                                           'service': id_service1})
+        exp = {'carrier_rules': [exp_fee_1],
+               'default_currency': SHIPPING_CURRENCY}
+
+        self._xml_resp_check('shipping_fees_test.xml',
+                             exp,
+                             resp_content)
+
+        # test shipping fee for sale with not supported service
+        resp_content = self._shipping_fee({'sale': id_sale,
+                                           'weight_type': id_weight_type,
+                                           'shop': 1000002,
+                                           'carrier': id_carrier1,
+                                           'service': id_service1 + 10})
+        exp = {'error': E_C.SSF_NOT_SUPPORT_SERVICE[0]}
+
+        self._xml_resp_check('error.xml',
+                             exp,
+                             resp_content)
+
+    def _shipping_fee(self, params):
+        params = urllib.urlencode(params)
+        url = "webservice/1.0/pub/shipping/fees?%s" % params
+        resp = self.b._access(url)
+        return resp.get_data()
+
+class TestShippingConf(BaseShipmentTestCase):
+    @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
+    def test(self):
+        item1_with_2_services = {
+            'id_sale': 1000031,
+            'id_variant': 1000012,
+            'quantity': 2,
+            'id_shop': 1000002,
+            'id_price_type': 1000003,
+            'id_weight_type': 1000003}
+        item1_weight = 2.0
+        item1_fee = item1_weight * 2 * 2
+
+        item2_free_shipping = {
+            'id_sale': 1000032,
+            'id_variant': 1000013,
+            'quantity': 1,
+            'id_shop': 1000002,
+            'id_price_type': 0,
+            'id_weight_type': 0}
+        item2_weight = 3.3
+        item2_fake_fee = item2_weight * 2
+
+        item3_with_1_service = {
+            'id_sale': 1000033,
+            'id_variant': 1000014,
+            'quantity': 2,
+            'id_shop': 1000002,
+            'id_price_type': 1000003,
+            'id_weight_type': 1000003}
+        item3_weight = 3
+        item3_fee = item3_weight * 2 * 2
+
+        id_carrier1 = 1
+        id_service1 = 1
+
+        # test conf service for shipment which support 2 services
+        wwwOrder = [item1_with_2_services]
+        id_order = self.success_wwwOrder(self.telephone, self.shipaddr,
+                                         self.billaddr, wwwOrder)
+        id_shp = self._shipmentsCountCheck(id_order, 1)[0]
+        r = self._shipping_conf(id_shipment=id_shp,
+                                id_carrier=id_carrier1,
+                                id_service=id_service1)
+        self._success_check(id_shp, r,
+                            exp_postage=id_service1,
+                            exp_fee=item1_fee)
+
+        # test conf service for shipment which support 1 service
+        # and grouped with free item
+        wwwOrder = [item3_with_1_service, item2_free_shipping]
+        id_order = self.success_wwwOrder(self.telephone, self.shipaddr,
+                                         self.billaddr, wwwOrder)
+        id_shp = self._shipmentsCountCheck(id_order, 1)[0]
+        r = self._shipping_conf(id_shipment=id_shp,
+                                id_carrier=id_carrier1,
+                                id_service=id_service1)
+        self._success_check(id_shp, r,
+                            exp_postage=id_service1,
+                            exp_fee=item3_fee,
+                            exp_free_fee=item2_fake_fee)
+
+        # failure test conf service with wrong service id
+        r = self._shipping_conf(id_shipment=id_shp,
+                                id_carrier=id_carrier1,
+                                id_service=id_service1 + 10)
+        self.assertEqual(r[FAILURE], E_C.SP_INVALID_SERVICE[0])
+
+        # failure test access others shipment
+        self.login_with_new_user()
+        r = self._shipping_conf(id_shipment=id_shp,
+                                id_carrier=id_carrier1,
+                                id_service=id_service1)
+        self.assertEqual(r[FAILURE], E_C.SP_PRIORITY_ERROR[0])
+
+    def _success_check(self, id_shipment, resp_content, exp_postage=None,
+                       exp_fee=None, exp_free_fee=None):
+        self.assertEqual(resp_content, SUCCESS)
+
+        conn = db_utils.get_conn()
+        if exp_postage is not None:
+            query_str = ("SELECT id_postage "
+                           "FROM shipping_supported_services "
+                          "WHERE id_shipment=%s")
+            r = db_utils.query(conn, query_str, (id_shipment,))
+
+            self.assert_(len(r),
+                         "No supported service record for shipment: %s"
+                         % id_shipment)
+            self.assertEqual(int(r[0][0]), int(exp_postage))
+
+        if exp_fee is not None:
+            query_str = ("SELECT shipping_fee "
+                           "FROM shipping_fee "
+                          "WHERE id_shipment=%s")
+            r = db_utils.query(conn, query_str, (id_shipment,))
+
+            self.assert_(len(r),
+                         "No shipping fee record for shipment: %s"
+                         % id_shipment)
+            self.assertEqual(float(r[0][0]), float(exp_fee))
+
+        if exp_free_fee is not None:
+            query_str = ("SELECT fee "
+                           "FROM free_shipping_fee "
+                          "WHERE id_shipment=%s")
+            r = db_utils.query(conn, query_str, (id_shipment,))
+
+            self.assert_(len(r),
+                         "No free shipping fee record for shipment: %s"
+                         % id_shipment)
+            self.assertEqual(float(r[0][0]), float(exp_free_fee))
+
+    def _shipping_conf(self, id_shipment=None,
+                       id_carrier=None, id_service=None):
+        params = {
+            'shipment': id_shipment,
+            'carrier': id_carrier,
+            'service': id_service
+        }
+        url = "webservice/1.0/pub/shipping/conf"
+        resp = self.b._access(url, params)
+        return ujson.loads(resp.get_data())
