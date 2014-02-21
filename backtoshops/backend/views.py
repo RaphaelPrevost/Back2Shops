@@ -88,8 +88,7 @@ class BaseBrandView(SARequiredMixin):
     
 class CreateBrandView(BaseBrandView, CreateView):
     def get_success_url(self):
-        new_id = Brand.objects.all().count()
-        return reverse('sa_edit_brand',args=[new_id])
+        return reverse('sa_edit_brand',args=[self.object.id])
     
 class EditBrandView(BaseBrandView, UpdateView):
     def get_success_url(self):
@@ -181,8 +180,7 @@ class CreateUserView(BaseUserView, CreateView):
     form_class = forms.SACreateUserForm
     
     def get_success_url(self):
-        new_id = User.objects.all().count()
-        return reverse('sa_edit_user',args=[new_id])
+        return reverse('sa_edit_user',args=[self.object.id])
     
     def get_initial(self):
         initials = super(CreateUserView,self).get_initial()
@@ -335,8 +333,7 @@ class BaseAttributeView(SARequiredMixin):
     
 class CreateAttributeView(BaseAttributeView, CreateView):
     def get_success_url(self):
-        new_id = ProductType.objects.all().count()
-        return reverse('sa_edit_attribute',args=[new_id])
+        return reverse('sa_edit_attribute',args=[self.object.id])
         
     def post(self, request, *args, **kwargs):
         self.object = None
@@ -389,8 +386,7 @@ class BaseBrandingView(SARequiredMixin):
     
 class CreateBrandingView(BaseBrandingView, CreateView):
     def get_success_url(self):
-        new_id = Branding.objects.all().count()
-        return reverse('sa_edit_branding',args=[new_id])
+        return reverse('sa_edit_branding',args=[self.object.id])
     
 class EditBrandingView(BaseBrandingView, UpdateView):
     def get_success_url(self):
