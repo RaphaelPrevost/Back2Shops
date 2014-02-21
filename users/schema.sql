@@ -142,7 +142,8 @@ CREATE TABLE shipping_list (
     id_item BIGINT REFERENCES order_items(id),
     id_shipment BIGINT REFERENCES shipments(id),
     quantity INTEGER NOT NULL,
-    picture character varying(200)
+    picture character varying(200),
+    free_shipping boolean DEFAULT false NOT NULL;
 );
 
 CREATE TABLE free_shipping_fee (
