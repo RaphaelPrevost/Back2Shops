@@ -8,7 +8,7 @@ from common.error import NotExistError
 from common.utils import as_list
 from common.utils import order_img_download
 from common.redis_utils import get_redis_cli
-from models.base_actor import BaseActor
+from models.actors.base_actor import BaseActor
 
 
 class ActorSaleCategory(BaseActor):
@@ -38,6 +38,7 @@ class ActorSaleTypeWeight(BaseActor):
 
 class ActorSaleBrand(BaseActor):
     attrs_map = {'id': '@id',
+                 'id_address': '@id_address',
                  'name': 'name',
                  'img': 'img'}
 
@@ -76,6 +77,7 @@ class ActorShopLocaltion(BaseActor):
 
 class ActorShop(BaseActor):
     attrs_map = {'id': '@id',
+                 'id_address': '@id_address',
                  'name': 'name',
                  'desc': 'desc',
                  'caption': 'caption',

@@ -8,10 +8,10 @@ from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import query
 from B2SUtils.db_utils import select
 from B2SUtils.db_utils import update
-from models.sale import CachedSale
+from models.actors.sale import CachedSale
+from models.actors.shop import get_shop_id
 from models.shipments import wwwOrderShipments
 from models.shipments import posOrderShipments
-from models.shop import get_shop_id
 from models.user import get_user_profile
 
 
@@ -35,7 +35,7 @@ def _create_order_item(conn, sale, id_variant, upc_shop=None,
     item_value = {
         'id_sale': sale.id,
         'id_variant': id_variant,
-        'id_shop': shop_id,
+        'id_shop': shop_id or 0,
         'price': sale.final_price(id_variant, id_price_type or 0),
         'name': sale.whole_name(id_variant),
         'description': sale.desc,
@@ -345,3 +345,14 @@ def get_order_detail(conn, order_id, brand_id):
         'first_sale_id': order_items['order_items'][0].values()[0]['sale_id'],
         'order_status': _get_order_status(order_items['order_items'])})
     return details
+
+def user_accessable_order(conn, id_order, id_user):
+    query_str = ("SELECT id_user "
+                   "FROM orders "
+                  "WHERE id = %s")
+
+    r = query(conn, query_str, (id_order,))
+    if not r:
+        return False
+    else:
+        return int(r[0][0]) == int(id_user)
