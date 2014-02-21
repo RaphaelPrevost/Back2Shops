@@ -22,7 +22,7 @@
     {% endfor %}
     
     <!-- brand responsible for sale-->
-    <brand id="{{ object.mother_brand.pk }}">
+    <brand id="{{ object.mother_brand.pk }}" id_address="{{ object.mother_brand.address.id }}">
         <name>{{ object.mother_brand.name }}</name>
         <img>{% if object.mother_brand.logo %}{{ object.mother_brand.logo.url }}{% endif %}</img>
     </brand>
@@ -74,15 +74,16 @@
 
     <!-- list of shops where the product is available (country=2 letters ISO code) -->
     {% for shop in object.shops.all %}
-    <shop id="{{ shop.pk }}">
+    <shop id="{{ shop.pk }}" id_address="{{ shop.address.id }}">
         <name>{{ shop.name }}</name>
         <desc>{{ shop.description }}</desc>
         <caption>{{ shop.catcher }}</caption>
         <img>{% if shop.logo %}{{ shop.logo.url }}{% endif %}</img>
-        <addr>{{ shop.address }}</addr>
-        <zip>{{ shop.zipcode }}</zip>
-        <city>{{ shop.city }}</city>
-        <country>{{ shop.country.iso }}</country>
+        <addr>{{ shop.address.address }}</addr>
+        <zip>{{ shop.address.zipcode }}</zip>
+        <city>{{ shop.address.city }}</city>
+        <province_code>{{ shop.address.province_code }}</province_code>
+        <country>{{ shop.address.country.iso }}</country>
         <upc>{{ shop.upc }}</upc>
         <location lat="{{ shop.latitude|unlocalize }}" long="{{ shop.longitude|unlocalize }}" />
         <hours>{{ shop.opening_hours }}</hours>

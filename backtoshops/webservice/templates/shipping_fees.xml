@@ -11,7 +11,7 @@
                     <service id="{{ service.pk }}">
                         <name>{{ service.name }}</name>
                         <desc>{{ service.desc }}</desc>
-                        <fee currency="{% get_setting 'default_currency' %}}">
+                        <fee currency="{% get_setting 'default_currency' %}">
                             {{ service.shipping_fee }}
                         </fee>
                     </service>
