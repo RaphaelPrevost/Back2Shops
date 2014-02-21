@@ -1,0 +1,31 @@
+<carriers version="1.0">
+    {% if carrier_rules %}
+        {% for object in carrier_rules %}
+            <carrier id="{{ object.pk }}">
+                <name>{{ object.name }}</name>
+                {% for service in object.carrier_services %}
+                    <service id="{{ service.pk }}">
+                        <name>{{ service.name }}</name>
+                        <desc>{{ service.desc }}</desc>
+                        <fee currency="{{ default_currency }}">
+                            {{ service.shipping_fee }}
+                        </fee>
+                    </service>
+                {% endfor %}
+            </carrier>
+        {% endfor %}
+    {% endif %}
+
+    {% if custom_rules %}
+        <carrier id="0">
+            <name>Custom Shipping Rate</name>
+            {% for rule in custom_rules %}
+                <service id="{{ rule.id }}">
+                    <name>{{ rule.shipment_type }}</name>
+                    <desc>{{ rule.desc}}</desc>
+                    <fee currency="{{ default_currency }}">{{ rule.shipping_rate }}</fee>
+                </service>
+            {% endfor %}
+        </carrier>
+    {% endif %}
+</carriers>

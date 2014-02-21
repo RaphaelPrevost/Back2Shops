@@ -18,9 +18,14 @@ from B2SCrypto.utils import gen_encrypt_json_context
 
 class BaseResource(object):
     login_required = {'get': False, 'post': False}
+    encrypt = False
+    request = None
+    response = None
+    conn = None
 
     def on_get(self, req, resp, **kwargs):
         self.request = req
+        self.response = resp
         self._msg_handler('get', req, resp, **kwargs)
 
     def on_post(self, req, resp, **kwargs):
@@ -47,10 +52,11 @@ class BaseResource(object):
 
     def msg_handler(self, method_name, req, resp, **kwargs):
         with db_utils.get_conn() as conn:
+            self.conn = conn
             try:
                 if self.login_required.get(method_name):
-                    users_id = cookie_verify(conn, req, resp)
-                    kwargs['users_id'] = users_id
+                    self.users_id = cookie_verify(conn, req, resp)
+                    kwargs['users_id'] = self.users_id
                 method = getattr(self, '_on_' + method_name)
                 data = method(req, resp, conn, **kwargs)
             except ValidationError, e:
@@ -84,35 +90,33 @@ class BaseResource(object):
             settings.PRIVATE_KEY_PATH)
         return resp
 
+    def debugging_resp(self):
+        debugging = self.request._params.get('debugging') or ""
+        if (settings.CRYPTO_RESP_DEBUGING and
+            debugging.lower() == 'true'):
+            return True
+        return False
+
 class BaseJsonResource(BaseResource):
     def gen_resp(self, resp, data):
-        return gen_json_resp(resp, data)
-
-class BaseXmlResource(BaseResource):
-    template = ""
-    def gen_resp(self, resp, data):
-        return gen_xml_resp(self.template, resp, **data)
+        if not self.encrypt or self.debugging_resp():
+            return gen_json_resp(resp, data)
+        else:
+            return self.encrypt_resp(resp, ujson.dumps(data))
 
 class BaseTextResource(BaseResource):
     def gen_resp(self, resp, content):
         return gen_text_resp(resp, content)
 
-class BaseEncryptJsonResource(BaseResource):
-    def gen_resp(self, resp, data):
-        debugging = self.request._params.get('debugging') or ""
-        if (settings.CRYPTO_RESP_DEBUGING and
-            debugging.lower() == 'true'):
-            gen_json_resp(resp, data)
-        else:
-            return self.encrypt_resp(resp, ujson.dumps(data))
-
-class BaseEncryptXmlJsonResource(BaseEncryptJsonResource):
+class BaseXmlResource(BaseResource):
     template = ""
+    encrypt = False
     def gen_resp(self, resp, data):
+        if isinstance(data, dict) and 'error' in data:
+            return gen_xml_resp('error.xml', resp, **data)
+
         resp = gen_xml_resp(self.template, resp, **data)
-        debugging = self.request._params.get('debugging') or ""
-        if (settings.CRYPTO_RESP_DEBUGING and
-                    debugging.lower() == 'true'):
+        if not self.encrypt or self.debugging_resp():
             return resp
         else:
             return self.encrypt_resp(resp, resp.body)
