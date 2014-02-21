@@ -74,8 +74,7 @@ class CreateShopView(BaseShopView, CreateView):
             return HttpResponseRedirect('/')    
         
     def get_success_url(self):
-        new_id = Shop.objects.all().count()
-        return reverse('edit_shop',args=[new_id])
+        return reverse('edit_shop',args=[self.object.id])
 
 
 class EditShopView(BaseShopView, UpdateView):
