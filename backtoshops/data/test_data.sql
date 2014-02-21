@@ -4,14 +4,31 @@ BEGIN ;
 --
 
 --
+-- Data for Name: address_address; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY address_address (id, address, zipcode, city, country_id) FROM stdin;
+1000001 	beijing qing nian hui	1000001	BEIJING	CN
+1000002 	beijing qing nian gong she	1000001	BEIJING	CN
+1000003 	qing nian lu	100002	BEIJING	CN
+1000004 	tong zhou li yuan	100004	BEIJING	CN
+1000005 	beijing qing nian hui	1000001	BEIJING	CN
+1000006 	beijing qing nian gong she	1000001	BEIJING	CN
+1000007 	qing nian lu	100002	BEIJING	CN
+1000008 	tong zhou li yuan	100004	BEIJING	CN
+1000009 	qing nian lu	100002	BEIJING	CN
+1000010 	tong zhou li yuan	100004	BEIJING	CN
+\.
+
+--
 -- Data for Name: accounts_brand; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY accounts_brand (id, name, logo, address, zipcode, city, country_id) FROM stdin;
-1000001	corporate account 1	brand_logos/test.jpeg 	beijing qing nian hui	1000001	BEIJING	CN
-1000002	corporate account 2	brand_logos/test.jpeg 	beijing qing nian gong she	1000001	BEIJING	CN
-1000003	corporate account 3	brand_logos/test.jpeg	qing nian lu	100002	BEIJING	CN
-1000004	corporate account 4	brand_logos/test.jpeg	tong zhou li yuan	100004	BEIJING	CN
+COPY accounts_brand (id, name, logo, address_id) FROM stdin;
+1000001	corporate account 1	brand_logos/test.jpeg 	1000001
+1000002	corporate account 2	brand_logos/test.jpeg 	1000002
+1000003	corporate account 3	brand_logos/test.jpeg	1000003
+1000004	corporate account 4	brand_logos/test.jpeg	1000004
 \.
 
 
@@ -44,13 +61,13 @@ COPY accounts_userprofile (id, user_id, work_for_id, language) FROM stdin;
 -- Data for Name: shops_shop; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY shops_shop (id, mother_brand_id, gestion_name, address, zipcode, city, phone, name, catcher, description, opening_hours, latitude, longitude, upc, image, country_id) FROM stdin;
-1000001	1000001	shop 1	beijing chaoyang	1000001	BEIJING		shop name 1				114	116	11111	shop_images/大学宿舍_1.jpeg	CN
-1000002	1000001	shop 2	beijing haidian 	1000001	BEIJING		shop name 2				114	116	22222	shop_images/大学宿舍_2.jpeg	CN
-1000003	1000002	shop 3	beijing tongzhou	1000001	BEIJING		shop name 3				114	116	33333	shop_images/大学宿舍_3.jpeg	CN
-1000004	1000002	shop 4	beijing xuanwu	1000001	BEIJING		shop name 4				114	116	44444	shop_images/大学宿舍_4.jpeg	CN
-1000005	1000003	shop 5	chaoyang da yue cheng	100005	BEIJING 	123123123123	shop name 5	Caption 5	The 5th shop	{}	39.911785100000003	116.422241400000075	55555	shop_images/earth2.jpg	CN
-1000006	1000003	shop name 6	chao yang da yue cheng	100006	BEIJING	34534534534	shop name 6	caption 6	the 6th shop	{}	39.9117109000000028	116.409731700000066	66666		CN
+COPY shops_shop (id, mother_brand_id, gestion_name, phone, name, catcher, description, opening_hours, latitude, longitude, upc, image, address_id) FROM stdin;
+1000001	1000001	shop 1		shop name 1				114	116	11111	shop_images/大学宿舍_1.jpeg	1000005
+1000002	1000001	shop 2		shop name 2				114	116	22222	shop_images/大学宿舍_2.jpeg	1000006
+1000003	1000002	shop 3		shop name 3				114	116	33333	shop_images/大学宿舍_3.jpeg	1000007
+1000004	1000002	shop 4		shop name 4				114	116	44444	shop_images/大学宿舍_4.jpeg	1000008
+1000005	1000003	shop 5 	123123123123	shop name 5	Caption 5	The 5th shop	{}	39.911785100000003	116.422241400000075	55555	shop_images/earth2.jpg	1000009
+1000006	1000003	shop name 6	34534534534	shop name 6	caption 6	the 6th shop	{}	39.9117109000000028	116.409731700000066	66666		1000010
 \.
 
 
@@ -67,6 +84,10 @@ COPY attributes_brandattribute (id, mother_brand_id, name, texture, premium_type
 1000006	1000001	test brand attr 6		percentage	\N
 1000007	1000002	test brand attr 7		percentage	7
 1000008	1000002	test brand attr 8		percentage	8
+1000011	1000001	product brand attr for test		percentage	1
+1000012	1000001	shipping fee brand attr		percentage	2
+1000013	1000001	shipping conf test attr 1		percentage	2
+1000014	1000001	shipping conf test attr 2		percentage	2
 \.
 
 
@@ -137,6 +158,10 @@ COPY sales_sale (id, direct_sale, mother_brand_id, type_stock, total_stock, tota
 1000026	f	1000003	L	25	25	U	2014-02-08 09:58:06.500864+00
 1000027	f	1000003	L	24	24	U	2014-02-08 10:12:48.363175+00
 1000028	f	1000003	L	26	26	U	2014-02-08 10:13:48.534709+00
+1000029	f	1000001	L	29	29	U	2014-02-17 03:14:01.447412+00
+1000031	f	1000001	L	60	60	U	2014-02-19 08:17:53.778708+00
+1000032	f	1000001	L	31	31	U	2014-02-20 02:50:17.076423+00
+1000033	f	1000001	L	32	32	U	2014-02-20 03:32:01.741571+00
 \.
 
 
@@ -172,6 +197,10 @@ COPY sales_product (id, sale_id, category_id, type_id, brand_id, name, descripti
 1000021	1000021	1000001	1000001	1000003	spm group test with custom shipping 2	product for test	8	\N	\N	2014-02-08	\N	1	kg	7
 1000022	1000022	1000001	1000001	1000003	item1 spm not allow group free shipping	product for test	2	\N	\N	2014-02-08	\N	1	kg	1
 1000028	1000028	1000001	1000001	1000003	spm group test product in shop 6	product for test	2	\N	\N	2014-02-08	\N	1	kg	2
+1000029	1000029	1000001	1000001	1000001	item1 type weight type price with variant	product for test	\N	\N	\N	2014-02-17	\N	1	kg	\N
+1000030	1000031	1000001	1000001	1000001	shipping fee test with 2 shops 2 services	shipping fee test item	\N	\N	\N	2014-02-19	\N	1	kg	\N
+1000031	1000032	1000001	1000001	1000001	free item for shipping conf test	sale for test	5	\N	\N	2014-02-20	\N	1	kg	3.29999999999999982
+1000032	1000033	1000001	1000001	1000001	shipping conf test with one service	sale item for test	\N	\N	\N	2014-02-20	\N	1	kg	\N
 \.
 
 
@@ -205,6 +234,10 @@ COPY attributes_brandattributepreview (id, product_id, brand_attribute_id, previ
 1000002	1000001	1000002	\N
 10000011	1000001	1000003	\N
 10000012	1000001	1000004	\N
+10000014	1000029	1000011	\N
+10000015	1000030	1000012	\N
+10000016	1000031	1000013	\N
+10000017	1000032	1000014	\N
 \.
 
 
@@ -262,6 +295,10 @@ COPY barcodes_barcode (id, upc, sale_id, brand_attribute_id, common_attribute_id
 10000033	25000	1000026	\N	1000003
 10000034	24000	1000027	\N	1000003
 10000035	26000	1000028	\N	1000003
+10000036	29000	1000029	1000011	1000003
+10000037	30000	1000031	1000012	1000003
+10000038	31000	1000032	1000013	1000003
+10000039	32000	1000033	1000014	1000003
 \.
 
 
@@ -306,6 +343,10 @@ COPY shippings_shipping (id, handling_fee, allow_group_shipment, allow_pickup, p
 1000025	5	f	f	f	5
 1000026	1	f	f	f	3
 1000027	2	t	f	f	3
+1000028	5	t	f	f	3
+1000029	6	t	f	f	3
+1000030	\N	t	f	f	1
+1000031	\N	t	f	f	3
 \.
 
 
@@ -341,6 +382,10 @@ COPY sales_shippinginsale (id, sale_id, shipping_id) FROM stdin;
 1000025	1000026	1000025
 1000026	1000027	1000026
 1000027	1000028	1000027
+1000028	1000029	1000028
+1000029	1000031	1000029
+1000030	1000032	1000030
+1000031	1000033	1000031
 \.
 
 
@@ -374,8 +419,32 @@ COPY sales_shopsinsale (id, sale_id, shop_id, is_freezed) FROM stdin;
 1000024	1000026	1000006	f
 1000025	1000027	1000005	f
 1000026	1000028	1000006	f
+1000027	1000029	1000002	f
+1000030	1000031	1000002	f
+1000031	1000031	1000001	f
+1000032	1000032	1000002	f
+1000033	1000033	1000002	f
 \.
 
+--
+-- Data for Name: sales_typeattributeprice; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY sales_typeattributeprice (id, sale_id, type_attribute_id, type_attribute_price) FROM stdin;
+1000001	1000029	1000003	2
+1000002	1000031	1000003	3
+1000003	1000033	1000003	3
+\.
+
+--
+-- Data for Name: sales_typeattributeweight; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY sales_typeattributeweight (id, sale_id, type_attribute_id, type_attribute_weight) FROM stdin;
+1000001	1000029	1000003	1.5
+1000002	1000031	1000003	2
+1000003	1000033	1000003	3
+\.
 
 --
 -- Data for Name: shippings_customshippingrate; Type: TABLE DATA; Schema: public; Owner: postgres
@@ -434,6 +503,10 @@ COPY shippings_serviceinshipping (id, shipping_id, service_id) FROM stdin;
 1000012	1000023	2
 1000013	1000026	1
 1000014	1000027	1
+1000015	1000028	1
+1000016	1000029	1
+1000017	1000029	2
+1000018	1000031	1
 \.
 
 
@@ -478,6 +551,11 @@ COPY stocks_productstock (id, sale_id, brand_attribute_id, common_attribute_id, 
 10000034	1000026	\N	1000003	1000006	25	25
 10000035	1000027	\N	1000003	1000005	24	24
 10000036	1000028	\N	1000003	1000006	26	26
+10000037	1000029	1000011	1000003	1000002	29	29
+10000038	1000031	1000012	1000003	1000002	30	30
+10000039	1000031	1000012	1000003	1000001	30	30
+10000040	1000032	1000013	1000003	1000002	31	31
+10000041	1000033	1000014	1000003	1000002	32	32
 \.
 
 
