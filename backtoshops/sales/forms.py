@@ -57,10 +57,18 @@ class GroupedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
         str_values = set([force_unicode(v) for v in value])
         group_name = ""
         for i, (option_value, option_label) in enumerate(chain(self.choices, choices)):
-            if group_name != self.choices.queryset[i].__dict__[group_by]:
-                group_name = self.choices.queryset[i].__dict__[group_by]
+            group_by_obj_name = None
+            if '__' in group_by:
+                group_by_obj_name, _group_by = group_by.split('__')
+            else:
+                _group_by = group_by
+
+            group_by_obj = self._group_by_obj(self.choices.queryset[i],
+                                                group_by_obj_name)
+            if group_name != group_by_obj.__dict__[_group_by]:
+                group_name = group_by_obj.__dict__[_group_by]
                 output.append(u'<li><label><input class="folder" type="checkbox"/>%s</label><ul>'
-                              % (self._get_folder_label(self.choices.queryset[i], group_by)))
+                              % (self._get_folder_label(group_by_obj, _group_by)))
 
             # If an ID attribute was given, add a numeric index as a suffix,
             # so that the checkboxes don't all have the same ID attribute.
@@ -76,12 +84,21 @@ class GroupedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
             option_label = conditional_escape(force_unicode(option_label))
             output.append(u'<li><label%s>%s %s</label></li>' % (label_for, rendered_cb, option_label))
             if i + 1 < self.choices.queryset.count():
-                if group_name != self.choices.queryset[i+1].__dict__[group_by]:
+                next_group_by_obj = self._group_by_obj(
+                    self.choices.queryset[i+1], group_by_obj_name)
+                if group_name != next_group_by_obj.__dict__[_group_by]:
                     output.append('</ul></li>')
             else:
                 output.append('</ul>')
         output.append(u'</ul>')
         return mark_safe(u'\n'.join(output))
+
+    def _group_by_obj(self, obj, group_by_obj_name=None):
+        if group_by_obj_name is None:
+            return obj
+        else:
+            return getattr(obj, group_by_obj_name)
+
 
 
 class ShippingServicesGroupedCheckboxSelectMultiple(GroupedCheckboxSelectMultiple):
@@ -147,9 +164,9 @@ class ShopForm(forms.Form):
 
         self.fields['shops'] = forms.ModelMultipleChoiceField(
             label=_("Participating shops"),
-            queryset=Shop.objects.filter(**search_arguments).order_by('city'),
+            queryset=Shop.objects.filter(**search_arguments).order_by('address__city'),
             widget=GroupedCheckboxSelectMultiple(
-                render_attrs={'group_by': 'city',
+                render_attrs={'group_by': 'address__city',
                               'ul_id': 'shopfolders'}),
             required=False
         )

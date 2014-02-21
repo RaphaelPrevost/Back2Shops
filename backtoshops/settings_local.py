@@ -179,6 +179,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     get_site_prefix()+'accounts',
+    get_site_prefix()+'address',
     get_site_prefix()+'pictures',
     get_site_prefix()+'shippings',
     get_site_prefix()+'shops',
