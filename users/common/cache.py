@@ -30,7 +30,7 @@ from common.constants import BARCODE_VARIANT_ID
 from common.constants import SHOP_WITH_BARCODE
 from common.utils import as_list
 from common.redis_utils import get_redis_cli
-from models.sale import ActorSale
+from models.actors.sale import ActorSale
 
 
 class NotExistError(Exception):

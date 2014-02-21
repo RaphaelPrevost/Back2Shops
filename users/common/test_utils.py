@@ -3,6 +3,8 @@ import os
 import unittest
 import ujson
 import urllib
+from falcon.request import Request
+from falcon.response import Response
 from mechanize import Browser
 from mechanize import Cookie
 
@@ -121,6 +123,15 @@ class BaseTestCase(unittest.TestCase):
         resp = ujson.loads(browser.get_users_info())
         self.assertEquals(resp,
                          {"res": RESP_RESULT.F, "err": err})
+
+
+class MockResponse(Response):
+    pass
+
+
+class MockRequest(Request):
+    pass
+
 
 def is_backoffice_server_running():
     if len( os.popen(
