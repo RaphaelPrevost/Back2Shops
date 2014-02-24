@@ -71,6 +71,12 @@ class ErrorCode:
              'user: %s, destination address: %s'
     )
 
+    # user model error
+    UR_NO_PHONE = (
+        142, 'user\'s phone not exist:'
+             'user: %s, selected phone: %s'
+    )
+
     # shipping fee error
     SF_MISS_PARAMS = (
         151, "Neither shipment nor sale provided in rquest"

@@ -26,22 +26,34 @@ def get_user_address(conn, user_id):
     return user_address_dict
 
 
-def get_user_phone_num(conn, user_id):
-    # {'phone_num': {phone_1_id: {...},
-    #                phone_2_id: {...}
-    #                ...}
-    # }
-    user_phone_num_dict = {'phone_num': {}}
-    columns = ['users_phone_num.id', 'country_num', 'phone_num',
+def get_user_phone_num(conn, user_id, id_phone=None):
+    """
+    @param conn: database connection
+    @param user_id: user's id.
+    @param id_phone: id of users_phone_num
+    @return: [{'id': ...,
+               'country_num': ...,
+               'phone_num': ...,
+               'phone_num_desc': ...},
+               ...]
+    """
+    where = {'users_id': user_id, 'valid': True}
+    if id_phone:
+        where['id'] = id_phone
+    columns = ['id', 'country_num', 'phone_num',
                'phone_num_desp']
-    results = join(conn, ['users, users_phone_num'],
-                   where={'users.id': user_id, 'valid': True},
+    results = select(conn,
+                    'users_phone_num',
+                    where=where,
                    columns=columns)
-    for result in results:
-        u_phone_id = result[0]
-        phone_dict = dict(zip(columns[1:], result[1:]))
-        user_phone_num_dict['phone_num'].update({u_phone_id: phone_dict})
-    return user_phone_num_dict
+    return [dict(zip(columns, result)) for result in results]
+
+def get_user_sel_phone_num(conn, id_user, id_phone=None):
+    phones = get_user_phone_num(conn, id_user, id_phone)
+    if not phones:
+        raise UserError(E_C.UR_NO_PHONE[0],
+                        E_C.UR_NO_PHONE[1] % (id_user, id_phone))
+    return phones[0]
 
 
 def get_user_profile(conn, user_id):
@@ -55,11 +67,23 @@ def get_user_profile(conn, user_id):
     return user_profile
 
 def get_user_address(conn, user_id, addr_id=None):
-    user_address = {}
-    columns = ['address', 'city', 'country_code', 'province_code',
+    """
+    @param conn: database connection
+    @param user_id: user's id.
+    @param addr_id: id of users_address
+    @return: [{'id': ...,
+               'address': ...,
+               'city': ...,
+               'country_code': ...,
+               'province_code': ...,
+               'postal_code': ...},
+               ...]
+    """
+    columns = ['id', 'address', 'city', 'country_code', 'province_code',
                'postal_code']
 
-    where = {'users_id': user_id}
+    where = {'users_id': user_id,
+             'valid': True}
     if addr_id:
         where['id'] = addr_id
     results = select(conn,
@@ -67,19 +91,28 @@ def get_user_address(conn, user_id, addr_id=None):
                      where=where,
                      columns=columns,
                      order=('id',))
-    if results:
-        user_address = dict(zip(columns, results[0]))
 
-    return user_address
+    return [dict(zip(columns, result)) for result in results]
 
 def get_user_dest_addr(conn, id_user, id_addr=None):
+    """
+    @param conn: database connection
+    @param user_id: user's id.
+    @param addr_id: id of users_address
+    @return: {'address': ...,
+              'city': ...,
+              'country': ...,
+              'province': ...,
+              'postalcode': ...}
+    """
     user_address = get_user_address(conn, id_user, id_addr)
     if not user_address:
         raise UserError(E_C.UR_NO_ADDR[0],
                         E_C.UR_NO_ADDR[1] % (id_user, id_addr))
+    user_address = user_address[0]
     address = {'address': user_address['address'],
                'city': user_address['city'],
                'country': user_address['country_code'],
                'province': user_address['province_code'],
                'postalcode': user_address['postal_code']}
-    return ujson.dumps(address)
+    return address

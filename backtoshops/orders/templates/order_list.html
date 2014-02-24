@@ -54,7 +54,6 @@
             {% for order_id, order in order_dict.items %}
                 {{ order.order_items.0.values.picture }}
                 {{ order.order_items.0.values.thumbnail_img }}
-                {% with shipment_info=order.order_items.values.0.shipment_info %}
             <div class="vente" order="{{ order_id }}">
                 <!--NOM, CATEGORIE, TYPE de Prod-->
                 <a href=""><h3>#{{ order_id  }}</h3></a>
@@ -72,9 +71,10 @@
                         {% endthumbnail %}
                     </a>
                     <div class="address_area">
-                        <em>{{ shipment_info.shipment_address_info.address|default:"No shipment address for order? " }} </em>
+                        <em>{{ order.shipping_dest.address|default:"No shipment address for order? " }} </em>
                         <span class="phone_city">
-                        <span class="phone_num">{{ shipment_info.shipment_phone_info.phone_num|default:"No shipment phone? " }} </span><span class="city">({{ order.user_info.address.values.0.city }})</span>
+                            <span class="phone_num">{{ order.contact_phone.phone_num|default:"No shipment phone? " }} </span>
+                            <span class="city">({{ order.shipping_dest.city }})</span>
                         </span>
                     </div>
                     <div class="prix">
@@ -106,7 +106,6 @@
                 <a href="" class="seeDetail seeInvoice">{% trans "Invoices" %}</a>
                 <a href="{% url 'order_details' order_id %}" class="seeDetail seeMain">{% trans "Details" %}</a>
             </div>
-            {% endwith %}
             {% endfor %}
             {% endfor %}
             <!--FIN VENTE-->
