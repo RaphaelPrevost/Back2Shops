@@ -109,11 +109,15 @@ CREATE TABLE order_details (
     quantity integer NOT NULL
 );
 
+CREATE TABLE order_shipment_details (
+    id_order bigint REFERENCES orders(id),
+    id_shipaddr bigint REFERENCES users_address(id),
+    id_billaddr bigint REFERENCES users_address(id),
+    id_phone bigint REFERENCES users_phone_num(id),
+);
+
 CREATE TABLE shipments (
     id serial PRIMARY KEY,
-    id_order bigint REFERENCES orders(id),
-    id_address bigint REFERENCES users_address(id),
-    id_phone bigint REFERENCES users_phone_num(id),
     mail_tracking_number character varying(50),
     status SMALLINT,
     timestamp timestamp without time zone NOT NULL,

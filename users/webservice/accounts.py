@@ -228,9 +228,14 @@ class UserResource(BaseJsonResource):
                     raise ValidationError('INVALID_POSTAL_CODE')
                 addr_dict[addr_id][c] = p
 
-            addr_referenced = self._is_filed_referenced(
-                conn, users_id, 'id_address', 'users_address', addr_id)
-            if addr_id.isdigit() and int(addr_id) == 0 or addr_referenced:
+            ship_addr_referenced = self._is_filed_referenced(
+                conn, users_id, 'id_shipaddr', 'users_address', addr_id)
+            bill_addr_referenced = self._is_filed_referenced(
+                conn, users_id, 'id_billaddr', 'users_address', addr_id)
+            if (addr_id.isdigit() and
+                int(addr_id) == 0 or
+                ship_addr_referenced or
+                bill_addr_referenced):
                 db_utils.insert(conn, "users_address",
                                 values=addr_dict[addr_id])
             else:
@@ -246,22 +251,21 @@ class UserResource(BaseJsonResource):
         if not check_id.isdigit():
             return False
 
-        assert field in ['id_address', 'id_phone']
+        assert field in ['id_shipaddr', 'id_billaddr', 'id_phone']
         assert field_orig_table in ['users_address', 'users_phone_num']
 
-        shipping_result = db_utils.join(conn,
-                                      ('shipments', 'orders'),
+        results = db_utils.join(conn,
+                                      ('order_shipment_details', 'orders'),
                                       columns=(field,),
-                                      on=[('shipments.id_order', 'orders.id')],
+                                      on=[('order_shipment_details.id_order', 'orders.id')],
                                       where={'orders.id_user': users_id})
-        billing_result = db_utils.join(conn,
-                                     ('invoices', 'orders'),
-                                     columns=(field,),
-                                     on=[('invoices.id_order', 'orders.id')],
-                                     where={'orders.id_user': users_id})
-
-        referenced = ([int(check_id)] in shipping_result or
-                      [int(check_id)] in billing_result )
+#        billing_result = db_utils.join(conn,
+#                                     ('invoices', 'orders'),
+#                                     columns=(field,),
+#                                     on=[('invoices.id_order', 'orders.id')],
+#                                     where={'orders.id_user': users_id})
+#
+        referenced = [int(check_id)] in results
 
         # mark old address/phone number as invalid.
         if referenced:

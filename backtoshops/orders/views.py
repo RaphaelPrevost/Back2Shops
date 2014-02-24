@@ -139,7 +139,11 @@ class ListOrdersView(LoginRequiredMixin, View, TemplateResponseMixin):
         Using the thumbnail of the first item from the order as the
         order thumbanil image.
         """
-        return Sale(sale_id).product.pictures.all()[0].picture
+        pro_pics = Sale(sale_id).product.pictures.all()
+        if len(pro_pics):
+            return pro_pics[0].picture
+        else:
+            return ""
 
     def set_orders_list(self, request):
         orders = []

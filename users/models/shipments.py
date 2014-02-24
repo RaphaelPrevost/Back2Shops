@@ -22,15 +22,13 @@ from models.user import get_user_dest_addr
 
 DEFAULT_WEIGHT_UNIT = 'kg'
 
-def create_shipment(conn, id_order, id_shipaddr, id_phone,
+def create_shipment(conn, id_order,
                     handling_fee=None,
                     shipping_fee=None,
                     supported_services=None,
                     calculation_method=None):
     sm_values = {
         'id_order': id_order,
-        'id_address': id_shipaddr,
-        'id_phone': id_phone,
         'status': SHIPMENT_STATUS.PACKING,
         'timestamp': datetime.utcnow(),
         }
@@ -109,13 +107,12 @@ def _create_shipping_list(conn, id_item, quantity,
 
 class BaseShipments:
     def __init__(self, conn, id_order, order_items,
-                 id_telephone, id_shipaddr, id_user):
+                 id_shipaddr, id_user):
         self.conn = conn
         self.id_order = id_order
-        self.id_shipaddr = id_shipaddr
-        self.id_telephone = id_telephone
         self.id_user = id_user
         self.order_items = order_items
+        self.id_shipaddr = id_shipaddr
         self.dest_addr = None
         self.orig_addr = None
 
@@ -124,9 +121,7 @@ class posOrderShipments(BaseShipments):
         """ Create fake shipments for posOrder.
         """
         id_shipment = create_shipment(self.conn,
-                                      self.id_order,
-                                      self.id_shipaddr,
-                                      self.id_telephone)
+                                      self.id_order)
         for item in self.order_items:
             quantity = item['quantity']
             id_order_item = item['id_order_item']
@@ -217,8 +212,6 @@ class wwwOrderShipments(BaseShipments):
             for _ in range(int(sale.order_props['quantity'])):
                 id_shipment = create_shipment(self.conn,
                                 self.id_order,
-                                self.id_shipaddr,
-                                self.id_telephone,
                                 handling_fee=handling_fee,
                                 shipping_fee=shipping_fee,
                                 calculation_method=cal_method)
@@ -262,8 +255,6 @@ class wwwOrderShipments(BaseShipments):
             for _ in range(int(sale.order_props['quantity'])):
                 id_shipment = create_shipment(self.conn,
                                               self.id_order,
-                                              self.id_shipaddr,
-                                              self.id_telephone,
                                               calculation_method=cal_method)
                 _create_shipping_list(self.conn,
                                       id_order_item,
@@ -277,8 +268,6 @@ class wwwOrderShipments(BaseShipments):
             for _ in range(int(sale.order_props['quantity'])):
                 id_shipment = create_shipment(self.conn,
                                               self.id_order,
-                                              self.id_shipaddr,
-                                              self.id_telephone,
                                               calculation_method=cal_method)
                 _create_shipping_list(self.conn,
                                       id_order_item,
@@ -407,14 +396,14 @@ class wwwOrderShipments(BaseShipments):
             weight = self.totalWeight(group_sales)
             unit = DEFAULT_WEIGHT_UNIT
             dest = self.getDestAddr()
-            id_address = self._getShippingFeeOrigAddress(group_sales[0])
+            id_orig_address = self._getShippingFeeOrigAddress(group_sales[0])
             shipping_fee = self.getShippingFee(
                 service_carrier_map[group_services[0]],
                 group_services[0],
                 weight,
                 unit,
                 dest,
-                id_address)
+                id_orig_address)
 
             if free_sales_group:
                 all_group_sales = []
@@ -427,15 +416,13 @@ class wwwOrderShipments(BaseShipments):
                     weight,
                     unit,
                     dest,
-                    id_address)
+                    id_orig_address)
                 free_shipping_fee = (float(shipping_fee_with_free_sales) -
                                   float(shipping_fee))
 
         handling_fee = self.getMaxHandlingFee(group_sales)
         id_shipment = create_shipment(self.conn,
                                       self.id_order,
-                                      self.id_shipaddr,
-                                      self.id_telephone,
                                       handling_fee=handling_fee,
                                       shipping_fee=shipping_fee,
                                       supported_services=supported_services,
@@ -460,14 +447,14 @@ class wwwOrderShipments(BaseShipments):
                 weight = self.totalWeight([sale])
                 unit = DEFAULT_WEIGHT_UNIT
                 dest = self.getDestAddr()
-                id_address = self._getShippingFeeOrigAddress(sale)
+                id_orig_address = self._getShippingFeeOrigAddress(sale)
                 shipping_fee = self.getShippingFee(
                     service_carrier_map.values()[0],
                     service_carrier_map.keys()[0],
                     weight,
                     unit,
                     dest,
-                    id_address)
+                    id_orig_address)
 
             handling_fee = self.getMaxHandlingFee([sale])
             id_order_item = sale.order_props['id_order_item']
@@ -475,8 +462,6 @@ class wwwOrderShipments(BaseShipments):
                 id_shipment = create_shipment(
                     self.conn,
                     self.id_order,
-                    self.id_shipaddr,
-                    self.id_telephone,
                     handling_fee=handling_fee,
                     shipping_fee=shipping_fee,
                     supported_services=service_carrier_map,
@@ -493,14 +478,14 @@ class wwwOrderShipments(BaseShipments):
         return handlings and max(handlings) or 0
 
     def getShippingFee(self, id_carrier, id_service, weight, unit,
-                       dest, id_address):
+                       dest, id_orig_address):
         logging.info('shipment_shipping_fee: id_carrier: %s, service: %s', (id_carrier, id_service))
         xml_fee = remote_xml_shipping_fee(
             [(id_carrier, [id_service])],
             weight,
             unit,
             dest,
-            id_address)
+            id_orig_address)
         dict_fee = xmltodict.parse(xml_fee)
         shipping_fee = ActorShippingFees(dict_fee['carriers'])
         return float(shipping_fee.carriers[0].services[0].fee.value)
@@ -522,7 +507,7 @@ class wwwOrderShipments(BaseShipments):
             address for internet sale.
 
             sale - ActorSale object.
-            return - $id_address: destination address id.
+            return - $id_orig_address: destination address id.
         """
         id_shop = int(sale.order_props['id_shop'])
         if id_shop:
@@ -534,9 +519,9 @@ class wwwOrderShipments(BaseShipments):
         """ Get destination address according with user and shipping address.
         """
         if self.dest_addr is None:
-            self.dest_addr = get_user_dest_addr(self.conn,
+            self.dest_addr = ujson.dumps(get_user_dest_addr(self.conn,
                                                 self.id_user,
-                                                self.id_shipaddr)
+                                                self.id_shipaddr))
         return self.dest_addr
 
     def _shippingListForFreeShippingSalesGroup(self, free_sales_group, spm_id, fee):
@@ -556,8 +541,6 @@ class wwwOrderShipments(BaseShipments):
         cal_method = SHIPPING_CALCULATION_METHODS.FREE_SHIPPING
         id_shipment = create_shipment(self.conn,
                                       self.id_order,
-                                      self.id_shipaddr,
-                                      self.id_telephone,
                                       calculation_method=cal_method)
         for sale in free_sales_group:
             id_order_item = sale.order_props['id_order_item']
@@ -590,10 +573,9 @@ class wwwOrderShipments(BaseShipments):
             self._groupShipmentForFreeShippingSales(free_sales_group)
 
 
-SHIPMENT_FIELDS = ['id', 'id_order', 'id_address',
-                   'id_phone', 'mail_tracking_number',
+SHIPMENT_FIELDS = ['id', 'id_order', 'mail_tracking_number',
                    'status', 'timestamp', 'calculation_method']
-def get_shipping_shipments_by_order(conn, id_order):
+def get_shipments_by_order(conn, id_order):
     query_str = ("SELECT %s "
                    "FROM shipments "
                   "WHERE id_order=%%s "

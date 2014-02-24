@@ -40,5 +40,14 @@ ALTER TABLE shipping_list ADD COLUMN free_shipping boolean DEFAULT false NOT NUL
 ALTER TABLE shipments_supported_services RENAME TO shipping_supported_services;
 ALTER TABLE shipments_fee RENAME TO shipping_fee;
 
+ALTER TABLE shipments DROP COLUMN id_address;
+ALTER TABLE shipments DROP COLUMN id_phone;
+
+CREATE TABLE order_shipment_details (
+    id_order bigint REFERENCES orders(id) NOT null,
+    id_shipaddr bigint REFERENCES users_address(id),
+    id_billaddr bigint REFERENCES users_address(id),
+    id_phone bigint REFERENCES users_phone_num(id)
+);
 
 COMMIT;

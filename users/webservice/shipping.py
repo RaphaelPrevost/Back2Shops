@@ -17,7 +17,7 @@ from models.actors.sale import CachedSale
 from models.actors.shipping import ActorCarriers
 from models.shipments import conf_shipping_service
 from models.shipments import get_shipping_fee
-from models.shipments import get_shipping_shipments_by_order
+from models.shipments import get_shipments_by_order
 from models.shipments import remote_get_supported_services
 from models.shipments import get_shipping_supported_services
 from models.shipments import get_shipping_list
@@ -29,7 +29,7 @@ from B2SProtocol.settings import SHIPPING_WEIGHT_UNIT
 from B2SRespUtils.generate import gen_xml_resp
 
 
-class BaseShipmentListResource(BaseXmlResource):
+class BaseShippingListResource(BaseXmlResource):
     template = "shipping_list.xml"
     def _on_get(self, req, resp, conn, **kwargs):
         try:
@@ -39,7 +39,7 @@ class BaseShipmentListResource(BaseXmlResource):
             return {"error": e.code}
 
         id_order = req._params.get('id_order')
-        shipment_list = get_shipping_shipments_by_order(conn, id_order)
+        shipment_list = get_shipments_by_order(conn, id_order)
 
         for shipment in shipment_list:
             id_shipment = shipment['id']
@@ -116,16 +116,16 @@ class BaseShipmentListResource(BaseXmlResource):
         pass
 
 
-class ShipmentListResource(BaseShipmentListResource):
+class ShippingListResource(BaseShippingListResource):
     encrypt = True
 
-class PubShipmentListResource(BaseShipmentListResource):
+class PubShippingListResource(BaseShippingListResource):
     encrypt = False
     login_required = {'get': True, 'post': True}
 
     def _on_get(self, req, resp, conn, **kwargs):
         self.users_id = kwargs.get('users_id')
-        return super(PubShipmentListResource, self)._on_get(
+        return super(PubShippingListResource, self)._on_get(
             req, resp, conn, **kwargs)
 
     def _order_check(self, conn):
