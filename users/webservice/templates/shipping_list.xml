@@ -1,6 +1,6 @@
 <shipments version="1.0">
     {% for shipment in object_list %}
-        <shipment id="{{ shipment.id }}">
+        <shipment id="{{ shipment.id }}" method="{{ shipment.calculation_method }}">
             <delivery status="{{ shipment.status }}">
                 {% for carrier in shipment.carriers %}
                     <carrier id="{{ carrier.id }}">
@@ -14,16 +14,18 @@
                     </carrier>
                 {% endfor %}
             </delivery>
-            <fees>
-                <handling currency="{{ shipping_currency }}">
-                    {{ shipment.fee_info.handling_fee }}
-                </handling>
-                {% if shipment.fee_info.shipping_fee %}
-                    <shipping currency="{{ shipping_currency }}">
-                        {{ shipment.fee_info.shipping_fee }}
-                    </shipping>
-                {% endif %}
-            </fees>
+            {% if shipment.fee_info %}
+                <fees>
+                    <handling currency="{{ shipping_currency }}">
+                        {{ shipment.fee_info.handling_fee }}
+                    </handling>
+                    {% if shipment.fee_info.shipping_fee %}
+                        <shipping currency="{{ shipping_currency }}">
+                            {{ shipment.fee_info.shipping_fee }}
+                        </shipping>
+                    {% endif %}
+                </fees>
+            {% endif %}
             {% for shipping in shipment.shipping_list %}
                 <item sale="{{ shipping.id_sale }}">
                     <name>{{ shipping.sale_item.name }}</name>

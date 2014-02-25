@@ -600,6 +600,7 @@ class TestShippingList(BaseShipmentTestCase):
                               'id_shipment': 427L,
                               'shipping_fee': 3.0},
                  'id': 431,
+                 'calculation_method': 3,
                  'shipping_list': [
                      {'id_sale': 1000029L,
                       'id_variant': 1000011L,

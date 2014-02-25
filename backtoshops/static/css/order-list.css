@@ -250,3 +250,144 @@ div.error_msg {
     color: #ff5d36;
     font-size: 14px;
 }
+
+
+/* Packing List */
+.seePacking {
+    cursor: pointer;
+}
+
+.packing {
+    margin-bottom: 15px;
+    padding: 1px 1px 10px 1px;
+    background-color: #fff;
+    border: 1px solid #c4c4c4;
+}
+
+.packing h3 {
+    height: 20px;
+    line-height: 20px;
+    margin-bottom: 1px;
+    padding: 0 10px;
+    background-color: #000;
+    color: #fff;
+    font-size: 11px;
+}
+
+.packing em {
+    display: block;
+    height: 20px;
+    line-height: 20px;
+    margin-bottom: 15px;
+    padding: 0 10px;
+    background-color: #c8c8c8;
+    color: #000;
+    font-style: normal;
+}
+
+.packing .shipment {
+    margin-bottom: 20px;
+    padding-left: 10px;
+}
+
+.packing .packing_list_items {
+    display: None;
+}
+
+.packing .packing_list_title {
+    position: relative;
+    line-height: 20px;
+    height: 20px;
+    margin-bottom: 5px;
+}
+
+.packing .packing_list_title .see_pk_list {
+    background-color: #000;
+    width: 160px;
+    background-image: url(../img/icon.png);
+    background-repeat: no-repeat;
+    background-position: 140px -203px;
+    color: #fff;
+    font-size: 10px;
+    padding-left: 5px;
+    margin-bottom: 15px;
+    position: absolute;
+    cursor: pointer;
+}
+
+.packing .packing_list_title .status {
+    position: absolute;
+    left: 180px;
+}
+
+.packing .table {
+    margin-right: 10px;
+}
+
+.packing .table table tr th.col1 {
+    background-color: #B4B4B4;
+}
+
+.packing .table table tr th {
+    background-color: #E3E3E3;
+}
+
+.packing .table table tr .col1 {
+    background-color: #353535;
+    border-right: 3px solid #fff;
+    color: #fff;
+    font-weight: bold;
+    text-align: center;
+    padding: 2px 5px 3px 5px;
+}
+
+.packing .table table tr th,
+.packing .table table tr td {
+    padding: 2px 10px 3px 10px;
+    background-color: #DDDDDD;
+    border-bottom: 3px solid #fff;
+    border-right: 3px solid #fff;
+    font-weight: bold;
+    text-align: right;
+}
+
+
+.packing .remaining_list {
+    padding-top: 10px;
+    position: relative;
+}
+
+.packing .remaining_list .remaining_item {
+    display: block;
+    background-color: #F2F9FF;
+    min-height: 24px;
+    line-height: 24px;
+    margin-top: 5px;
+}
+
+.packing .new_packing_list{
+    height: 20px;
+}
+.packing .new_packing_list .create {
+    line-height: 20px;
+    height: 20px;
+    background-color: #000;
+    width: 160px;
+    background-image: url(../img/icon.png);
+    background-repeat: no-repeat;
+    background-position: 140px -203px;
+    color: #fff;
+    font-size: 10px;
+    padding-left: 5px;
+    position: absolute;
+}
+
+.packing .remaining_item .item_check {
+    margin: 2px 4px 2px 0px;
+    float: left;
+}
+
+.packing .remaining_item .item_count {
+    width: 20px;
+}
+/* Packing List end */

@@ -10,7 +10,6 @@ from common.utils import weight_convert
 from webservice.base import BaseResource
 from webservice.base import BaseXmlResource
 from webservice.base import BaseJsonResource
-from models.actors.base_actor import actor_to_dict
 from models.actors.shipping_fees import ActorShippingFees
 from models.order import user_accessable_order
 from models.actors.sale import CachedSale
@@ -24,9 +23,11 @@ from models.shipments import get_shipping_list
 from models.shipments import user_accessable_shipment
 from models.shipping_fees import SaleShippingFees
 from models.shipping_fees import ShipmentShippingFees
+from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
 from B2SProtocol.settings import SHIPPING_CURRENCY
 from B2SProtocol.settings import SHIPPING_WEIGHT_UNIT
 from B2SRespUtils.generate import gen_xml_resp
+from B2SUtils.base_actor import actor_to_dict
 
 
 class BaseShippingListResource(BaseXmlResource):
@@ -44,9 +45,9 @@ class BaseShippingListResource(BaseXmlResource):
         for shipment in shipment_list:
             id_shipment = shipment['id']
             shipment['carriers'] = self._get_supported_services(
-                                                conn, id_shipment)
+                                                conn, shipment)
             shipment['tracking_info'] = self._get_tracking_info(id_shipment)
-            shipment['fee_info'] = get_shipping_fee(conn, id_shipment)
+            shipment['fee_info'] = self._get_fee_info(conn, shipment)
             shipment['shipping_list'] = self._get_shipping_list(
                                                 conn, id_shipment)
 
@@ -57,7 +58,22 @@ class BaseShippingListResource(BaseXmlResource):
     def _on_post(self, req, resp, conn, **kwargs):
         return self._on_get(req, resp, conn, **kwargs)
 
-    def _get_supported_services(self, conn, id_shipment):
+    def _get_fee_info(self, conn, shipment):
+        cal_method = shipment['calculation_method']
+        if cal_method not in [SCM.CARRIER_SHIPPING_RATE,
+                              SCM.CUSTOM_SHIPPING_RATE,
+                              SCM.FLAT_RATE]:
+            return
+
+        id_shipment= shipment['id']
+        return get_shipping_fee(conn, id_shipment)
+
+    def _get_supported_services(self, conn, shipment):
+        cal_method = shipment['calculation_method']
+        if cal_method not in [SCM.CARRIER_SHIPPING_RATE,
+                              SCM.CUSTOM_SHIPPING_RATE]:
+            return []
+        id_shipment= shipment['id']
         xml_supported_services = remote_get_supported_services(
             conn, id_shipment)
         data = xmltodict.parse(xml_supported_services)

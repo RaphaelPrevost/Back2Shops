@@ -1,6 +1,7 @@
 import logging
 import settings
 import ujson
+import xmltodict
 
 from decimal import Decimal
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
@@ -11,15 +12,19 @@ from django.views.generic.base import View, TemplateResponseMixin
 from django.views.generic.edit import CreateView, UpdateView
 from fouillis.views import LoginRequiredMixin
 
+from common.actors.shipping_list import ActorShipments
 from common.error import UsersServerError
 from common.fees import compute_fee
 from common.orders import get_order_detail
+from common.orders import get_order_packing_list
 from common.orders import get_order_list
 from common.orders import send_shipping_fee
 from orders.forms import ListOrdersForm
 from orders.forms import ShippingForm
 from orders.models import Shipping
 from sales.models import Sale
+from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
+from B2SUtils.base_actor import actor_to_dict
 
 
 
@@ -145,6 +150,7 @@ class ListOrdersView(LoginRequiredMixin, View, TemplateResponseMixin):
         else:
             return ""
 
+
     def set_orders_list(self, request):
         orders = []
         if request.user.is_superuser:
@@ -236,3 +242,65 @@ class OrderDetails(LoginRequiredMixin, View, TemplateResponseMixin):
                 "notified, please check back later.")
         self.order = order_details
         return self.render_to_response(self.__dict__)
+
+class OrderPacking(LoginRequiredMixin, View, TemplateResponseMixin):
+    template_name = "_order_packing.html"
+
+    def get(self, request, order_id):
+        packing = {'order_id': order_id,
+                   'deadline': self._get_deadline(order_id)}
+        try:
+            xml_packing_list = get_order_packing_list(order_id)
+            dict_pl = xmltodict.parse(xml_packing_list)
+            spms_actor = ActorShipments(data=dict_pl['shipments'])
+            spm_list = self._parse_shipment(
+                spms_actor,
+                request.user.get_profile().work_for.pk)
+            packing['shipments'] = spm_list
+        except UsersServerError, e:
+            self.error_msg = (
+                "Sorry, the system meets some issues, our engineers have been "
+                "notified, please check back later.")
+        self.packing = packing
+        return self.render_to_response(self.__dict__)
+
+    def _accessable_sale(self, id_sale, worker_for):
+        seller = Sale.objects.get(pk=id_sale).product.brand.seller.pk
+        return int(seller) == int(worker_for)
+
+    def _parse_shipment(self, spms_actor, work_for):
+        spms = []
+        for spm_actor in spms_actor.shipments:
+            if not self._accessable_sale(spm_actor.items[0].sale, work_for):
+                continue
+            spm = {'id': spm_actor.id,
+                   'packing_list': self._get_spm_packing_list(spm_actor),
+                   'remaining_list': self._get_spm_remaining_list(spm_actor),
+                   'status': spm_actor.delivery.status_desc
+                   }
+            spms.append(spm)
+        return spms
+
+    def _get_spm_packing_list(self, spm_actor):
+        packing_list = []
+        if int(spm_actor.method) == SCM.INVOICE:
+            return packing_list
+
+        for item in spm_actor.items:
+            packing_list.append(actor_to_dict(item))
+
+        return packing_list
+
+    def _get_spm_remaining_list(self, spm_actor):
+        remaining_list = []
+        if int(spm_actor.method) != SCM.INVOICE:
+            return remaining_list
+
+        for item in spm_actor.items:
+            remaining_list.append(actor_to_dict(item))
+
+        return remaining_list
+
+    def _get_deadline(self, order_id):
+        # TODO: implementation
+        pass

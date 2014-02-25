@@ -1,5 +1,5 @@
-from common.utils import as_list
-from models.actors.base_actor import BaseActor
+from B2SUtils.base_actor import as_list
+from B2SUtils.base_actor import BaseActor
 
 class ActorFee(BaseActor):
     attrs_map = {'currency': '@currency',
