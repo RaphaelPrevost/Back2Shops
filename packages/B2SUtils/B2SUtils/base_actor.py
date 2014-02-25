@@ -71,3 +71,10 @@ def actor_to_dict(actor):
 
     return d
 
+def as_list(data):
+    if not data:
+        return []
+    if not isinstance(data, list):
+        return [data]
+    return data
+

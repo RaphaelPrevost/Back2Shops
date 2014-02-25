@@ -59,3 +59,19 @@ def get_order_detail(order_id, brand_id):
         logging.error('Failed to get order(id=%s) detail from usr servers',
                       order_id, exc_info=True)
         raise UsersServerError
+
+def get_order_packing_list(order_id):
+    try:
+        url = '%s?id_order=%s' %  (settings.ORDER_SHIPPING_LIST,
+                                   order_id)
+        data = get_from_remote(
+            url,
+            settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+            settings.PRIVATE_KEY_PATH
+        )
+        return data
+    except Exception, e:
+        logging.error('Failed to get order(id=%s) shipping list from '
+                      'usr servers: %s',
+                      order_id, e, exc_info=True)
+        raise UsersServerError

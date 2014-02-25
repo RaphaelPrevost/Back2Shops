@@ -5,10 +5,10 @@ from common.constants import BARCODE
 from common.constants import BARCODE_VARIANT_ID
 from common.constants import BARCODE_SALE_ID
 from common.error import NotExistError
-from common.utils import as_list
 from common.utils import order_img_download
 from common.redis_utils import get_redis_cli
-from models.actors.base_actor import BaseActor
+from B2SUtils.base_actor import as_list
+from B2SUtils.base_actor import BaseActor
 
 
 class ActorSaleCategory(BaseActor):

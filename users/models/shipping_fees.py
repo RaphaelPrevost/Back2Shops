@@ -6,13 +6,13 @@ from common.error import ErrorCode as E_C
 from common.utils import remote_xml_shipping_services
 from common.utils import weight_convert
 from common.utils import remote_xml_shipping_fee
-from models.actors.base_actor import actor_to_dict
 from models.actors.sale import CachedSale
 from models.actors.shipping import ActorCarriers
 from models.shipments import get_shipping_supported_services
 from models.shipments import get_shipping_list
 from models.user import get_user_dest_addr
 from B2SProtocol.settings import SHIPPING_WEIGHT_UNIT
+from B2SUtils.base_actor import actor_to_dict
 
 
 class BaseShippingFees(object):

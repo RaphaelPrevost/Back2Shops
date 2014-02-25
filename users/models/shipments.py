@@ -4,7 +4,6 @@ import xmltodict
 from collections import defaultdict
 from datetime import datetime
 
-from common.error import ServerError
 from common.utils import get_from_sale_server
 from common.utils import remote_xml_shipping_fee
 from common.utils import remote_xml_shipping_services
@@ -579,13 +578,10 @@ def get_shipments_by_order(conn, id_order):
     query_str = ("SELECT %s "
                    "FROM shipments "
                   "WHERE id_order=%%s "
-                    "AND calculation_method in (%%s, %%s)"
                  % ", ".join(SHIPMENT_FIELDS))
     r = query(conn,
               query_str,
-              (id_order,
-               SHIPPING_CALCULATION_METHODS.CARRIER_SHIPPING_RATE,
-               SHIPPING_CALCULATION_METHODS.CUSTOM_SHIPPING_RATE))
+              (id_order,))
     shipment_list = []
     for item in r:
         shipment_list.append(dict(zip(SHIPMENT_FIELDS, item)))

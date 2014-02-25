@@ -321,14 +321,6 @@ def encrypt_password(raw_password):
               "hash_iteration_count": hash_iteration_count}
     return auth_token, values
 
-
-def as_list(data):
-    if not data:
-        return []
-    if not isinstance(data, list):
-        return [data]
-    return data
-
 def order_img_download(img_path):
     img_url = os.path.join(settings.ADM_ROOT_URI, img_path.strip('/'))
     try:

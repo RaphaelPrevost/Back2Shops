@@ -2,3 +2,6 @@
 1. add common functions for databace access.
 2. add common function to setup logging config.
 3. add common errors userd by different applications.
+
+== version 0.0.2 ==
+1. add base_actor for xml parser dict

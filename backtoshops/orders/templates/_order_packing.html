@@ -1,0 +1,88 @@
+{% load i18n %}
+{% load sub %}
+
+<!--ENSEMBLE EN DETAIL-->
+<div class="packing">
+    <h3>{% trans "Order" %}#{{ packing.order_id }}</h3>
+    <em>
+        {% if packing.deadline %}
+            {{ packing.deadline }}
+        {% endif %}
+    </em>
+    {% for shipment in packing.shipments %}
+        <div class="shipment">
+            <div class="packing_list_title">
+                <span class="see_pk_list">{% trans "See Packing list" %} #{{ shipment.id }}</span>
+                <span class="status">{% trans "Stauts" %}: {{ shipment.status }}</span>
+            </div>
+            <div class="packing_list_items">
+                {% if shipment.packing_list %}
+                    <div class="table">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th class="col1">{% trans "Name" %}</th>
+                                <th>{% trans "Type" %}</th>
+                                <th>{% trans "Brand Attribute" %}</th>
+                                <th>{% trans "Weight" %}</th>
+                                <th>{% trans "Quantity" %}</th>
+                            </tr>
+                            </thead>
+                            {% for item in shipment.packing_list %}
+                                <tr>
+                                    <td class="col1">{{ item.name }}</td>
+                                    <td>{% if item.type %}{{ item.type.name }}{% endif %}</td>
+                                    <td>{% if item.variant %}{{ item.variant.name }}{% endif %}</td>
+                                    <td>{{ item.weight.value }} {{ item.weight.unit }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                {% else %}
+                    <span><p>{% trans "0 packing list item" %}</p></span>
+                {% endif %}
+            </div>
+            <div class="remaining_list">
+                {% if shipment.remaining_list %}
+                    <div class="remaining_items">
+                        <span>{% trans "Remaining items to ship" %}:</span>
+                        {% for item in shipment.remaining_list %}
+                            <lable class="remaining_item">
+                                <input type="checkbox" name="remaining_item_ckb" class='item_check' id="remaining_item_ckb_{{ item.id }}" checked="false">
+                                <span>{{ item.name }}</span>
+                                <input type="text" name="remaining_item_choose" class="item_count" id="remaining_item_choose_{{ item.id }}"/>
+                                <span>{% trans "out of" %} {{ item.quantity }} {% trans "items" %}</span>
+                            </lable>
+                        {% endfor %}
+                    </div>
+                    <div class="new_packing_list">
+                        <span class="create">{% trans "Create new packing list" %}</span>
+                    </div>
+                {% else %}
+                    <span><p>{% trans "0 item remaining" %}</p></span>
+                {% endif %}
+            </div>
+
+        </div>
+    {% endfor %}
+    <script type="text/javascript">
+        $(function(){
+            /* packing list scripts */
+            $('.see_pk_list').click(function(){
+                var parent = $(this).parent().parent();
+                if ($('.packing_list_items', parent).is(":hidden")) {
+                    $(".remaining_list", parent).slideUp(
+                            'normal', function() {
+                                $('.packing_list_items', parent).slideDown();
+                            });
+                } else {
+                    $(".packing_list_items", parent).slideUp(
+                            'normal', function() {
+                                $('.remaining_list', parent).slideDown();
+                            });
+                }
+            });
+        });
+    </script>
+</div>

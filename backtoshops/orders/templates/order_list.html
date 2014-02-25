@@ -81,7 +81,9 @@
                         {% if order.status > 1 %}
                         <span class="status-pending-blue">&nbsp;</span>
                         {% else %}
-                        <span class="status-pending-gray">&nbsp;</span>
+                        <a href="{% url 'order_packing_list' order_id %}" class="seePacking">
+                            <span class="status-pending-gray">&nbsp;</span>
+                        </a>
                         {% endif %}
 
                         <span class="status-next">&nbsp;</span>
@@ -102,7 +104,7 @@
                     </div>
                 </div>
                 <div class="clear"></div>
-                <a href="" class="seeDetail seePacking">{% trans "Packing lists" %}</a>
+                <a href="{% url 'order_packing_list' order_id %}" class="seeDetail seePacking">{% trans "Packing lists" %}</a>
                 <a href="" class="seeDetail seeInvoice">{% trans "Invoices" %}</a>
                 <a href="{% url 'order_details' order_id %}" class="seeDetail seeMain">{% trans "Details" %}</a>
             </div>
@@ -162,7 +164,7 @@
         });
         $(".seePacking").click(function(){
             $("#content_Right #detail").html('{% trans "Loading..." %}');
-{#            $("#content_Right #detail").load($(this)[0].href);#}
+            $("#content_Right #detail").load($(this)[0].href);
             return false;
         });
         $(".seeInvoice").click(function(){

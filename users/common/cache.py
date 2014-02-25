@@ -28,9 +28,9 @@ from common.constants import BARCODE_ATTR_ID
 from common.constants import BARCODE_SALE_ID
 from common.constants import BARCODE_VARIANT_ID
 from common.constants import SHOP_WITH_BARCODE
-from common.utils import as_list
 from common.redis_utils import get_redis_cli
 from models.actors.sale import ActorSale
+from B2SUtils.base_actor import as_list
 
 
 class NotExistError(Exception):
