@@ -35,6 +35,7 @@ from common.cache_invalidation import send_cache_invalidation
 from fouillis.views import BOLoginRequiredMixin
 from fouillis.views import LoginRequiredMixin
 from globalsettings import get_setting
+from promotion.utils import save_sale_promotion_handler
 from sales.forms import ListSalesForm
 from sales.forms import ProductBrandFormModel
 from sales.forms import ProductForm
@@ -740,6 +741,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
 
         send_cache_invalidation(self.edit_mode and "PUT" or "POST",
                                 'sale', sale.id)
+        save_sale_promotion_handler(sale)
         return redirect("list_sales")
 
     def dispatch(self, request, *args, **kwargs):

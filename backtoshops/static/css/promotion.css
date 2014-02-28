@@ -1,0 +1,219 @@
+
+#menu_ico li a.link4 { background-color: #565656; }
+#title span { background-position: 0 -75px; }
+
+/*------------------------------------------------------ */
+/*                       content-left                    */
+/*------------------------------------------------------ */
+#main_form { position: relative; }
+#main_form h3 {
+    display: block;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 491px;
+    height: 22px;
+    line-height: 22px;
+    padding-left: 5px;
+    background-color: #000;
+    color: #fff;
+}
+#main_form h3 span { float: right; margin-right: 5px; color: #fff; }
+
+#main_form fieldset {
+    padding: 40px 20px 20px 20px;
+    background-color: #fff;
+    border: 1px solid #c8c8c8;
+}
+
+#main_form .formrow { min-height: 22px; margin-bottom: 10px; }
+#main_form .formrow.p_vide { height: 0; min-height: 0; margin: 0; }
+#main_form .formrow.marge { margin-bottom: 30px; }
+#main_form .formrow:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+#main_form .formrow label,
+#main_form .formrow input,
+#main_form .formrow select,
+#main_form .formrow textarea,
+#main_form .formrow span,
+#main_form .contForm{
+    display: block;
+    float: left;
+}
+
+#main_form .formrow span { height: 22px; line-height: 22px; margin: 0 5px; }
+
+#main_form .formrow label { width: 145px; }
+#main_form .formrow select { width: 283px; }
+#main_form .formrow textarea,
+#main_form .formrow input { width: 271px; }
+#main_form .formrow .inputXS { width: 40px; }
+#main_form .formrow .inputS { width: 70px; }
+#main_form .formrow .inputM { width: 180px; }
+#main_form .formrow .selectS { width: 70px; }
+#main_form .formrow .selectL { width: 190px; }
+#main_form .formrow .selectXL { width: 260px; }
+
+#main_form .formrow select.dubble { width: 95px; }
+#main_form .formrow #plus {
+    background: url(../img/icon.png) no-repeat 0 -275px;
+    display: block;
+    float: left;
+    height: 19px;
+    margin: 1px 0 0 10px;
+    overflow: hidden;
+    text-indent: -1500px;
+    width: 19px;
+}
+
+#main_form .group_types_option,
+#main_form .group_sales_option {
+    clear: both;
+}
+
+#main_form
+
+#main_form .contForm,
+#main_form .formrow .contForm{
+    width: auto;
+    height: auto;
+    line-height: auto;
+    margin: auto;
+}
+
+#main_form .contForm input{
+    width: 18px;
+    margin: 1px 15px 0 -25px;
+    border: none 0;
+}
+#main_form .contForm label{
+    width: auto;
+    height: 20px;
+    line-height: 20px;
+    background: None;
+    padding-left: 50px;
+}
+
+#main_form .contForm.checkbox.auto label{
+    width: auto;
+}
+
+#main_form .inactif { background-color: #d9d9d9; }
+
+#main_form .raw {
+    width: 8px;
+    overflow: hidden;
+    text-indent: -1500px;
+    background: url(../../../documentations/back-office_BTS_06_24/img/icon.png) no-repeat -10px -252px;
+}
+
+#main_form .btn { float: right; margin: 5px 0 0 5px; }
+
+
+/*------------------------------------------------------ */
+/*                       content-right                   */
+/*------------------------------------------------------ */
+
+.titleRight {
+    width: 388px;
+    height: 27px;
+    line-height: 27px;
+    margin: 0 0 7px 0;
+    padding: 0 5px 0 7px;
+    background: url(../img/pix_title.gif) repeat-x 0 0 #FFFFFF;
+}
+.boxRight {
+    width: 398px;
+    margin: 0 0 30px 0;
+    background-color: #fff;
+    border: 1px solid #c4c4c4;
+}
+
+/*------------------- List Promotion -------------------*/
+#listPromotionGroups {
+    max-height: 600px;
+    overflow: auto;
+    margin-bottom: 10px;
+}
+
+
+/*--Table--*/
+#listPromotionGroups table { margin: 20px; }
+#listPromotionGroups table tr {
+    height: 28px;
+    line-height: 28px;
+    background-color: #F7F7F7;
+}
+#listPromotionGroups table tr.new { background: url(../img/back_flag.png) repeat-x 0 -1px; }
+#listPromotionGroups table tr.no_promotion_group { text-align: center; font-weight: bold; }
+
+
+#listPromotionGroups table tr th { background-color: #fff; }
+#listPromotionGroups table tr td,
+#listPromotionGroups table tr th {
+    text-align: left;
+    padding: 0 5px;
+    font-size: 11px;
+    border-bottom: 1px solid #dbdbdb;
+}
+
+
+#listPromotionGroups table tr th.nom { width: 280px; }
+#listPromotionGroups table tr th.action { width: 58px; text-align: right; }
+#listPromotionGroups table tr th.action a { margin-right: 0; padding-right: 0; }
+
+
+#listPromotionGroups table tr th a {
+    display: block;
+    height: 25px;
+    line-height: 25px;
+    margin-right: 10px;
+    padding: 0 15px 0 0;
+    font-size: 11px;
+}
+#listPromotionGroups table tr th.on a { background: url(../img/trie_on-off.gif) no-repeat 45px 1px; }
+#listPromotionGroups table tr th.off a { background: url(../img/trie_on-off.gif) no-repeat 45px -24px; }
+
+#listPromotionGroups table tr td a {
+    display: block;
+    width: 118px;
+    height: 28px;
+    line-height: 28px;
+    overflow: hidden;
+    font-size: 11px;
+    font-weight: bold;
+}
+#listPromotionGroups table tr td a:hover { text-decoration: underline; }
+
+#listPromotionGroups table tr td .out{
+    display: block;
+    float: left;
+    width: 16px;
+    height: 16px;
+    overflow: hidden; text-indent: -1500px;
+    background: url(../img/out.gif) no-repeat 0 0;
+}
+#listPromotionGroups table tr td .out:hover{ background-position: 0 -16px; }
+
+#listPromotionGroups table tr td .modif {
+    display: block;
+    float: left;
+    width: 16px;
+    height: 16px;
+    overflow: hidden; text-indent: -1500px;
+    margin:  0 5px 0 20px;
+    background: url(../img/modif.gif) no-repeat 0 0;
+}
+#listPromotionGroups table tr td .modif:hover{ background-position: 0 -16px; }
+
+
+
+/*--BTN--*/
+#content_Right .btn.ajouter { float: right; }
+

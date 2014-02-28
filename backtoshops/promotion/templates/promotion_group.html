@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+{% if promotion_pk %}
+{% trans "Edit Promotion Group information" %}
+{% else %}
+{% trans "Add new Promotion Group" %}
+{% endif %}
+{% endblock %}
+
+{% block head %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.ui.autocomplete.html.js"></script>
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/promotion.css" />
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/ui-lightness/jquery-ui-1.8.16.custom.css" />
+{% endblock %}
+
+{% block navigation %}
+{% include "_quick_nav.html" %}
+{% endblock %}
+
+{% block content %}
+<!--content-left-->
+<div id="content_Left">
+
+    <!--Title-->
+    <div id="title">
+        <span>{% trans "Promotion Group" %}</span>
+        <h2>{% trans "Promotion Group" %}</h2>
+    </div>
+
+    <!--FORM-->
+    {% if promotion_pk %}
+    <form id="main_form" method="post" action="{% url 'edit_promotion' promotion_pk %}" enctype="multipart/form-data">{% csrf_token %}
+    {% else %}
+    <form id="main_form" method="post" action="{% url 'page_promotion' %}{% if promotion_pk %}/{{ promotion_pk }}{% endif %}" enctype="multipart/form-data">{% csrf_token %}
+    {% endif %}
+        {% if promotion_pk %}
+        <h3>{% trans "Edit Promotion Group" %}</h3>
+        {% else %}
+        <h3>{% trans "Add a Promotion Group" %}</h3>
+        {% endif %}
+        <fieldset>
+            {{ form.non_field_errors }}
+            <div class="formrow">
+                <label for="{{form.name.auto_id}}">{% trans form.name.label %}</label>
+                {{ form.name }}
+            </div>
+            {{ form.shop.errors }}
+            <div class="formrow">
+                <label for="{{form.shop.auto_id}}">{% trans form.shop.label %}</label>
+                <span class="group_shop_option contForm">
+                    {{ form.shop }}
+                </span>
+            </div>
+            {{ form.types.errors }}
+            <div class="formrow">
+                <label for="{{form.types.auto_id}}">{% trans form.types.label %}</label>
+                <span class="group_types_option contForm">
+                    {{ form.types }}
+                </span>
+            </div>
+            {{ form.sales.errors }}
+            <div class="marge formrow">
+                <label for="{{form.sales.auto_id}}">{% trans form.sales.label %}</label>
+                <span class="group_sales_option contForm">
+                    {{ form.sales}}
+                </span>
+            </div>
+        </fieldset>
+        <!--BOUTONS-->
+        <input class="btn valider" type="submit" value='{% trans "Save" %}'/>
+        <button type="reset" class="btn annuler">{% trans "Cancel" %}</button>
+    </form>
+    <!--FIN FORM-->
+</div>
+<!--FIN content-left-->
+
+<!--content-right-->
+<div id="content_Right">
+    <!--Liste-Promotion-->
+    <h4 class="titleRight">{% trans "Promotion Group List" %}</h4>
+    <div class="boxRight" id="listPromotionGroups">
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <th class="nom on"><a href="#">{% trans "Name" %}</a></th>
+                <th class="action"><a href="#">{% trans "Actions" %}</a></th>
+            </tr>
+            {% for group in groups.object_list %}
+            <tr id="group_{{ group.pk }}"><!-- class=new -->
+                <td><a href="{% url 'edit_promotion' group.pk %}">{{ group.name }}</a></td>
+                <td><a class="modif" href="{% url 'edit_promotion' group.pk %}">{% trans "Edit" %}</a>
+                    <a class="out delete_promotion" href="{% url 'delete_promotion' group.pk %}">{% trans "Delete" %}</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr class="no_promotion_group">
+                <td colspan="2">{% trans "The promotion group list is empty." %}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% if page.paginator.num_pages > 1%}
+        <div class="pag_nav">
+            <span class="page_info">
+                {% blocktrans with number=page.number num_pages=page.paginator.num_pages %}
+                Page <input type="text" value="{{ number }}" id="page_num"> of {{ num_pages }} pages.
+                {% endblocktrans %}
+            </span>
+            <span class="page_size">
+                {% trans '(' %}
+                <select id="page_size" name="page_size">
+                {% for page_size in choice_page_size %}
+                    <option value="{{ page_size }}" {% if current_page_size == page_size %}selected="selected"{% endif %}>{{ page_size }}</option>
+                {% endfor %}
+                </select>
+                {% trans ') elements/page ' %}
+            </span>
+            <div class="page_ico">
+                <a href="1" class="pagination">|<</a>
+                <a href="{{ prev_10 }}" class="pagination"><</a>
+
+                <a href="{{ page_num }}" class="pagination">{% for page_num in page_nav %}
+                [{% if page.number != page_num %}<a href="{{ page_num }}" class="pagination">{{ page_num }}</a>{% else %}{{ page_num }}{% endif %}]
+                {% endfor %}</a>
+
+                <a href="{{ next_10 }}" class="pagination">></a>
+                <a href="{{ page.paginator.num_pages }}" class="pagination">>|</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <!--//Liste-Promotion-->
+    <a class="btn ajouter" href="add-promotion_2.htm">{% trans "Add new promotion group" %}</a>
+</div>
+<!--FIN content-right-->
+<div class="clear"></div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+
+    function shops_filter(type_ele) {
+        var shop_id = $("#{{form.shop.auto_id}}").val();
+        var type_id = $(type_ele).val();
+        var checked = $(type_ele).prop('checked');
+
+        var matched = Array();
+        var unmatched = Array();
+
+        console.log("checked");
+        $("li:[product_type=" + type_id + "]").each(function(){
+            var shops = $(this).attr('shops').split(",");
+            if (shops.indexOf(shop_id) >= 0) {
+                if (checked) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+
+                matched.push($(this));
+            } else {
+                unmatched.push($(this));
+                $(this).hide();
+            }
+        });
+        return {'matched': matched,
+                'unmatched': unmatched};
+    };
+
+    function sales_filter(type_ele) {
+        var r = shops_filter(type_ele);
+        matched = r['matched'];
+        unmatched = r['unmatched'];
+
+        var checked = $(type_ele).prop("checked");
+        for (var i=0; i<matched.length; i++) {
+            $("input", matched[i]).prop('checked', checked);
+        }
+
+        for (var i=0; i<unmatched.length; i++) {
+            $("input", unmatched[i]).prop('checked', false);
+        }
+    };
+
+    function sales_show_initial() {
+        $("input:checkbox[name=types]").each(function () {
+            shops_filter($(this));
+        });
+    }
+
+    $(function(){
+        //set page size
+        $("#page_size").change(function(event){
+            location.href = location.pathname+'?page_size='+$(this).val();
+        });
+
+         //go specific page by input
+        $("#page_num").keypress(function(event){
+            if(event.which == 13){ //'enter' key
+                var page_num = $(this).val();
+                if(!isNaN(page_num)&&parseInt(page_num)==page_num)
+                    location.href = page_num;
+                else
+                    alert("{% trans "Please enter a valid page number." %}");
+            }
+        });
+
+        $("input:checkbox[name=types]").click(function(){
+            sales_filter($(this));
+        });
+
+        $("#{{ form.shop.auto_id }}").change(function () {
+            console.log("shop change....")
+            $("input:checkbox[name=types]:[checked=true]").each(function () {
+                sales_filter($(this));
+            });
+        });
+
+        $(".delete_promotion").click(function() {
+            if(confirm('{% trans "Are your sure you want to delete this group?" %}')) {
+                $.post(this.href, function(data){
+                    $("#group_"+data.group_pk).remove();
+                    if(data.group_pk == "{% firstof group_pk "0" %}") {
+                        location.replace("{% url 'page_promotion' %}");
+                    }
+                });
+            }
+            return false;
+        })
+
+        $(document).ready(function(){
+        });
+        sales_show_initial();
+
+    });
+</script>
+
+{% endblock %}
