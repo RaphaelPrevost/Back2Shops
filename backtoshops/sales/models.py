@@ -6,7 +6,6 @@ from sorl.thumbnail import ImageField
 
 from accounts.models import Brand
 from common.cache_invalidation import post_delete_handler
-from globalsettings import get_setting
 from shippings.models import Shipping
 from shops.models import Shop
 
@@ -41,6 +40,7 @@ class Sale(models.Model):
 
     def __unicode__(self):
         return unicode('%s - %s' % (self.id, self.total_stock))
+
 
 class ShopsInSale(models.Model):
     sale = models.ForeignKey(Sale)
@@ -126,7 +126,8 @@ class TypeAttributeWeight(models.Model):
 @receiver(post_delete, sender=Sale, dispatch_uid='sales.models.Sale')
 def on_sale_deleted(sender, **kwargs):
     post_delete_handler('sale', sender, **kwargs)
-
+    from promotion.utils import drop_sale_promotion_handler
+    drop_sale_promotion_handler(kwargs.get('instance'))
 
 class ShippingInSale(models.Model):
     sale = models.OneToOneField(Sale)
