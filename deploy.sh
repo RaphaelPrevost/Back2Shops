@@ -306,6 +306,9 @@ function deploy_user() {
     echo "(i) Deploy user server finished"
 }
 
+function deploy_test() {
+    psql -U bts -d backtoshops -f $CWD/public_html/data/test_data.sql
+}
 
 ########## main ##########
 [ $1 ] || usage
@@ -319,6 +322,10 @@ case $1 in
         everything)
             deploy_backoffice
             deploy_user
+            deploy_test
+            ;;
+        testdata)
+            deploy_test
             ;;
         *)
             usage
