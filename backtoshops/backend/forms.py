@@ -15,6 +15,7 @@ from accounts.models import Brand
 from accounts.models import UserProfile
 from brandings.models import Branding
 from countries.models import Country
+from common.constants import USERS_ROLE
 from globalsettings.models import GlobalSettings
 from sales.models import ProductCategory
 from sales.models import ProductCurrency
@@ -73,11 +74,12 @@ class BaseUserForm(forms.ModelForm):
     required_css_class = 'required'
     username = forms.CharField(label=_("Username"))
     email = forms.EmailField(label=_("E-mail"))
+    role = forms.IntegerField(widget=forms.HiddenInput(), required=False)
     language = forms.ChoiceField(
         label=_("language"),
         choices=[(k, _(v)) for k, v in settings.LANGUAGES])
 #    is_superuser = forms.BooleanField(label=_("Super admin"), required=False)
-    
+
     class Meta:
         model = UserProfile
         exclude = ('user',)
@@ -101,7 +103,7 @@ class SACreateUserForm(BaseUserForm):
                                 widget=forms.PasswordInput)
     password2 = forms.CharField(label=_("Confirm password"),
                                 widget=forms.PasswordInput)
-    
+
     def clean_username(self):
         username = self.cleaned_data["username"]
         try:
@@ -110,7 +112,7 @@ class SACreateUserForm(BaseUserForm):
             return username
         raise forms.ValidationError(
             _("A user with that username already exists."))
-        
+
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1", "")
         password2 = self.cleaned_data["password2"]
@@ -118,7 +120,7 @@ class SACreateUserForm(BaseUserForm):
             raise forms.ValidationError(
                 _("The two password fields didn't match."))
         return password2
-    
+
     def save(self, commit=True):
         user_profile = super(SACreateUserForm, self).save(commit=False)
         user = User.objects.create_user(self.cleaned_data["username"],
@@ -129,6 +131,7 @@ class SACreateUserForm(BaseUserForm):
         user.is_superuser = False
         user.save()
         user_profile.user = user
+        user_profile.role = USERS_ROLE.ADMIN
         if commit:
             user_profile.save()
         return user_profile
@@ -136,7 +139,7 @@ class SACreateUserForm(BaseUserForm):
 
 class SAUserForm(BaseUserForm):
     is_active = forms.BooleanField(label=_("Active"), required=False)
-    
+
     def __init__(self, *args, **kwargs):
         super(SAUserForm, self).__init__(*args, **kwargs)
         self.fields['username'].initial = self.instance.user.username
@@ -144,13 +147,14 @@ class SAUserForm(BaseUserForm):
         self.fields['email'].initial = self.instance.user.email
 #        self.fields['is_superuser'].initial = self.instance.user.is_superuser
         self.fields['is_active'].initial = self.instance.user.is_active
-        
+
     def save(self, commit=True):
         self.instance = super(SAUserForm, self).save(commit=False)
         self.instance.user.email = self.cleaned_data['email']
 #        self.instance.user.is_superuser = self.cleaned_data['is_superuser']
         self.instance.user.is_active = self.cleaned_data['is_active']
         self.instance.user.save()
+        self.instance.role = USERS_ROLE.ADMIN
         if commit:
             self.instance.save()
         return self.instance

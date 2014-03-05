@@ -11,6 +11,7 @@
 
 {% block head %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/operator.css" />
 {% endblock %}
 
 {% block navigation %}
@@ -27,85 +28,128 @@
         <h2>{% trans "Operators" %}</h2>
     </div>
 
-    <!--FORM-->
-    {% if user_pk %}
-    <form id="main_form" method="post" action="{% url 'edit_operator' user_pk %}" enctype="multipart/form-data">{% csrf_token %}
+    {% if access_error %}
+        <span>{{ access_error }}</span>
     {% else %}
-    <form id="main_form" method="post" action="{% url 'operators' %}" enctype="multipart/form-data">{% csrf_token %}
-    {% endif %}
-    {% if user_pk %}
-        <h3>{% trans "Edit operator" %}</h3>
-    {% else %}
-        <h3>{% trans "New operator" %}</h3>
-    {% endif %}
-
+        <!--FORM-->
         {% if user_pk %}
-        <fieldset>
-            {{ form.username.errors }}
-            <div class="formrow">
-                <label for="{{form.username.auto_id}}">{% trans form.username.label %}</label>
-                {{ form.username }}
-            </div>
-            {{ form.email.errors }}
-            <div class="formrow">
-                <label for="{{ form.email.auto_id }}">{% trans form.email.label %}</label>
-                {{ form.email }}
-            </div>
-            {{ form.is_active.errors }}
-            <div class="formrow">
-                <label for="{{ form.is_active.auto_id }}">{% trans form.is_active.label %}</label>
-                {{ form.is_active }}
-            </div>
-            {{ form.language.errors }}
-            <div class="formrow">
-                <label for="{{ form.language.auto_id }}">{% trans form.language.label %}</label>
-                {{ form.language }}
-            </div>
-            {{ form.shops.errors }}
-            <div class="formrow">
-                <label for="{{ form.shops.auto_id }}">{% trans form.shops.label %}</label>
-                {{ form.shops }}
-            </div>
-        </fieldset>
+        <form id="main_form" method="post" action="{% url 'edit_operator' user_pk %}" enctype="multipart/form-data">{% csrf_token %}
         {% else %}
-        <fieldset>
-            {{ form.username.errors }}
-            <div class="formrow">
-                <label for="{{form.username.auto_id}}">{% trans form.username.label %}</label>
-                {{ form.username }}
-            </div>
-            {{ form.password1.errors }}
-            <div class="formrow">
-                <label for="{{form.password1.auto_id}}">{% trans form.password1.label %}</label>
-                {{ form.password1 }}
-            </div>
-            {{ form.password2.errors }}
-            <div class="formrow">
-                <label for="{{form.password2.auto_id}}">{% trans form.password2.label %}</label>
-                {{ form.password2 }}
-            </div>
-            {{ form.email.errors }}
-            <div class="formrow">
-                <label for="{{ form.email.auto_id }}">{% trans form.email.label %}</label>
-                {{ form.email }}
-            </div>
-            {{ form.language.errors }}
-            <div class="formrow">
-                <label for="{{ form.language.auto_id }}">{% trans form.language.label %}</label>
-                {{ form.language }}
-            </div>
-            {{ form.shops.errors }}
-            <div class="formrow">
-                <label for="{{ form.shops.auto_id }}">{% trans form.shops.label %}</label>
-                {{ form.shops }}
-            </div>
-        </fieldset>
+        <form id="main_form" method="post" action="{% url 'operators' %}" enctype="multipart/form-data">{% csrf_token %}
         {% endif %}
-        <!--BOUTONS-->
-        <input class="btn valider" type="submit" value='{% trans "Save" %}'/>
-        <button type="reset" class="btn annuler">{% trans "Cancel" %}</button>
-    </form>
-    <!--FIN FORM-->
+        {% if user_pk %}
+            <h3>{% trans "Edit operator" %}</h3>
+        {% else %}
+            <h3>{% trans "New operator" %}</h3>
+        {% endif %}
+
+            {% if user_pk %}
+            <fieldset>
+                {{ form.username.errors }}
+                <div class="formrow">
+                    <label for="{{form.username.auto_id}}">{% trans form.username.label %}</label>
+                    {{ form.username }}
+                </div>
+                {{ form.email.errors }}
+                <div class="formrow">
+                    <label for="{{ form.email.auto_id }}">{% trans form.email.label %}</label>
+                    {{ form.email }}
+                </div>
+                {{ form.is_active.errors }}
+                <div class="formrow">
+                    <label for="{{ form.is_active.auto_id }}">{% trans form.is_active.label %}</label>
+                    {{ form.is_active }}
+                </div>
+                {{ form.language.errors }}
+                <div class="formrow">
+                    <label for="{{ form.language.auto_id }}">{% trans form.language.label %}</label>
+                    {{ form.language }}
+                </div>
+                {{ form.role.errors }}
+                <div class="formrow">
+                    <label for="{{ form.role.auto_id }}">{% trans form.role.label %}</label>
+                    {{ form.role }}
+                    {{ form.allow_internet_operate.errors }}
+                    <div class="formrow contForm allow_internet_operate">
+                        {{ form.allow_internet_operate }}
+                        <label for="{{ form.allow_internet_operate.auto_id }}">{% trans form.allow_internet_operate.label %}</label>
+                    </div>
+                </div>
+                {{ form.shops.errors }}
+                <div class="formrow">
+                    <label for="{{ form.shops.auto_id }}">{% trans form.shops.label %}</label>
+                    <div class="operator_shops">
+                        {% if form.shops.field.queryset|length or form.shops.field.choices|length %}
+                            <span class="shops_option contForm">
+                            {{ form.shops }}
+                        </span>
+                        {% else %}
+                            <span>{% trans "Internet Operator" %}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </fieldset>
+            {% else %}
+            <fieldset>
+                {{ form.username.errors }}
+                <div class="formrow">
+                    <label for="{{form.username.auto_id}}">{% trans form.username.label %}</label>
+                    {{ form.username }}
+                </div>
+                {{ form.password1.errors }}
+                <div class="formrow">
+                    <label for="{{form.password1.auto_id}}">{% trans form.password1.label %}</label>
+                    {{ form.password1 }}
+                </div>
+                {{ form.password2.errors }}
+                <div class="formrow">
+                    <label for="{{form.password2.auto_id}}">{% trans form.password2.label %}</label>
+                    {{ form.password2 }}
+                </div>
+                {{ form.email.errors }}
+                <div class="formrow">
+                    <label for="{{ form.email.auto_id }}">{% trans form.email.label %}</label>
+                    {{ form.email }}
+                </div>
+                {{ form.language.errors }}
+                <div class="formrow">
+                    <label for="{{ form.language.auto_id }}">{% trans form.language.label %}</label>
+                    {{ form.language }}
+                </div>
+
+                {{ form.role.errors }}
+                <div class="formrow">
+                    <label for="{{ form.role.auto_id }}">{% trans form.role.label %}</label>
+                    {{ form.role }}
+                    {{ form.allow_internet_operate.errors }}
+                    <div class="formrow contForm allow_internet_operate">
+                        {{ form.allow_internet_operate }}
+                        <label for="{{ form.allow_internet_operate.auto_id }}">{% trans form.allow_internet_operate.label %}</label>
+                    </div>
+                </div>
+
+
+                {{ form.shops.errors }}
+                <div class="formrow">
+                    <label for="{{ form.shops.auto_id }}">{% trans form.shops.label %}</label>
+                    <div class="operator_shops">
+                        {% if form.shops.field.queryset|length or form.shops.field.choices|length %}
+                            <span class="shops_option contForm">
+                            {{ form.shops }}
+                        </span>
+                        {% else %}
+                            <span>{% trans "Internet Operator" %}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </fieldset>
+            {% endif %}
+            <!--BOUTONS-->
+            <input class="btn valider" type="submit" value='{% trans "Save" %}'/>
+            <button type="reset" class="btn annuler">{% trans "Cancel" %}</button>
+        </form>
+        <!--FIN FORM-->
+    {% endif %}
 </div>
 <!--FIN content-left-->
 
@@ -129,7 +173,7 @@
             </tr>
             {% for user in users.object_list %}
             <tr id="user_{{ user.pk }}"><!-- class=new -->
-                <td><a href="{% url 'sa_edit_user' user.pk %}">{{ user.username }}</a></td>
+                <td><a href="{% url 'edit_operator' user.pk %}">{{ user.username }}</a></td>
                 <td><a class="modif" href="{% url 'edit_operator' user.pk %}">{% trans "Edit" %}</a><a class="out delete_user" href="{% url 'delete_operator' user.pk %}">{% trans "Delete" %}</a></td>
             </tr>
             {% empty %}
@@ -188,9 +232,13 @@ $(document).ready(function(){
     $(".delete_user").click(function() {
         if(confirm('{% trans "Are your sure you want to delete this operator?" %}')) {
             $.post(this.href, function(data){
-                $("#user_"+data.user_pk).remove();
-                if(data.user_pk == "{% firstof user_pk "0" %}") {
-                    location.replace("{% url 'operators' %}");
+                if (data.access_error) {
+                    alert(data.access_error);
+                } else {
+                    $("#user_"+data.user_pk).remove();
+                    if(data.user_pk == "{% firstof user_pk "0" %}") {
+                        location.replace("{% url 'operators' %}");
+                    }
                 }
             });
         }
@@ -220,6 +268,32 @@ $(document).ready(function(){
                 alert("{% trans "Please enter a valid page number." %}");
         }
     });
+
+    $("#{{ form.role.auto_id }}").change(function(e) {
+        internet_manager_check();
+
+        var selected = $("#{{ form.role.auto_id }} option:selected");
+        var href = "{% url 'operator_shops' %}";
+        var role_type = selected.val();
+        href = href + "?role_type=" + role_type;
+        if ("{{ user_pk }}" != "None") {
+            href = href + "&users_id=" + "{{ user_pk }}";
+        }
+        $('.operator_shops').load(href);
+    });
+
+    function internet_manager_check() {
+        var selected = $("#{{ form.role.auto_id }} option:selected").val();
+        var internet_manager = $("#{{ form.allow_internet_operate.auto_id }}");
+        if (selected == "2") {
+            $(".allow_internet_operate").show();
+        } else {
+            internet_manager.prop("checked", false);
+            $(".allow_internet_operate").hide();
+        }
+    }
+
+    internet_manager_check();
 
 });
 </script>

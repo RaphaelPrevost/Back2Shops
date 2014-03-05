@@ -7,12 +7,64 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from globalsettings import get_setting
 from django.core.urlresolvers import reverse
 
+from common.constants import USERS_ROLE
+
+
+def super_admin_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
+    """
+    this verifies the user is logged in and superuser. else it will redirect to login_url.
+    """
+    actual_decorator = user_passes_test(
+        lambda u: u.is_authenticated() and u.is_staff and u.is_superuser,
+        login_url=login_url,
+        redirect_field_name=redirect_field_name
+    )
+    if function:
+        return actual_decorator(function)
+    return actual_decorator
+
 def admin_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
     """
     this verifies the user is logged in and superuser. else it will redirect to login_url.
     """
     actual_decorator = user_passes_test(
         lambda u: u.is_authenticated() and u.is_staff ,
+        login_url=login_url,
+        redirect_field_name=redirect_field_name
+    )
+    if function:
+        return actual_decorator(function)
+    return actual_decorator
+
+def manager_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
+    actual_decorator = user_passes_test(
+        lambda u: u.is_authenticated() and u.get_profile().role <= USERS_ROLE.MANAGER,
+        login_url=login_url,
+        redirect_field_name=redirect_field_name
+    )
+    if function:
+        return actual_decorator(function)
+    return actual_decorator
+
+
+def shop_manager_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
+    actual_decorator = user_passes_test(
+        lambda u: ((u.is_authenticated() and
+                    u.get_profile().role < USERS_ROLE.MANAGER) or
+                   (u.is_authenticated() and
+                    u.get_profile().role == USERS_ROLE.MANAGER and
+                    len(u.get_profile().shops.all()) > 0
+                   )),
+        login_url=login_url,
+        redirect_field_name=redirect_field_name
+    )
+    if function:
+        return actual_decorator(function)
+    return actual_decorator
+
+def operator_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
+    actual_decorator = user_passes_test(
+        lambda u: u.is_authenticated() and u.get_profile().role <= USERS_ROLE.OPERATOR,
         login_url=login_url,
         redirect_field_name=redirect_field_name
     )
@@ -30,6 +82,30 @@ class BOLoginRequiredMixin(object):
         bound_dispatch = super(BOLoginRequiredMixin, self).dispatch
         return admin_required(bound_dispatch, login_url="/")(*args, **kwargs)
 
+class SuperAdminLoginRequiredMixin(object):
+    def dispatch(self, *args, **kwargs):
+        bound_dispatch = super(SuperAdminLoginRequiredMixin, self).dispatch
+        return super_admin_required(bound_dispatch, login_url="/")(*args, **kwargs)
+
+class AdminLoginRequiredMixin(object):
+    def dispatch(self, *args, **kwargs):
+        bound_dispatch = super(AdminLoginRequiredMixin, self).dispatch
+        return admin_required(bound_dispatch, login_url="/")(*args, **kwargs)
+
+class ManagerLoginRequiredMixin(object):
+    def dispatch(self, *args, **kwargs):
+        bound_dispatch = super(ManagerLoginRequiredMixin, self).dispatch
+        return manager_required(bound_dispatch, login_url="/")(*args, **kwargs)
+
+class ShopManagerLoginRequiredMixin(object):
+    def dispatch(self, *args, **kwargs):
+        bound_dispatch = super(ShopManagerLoginRequiredMixin, self).dispatch
+        return shop_manager_required(bound_dispatch, login_url="/")(*args, **kwargs)
+
+class OperatorLoginRequiredMixin(object):
+    def dispatch(self, *args, **kwargs):
+        bound_dispatch = super(OperatorLoginRequiredMixin, self).dispatch
+        return operator_required(bound_dispatch, login_url="/")(*args, **kwargs)
 
 logger = logging.getLogger('django')
 

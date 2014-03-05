@@ -1,0 +1,9 @@
+{% load i18n %}
+
+{% if form.shops.field.queryset|length %}
+    <span class="shops_option contForm">
+        {{ form.shops }}
+    </span>
+{% else %}
+    <span>{% trans "Internet Operator" %}</span>
+{% endif %}
