@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load is_admin %}
+{% load is_shop_manager %}
 
 {% block content %}
     <ul id="content_Home">
@@ -27,11 +29,11 @@
             <h3 class="link6">{% trans "Performance Map" %}</h3>
             <a href="map_1.htm">{% trans "Performance Map" %}</a>
         </li>
-        {% if user.is_staff %}
-        <li>
-            <h3 class="link7">{% trans "Operators mgmt" %}</h3>
-            <a href="{% url 'operators' %}" class="bottom">{% trans "Operators mgmt" %}</a>
-        </li>
+        {% if user_profile.role|is_admin or user_profile.pk|is_shop_manager %}
+            <li>
+                <h3 class="link7">{% trans "Operators mgmt" %}</h3>
+                <a href="{% url 'operators' %}" class="bottom">{% trans "Operators mgmt" %}</a>
+            </li>
         {% endif %}
         <li>
             <h3 class="link8">{% trans "Orders" %}</h3>

@@ -49,11 +49,11 @@ COPY auth_user (id, password, last_login, is_superuser, username, first_name, la
 -- Data for Name: accounts_userprofile; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY accounts_userprofile (id, user_id, work_for_id, language) FROM stdin;
-1000001	1000002	1000001	en
-1000002	1000003	1000002	en
-1000003	1000004	1000003	en
-1000004	1000005	1000004	en
+COPY accounts_userprofile (id, user_id, work_for_id, language, role, allow_internet_operate) FROM stdin;
+1000001	1000002	1000001	en	1	t
+1000002	1000003	1000002	en	1	t
+1000003	1000004	1000003	en	1	t
+1000004	1000005	1000004	en	1	t
 \.
 
 

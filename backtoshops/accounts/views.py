@@ -1,18 +1,24 @@
 # Create your views here.
+import logging
 from django import http
 from django.utils.translation import check_for_language
 import settings
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _
 from django.template import RequestContext
-from fouillis.views import BOLoginRequiredMixin
+from fouillis.views import ShopManagerLoginRequiredMixin
 from models import Brand, UserProfile
 from django.contrib.auth.models import User
 import json
 from globalsettings import get_setting
 import forms
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
+
+from common.constants import USERS_ROLE
+
+from shops.models import Shop
 
 def home_page(request):
     """
@@ -22,7 +28,10 @@ def home_page(request):
     if request.user.is_superuser: #== super admin
         return render_to_response('sa_index.html', context_instance=RequestContext(request))
     else: #non super admin
-        return render_to_response('index.html', context_instance=RequestContext(request))
+        profile = request.user.get_profile()
+        context = RequestContext(request)
+        context.update({'user_profile': profile})
+        return render_to_response('index.html', context_instance=context)
 
 def set_language(request):
     """
@@ -68,7 +77,7 @@ def set_page_size(request):
         request.session['page_size'] = page_size
     return response
 
-class BaseOperatorView(BOLoginRequiredMixin):
+class BaseOperatorView(ShopManagerLoginRequiredMixin):
     """
     User is different from other models since it has User + UserProfile model.
     system uses create form and edit form and save method is overridden in the form.   
@@ -76,8 +85,22 @@ class BaseOperatorView(BOLoginRequiredMixin):
     template_name = "operator.html"
     
     def get_context_data(self, **kwargs):
+        req_u_profile = self.request.user.get_profile()
+
         if 'users' not in self.__dict__:
-            self.users = User.objects.filter(is_staff=False, userprofile__work_for=self.request.user.get_profile().work_for)
+            self.users = User.objects.filter(
+                is_staff=False,
+                userprofile__work_for=req_u_profile.work_for)
+
+        if req_u_profile.role == USERS_ROLE.MANAGER:
+            exclude_users = []
+            for user in self.users:
+                access_check = self._priority_check(req_u_profile,
+                                                    user.get_profile())
+                if access_check:
+                    exclude_users.append(user.pk)
+            self.users = self.users.exclude(pk__in=exclude_users)
+
         if 'current_page' not in self.__dict__:
             self.current_page = 1
         users = None
@@ -103,8 +126,30 @@ class BaseOperatorView(BOLoginRequiredMixin):
             kwargs.update({
                            'search_username': self.search_username,
                            })
+        if self.object:
+            access_check = self._priority_check(req_u_profile, self.object)
+            if access_check:
+                logging.error(
+                    "hack_error? user %s trying to edit user %s"
+                    % (req_u_profile.user_id, self.object.user_id))
+                kwargs.update(access_check)
+
         return kwargs
-    
+
+    def _priority_check(self, manager_profile, user_profile):
+        access_error = _("You have no priority to access this user")
+
+        # check manager have higher level than user.
+        if manager_profile.role >= user_profile.role:
+            return {"access_error": access_error}
+
+        # check user's shops is shopkeeper owns.
+        if manager_profile.role == USERS_ROLE.MANAGER:
+            managed_shops = [s.pk for s in manager_profile.shops.all()]
+            user_shops = [s.pk for s in user_profile.shops.all()]
+            if len(set(user_shops).intersection(set(managed_shops))) == 0:
+                return {"access_error": access_error}
+
     def get_form_kwargs(self):
         """
         overriding this for avoid any form binding during search post.
@@ -140,8 +185,7 @@ class CreateOperatorView(BaseOperatorView, CreateView):
     form_class = forms.CreateOperatorForm
     
     def get_success_url(self):
-        new_id = User.objects.all().count()
-        return reverse('edit_operator',args=[new_id])
+        return reverse('edit_operator',args=[self.object.pk])
     
     def get_initial(self):
         initials = super(CreateOperatorView,self).get_initial()
@@ -155,10 +199,22 @@ class EditOperatorView(BaseOperatorView, UpdateView):
     """
     form_class = forms.OperatorForm
     queryset = User.objects.all()
-    
+
+
+    def __get_context_data(self, **kwargs):
+        if self.object:
+            request_user_role = self.request.user.get_profile().role
+            access_error = _("You have no priority to access this user")
+            if self.object.role >= request_user_role:
+                return {"access_error": access_error}
+        else:
+            return super(EditOperatorView, self).get_context_data(**kwargs)
+
     def get_object(self):
         user = super(EditOperatorView,self).get_object()
-        self.object, created = UserProfile.objects.get_or_create(user=user, defaults={"language": get_setting('default_language')})
+        self.object, created = UserProfile.objects.get_or_create(
+            user=user,
+            defaults={"language": get_setting('default_language')})
         return self.object
     
     def get_success_url(self):
@@ -179,8 +235,23 @@ class DeleteOperatorView(BaseOperatorView, DeleteView):
     
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
-        user = self.object.user
-        self.object.delete()
-        user.delete()
-        return http.HttpResponse(content=json.dumps({"user_pk": self.kwargs.get('pk', None)}),
-                            mimetype="application/json")
+        request_user_role = self.request.user.get_profile().role
+        if request_user_role >= self.object.role:
+            return http.HttpResponse(
+                content=json.dumps({"access_error": "AUTHENTICATIOIN error"}),
+                mimetype="application/json")
+        else:
+            user = self.object.user
+            self.object.delete()
+            user.delete()
+            return http.HttpResponse(
+                content=json.dumps({"user_pk": self.kwargs.get('pk', None)}),
+                mimetype="application/json")
+
+class OperatorShopsView(ShopManagerLoginRequiredMixin, CreateView):
+    form_class = forms.AjaxShopsForm
+    template_name = "_ajax_shops.html"
+    def get_initial(self):
+        initials = super(OperatorShopsView,self).get_initial()
+        initials['request'] = self.request
+        return initials

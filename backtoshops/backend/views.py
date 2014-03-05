@@ -21,6 +21,7 @@ from accounts.models import UserProfile
 from attributes.models import CommonAttribute
 from backend import forms
 from brandings.models import Branding
+from common.constants import USERS_ROLE
 from globalsettings import get_setting
 from globalsettings.models import GlobalSettings
 from sales.models import ProductCategory
@@ -111,7 +112,10 @@ class BaseUserView(SARequiredMixin):
     
     def get_context_data(self, **kwargs):
         if 'users' not in self.__dict__:
-            self.users = User.objects.filter(is_staff=True, is_superuser=False)
+            self.users = User.objects.filter(
+                is_staff=True,
+                is_superuser=False,
+                userprofile__role=USERS_ROLE.ADMIN)
         if 'current_page' not in self.__dict__:
             self.current_page = 1
         users = None
@@ -175,7 +179,8 @@ class BaseUserView(SARequiredMixin):
             return self.get(request, *args, **kwargs)
         else:
             return super(BaseUserView,self).post(request, *args, **kwargs)
- 
+
+
 class CreateUserView(BaseUserView, CreateView):
     form_class = forms.SACreateUserForm
     
@@ -186,7 +191,8 @@ class CreateUserView(BaseUserView, CreateView):
         initials = super(CreateUserView,self).get_initial()
         initials.update({"language": get_setting('default_language')})
         return initials
-    
+
+
 class EditUserView(BaseUserView, UpdateView):
     """
     this class uses get_object overriding to make a fail safe call of UserProfile.
@@ -203,6 +209,7 @@ class EditUserView(BaseUserView, UpdateView):
     def get_success_url(self):
         pk = self.kwargs.get('pk', None)
         return reverse("sa_edit_user",args=[pk])
+
 
 class DeleteUserView(BaseUserView, DeleteView):
     """
