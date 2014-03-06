@@ -113,20 +113,20 @@ CREATE TABLE order_shipment_details (
     id_order bigint REFERENCES orders(id),
     id_shipaddr bigint REFERENCES users_address(id),
     id_billaddr bigint REFERENCES users_address(id),
-    id_phone bigint REFERENCES users_phone_num(id),
+    id_phone bigint REFERENCES users_phone_num(id)
 );
 
 CREATE TABLE shipments (
     id serial PRIMARY KEY,
+    id_order bigint,
     mail_tracking_number character varying(50),
     status SMALLINT,
     timestamp timestamp without time zone NOT NULL,
-    handling_fee double precision,
-    shipping_fee double precision,
-    calculation_method smallint
+    calculation_method smallint,
+    FOREIGN KEY (id_order) REFERENCES orders(id)
 );
 
-CREATE TABLE shipments_supported_services (
+CREATE TABLE shipping_supported_services (
     id serial PRIMARY KEY,
     id_shipment bigint,
     id_postage bigint,
@@ -134,7 +134,7 @@ CREATE TABLE shipments_supported_services (
     FOREIGN KEY (id_shipment) REFERENCES shipments (id)
 );
 
-CREATE TABLE shipments_fee (
+CREATE TABLE shipping_fee (
     id serial PRIMARY KEY,
     id_shipment bigint,
     handling_fee double precision,
@@ -147,7 +147,7 @@ CREATE TABLE shipping_list (
     id_shipment BIGINT REFERENCES shipments(id),
     quantity INTEGER NOT NULL,
     picture character varying(200),
-    free_shipping boolean DEFAULT false NOT NULL;
+    free_shipping boolean DEFAULT false NOT NULL
 );
 
 CREATE TABLE free_shipping_fee (

@@ -1,6 +1,6 @@
 <shipments version="1.0">
     {% for shipment in object_list %}
-        <shipment id="{{ shipment.id }}" method="{{ shipment.calculation_method }}">
+        <shipment id="{{ shipment.id }}" method="{% if shipment.calculation_method %}{{ shipment.calculation_method }}{% endif %}">
             <delivery status="{{ shipment.status }}">
                 {% for carrier in shipment.carriers %}
                     <carrier id="{{ carrier.id }}">
