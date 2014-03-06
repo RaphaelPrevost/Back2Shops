@@ -50,4 +50,6 @@ CREATE TABLE order_shipment_details (
     id_phone bigint REFERENCES users_phone_num(id)
 );
 
+ALTER TABLE shipments ADD COLUMN id_order bigint;
+ALTER TABLE shipments ADD FOREIGN KEY(id_order) REFERENCES orders(id);
 COMMIT;
