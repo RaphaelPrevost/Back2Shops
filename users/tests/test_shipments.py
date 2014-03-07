@@ -601,6 +601,8 @@ class TestShippingList(BaseShipmentTestCase):
                               'shipping_fee': 3.0},
                  'id': 431,
                  'calculation_method': 3,
+                 'id_brand': 1000001,
+                 'id_shop': 1000002,
                  'shipping_list': [
                      {'id_sale': 1000029L,
                       'id_variant': 1000011L,

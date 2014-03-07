@@ -11,8 +11,10 @@ from django.utils.translation import ugettext_lazy
 from django.views.generic.base import View, TemplateResponseMixin
 from django.views.generic.edit import CreateView, UpdateView
 from fouillis.views import LoginRequiredMixin
+from fouillis.views import OperatorUpperLoginRequiredMixin
 
 from common.actors.shipping_list import ActorShipments
+from common.constants import USERS_ROLE
 from common.error import UsersServerError
 from common.fees import compute_fee
 from common.orders import get_order_detail
@@ -23,6 +25,7 @@ from orders.forms import ListOrdersForm
 from orders.forms import ShippingForm
 from orders.models import Shipping
 from sales.models import Sale
+from shops.models import Shop
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
 from B2SUtils.base_actor import actor_to_dict
 
@@ -135,7 +138,36 @@ class ShippingStatusView(LoginRequiredMixin, View, TemplateResponseMixin):
         return self.render_to_response(self.__dict__)
 
 
-class ListOrdersView(LoginRequiredMixin, View, TemplateResponseMixin):
+def _get_req_user_shops(user):
+    # super user could read orders for all shops.
+    if user.is_superuser:
+        return
+
+    # * brand admin could read orders for
+    #   all brand shops and internet sales
+    # * store manager could read orders for owned shops.
+    #   If the store manager have internet sales priority, could also
+    #   read orders for internet sales.
+    # * shop operator could only read orders for owned shop.
+    #   internet operator could only read orders brand internet sales.
+    req_u_profile = user.get_profile()
+    if req_u_profile.role == USERS_ROLE.ADMIN:
+        shops = Shop.objects.filter(mother_brand=req_u_profile.work_for)
+        shops_id = [s.id for s in shops]
+        shops_id.append(0)
+    elif req_u_profile.role == USERS_ROLE.MANAGER:
+        shops_id = [s.id for s in req_u_profile.shops.all()]
+        if req_u_profile.allow_internet_operate:
+            shops_id.append(0)
+    else:
+        shops_id = [s.id for s in req_u_profile.shops.all()]
+        if len(shops_id) == 0:
+            shops_id = [0]
+
+    return shops_id
+
+
+class ListOrdersView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin):
     template_name = 'order_list.html'
     list_current = True
 
@@ -159,7 +191,8 @@ class ListOrdersView(LoginRequiredMixin, View, TemplateResponseMixin):
             brand_id = request.user.get_profile().work_for.pk
 
         try:
-            orders = get_order_list(brand_id)
+            shops_id = _get_req_user_shops(self.request.user)
+            orders = get_order_list(brand_id, shops_id=shops_id)
         except UsersServerError, e:
             self.error_msg = (
                 "Sorry, the system meets some issues, our engineers have been "
@@ -224,7 +257,7 @@ class ListOrdersView(LoginRequiredMixin, View, TemplateResponseMixin):
         pass
 
 
-class OrderDetails(LoginRequiredMixin, View, TemplateResponseMixin):
+class OrderDetails(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin):
     template_name = "_order_details.html"
 
     def get(self, request, order_id):
@@ -235,7 +268,8 @@ class OrderDetails(LoginRequiredMixin, View, TemplateResponseMixin):
             brand_id = request.user.get_profile().work_for.pk
         self.order_id = order_id
         try:
-            order_details = get_order_detail(order_id, brand_id)
+            shops_id = _get_req_user_shops(self.request.user)
+            order_details = get_order_detail(order_id, brand_id, shops_id)
         except UsersServerError, e:
             self.error_msg = (
                 "Sorry, the system meets some issues, our engineers have been "
@@ -243,7 +277,7 @@ class OrderDetails(LoginRequiredMixin, View, TemplateResponseMixin):
         self.order = order_details
         return self.render_to_response(self.__dict__)
 
-class OrderPacking(LoginRequiredMixin, View, TemplateResponseMixin):
+class OrderPacking(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin):
     template_name = "_order_packing.html"
 
     def get(self, request, order_id):
@@ -255,7 +289,7 @@ class OrderPacking(LoginRequiredMixin, View, TemplateResponseMixin):
             spms_actor = ActorShipments(data=dict_pl['shipments'])
             spm_list = self._parse_shipment(
                 spms_actor,
-                request.user.get_profile().work_for.pk)
+                request.user)
             packing['shipments'] = spm_list
         except UsersServerError, e:
             self.error_msg = (
@@ -264,14 +298,38 @@ class OrderPacking(LoginRequiredMixin, View, TemplateResponseMixin):
         self.packing = packing
         return self.render_to_response(self.__dict__)
 
-    def _accessable_sale(self, id_sale, worker_for):
-        seller = Sale.objects.get(pk=id_sale).product.brand.seller.pk
-        return int(seller) == int(worker_for)
+    def _accessable_sale(self, actor_shipment, user):
+        if user.is_superuser:
+            return True
+        u_profile = user.get_profile()
+        work_for_id = user.get_profile().work_for_id
+        if u_profile.role == USERS_ROLE.ADMIN:
+            return int(actor_shipment.brand) == work_for_id
+        elif u_profile.role == USERS_ROLE.MANAGER:
+            manage_shops = u_profile.shops.all()
+            if int(actor_shipment.shop) in [s.id for s in manage_shops]:
+                return True
+            elif (int(actor_shipment.shop) == 0 and
+                  u_profile.allow_internet_operate and
+                  int(actor_shipment.brand) == work_for_id):
+                return True
+            else:
+                return False
+        else:
+            manage_shops = u_profile.shops.all()
+            if int(actor_shipment.shop) in [s.id for s in manage_shops]:
+                return True
+            elif (int(actor_shipment.shop) == 0 and
+                  len(manage_shops) == 0 and
+                  int(actor_shipment.brand) == work_for_id):
+                return True
+            else:
+                return False
 
-    def _parse_shipment(self, spms_actor, work_for):
+    def _parse_shipment(self, spms_actor, user):
         spms = []
         for spm_actor in spms_actor.shipments:
-            if not self._accessable_sale(spm_actor.items[0].sale, work_for):
+            if not self._accessable_sale(spm_actor, user):
                 continue
             spm = {'id': spm_actor.id,
                    'packing_list': self._get_spm_packing_list(spm_actor),
@@ -283,7 +341,9 @@ class OrderPacking(LoginRequiredMixin, View, TemplateResponseMixin):
 
     def _get_spm_packing_list(self, spm_actor):
         packing_list = []
-        if int(spm_actor.method) == SCM.INVOICE:
+        # empty shipping method means this order is posOrder
+        if (spm_actor.method.strip() and
+            int(spm_actor.method) == SCM.INVOICE):
             return packing_list
 
         for item in spm_actor.items:
@@ -293,7 +353,9 @@ class OrderPacking(LoginRequiredMixin, View, TemplateResponseMixin):
 
     def _get_spm_remaining_list(self, spm_actor):
         remaining_list = []
-        if int(spm_actor.method) != SCM.INVOICE:
+        # empty shipping method means this order is posOrder
+        if (spm_actor.method.strip() == ""
+            or int(spm_actor.method) != SCM.INVOICE):
             return remaining_list
 
         for item in spm_actor.items:

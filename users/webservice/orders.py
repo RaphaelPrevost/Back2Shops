@@ -1,7 +1,7 @@
 import logging
 import gevent
 import settings
-import urlparse
+import urllib2
 import ujson
 
 from common.constants import RESP_RESULT
@@ -235,7 +235,14 @@ class OrderListResource(BaseOrderResource):
         if brand_id is None:
             raise ValidationError('INVALID_REQUEST')
 
-        orders = get_orders_list(conn, brand_id)
+        where = ""
+        shops_id = req.get_param('shops_id', None)
+        if shops_id:
+            shops_id = ujson.loads(urllib2.unquote(shops_id))
+            where = ("where order_items.id_shop in (%s)"
+                     % ', '.join([str(shop_id) for shop_id in shops_id]))
+
+        orders = get_orders_list(conn, brand_id, filter_where=where)
         return orders
 
 
@@ -247,7 +254,11 @@ class OrderDetailResource(BaseOrderResource):
         if not order_id or brand_id is None:
             raise ValidationError('INVALID_REQUEST')
 
-        order_detail = get_order_detail(conn, order_id, brand_id)
+        shops_id = req.get_param('shops_id', None)
+        if shops_id:
+            shops_id = ujson.loads(urllib2.unquote(shops_id))
+
+        order_detail = get_order_detail(conn, order_id, brand_id, shops_id)
         return order_detail
 
 

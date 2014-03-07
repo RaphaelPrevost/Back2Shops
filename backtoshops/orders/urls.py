@@ -1,7 +1,7 @@
 import settings
 from django.conf.urls.defaults import patterns, url
-from django.contrib.auth.decorators import login_required
 
+from fouillis.views import operator_upper_required
 from orders.views import CreateShippingView
 from orders.views import EditShippingView
 from orders.views import ListOrdersView
@@ -18,13 +18,13 @@ urlpatterns = patterns(settings.get_site_prefix()+'orders',
     url(r'/shipping/fee', ShippingFee.as_view(), name="shipment_fees"),
 
     url(r'/list/(?:(?P<orders_type>.+)/)?$',
-        login_required(ListOrdersView.as_view(), login_url="bo_login"),
+        operator_upper_required(ListOrdersView.as_view(), login_url="bo_login"),
         name='list_orders'),
     url(r'/details/(?:(?P<order_id>\d+)/)?$',
         OrderDetails.as_view(),
         name='order_details'),
     url(r'/packing/(?:(?P<order_id>\d+)/)?$',
-        login_required(OrderPacking.as_view(), login_url="bo_login"),
+        operator_upper_required(OrderPacking.as_view(), login_url="bo_login"),
         name='order_packing_list'),
 )
 

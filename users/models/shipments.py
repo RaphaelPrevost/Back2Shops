@@ -15,19 +15,22 @@ from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import query
 from B2SUtils.db_utils import update
 from models.actors.sale import CachedSale
+from models.actors.shop import CachedShop
 from models.actors.shipping_fees import ActorShippingFees
 from models.actors.shipping import ActorShipping
 from models.user import get_user_dest_addr
 
 DEFAULT_WEIGHT_UNIT = 'kg'
 
-def create_shipment(conn, id_order,
+def create_shipment(conn, id_order, id_brand, id_shop,
                     handling_fee=None,
                     shipping_fee=None,
                     supported_services=None,
                     calculation_method=None):
     sm_values = {
         'id_order': id_order,
+        'id_brand': id_brand,
+        'id_shop': id_shop,
         'status': SHIPMENT_STATUS.PACKING,
         'timestamp': datetime.utcnow(),
         }
@@ -115,22 +118,6 @@ class BaseShipments:
         self.dest_addr = None
         self.orig_addr = None
 
-class posOrderShipments(BaseShipments):
-    def create(self):
-        """ Create fake shipments for posOrder.
-        """
-        id_shipment = create_shipment(self.conn,
-                                      self.id_order)
-        for item in self.order_items:
-            quantity = item['quantity']
-            id_order_item = item['id_order_item']
-            _create_shipping_list(self.conn,
-                                  id_order_item,
-                                  quantity,
-                                  id_shipment=id_shipment)
-
-
-class wwwOrderShipments(BaseShipments):
     def create(self):
         # groups according with internet/local sales.
         internet_sales = []
@@ -146,6 +133,59 @@ class wwwOrderShipments(BaseShipments):
 
         self.handleInternetSales(internet_sales)
         self.handleLocalSales(local_sales)
+
+    def handleInternetSales(self, sales):
+        pass
+
+    def handleLocalSales(self, sales):
+        pass
+
+class posOrderShipments(BaseShipments):
+    def handleInternetSales(self, sales):
+        # group according with different corporate brands.
+        groups = defaultdict(list)
+        for sale in sales:
+            groups[sale.brand.id].append(sale)
+
+        for id_brand, sales in groups.iteritems():
+            id_shipment = create_shipment(
+                self.conn,
+                self.id_order,
+                id_brand,
+                0) # shop_id 0 is for internet sales.
+            for sale in sales:
+                quantity = sale.order_props['quantity']
+                id_order_item = sale.order_props['id_order_item']
+                _create_shipping_list(self.conn,
+                                  id_order_item,
+                                  quantity,
+                                  id_shipment=id_shipment)
+        logging.info('posorder_shipment_internet_sales_handled: %s', groups)
+
+    def handleLocalSales(self, sales):
+        # group according with different shops
+        groups = defaultdict(list)
+        for sale in sales:
+            groups[sale.order_props['id_shop']].append(sale)
+
+        for id_shop, sales in groups.iteritems():
+            cached_shop = CachedShop(id_shop=id_shop)
+            id_shipment = create_shipment(
+                self.conn,
+                self.id_order,
+                cached_shop.shop.brand.id,
+                id_shop) # shop_id 0 is for internet sales.
+            for sale in sales:
+                quantity = sale.order_props['quantity']
+                id_order_item = sale.order_props['id_order_item']
+                _create_shipping_list(self.conn,
+                                      id_order_item,
+                                      quantity,
+                                      id_shipment=id_shipment)
+
+        logging.info('posorder_shipment_local_sales_handled: %s', groups)
+
+class wwwOrderShipments(BaseShipments):
 
     def _getShippingInfo(self, sales):
         shipping_sales = []
@@ -187,8 +227,13 @@ class wwwOrderShipments(BaseShipments):
         groups = defaultdict(list)
         for sale in sales:
             groups[sale.brand.id].append(sale)
-        for grouped_sales in groups.values():
-            self.handleSalesByShipping(grouped_sales)
+        for id_brand, grouped_sales in groups.iteritems():
+            ShipmentsHandler(self.conn,
+                             self.id_order,
+                             id_brand,
+                             0,
+                             self.id_shipaddr,
+                             self.id_user).handle(grouped_sales)
         logging.info('shipment_internet_sales_handled: %s', groups)
 
     def handleLocalSales(self, sales):
@@ -197,9 +242,34 @@ class wwwOrderShipments(BaseShipments):
         groups = defaultdict(list)
         for sale in sales:
             groups[sale.order_props['id_shop']].append(sale)
-        for grouped_sales in groups.values():
-            self.handleSalesByShipping(grouped_sales)
+        for id_shop, grouped_sales in groups.iteritems():
+            cached_shop = CachedShop(id_shop=id_shop)
+            ShipmentsHandler(self.conn,
+                             self.id_order,
+                             cached_shop.shop.brand.id,
+                             id_shop,
+                             self.id_shipaddr,
+                             self.id_user).handle(grouped_sales)
         logging.info('shipment_local_sales_handled: %s', groups)
+
+class ShipmentsHandler(object):
+    def __init__(self, conn, id_order, id_brand, id_shop,
+                 id_shipaddr, id_user):
+        self.conn = conn
+        self.id_order = id_order
+        self.id_user = id_user
+        self.id_shipaddr = id_shipaddr
+        self.dest_addr = None
+        self.orig_addr = None
+        self.id_brand = id_brand
+        self.id_shop = id_shop
+
+    def _create_shipment(self, **kwargs):
+        return create_shipment(self.conn,
+                               self.id_order,
+                               self.id_brand,
+                               self.id_shop,
+                               **kwargs)
 
     def handleFlatRateShippingSales(self, sales):
         cal_method = SHIPPING_CALCULATION_METHODS.FLAT_RATE
@@ -209,8 +279,7 @@ class wwwOrderShipments(BaseShipments):
 
             id_order_item = sale.order_props['id_order_item']
             for _ in range(int(sale.order_props['quantity'])):
-                id_shipment = create_shipment(self.conn,
-                                self.id_order,
+                id_shipment = self._create_shipment(
                                 handling_fee=handling_fee,
                                 shipping_fee=shipping_fee,
                                 calculation_method=cal_method)
@@ -252,8 +321,7 @@ class wwwOrderShipments(BaseShipments):
         for sale in sales:
             id_order_item = sale.order_props['id_order_item']
             for _ in range(int(sale.order_props['quantity'])):
-                id_shipment = create_shipment(self.conn,
-                                              self.id_order,
+                id_shipment = self._create_shipment(
                                               calculation_method=cal_method)
                 _create_shipping_list(self.conn,
                                       id_order_item,
@@ -265,8 +333,7 @@ class wwwOrderShipments(BaseShipments):
         for sale in sales:
             id_order_item = sale.order_props['id_order_item']
             for _ in range(int(sale.order_props['quantity'])):
-                id_shipment = create_shipment(self.conn,
-                                              self.id_order,
+                id_shipment = self._create_shipment(
                                               calculation_method=cal_method)
                 _create_shipping_list(self.conn,
                                       id_order_item,
@@ -274,7 +341,7 @@ class wwwOrderShipments(BaseShipments):
                                       id_shipment=id_shipment,
                                       free_shipping=True)
 
-    def handleSalesByShipping(self, sales):
+    def handle(self, sales):
         if not sales:
             return
 
@@ -420,8 +487,7 @@ class wwwOrderShipments(BaseShipments):
                                   float(shipping_fee))
 
         handling_fee = self.getMaxHandlingFee(group_sales)
-        id_shipment = create_shipment(self.conn,
-                                      self.id_order,
+        id_shipment = self._create_shipment(
                                       handling_fee=handling_fee,
                                       shipping_fee=shipping_fee,
                                       supported_services=supported_services,
@@ -458,9 +524,7 @@ class wwwOrderShipments(BaseShipments):
             handling_fee = self.getMaxHandlingFee([sale])
             id_order_item = sale.order_props['id_order_item']
             for _ in range(int(sale.order_props['quantity'])):
-                id_shipment = create_shipment(
-                    self.conn,
-                    self.id_order,
+                id_shipment = self._create_shipment(
                     handling_fee=handling_fee,
                     shipping_fee=shipping_fee,
                     supported_services=service_carrier_map,
@@ -538,8 +602,7 @@ class wwwOrderShipments(BaseShipments):
 
     def _groupShipmentForFreeShippingSales(self, free_sales_group):
         cal_method = SHIPPING_CALCULATION_METHODS.FREE_SHIPPING
-        id_shipment = create_shipment(self.conn,
-                                      self.id_order,
+        id_shipment = self._create_shipment(
                                       calculation_method=cal_method)
         for sale in free_sales_group:
             id_order_item = sale.order_props['id_order_item']
@@ -573,7 +636,8 @@ class wwwOrderShipments(BaseShipments):
 
 
 SHIPMENT_FIELDS = ['id', 'id_order', 'mail_tracking_number',
-                   'status', 'timestamp', 'calculation_method']
+                   'status', 'timestamp', 'calculation_method',
+                   'id_brand', 'id_shop']
 def get_shipments_by_order(conn, id_order):
     query_str = ("SELECT %s "
                    "FROM shipments "

@@ -170,7 +170,6 @@ def _valid_sale_brand(sale_id, brand_id):
     sale = CachedSale(sale_id).sale
     return sale and sale.brand and int(sale.brand.id) == int(brand_id)
 
-
 def _get_shipment_info_for_order_item(conn, item_id):
     fields, columns = zip(*[('status', 'status'),
                             ('shipping_fee', 'shipping_fee'),
@@ -308,7 +307,7 @@ def get_orders_filter_by_user(conn, brand_id, user_id):
     return get_orders_list(conn, brand_id, filter_where, filter_params)
 
 
-def _get_order_items(conn, order_id, brand_id):
+def _get_order_items(conn, order_id, brand_id, shops_id=None):
     # {'order_items': [item_1_id: {},
     #                  item_2_id: {},
     #                  ...]
@@ -319,6 +318,9 @@ def _get_order_items(conn, order_id, brand_id):
                  "LEFT JOIN order_items ON "
                  "order_details.id_item = order_items.id "
                  "WHERE id_order = %%s") % ', '.join(columns)
+    if shops_id:
+        query_str += ("AND order_items.id_shop in (%s)"
+                      % ', '.join([str(s) for s in shops_id]))
     results_list = query(conn, query_str, params=[order_id, ])
     for result in results_list:
         order_item = dict(zip(fields, result))
@@ -331,7 +333,7 @@ def _get_order_items(conn, order_id, brand_id):
     return items
 
 
-def get_order_detail(conn, order_id, brand_id):
+def get_order_detail(conn, order_id, brand_id, shops_id=None):
     fields, columns = zip(*ORDER_FIELDS_COLUMNS)
     results = select(conn, 'orders', where={'id': order_id}, columns=columns)
     if not results:
@@ -353,7 +355,7 @@ def get_order_detail(conn, order_id, brand_id):
     #               item_2_id: {xxx},
     #               ...
     # ]
-    order_items = _get_order_items(conn, order_id, brand_id)
+    order_items = _get_order_items(conn, order_id, brand_id, shops_id)
     details.update(order_items)
     details.update({
         'first_sale_id': order_items['order_items'][0].values()[0]['sale_id'],

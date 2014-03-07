@@ -8,7 +8,7 @@ from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.template import RequestContext
-from fouillis.views import ShopManagerLoginRequiredMixin
+from fouillis.views import ShopManagerUpperLoginRequiredMixin
 from models import Brand, UserProfile
 from django.contrib.auth.models import User
 import json
@@ -77,7 +77,7 @@ def set_page_size(request):
         request.session['page_size'] = page_size
     return response
 
-class BaseOperatorView(ShopManagerLoginRequiredMixin):
+class BaseOperatorView(ShopManagerUpperLoginRequiredMixin):
     """
     User is different from other models since it has User + UserProfile model.
     system uses create form and edit form and save method is overridden in the form.   
@@ -248,7 +248,7 @@ class DeleteOperatorView(BaseOperatorView, DeleteView):
                 content=json.dumps({"user_pk": self.kwargs.get('pk', None)}),
                 mimetype="application/json")
 
-class OperatorShopsView(ShopManagerLoginRequiredMixin, CreateView):
+class OperatorShopsView(ShopManagerUpperLoginRequiredMixin, CreateView):
     form_class = forms.AjaxShopsForm
     template_name = "_ajax_shops.html"
     def get_initial(self):

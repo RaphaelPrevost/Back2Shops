@@ -14,3 +14,10 @@ def is_shop_manager(profile_pk):
     profile = UserProfile.objects.get(pk=profile_pk)
     return (profile.role == USERS_ROLE.MANAGER and
             len(profile.shops.all()) > 0 )
+
+def is_shop_manager_upper(profile_pk):
+    from accounts.models import UserProfile
+    profile = UserProfile.objects.get(pk=profile_pk)
+    return ((profile.role < USERS_ROLE.MANAGER) or
+            (profile.role == USERS_ROLE.MANAGER and
+             len(profile.shops.all()) > 0))

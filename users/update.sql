@@ -52,4 +52,7 @@ CREATE TABLE order_shipment_details (
 
 ALTER TABLE shipments ADD COLUMN id_order bigint;
 ALTER TABLE shipments ADD FOREIGN KEY(id_order) REFERENCES orders(id);
+ALTER TABLE shipments ADD COLUMN id_shop bigint;
+ALTER TABLE shipments ADD COLUMN id_brand bigint;
+
 COMMIT;
