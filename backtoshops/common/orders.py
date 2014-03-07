@@ -29,10 +29,13 @@ def send_shipping_fee(id_shipment, id_postage, shipping_fee):
                       exc_info=True)
 
 
-def get_order_list(brand_id):
+def get_order_list(brand_id, shops_id=None):
     try:
+        order_url = '%s?brand_id=%s' % (settings.ORDER_LIST_URL, brand_id)
+        if shops_id:
+            order_url += "&shops_id=%s" % ujson.dumps(shops_id)
         data = get_from_remote(
-            '%s?brand_id=%s' % (settings.ORDER_LIST_URL, brand_id),
+            order_url,
             settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
             settings.PRIVATE_KEY_PATH,
             headers={'Content-Type': 'application/json'}
@@ -44,10 +47,12 @@ def get_order_list(brand_id):
         raise UsersServerError
 
 
-def get_order_detail(order_id, brand_id):
+def get_order_detail(order_id, brand_id, shops_id):
     try:
         url = '%s?id=%s&brand_id=%s' % (settings.ORDER_DETAIL_URL,
                                         order_id, brand_id)
+        if shops_id:
+            url += "&shops_id=%s" % ujson.dumps(shops_id)
         data = get_from_remote(
             url,
             settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],

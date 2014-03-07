@@ -119,7 +119,9 @@ class ActorItem(BaseActor):
 
 class ActorShipment(BaseActor):
     attrs_map = {'id': '@id',
-                 'method': '@method'}
+                 'method': '@method',
+                 'brand': '@brand',
+                 'shop': '@shop'}
 
     @property
     def delivery(self):

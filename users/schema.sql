@@ -119,6 +119,8 @@ CREATE TABLE order_shipment_details (
 CREATE TABLE shipments (
     id serial PRIMARY KEY,
     id_order bigint,
+    id_shop bigint,
+    id_brand bigint,
     mail_tracking_number character varying(50),
     status SMALLINT,
     timestamp timestamp without time zone NOT NULL,

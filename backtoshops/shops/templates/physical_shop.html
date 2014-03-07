@@ -30,6 +30,7 @@
         <h2>{% trans "Shops" %}</h2>
     </div>
 
+    {{ form.errors }}
     <!--FORM-->
     {% if shop_pk %}
     <form id="main_form" method="post" action="{% url 'edit_shop' shop_pk %}" enctype="multipart/form-data">{% csrf_token %}
@@ -42,7 +43,9 @@
         <h3>{% trans "Add a new shop" %}</h3>
         {% endif %}
         {% if shop_pk or request.user.is_staff %}
+        {{ form.latitude.error }}
         {{ form.latitude }}
+        {{ form.longitude.error }}
         {{ form.longitude }}
         {{ form.mother_brand }}
         <fieldset>
@@ -317,6 +320,8 @@
 
                 } else {
                     $("#localization_infos").html('{% trans "Found" %} '+results.length+' {% trans "results" %}');
+                    $("#{{ form.latitude.auto_id }}").val(results[0].geometry.location.lat());
+                    $("#{{ form.longitude.auto_id }}").val(results[0].geometry.location.lng());
                 }
                 for (var i in results) {
                     _setMarker(results[i]);

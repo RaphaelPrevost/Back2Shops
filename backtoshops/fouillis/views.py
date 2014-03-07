@@ -12,10 +12,10 @@ from common.constants import USERS_ROLE
 
 def super_admin_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
     """
-    this verifies the user is logged in and superuser. else it will redirect to login_url.
+    this verifies the user is logged in as superuser. else it will redirect to login_url.
     """
     actual_decorator = user_passes_test(
-        lambda u: u.is_authenticated() and u.is_staff and u.is_superuser,
+        lambda u: u.is_authenticated() and u.is_superuser,
         login_url=login_url,
         redirect_field_name=redirect_field_name
     )
@@ -25,10 +25,33 @@ def super_admin_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME,
 
 def admin_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
     """
-    this verifies the user is logged in and superuser. else it will redirect to login_url.
+    this verifies the user is logged in as brand admin,
+    else it will redirect to login_url.
     """
     actual_decorator = user_passes_test(
-        lambda u: u.is_authenticated() and u.is_staff ,
+        lambda u: not u.is_superuser and
+                  (u.is_authenticated() and
+                   u.is_staff and
+                   u.get_profile().role == USERS_ROLE.ADMIN),
+        login_url=login_url,
+        redirect_field_name=redirect_field_name
+    )
+    if function:
+        return actual_decorator(function)
+    return actual_decorator
+
+def admin_upper_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
+    """
+    this verifies the user is logged in as brand admin or upper level,
+    else it will redirect to login_url.
+    """
+
+    actual_decorator = user_passes_test(
+        lambda u: (u.is_authenticated() and u.is_superuser) or
+                  (u.is_authenticated() and
+                   u.is_staff and
+                   not u.is_superuser and
+                   u.get_profile().role <= USERS_ROLE.ADMIN),
         login_url=login_url,
         redirect_field_name=redirect_field_name
     )
@@ -37,8 +60,14 @@ def admin_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login
     return actual_decorator
 
 def manager_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
+    """
+    this verifies the user is logged in as manager,
+    else it will redirect to login_url.
+    """
     actual_decorator = user_passes_test(
-        lambda u: u.is_authenticated() and u.get_profile().role <= USERS_ROLE.MANAGER,
+        lambda u: not u.is_superuser and
+                  (u.is_authenticated() and
+                   u.get_profile().role == USERS_ROLE.MANAGER),
         login_url=login_url,
         redirect_field_name=redirect_field_name
     )
@@ -46,13 +75,36 @@ def manager_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, log
         return actual_decorator(function)
     return actual_decorator
 
-
-def shop_manager_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
+def manager_upper_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
+    """
+    this verifies the user is logged in as manager or upper level,
+    else it will redirect to login_url.
+    """
     actual_decorator = user_passes_test(
-        lambda u: ((u.is_authenticated() and
+        lambda u: (u.is_authenticated() and u.is_superuser) or
+                  (u.is_authenticated() and
+                   not u.is_superuser and
+                   u.get_profile().role <= USERS_ROLE.MANAGER),
+        login_url=login_url,
+        redirect_field_name=redirect_field_name
+    )
+    if function:
+        return actual_decorator(function)
+    return actual_decorator
+
+def shop_manager_upper_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
+    """
+    this verifies the user is logged in as shop manager or upper level,
+    else it will redirect to login_url.
+    """
+    actual_decorator = user_passes_test(
+        lambda u: (u.is_authenticated() and u.is_superuser) or
+                  ((u.is_authenticated() and
+                    not u.is_superuser and
                     u.get_profile().role < USERS_ROLE.MANAGER) or
                    (u.is_authenticated() and
                     u.get_profile().role == USERS_ROLE.MANAGER and
+                    not u.is_superuser and
                     len(u.get_profile().shops.all()) > 0
                    )),
         login_url=login_url,
@@ -64,7 +116,22 @@ def shop_manager_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME
 
 def operator_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
     actual_decorator = user_passes_test(
-        lambda u: u.is_authenticated() and u.get_profile().role <= USERS_ROLE.OPERATOR,
+        lambda u: not u.is_superuser and
+                  (u.is_authenticated() and
+                   u.get_profile().role == USERS_ROLE.OPERATOR),
+        login_url=login_url,
+        redirect_field_name=redirect_field_name
+    )
+    if function:
+        return actual_decorator(function)
+    return actual_decorator
+
+def operator_upper_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
+    actual_decorator = user_passes_test(
+        lambda u: (u.is_authenticated() and u.is_superuser) or
+                  (u.is_authenticated() and
+                   not u.is_superuser and
+                   u.get_profile().role <= USERS_ROLE.OPERATOR),
         login_url=login_url,
         redirect_field_name=redirect_field_name
     )
@@ -92,20 +159,35 @@ class AdminLoginRequiredMixin(object):
         bound_dispatch = super(AdminLoginRequiredMixin, self).dispatch
         return admin_required(bound_dispatch, login_url="/")(*args, **kwargs)
 
+class AdminUpperLoginRequiredMixin(object):
+    def dispatch(self, *args, **kwargs):
+        bound_dispatch = super(AdminUpperLoginRequiredMixin, self).dispatch
+        return admin_upper_required(bound_dispatch, login_url="/")(*args, **kwargs)
+
 class ManagerLoginRequiredMixin(object):
     def dispatch(self, *args, **kwargs):
         bound_dispatch = super(ManagerLoginRequiredMixin, self).dispatch
         return manager_required(bound_dispatch, login_url="/")(*args, **kwargs)
 
-class ShopManagerLoginRequiredMixin(object):
+class ManagerUpperLoginRequiredMixin(object):
     def dispatch(self, *args, **kwargs):
-        bound_dispatch = super(ShopManagerLoginRequiredMixin, self).dispatch
-        return shop_manager_required(bound_dispatch, login_url="/")(*args, **kwargs)
+        bound_dispatch = super(ManagerUpperLoginRequiredMixin, self).dispatch
+        return manager_upper_required(bound_dispatch, login_url="/")(*args, **kwargs)
+
+class ShopManagerUpperLoginRequiredMixin(object):
+    def dispatch(self, *args, **kwargs):
+        bound_dispatch = super(ShopManagerUpperLoginRequiredMixin, self).dispatch
+        return shop_manager_upper_required(bound_dispatch, login_url="/")(*args, **kwargs)
 
 class OperatorLoginRequiredMixin(object):
     def dispatch(self, *args, **kwargs):
         bound_dispatch = super(OperatorLoginRequiredMixin, self).dispatch
         return operator_required(bound_dispatch, login_url="/")(*args, **kwargs)
+
+class OperatorUpperLoginRequiredMixin(object):
+    def dispatch(self, *args, **kwargs):
+        bound_dispatch = super(OperatorUpperLoginRequiredMixin, self).dispatch
+        return operator_upper_required(bound_dispatch, login_url="/")(*args, **kwargs)
 
 logger = logging.getLogger('django')
 

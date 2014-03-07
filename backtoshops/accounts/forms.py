@@ -5,10 +5,8 @@ from globalsettings import get_setting
 import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.db.models.query import QuerySet
 from django.utils.translation import ugettext_lazy as _
 from common.constants import USERS_ROLE
-from common.utils import is_shop_manager
 from shops.models import Shop
 
 ADM_CHOICES = (
