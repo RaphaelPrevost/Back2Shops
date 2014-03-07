@@ -185,7 +185,7 @@ class CreateUserView(BaseUserView, CreateView):
     form_class = forms.SACreateUserForm
     
     def get_success_url(self):
-        return reverse('sa_edit_user',args=[self.object.id])
+        return reverse('sa_edit_user',args=[self.object.user.pk])
     
     def get_initial(self):
         initials = super(CreateUserView,self).get_initial()
@@ -207,8 +207,7 @@ class EditUserView(BaseUserView, UpdateView):
         return self.object
     
     def get_success_url(self):
-        pk = self.kwargs.get('pk', None)
-        return reverse("sa_edit_user",args=[pk])
+        return reverse("sa_edit_user",args=[self.object.user.pk])
 
 
 class DeleteUserView(BaseUserView, DeleteView):
