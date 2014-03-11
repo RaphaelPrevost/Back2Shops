@@ -6,3 +6,6 @@ class InvalidRequestError(Exception):
 
 class ParamsValidCheckError(InvalidRequestError):
     pass
+
+class ServerError(Exception):
+    pass

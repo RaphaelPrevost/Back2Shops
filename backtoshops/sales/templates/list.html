@@ -3,6 +3,10 @@
 {% load l10n %}
 {% load thumbnail %}
 {% load calc_discount_price %}
+{% load is_shop_manager_upper %}
+{% load is_admin_upper %}
+{% load is_local_sale %}
+{% load is_manager_upper %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
@@ -45,10 +49,12 @@
             {% for sale in page.object_list %}
             <div class="vente" sale="{{ sale.id }}">
                 <!--NOM, CATEGORIE, TYPE de Prod-->
-                <a href="{% url 'edit_sale' sale_id=sale.pk step="shop" %}"><h3>{{ sale.product.name }}</h3></a>
+                <a href="{% if request.user|is_manager_upper %}{% url 'edit_sale' sale_id=sale.pk step="shop" %}{% endif %}"><h3>{{ sale.product.name }}</h3></a>
                 <h4>
-                    {% if request.user.is_staff %}
-                    <a class="delete" href="#">[X]</a>
+                    {% if request.user|is_admin_upper %}
+                        <a class="delete" href="#">[X]</a>
+                    {% elif request.user|is_shop_manager_upper and sale|is_local_sale %}
+                        <a class="delete" href="#">[X]</a>
                     {% endif %}
                     {{ sale.product.category.name }} > {{ sale.product.type.name }}
                 </h4>
@@ -177,8 +183,12 @@
             if (confirm('{% trans "Are you sure you want to delete this sale?" %}')) {
                 var sid = $this.parent().parent().attr('sale');
                 $.post('/sales/delete/' + sid, function(response) {
-                    if (response.success)
+                    if (response.success) {
                         $this.parent().parent().fadeOut();
+                    } else {
+                        alert(response.error);
+                    }
+
                 }, "json");
             }
         });

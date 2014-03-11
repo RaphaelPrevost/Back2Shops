@@ -1,17 +1,24 @@
 import json
+import logging
 import settings
+from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
-from fouillis.views import LoginRequiredMixin
-from django.core.paginator import Paginator, EmptyPage, InvalidPage
+
+from common.constants import USERS_ROLE
+from common.error import ServerError
+from common.error import InvalidRequestError
+from fouillis.views import manager_upper_required
+from fouillis.views import ManagerUpperLoginRequiredMixin
 from promotion.forms import GroupForm
 from promotion.models import Group, TypesInGroup, SalesInGroup
 from sales.models import Sale, ProductType
 from shops.models import Shop
 
 
-class BasePromotionView(LoginRequiredMixin):
+class BasePromotionView(ManagerUpperLoginRequiredMixin):
     template_name = "promotion_group.html"
     form_class = GroupForm
     model = Group
@@ -19,57 +26,65 @@ class BasePromotionView(LoginRequiredMixin):
     def get_success_url(self):
         return reverse("page_promotion")
 
-    def _profile_shops(self):
-        if not self.request.user.is_staff:
-            return self.request.user.get_profile().shops.all()
-
     def _get_groups_by_user(self):
-        brand = self.request.user.get_profile().work_for
-        kwargs = {'brand': brand}
+        if self.request.user.is_superuser:
+            return Group.objects.all()
 
-        profile_shops = self._profile_shops()
-        if profile_shops is not None:
-            kwargs['shop__in'] = profile_shops
+        req_u_profile = self.request.user.get_profile()
+        if req_u_profile.role == USERS_ROLE.ADMIN:
+            return Group.objects.filter(brand=req_u_profile.work_for)
 
-        return Group.objects.filter(**kwargs)
+        if req_u_profile.role == USERS_ROLE.MANAGER:
+            if req_u_profile.allow_internet_operate:
+                return Group.objects.filter(
+                    Q(shop__in=req_u_profile.shops.all()) |
+                    Q(shop__isnull=True))
+            else:
+                return Group.objects.filter(
+                    shop__in=req_u_profile.shops.all())
 
-    def _get_shops_by_user(self):
-        brand = self.request.user.get_profile().work_for
-        shops_kwargs = {'mother_brand': brand}
+        raise ServerError("Shouldn't be here!!")
 
-        profile_shops = self._profile_shops()
-        if profile_shops is not None:
-            shops_kwargs['pk__in'] = profile_shops
+    def _get_shops(self, brand):
+        shops = Shop.objects.filter(mother_brand=brand)
+        if self.request.user.is_superuser:
+            return shops
 
-        return Shop.objects.filter(**shops_kwargs)
+        req_u_profile = self.request.user.get_profile()
+        if req_u_profile.role == USERS_ROLE.ADMIN:
+            return shops
+
+        return req_u_profile.shops.all()
 
     def _get_sales(self, brand, shops):
         sales = Sale.objects.filter(mother_brand=brand)
-        # filter sales by shops for shop keeper user.
-        exclude_ids = []
-        if not self.request.user.is_staff:
-            for sale in sales.all():
-                exclude = True
-                for shop in sale.shops.all():
-                    if shop in shops:
-                        exclude = False
-                        break
-                if exclude:
-                    exclude_ids.append(sale.pk)
-        sales.exclude(pk__in=exclude_ids)
+        if self.request.user.is_superuser:
+            return sales
+
+        req_u_profile = self.request.user.get_profile()
+        if req_u_profile.role == USERS_ROLE.ADMIN:
+            return sales
+
+        user_shops = req_u_profile.shops.all()
+        sales.filter(shopsinsale__shop__in=user_shops)
         return sales
 
+    def global_priority(self):
+        if self.request.user.is_superuser:
+            return True
+
+        req_u_profile = self.request.user.get_profile()
+        if req_u_profile.role == USERS_ROLE.ADMIN:
+            return True
+
+        return req_u_profile.allow_internet_operate
+
     def get_initial(self):
-        brand = self.request.user.get_profile().work_for
         types = ProductType.objects.all()
-        shops = self._get_shops_by_user()
-        sales = self._get_sales(brand, shops)
+
         return {
-            "brand": brand,
-            "shops": shops,
             "types": types,
-            "sales": sales.all(),
-            "is_staff": self.request.user.is_staff,
+            "global_priority": self.global_priority()
         }
 
     def get_context_data(self, **kwargs):
@@ -105,31 +120,71 @@ class BasePromotionView(LoginRequiredMixin):
     def _get_promotion_types(self, brand):
         pass
 
+    def priority_check(self, obj):
+        if self.request.user.is_superuser:
+            return
+
+        req_u_profile = self.request.user.get_profile()
+        if obj.brand != req_u_profile.work_for:
+            raise InvalidRequestError("Priority Error")
+
+        if req_u_profile.role == USERS_ROLE.ADMIN:
+            return
+
+        if obj.shop is None:
+            if not req_u_profile.allow_internet_operate:
+                raise InvalidRequestError("Priority Error")
+        elif len(req_u_profile.shops.all().filter(pk=obj.shop.pk)) == 0:
+            raise InvalidRequestError("Priority Error")
+
 
 class CreatePromotionView(BasePromotionView, CreateView):
+    def get_initial(self):
+        initial = super(CreatePromotionView, self).get_initial()
+        if self.request.user.is_superuser:
+            return initial
+
+        brand = self.request.user.get_profile().work_for
+        shops = self._get_shops(brand)
+        sales = self._get_sales(brand, shops)
+        initial.update({
+            "brand": brand,
+            "shops": shops,
+            "sales": sales.all(),
+            })
+        return initial
+
     def get_success_url(self):
         return reverse('page_promotion')
+
+    def post(self, request, *args, **kwargs):
+        return manager_upper_required(
+            super(CreatePromotionView, self).post,
+            redirect_field_name="/",
+            super_allowed=False)(request, *args, **kwargs)
 
 
 class EditPromotionView(BasePromotionView, UpdateView):
     def get_initial(self):
         initial = super(EditPromotionView, self).get_initial()
         pk = self.kwargs.get('pk')
-        group_kwargs = {'group_id': pk}
+        obj = Group.objects.get(pk=pk)
 
-        profile_shops = self._profile_shops()
-        if profile_shops is not None:
-            group_kwargs['group__shop__in'] = profile_shops
+        shops = self._get_shops(obj.brand)
+        sales = self._get_sales(obj.brand, shops)
 
         type_choices = [
-            tig.type for tig in TypesInGroup.objects.filter(**group_kwargs)]
+            tig.type for tig in TypesInGroup.objects.filter(group_id=pk)]
 
         sales_choices = [
-            sig.sale for sig in SalesInGroup.objects.filter(**group_kwargs)]
+            sig.sale for sig in SalesInGroup.objects.filter(group_id=pk)]
 
 
         group = Group.objects.get(pk=pk)
         initial.update({
+            "brand": obj.brand,
+            "shops": shops,
+            "sales": sales,
             "type_choices": type_choices,
             "sales_choices": sales_choices,
             "pk": pk,
@@ -139,20 +194,35 @@ class EditPromotionView(BasePromotionView, UpdateView):
         return initial
 
     def get(self, request, *args, **kwargs):
-        queryset = self._get_groups_by_user()
-        self.queryset = queryset
-        pk = self.kwargs.get('pk',None)
-        if len(queryset.filter(pk=pk))>0:
+        try:
+            obj = self.get_object()
+            self.priority_check(obj)
             return super(EditPromotionView,self).get(request, *args, **kwargs)
-        else:
+        except InvalidRequestError, e:
+            logging.error("promotion_edit_request_error: %s",
+                          str(e),
+                          exc_info=True)
             return HttpResponseRedirect('/')
-    
+        except Exception, e:
+            logging.error("promotion_edit_server_error: %s",
+                          str(e),
+                          exc_info=True)
+            return HttpResponseRedirect('/')
+
     def post(self, request, *args, **kwargs):
-        pk = self.kwargs.get('pk',None)
-        queryset = Group.objects.filter(brand=request.user.get_profile().work_for)
-        if len(queryset.filter(pk=pk))>0:
+        try:
+            obj = self.get_object()
+            self.priority_check(obj)
             return super(EditPromotionView,self).post(request, *args, **kwargs)
-        else:
+        except InvalidRequestError, e:
+            logging.error("promotion_update_request_error: %s",
+                          str(e),
+                          exc_info=True)
+            return HttpResponseRedirect('/')
+        except Exception, e:
+            logging.error("promotion_update_server_error: %s",
+                          str(e),
+                          exc_info=True)
             return HttpResponseRedirect('/')
         
     def get_success_url(self):
@@ -162,9 +232,27 @@ class EditPromotionView(BasePromotionView, UpdateView):
 
 class DeletePromotionView(BasePromotionView, DeleteView):
     def delete(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        self.object.delete()
-        return HttpResponse(
-            content=json.dumps(
-                {"group_pk": self.kwargs.get('pk', None)}),
-            mimetype="application/json")
+        try:
+            self.object = self.get_object()
+            self.priority_check(self.object)
+            self.object.delete()
+            return HttpResponse(
+                content=json.dumps(
+                    {"group_pk": self.kwargs.get('pk', None)}),
+                mimetype="application/json")
+        except InvalidRequestError, e:
+            logging.error("promotion_delete_error: %s",
+                          str(e),
+                          exc_info=True)
+            return HttpResponse(
+                content=json.dumps({"error": str(e)}),
+                mimetype="application/json")
+        except Exception, e:
+            logging.error("promotion_delete_error: %s",
+                          str(e),
+                          exc_info=True)
+            return HttpResponse(
+                content=json.dumps({"error": "Server Error"}),
+                mimetype="application/json")
+
+

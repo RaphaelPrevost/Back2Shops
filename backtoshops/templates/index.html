@@ -1,14 +1,17 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load is_shop_manager_upper %}
+{% load is_manager_upper %}
 
 {% block content %}
     <ul id="content_Home">
+        {% if user|is_manager_upper %}
         <li>
             <h3 class="link1">{% trans "Add a new sale" %}</h3>
             <a href="{% url 'add_sale' %}">{% trans "Add a new sale" %}</a>
         </li>
-        {% if user_profile.pk|is_shop_manager_upper %}
+        {% endif %}
+        {% if user|is_shop_manager_upper %}
             <li>
                 <h3 class="link4">{% trans "Shops" %}</h3>
                 <a href="{% url 'page_shops' %}">{% trans "Shops" %}</a>
@@ -30,7 +33,7 @@
             <h3 class="link6">{% trans "Performance Map" %}</h3>
             <a href="map_1.htm">{% trans "Performance Map" %}</a>
         </li>
-        {% if user_profile.pk|is_shop_manager_upper %}
+        {% if user|is_shop_manager_upper %}
             <li>
                 <h3 class="link7">{% trans "Operators mgmt" %}</h3>
                 <a href="{% url 'operators' %}" class="bottom">{% trans "Operators mgmt" %}</a>
@@ -40,10 +43,12 @@
             <h3 class="link8">{% trans "Orders" %}</h3>
             <a href="{% url 'list_orders' %}">{% trans "Orders" %}</a>
         </li>
+        {% if user|is_shop_manager_upper %}
         <li>
             <h3 class="link11">{% trans "Promotion Group" %}</h3>
             <a href="{% url 'page_promotion' %}">{% trans "Promotion Group" %}</a>
         </li>
+        {% endif %}
     </ul>
 
 {% endblock %}

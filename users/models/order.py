@@ -121,24 +121,25 @@ def create_order(conn, users_id, telephone_id, order_items,
 
 def update_shipping_fee(conn, id_shipment, id_postage, shipping_fee):
     try:
-        values={'id_postage': id_postage,
-                'shipping_fee': shipping_fee}
-        rst = update(conn, 'shipments',
-               values=values,
-               where={'id': id_shipment},
-               returning='id')
+        update(conn, 'shipping_supported_services',
+               values={'id_postage': id_postage},
+               where={'id_shipment': id_shipment})
+        update(conn, 'shipping_fee',
+               values={'shipping_fee': shipping_fee},
+               where={'id_shipment': id_shipment})
         conn.commit()
         logging.info('update_shipping_fee:'
-                     'id_order: %s,'
-                     'values: %s, '
+                     'id_postage: %s, '
+                     'shipping_fee: %s, '
                      'for shipment: %s,'
-                     % (id_shipment, values, rst))
+                     % (id_postage, shipping_fee, id_shipment))
     except Exception, e:
         logging.error('update_shipping_fee err: %s, '
-                      'args: id_order: %s,'
+                      'args: id_shipment: %s,'
                       'id_postage: %s, '
                       'shipping_fee: %s'
-                      % (e, id_shipment, id_postage, shipping_fee), exc_info=True)
+                      % (e, id_shipment, id_postage, shipping_fee),
+                      exc_info=True)
         raise
 
 

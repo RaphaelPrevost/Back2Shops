@@ -5,5 +5,7 @@ register = template.Library()
 
 @register.simple_tag
 @register.filter
-def is_shop_manager(pk):
-    return _is_shop_manager(pk)
+def is_shop_manager(user):
+    if user.is_superuser:
+        return False
+    return _is_shop_manager(user.get_profile().pk)

@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load is_admin %}
+{% load is_admin_upper %}
 
 {% block title %}
 {% if shop_pk %}
@@ -42,7 +44,7 @@
         {% else %}
         <h3>{% trans "Add a new shop" %}</h3>
         {% endif %}
-        {% if shop_pk or request.user.is_staff %}
+        {% if shop_pk or request.user|is_admin %}
         {{ form.latitude.error }}
         {{ form.latitude }}
         {{ form.longitude.error }}
@@ -156,7 +158,7 @@
                 <td><a href="{% url 'edit_shop' shop.pk %}">{{ shop.name }}</a></td>
                 <td>{{ shop.city }}</td>
                 <td><a class="modif" href="{% url 'edit_shop' shop.pk %}">{% trans "Edit" %}</a>
-                    {%if request.user.is_staff %}<a class="out delete_shop" href="{% url 'delete_shop' shop.pk %}">{% trans "Delete" %}</a>{%endif%}
+                    {%if request.user|is_admin_upper %}<a class="out delete_shop" href="{% url 'delete_shop' shop.pk %}">{% trans "Delete" %}</a>{%endif%}
                     </td>
             </tr>
             {% empty %}
@@ -196,7 +198,9 @@
         {% endif %}
     </div>
     <!--//Liste-Shop-->
-    <a class="btn ajouter" href="add-sale_2.htm">{% trans "Add a new shop" %}</a>
+    {% if user|is_admin %}
+        <a class="btn ajouter" href="add-sale_2.htm">{% trans "Add a new shop" %}</a>
+    {% endif %}
 </div>
 <!--FIN content-right-->
 <div class="clear"></div>

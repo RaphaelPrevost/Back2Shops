@@ -5,7 +5,7 @@ register = template.Library()
 
 @register.simple_tag
 @register.filter
-def is_operate(user):
-    return (not user.is_superuser and
-            user.get_profile().role == USERS_ROLE.OPERATOR)
+def is_admin_upper(user):
+    return (user.is_superuser or
+            user.get_profile().role == USERS_ROLE.ADMIN)
 

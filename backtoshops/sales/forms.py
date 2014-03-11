@@ -13,6 +13,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from barcodes.models import Barcode
+from common.constants import USERS_ROLE
+from common.constants import TARGET_MARKET_TYPES
 from sales.models import DISCOUNT_TYPE
 from sales.models import GENDERS
 from sales.models import Product
@@ -29,8 +31,8 @@ from shops.models import Shop
 
 
 TARGET_MARKET = (
-    ('N', _("Global")),
-    ('L', _("Local"))
+    (TARGET_MARKET_TYPES.GLOBAL, _("Global")),
+    (TARGET_MARKET_TYPES.LOCAL, _("Local"))
 )
 
 
@@ -152,14 +154,14 @@ class ShippingCustomRuleCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
 
 
 class ShopForm(forms.Form):
-    target_market = forms.ChoiceField(label=_("Target market"), choices=TARGET_MARKET, required=False)
 
     def __init__(self, mother_brand=None, request=None, *args, **kwargs):
         super(ShopForm, self).__init__(*args, **kwargs)
         self.request = request
         search_arguments = {"mother_brand": mother_brand}
 
-        if not request.user.is_staff: #operator.
+        if (not request.user.is_superuser and
+            request.user.get_profile().role == USERS_ROLE.MANAGER): # shop manager.
             search_arguments.update({"pk__in": request.user.get_profile().shops.all(),})
 
         self.fields['shops'] = forms.ModelMultipleChoiceField(
@@ -168,11 +170,45 @@ class ShopForm(forms.Form):
             widget=GroupedCheckboxSelectMultiple(
                 render_attrs={'group_by': 'address__city',
                               'ul_id': 'shopfolders'}),
-            required=False
+            required=False,
+            initial=kwargs['initial'].get('shops')
         )
 
+        self.fields['target_market'] = forms.ChoiceField(
+            label=_("Target market"),
+            choices=self.get_target_market_choices(request),
+            required=False)
+
+        self.initial['shops'] = kwargs['initial'].get('shops') or []
+        self.initial['target_market'] = kwargs['initial'].get('target_market')
+
+
+    def get_target_market_choices(self, request):
+        if request.user.is_superuser:
+            return TARGET_MARKET
+
+        req_u_profile = request.user.get_profile()
+        if req_u_profile.role == USERS_ROLE.ADMIN:
+            return TARGET_MARKET
+        elif req_u_profile.role == USERS_ROLE.MANAGER:
+            shops = req_u_profile.shops.all()
+            if len(shops) and req_u_profile.allow_internet_operate:
+                return TARGET_MARKET
+            elif req_u_profile.allow_internet_operate:
+                return (TARGET_MARKET[0],)
+            else:
+                return (TARGET_MARKET[1],)
+        else:
+            return ()
+
     def clean_target_market(self):
-        if self.request.user.is_staff:
+        if self.request.user.is_superuser:
+            return self.cleaned_data['target_market']
+
+        u_profile = self.request.user.get_profile()
+        if (u_profile.role == USERS_ROLE.ADMIN or
+            (u_profile.role == USERS_ROLE.MANAGER and
+             u_profile.allow_internet_operate)):
             return self.cleaned_data['target_market']
         else:
             return 'L'
@@ -180,7 +216,11 @@ class ShopForm(forms.Form):
     def clean(self):
         data = self.cleaned_data
         target_market = data.get('target_market','')
-        if target_market == 'N' and self.request.user.is_staff:
+        # Only super user and global sales manager could set sales market
+        # to global.
+        if (target_market == 'N' and
+            (self.request.user.is_superuser or
+             self.request.user.get_profile().allow_internet_operate)):
             data['shops'] = []
         else:
             if len(data['shops']) == 0:

@@ -1,6 +1,8 @@
 import settings
 from django.conf.urls import patterns, url
-from django.contrib.auth.decorators import login_required
+from fouillis.views import manager_upper_required
+from fouillis.views import operator_upper_required
+from fouillis.views import shop_manager_upper_required
 from django.views.generic.base import TemplateView
 
 from sales.views import BrandLogoView
@@ -38,7 +40,7 @@ urlpatterns = patterns(settings.get_site_prefix()+'sales',
         edit_sale,
         name="edit_sale"),
     url(r'/list/(?:(?P<sales_type>.+)/)?$',
-        login_required(ListSalesView.as_view(), login_url="bo_login"),
+        operator_upper_required(ListSalesView.as_view(), login_url="/"),
         name='list_sales'),
     url(r'/details/(?:(?P<sale_id>\d+)/)?(?:(?P<shop_id>\d+)/)?$',
         SaleDetails.as_view(),
@@ -47,9 +49,9 @@ urlpatterns = patterns(settings.get_site_prefix()+'sales',
         SaleDetailsShop.as_view(),
         name='sale_details_shop'),
     url(r'/delete/(?P<sale_id>\d+)',
-        login_required(DeleteSalesView.as_view(), login_url="bo_login"),
+        shop_manager_upper_required(DeleteSalesView.as_view(), login_url="/"),
         name='delete_sales'),
     url(r'/get_product_types/(?P<cat_id>\d+)',
-        login_required(get_product_types, login_url="bo_login"),
+        manager_upper_required(get_product_types, login_url="/"),
         name='get_product_types'),
 )
