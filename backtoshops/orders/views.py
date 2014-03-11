@@ -10,7 +10,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.translation import ugettext_lazy
 from django.views.generic.base import View, TemplateResponseMixin
 from django.views.generic.edit import CreateView, UpdateView
-from fouillis.views import LoginRequiredMixin
 from fouillis.views import OperatorUpperLoginRequiredMixin
 
 from common.actors.shipping_list import ActorShipments
@@ -38,12 +37,12 @@ def is_decimal(val):
         return False
     return True
 
-class ShippingFee(LoginRequiredMixin, View):
+class ShippingFee(OperatorUpperLoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         fee = compute_fee(request.GET)
         return HttpResponse(ujson.dumps(fee), mimetype="application/json")
 
-class BaseShippingView(LoginRequiredMixin):
+class BaseShippingView(OperatorUpperLoginRequiredMixin):
     template_name = "shipping_fee.html"
     form_class = ShippingForm
     model = Shipping
@@ -86,14 +85,12 @@ class CreateShippingView(BaseShippingView, CreateView):
                    }
         return initial
 
+
     def post(self, request, *args, **kwargs):
-        if request.user.is_staff:
-            self._compute_total_fee(request)
-            rst = super(CreateShippingView,self).post(request, *args, **kwargs)
-            self._send_shipping_fee(request)
-            return rst
-        else:
-            return HttpResponseRedirect('/')
+        self._compute_total_fee(request)
+        rst = super(CreateShippingView,self).post(request, *args, **kwargs)
+        self._send_shipping_fee(request)
+        return rst
 
 
 class EditShippingView(BaseShippingView, UpdateView):
@@ -111,23 +108,19 @@ class EditShippingView(BaseShippingView, UpdateView):
     def get(self, request, shipping_id):
         self.shipping_id = shipping_id
         self.kwargs.update({'pk': shipping_id})
-        if request.user.is_staff:
-          return super(EditShippingView,self).get(request)
-        else:
-            return HttpResponseRedirect('/')
+        return super(EditShippingView,self).get(request)
 
     def post(self, request, shipping_id):
         self.shipping_id = shipping_id
         self.kwargs.update({'pk': shipping_id})
-        if request.user.is_staff:
-            self._compute_total_fee(request)
-            rst = super(EditShippingView,self).post(request)
-            self._send_shipping_fee(request)
-            return rst
-        else:
-            return HttpResponseRedirect('/')
+        self._compute_total_fee(request)
+        rst = super(EditShippingView,self).post(request)
+        self._send_shipping_fee(request)
+        return rst
 
-class ShippingStatusView(LoginRequiredMixin, View, TemplateResponseMixin):
+class ShippingStatusView(OperatorUpperLoginRequiredMixin,
+                         View,
+                         TemplateResponseMixin):
     template_name = 'shipping_status.html'
 
     def get_shippings(self):
@@ -176,6 +169,9 @@ class ListOrdersView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
         Using the thumbnail of the first item from the order as the
         order thumbanil image.
         """
+        if len(Sale.objects.filter(pk=sale_id)) == 0:
+            logging.error("No sale for id : %s", sale_id)
+            return ""
         pro_pics = Sale(sale_id).product.pictures.all()
         if len(pro_pics):
             return pro_pics[0].picture

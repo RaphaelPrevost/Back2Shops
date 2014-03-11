@@ -7,11 +7,14 @@ from sorl.thumbnail import get_thumbnail
 
 from attributes.models import BrandAttribute
 from attributes.models import CommonAttribute
-from fouillis.views import LoginRequiredMixin
+from fouillis.views import OperatorUpperLoginRequiredMixin
+from fouillis.views import manager_upper_required
 from sales.models import ProductPicture
 
 
-class BrandAttributeView(LoginRequiredMixin, View, TemplateResponseMixin):
+class BrandAttributeView(OperatorUpperLoginRequiredMixin,
+                         View,
+                         TemplateResponseMixin):
     template_name = ""
 
     def get(self, request):
@@ -36,6 +39,10 @@ class BrandAttributeView(LoginRequiredMixin, View, TemplateResponseMixin):
         return HttpResponse(json.dumps(ret_json), mimetype="application/json")
 
     def post(self, request):
+        return manager_upper_required(self._post,
+                                      login_url="bo_login")(request)
+
+    def _post(self, request):
         to_ret = {}
         pk = request.POST.get('pk', None)
         if pk:

@@ -79,7 +79,7 @@ class BaseShopView(ManagerUpperLoginRequiredMixin):
         if self.request.user.is_superuser:
             return True
 
-        return len(self.request.user.get_profile().shops.filter(pk=pk)>0)
+        return len(self.request.user.get_profile().shops.filter(pk=pk))>0
 
     def _valid_shop_brand(self, shop):
         if self.request.user.is_superuser:
@@ -94,16 +94,11 @@ class CreateShopView(BaseShopView, CreateView):
         return {
             "mother_brand": self.request.user.get_profile().work_for
         }
-    
-    def post(self, request, *args, **kwargs):
-        return admin_required(self._post, login_url="/")(request, *args, **kwargs)
 
-    def _post(self, request, *args, **kwargs):
-        if request.user.is_staff:
-            return super(CreateShopView,self).post(request, *args, **kwargs)
-        else:
-            return HttpResponseRedirect('/')    
-        
+    def post(self, request, *args, **kwargs):
+        return admin_required(super(CreateShopView,self).post,
+                              login_url="/")(request, *args, **kwargs)
+
     def get_success_url(self):
         return reverse('edit_shop',args=[self.object.id])
 

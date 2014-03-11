@@ -1,5 +1,6 @@
 {% extends base_template %}
 {% load i18n %}
+{% load is_manager_upper %}
 
 {#Form to select shops#}
 
@@ -8,7 +9,7 @@
     <fieldset>
         <div>
             {{ wizard.form.non_field_errors }}
-            {% if request.user.is_staff %}
+            {% if request.user|is_manager_upper %}
             <div class="formrow">
                 <label for="{{ wizard.form.target_market.auto_id }}">{% trans wizard.form.target_market.label %}</label>
                 {{ wizard.form.target_market }}
@@ -41,7 +42,7 @@
 <script type="text/javascript">
 
     $(function(){
-        {% if request.user.is_staff %}
+        {% if request.user|is_manager_upper %}
         $("#{{ wizard.form.target_market.auto_id }}").change(function(){
            if ($(this).val() == "L") {
                $("#physical_shops").show();

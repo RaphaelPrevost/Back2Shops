@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import patterns, include, url
-from django.contrib.auth.decorators import login_required
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from accounts.views import home_page
+from fouillis.views import operator_upper_required
 import settings
 from init import monkey_patch
 monkey_patch()
@@ -37,7 +37,7 @@ urlpatterns += patterns('',
     url(r'^orders', include(settings.get_site_prefix()+'orders.urls')),
     url(r'^login', 'fouillis.views.login_staff', name='bo_login'),
     url(r'^$',
-        login_required(home_page, login_url="bo_login"),
+        operator_upper_required(home_page, login_url="bo_login"),
         name='bo_index'),
     # Examples:
     # url(r'^$', 'backtoshops.views.home', name='home'),

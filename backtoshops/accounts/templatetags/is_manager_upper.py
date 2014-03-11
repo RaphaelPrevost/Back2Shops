@@ -5,5 +5,7 @@ register = template.Library()
 
 @register.simple_tag
 @register.filter
-def is_manager_upper(role):
-    return int(role) <= USERS_ROLE.MANAGER
+def is_manager_upper(user):
+    if user.is_superuser:
+        return True
+    return user.get_profile().role <= USERS_ROLE.MANAGER

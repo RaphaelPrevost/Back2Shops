@@ -3,12 +3,14 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.base import View
 
-from fouillis.views import LoginRequiredMixin
+from fouillis.views import ManagerUpperLoginRequiredMixin
 from shippings.forms import CustomShippingRateFormModel
 from shippings.models import CustomShippingRate
 
 
-class CustomShippingRateView(LoginRequiredMixin, View, TemplateResponseMixin):
+class CustomShippingRateView(ManagerUpperLoginRequiredMixin,
+                             View,
+                             TemplateResponseMixin):
     template_name = "_ajax_custom_shipping_rates.html"
 
     def post(self, request):

@@ -15,3 +15,6 @@ class USERS_ROLE(CustomEnum):
     MANAGER = 2     # shopkeeper
     OPERATOR = 3    # operator
 
+class TARGET_MARKET_TYPES(CustomEnum):
+    GLOBAL = 'N'
+    LOCAL = 'L'

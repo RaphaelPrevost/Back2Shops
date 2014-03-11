@@ -63,14 +63,14 @@ class GroupForm(forms.Form):
 
     def __init__(self, instance=None, *args, **kwargs):
         super(GroupForm, self).__init__(*args, **kwargs)
-        self.brand = kwargs['initial']['brand']
+        self.brand = kwargs['initial'].get('brand')
         self.orig_type_choices = kwargs['initial'].get('type_choices', [])
         self.orig_sales_choices = kwargs['initial'].get('sales_choices', [])
         self.pk = kwargs['initial'].get('pk', None)
 
-        types = kwargs['initial']['types']
-        sales = kwargs['initial']['sales']
-        is_staff = kwargs['initial']['is_staff']
+        types = kwargs['initial'].get('types', [])
+        sales = kwargs['initial'].get('sales', [])
+        global_priority = kwargs['initial']['global_priority']
 
         self.fields['name'] = forms.CharField(
             required=True,
@@ -97,9 +97,10 @@ class GroupForm(forms.Form):
         self.fields['shop'] = forms.ModelChoiceField(
             label=_("Shops"),
             required=False,
-            empty_label=_("Sales in global market") if is_staff else None,
+            empty_label=_("Sales in global market") if global_priority else None,
             initial=kwargs['initial'].get('shop'),
-            queryset=kwargs['initial']['shops'])
+            queryset=kwargs['initial'].get('shops'))
+
 
         self.initial['types'] = [t.pk for t in self.orig_type_choices]
         self.initial['sales'] = [s.pk for s in self.orig_sales_choices]

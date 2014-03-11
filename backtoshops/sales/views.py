@@ -4,7 +4,6 @@ import logging
 from datetime import date
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import EmptyPage
@@ -32,8 +31,13 @@ from attributes.models import BrandAttributePreview
 from attributes.models import CommonAttribute
 from barcodes.models import Barcode
 from common.cache_invalidation import send_cache_invalidation
-from fouillis.views import BOLoginRequiredMixin
-from fouillis.views import LoginRequiredMixin
+from common.constants import USERS_ROLE
+from common.constants import TARGET_MARKET_TYPES
+from common.error import InvalidRequestError
+from fouillis.views import manager_upper_required
+from fouillis.views import ManagerUpperLoginRequiredMixin
+from fouillis.views import OperatorUpperLoginRequiredMixin
+from fouillis.views import ShopManagerUpperLoginRequiredMixin
 from globalsettings import get_setting
 from promotion.utils import save_sale_promotion_handler
 from sales.forms import ListSalesForm
@@ -87,7 +91,7 @@ class UploadProductPictureView(View, TemplateResponseMixin):
             return HttpResponse(json.dumps(to_ret), mimetype="application/json")
         raise HttpResponseBadRequest(_("Please upload a picture."))
 
-class ProductBrandView(LoginRequiredMixin, View, TemplateResponseMixin):
+class ProductBrandView(ManagerUpperLoginRequiredMixin, View, TemplateResponseMixin):
     template_name = "_ajax_brands.html"
 
     def post(self, request):
@@ -103,7 +107,7 @@ class ProductBrandView(LoginRequiredMixin, View, TemplateResponseMixin):
             self.errors = e
         return self.render_to_response(self.__dict__)
 
-class BrandLogoView(LoginRequiredMixin, View, TemplateResponseMixin):
+class BrandLogoView(ManagerUpperLoginRequiredMixin, View, TemplateResponseMixin):
     template_name = "_brand_preview_thumbnail.html"
 
     def get(self, request, brand_id=None):
@@ -115,33 +119,59 @@ class BrandLogoView(LoginRequiredMixin, View, TemplateResponseMixin):
             return self.render_to_response(self.__dict__)
         return HttpResponseBadRequest()
 
-class ListSalesView(LoginRequiredMixin, View, TemplateResponseMixin):
+class ListSalesView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin):
     template_name = 'list.html'
     list_current = True
+
+    def filter_sales_by_role(self, sales):
+        if self.request.user.is_superuser:
+            return sales
+
+        req_u_profile = self.request.user.get_profile()
+        if req_u_profile.role == USERS_ROLE.ADMIN:
+            sales = sales
+        elif req_u_profile.role == USERS_ROLE.MANAGER:
+            if req_u_profile.allow_internet_operate:
+                sales = sales.filter(
+                    Q(shops__in=req_u_profile.shops.all()) |
+                    Q(type_stock=STOCK_TYPE_GLOBAL))
+            else:
+                sales = sales.filter(
+                    Q(shops__in=req_u_profile.shops.all()))
+        else:
+            if len(req_u_profile.shops.all()):
+                sales = sales.filter(
+                    Q(shops__in=req_u_profile.shops.all()))
+            else:
+                sales = sales.filter(
+                    Q(type_stock=STOCK_TYPE_GLOBAL))
+        return sales
 
     def set_sales_list(self,request,sales_type=None):
         """
         this is just internal method to make the self.sales queryset.
         """
-        if sales_type == "old":
+        if request.user.is_superuser:
+            self.sales = Sale.objects.all()
+        else:
             self.sales = Sale.objects.filter(
                 mother_brand=request.user.get_profile().work_for
-            ).filter(
+            )
+
+        if sales_type == "old":
+            self.sales.filter(
                 Q(product__valid_to__isnull=False) &
                 Q(product__valid_to__lt=date.today())
             )
             self.page_title = _("History")
         else:
-            self.sales = Sale.objects.filter(
-                mother_brand=request.user.get_profile().work_for
-            ).filter(
+            self.sales.filter(
                 Q(product__valid_to__isnull=True) |
                 Q(product__valid_to__gte=date.today())
             )
             self.page_title = _("Current Sales")
 
-        if not request.user.is_staff: #==operator
-            self.sales = self.sales.filter(shops__in=request.user.get_profile().shops.all())
+        self.sales = self.filter_sales_by_role(self.sales)
         #put extra fields
         self.sales = self.sales.extra(select={'total_sold_stock':'total_stock-total_rest_stock'})
         for sale in self.sales:
@@ -192,17 +222,61 @@ class ListSalesView(LoginRequiredMixin, View, TemplateResponseMixin):
         self.make_page()
         return self.render_to_response(self.__dict__)
 
-class DeleteSalesView(BOLoginRequiredMixin, View):
+class DeleteSalesView(ShopManagerUpperLoginRequiredMixin, View):
+
+    def priority_check(self, sale):
+        if self.request.user.is_superuser:
+            return
+        req_u_profile = self.request.user.get_profile()
+
+        if req_u_profile.role == USERS_ROLE.ADMIN:
+            if sale.mother_brand != req_u_profile.work_for:
+                raise InvalidRequestError("Priority Error")
+        elif req_u_profile.role == USERS_ROLE.MANAGER:
+            if sale.type_stock == TARGET_MARKET_TYPES.GLOBAL:
+                raise InvalidRequestError("Priority Error")
+            shops_in_sale = ShopsInSale.objects.filter(sale=sale)
+            shops_in_sale.filter(shop__in=req_u_profile.shops.all())
+            if len(shops_in_sale) == 0:
+                raise InvalidRequestError("Priority Error")
+        else:
+            raise InvalidRequestError("Priority Error")
+
+    def _delete(self, sale):
+        if self.request.user.is_superuser:
+            return sale.delete()
+
+        req_u_profile = self.request.user.get_profile()
+        shops_in_sale = ShopsInSale.objects.filter(sale=sale)
+        exclude_shops = shops_in_sale.exclude(
+            shop__in=req_u_profile.shops.all())
+
+        if len(exclude_shops):
+            user_shops = req_u_profile.shops.all()
+            user_managed_shops = shops_in_sale.filter(shop__in=user_shops)
+            # delete delete sale's stock info
+            ProductStock.objects.filter(
+                sale=sale, shop__in=user_shops).delete()
+            user_managed_shops.delete()
+        else:
+            sale.delete()
 
     def post(self, request, sale_id):
         try:
             sale = Sale.objects.get(pk=sale_id)
-            sale.delete()
+            self.priority_check(sale)
+            self._delete(sale)
+        except InvalidRequestError, e:
+            return HttpResponse(json.dumps({'success': False,
+                                            'error': str(e)}),
+                                mimetype='text/json')
         except:
-            return HttpResponse(json.dumps({'success': False}), mimetype='text/json')
+            return HttpResponse(json.dumps({'success': False,
+                                            'error': 'Server Error'}),
+                                mimetype='text/json')
         return HttpResponse(json.dumps({'success': True}), mimetype='text/json')
 
-class SaleDetails(LoginRequiredMixin, View, TemplateResponseMixin):
+class SaleDetails(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin):
     template_name = "_sale_details.html"
 
     def _get_common_attributes(self, shop_id, ba):
@@ -256,13 +330,25 @@ class SaleDetails(LoginRequiredMixin, View, TemplateResponseMixin):
 
         return self.render_to_response(self.__dict__)
 
-class SaleDetailsShop(LoginRequiredMixin, View, TemplateResponseMixin):
+class SaleDetailsShop(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin):
     template_name = "_sale_details_shop.html"
+
+    def filter_shops_by_role(self, request, shops):
+        if request.user.is_superuser:
+            return shops
+
+        req_u_profile = self.request.user.get_profile()
+        if req_u_profile.role == USERS_ROLE.ADMIN:
+            shops = shops.filter(mother_brand=req_u_profile.work_for)
+        else:
+            shops = shops.filter(pk__in=req_u_profile.shops.all())
+        return shops
 
     def get(self, request, sale_id=None):
         self.sale = Sale.objects.get(pk=sale_id)
-        self.shops = Shop.objects.filter(mother_brand=request.user.get_profile().work_for)\
-                                        .filter(productstock__sale=self.sale).distinct()
+        self.shops = Shop.objects.filter(shopsinsale__sale=self.sale)
+        self.shops = self.filter_shops_by_role(request, self.shops)
+        self.shops.filter(productstock__sale=self.sale).distinct()
         return self.render_to_response(self.__dict__)
 
 def add_sale(request, *args, **kwargs):
@@ -284,13 +370,43 @@ def add_sale(request, *args, **kwargs):
         SaleWizardNew.STEP_PRODUCT: initial_product,
     }
 
-    sale_wizard = login_required(
+    sale_wizard = manager_upper_required(
         SaleWizardNew.as_view(forms,
                               initial_dict=initials,
                               url_name="add_sale",
                               done_step_name="list_sales"),
-        login_url="bo_login")
+        login_url="/",
+        super_allowed=False)
     return sale_wizard(request, *args, **kwargs)
+
+def _is_edit_sales_owner(sale, user):
+    if user.is_superuser:
+        return True
+
+    u_profile = user.get_profile()
+    if u_profile.work_for != sale.mother_brand: #if brand is different
+        return False
+
+    if u_profile.role == USERS_ROLE.ADMIN: # if user is brand admin
+        return True
+    elif u_profile.role == USERS_ROLE.MANAGER: # if user is shop manager
+        internet_priority = u_profile.allow_internet_operate
+        owned_shops = u_profile.shops.all()
+        is_owner = False
+        if internet_priority and sale.type_stock == STOCK_TYPE_GLOBAL:
+            is_owner = True
+        elif len(sale.shops.all().filter(pk__in=owned_shops)):
+            is_owner = True
+        return is_owner
+
+def _get_edit_sales_shops(sale, user):
+    shops = ShopsInSale.objects.filter(sale=sale,is_freezed=False)
+
+    if user.is_superuser or user.get_profile().role == USERS_ROLE.ADMIN: # if user is admin.
+        return [s.shop_id for s in shops]
+    else:  # if user is shop manager.
+        shops = shops.filter(shop_id__in=user.get_profile().shops.all())
+        return [s.shop_id for s in shops]
 
 def edit_sale(request, *args, **kwargs):
     forms = [
@@ -307,16 +423,13 @@ def edit_sale(request, *args, **kwargs):
     sale = Sale.objects.get(pk=sale_id)
 
     user = request.user
-    if user.get_profile().work_for != sale.mother_brand: #if brand is different
-        return HttpResponseRedirect("/")
-
-    if not user.is_staff and len([x for x in sale.shops.all() if x in user.get_profile().shops.all()])==0: #if operator and no shops are matching
+    if not _is_edit_sales_owner(sale, user):
         return HttpResponseRedirect("/")
 
     # We use pk in initials so we can use has_changed() method on forms
     initial_shop = {
         'target_market': sale.type_stock,
-        'shops': [ s.shop.pk for s in ShopsInSale.objects.filter(sale=sale,is_freezed=False) ],
+        'shops': _get_edit_sales_shops(sale, user),
     }
 
     pictures = []
@@ -443,11 +556,12 @@ def edit_sale(request, *args, **kwargs):
         'edit_mode': True,
         'sale': sale
     }
-    sale_wizard = login_required(SaleWizardNew.as_view(forms, initial_dict=initials,
-                                                       url_name="edit_sale",
-                                                       done_step_name="list_sales",
-                                                       **settings),
-                                 login_url="bo_login")
+    sale_wizard = manager_upper_required(
+        SaleWizardNew.as_view(forms, initial_dict=initials,
+                              url_name="edit_sale",
+                              done_step_name="list_sales",
+                              **settings),
+        login_url="bo_login")
 
     return sale_wizard(request, *args, **kwargs)
 
@@ -503,7 +617,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             sale = Sale()
             product = Product()
             shipping = Shipping()
-        sale.mother_brand = self.request.user.get_profile().work_for
+            sale.mother_brand = self.request.user.get_profile().work_for
         sale.type_stock = form_list[0].cleaned_data['target_market']
         sale.save()
         if sale.type_stock == STOCK_TYPE_DETAILED:
@@ -900,7 +1014,12 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             kwargs = {}
             if step == self.STEP_SHOP:
                 kwargs.update({"request": self.request,})
-            kwargs.update({'mother_brand': self.request.user.get_profile().work_for,})
+            if self.edit_mode:
+                kwargs.update({'mother_brand': self.sale.mother_brand,})
+            else:
+                kwargs.update(
+                    {'mother_brand': self.request.user.get_profile().work_for,})
+
             return kwargs
         return super(SaleWizardNew, self).get_form_kwargs(step)
 

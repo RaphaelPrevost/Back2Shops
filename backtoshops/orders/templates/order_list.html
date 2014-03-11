@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load l10n %}
 {% load thumbnail %}
+{% load is_manager_upper %}
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block head %}
@@ -58,7 +59,7 @@
                 <!--NOM, CATEGORIE, TYPE de Prod-->
                 <a href=""><h3>#{{ order_id  }}</h3></a>
                 <h4>
-                    {% if request.user.is_staff %}
+                    {% if request.user|is_manager_upper %}
                     <a class="delete" href="#">[X]</a>
                     {% endif %}
                     {{ order.user_info.last_name }} {{ order.user_info.first_name }}

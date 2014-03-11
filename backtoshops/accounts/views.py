@@ -28,9 +28,7 @@ def home_page(request):
     if request.user.is_superuser: #== super admin
         return render_to_response('sa_index.html', context_instance=RequestContext(request))
     else: #non super admin
-        profile = request.user.get_profile()
         context = RequestContext(request)
-        context.update({'user_profile': profile})
         return render_to_response('index.html', context_instance=context)
 
 def set_language(request):
@@ -83,23 +81,42 @@ class BaseOperatorView(ShopManagerUpperLoginRequiredMixin):
     system uses create form and edit form and save method is overridden in the form.   
     """
     template_name = "operator.html"
-    
-    def get_context_data(self, **kwargs):
+
+    def get_users(self):
+        # super admin could operate all users.
+        if self.request.user.is_superuser:
+            return User.objects.filter(
+                userprofile__role__gt=USERS_ROLE.ADMIN)
+
+        # brand administrator could operate all brand users.
         req_u_profile = self.request.user.get_profile()
+        if req_u_profile.role == USERS_ROLE.ADMIN:
+            return User.objects.filter(
+                userprofile__work_for=req_u_profile.work_for,
+                userprofile__role__gt=USERS_ROLE.ADMIN)
+
+        users = User.objects.filter(
+            userprofile__work_for=req_u_profile.work_for,
+            userprofile__role__gt=USERS_ROLE.MANAGER)
+
+        req_u_shops = req_u_profile.shops.all()
+        operate_users = []
+        for user in users:
+            u_shops = user.get_profile().shops.all()
+            if not u_shops:
+                continue
+            if u_shops[0].pk in req_u_shops:
+                operate_users.append(user.pk)
+        users.filter(pk__in=operate_users)
+        return users
+
+
+
+
+    def get_context_data(self, **kwargs):
 
         if 'users' not in self.__dict__:
-            self.users = User.objects.filter(
-                is_staff=False,
-                userprofile__work_for=req_u_profile.work_for)
-
-        if req_u_profile.role == USERS_ROLE.MANAGER:
-            exclude_users = []
-            for user in self.users:
-                access_check = self._priority_check(req_u_profile,
-                                                    user.get_profile())
-                if access_check:
-                    exclude_users.append(user.pk)
-            self.users = self.users.exclude(pk__in=exclude_users)
+            self.users = self.get_users()
 
         if 'current_page' not in self.__dict__:
             self.current_page = 1
@@ -127,17 +144,22 @@ class BaseOperatorView(ShopManagerUpperLoginRequiredMixin):
                            'search_username': self.search_username,
                            })
         if self.object:
-            access_check = self._priority_check(req_u_profile, self.object)
+            access_check = self._priority_check(self.request.user, self.object)
             if access_check:
                 logging.error(
                     "hack_error? user %s trying to edit user %s"
-                    % (req_u_profile.user_id, self.object.user_id))
+                    % (self.request.user.pk, self.object.user_id))
                 kwargs.update(access_check)
 
         return kwargs
 
-    def _priority_check(self, manager_profile, user_profile):
+    def _priority_check(self, user, user_profile):
         access_error = _("You have no priority to access this user")
+
+        if user.is_superuser:
+            return
+
+        manager_profile = user.get_profile()
 
         # check manager have higher level than user.
         if manager_profile.role >= user_profile.role:
@@ -176,7 +198,9 @@ class BaseOperatorView(ShopManagerUpperLoginRequiredMixin):
                 request.session['page_size'] = int(request.POST.get('page_size',settings.get_page_size(request)))
             except:
                 pass
-            self.users=User.objects.filter(username__contains=self.search_username, is_staff=False, userprofile__work_for=self.request.user.get_profile().work_for)
+            self.users=User.objects.filter(
+                username__contains=self.search_username,
+                userprofile__work_for=self.request.user.get_profile().work_for)
             return self.get(request, *args, **kwargs)
         else:
             return super(BaseOperatorView,self).post(request, *args, **kwargs)
@@ -185,7 +209,7 @@ class CreateOperatorView(BaseOperatorView, CreateView):
     form_class = forms.CreateOperatorForm
     
     def get_success_url(self):
-        return reverse('edit_operator',args=[self.object.pk])
+        return reverse('edit_operator',args=[self.object.user.pk])
     
     def get_initial(self):
         initials = super(CreateOperatorView,self).get_initial()
@@ -242,11 +266,18 @@ class DeleteOperatorView(BaseOperatorView, DeleteView):
                 mimetype="application/json")
         else:
             user = self.object.user
+            self.shops_owner_delete(user)
             self.object.delete()
             user.delete()
             return http.HttpResponse(
                 content=json.dumps({"user_pk": self.kwargs.get('pk', None)}),
                 mimetype="application/json")
+
+    def shops_owner_delete(self, user):
+        owned_shops = Shop.objects.filter(owner=user)
+        for shop in owned_shops:
+            shop.owner_id = None
+            shop.save()
 
 class OperatorShopsView(ShopManagerUpperLoginRequiredMixin, CreateView):
     form_class = forms.AjaxShopsForm

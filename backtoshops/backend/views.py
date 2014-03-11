@@ -1,8 +1,6 @@
 # Create your views here.
 import settings
 import json
-from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
 from django.core.paginator import EmptyPage
 from django.core.paginator import InvalidPage
@@ -22,6 +20,7 @@ from attributes.models import CommonAttribute
 from backend import forms
 from brandings.models import Branding
 from common.constants import USERS_ROLE
+from fouillis.views import super_admin_required
 from globalsettings import get_setting
 from globalsettings.models import GlobalSettings
 from sales.models import ProductCategory
@@ -31,27 +30,14 @@ from shippings.models import Service
 from taxes.models import Rate
 
 
-def superadmin_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
-    """
-    this verifies the user is logged in and superuser. else it will redirect to login_url.
-    """
-    actual_decorator = user_passes_test(
-        lambda u: u.is_authenticated() and u.is_superuser ,
-        login_url=login_url,
-        redirect_field_name=redirect_field_name
-    )
-    if function:
-        return actual_decorator(function)
-    return actual_decorator
-
 class SARequiredMixin(object):
     """
     this will be a basis mixin view for super admin pages.
-    this utilizes superadmin_required decorator function.
+    this utilizes super_admin_required decorator function.
     """
     def dispatch(self, *args, **kwargs):
         bound_dispatch = super(SARequiredMixin, self).dispatch
-        return superadmin_required(bound_dispatch, login_url="/")(*args, **kwargs)
+        return super_admin_required(bound_dispatch, login_url="/")(*args, **kwargs)
     
     def get_context_data(self, **kwargs):
         # general pagination handling.
@@ -230,7 +216,7 @@ class DeleteUserView(BaseUserView, DeleteView):
         return HttpResponse(content=json.dumps({"user_pk": self.kwargs.get('pk', None)}),
                             mimetype="application/json")
 
-@superadmin_required
+@super_admin_required
 def ajax_user_search(request):
     """
     returns the user search result. currently this is not used since search user feature changed to form post.
@@ -406,7 +392,7 @@ class DeleteBrandingView(BaseBrandingView, DeleteView):
         return HttpResponse(content=json.dumps({"branding_pk": self.kwargs.get('pk', None)}),
                             mimetype="application/json")
 
-@superadmin_required
+@super_admin_required
 def settings_view(request):
     is_saved = False
     if request.method == 'POST':
