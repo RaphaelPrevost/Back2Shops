@@ -20,6 +20,7 @@ from models.shipments import get_shipments_by_order
 from models.shipments import remote_get_supported_services
 from models.shipments import get_shipping_supported_services
 from models.shipments import get_shipping_list
+from models.shipments import get_shipping_postage
 from models.shipments import user_accessable_shipment
 from models.shipping_fees import SaleShippingFees
 from models.shipping_fees import ShipmentShippingFees
@@ -50,6 +51,7 @@ class BaseShippingListResource(BaseXmlResource):
             shipment['fee_info'] = self._get_fee_info(conn, shipment)
             shipment['shipping_list'] = self._get_shipping_list(
                                                 conn, id_shipment)
+            shipment['postage'] = get_shipping_postage(conn, id_shipment)
 
         return {'object_list': shipment_list,
                 'shipping_currency': SHIPPING_CURRENCY,
@@ -62,7 +64,8 @@ class BaseShippingListResource(BaseXmlResource):
         cal_method = shipment['calculation_method']
         if cal_method not in [SCM.CARRIER_SHIPPING_RATE,
                               SCM.CUSTOM_SHIPPING_RATE,
-                              SCM.FLAT_RATE]:
+                              SCM.FLAT_RATE,
+                              SCM.MANUAL]:
             return
 
         id_shipment= shipment['id']

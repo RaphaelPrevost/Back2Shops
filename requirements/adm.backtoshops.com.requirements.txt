@@ -11,7 +11,7 @@ python-memcached==1.53
 psycopg2==2.5.1
 M2Crypto==0.21.1.B2S
 B2SCrypto==0.0.1
-B2SProtocol==0.0.1
+B2SProtocol==0.0.2
 enum==0.4.4
 ujson==1.33
 B2SUtils==0.0.2

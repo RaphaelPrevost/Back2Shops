@@ -50,6 +50,25 @@ class BaseShipmentTestCase(BaseOrderTestCase):
                          "%s-%s" % (shipments_index, expected_count))
         return shipments_index
 
+    def _shipping_list_item(self, id_shipment):
+        sql = """SELECT id
+                   FROM shipping_list
+                  WHERE id_shipment=%s
+         """
+        with db_utils.get_conn() as conn:
+            results = db_utils.query(conn, sql, (id_shipment,))
+        return [item[0] for item in results]
+
+    def _order_item(self, id_order):
+        sql = """SELECT id_item
+                   FROM order_details
+                  WHERE id_order=%s
+         """
+        with db_utils.get_conn() as conn:
+            results = db_utils.query(conn, sql, (id_order,))
+        return [item[0] for item in results]
+
+
     def _successShipment(self, id_shipment,
                          expect_order=None, expect_status=None,
                          expect_shipping_fee=None,
@@ -585,6 +604,8 @@ class TestShippingList(BaseShipmentTestCase):
                                          self.billaddr, wwwOrder)
         id_shp = self._shipmentsCountCheck(id_order, 1)[0]
         resp_content = self._shippingList(id_order)
+        id_order_item = self._order_item(id_order)[0]
+        id_spl_item = self._shipping_list_item(id_shp)[0]
         shipping_data = {
             'object_list': [
                 {'carriers': [
@@ -604,7 +625,10 @@ class TestShippingList(BaseShipmentTestCase):
                  'id_brand': 1000001,
                  'id_shop': 1000002,
                  'shipping_list': [
-                     {'id_sale': 1000029L,
+                     {'id_shipping_list': id_spl_item,
+                      'id_item': id_order_item,
+                      'shipping_status': 1,
+                      'id_sale': 1000029L,
                       'id_variant': 1000011L,
                       'id_weight_type': 1000003L,
                       'quantity': 2,
@@ -627,6 +651,7 @@ class TestShippingList(BaseShipmentTestCase):
                           'weight': u'3.0',
                           'weight_unit': u'kg'}}],
                  'status': 1,
+                 'postage': 1,
                  'tracking_info': None}],
             'shipping_currency': 'EUR',
             'shipping_weight_unit': 'kg'}

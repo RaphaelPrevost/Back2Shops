@@ -10,6 +10,7 @@ from webservice.orders import OrderResource
 from webservice.orders import OrderStatusResource
 from webservice.orders import ShippingFeeResource
 from webservice.sales import SalesResource
+from webservice.shipment import ShipmentResource
 from webservice.shipping import ShippingListResource
 from webservice.shipping import ShippingConfResource
 from webservice.shipping import ShippingFeesResource
@@ -38,4 +39,5 @@ urlpatterns = {
     '/webservice/1.0/private/order/status': OrderStatusResource,
 
     '/webservice/1.0/protected/shipping/list': ShippingListResource,
+    '/webservice/1.0/protected/shipment': ShipmentResource,
 }

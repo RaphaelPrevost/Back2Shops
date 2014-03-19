@@ -80,3 +80,107 @@ def get_order_packing_list(order_id):
                       'usr servers: %s',
                       order_id, e, exc_info=True)
         raise UsersServerError
+
+def send_new_shipment(id_order, id_shipment, handling_fee, shipping_fee, content):
+    if isinstance(content, list):
+        content = ujson.dumps(content)
+
+    try:
+        data = {'action': 'create',
+                'order': id_order,
+                'handling_fee': handling_fee,
+                'shipping_fee': shipping_fee,
+                'id_orig_shipment': id_shipment,
+                'content': content}
+        data = ujson.dumps(data)
+        data = gen_encrypt_json_context(
+            data,
+            settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+            settings.PRIVATE_KEY_PATH)
+        rst = get_from_remote(
+            settings.ORDER_SHIPMENT,
+            settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+            settings.PRIVATE_KEY_PATH,
+            data=data,
+            headers={'Content-Type': 'application/json'})
+        return rst
+    except Exception, e:
+        logging.error('Failed to create shipment %s,'
+                      'error: %s',
+            {'id_order': id_order,
+             'id_shipment': id_shipment,
+             'content': content}, e, exc_info=True)
+        raise UsersServerError
+
+def send_update_shipment(id_shipment, shipping_fee=None, handling_fee=None,
+                         status=None, tracking_num=None, content=None,
+                         shipping_date=None):
+    if isinstance(content, list):
+        content = ujson.dumps(content)
+
+    try:
+        data = {}
+        if shipping_fee:
+            data['shipping_fee'] = shipping_fee
+        if handling_fee:
+            data['handling_fee'] = handling_fee
+        if status:
+            data['status'] = status
+        if tracking_num:
+            data['tracking'] = tracking_num
+        if content:
+            data['content'] = content
+        if shipping_date:
+            data['shipping_date'] = shipping_date
+
+        if not data:
+            return
+
+        data['shipment'] = id_shipment
+        data['action'] = 'modify'
+        data = ujson.dumps(data)
+        data = gen_encrypt_json_context(
+            data,
+            settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+            settings.PRIVATE_KEY_PATH)
+        rst = get_from_remote(
+            settings.ORDER_SHIPMENT,
+            settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+            settings.PRIVATE_KEY_PATH,
+            data=data,
+            headers={'Content-Type': 'application/json'})
+        return rst
+
+    except Exception, e:
+        logging.error('Failed to update shipment %s,'
+                      'error: %s',
+                      {'id_shipment': id_shipment,
+                       'shipping_fee': shipping_fee,
+                       'handling_fee': handling_fee,
+                       'status': status,
+                       'tracking_num': tracking_num,
+                       'content': content}, e, exc_info=True)
+        raise UsersServerError
+
+
+def send_delete_shipment(id_shipment):
+    try:
+        data = {'action': 'delete',
+                'shipment': id_shipment}
+        data = ujson.dumps(data)
+        data = gen_encrypt_json_context(
+            data,
+            settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+            settings.PRIVATE_KEY_PATH)
+        rst = get_from_remote(
+            settings.ORDER_SHIPMENT,
+            settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+            settings.PRIVATE_KEY_PATH,
+            data=data,
+            headers={'Content-Type': 'application/json'})
+        return rst
+    except Exception, e:
+        logging.error('Failed to delete shipment %s,'
+                      'error: %s',
+                      {'id_shipment': id_shipment}, e, exc_info=True)
+        raise UsersServerError

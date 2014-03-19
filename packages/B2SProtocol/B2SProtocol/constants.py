@@ -14,7 +14,8 @@ class SHIPMENT_STATUS(CustomEnum):
     PACKING = 1
     DELAYED = 2
     DELIVER = 3
-
+    DELETED = 4
+    FETCHED = 5
 
 class SHIPPING_CALCULATION_METHODS(CustomEnum):
     FREE_SHIPPING = 1
@@ -22,3 +23,11 @@ class SHIPPING_CALCULATION_METHODS(CustomEnum):
     CARRIER_SHIPPING_RATE = 3
     CUSTOM_SHIPPING_RATE = 4
     INVOICE = 5
+    MANUAL = 6
+
+class SHIPPING_STATUS(CustomEnum):
+    """ shipping list items status
+    """
+    PACKING = 1
+    TO_PACKING = 2
+    FETCHED = 3

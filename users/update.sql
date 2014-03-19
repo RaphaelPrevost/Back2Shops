@@ -55,4 +55,12 @@ ALTER TABLE shipments ADD FOREIGN KEY(id_order) REFERENCES orders(id);
 ALTER TABLE shipments ADD COLUMN id_shop bigint;
 ALTER TABLE shipments ADD COLUMN id_brand bigint;
 
+
+ALTER TABLE shipping_list ADD COLUMN id serial PRIMARY KEY;
+ALTER TABLE shipping_list ADD COLUMN status smallint DEFAULT 1;
+ALTER TABLE shipping_list ADD COLUMN id_orig_shipping_list bigint;
+ALTER TABLE shipping_list ADD FOREIGN KEY(id_orig_shipping_list) REFERENCES shipping_list(id);
+ALTER TABLE shipments ADD COLUMN shipping_date date;
+
+
 COMMIT;

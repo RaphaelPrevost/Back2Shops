@@ -125,6 +125,7 @@ CREATE TABLE shipments (
     status SMALLINT,
     timestamp timestamp without time zone NOT NULL,
     calculation_method smallint,
+    shipping_date date,
     FOREIGN KEY (id_order) REFERENCES orders(id)
 );
 
@@ -145,11 +146,15 @@ CREATE TABLE shipping_fee (
 );
 
 CREATE TABLE shipping_list (
+    id serial PRIMARY KEY,
     id_item BIGINT REFERENCES order_items(id),
     id_shipment BIGINT REFERENCES shipments(id),
     quantity INTEGER NOT NULL,
     picture character varying(200),
-    free_shipping boolean DEFAULT false NOT NULL
+    free_shipping boolean DEFAULT false NOT NULL,
+    id_orig_shipping_list bigint,
+    status smallint DEFAULT 1,
+    FOREIGN KEY (id_orig_shipping_list) REFERENCES shipping_list(id)
 );
 
 CREATE TABLE free_shipping_fee (

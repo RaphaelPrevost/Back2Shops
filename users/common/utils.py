@@ -150,6 +150,7 @@ def parse_form_params(req, resp, params):
         form_params = cgi.parse_qs(body)
         for p in form_params:
             form_params[p] = form_params[p][0]
+        import logging
         req._params.update(form_params)
 
 def get_client_ip(req):

@@ -83,8 +83,20 @@ class OrderResource(BaseJsonResource):
 
     def _wwwOrder(self, req, resp, conn):
         """ wwwOrder: an urlencoded json array:
-        [{ "id_sale": xxx, "id_variant": xxx, "quantity": xxx, 'id_shop': xxx},
-         { "id_sale": xxx, "id_variant": xxx, "quantity": xxx, 'id_shop': xxx}]
+        [{ "id_sale": xxx,
+           "id_variant": xxx,
+           "quantity": xxx,
+           "id_shop": xxx,
+           "id_weight_type": xxx,
+           "id_price_type": xxx
+           },
+         { "id_sale": xxx,
+           "id_variant": xxx,
+           "quantity": xxx,
+           "id_shop": xxx,
+           "id_weight_type": xxx,
+           "id_price_type": xxx
+           }]
         """
         wwwOrder = req.get_param('wwwOrder', '[]')
         wwwOrder = ujson.loads(wwwOrder)

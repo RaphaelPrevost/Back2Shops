@@ -172,7 +172,7 @@ def _valid_sale_brand(sale_id, brand_id):
     return sale and sale.brand and int(sale.brand.id) == int(brand_id)
 
 def _get_shipment_info_for_order_item(conn, item_id):
-    fields, columns = zip(*[('status', 'status'),
+    fields, columns = zip(*[('status', 'shipments.status'),
                             ('shipping_fee', 'shipping_fee'),
                             ('shipping_list_quantity', 'quantity')])
     query_str = (
@@ -373,3 +373,34 @@ def user_accessable_order(conn, id_order, id_user):
         return False
     else:
         return int(r[0][0]) == int(id_user)
+
+def order_exist(conn, id_order):
+    query_str = ("SELECT * "
+                   "FROM orders "
+                  "WHERE id = %s")
+
+    r = query(conn, query_str, (id_order,))
+    return True if r else False
+
+def order_item_exist(conn, id_sale, id_variant, id_shop,
+                     id_weight_type, id_price_type, quantity):
+
+    query_str = ("SELECT oi.id "
+                   "FROM order_items as oi "
+                   "JOIN order_details as od "
+                     "ON oi.id=od.id_item "
+                  "WHERE oi.id_sale = %s "
+                    "AND oi.id_variant = %s "
+                    "AND oi.id_shop = %s "
+                    "AND oi.id_weight_type = %s "
+                    "AND oi.id_price_type = %s "
+                    "AND od.quantity < %s"
+                )
+
+    r = query(conn, query_str, (id_sale, id_variant, id_shop,
+                                id_weight_type, id_price_type,
+                                quantity))
+    if not r:
+        return False
+    else:
+        return r[0][0]

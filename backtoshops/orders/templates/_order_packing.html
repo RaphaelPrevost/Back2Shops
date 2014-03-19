@@ -1,5 +1,4 @@
 {% load i18n %}
-{% load sub %}
 
 <!--ENSEMBLE EN DETAIL-->
 <div class="packing">
@@ -10,79 +9,243 @@
         {% endif %}
     </em>
     {% for shipment in packing.shipments %}
-        <div class="shipment">
-            <div class="packing_list_title">
-                <span class="see_pk_list">{% trans "See Packing list" %} #{{ shipment.id }}</span>
-                <span class="status">{% trans "Stauts" %}: {{ shipment.status }}</span>
-            </div>
-            <div class="packing_list_items">
-                {% if shipment.packing_list %}
-                    <div class="table">
-                        <table>
-                            <thead>
-                            <tr>
-                                <th class="col1">{% trans "Name" %}</th>
-                                <th>{% trans "Type" %}</th>
-                                <th>{% trans "Brand Attribute" %}</th>
-                                <th>{% trans "Weight" %}</th>
-                                <th>{% trans "Quantity" %}</th>
-                            </tr>
-                            </thead>
-                            {% for item in shipment.packing_list %}
-                                <tr>
-                                    <td class="col1">{{ item.name }}</td>
-                                    <td>{% if item.type %}{{ item.type.name }}{% endif %}</td>
-                                    <td>{% if item.variant %}{{ item.variant.name }}{% endif %}</td>
-                                    <td>{{ item.weight.value }} {{ item.weight.unit }}</td>
-                                    <td>{{ item.quantity }}</td>
-                                </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
-                {% else %}
-                    <span><p>{% trans "0 packing list item" %}</p></span>
-                {% endif %}
-            </div>
-            <div class="remaining_list">
-                {% if shipment.remaining_list %}
-                    <div class="remaining_items">
-                        <span>{% trans "Remaining items to ship" %}:</span>
-                        {% for item in shipment.remaining_list %}
-                            <lable class="remaining_item">
-                                <input type="checkbox" name="remaining_item_ckb" class='item_check' id="remaining_item_ckb_{{ item.id }}" checked="false">
-                                <span>{{ item.name }}</span>
-                                <input type="text" name="remaining_item_choose" class="item_count" id="remaining_item_choose_{{ item.id }}"/>
-                                <span>{% trans "out of" %} {{ item.quantity }} {% trans "items" %}</span>
-                            </lable>
-                        {% endfor %}
-                    </div>
-                    <div class="new_packing_list">
-                        <span class="create">{% trans "Create new packing list" %}</span>
-                    </div>
-                {% else %}
-                    <span><p>{% trans "0 item remaining" %}</p></span>
-                {% endif %}
-            </div>
-
+        <div class="shipment" id="shipment_{{ shipment.id }}">
+            {% include "_shipment_packing.html" %}
         </div>
     {% endfor %}
-    <script type="text/javascript">
-        $(function(){
-            /* packing list scripts */
-            $('.see_pk_list').click(function(){
-                var parent = $(this).parent().parent();
-                if ($('.packing_list_items', parent).is(":hidden")) {
-                    $(".remaining_list", parent).slideUp(
-                            'normal', function() {
-                                $('.packing_list_items', parent).slideDown();
-                            });
-                } else {
-                    $(".packing_list_items", parent).slideUp(
-                            'normal', function() {
-                                $('.remaining_list', parent).slideDown();
-                            });
+</div>
+
+<script type="text/javascript">
+jQuery(
+        //JQuery的日历控件汉化
+        function($){
+            $.datepicker.regional['zh_CN'] = {
+                clearText: '清除',
+
+                clearStatus: '清除已选日期',
+                closeText: '关闭',
+
+                closeStatus: '不改变当前选择',
+                prevText: '&lt;上月',
+
+                prevStatus: '显示上月',
+                nextText: '下月&gt;',
+
+                nextStatus: '显示下月',
+                currentText: '今天',
+
+                currentStatus: '显示本月',
+                monthNames: ['1月','2月','3月','4月','5月','6月',
+                    '7月','8月','9月','10月','11月','12月'],
+                monthNamesShort: ['一','二','三','四','五','六',
+                    '七','八','九','十','十一','十二'],
+                monthStatus: '选择月份', yearStatus: '选择年份',
+                weekHeader: '周', weekStatus: '年内周次',
+                dayNames: ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'],
+                dayNamesShort: ['周日','周一','周二','周三','周四','周五','周六'],
+                dayNamesMin: ['日','一','二','三','四','五','六'],
+                dayStatus: '设置 DD 为一周起始',
+
+                dateStatus: '选择 m月 d日, DD',
+                dateFormat: 'yy-mm-dd',   //日期格式化形式
+
+                firstDay: 7,
+                initStatus: '请选择日期',
+
+                showMonthAfterYear: true,
+                yearSuffix: '年',
+
+                isRTL: false
+            };
+            $.datepicker.setDefaults($.datepicker.regional[_get_datepicker_locale("{{ LANGUAGE_CODE }}")]);
+        }
+);
+
+function _get_datepicker_locale(s) {
+    var l = s.split('-');
+    if (l[0] == 'en') return '';
+    if (l[1]) l[1] = l[1].toUpperCase();
+    l = l.join('_');
+    return l;
+}
+
+    $(document).ready(function(){
+        /* packing list scripts */
+        $('.see_pk_list').die().live('click', function(){
+            var parent = $(this).parent().parent();
+            var id_shipemnt = $(this).attr('for_shipment');
+            var remaining_list = $('#remaining_list_for_' + id_shipemnt);
+            var packing_form = $('#packing_form_' + id_shipemnt);
+            if (remaining_list.is(":hidden")) {
+                packing_form.slideUp(
+                        'normal', function() {
+                            remaining_list.slideDown();
+                        }
+                )
+            } else {
+                remaining_list.slideUp(
+                        "normal", function() {
+                            packing_form.slideDown();
+                        }
+                );
+            }
+
+            $('.packing_status', parent).change();
+        });
+
+        $(".new_packing_list .create").die().live('click', function(){
+            var shipment_id = $(this).attr('for_shipment');
+            var shipping_fee = $("input[name=manual_shipping_fee_for_" + shipment_id + "]");
+            if (shipping_fee && shipping_fee.val() == "") {
+                alert("Please input shipping fee");
+                return;
+            }
+
+            var handling_fee = $("input[name=manual_handling_fee_for_" + shipment_id + "]");
+            if (handling_fee && handling_fee.val() == "") {
+                alert("Please input handling fee");
+                return;
+            }
+
+            var data = $("#remaining_list_for_" + shipment_id).serialize();
+            $.ajax({
+                type: 'POST',
+                url: "/orders/new/packing",
+                data: data,
+                success: function(data, status) {
+                    if (data.res == 'SUCCESS') {
+                        // reload updated shipment
+                        shipment_reload(shipment_id);
+
+                        // load new created shipment
+                        $("<div id='shipment_" + data.id_new_shipment + "'>").addClass("shipment").appendTo($('.packing'));
+                        shipment_reload(data.id_new_shipment);
+                    } else {
+                        alert('{% trans "Error:" %}' + data.err);
+                    }
+
                 }
             });
         });
-    </script>
-</div>
+
+        $(".packing_status").die().live('change', function(){
+            var status = $(this).val();
+            if (parseInt(status) == 3) {
+                $('.tracking_num', $(this).parent()).slideDown();
+            } else {
+                $('.tracking_num', $(this).parent()).slideUp();
+                var orig_value = $('input', $(this).parent()).attr('orig_value');
+                orig_value = orig_value || "";
+                $('input', $(this).parent()).val(orig_value);
+            }
+        });
+
+        $(".update_shipment").die().live('click', function(){
+            var shipment_id = $(this).attr('for_shipment');
+            var form = $("#packing_form_" + shipment_id);
+
+            var shipping_fee = $("input[name=manual_shipping_fee_for_" + shipment_id + "]", form);
+            if (shipping_fee && shipping_fee.val() == "") {
+                alert("Please input shipping fee");
+                return;
+            }
+
+            var handling_fee = $("input[name=manual_handling_fee_for_" + shipment_id + "]", form);
+            if (handling_fee && handling_fee.val() == "") {
+                alert("Please input handling fee");
+                return;
+            }
+
+            $(".packing_item_out_count", form).each(function(){
+                if ($(this).val() == "") {
+                    alert("Please input all items updated count");
+                    return;
+                } else {
+                    if (parseInt($(this).val()) > parseInt($(this).attr('orig_quantity'))) {
+                        alert("Please input valid item update count");
+                        return;
+                    }
+                }
+            })
+
+            var data = form.serialize();
+            var status = $("#packing_status_for_" + shipment_id).val()
+            data += "&packing_status_for_" + shipment_id + "=" + status;
+
+            $.ajax({
+                type: 'POST',
+                url: "/orders/update/packing",
+                data: data,
+                success: function(data, status) {
+                    if (data.res == 'SUCCESS') {
+                        // reload updated shipment
+                        $("#shipment_" + shipment_id).slideUp('normal', function(){
+                            shipment_reload(shipment_id);
+                        });
+                    } else {
+                        alert('{% trans "Error:" %}' + data.err);
+                    }
+                }
+            });
+        });
+
+        $(".delete_shipment").die().live('click', function() {
+            var shipment_id = $(this).attr('for_shipment');
+            var data = $("#packing_form_" + shipment_id).serialize();
+
+            $.ajax({
+                type: 'POST',
+                url: "/orders/delete/packing",
+                data: data,
+                success: function(data, status) {
+                    if (data.res == 'SUCCESS') {
+                        var shipment = $("#shipment_" + data.id_shipment);
+                        shipment.slideUp('normal', function(){
+                            $(this).remove();
+                        })
+                    } else {
+                        alert('{% trans "Error:" %}' + data.err);
+                    }
+                }
+            });
+        });
+
+        $(".cancel_shipment").die().live('click', function() {
+            var shipment_id = $(this).attr('for_shipment');
+            $('#see_pk_list_for_' + shipment_id).click();
+        });
+
+        $(".delete_shipping_item").die().live('click', function() {
+            var id_shipping_item = $(this).attr('for_packing_item');
+            var id_shipment = $(this).attr('for_shipment');
+            var out_count = $('#pack_item_out_count_for_' + id_shipping_item);
+            out_count.val(0);
+
+            var update_btn = $('.update_shipment', $("#packing_form_" + id_shipment));
+            update_btn.click();
+        })
+
+        function shipment_reload(id_shipment) {
+            var shipment = $("#shipment_" + id_shipment);
+            var href = "{% url 'order_packing_list' %}"
+            href += "{{ packing.order_id }}";
+            href += "?shipment=" + id_shipment;
+            shipment.load(href, function(data){
+                if (data.trim()) {
+                    shipment.html(data);
+                    shipment.slideDown();
+                    var packing_form = $('#packing_from_' + id_shipment);
+                    if (packing_form) {
+                        $("#see_pk_list_for_" + id_shipment).click();
+                    }
+                } else {
+                    shipment.slideUp('normal', function(){
+                        shipment.html(data)
+                    });
+                }
+            });
+        }
+
+
+    });
+</script>
