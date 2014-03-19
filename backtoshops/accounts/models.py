@@ -21,6 +21,8 @@ class Brand(models.Model):
     name = models.CharField(max_length=50)
     logo = models.ImageField(upload_to="brand_logos")
     address = models.ForeignKey(Address, unique=True)
+    business_reg_num = models.CharField(verbose_name="Business Registration Number", max_length=100)
+    tax_reg_num = models.CharField(verbose_name="Tax Registration Number", max_length=100)
 
     def __str__(self):
         return self.name

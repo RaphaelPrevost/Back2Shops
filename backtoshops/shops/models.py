@@ -28,6 +28,8 @@ class Shop(models.Model):
     longitude = models.FloatField()
     address = models.ForeignKey(Address, unique=True)
     owner = models.ForeignKey(User, blank=True, null=True)
+    business_reg_num = models.CharField(verbose_name="Business Reg Num", max_length=100)
+    tax_reg_num = models.CharField(verbose_name="Tax Reg Num", max_length=100)
 
 
     def __unicode__(self):
