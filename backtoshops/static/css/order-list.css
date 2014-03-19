@@ -9,7 +9,7 @@
 #lienUP { margin-top: 88px; }
 
 /*----SELECT TRIER PAR----*/
-#main_form fieldset { border: none 0; }
+fieldset { border: none 0; }
 
 #triVente { height: 22px; margin: 17px 0; }
 
@@ -290,7 +290,7 @@ div.error_msg {
     padding-left: 10px;
 }
 
-.packing .packing_list_items {
+.packing .packing_form {
     display: None;
 }
 
@@ -367,6 +367,7 @@ div.error_msg {
 
 .packing .new_packing_list{
     height: 20px;
+    cursor: pointer;
 }
 .packing .new_packing_list .create {
     line-height: 20px;
@@ -390,4 +391,140 @@ div.error_msg {
 .packing .remaining_item .item_count {
     width: 20px;
 }
+
+.packing .shipping_date {
+    width: 80px;
+}
 /* Packing List end */
+
+/* forms */
+.formrow { min-height: 22px; margin-bottom: 10px; }
+.formrow.p_vide { height: 0; min-height: 0; margin: 0; }
+.formrow.marge { margin-bottom: 30px; }
+.formrow:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+.formrow label,
+.formrow input,
+.formrow select,
+.formrow textarea,
+.formrow span,
+.contForm{
+    display: block;
+    float: left;
+}
+
+.formrow span { height: 22px; line-height: 22px; margin: 0 5px; }
+
+.formrow label { width: 100px; }
+.formrow select { width: 130px; }
+.formrow textarea,
+.formrow input { width: 50px; }
+.formrow .inputXS { width: 40px; }
+.formrow .inputS { width: 70px; }
+.formrow .inputM { width: 180px; }
+.formrow .selectS { width: 70px; }
+.formrow .selectL { width: 190px; }
+.formrow .selectXL { width: 260px; }
+
+.formrow select.dubble { width: 95px; }
+.formrow #plus {
+    background: url(../img/icon.png) no-repeat 0 -275px;
+    display: block;
+    float: left;
+    height: 19px;
+    margin: 1px 0 0 10px;
+    overflow: hidden;
+    text-indent: -1500px;
+    width: 19px;
+}
+
+.contForm,
+.formrow .contForm{
+    width: 283px;
+    height: auto;
+    line-height: auto;
+    margin: auto;
+}
+
+.contForm.checkbox input{
+    width: auto;
+    margin: 1px 15px 0 -25px;
+    border: none 0;
+}
+.contForm.checkbox label{
+    width: 85px;
+    height: 20px;
+    line-height: 20px;
+    margin: 2 0 0 0;
+    padding: 0 35px 0 5px;
+    border: 1px solid #eee;
+    background: none;
+    background-color: #f8f8f8;
+}
+.contForm.checkbox.auto label{ width: auto; }
+
+.inactif { background-color: #d9d9d9; }
+
+.raw {
+    width: 8px;
+    overflow: hidden;
+    text-indent: -1500px;
+    background: url(../img/icon.png) no-repeat -10px -252px;
+}
+.btn { float: right; margin: 5px 0 0 5px; }
+
+.tracking_num {
+    clear: both;
+    padding-left: 20px;
+    display: none;
+}
+
+.tracking_num input {
+    width: 80px;
+}
+
+hr {
+    margin-bottom: 7px;
+}
+
+
+/*Btn Update, Delete, Cancel*/
+.btnForm {
+    display: block;
+    float: right;
+    height: 22px;
+    margin: 5px 4px 0 0;
+    padding: 2px 7px;
+    border: 1px solid #D1D1D1;
+    background: url(../img/btn_navForm.png) no-repeat 0 0;
+    border-radius: 5px 5px 5px 5px;
+    -moz-border-radius: 5px 5px 5px 5px;
+    -webkit-border-radius: 5px 5px 5px 5px;
+    line-height: 12px;
+    cursor: pointer;
+}
+
+.content_row {
+    padding-left: 30px;
+}
+
+.content_row input {
+    width: 20px;
+}
+.out{
+    display: block;
+    float: left;
+    width: 16px;
+    height: 16px;
+    overflow: hidden; text-indent: -1500px;
+    background: url(../img/out.gif) no-repeat 0 0;
+    cursor: pointer;
+}
+.out:hover{ background-position: 0 -16px; }
+/* forms end */

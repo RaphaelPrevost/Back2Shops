@@ -5,7 +5,8 @@ from B2SProtocol.constants import SHIPMENT_STATUS
 st_desc_map = {
     SHIPMENT_STATUS.PACKING: 'PACKING',
     SHIPMENT_STATUS.DELAYED: 'DELAYED',
-    SHIPMENT_STATUS.DELIVER: 'DELIVER'
+    SHIPMENT_STATUS.DELIVER: 'DELIVER',
+    SHIPMENT_STATUS.DELETED: 'DELETED'
 }
 
 class ActorService(BaseActor):
@@ -63,13 +64,6 @@ class ActorDelivery(BaseActor):
         return ActorTracking(data=tk_data)
 
     @property
-    def fees(self):
-        fees_data = self.data.get('fees')
-        if fees_data is None:
-            return
-        return ActorFees(data=fees_data)
-
-    @property
     def status_desc(self):
         return st_desc_map[int(self.status)]
 
@@ -97,7 +91,10 @@ class ActorWeight(BaseActor):
 class ActorItem(BaseActor):
     attrs_map = {'sale': '@sale',
                  'name': 'name',
-                 'quantity': 'quantity'}
+                 'quantity': 'quantity',
+                 'id_shipping_list': '@id_shipping_list',
+                 'shipping_status': 'shipping_status',
+                 'id_order_item': "@id_order_item"}
     @property
     def type(self):
         type_data = self.data.get('type')
@@ -121,11 +118,20 @@ class ActorShipment(BaseActor):
     attrs_map = {'id': '@id',
                  'method': '@method',
                  'brand': '@brand',
-                 'shop': '@shop'}
+                 'shop': '@shop',
+                 'tracking_num': "tracking_num",
+                 'shipping_date': "shipping_date"}
 
     @property
     def delivery(self):
         return ActorDelivery(data=self.data.get('delivery'))
+
+    @property
+    def fees(self):
+        fees_data = self.data.get('fees')
+        if fees_data is None:
+            return
+        return ActorFees(data=fees_data)
 
     @property
     def items(self):

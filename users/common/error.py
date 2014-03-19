@@ -81,3 +81,38 @@ class ErrorCode:
     SF_MISS_PARAMS = (
         151, "Neither shipment nor sale provided in rquest"
     )
+
+    # shipment request error
+    ERR_EPERM = (
+        161, "ERR_EPERM"  # content does not belong to the shopkeeper or
+                          # the shopkeeper tries to delete a
+                          # SHIPMENT_DELIVER shipment
+    )
+
+    ERR_ENOENT = (
+        162, "ERR_ENOENT" # the order or shipment does not exist
+    )
+
+    ERR_EINVAL = (
+        163, "ERR_EINVAL" # the content is incorrect (either ID
+                          # or conflicting shipment)
+                          # or the shipping fees are incorrect
+    )
+
+    ERR_ESTATUS = (
+        164, "ERR_ESTATUS" # the status flag set is incorrect
+    )
+
+    ERR_ETIME = (
+        165, "ERR_ETIME" # the date is incorrect.
+    )
+
+    ERR_EREQ = (
+        166, "ERR_EREQ" # the request is invalid, e.g. miss params...
+    )
+
+    ERR_ECONTENT = (
+        167, "ERR_ECONTENT" # fields missed for content param
+                            # or order item doesn't exist
+                            # or order items' brand not same.
+    )

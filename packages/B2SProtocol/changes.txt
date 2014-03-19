@@ -1,2 +1,7 @@
 == version 0.0.1 ==
 1. add constants enum used by user server, backoffice server.
+
+== version 0.0.2 ==
+1. Add DELETED, FETCHED into SHIPMENT_STATUS.
+2. Add MANUAL into SHIPPING_CALCULATION_METHODS.
+3. Add SHIPPING_STATUS for shipping_list items.

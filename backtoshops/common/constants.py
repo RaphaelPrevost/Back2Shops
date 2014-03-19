@@ -18,3 +18,7 @@ class USERS_ROLE(CustomEnum):
 class TARGET_MARKET_TYPES(CustomEnum):
     GLOBAL = 'N'
     LOCAL = 'L'
+
+# response
+SUCCESS = 'SUCCESS'
+FAILURE = 'FAILURE'

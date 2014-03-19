@@ -6,7 +6,16 @@
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block head %}
+    <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+    <META HTTP-EQUIV="Expires" CONTENT="-1">
     <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/order-list.css" />
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.form.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.ui.autocomplete.html.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.ui.datepicker-fr.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/fileupload/jquery.iframe-transport.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/fileupload/jquery.fileupload.js"></script>
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/ui-lightness/jquery-ui-1.8.16.custom.css" />
 {% endblock %}
 
 {% block navigation %}

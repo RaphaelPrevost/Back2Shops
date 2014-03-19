@@ -4,7 +4,7 @@
                   method="{% if shipment.calculation_method %}{{ shipment.calculation_method }}{% endif %}"
                   brand="{{ shipment.id_brand }}"
                   shop="{{ shipment.id_shop }}">
-            <delivery status="{{ shipment.status }}">
+            <delivery status="{{ shipment.status }}" postage="{% if shipment.postage %}{{ shipment.postage }}{% endif %}">
                 {% for carrier in shipment.carriers %}
                     <carrier id="{{ carrier.id }}">
                         <name>{{ carrier.name }}</name>
@@ -17,12 +17,18 @@
                     </carrier>
                 {% endfor %}
             </delivery>
+            {% if shipment.shipping_date %}
+                <shipping_date>{{ shipment.shipping_date }}</shipping_date>
+            {% endif %}
+            {% if shipment.mail_tracking_number %}
+                <tracking_num>{{ shipment.mail_tracking_number }}</tracking_num>
+            {% endif %}
             {% if shipment.fee_info %}
                 <fees>
                     <handling currency="{{ shipping_currency }}">
                         {{ shipment.fee_info.handling_fee }}
                     </handling>
-                    {% if shipment.fee_info.shipping_fee %}
+                    {% if shipment.fee_info.shipping_fee != None %}
                         <shipping currency="{{ shipping_currency }}">
                             {{ shipment.fee_info.shipping_fee }}
                         </shipping>
@@ -30,8 +36,9 @@
                 </fees>
             {% endif %}
             {% for shipping in shipment.shipping_list %}
-                <item sale="{{ shipping.id_sale }}">
+                <item sale="{{ shipping.id_sale }}" id_order_item="{{ shipping.id_item }}" id_shipping_list="{{ shipping.id_shipping_list }}">
                     <name>{{ shipping.sale_item.name }}</name>
+                    <shipping_status>{{ shipping.shipping_status }}</shipping_status>
                     {% if shipping.sale_item.sel_weight_type %}
                         <type id="{{ shipping.sale_item.type.id }}">
                             <name>{{ shipping.sale_item.type.name }}</name>
