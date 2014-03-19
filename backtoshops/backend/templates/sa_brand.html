@@ -79,6 +79,16 @@
                     <option value="">{% trans "Please selec a province" %}</option>
                 </select>
             </div>
+            {{ form.business_reg_num.errors }}
+            <div class="formrow">
+                <label for="{{form.business_reg_num.auto_id}}">{% trans form.business_reg_num.label %}</label>
+                {{ form.business_reg_num}}
+            </div>
+            {{ form.tax_reg_num.errors }}
+            <div class="formrow">
+                <label for="{{form.tax_reg_num.auto_id}}">{% trans form.tax_reg_num.label %}</label>
+                {{ form.tax_reg_num}}
+            </div>
         </fieldset>
         <!--BOUTONS-->
         <input class="btn valider" type="submit" value='{% trans "Save" %}'/>

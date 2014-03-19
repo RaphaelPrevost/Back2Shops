@@ -22,10 +22,37 @@ class ActorBrand(BaseActor):
     attrs_map = {'id': '@id',
                  'name': 'name',
                 'img': 'img'}
+    @property
+    def business(self):
+        return BusinessRegistration(data=self.data['business'])
+
+    @property
+    def address(self):
+        return Address(data=self.data['address'])
 
 class Location(BaseActor):
     attrs_map = {'lat': '@lat',
                  'long': '@long'}
+
+class Country(BaseActor):
+    attrs_map = {'province': '@province',
+                 'value': '#text'}
+
+class Address(BaseActor):
+    attrs_map = {
+        'addr': 'addr',
+        'zip': 'zip',
+        'city': 'city',
+    }
+
+    @property
+    def country(self):
+        return Country(data=self.data['country'])
+
+class BusinessRegistration(BaseActor):
+    attrs_map = {'registration': '@registration',
+                 'tax': 'tax'}
+
 
 class ActorShop(BaseActor):
     attrs_map = {'id': '@id',
@@ -33,13 +60,17 @@ class ActorShop(BaseActor):
                  'desc': 'desc',
                  'caption': 'caption',
                  'img': 'img',
-                 'addr': 'addr',
-                 'zip': 'zip',
-                 'city': 'city',
-                 'country': 'country',
                  'upc': 'upc',
-                 'hours': 'hours'
+                 'hours': 'hours',
                  }
+    @property
+    def business(self):
+        return BusinessRegistration(data=self.data['business'])
+
+    @property
+    def address(self):
+        return Address(data=self.data['address'])
+
     @property
     def brand(self):
         return ActorBrand(data=self.data['brand'])

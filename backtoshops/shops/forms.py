@@ -63,6 +63,8 @@ class ShopForm(forms.ModelForm):
         self.fields['longitude'].widget = forms.HiddenInput()
         self.fields['mother_brand'].widget = forms.HiddenInput()
         self.fields['opening_hours'] = ScheduleField(required=False)
+        self.fields['business_reg_num'].widget = forms.TextInput(attrs={'class': 'inputM'})
+        self.fields['tax_reg_num'].widget = forms.TextInput(attrs={'class': 'inputM'})
 
     def save(self, *args, **kwargs):
         if self.instance.address_id:

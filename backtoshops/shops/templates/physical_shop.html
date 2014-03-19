@@ -110,6 +110,16 @@
                 <label for="{{form.catcher.auto_id}}">{% trans form.catcher.label %}</label>
                 {{ form.catcher }}
             </div>
+            {{ form.business_reg_num.errors }}
+            <div class="formrow">
+                <label for="{{form.business_reg_num.auto_id}}">{% trans form.business_reg_num.label %}</label>
+                {{ form.business_reg_num }}
+            </div>
+            {{ form.tax_reg_num.errors }}
+            <div class="formrow">
+                <label for="{{form.tax_reg_num.auto_id}}">{% trans form.tax_reg_num.label %}</label>
+                {{ form.tax_reg_num }}
+            </div>
             {{ form.image.errors }}
             <div class="formrow">
                 <label for="{{form.image.auto_id}}">{% trans form.image.label %}</label>

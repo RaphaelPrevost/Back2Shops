@@ -47,7 +47,9 @@ class SABrandForm(forms.ModelForm):
             'zipcode': forms.TextInput(attrs={'class': 'inputXS'}),
             'city': forms.TextInput(attrs={'class': 'inputM'}),
             #'country': CountryField(queryset=Country.objects.all(), empty_label=_('Select a country'), to_field_name='country'),
-            'province_code': forms.HiddenInput()
+            'province_code': forms.HiddenInput(),
+            'business_reg_number': forms.TextInput(attrs={'class': 'inputM'}),
+            'tax_reg_number': forms.TextInput(attrs={'class': 'inputM'}),
         }
         kwargs['initial'].update(_initial)
         super(SABrandForm, self).__init__(instance=instance, *args, **kwargs)

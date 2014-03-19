@@ -2,24 +2,6 @@
 
 <shops version="1.0">
 	{% for object in object_list %}
-<shop id="{{ object.pk }}">
-    <!-- brand responsible for the shop -->
-    <brand id="{{ object.mother_brand.pk }}">
-        <name>{{ object.mother_brand.name }}</name>
-        <img>{% if object.mother_brand.logo %}{{ object.mother_brand.logo.url }}{% endif %}</img>
-    </brand>
-    <name>{{ object.name }}</name>
-    <desc>{{ object.description }}</desc>
-    <caption>{{ object.catcher }}</caption>
-    <img>{% if object.image %}{{ object.image.url }}{% endif %}</img>
-    <addr>{{ object.address.address }}</addr>
-    <zip>{{ object.address.zipcode }}</zip>
-    <city>{{ object.address.city }}</city>
-    <country>{{ object.address.country.iso }}</country>
-    <province_code>{{ object.address.province_code }}</province_code>
-    <upc>{% if object.upc %}{{ object.upc }}{% endif %}</upc>
-    <location lat="{{ object.latitude|unlocalize }}" long="{{ object.longitude|unlocalize }}" />
-    <hours>{{ object.opening_hours }}</hours>
-</shop>
+        {% include "shop.xml" %}
 	{% endfor %}
 </shops>
