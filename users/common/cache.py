@@ -325,7 +325,7 @@ class ShopsCacheProxy(CacheProxy):
         shop = ujson.loads(shop)
         pipe = cli.pipeline()
         pipe.lrem(SHOPS_FOR_BRAND % shop['brand']['@id'], id, 0)
-        pipe.lrem(SHOPS_FOR_CITY % shop['city'], id, 0)
+        pipe.lrem(SHOPS_FOR_CITY % shop['address']['city'], id, 0)
         pipe.lrem(SHOPS_ALL % ALL, id, 0)
         pipe.delete(SHOP_WITH_BARCODE% id)
         pipe.execute()
@@ -354,7 +354,7 @@ class ShopsCacheProxy(CacheProxy):
         pipe = get_redis_cli().pipeline()
         for shop in shops:
             shop_id = shop['@id']
-            city = shop['city']
+            city = shop['address']['city']
             brand_id = shop['brand']['@id']
 
             pipe.rpush(SHOPS_FOR_CITY % city, shop_id)
