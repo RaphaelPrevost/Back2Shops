@@ -51,6 +51,15 @@
                             <span>0 {{ shipment.fees.shipping.currency }}</span>
                         {% endif %}
                     </div>
+
+                    <div class="auto_handling_fee formrow">
+                        <label><p>{% trans "Handling fees" %}: </p></label>
+                        {% if shipment.fees.handling.value %}
+                            <span>{{ shipment.fees.handling.value }} {{ shipment.fees.handling.currency }}</span>
+                        {% else %}
+                            <span>0 {{ shipment.fees.handling.currency }}</span>
+                        {% endif %}
+                    </div>
                 {% endif %}
                 <div class="date_picker formrow">
                     <label><p>{% trans "Shipping Date" %}: </p></label>
