@@ -1,0 +1,41 @@
+{% load l10n %}
+
+<shop id="{{ object.pk }}">
+    <!-- brand responsible for the shop -->
+    <brand id="{{ object.mother_brand.pk }}">
+        <name>{{ object.mother_brand.name }}</name>
+        <img>{% if object.mother_brand.logo %}{{ object.mother_brand.logo.url }}{% endif %}</img>
+        <!-- business registration details -->
+        <business registration="{{ object.mother_brand.business_reg_num }}">
+            <tax>{{ object.mother_brand.tax_reg_num }}</tax>
+        </business>
+        <!-- corporate account address -->
+        <address>
+            <addr>{{ object.mother_brand.address.address }}</addr>
+            <zip>{{ object.mother_brand.address.zipcode }}</zip>
+            <city>{{ object.mother_brand.address.city }}</city>
+            <country province="{% if object.mother_brand.address.province_code %}{{ object.mother_brand.address.province_code }}{% endif %}">
+                {{ object.mother_brand.address.country.iso }}
+            </country>
+        </address>
+    </brand>
+    <name>{{ object.name }}</name>
+    <business registration="{{ object.business_reg_num }}">
+        <tax>{{ object.tax_reg_num }}</tax>
+    </business>
+    <desc>{{ object.description }}</desc>
+    <caption>{{ object.catcher }}</caption>
+    <img>{% if object.image %}{{ object.image.url }}{% endif %}</img>
+    <!-- shop address -->
+    <address>
+        <addr>{{ object.address.address }}</addr>
+        <zip>{{ object.address.zipcode }}</zip>
+        <city>{{ object.address.city }}</city>
+        <country province="{% if object.address.province_code %}{{ object.address.province_code }}{% endif %}">
+            {{ object.address.country.iso }}
+        </country>
+    </address>
+    <upc>{% if object.upc %}{{ object.upc }}{% endif %}</upc>
+    <location lat="{{ object.latitude|unlocalize }}" long="{{ object.longitude|unlocalize }}" />
+    <hours>{{ object.opening_hours }}</hours>
+</shop>
