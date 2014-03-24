@@ -37,7 +37,7 @@ class SABrandForm(forms.ModelForm):
 
     class Meta:
         model = Brand
-        exclude = ('address', )
+        exclude = ('address', 'default_currency')
 
     def __init__(self, instance=None, *args, **kwargs):
         _fields = ('address', 'zipcode', 'city', 'country', 'province_code')
