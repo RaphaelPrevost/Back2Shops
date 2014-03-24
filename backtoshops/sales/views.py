@@ -1087,12 +1087,13 @@ class SaleWizardNew(NamedUrlSessionWizardView):
 
         if step == self.STEP_PRODUCT:
             initial_product = super(SaleWizardNew, self).get_form_initial(step)
-            shop_obj = self.get_form(self.STEP_SHOP,
-                                     data=self.storage.get_step_data(self.STEP_SHOP))
-            shop_obj.full_clean()
-            currency = get_sale_currency(self.request, shop_obj.cleaned_data)
-            initial_product.update({'currency':
-                    ProductCurrency.objects.get(code=currency)})
+            if not self.edit_mode:
+                shop_obj = self.get_form(self.STEP_SHOP,
+                                         data=self.storage.get_step_data(self.STEP_SHOP))
+                shop_obj.full_clean()
+                currency = get_sale_currency(self.request, shop_obj.cleaned_data)
+                initial_product.update({'currency':
+                        ProductCurrency.objects.get(code=currency)})
             return initial_product
 
         if step == self.STEP_STOCKS:
