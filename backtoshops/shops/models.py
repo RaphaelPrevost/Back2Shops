@@ -30,7 +30,8 @@ class Shop(models.Model):
     owner = models.ForeignKey(User, blank=True, null=True)
     business_reg_num = models.CharField(verbose_name="Business Reg Num", max_length=100)
     tax_reg_num = models.CharField(verbose_name="Tax Reg Num", max_length=100)
-
+    default_currency = models.CharField(verbose_name="Default Currency",
+                                        max_length=3, null=True)
 
     def __unicode__(self):
         return self.name

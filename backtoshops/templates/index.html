@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load is_admin %}
 {% load is_shop_manager_upper %}
 {% load is_manager_upper %}
 
@@ -47,6 +48,12 @@
         <li>
             <h3 class="link11">{% trans "Promotion Group" %}</h3>
             <a href="{% url 'page_promotion' %}">{% trans "Promotion Group" %}</a>
+        </li>
+        {% endif %}
+        {% if user|is_admin %}
+        <li>
+            <h3 class="link12">{% trans "Settings" %}</h3>
+            <a href="{% url 'sa_settings' %}" >{% trans "Settings" %}</a>
         </li>
         {% endif %}
     </ul>

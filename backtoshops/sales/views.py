@@ -72,6 +72,24 @@ from stocks.models import ProductStock
 from B2SProtocol.settings import SHIPPING_CURRENCY
 from B2SProtocol.settings import SHIPPING_WEIGHT_UNIT
 
+def get_brand_currency(request):
+    default_currency = get_setting('default_currency')
+    user = request.user
+    if user.is_superuser:
+        return default_currency
+    brand_currency = user.get_profile().work_for.default_currency
+    return brand_currency or default_currency
+
+def get_shop_currency(request, shop):
+    return shop.default_currency or get_brand_currency(request)
+
+def get_sale_currency(request, shop_data):
+    target_market = shop_data['target_market']
+    shops = shop_data['shops']
+    if target_market == TARGET_MARKET_TYPES.LOCAL and shops:
+        return get_shop_currency(request, shops[0])
+    return get_brand_currency(request)
+
 
 class UploadProductPictureView(View, TemplateResponseMixin):
     template_name = ""
@@ -361,7 +379,6 @@ def add_sale(request, *args, **kwargs):
     ]
 
     initial_product = {
-        'currency': ProductCurrency.objects.get(code=get_setting('default_currency')),
         'weight_unit': WeightUnit.objects.get(key=get_setting('default_weight_unit')),
         'category': None,
     }
@@ -957,6 +974,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         if self.steps.current == self.STEP_SHOP:
             context.update({
                 'form_title': _("Shops Selection"),
+                'brand_currency': get_brand_currency(self.request),
                 'preview_shop': "blank",
                 'shops_cant_be_deleted': ','.join(list(set(
                    [str(p.shop.pk) for p in ProductStock.objects.filter(sale=self.sale).exclude(stock=F('rest_stock'))
@@ -1064,8 +1082,19 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         }
 
     def get_form_initial(self, step):
-        if step == None:
+        if step is None:
             step = self.steps.current
+
+        if step == self.STEP_PRODUCT:
+            initial_product = super(SaleWizardNew, self).get_form_initial(step)
+            shop_obj = self.get_form(self.STEP_SHOP,
+                                     data=self.storage.get_step_data(self.STEP_SHOP))
+            shop_obj.full_clean()
+            currency = get_sale_currency(self.request, shop_obj.cleaned_data)
+            initial_product.update({'currency':
+                    ProductCurrency.objects.get(code=currency)})
+            return initial_product
+
         if step == self.STEP_STOCKS:
             shop_obj = self.get_form(self.STEP_SHOP, data=self.storage.get_step_data(self.STEP_SHOP))
             product_obj = self.get_form(self.STEP_PRODUCT,

@@ -84,3 +84,24 @@ class CaProvince(models.Model):
 
     def __unicode__(self):
         return self.name
+
+class CountryXCurrency(models.Model):
+    """
+    Country & Currency Mapping Table
+    """
+    country = models.ForeignKey('Country')
+    currency = models.CharField(max_length=3)
+
+    class Meta:
+        db_table = 'country_x_currency'
+        verbose_name = _('Country & Currency Mapping')
+        verbose_name_plural = _('Country & Currency Mapping')
+        ordering = ('country',)
+        unique_together = (("country", "currency"),)
+
+    class Admin:
+        list_display = ('country', 'currency',)
+
+    def __unicode__(self):
+        return self.name
+
