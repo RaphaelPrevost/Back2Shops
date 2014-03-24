@@ -3,6 +3,7 @@ from django import forms
 from django.forms.models import model_to_dict
 from django.forms.models import fields_for_model
 from django.utils.datastructures import SortedDict
+from sales.models import ProductCurrency
 from shops.models import Shop
 from widgets import ScheduleWidget
 from django.utils.translation import ugettext_lazy as _
@@ -65,6 +66,12 @@ class ShopForm(forms.ModelForm):
         self.fields['opening_hours'] = ScheduleField(required=False)
         self.fields['business_reg_num'].widget = forms.TextInput(attrs={'class': 'inputM'})
         self.fields['tax_reg_num'].widget = forms.TextInput(attrs={'class': 'inputM'})
+        currency_choices = [('', '-' * 9)]
+        currency_choices.extend([(s, s) for s in
+                     ProductCurrency.objects.all().values_list('code', flat=True)])
+        self.fields['default_currency'] = forms.ChoiceField(
+            choices=currency_choices, label=_('Default currency'),
+            required=False)
 
     def save(self, *args, **kwargs):
         if self.instance.address_id:

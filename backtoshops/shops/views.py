@@ -10,8 +10,10 @@ from fouillis.views import admin_required
 from fouillis.views import ManagerUpperLoginRequiredMixin
 from common.constants import USERS_ROLE
 from common.error import InvalidRequestError
+from countries.models import CountryXCurrency
 from shops.models import Shop
 from shops.forms import ShopForm
+from sales.views import get_brand_currency
 
 class ShopCoordinates(TemplateView):
     def get(self, request, *args, **kwargs):
@@ -92,6 +94,7 @@ class CreateShopView(BaseShopView, CreateView):
             return {}
 
         return {
+            "default_currency": get_brand_currency(self.request),
             "mother_brand": self.request.user.get_profile().work_for
         }
 

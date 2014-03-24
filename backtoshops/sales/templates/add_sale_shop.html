@@ -26,6 +26,7 @@
 
             <div id="physical_shops">
                 <div class="formrow">
+                    <div class="comments"> {% trans 'Please select shops within the same currency area.' %} </div>
                     <label for="{{ wizard.form.shops.auto_id }}">{{ wizard.form.shops.label }}</label>
                     <input type="text" id="shop_search" value="" name="shop_search" />
                     <div id="check_shops">
@@ -78,16 +79,94 @@
                 if(!q){
                     $(this).attr('checked','checked');
                 }
-                return;
-            }
-            if(y.indexOf(given) != -1 && this.checked){
+            } else if(y.indexOf(given) != -1 && this.checked){
                 var q = confirm("{% trans 'This shop already has stocks as frozen status. Will you unfreeze them?\n' %}");
                 if(!q){
                     $(this).attr('checked','');
                 }
-                return;
             }
+
+            var pre_chosen_list = $("input[name='shop-shops']:checked").not("#" + this.id);
+            if (this.checked && pre_chosen_list.length > 0) {
+                var brand_currency = "{{ brand_currency }}";
+                var item = pre_chosen_list.first();
+                var item_curr = item.find("+span").attr('default_currency');
+                if (item_curr == 'None') item_curr = brand_currency;
+                var this_curr = $(this).find("+span").attr('default_currency');
+                if (this_curr == 'None') this_curr = brand_currency;
+
+                if (this_curr != item_curr) {
+                    // chosen shop's currency is different with others, unchecked
+                    this.checked = false;
+                    $("#physical_shops .comments").show();
+                } else {
+                    $("#physical_shops .comments").hide();
+                }
+            }
+
+            check_shop_currency();
         });
+
+        function check_shop_currency() {
+            var brand_currency = "{{ brand_currency }}";
+            var chosen_list = $("input[name='shop-shops']:checked");
+            if (chosen_list.length > 0) {
+                var chosen_curr = chosen_list.first().find("+span").attr('default_currency');
+                if (chosen_curr == 'None') chosen_curr = brand_currency;
+
+                $("#check_shops ul li ul li").each(function(){
+                    var curr = $(this).find("input+span").attr('default_currency');
+                    if (curr == 'None') curr = brand_currency;
+
+                    // show currency if it's different from brand default currency
+                    if (curr != brand_currency) {
+                        if ($(this).find("input+span+span").length > 0)
+                            $(this).find("input+span+span").show();
+                        else
+                            $('<span>(' + curr + ')</span>').insertAfter($(this).find("input+span"));
+
+                    }
+
+                    // disable shops with different currencies
+                    if (curr != chosen_curr) {
+                        disable_shop(this, "currency");
+                    } else {
+                        enable_shop(this, "currency");
+                    }
+                });
+            } else {
+                $("#check_shops ul li ul li").each(function(){
+                    // hide currency
+                    $(this).find("input+span+span").hide();
+                    // enable shop
+                    enable_shop(this, "currency");
+                });
+            }
+        }
+
+        function disable_shop(obj, disable_by) {
+            var by = $(obj).attr("disable_by");
+            if (by == undefined) by = "";
+            if (by.indexOf(disable_by) == -1)
+                by += disable_by + ";";
+            $(obj).attr("disable_by", by);
+
+            $("label", $(obj)).css('color', '#ccc');
+            $("input", $(obj)).attr('disabled', 'disabled');
+        }
+
+        function enable_shop(obj, enable_by) {
+            var by = $(obj).attr("disable_by");
+            if (by == undefined) return;
+            if (by.indexOf(enable_by) != -1) {
+                by = by.replace(enable_by + ";", "");
+                $(obj).attr("disable_by", by);
+            }
+            if (by == "") {
+                $("label", $(obj)).css('color', 'black');
+                $("input", $(obj)).removeAttr('disabled');
+            }
+        }
 
         $("#shop_search").keyup(function() {
             // Retrieve the input field text and reset the count to zero
@@ -98,13 +177,11 @@
 
                 // If the list item does not contain the text phrase fade it out
                 if ($(this).text().search(new RegExp(filter, "i")) < 0) {
-                    $("label", $(this)).css('color', '#ccc');
-                    $("input", $(this)).attr('disabled', 'disabled');
+                    disable_shop(this, "search");
 
                 // Show the list item if the phrase matches and increase the count by 1
                 } else {
-                    $("label", $(this)).css('color', 'black');
-                    $("input", $(this)).removeAttr('disabled');
+                    enable_shop(this, "search");
                     count++;
                 }
             });

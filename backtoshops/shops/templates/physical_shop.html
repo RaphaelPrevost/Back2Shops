@@ -90,6 +90,11 @@
                     <option value="">{% trans "Please selec a province" %}</option>
                 </select>
             </div>
+            {{ form.default_currency.errors }}
+            <div class="formrow">
+                <label for="{{form.default_currency.auto_id}}">{% trans form.default_currency.label %}</label>
+                {{ form.default_currency}}
+            </div>
             <div id="localization">
                 <span id="localization_infos"></span>
                 <div id="googleMap" style="width: 280px; height: 250px; margin-bottom: 5px;">
@@ -392,6 +397,12 @@
     function countryChange() {
         loadStates();
         localization();
+
+        var country = $("#{{ form.country.auto_id }}").val();
+        var currency = country_currency_mapping[country];
+        if (currency != undefined) {
+            $("#{{ form.default_currency.auto_id }}").val(currency);
+        }
     }
 
     function stateChange() {
@@ -400,8 +411,23 @@
         localization();
     }
 
+    var country_currency_mapping = {};
+    function loadCountryCurrencyMapping() {
+        $.ajax({
+            type: "GET",
+            url: "/countries/get_country_x_currency/",
+            dataType: "json",
+            success: function(mapping, textState) {
+                country_currency_mapping = mapping;
+            },
+            error: function(err) {
+            }
+        })
+    }
+
     $(function(){
         initMap(); // Define in add_sale_preview_shop.html template
+        loadCountryCurrencyMapping();
         /*
         $("#{{ form.country.auto_id }}").autocomplete({
             source: function(request, response) {

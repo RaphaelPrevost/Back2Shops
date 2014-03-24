@@ -102,6 +102,7 @@
         <div class="formrow">
             <label for="{{ wizard.form.currency.auto_id }}">{% trans wizard.form.currency.label %}</label>
             <span>{{wizard.form.currency}}</span>
+            <input type="hidden" name="{{wizard.form.currency.html_name}}" value="{{wizard.form.currency.value}}" />
         </div>
 
         {{ wizard.form.normal_price.errors }}

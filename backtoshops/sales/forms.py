@@ -52,6 +52,7 @@ class GroupedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
         has_id = attrs and 'id' in attrs
         group_by = self.render_attrs.get('group_by', None) or 'id'
         ul_id = self.render_attrs.get('ul_id', None)
+        extra_field = self.render_attrs.get('extra_field', None)
 
         final_attrs = self.build_attrs(attrs, name=name)
         output = ul_id and [u'<ul id="%s">' % ul_id] or [u'<ul>']
@@ -84,7 +85,12 @@ class GroupedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
             option_value = force_unicode(option_value)
             rendered_cb = cb.render(name, option_value)
             option_label = conditional_escape(force_unicode(option_label))
+            if extra_field:
+                extra_field_value = getattr(self.choices.queryset[i], extra_field, '')
+                option_label = "<span %s='%s'>%s</span>" % (
+                        extra_field, extra_field_value, option_label)
             output.append(u'<li><label%s>%s %s</label></li>' % (label_for, rendered_cb, option_label))
+
             if i + 1 < self.choices.queryset.count():
                 next_group_by_obj = self._group_by_obj(
                     self.choices.queryset[i+1], group_by_obj_name)
@@ -100,7 +106,6 @@ class GroupedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
             return obj
         else:
             return getattr(obj, group_by_obj_name)
-
 
 
 class ShippingServicesGroupedCheckboxSelectMultiple(GroupedCheckboxSelectMultiple):
@@ -169,7 +174,8 @@ class ShopForm(forms.Form):
             queryset=Shop.objects.filter(**search_arguments).order_by('address__city'),
             widget=GroupedCheckboxSelectMultiple(
                 render_attrs={'group_by': 'address__city',
-                              'ul_id': 'shopfolders'}),
+                              'ul_id': 'shopfolders',
+                              'extra_field': 'default_currency'}),
             required=False,
             initial=kwargs['initial'].get('shops')
         )
@@ -215,16 +221,24 @@ class ShopForm(forms.Form):
 
     def clean(self):
         data = self.cleaned_data
-        target_market = data.get('target_market','')
+        target_market = data.get('target_market', '')
         # Only super user and global sales manager could set sales market
         # to global.
-        if (target_market == 'N' and
+        if (target_market == TARGET_MARKET_TYPES.GLOBAL and
             (self.request.user.is_superuser or
              self.request.user.get_profile().allow_internet_operate)):
             data['shops'] = []
         else:
             if len(data['shops']) == 0:
                 raise forms.ValidationError(_("You must select at least one shop."))
+
+            from sales.views import get_shop_currency
+            # check if selected shops in the same currency
+            first_currency = get_shop_currency(self.request, data['shops'][0])
+            for s in data['shops'][1:]:
+                if get_shop_currency(self.request, s) != first_currency:
+                    raise forms.ValidationError(
+                            _("Please select shops within the same currency area."))
         return data
 
 class BrandAttributeForm(forms.Form):
@@ -279,7 +293,8 @@ class ProductForm(forms.Form):
         required=False)
     currency = forms.ModelChoiceField(
         label=_("Currency"),
-        queryset=ProductCurrency.objects.all())
+        queryset=ProductCurrency.objects.all(),
+        widget=forms.Select(attrs={'disabled':'disabled'}))
     discount_type = forms.ChoiceField(required=False, choices=DISCOUNT_TYPE)
     discount = forms.FloatField(
         required=False,

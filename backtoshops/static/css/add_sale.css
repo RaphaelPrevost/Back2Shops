@@ -611,6 +611,14 @@
         border: 0;
         background: none 0;
     }
+    #main_form .comments {
+        display: None;
+        color: red;
+        height: 36px;
+        line-height: 36px;
+        margin-top: 4px;
+        padding-left: 0px;
+    }
 
 
     /*styles_debug_dev___19/09___*/

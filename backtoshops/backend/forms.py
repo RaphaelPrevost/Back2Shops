@@ -238,6 +238,22 @@ class SASettingsForm(forms.Form):
                 _("The two password fields didn't match."))
         return new_password2
 
+class SABrandSettingsForm(forms.Form):
+    error_css_class = 'error'
+    required_css_class = 'required'
+
+    default_currency = forms.ChoiceField(
+        choices=[(s, s) for s in
+                 ProductCurrency.objects.all().values_list('code', flat=True)],
+        label=_('Brand Default Currency'))
+
+    def __init__(self, user=None, *args, **kwargs):
+        initial = kwargs.get('initial', {})
+        if user is not None:
+            brand = user.get_profile().work_for
+            initial['default_currency'] = brand.default_currency \
+                                       or get_setting('default_currency')
+        super(SABrandSettingsForm, self).__init__(initial=initial, *args, **kwargs)
 
 class SATaxForm(forms.ModelForm):
     error_css_class = 'error'
