@@ -624,6 +624,8 @@ class TestShippingList(BaseShipmentTestCase):
                  'calculation_method': 3,
                  'id_brand': 1000001,
                  'id_shop': 1000002,
+                 'tracking_name': None,
+                 'shipping_carrier': 1,
                  'shipping_list': [
                      {'id_shipping_list': id_spl_item,
                       'id_item': id_order_item,

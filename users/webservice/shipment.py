@@ -11,13 +11,11 @@ from B2SProtocol.constants import SHIPPING_STATUS
 from common.error import UserError
 from common.error import ErrorCode as E_C
 from webservice.base import BaseJsonResource
-from models.actors.sale import CachedSale
 from models.order import order_exist
-from models.order import order_item_exist
 from models.shipments import create_shipment
-from models.shipments import create_shipping_list
 from models.shipments import update_or_create_shipping_list
 from models.shipments import shipment_item
+from models.shipments import get_packing_spl_for_shipment
 from models.shipments import get_shipment_by_id
 from models.shipments import get_spl_item_by_id
 from models.shipments import update_shipping_list
@@ -126,23 +124,32 @@ class ShipmentResource(BaseJsonResource):
             handling_fee = self.request.get_param('handling_fee')
             shipping_fee = self.request.get_param('shipping_fee')
 
-            # create manually shipment
-            id_shipment = create_shipment(
-                conn,
-                id_order=id_order,
-                id_brand=orig_shipment['id_brand'],
-                id_shop=orig_shipment['id_shop'],
-                status=SHIPMENT_STATUS.PACKING,
-                handling_fee=handling_fee,
-                shipping_fee=shipping_fee,
-                calculation_method=SCM.MANUAL)
-
+            sp_packing_list = get_packing_spl_for_shipment(conn,
+                                                           id_orig_shipment)
+            if len(sp_packing_list) > 0:
+                # create manually shipment
+                id_shipment = create_shipment(
+                    conn,
+                    id_order=id_order,
+                    id_brand=orig_shipment['id_brand'],
+                    id_shop=orig_shipment['id_shop'],
+                    status=SHIPMENT_STATUS.PACKING,
+                    handling_fee=handling_fee,
+                    shipping_fee=shipping_fee,
+                    calculation_method=SCM.MANUAL)
+            else:
+                id_shipment = id_orig_shipment
+                update_shipment(conn,
+                                id_shipment,
+                                {'calculation_method': SCM.MANUAL,
+                                 'status': SHIPMENT_STATUS.PACKING},
+                                shipment=orig_shipment)
 
             # create shipping list.
             for item in content:
                 orig_spl_item_id = item['id_shipping_list_item']
                 orig_spl_item = get_spl_item_by_id(conn, orig_spl_item_id)
-                create_shipping_list(
+                update_or_create_shipping_list(
                     conn,
                     item['id_order_item'],
                     item['quantity'],
@@ -187,6 +194,8 @@ class ShipmentResource(BaseJsonResource):
         status = self.request.get_param('status')
         tracking = self.request.get_param('tracking')
         shipping_date = self.request.get_param('shipping_date')
+        tracking_name = self.request.get_param('tracking_name')
+        shipping_carrier = self.request.get_param('shipping_carrier')
 
         values = {}
         if status:
@@ -200,6 +209,11 @@ class ShipmentResource(BaseJsonResource):
                 format_ = '%Y-%m-%d'
             sp_date = datetime.datetime.strptime(shipping_date, format_)
             values['shipping_date'] = sp_date
+        if tracking_name:
+            values['tracking_name'] = tracking_name
+        if shipping_carrier is not None:
+            values['shipping_carrier'] = shipping_carrier
+
         if values:
             update_shipment(conn, id_shipment, values)
 
@@ -212,41 +226,142 @@ class ShipmentResource(BaseJsonResource):
         if values:
             update_shipping_fee(conn, id_shipment, values)
 
+    def _update_delivered_shipment(self, conn):
+        ''' For delivered shipment, could only update its shipping_date
+        and mail_tracking_num.
+        '''
+        id_shipment = self.request.get_param('shipment')
+        shipping_date = self.request.get_param('shipping_date')
+        tracking_num = self.request.get_param('tracking')
+
+        values = {}
+        if shipping_date:
+            if "/" in shipping_date:
+                format_ = '%m/%d/%Y'
+            else:
+                format_ = '%Y-%m-%d'
+            sp_date = datetime.datetime.strptime(shipping_date, format_)
+            values['shipping_date'] = sp_date
+        if tracking_num:
+            values['mail_tracking_number'] = tracking_num
+
+        if values:
+            update_shipment(conn, id_shipment, values)
+
+
+    def packing_to_remaining(self, conn, id_shipment, content):
+        '''
+        Reduce quantity of Packing shipping list items in shipment, make the
+        reduced quantity into shipment's remaining list item.
+
+        If there already same order item in current shipment's remaining list,
+        just increase the quantity of the related order item's shipping list.
+
+        @param conn: database connection
+        @param id_shipment: shipment id which content items belongs to.
+        @param content: shipping list items need to be update.
+        @return: None
+        '''
+        for item in content:
+            orig_spl_item_id = item['id_shipping_list_item']
+            orig_spl_item = get_spl_item_by_id(conn, orig_spl_item_id)
+
+            orig_qty = orig_spl_item['quantity']
+            new_qty = int(item['quantity'])
+
+            reduced_qty = orig_qty - new_qty
+            if reduced_qty== 0:
+                continue
+
+            update_or_create_shipping_list(
+                conn,
+                item['id_order_item'],
+                reduced_qty,
+                id_shipment=id_shipment,
+                picture=orig_spl_item['picture'],
+                free_shipping=orig_spl_item['free_shipping'],
+                status=SHIPPING_STATUS.TO_PACKING,
+                id_orig_shipping_list=orig_spl_item_id)
+            self._update_orig_spl_item(
+                conn,
+                orig_spl_item_id,
+                new_qty)
+
+    def remaining_to_packing(self, conn, id_shipment, content):
+        '''
+        Packing the items in content.
+
+        If there already same order items in current shipment packing list,
+        just update the quantity of the related order item's shipping list.
+
+        @param conn: database connection
+        @param id_shipment: shipment id which content items belongs to.
+        @param content: shipping list items need to be update.
+        @return: None
+        '''
+        for item in content:
+            spl_item_id = item['id_shipping_list_item']
+            spl_item = get_spl_item_by_id(conn, spl_item_id)
+
+            qty = spl_item['quantity']
+            packing_qty = int(item['quantity'])
+
+            if packing_qty == 0:
+                continue
+
+            left_qty = qty - packing_qty
+
+            update_or_create_shipping_list(
+                conn,
+                item['id_order_item'],
+                packing_qty,
+                id_shipment=id_shipment,
+                picture=spl_item['picture'],
+                free_shipping=spl_item['free_shipping'],
+                status=SHIPPING_STATUS.PACKING,
+                id_orig_shipping_list=spl_item_id)
+            self._update_orig_spl_item(
+                conn,
+                spl_item_id,
+                left_qty)
+
+    def shipment_check(self, shipment):
+        if not shipment:
+            raise UserError(E_C.ERR_ENOENT[0], E_C.ERR_ENOENT[1])
+
+        cur_status = shipment['status']
+        new_status = self.request.get_param('status')
+
+        if (cur_status == SHIPMENT_STATUS.DELIVER and
+            cur_status != int(new_status)):
+            logging.error("Some one trying to change shipment %s "
+                          "status from %s to %s", shipment['id'],
+                          cur_status, new_status, exc_info=True)
+            raise UserError(E_C.ERR_EPERM[0], E_C.ERR_EPERM[1])
+
     def shipment_update(self, req, resp, conn):
         id_shipment = self.request.get_param('shipment')
         try:
-            content = self.request.get_param('content')
-            if content:
-                content = ujson.loads(content)
-                self.content_check(conn, content, id_shipment)
-                # create shipping list.
-                for item in content:
-                    orig_spl_item_id = item['id_shipping_list_item']
-                    orig_spl_item = get_spl_item_by_id(conn, orig_spl_item_id)
+            shipment = get_shipment_by_id(conn, id_shipment)
+            self.shipment_check(shipment)
 
-                    orig_qty = orig_spl_item['quantity']
-                    new_qty = int(item['quantity'])
+            if int(shipment['status']) == SHIPMENT_STATUS.DELIVER:
+                self._update_delivered_shipment(conn)
+            else:
+                content = self.request.get_param('content')
+                remaining_content = self.request.get_param('remaining_content')
 
-                    out_qty = orig_qty - new_qty
-                    if out_qty == 0:
-                        continue
+                if content:
+                    content = ujson.loads(content)
+                    self.content_check(conn, content, id_shipment)
+                    self.packing_to_remaining(conn, id_shipment, content)
+                if remaining_content:
+                    remaining_content = ujson.loads(remaining_content)
+                    self.content_check(conn, remaining_content, id_shipment)
+                    self.remaining_to_packing(conn, id_shipment, remaining_content)
 
-                    update_or_create_shipping_list(
-                        conn,
-                        item['id_order_item'],
-                        out_qty,
-                        id_shipment=id_shipment,
-                        picture=orig_spl_item['picture'],
-                        free_shipping=orig_spl_item['free_shipping'],
-                        status=SHIPPING_STATUS.TO_PACKING,
-                        id_orig_shipping_list=orig_spl_item_id)
-                    self._update_orig_spl_item(
-                        conn,
-                        orig_spl_item_id,
-                        new_qty)
-
-            # update status, shipping fee, handling fee
-            self._update_shipment(conn)
+                # update status, shipping fee, handling fee
+                self._update_shipment(conn)
 
             return {'res': SUCCESS,
                     'id_shipment': id_shipment}
@@ -277,10 +392,33 @@ class ShipmentResource(BaseJsonResource):
     def shipment_delete(self, req, resp, conn):
         id_shipment = self.request.get_param('shipment')
         try:
-            values = {'status': SHIPMENT_STATUS.DELETED}
-            id_shipment = update_shipment(conn, id_shipment, values)
+            shipment = get_shipment_by_id(conn, id_shipment)
+            if not shipment:
+                raise UserError(E_C.ERR_ENOENT[0], E_C.ERR_ENOENT[1])
+            if int(shipment['status']) == SHIPMENT_STATUS.DELIVER:
+                raise UserError(E_C.ERR_EPERM[0], E_C.ERR_EPERM[1])
+
+            # update shipment status to deleted
+            values = {'status': SHIPMENT_STATUS.DELETED,
+                      'calculation_method': SCM.MANUAL
+                      }
+            update_shipment(conn, id_shipment, values, shipment=shipment)
+
+
+            # udpate shipping list status to to_packing.
+            where = {'id_shipment': id_shipment}
+            values = {'status': SHIPPING_STATUS.TO_PACKING}
+            update_shipping_list(conn, where, values)
+
             return {'res': SUCCESS,
                     'id_shipment': id_shipment}
+        except UserError, e:
+            logging.error('SPM_CREATE_ERR_%s, order: %s',
+                          str(e),
+                          id_shipment,
+                          exc_info=True)
+            return {'res': FAILURE,
+                    'err': e.desc}
         except Exception, e:
             logging.error("SERVER_ERR: %s, order:%s",
                           str(e),

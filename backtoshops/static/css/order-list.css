@@ -290,7 +290,8 @@ div.error_msg {
     padding-left: 10px;
 }
 
-.packing .packing_form {
+.packing .packing_list,
+.packing .remaining_list {
     display: None;
 }
 
@@ -352,12 +353,12 @@ div.error_msg {
 }
 
 
-.packing .remaining_list {
+.packing .remaining_list_items {
     padding-top: 10px;
     position: relative;
 }
 
-.packing .remaining_list .remaining_item {
+.packing .remaining_list_items .remaining_item {
     display: block;
     background-color: #F2F9FF;
     min-height: 24px;
@@ -392,8 +393,9 @@ div.error_msg {
     width: 20px;
 }
 
-.packing .shipping_date {
-    width: 80px;
+.outer_shipping_date {
+    padding-left: 30px;
+    display: None;
 }
 /* Packing List end */
 
@@ -448,7 +450,6 @@ div.error_msg {
 .formrow .contForm{
     width: 283px;
     height: auto;
-    line-height: auto;
     margin: auto;
 }
 
@@ -489,10 +490,26 @@ div.error_msg {
     width: 80px;
 }
 
+.outer_tracking_name {
+    padding-left: 30px;
+}
+
 hr {
     margin-bottom: 7px;
 }
 
+input[readonly] {
+    background-color: #bdbdbd;
+}
+
+select[disabled] {
+    background-color: #bdbdbd;
+}
+
+span.item_name {
+    max-width: 180px;
+    overflow: hidden;
+}
 
 /*Btn Update, Delete, Cancel*/
 .btnForm {

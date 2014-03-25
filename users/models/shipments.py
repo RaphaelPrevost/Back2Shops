@@ -34,10 +34,17 @@ def create_shipment(conn, id_order, id_brand, id_shop,
         'id_brand': id_brand,
         'id_shop': id_shop,
         'status': SHIPMENT_STATUS.PACKING,
-        'timestamp': datetime.utcnow(),
+        'create_time': datetime.utcnow(),
+        'update_time': datetime.utcnow(),
         }
     if calculation_method is not None:
         sm_values['calculation_method'] = calculation_method
+
+    if isinstance(supported_services, str):
+        supported_services = ujson.loads(supported_services)
+
+    if supported_services and len(supported_services) == 1:
+        sm_values['shipping_carrier'] = int(supported_services.values()[0])
 
     sm_id = insert(conn, 'shipments', values=sm_values, returning='id')
     logging.info('shipment created: id: %s, values: %s',
@@ -129,10 +136,11 @@ def update_or_create_shipping_list(conn, id_item, quantity,
                          free_shipping=None,
                          status=SHIPPING_STATUS.PACKING,
                          id_orig_shipping_list=None):
-    orig_spl = get_spl_by_orig(conn, id_shipment, id_orig_shipping_list)
-    if orig_spl:
-        where = {'id': orig_spl['id']}
-        values = {'quantity': orig_spl['quantity'] + quantity}
+    exist_spl = get_spl_by_item(conn, id_shipment, id_item, status)
+    if exist_spl:
+        where = {'id': exist_spl['id']}
+        values = {'quantity': exist_spl['quantity'] + int(quantity),
+                  'status': status}
         update_shipping_list(conn, where, values)
     else:
         create_shipping_list(conn, id_item, quantity,
@@ -690,8 +698,10 @@ class ShipmentsHandler(object):
 
 
 SHIPMENT_FIELDS = ['id', 'id_order', 'mail_tracking_number',
-                   'status', 'timestamp', 'calculation_method',
-                   'id_brand', 'id_shop', 'shipping_date']
+                   'status', 'create_time', 'calculation_method',
+                   'id_brand', 'id_shop', 'shipping_date',
+                   'shipping_carrier', 'tracking_name',
+                   'update_time']
 def get_shipments_by_order(conn, id_order):
     query_str = ("SELECT %s "
                    "FROM shipments "
@@ -724,13 +734,29 @@ def get_shipment_by_id(conn, id_shipment):
         shipment_list.append(dict(zip(SHIPMENT_FIELDS, item)))
     return shipment_list and shipment_list[0] or None
 
-def update_shipment(conn, id_shipment, values):
+def update_shipment(conn, id_shipment, values, shipment=None):
     where = {'id': id_shipment}
+    values['update_time'] = datetime.now()
+    if shipment is None or shipment['id'] != int(id_shipment):
+        shipment = get_shipment_by_id(conn, id_shipment)
+    if not shipment:
+        return
+
     r = update(conn,
            "shipments",
            values=values,
            where=where,
            returning="id")
+    if (values.get('status') and
+        int(values.get('status')) != shipment['status']):
+        insert(conn,
+               'shipment_status',
+               values={'id_shipment': id_shipment,
+                       'status': shipment['status'],
+                       'timestamp': shipment['update_time']})
+
+        pass
+    logging.info("shipment_%s updated: %s", id_shipment, values)
     return r and r[0] or None
 
 
@@ -828,19 +854,36 @@ def get_spl_item_by_id(conn, id_shipping_list):
         shipping_list.append(dict(zip(SPL_ITEM_FIELDS, item)))
     return shipping_list and shipping_list[0] or None
 
-def get_spl_by_orig(conn, id_shipment, id_orig_shipping_list):
+def get_spl_by_item(conn, id_shipment, id_item, status):
     query_str = ("SELECT %s "
                  "FROM shipping_list "
                  "WHERE id_shipment=%%s "
-                   "AND id_orig_shipping_list=%%s "
+                   "AND id_item=%%s "
+                   "AND status=%%s "
+              "ORDER BY id"
                  % ", ".join(SPL_ITEM_FIELDS))
     r = query(conn,
               query_str,
-              (id_shipment, id_orig_shipping_list))
+              (id_shipment, id_item, status))
     shipping_list = []
     for item in r:
         shipping_list.append(dict(zip(SPL_ITEM_FIELDS, item)))
     return shipping_list and shipping_list[0] or None
+
+def get_packing_spl_for_shipment(conn, id_shipment):
+    query_str = ("SELECT %s "
+                 "FROM shipping_list "
+                 "WHERE id_shipment=%%s "
+                   "AND status=%%s "
+                   "AND quantity>0 "
+                 % ", ".join(SPL_ITEM_FIELDS))
+    r = query(conn,
+              query_str,
+              (id_shipment, SHIPPING_STATUS.PACKING))
+    shipping_list = []
+    for item in r:
+        shipping_list.append(dict(zip(SPL_ITEM_FIELDS, item)))
+    return shipping_list
 
 def update_shipping_list(conn, where, values):
     r = update(conn,

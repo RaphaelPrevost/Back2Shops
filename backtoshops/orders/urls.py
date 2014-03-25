@@ -2,6 +2,7 @@ import settings
 from django.conf.urls.defaults import patterns, url
 
 from fouillis.views import operator_upper_required
+from fouillis.views import shop_manager_upper_required
 from orders.views import CreateShippingView
 from orders.views import EditShippingView
 from orders.views import ListOrdersView
@@ -36,7 +37,8 @@ urlpatterns = patterns(settings.get_site_prefix()+'orders',
         operator_upper_required(OrderUpdatePacking.as_view(), login_url="bo_login"),
         name='order_update_shipment'),
     url(r'/delete/packing$',
-        operator_upper_required(OrderDeletePacking.as_view(), login_url="bo_login"),
+        shop_manager_upper_required(OrderDeletePacking.as_view(),
+                                    login_url="bo_login"),
         name='order_delete_shipment'),
 )
 

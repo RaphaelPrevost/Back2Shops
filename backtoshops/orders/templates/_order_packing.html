@@ -75,9 +75,9 @@ function _get_datepicker_locale(s) {
             var parent = $(this).parent().parent();
             var id_shipemnt = $(this).attr('for_shipment');
             var remaining_list = $('#remaining_list_for_' + id_shipemnt);
-            var packing_form = $('#packing_form_' + id_shipemnt);
+            var packing_list = $('#packing_list_for_' + id_shipemnt);
             if (remaining_list.is(":hidden")) {
-                packing_form.slideUp(
+                packing_list.slideUp(
                         'normal', function() {
                             remaining_list.slideDown();
                         }
@@ -85,29 +85,32 @@ function _get_datepicker_locale(s) {
             } else {
                 remaining_list.slideUp(
                         "normal", function() {
-                            packing_form.slideDown();
+                            packing_list.slideDown();
                         }
                 );
             }
 
-            $('.packing_status', parent).change();
+            $('#packing_status_for_' + id_shipemnt).change();
+            $('#shipping_carrier_for_' + id_shipemnt).change();
         });
 
         $(".new_packing_list .create").die().live('click', function(){
             var shipment_id = $(this).attr('for_shipment');
-            var shipping_fee = $("input[name=manual_shipping_fee_for_" + shipment_id + "]");
+            var form = $("#remaining_form_for_" + shipment_id);
+            var shipping_fee = $("input[name=shipping_fee]", form);
             if (shipping_fee && shipping_fee.val() == "") {
                 alert("Please input shipping fee");
                 return;
             }
 
-            var handling_fee = $("input[name=manual_handling_fee_for_" + shipment_id + "]");
+            var handling_fee = $("input[name=handling_fee]", form);
             if (handling_fee && handling_fee.val() == "") {
                 alert("Please input handling fee");
                 return;
             }
 
-            var data = $("#remaining_list_for_" + shipment_id).serialize();
+
+            var data = form.serialize();
             $.ajax({
                 type: 'POST',
                 url: "/orders/new/packing",
@@ -115,29 +118,23 @@ function _get_datepicker_locale(s) {
                 success: function(data, status) {
                     if (data.res == 'SUCCESS') {
                         // reload updated shipment
-                        shipment_reload(shipment_id);
+                        var show_packing_list = false;
+                        if (shipment_id == data.id_new_shipment) {
+                            show_packing_list = true;
+                        }
+                        shipment_reload(shipment_id, show_packing_list);
 
-                        // load new created shipment
-                        $("<div id='shipment_" + data.id_new_shipment + "'>").addClass("shipment").appendTo($('.packing'));
-                        shipment_reload(data.id_new_shipment);
+                        if (parseInt(data.id_new_shipment) != parseInt(shipment_id)) {
+                            // load new created shipment
+                            $("<div id='shipment_" + data.id_new_shipment + "'>").insertBefore($("#shipment_" + shipment_id));
+                            shipment_reload(data.id_new_shipment, true);
+                        }
                     } else {
                         alert('{% trans "Error:" %}' + data.err);
                     }
 
                 }
             });
-        });
-
-        $(".packing_status").die().live('change', function(){
-            var status = $(this).val();
-            if (parseInt(status) == 3) {
-                $('.tracking_num', $(this).parent()).slideDown();
-            } else {
-                $('.tracking_num', $(this).parent()).slideUp();
-                var orig_value = $('input', $(this).parent()).attr('orig_value');
-                orig_value = orig_value || "";
-                $('input', $(this).parent()).val(orig_value);
-            }
         });
 
         $(".update_shipment").die().live('click', function(){
@@ -156,6 +153,22 @@ function _get_datepicker_locale(s) {
                 return;
             }
 
+            var packing_status = $('.packing_status', form);
+            var shipping_date = $('.shipping_date', form);
+            var tracking_num = $('#tracking_num_for_' + shipment_id);
+
+            if (!packing_status.prop('disabled') &&
+                parseInt(packing_status.val()) == 3) {
+                if (!confirm(
+                    '{% trans "Are you sure you want to delivery " %}' +
+                    '{% trans "current shipment at " %}' +
+                    shipping_date.val() +
+                    '{% trans " with tracking num: " %}' +
+                    tracking_num.val())) {
+                    return;
+                }
+            }
+
             $(".packing_item_out_count", form).each(function(){
                 if ($(this).val() == "") {
                     alert("Please input all items updated count");
@@ -169,8 +182,9 @@ function _get_datepicker_locale(s) {
             })
 
             var data = form.serialize();
-            var status = $("#packing_status_for_" + shipment_id).val()
-            data += "&packing_status_for_" + shipment_id + "=" + status;
+            if ($('.packing_status', form).prop('disabled')) {
+                data += '&packing_status=' + $('.packing_status', form).val();
+            }
 
             $.ajax({
                 type: 'POST',
@@ -179,9 +193,7 @@ function _get_datepicker_locale(s) {
                 success: function(data, status) {
                     if (data.res == 'SUCCESS') {
                         // reload updated shipment
-                        $("#shipment_" + shipment_id).slideUp('normal', function(){
-                            shipment_reload(shipment_id);
-                        });
+                        shipment_reload(shipment_id, true);
                     } else {
                         alert('{% trans "Error:" %}' + data.err);
                     }
@@ -193,16 +205,21 @@ function _get_datepicker_locale(s) {
             var shipment_id = $(this).attr('for_shipment');
             var data = $("#packing_form_" + shipment_id).serialize();
 
+            if (!confirm(
+                    "{% trans 'Are you sure you want to delete ' %}" +
+                    "{% trans 'current packing list: ' %}" +
+                    shipment_id
+            )) {
+                return true;
+            }
+
             $.ajax({
                 type: 'POST',
                 url: "/orders/delete/packing",
                 data: data,
                 success: function(data, status) {
                     if (data.res == 'SUCCESS') {
-                        var shipment = $("#shipment_" + data.id_shipment);
-                        shipment.slideUp('normal', function(){
-                            $(this).remove();
-                        })
+                        shipment_reload(shipment_id, false);
                     } else {
                         alert('{% trans "Error:" %}' + data.err);
                     }
@@ -215,34 +232,20 @@ function _get_datepicker_locale(s) {
             $('#see_pk_list_for_' + shipment_id).click();
         });
 
-        $(".delete_shipping_item").die().live('click', function() {
-            var id_shipping_item = $(this).attr('for_packing_item');
-            var id_shipment = $(this).attr('for_shipment');
-            var out_count = $('#pack_item_out_count_for_' + id_shipping_item);
-            out_count.val(0);
-
-            var update_btn = $('.update_shipment', $("#packing_form_" + id_shipment));
-            update_btn.click();
-        })
-
-        function shipment_reload(id_shipment) {
+        function shipment_reload(id_shipment, show_packing_list) {
             var shipment = $("#shipment_" + id_shipment);
-            var href = "{% url 'order_packing_list' %}"
+            var href = "{% url 'order_packing_list' %}";
             href += "{{ packing.order_id }}";
             href += "?shipment=" + id_shipment;
+
+            if (show_packing_list == true) {
+                href += "&show_packing_list=" + show_packing_list;
+            }
             shipment.load(href, function(data){
-                if (data.trim()) {
+                shipment.fadeOut("normal", function() {
                     shipment.html(data);
-                    shipment.slideDown();
-                    var packing_form = $('#packing_from_' + id_shipment);
-                    if (packing_form) {
-                        $("#see_pk_list_for_" + id_shipment).click();
-                    }
-                } else {
-                    shipment.slideUp('normal', function(){
-                        shipment.html(data)
-                    });
-                }
+                    shipment.fadeIn();
+                });
             });
         }
 

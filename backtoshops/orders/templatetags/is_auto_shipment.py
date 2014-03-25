@@ -7,4 +7,5 @@ register = template.Library()
 @register.filter
 def is_auto_shipment(method):
     return int(method) in [SCM.CARRIER_SHIPPING_RATE,
-                           SCM.CUSTOM_SHIPPING_RATE]
+                           SCM.CUSTOM_SHIPPING_RATE,
+                           SCM.FREE_SHIPPING]

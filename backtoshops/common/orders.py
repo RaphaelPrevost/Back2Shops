@@ -114,9 +114,13 @@ def send_new_shipment(id_order, id_shipment, handling_fee, shipping_fee, content
 
 def send_update_shipment(id_shipment, shipping_fee=None, handling_fee=None,
                          status=None, tracking_num=None, content=None,
-                         shipping_date=None):
+                         shipping_date=None, tracking_name=None,
+                         shipping_carrier=None, remaining_content=None):
     if isinstance(content, list):
         content = ujson.dumps(content)
+
+    if isinstance(remaining_content, list):
+        remaining_content = ujson.dumps(remaining_content)
 
     try:
         data = {}
@@ -132,6 +136,12 @@ def send_update_shipment(id_shipment, shipping_fee=None, handling_fee=None,
             data['content'] = content
         if shipping_date:
             data['shipping_date'] = shipping_date
+        if tracking_name:
+            data['tracking_name'] = tracking_name
+        if shipping_carrier:
+            data['shipping_carrier'] = shipping_carrier
+        if remaining_content:
+            data['remaining_content'] = remaining_content
 
         if not data:
             return

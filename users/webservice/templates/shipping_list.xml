@@ -23,6 +23,12 @@
             {% if shipment.mail_tracking_number %}
                 <tracking_num>{{ shipment.mail_tracking_number }}</tracking_num>
             {% endif %}
+            {% if shipment.tracking_name != None %}
+                <tracking_name>{{ shipment.tracking_name }}</tracking_name>
+            {% endif %}
+            {% if shipment.shipping_carrier != None %}
+                <shipping_carrier>{{ shipment.shipping_carrier }}</shipping_carrier>
+            {% endif %}
             {% if shipment.fee_info %}
                 <fees>
                     <handling currency="{{ shipping_currency }}">

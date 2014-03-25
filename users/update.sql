@@ -61,6 +61,9 @@ ALTER TABLE shipping_list ADD COLUMN status smallint DEFAULT 1;
 ALTER TABLE shipping_list ADD COLUMN id_orig_shipping_list bigint;
 ALTER TABLE shipping_list ADD FOREIGN KEY(id_orig_shipping_list) REFERENCES shipping_list(id);
 ALTER TABLE shipments ADD COLUMN shipping_date date;
-
+ALTER TABLE shipments ADD COLUMN tacking_name character varying(100);
+ALTER TABLE shipments ADD COLUMN shipping_carrier bigint;
+ALTER TABLE shipments ADD COLUMN update_time timestamp without time zone NOT NULL DEFAULT now();
+ALTER TABLE shipments RENAME COLUMN timestamp to create_time;
 
 COMMIT;

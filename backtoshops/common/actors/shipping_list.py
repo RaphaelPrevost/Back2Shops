@@ -120,7 +120,8 @@ class ActorShipment(BaseActor):
                  'brand': '@brand',
                  'shop': '@shop',
                  'tracking_num': "tracking_num",
-                 'shipping_date': "shipping_date"}
+                 'shipping_date': "shipping_date",
+                 'tracking_name': "tracking_name"}
 
     @property
     def delivery(self):
@@ -137,6 +138,12 @@ class ActorShipment(BaseActor):
     def items(self):
         items_data = as_list(self.data.get('item'))
         return [ActorItem(data=item) for item in items_data]
+
+    @property
+    def shipping_carrier(self):
+        if self.data.get('shipping_carrier'):
+            return int(self.data.get('shipping_carrier'))
+
 
 
 class ActorShipments(BaseActor):
