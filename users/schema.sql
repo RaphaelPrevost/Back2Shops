@@ -122,10 +122,13 @@ CREATE TABLE shipments (
     id_shop bigint,
     id_brand bigint,
     mail_tracking_number character varying(50),
+    tracking_name character varying(100),
     status SMALLINT,
-    timestamp timestamp without time zone NOT NULL,
+    create_time timestamp without time zone NOT NULL,
+    update_time timestamp without time zone NOT NULL default now(),
     calculation_method smallint,
     shipping_date date,
+    shipping_carrier bigint,
     FOREIGN KEY (id_order) REFERENCES orders(id)
 );
 
@@ -174,8 +177,6 @@ CREATE TABLE invoices (
     id serial PRIMARY KEY,
     id_order BIGINT REFERENCES orders(id),
     id_shipment BIGINT REFERENCES shipments(id),
-    id_address bigint REFERENCES users_address(id),
-    id_phone bigint REFERENCES users_phone_num(id),
     creation_time timestamp without time zone DEFAULT now() NOT NULL,
     amount_due double precision NOT NULL,
     amount_paid double precision DEFAULT 0.0 NOT NULL,

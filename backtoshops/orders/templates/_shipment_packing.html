@@ -1,6 +1,12 @@
 {% load i18n %}
 {% load is_auto_shipment %}
 {% load is_manual_shipment %}
+{% load is_carrier_shipping_rate %}
+{% load is_custom_shipping_rate %}
+{% load is_flat_rate %}
+{% load is_free_shipping %}
+{% load has_delivered %}
+{% load is_shop_manager_upper %}
 
 <!--ENSEMBLE EN DETAIL-->
 {% if shipment %}
@@ -14,6 +20,7 @@
             </span>
             <span class="status">{% trans "Stauts" %}: {{ shipment.status }}</span>
         </div>
+        <div id="packing_list_for_{{ shipment.id }}" class="packing_list">
         <form id="packing_form_{{ shipment.id }}" class="packing_form" method="post">
             <input type="hidden" name="id_shipment" value="{{ shipment.id }}" />
             <input type="hidden"
@@ -21,71 +28,111 @@
                    id="shop_for_{{ shipment.id }}"
                    value="{{ shipment.shop }}"/>
             <div class="packing_list_items">
-                {% if shipment.method|is_auto_shipment %}
-                    <div class="auto_shipping_services formrow">
-                        <label><p>{% trans "Shipping Service" %}:</p></label>
-                        <span>{{ shipment.delivery.carriers.0.name }}-{{  shipment.delivery.carriers.0.services.0.name}}</span>
-                    </div>
-                {% endif %}
-                {% if shipment.method|is_manual_shipment %}
-                    <div class="manual_shipping_fee formrow">
-                        <label><p>{% trans "Shipping fee" %}: </p></label>
-                        <span>
-                            <input type="text" name="manual_shipping_fee_for_{{ shipment.id }}" value="{{ shipment.fees.shipping.value }}"/>
-                        </span>
-                        <span>{{ shipment.fees.shipping.currency }}</span>
-                    </div>
-                    <div class="manual_handling_fee formrow">
-                        <label><p>{% trans "Handling fee" %}: </p></label>
-                        <span>
-                            <input type="text" name="manual_handling_fee_for_{{ shipment.id }}" value="{{ shipment.fees.handling.value }}"/>
-                        </span>
-                        <span>{{ shipment.fees.handling.currency }}</span>
-                    </div>
-                {% else %}
-                    <div class="auto_shipping_fee formrow">
-                        <label><p>{% trans "Shipping fees" %}: </p></label>
-                        {% if shipment.fees.shipping.value %}
-                            <span>{{ shipment.fees.shipping.value }} {{ shipment.fees.shipping.currency }}</span>
-                        {% else %}
-                            <span>0 {{ shipment.fees.shipping.currency }}</span>
-                        {% endif %}
+                {% if not shipment.method|is_flat_rate %}
+                    <div class="auto_shipping_carrier formrow">
+                        <label><p>{% trans "Carrier" %}:</p></label>
+
+                            <select id="shipping_carrier_for_{{ shipment.id }}"
+                                    name="shipping_carrier"
+                                    class="carrier_selector"
+                                    for_shipment="{{ shipment.id }}"
+                                    {% if shipment.method|is_auto_shipment or shipment.delivery.status|has_delivered %}
+                                        disabled="true"
+                                    {% endif %}>
+                                {% for op in carrier_options %}
+                                    <option value="{{ op.value }}"
+                                            {% if op.value == shipment.shipping_carrier %}
+                                                    selected="selected"
+                                            {% endif %}>
+                                        {{ op.label }}</option>
+                                {% endfor %}
+                            </select>
                     </div>
 
-                    <div class="auto_handling_fee formrow">
-                        <label><p>{% trans "Handling fees" %}: </p></label>
-                        {% if shipment.fees.handling.value %}
-                            <span>{{ shipment.fees.handling.value }} {{ shipment.fees.handling.currency }}</span>
-                        {% else %}
-                            <span>0 {{ shipment.fees.handling.currency }}</span>
-                        {% endif %}
+                    <div class="outer_tracking_name formrow" id="outer_tracking_name_for_{{ shipment.id }}">
+                        <span><p>{% trans "Tracking name" %}:</p></span>
+                        <span>
+                        <input type="text"
+                               class="inputM"
+                               name="tracking_name"
+                               {% if shipment.tracking_name %}
+                                    value="{{ shipment.tracking_name }}"
+                               {% endif %} />
+
+                        </span>
                     </div>
                 {% endif %}
-                <div class="date_picker formrow">
-                    <label><p>{% trans "Shipping Date" %}: </p></label>
+
+                <div class="shipping_fee formrow">
+                    <label><p>{% trans "Shipping fee" %}: </p></label>
                     <span>
-                        <input class="shipping_date" type="text" name="shipping_date" value="{% if shipment.shipping_date %}{{ shipment.shipping_date }}{% endif %}"/>
+                        <input type="text"
+                               name="shipping_fee"
+                               {% if shipment.method|is_auto_shipment or shipment.delivery.status|has_delivered %}
+                                    readonly="true"
+                                    disabled="true"
+                               {% endif %}
+                               {% if shipment.method|is_free_shipping %}
+                                   value="0"
+                               {% elif shipment.fees.shipping %}
+                                   value="{{ shipment.fees.shipping.value }}"
+                               {% endif %} />
                     </span>
+                    <span>{{ shipment.fees.shipping.currency }}</span>
                 </div>
+                <div class="handling_fee formrow">
+                    <label><p>{% trans "Handling fee" %}: </p></label>
+                    <span>
+                        <input type="text"
+                               name="handling_fee"
+                               {% if shipment.method|is_auto_shipment or shipment.delivery.status|has_delivered %}
+                                    readonly="true"
+                                    disabled="true"
+                               {% endif %}
+                               {% if shipment.method|is_free_shipping %}
+                                    value="0"
+                               {% elif shipment.fees.handling %}
+                                    value="{{ shipment.fees.handling.value }}"
+                               {% endif %} />
+                    </span>
+                    <span>{{ shipment.fees.handling.currency }}</span>
+                </div>
+
                 <div class="formrow">
                     <label>{% trans "Status:" %}</label>
-                    <select id="packing_status_for_{{ shipment.id }}" class="packing_status" for_shipment="{{ shipment.id }}">
+                    <select id="packing_status_for_{{ shipment.id }}"
+                            name="packing_status"
+                            class="packing_status"
+                            {% if shipment.delivery.status|has_delivered %}
+                                disabled="true"
+                            {% endif %}
+                            for_shipment="{{ shipment.id }}">
                         {% for op in packing.shipment_status %}
                             <option value="{{ op.value }}"
                                     {% ifequal shipment.delivery.status op.value %}selected="selected"{% else %}{{ op.value }}{% endifequal %}
                                     >{{ op.label }}</option>
                         {% endfor %}
-
                     </select>
-                    <div class="tracking_num">
-                        <span>{% trans "Tracking Number:" %}</span>
-                        <input type="text"
-                               name="tracking_num_for_{{ shipment.id }}"
-                               {% if shipment.tracking_num %}
-                               value="{{ shipment.tracking_num }}"
-                               orig_value="{{ shipment.tracking_num }}"
-                               {% endif %}/>
-                    </div>
+                </div>
+                <div class="outer_shipping_date formrow" id="outer_shipping_date_for_{{ shipment.id }}">
+                    <span><p>{% trans "Shipping Date" %}: </p></span>
+                    <span>
+                        <input class="shipping_date inputM"
+                               type="text"
+                               name="shipping_date"
+                               value="{% if shipment.shipping_date %}{{ shipment.shipping_date }}{% endif %}"/>
+                    </span>
+                </div>
+                <div class="tracking_num formrow" id="outer_tracking_num_for_{{ shipment.id }}">
+                    <span>{% trans "Tracking Number:" %}</span>
+                    <input type="text"
+                           class="inputM"
+                           name="tracking_num"
+                           id="tracking_num_for_{{ shipment.id }}"
+                            {% if shipment.tracking_num %}
+                           value="{{ shipment.tracking_num }}"
+                           orig_value="{{ shipment.tracking_num }}"
+                            {% endif %}/>
                 </div>
                 <div class="formrow">
                     <label>{% trans "Content:" %}</label>
@@ -104,27 +151,79 @@
                                name="sale_for_{{ item.id_shipping_list }}"
                                id="sale_for_{{ item.id_shipping_list }}"
                                value="{{ item.sale }}"/>
+                        <input type="checkbox"
+                               name="packing_item_ckb_{{ item.id_shipping_list }}"
+                               class='item_check'
+                                {% if shipment.method|is_auto_shipment or shipment.delivery.status|has_delivered %}
+                                   readonly="true"
+                                   disabled="true"
+                                {% endif %}
+                               checked="false">
+                        <span class="item_name" title="{{ item.name }}">{{ item.name }}</span>
                         <input type="text"
                                class="packing_item_out_count"
                                name="pack_item_out_count_for_{{ item.id_shipping_list }}"
                                id="pack_item_out_count_for_{{ item.id_shipping_list }}"
                                value="{{ item.quantity }}"
+                               {% if shipment.method|is_auto_shipment or shipment.delivery.status|has_delivered %}
+                                   readonly="true"
+                                   disabled="true"
+                               {% endif %}
                                orig_quantity="{{ item.quantity }}"/>
-                        <span>{{ item.name }} {% trans "out of" %} {{ item.quantity }}</span>
-                        <a class="out delete_shipping_item" for_packing_item="{{ item.id_shipping_list }}" for_shipment="{{ shipment.id }}"></a>
+                        <span>{% trans "out of" %} {{ item.quantity }} {% trans "items" %}</span>
                     </div>
                 {% endfor %}
+
+                {% if not shipment.delivery.status|has_delivered and shipment.remaining_list %}
+                <div class="remaining_list_items">
+                    <div class="remaining_items">
+                        <span>{% trans "Remaining items to ship" %}:</span>
+                        {% for item in shipment.remaining_list %}
+                            <input type="hidden"
+                                   name="order_item_for_{{ item.id_shipping_list }}"
+                                   id="order_item_for_{{ item.id_shipping_list }}"
+                                   value="{{ item.id_order_item }}"/>
+                            <input type="hidden"
+                                   name="sale_for_{{ item.id_shipping_list }}"
+                                   id="sale_for_{{ item.id_shipping_list }}"
+                                   value="{{ item.sale }}"/>
+                            <lable class="remaining_item">
+                                <input type="checkbox"
+                                       name="remaining_item_ckb_{{ item.id_shipping_list }}"
+                                       class='item_check'
+                                       id="remaining_item_ckb_{{ item.id_shipping_list }}"
+                                       />
+                                <span>{{ item.name }}</span>
+                                <input type="text"
+                                       name="remaining_item_choose_{{ item.id_shipping_list }}"
+                                       class="item_count"
+                                       value="{{ item.quantity }}"
+                                       id="remaining_item_choose_{{ item.id_shipping_list }}"/>
+                                <span>{% trans "out of" %} {{ item.quantity }} {% trans "items" %}</span>
+                            </lable>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+
                 <div class="formrow">
                     <button class="btnForm cancel_shipment" type="button" name="cancel_shipment" for_shipment="{{ shipment.id }}">{% trans "Cancel" %}</button>
-                    <button class="btnForm delete_shipment" type="button" name="delete_shipment" for_shipment="{{ shipment.id }}">{% trans "Delete" %}</button>
+                    {% if user|is_shop_manager_upper %}
+                        <button class="btnForm delete_shipment" type="button" name="delete_shipment" for_shipment="{{ shipment.id }}">{% trans "Delete" %}</button>
+                    {% endif %}
                     <button class="btnForm update_shipment" type="button" name="update_shipment" for_shipment="{{ shipment.id }}">{% trans "Update" %}</button>
                 </div>
             </div>
         </form>
+        </div>
     {% endif %}
 
-    {% if shipment.remaining_list %}
-        <form id="remaining_list_for_{{ shipment.id }}" class="remaining_form" method="post">
+    <div id="remaining_list_for_{{ shipment.id }}" class="remainig_list">
+    {% if shipment.delivery.status|has_delivered %}
+        <div><p>{% trans "current packing list has been delivered" %}</p></div>
+    {% elif shipment.remaining_list %}
+        <form id="remaining_form_for_{{ shipment.id }}" class="remaining_form" method="post">
             <input type="hidden" name="id_shipment" value="{{ shipment.id }}"/>
             <input type="hidden" name="id_order" value="{{ packing.order_id }}"/>
             <input type="hidden"
@@ -134,18 +233,18 @@
             <div class="manual_shipping_fee formrow">
                 <label><p>{% trans "Shipping fee" %}: </p></label>
                         <span>
-                            <input type="text" name="manual_shipping_fee_for_{{ shipment.id }}"/>
+                            <input type="text" name="shipping_fee"/>
                         </span>
                 <span>{{ shipment.fees.shipping.currency }}</span>
             </div>
             <div class="manual_handling_fee formrow">
                 <label><p>{% trans "Handling fee" %}: </p></label>
                         <span>
-                            <input type="text" name="manual_handling_fee_for_{{ shipment.id }}"/>
+                            <input type="text" name="handling_fee"/>
                         </span>
                 <span>{{ shipment.fees.handling.currency }}</span>
             </div>
-            <div class="remaining_list">
+            <div class="remaining_list_items">
                 <div class="remaining_items">
                     <span>{% trans "Remaining items to ship" %}:</span>
                     {% for item in shipment.remaining_list %}
@@ -179,8 +278,9 @@
             </div>
         </form>
     {% elif shipment.packing_list %}
-        <div id="remaining_list_for_{{ shipment.id }}"><p>{% trans "0 item remaining" %}</p></div>
+        <div><p>{% trans "0 item remaining" %}</p></div>
     {% endif %}
+    </div>
 {% endif %}
 
 
@@ -188,5 +288,78 @@
 
     $(document).ready(function(){
         $(".shipping_date").datepicker('destroy').datepicker();
+
+        function carrier_selector_change(selector) {
+            var for_shipment = $(selector).attr('for_shipment');
+            var outer_tracking_name = $("#outer_tracking_name_for_" + for_shipment);
+            var tracking_name = $("#tracking_name_for_" + for_shipment);
+            var sel=$(selector).val();
+
+            if (sel == 0 || sel == -1) {
+                tracking_name.val("");
+                outer_tracking_name.show();
+            } else {
+                tracking_name.val($(selector).find("option:selected").text());
+                outer_tracking_name.hide();
+            }
+        }
+
+        $(".carrier_selector").die().live("change", function() {
+            console.log('carrier selector changed');
+            carrier_selector_change($(this));
+        });
+
+        function packing_status_change(selector) {
+            var status = $(selector).val();
+            var id_shipment = $(selector).attr('for_shipment');
+            var outer_tracking_num = $('#outer_tracking_num_for_' + id_shipment);
+            var outer_shipping_date = $("#outer_shipping_date_for_" + id_shipment);
+
+            if (id_shipment == "13") {
+                console.log("status");
+                console.log(status);
+            }
+            if (parseInt(status) == 1) {
+                outer_shipping_date.hide();
+            } else {
+                outer_shipping_date.show();
+            }
+
+            // if select DELIVER, show tracking number input
+            if (parseInt(status) == 3) {
+                outer_tracking_num.show();
+            } else {
+                outer_tracking_num.hide();
+                var tracking_num = $('#tracking_num_for_' + id_shipment);
+                var orig_value = tracking_num.attr('orig_value');
+                orig_value = orig_value || "";
+                tracking_num.val(orig_value);
+            }
+        }
+
+        $(".packing_status").die().live('change', function(){
+            packing_status_change($(this));
+        });
+
+        function init() {
+            var id_shipment = "{{ shipment.id }}";
+            var remaining_list = $("#remaining_list_for_" + id_shipment);
+            var packing_list = $("#packing_list_for_" + id_shipment);
+            var show_packing_list = "{{ shipment.show_packing_list }}"
+            if (show_packing_list == 'true' && packing_list.length) {
+                remaining_list.hide();
+                packing_list.show();
+            } else {
+                packing_list.hide();
+                remaining_list.show();
+            }
+
+            var sp_carrier = $('#shipping_carrier_for_' + id_shipment);
+            var packing_status = $('#packing_status_for_' + id_shipment);
+            carrier_selector_change(sp_carrier);
+            packing_status_change(packing_status);
+        }
+
+        init();
     });
 </script>

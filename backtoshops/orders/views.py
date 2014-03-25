@@ -31,6 +31,7 @@ from orders.forms import ListOrdersForm
 from orders.forms import ShippingForm
 from orders.models import Shipping
 from sales.models import Sale
+from shippings.models import Carrier
 from shops.models import Shop
 from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SProtocol.constants import SHIPPING_STATUS
@@ -291,7 +292,8 @@ class BaseOrderPacking(OperatorUpperLoginRequiredMixin, View):
         sp_status = actor_shipment.delivery.status
         if int(sp_status) not in [SHIPMENT_STATUS.PACKING,
                              SHIPMENT_STATUS.DELAYED,
-                             SHIPMENT_STATUS.DELAYED]:
+                             SHIPMENT_STATUS.DELIVER,
+                             SHIPMENT_STATUS.DELETED]:
             return False
 
         if id_shipment and int(id_shipment) != int(actor_shipment.id):
@@ -412,6 +414,145 @@ class BaseOrderPacking(OperatorUpperLoginRequiredMixin, View):
             else:
                 return False
 
+    def remaining_items_content(self, post):
+        '''
+        @param post:
+            id_shipment
+            shop_for_$id_shipment
+
+            remaining_item_ckb_$id_shipping_list
+            remaining_item_choose_$id_shipping_list
+            order_item_for_$id_shipping_list
+            sale_for_$id_shipping_list
+
+            should in post dict
+        @return: remaining items list in post request.
+            [{'id_order_item': xxx, 'id_shipping_list_item': xxx,
+              'quantity': xxx} ...]
+        '''
+        id_shipment = post.get('id_shipment')
+        content = []
+        ckb_prefix = "remaining_item_ckb_"
+        qtt_prefix = "remaining_item_choose_"
+        ord_prefix = "order_item_for_"
+        sale_prefix = "sale_for_"
+        shop_prefix = "shop_for_"
+        items = [key for key, _ in post.iteritems()
+                 if key.startswith(qtt_prefix)]
+
+        id_shop = post.get(shop_prefix + id_shipment)
+        assert id_shop is not None, "miss shop info of %s" % id_shipment
+
+        for item in items:
+            id_shipping_list = item[len(qtt_prefix):]
+            if post.get(ckb_prefix + id_shipping_list) != "on":
+                continue
+
+            quantity = post.get(item)
+            assert quantity is not None, "miss quantity of %s" % id_shipping_list
+            assert int(quantity) > 0, "quantity %s must be a positive number" % quantity
+
+            id_order_item = post.get(ord_prefix + id_shipping_list)
+            assert id_order_item is not None, "miss order item of %s" % id_shipping_list
+
+            id_sale = post.get(sale_prefix + id_shipping_list)
+            assert id_sale is not None, "miss sale info of %s" % id_shipping_list
+
+            sale = Sale.objects.get(pk=id_sale)
+            if not self.shop_match_check(sale, id_shop):
+                raise InvalidRequestError("sale %s doesn't in shop %s"
+                                          % (id_sale, id_shop))
+            if not self.permission_check(sale, id_shop):
+                raise InvalidRequestError("You have no priority to "
+                                          "operate sale: %s" % id_sale)
+
+            content.append({'id_order_item': id_order_item,
+                            'id_shipping_list_item': id_shipping_list,
+                            'quantity': quantity})
+        return content
+
+    def packing_items_content(self, post):
+        '''
+        @param post:
+            id_shipment
+            shop_for_$id_shipment
+
+            packing_item_count_for_$id_shipping_list
+            packing_item_out_count_for_$id_shipping_list
+            packing_item_ckb_$id_shipping_list (optional)
+            order_item_for_$id_shipping_list
+            sale_for_$id_shipping_list
+
+            should in post param
+        @return: list of packing items.
+            [{'id_order_item': xxx, 'id_shipping_list_item': xxx,
+              'quantity': xxx} ...]
+        '''
+        id_shipment = post.get('id_shipment')
+        orig_item_prefix = "pack_item_count_for_"
+        item_prefix = "pack_item_out_count_for_"
+        ckb_prefix = "packing_item_ckb_"
+
+        ord_prefix = "order_item_for_"
+        sale_prefix = "sale_for_"
+        shop_prefix = "shop_for_"
+
+        id_shop = post.get(shop_prefix + id_shipment)
+        assert id_shop is not None, "miss shop info of %s" % id_shipment
+
+        items = [key for key, _ in post.iteritems()
+                 if key.startswith(item_prefix)]
+        content = []
+        for item in items:
+            id_shipping_list = item[len(item_prefix):]
+            orig_qty = post.get(orig_item_prefix + id_shipping_list)
+            assert orig_qty is not None, "miss orig quantity of %s" % id_shipping_list
+
+            ckb = post.get(ckb_prefix + id_shipping_list)
+            if ckb != "on":
+                qty = 0
+            else:
+                qty = post.get(item)
+            assert int(qty) <= orig_qty and int(qty) >= 0, \
+                ("invalid qty of item %s: %s, max qty: %s"
+                 % (id_shipping_list, qty, orig_qty))
+
+            id_order_item = post.get(ord_prefix + id_shipping_list)
+            assert id_order_item is not None, "miss order item of %s" % id_shipping_list
+
+            id_sale = post.get(sale_prefix + id_shipping_list)
+            assert id_sale is not None, "miss sale info of %s" % id_shipping_list
+
+            sale = Sale.objects.get(pk=id_sale)
+            if not self.shop_match_check(sale, id_shop):
+                raise InvalidRequestError("sale %s doesn't in shop %s"
+                                          % (id_sale, id_shop))
+            if not self.permission_check(sale, id_shop):
+                raise InvalidRequestError("You have no priority to "
+                                          "operate sale: %s" % id_sale)
+
+            content.append({'id_order_item': id_order_item,
+                            'id_shipping_list_item': id_shipping_list,
+                            'quantity': qty})
+        return content
+
+def carrier_options():
+    option = []
+    carriers = Carrier.objects.all()
+    # carriers option
+    for carrier in carriers:
+        option.append({'label': carrier.name,
+                       'value': carrier.id})
+
+    # free shipping option
+    option.append({'label': _("Free Shipping"),
+                   'value': -1})
+
+    # custom option
+    option.append({'label': _("Others"),
+                   'value': 0})
+
+    return option
 
 class OrderPacking(BaseOrderPacking, TemplateResponseMixin):
     template_name = "_order_packing.html"
@@ -439,11 +580,13 @@ class OrderPacking(BaseOrderPacking, TemplateResponseMixin):
             packing['shipments'] = spm_list
             if id_shipment and spm_list:
                 self.shipment = spm_list[0]
+                self.shipment['show_packing_list'] = request.GET.get('show_packing_list') or False
         except UsersServerError, e:
             self.error_msg = (
                 "Sorry, the system meets some issues, our engineers have been "
                 "notified, please check back later.")
         self.packing = packing
+        self.carrier_options = carrier_options()
         return self.render_to_response(self.__dict__)
 
     def get_template_names(self):
@@ -451,6 +594,8 @@ class OrderPacking(BaseOrderPacking, TemplateResponseMixin):
             return ["_shipment_packing.html"]
         else:
             return super(OrderPacking, self).get_template_names()
+
+
 
 class OrderNewPacking(BaseOrderPacking):
     def post(self, request, *args, **kwargs):
@@ -476,52 +621,18 @@ class OrderNewPacking(BaseOrderPacking):
     def create_new_packing(self, request):
         id_order = request.POST.get('id_order')
         id_shipment = request.POST.get('id_shipment')
-        content = []
-        ckb_prefix = "remaining_item_ckb_"
-        qtt_prefix = "remaining_item_choose_"
-        sp_fee_prefix = "manual_shipping_fee_for_"
-        hd_fee_prefix = "manual_handling_fee_for_"
-        ord_prefix = "order_item_for_"
-        sale_prefix = "sale_for_"
-        shop_prefix = "shop_for_"
-        items = [key for key, _ in request.POST.iteritems()
-                 if key.startswith(ckb_prefix)]
 
-        id_shop = request.POST.get(shop_prefix + id_shipment)
-        assert id_shop is not None, "miss shop info of %s" % id_shipment
+        content = self.remaining_items_content(request.POST)
 
-        for item in items:
-            id_shipping_list = item[len(ckb_prefix):]
-
-            quantity = request.POST.get(qtt_prefix + id_shipping_list)
-            assert quantity is not None, "miss quantity of %s" % id_shipping_list
-            assert int(quantity) > 0, "quantity %s must be a positive number" % quantity
-
-            id_order_item = request.POST.get(ord_prefix + id_shipping_list)
-            assert id_order_item is not None, "miss order item of %s" % id_shipping_list
-
-            id_sale = request.POST.get(sale_prefix + id_shipping_list)
-            assert id_sale is not None, "miss sale info of %s" % id_shipping_list
-
-            sale = Sale.objects.get(pk=id_sale)
-            if not self.shop_match_check(sale, id_shop):
-                raise InvalidRequestError("sale %s doesn't in shop %s"
-                                          % (id_sale, id_shop))
-            if not self.permission_check(sale, id_shop):
-                raise InvalidRequestError("You have no priority to "
-                                          "operate sale: %s" % id_sale)
-
-            content.append({'id_order_item': id_order_item,
-                            'id_shipping_list_item': id_shipping_list,
-                            'quantity': quantity})
-
-        sp_fee = request.POST.get(sp_fee_prefix + id_shipment)
-        hd_fee = request.POST.get(hd_fee_prefix + id_shipment)
+        sp_fee = request.POST.get("shipping_fee")
+        hd_fee = request.POST.get("handling_fee")
         assert sp_fee is not None, "miss shipping fee"
         assert hd_fee is not None, "miss handling fee"
+        assert content, "At least one item must be selected"
 
         return send_new_shipment(id_order, id_shipment,
                                  sp_fee, hd_fee, content)
+
 
 
 class OrderUpdatePacking(BaseOrderPacking):
@@ -547,57 +658,20 @@ class OrderUpdatePacking(BaseOrderPacking):
 
     def update_packing(self, request):
         id_shipment = request.POST.get('id_shipment')
-        sp_fee_prefix = "manual_shipping_fee_for_"
-        hd_fee_prefix = "manual_handling_fee_for_"
-        tk_num_previx = "tracking_num_for_"
-        pk_sts_prefix = "packing_status_for_"
-        orig_item_prefix = "pack_item_count_for_"
-        item_prefix = "pack_item_out_count_for_"
 
-        ord_prefix = "order_item_for_"
-        sale_prefix = "sale_for_"
-        shop_prefix = "shop_for_"
+        post = request.POST
+        content = self.packing_items_content(post)
+        remaining_content = self.remaining_items_content(post)
 
-        id_shop = request.POST.get(shop_prefix + id_shipment)
-        assert id_shop is not None, "miss shop info of %s" % id_shipment
+        sp_fee = post.get("shipping_fee") or None
+        hd_fee = post.get("handling_fee") or None
+        status = post.get('packing_status') or None
+        tracking_num = post.get('tracking_num') or None
+        tracking_name = post.get('tracking_name') or None
+        shipping_carrier = post.get("shipping_carrier") or None
 
-        items = [key for key, _ in request.POST.iteritems()
-                 if key.startswith(item_prefix)]
-        content = []
-        for item in items:
-            post = request.POST
-            id_shipping_list = item[len(item_prefix):]
-            orig_qty = post.get(orig_item_prefix + id_shipping_list)
-            assert orig_qty is not None, "miss orig quantity of %s" % id_shipping_list
-
-            qty = post.get(item)
-            assert int(qty) <= orig_qty and int(qty) >= 0,\
-                ("invalid qty of item %s: %s, max qty: %s"
-                 % (id_shipping_list, qty, orig_qty))
-
-            id_order_item = request.POST.get(ord_prefix + id_shipping_list)
-            assert id_order_item is not None, "miss order item of %s" % id_shipping_list
-
-            id_sale = request.POST.get(sale_prefix + id_shipping_list)
-            assert id_sale is not None, "miss sale info of %s" % id_shipping_list
-
-            sale = Sale.objects.get(pk=id_sale)
-            if not self.shop_match_check(sale, id_shop):
-                raise InvalidRequestError("sale %s doesn't in shop %s"
-                                          % (id_sale, id_shop))
-            if not self.permission_check(sale, id_shop):
-                raise InvalidRequestError("You have no priority to "
-                                          "operate sale: %s" % id_sale)
-
-            content.append({'id_order_item': id_order_item,
-                            'id_shipping_list_item': id_shipping_list,
-                            'quantity': qty})
-
-        sp_fee = post.get(sp_fee_prefix + id_shipment) or None
-        hd_fee = post.get(hd_fee_prefix + id_shipment) or None
-        status = post.get(pk_sts_prefix + id_shipment) or None
-        tracking_num = post.get(tk_num_previx + id_shipment) or None
         content = content or None
+        remaining_content = remaining_content or None
         sp_date = post.get('shipping_date') or None
 
         return send_update_shipment(
@@ -607,7 +681,10 @@ class OrderUpdatePacking(BaseOrderPacking):
             status=status,
             tracking_num=tracking_num,
             content=content,
-            shipping_date=sp_date)
+            shipping_date=sp_date,
+            tracking_name=tracking_name,
+            shipping_carrier=shipping_carrier,
+            remaining_content=remaining_content)
 
 
 class OrderDeletePacking(BaseOrderPacking):
