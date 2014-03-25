@@ -20,9 +20,6 @@ class Migration(SchemaMigration):
         # Adding unique constraint on 'CountryXCurrency', fields ['country', 'currency']
         db.create_unique('country_x_currency', ['country_id', 'currency'])
 
-        # Load data
-        call_command("loaddata", "countries/country_x_currency.json")
-
 
     def backwards(self, orm):
         # Removing unique constraint on 'CountryXCurrency', fields ['country', 'currency']
