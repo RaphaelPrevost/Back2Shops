@@ -26,6 +26,27 @@ function waiting()
     done
 }
 
+function product_running_confirm()
+{
+    echo "Are you sure you want to run test on product? Running test will insert data into database"
+    read -p "yes / no ?" ans
+    if [ "$ans" == "yes" ]
+    then
+        echo "start to running test ..."
+    else
+        exit 1
+    fi
+}
+
+function user_check()
+{
+    if [ "$(whoami)" == "root" ]; then
+        product_running_confirm
+    fi
+}
+
+user_check
+
 bash start_redis.sh --test &
 waiting 3 'Waiting for redis server ...'
 
