@@ -257,8 +257,8 @@ SERVER_APIKEY_URI_MAP = {
     'USR': '%s/webservice/1.0/pub/apikey.pem' % USR_SERVER,
 }
 
-PRIVATE_KEY_PATH = 'static/keys/adm_pri.key'
-PUB_KEY_PATH = 'static/keys/adm_pub.key'
+PRIVATE_KEY_PATH = '/home/backtoshops/public_html/static/keys/adm_pri.key'
+PUB_KEY_PATH = '/home/backtoshops/public_html/static/keys/adm_pub.key'
 
 CACHE_INVALIDATION_URL = "%s/webservice/protected/invalidate" % USR_SERVER
 SHIPPING_FEE_URL = "%s/webservice/protected/shipping/fee" % USR_SERVER

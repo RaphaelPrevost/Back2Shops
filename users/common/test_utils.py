@@ -134,6 +134,9 @@ class MockRequest(Request):
 
 
 def is_backoffice_server_running():
+    if settings.PRODUCTION:
+        return True
+
     if len( os.popen(
             "ps -aef | grep 'manage.py runserver' | grep -v 'grep' | awk '{ print $3 }'")\
         .read().strip().split( '\n' ) ) > 1:

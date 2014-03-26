@@ -1,3 +1,3 @@
 # users.backtoshops.com settings
-from settings_local import *
+from settings_base import *
 

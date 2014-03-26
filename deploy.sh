@@ -43,6 +43,7 @@ function usage() {
     echo "option: everything - Deploy both backoffice server and users server"
     echo "        backoffice - Deploy only the backoffice server"
     echo "        user       - Deploy only the user server"
+    echo "        testdata   - Import backoffice test data into database"
     exit 1
 }
 
@@ -273,6 +274,7 @@ function make_usr_src_dir() {
 
     if [ -d $CWD/users -a ! -d $CWD/users_src ]; then
         mv $CWD/users $CWD/users_src
+        cp $CWD/users_src/settings_product.py $CWD/users_src/settings.py
         chown -R backtoshops.www-data $CWD/users_src
         chmod -R 2750 $CWD/users_src
     fi
