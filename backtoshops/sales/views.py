@@ -34,6 +34,8 @@ from common.cache_invalidation import send_cache_invalidation
 from common.constants import USERS_ROLE
 from common.constants import TARGET_MARKET_TYPES
 from common.error import InvalidRequestError
+from common.utils import get_currency
+from common.utils import get_default_setting
 from fouillis.views import manager_upper_required
 from fouillis.views import ManagerUpperLoginRequiredMixin
 from fouillis.views import OperatorUpperLoginRequiredMixin
@@ -69,26 +71,14 @@ from shippings.models import FlatRateInShipping
 from shops.models import DefaultShipping
 from shops.models import Shop
 from stocks.models import ProductStock
-from B2SProtocol.settings import SHIPPING_CURRENCY
 from B2SProtocol.settings import SHIPPING_WEIGHT_UNIT
-
-def get_brand_currency(request):
-    default_currency = get_setting('default_currency')
-    user = request.user
-    if user.is_superuser:
-        return default_currency
-    brand_currency = user.get_profile().work_for.default_currency
-    return brand_currency or default_currency
-
-def get_shop_currency(request, shop):
-    return shop.default_currency or get_brand_currency(request)
 
 def get_sale_currency(request, shop_data):
     target_market = shop_data['target_market']
     shops = shop_data['shops']
     if target_market == TARGET_MARKET_TYPES.LOCAL and shops:
-        return get_shop_currency(request, shops[0])
-    return get_brand_currency(request)
+        return get_currency(request.user, shops[0])
+    return get_currency(request.user)
 
 
 class UploadProductPictureView(View, TemplateResponseMixin):
@@ -974,7 +964,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         if self.steps.current == self.STEP_SHOP:
             context.update({
                 'form_title': _("Shops Selection"),
-                'brand_currency': get_brand_currency(self.request),
+                'brand_currency': get_currency(self.request.user),
                 'preview_shop': "blank",
                 'shops_cant_be_deleted': ','.join(list(set(
                    [str(p.shop.pk) for p in ProductStock.objects.filter(sale=self.sale).exclude(stock=F('rest_stock'))
@@ -1015,7 +1005,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 'preview_product': self._render_preview(self.STEP_PRODUCT),
                 'currency': self.currency,
                 'shipping_weight_unit': SHIPPING_WEIGHT_UNIT,
-                'shipping_currency': SHIPPING_CURRENCY,
+                'shipping_currency': self.currency,
                 'custom_shipping_rate_form': CustomShippingRateFormModel,
             })
         elif self.steps.current == self.STEP_TARGET:

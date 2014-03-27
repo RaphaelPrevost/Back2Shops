@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from barcodes.models import Barcode
 from common.constants import USERS_ROLE
 from common.constants import TARGET_MARKET_TYPES
+from common.utils import get_currency
 from sales.models import DISCOUNT_TYPE
 from sales.models import GENDERS
 from sales.models import Product
@@ -232,11 +233,10 @@ class ShopForm(forms.Form):
             if len(data['shops']) == 0:
                 raise forms.ValidationError(_("You must select at least one shop."))
 
-            from sales.views import get_shop_currency
             # check if selected shops in the same currency
-            first_currency = get_shop_currency(self.request, data['shops'][0])
+            first_currency = get_currency(self.request.user, data['shops'][0])
             for s in data['shops'][1:]:
-                if get_shop_currency(self.request, s) != first_currency:
+                if get_currency(self.request.user, s) != first_currency:
                     raise forms.ValidationError(
                             _("Please select shops within the same currency area."))
         return data

@@ -191,6 +191,7 @@ INSTALLED_APPS = (
     get_site_prefix()+'webservice',
     get_site_prefix()+'barcodes',
     get_site_prefix()+'globalsettings',
+    get_site_prefix()+'brandsettings',
     get_site_prefix()+'brandings',
     get_site_prefix()+'countries',
     get_site_prefix()+'orders',

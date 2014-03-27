@@ -21,7 +21,7 @@ from backend import forms
 from brandings.models import Branding
 from common.constants import USERS_ROLE
 from fouillis.views import super_admin_required
-from fouillis.views import admin_required
+from fouillis.views import manager_upper_required
 from globalsettings import get_setting
 from globalsettings.models import GlobalSettings
 from sales.models import ProductCategory
@@ -422,15 +422,13 @@ def sa_settings(request):
                 {'form':form, 'is_saved':is_saved, 'request':request, },
                 context_instance=RequestContext(request))
 
-@admin_required
+@manager_upper_required
 def brand_settings(request):
     is_saved = False
     if request.method == 'POST':
         form = forms.SABrandSettingsForm(data=request.POST, user=request.user)
         if form.is_valid():
-            brand = request.user.get_profile().work_for
-            brand.default_currency = form.cleaned_data['default_currency']
-            brand.save()
+            form.save(request.user)
             is_saved = True
     else:
         form = forms.SABrandSettingsForm(user=request.user)
