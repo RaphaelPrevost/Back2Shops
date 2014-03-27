@@ -13,9 +13,12 @@ from django.utils.translation import ugettext_lazy as _
 from address.models import Address
 from accounts.models import Brand
 from accounts.models import UserProfile
+from brandsettings import get_ba_settings
+from brandsettings import save_ba_settings
 from brandings.models import Branding
 from countries.models import Country
 from common.constants import USERS_ROLE
+from globalsettings import get_setting
 from globalsettings.models import GlobalSettings
 from sales.models import ProductCategory
 from sales.models import ProductCurrency
@@ -37,7 +40,7 @@ class SABrandForm(forms.ModelForm):
 
     class Meta:
         model = Brand
-        exclude = ('address', 'default_currency')
+        exclude = ('address', )
 
     def __init__(self, instance=None, *args, **kwargs):
         _fields = ('address', 'zipcode', 'city', 'country', 'province_code')
@@ -245,15 +248,45 @@ class SABrandSettingsForm(forms.Form):
     default_currency = forms.ChoiceField(
         choices=[(s, s) for s in
                  ProductCurrency.objects.all().values_list('code', flat=True)],
-        label=_('Brand Default Currency'))
+        label=_('Default Currency'),
+        required=False)
+    default_payment_period = forms.IntegerField(
+        label=_('Default Payment Period'),
+        widget=forms.TextInput(attrs={'class': 'inputXS'}),
+        required=False)
+    default_shipment_period = forms.IntegerField(
+        label=_('Default Shipment Period'),
+        widget=forms.TextInput(attrs={'class': 'inputXS'}),
+        required=False)
 
     def __init__(self, user=None, *args, **kwargs):
         initial = kwargs.get('initial', {})
         if user is not None:
-            brand = user.get_profile().work_for
-            initial['default_currency'] = brand.default_currency \
+            initial = get_ba_settings(user).copy()
+            initial['default_currency'] = initial.get('default_currency') \
                                        or get_setting('default_currency')
         super(SABrandSettingsForm, self).__init__(initial=initial, *args, **kwargs)
+
+    def clean_default_payment_period(self):
+        data = self.cleaned_data
+        value = data.get('default_payment_period')
+        if value and value < 0:
+            raise forms.ValidationError(
+                    {'default_payment_period':
+                        [_("Please input positive integer.")]})
+        return value
+
+    def clean_default_shipment_period(self):
+        data = self.cleaned_data
+        value = data.get('default_shipment_period')
+        if value and value < 0:
+            raise forms.ValidationError(
+                    {'default_shipment_period':
+                        [_("Please input positive integer.")]})
+        return value
+
+    def save(self, user):
+        save_ba_settings(user, self.cleaned_data)
 
 class SATaxForm(forms.ModelForm):
     error_css_class = 'error'

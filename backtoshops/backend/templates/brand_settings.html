@@ -1,5 +1,7 @@
 {% extends "sa_base.html" %}
 {% load i18n %}
+{% load is_admin %}
+{% load is_shop_manager_upper %}
 
 {% block title %}
 {% trans 'Settings' %}
@@ -34,11 +36,30 @@
             <div class="formrow comments">{% trans "Saved Successfully" %}</div>
             {% endif %}
 
+            {% if user|is_admin %}
             {{ form.default_currency.errors }}
             <div class="formrow">
                 <label for="{{ form.default_currency.auto_id }}">{% trans form.default_currency.label %}</label>
                 {{ form.default_currency }}
             </div>
+            {% endif %}
+
+            {% if user|is_shop_manager_upper %}
+            {{ form.default_payment_period.errors }}
+            <div class="formrow">
+                <label for="{{ form.default_payment_period.auto_id }}">{% trans form.default_payment_period.label %}</label>
+                {{ form.default_payment_period }} <span> {% trans "Days" %} </span>
+            </div>
+            {% endif %}
+
+            {% if user|is_admin %}
+            {{ form.default_shipment_period.errors }}
+            <div class="formrow">
+                <label for="{{ form.default_shipment_period.auto_id }}">{% trans form.default_shipment_period.label %}</label>
+                {{ form.default_shipment_period}} <span> {% trans "Days" %} </span>
+            </div>
+            {% endif %}
+
         </fieldset>
         <!--BOUTONS-->
         <input class="btn valider" type="submit" value='{% trans "Save" %}'/>

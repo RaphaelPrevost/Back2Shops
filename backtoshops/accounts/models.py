@@ -23,8 +23,6 @@ class Brand(models.Model):
     address = models.ForeignKey(Address, unique=True)
     business_reg_num = models.CharField(verbose_name="Business Registration Number", max_length=100)
     tax_reg_num = models.CharField(verbose_name="Tax Registration Number", max_length=100)
-    default_currency = models.CharField(verbose_name="Default Currency",
-                                        max_length=3, null=True)
 
     def __str__(self):
         return self.name
