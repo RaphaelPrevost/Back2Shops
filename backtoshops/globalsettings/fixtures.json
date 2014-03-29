@@ -1,3 +1,4 @@
 [{"pk": "default_currency", "model": "globalsettings.globalsettings", "fields": {"value": "EUR"}},
- {"pk": "default_language", "model": "globalsettings.globalsettings", "fields": {"value": "en"}}
+ {"pk": "default_language", "model": "globalsettings.globalsettings", "fields": {"value": "en"}},
+ {"pk": "starting_invoice_number", "model": "globalsettings.globalsettings", "fields": {"value": "100"}}
 ]

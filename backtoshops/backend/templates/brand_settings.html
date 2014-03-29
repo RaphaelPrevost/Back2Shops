@@ -60,6 +60,14 @@
             </div>
             {% endif %}
 
+            {% if user|is_shop_manager_upper %}
+            {{ form.starting_invoice_number.errors }}
+            <div class="formrow">
+                <label for="{{ form.starting_invoice_number.auto_id }}">{% trans form.starting_invoice_number.label %}</label>
+                {{ form.starting_invoice_number}}
+            </div>
+            {% endif %}
+
         </fieldset>
         <!--BOUTONS-->
         <input class="btn valider" type="submit" value='{% trans "Save" %}'/>

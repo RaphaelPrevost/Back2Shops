@@ -1,5 +1,6 @@
 from common.constants import USERS_ROLE
 from globalsettings import get_setting
+from globalsettings.models import SETTING_KEY_CHOICES
 from brandsettings import get_ba_settings
 
 GRAM_OZ_CONVERSION = 0.0352739619
@@ -44,5 +45,7 @@ def get_default_setting(key, user, shop=None):
         value = get_ba_settings(shop.owner).get(key)
     if not value:
         value = get_ba_settings(user).get(key)
+    if not value and key in dict(SETTING_KEY_CHOICES):
+        value = get_setting(key)
     return value
 
