@@ -7,6 +7,7 @@ SETTING_KEY_CHOICES = (
                        ('default_currency', 'default currency'),
                        ('default_shipment_period', 'default shipment period'),
                        ('default_payment_period', 'default payment period'),
+                       ('starting_invoice_number', 'starting invoice number'),
                        )
 
 # Create your models here.

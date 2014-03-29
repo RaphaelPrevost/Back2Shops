@@ -1080,7 +1080,8 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             if not self.edit_mode:
                 shop_obj = self.get_form(self.STEP_SHOP,
                                          data=self.storage.get_step_data(self.STEP_SHOP))
-                shop_obj.full_clean()
+                if not shop_obj.is_valid():
+                    return {}
                 currency = get_sale_currency(self.request, shop_obj.cleaned_data)
                 initial_product.update({'currency':
                         ProductCurrency.objects.get(code=currency)})

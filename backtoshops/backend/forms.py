@@ -258,6 +258,9 @@ class SABrandSettingsForm(forms.Form):
         label=_('Default Shipment Period'),
         widget=forms.TextInput(attrs={'class': 'inputXS'}),
         required=False)
+    starting_invoice_number = forms.IntegerField(
+        label=_('Starting Invoice Number'),
+        required=False)
 
     def __init__(self, user=None, *args, **kwargs):
         initial = kwargs.get('initial', {})
@@ -265,6 +268,8 @@ class SABrandSettingsForm(forms.Form):
             initial = get_ba_settings(user).copy()
             initial['default_currency'] = initial.get('default_currency') \
                                        or get_setting('default_currency')
+            initial['starting_invoice_number'] = initial.get('starting_invoice_number') \
+                                       or get_setting('starting_invoice_number')
         super(SABrandSettingsForm, self).__init__(initial=initial, *args, **kwargs)
 
     def clean_default_payment_period(self):
@@ -282,6 +287,15 @@ class SABrandSettingsForm(forms.Form):
         if value and value < 0:
             raise forms.ValidationError(
                     {'default_shipment_period':
+                        [_("Please input positive integer.")]})
+        return value
+
+    def clean_starting_invoice_number(self):
+        data = self.cleaned_data
+        value = data.get('starting_invoice_number')
+        if value and value < 0:
+            raise forms.ValidationError(
+                    {'starting_invoice_number':
                         [_("Please input positive integer.")]})
         return value
 
