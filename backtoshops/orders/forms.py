@@ -42,5 +42,6 @@ class ShippingForm(forms.ModelForm):
 class ListOrdersForm(forms.Form):
     ORDER_BY_ITEMS = {('confirmation_time', _("Confirmation time")),
                       }
+    status = forms.IntegerField(widget=forms.HiddenInput())
     order_by1 = forms.ChoiceField(required=False, choices=ORDER_BY_ITEMS)
     order_by2 = forms.ChoiceField(required=False, choices=ORDER_BY_ITEMS)

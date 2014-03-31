@@ -44,10 +44,10 @@
     {% csrf_token %}
         <fieldset>
             <p id="order-status-tabs">
-                <span>{% trans "Pending Orders" %}</span>
-                <span>{% trans "Awaiting payment" %}</span>
-                <span>{% trans "Awaiting Shipping" %}</span>
-                <span>{% trans "Completed" %}</span>
+            {% for tab in status_tabs %}
+                <span status_code="{{ tab.status }}" {% if tab.status == status %}class="selected"{% endif %}>{{ tab.name }}</span>
+            {% endfor %}
+                <input type="hidden" id="{{ form.status.auto_id }}" name="{{ form.status.html_name }}" value="{{ status }}" />
             </p>
             <!--SELECT TRIER PAR-->
             <p id="triVente">
@@ -168,6 +168,13 @@
 {% block javascript %}
 <script type="text/javascript">
     $(function() {
+        $("#order-status-tabs span").click(function(){
+            var code = $(this).attr("status_code");
+            if (code ==  $("#{{ form.status.auto_id }}").val()) return;
+            $("#{{ form.status.auto_id }}").val(code)
+            $("#main_form").submit();
+        });
+
         $(".seeDetail").click(function(){
             $("#content_Right #controls").html("");
             $("#content_Right #detail").html("");

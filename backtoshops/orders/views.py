@@ -16,6 +16,7 @@ from common.actors.shipping_list import ActorShipments
 from common.constants import FAILURE
 from common.constants import TARGET_MARKET_TYPES
 from common.constants import USERS_ROLE
+from common.constants import ORDER_STATUS
 
 from common.error import UsersServerError
 from common.error import InvalidRequestError
@@ -204,12 +205,42 @@ class ListOrdersView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
             self.error_msg = (
                 "Sorry, the system meets some issues, our engineers have been "
                 "notified, please check back later.")
+
+        orders_by_status = {
+            ORDER_STATUS.PENDING: [],
+            ORDER_STATUS.AWAITING_PAYMENT: [],
+            ORDER_STATUS.AWAITING_SHIPPING: [],
+            ORDER_STATUS.COMPLETED: [],
+        }
         for order_dict in orders:
             for order_id, order in order_dict.iteritems():
                 order['thumbnail_img'] = \
                     self._get_order_thumbnail(order['first_sale_id'])
-        self.orders = orders
+                orders_by_status[order['order_status']].append({order_id: order})
+
+        status = self.request.POST.get('status')
+        print status
+        if status and status.isdigit() and int(status) in orders_by_status:
+            status = int(status)
+        else:
+            # default status
+            for _status, _orders in orders_by_status.iteritems():
+                status = _status
+                if len(_orders) > 0:
+                    break
+        self.status = status
+        self.orders = orders_by_status[status]
         self.page_title = _("Current Orders")
+        self.status_tabs = [
+            {'name': _('Pending Orders'),
+             'status': ORDER_STATUS.PENDING},
+            {'name': _('Awaiting payment'),
+             'status': ORDER_STATUS.AWAITING_PAYMENT},
+            {'name': _('Awaiting Shipping'),
+             'status': ORDER_STATUS.AWAITING_SHIPPING},
+            {'name': _('Completed'),
+             'status': ORDER_STATUS.COMPLETED},
+        ]
         return
 
     def make_page(self):
