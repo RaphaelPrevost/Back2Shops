@@ -235,6 +235,10 @@ p#order-status-tabs span {
     line-height: 40px;
     padding: 10px 5px;
 }
+p#order-status-tabs span.selected {
+    background-color: #BBBBBB;
+    font-weight: bold;
+}
 
 div#detail table {
     border: 1px solid #cbcbcb;
