@@ -49,6 +49,11 @@ class OrderBrowser(UsersBrowser):
                              'wwwOrder': ujson.dumps(order)})
         return resp.get_data()
 
+    def post_invoices(self, id_order):
+        resp = self._access("webservice/1.0/pub/invoice/request",
+                            {'order': id_order})
+        return resp.get_data()
+
     def update_account(self, email):
         # profile info
         title_choices = ['Mr', 'Mrs', 'Miss', 'Ms']
@@ -106,6 +111,15 @@ class OrderBrowser(UsersBrowser):
                             account)
         return resp.get_data(), account
 
+    def update_account_address(self, id_user, country, province, city):
+        with db_utils.get_conn() as conn:
+            db_utils.update(
+                conn,
+                "users_address",
+                values={"country_code": country,
+                        "province_code": province,
+                        "city": city},
+                where={'users_id': id_user})
 
 class BaseOrderTestCase(BaseTestCase):
     def setUp(self):

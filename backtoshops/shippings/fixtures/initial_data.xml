@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<django-objects version="1.0">
+    <object pk="1" model="shippings.carrier">
+        <field type="CharField" name="name">EMS</field>
+        <field type="CharField" name="flag">EMS</field>
+        <field type="CharField" name="desc">EMS carrier</field>
+    </object>
+    <object pk="2" model="shippings.carrier">
+        <field type="CharField" name="name">USPS</field>
+        <field type="CharField" name="flag">USPS</field>
+        <field type="CharField" name="desc">USPS carrier</field>
+    </object>
+    <object pk="1" model="shippings.service">
+        <field type="CharField" name="name">Express</field>
+        <field to="shippings.carrier" name="carrier">1</field>
+        <field type="CharField" name="desc">EMS express service</field>
+    </object>
+    <object pk="2" model="shippings.service">
+        <field type="CharField" name="name">Express</field>
+        <field to="shippings.carrier" name="carrier">2</field>
+        <field type="CharField" name="desc">USPS express service</field>
+    </object>
+</django-objects>

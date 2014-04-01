@@ -1,0 +1,6 @@
+<?xml version="1.0" standalone="yes"?>
+<invoices version="1.0">
+    {% for invoice in content %}
+        {{ invoice }}
+    {% endfor %}
+</invoices>

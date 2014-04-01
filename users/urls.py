@@ -16,6 +16,7 @@ from webservice.shipping import ShippingConfResource
 from webservice.shipping import ShippingFeesResource
 from webservice.shipping import PubShippingListResource
 from webservice.shops import ShopsResource
+from webservice.invoice import InvoiceResource
 
 
 urlpatterns = {
@@ -29,6 +30,7 @@ urlpatterns = {
     '/webservice/1.0/pub/shops/list': ShopsResource,
     '/webservice/1.0/pub/order': OrderResource,
     '/webservice/1.0/pub/apikey.pem': ApiKeyResource,
+    '/webservice/1.0/pub/invoice/request': InvoiceResource,
 
     '/webservice/protected/invalidate': InvalidationResource,
     '/webservice/protected/shipping/fee': ShippingFeeResource,

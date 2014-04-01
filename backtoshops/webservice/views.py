@@ -12,7 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Max
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseForbidden
-from django.views.generic import View, ListView, DetailView
+from django.views.generic import View, ListView, DetailView, TemplateView
 from django.views.decorators.csrf import csrf_exempt
 
 from B2SCrypto.utils import gen_encrypt_json_context
@@ -34,6 +34,8 @@ from sales.models import STOCK_TYPE_GLOBAL
 from sales.models import Sale
 from sales.models import ShopsInSale
 from sales.models import TypeAttributeWeight
+from sales.utils import get_sale_orig_price
+from sales.utils import get_sale_discount_price
 from shippings.models import CustomShippingRateInShipping
 from shippings.models import CustomShippingRate
 from shippings.models import SC_CARRIER_SHIPPING_RATE
@@ -752,3 +754,266 @@ class ShippingServicesInfoView(BaseCryptoWebService, ListView):
             service = serv_in_shipping.service
             carrier_services[service.carrier_id].append(service.pk)
         return carrier_services.items()
+
+class InvoiceView(BaseCryptoWebService, ListView):
+    template_name = "invoice.xml"
+
+    def get_queryset(self):
+        customer_name = self.request.GET.get('customer')
+        dest = self.request.GET.get('dest')
+        shipping_fee = self.request.GET.get('shipping_fee')
+        handling_fee = self.request.GET.get('handling_fee')
+        carrier = self.request.GET.get('carrier')
+        service = self.request.GET.get('service')
+        content = self.request.GET.get('content')
+        id_shop = int(self.request.GET.get('shop'))
+        id_brand = int(self.request.GET.get('brand'))
+
+        seller = self.get_seller(id_shop, id_brand)
+        buyer = self.get_buyer(customer_name, dest)
+        from_address = seller['address']
+        to_address = buyer['address']
+        items, items_gross, items_tax, currency = self.get_items(
+            content,
+            from_address,
+            to_address)
+        shipping, shipping_gross, shipping_tax = self.get_shipping(
+            handling_fee,
+            shipping_fee,
+            carrier,
+            service,
+            from_address,
+            to_address)
+
+        gross = items_gross + shipping_gross
+        tax = items_tax + shipping_tax
+        total = gross + tax
+        invoice = {
+            'number': self.invoice_number(),
+            'date': datetime.now().date().strftime('%Y-%m-%d'),
+            'currency': currency,
+            'seller': seller,
+            'buyer': buyer,
+            'items': items,
+            'shipping': shipping,
+            'total': {'gross': gross,
+                      'tax': tax,
+                      'total': total}
+        }
+
+        return [invoice]
+
+    def brand_seller(self, id_brand):
+        brand = Brand.objects.get(pk=id_brand)
+        return {'name': brand.name,
+                'img': brand.logo,
+                'business': brand.business_reg_num,
+                'tax': brand.tax_reg_num,
+                #'personal': ?xxx,
+                'address': {'addr': brand.address.address,
+                            'zip': brand.address.zipcode,
+                            'city': brand.address.city,
+                            'province': brand.address.province_code,
+                            'country': brand.address.country_id}
+
+                }
+
+    def shop_seller(self, id_shop):
+        shop = Shop.objects.get(pk=id_shop)
+        return {'name': shop.name,
+                'img': shop.image,
+                'business': shop.business_reg_num,
+                'tax': shop.tax_reg_num,
+                #'personal': ?xxx,
+                'address': {'addr': shop.address.address,
+                            'zip': shop.address.zipcode,
+                            'city': shop.address.city,
+                            'province': shop.address.province_code,
+                            'country': shop.address.country_id}
+                }
+
+    def get_seller(self, id_shop, id_brand):
+        if id_shop == 0:
+            return self.brand_seller(id_brand)
+        else:
+            return self.shop_seller(id_shop)
+
+    def get_buyer(self, customer_name, dest):
+        dest = json.loads(dest)
+
+        return {'name': customer_name,
+                'address': dest}
+
+    def get_items(self, content, from_address, to_address):
+        content = json.loads(content)
+
+        item_list = []
+        gross = 0.0
+        total_tax = 0.0
+        currency = None
+        for item in content:
+            sale = Sale.objects.get(pk=item['id_sale'])
+            orig_price = get_sale_orig_price(sale, item['id_price_type'])
+            qty = item['quantity']
+            discount_price = get_sale_discount_price(
+                sale, orig_price=orig_price)
+            price = discount_price * qty
+            items_taxes = self.get_tax(price,
+                                       sale.product.category.id,
+                                       from_address,
+                                       to_address)
+
+            item_info = {'desc': sale.product.description,
+                         'qty': qty,
+                         'price': {'original': orig_price,
+                                   'discount': discount_price},
+                         'taxes': items_taxes}
+
+            subtotal = price
+            for tax in items_taxes:
+                subtotal += tax['tax']
+                total_tax += tax['tax']
+            item_info['subtotal'] = subtotal
+            item_list.append(item_info)
+            gross += price
+            currency = sale.product.currency.code
+        return item_list, gross, total_tax, currency
+
+    def get_tax(self, price, pro_category, from_address, to_address,
+                shipping_tax=False):
+        f_ctry = from_address['country']
+        f_prov = from_address['province']
+        t_ctry = to_address['country']
+        t_prov = to_address['province']
+
+        query = Q(enabled=True)
+        if f_ctry != t_ctry:
+            # tax conditions for different country
+            query = (
+                query &
+                (
+                    (Q(region_id=f_ctry) &
+                     Q(province='') &
+                     Q(shipping_to_region_id=None) &
+                     Q(shipping_to_province='')) |
+                    (Q(region_id=f_ctry) &
+                     Q(province=f_prov) &
+                     Q(shipping_to_region_id=None) &
+                     Q(shipping_to_province="")) |
+                    (Q(region_id=f_ctry) &
+                     Q(province="") &
+                     Q(shipping_to_region_id=t_ctry) &
+                     Q(shipping_to_province="")) |
+                    (Q(region_id=f_ctry) &
+                     Q(province=f_prov) &
+                     Q(shipping_to_region_id=t_ctry) &
+                     Q(shipping_to_province=t_prov))
+                )
+            )
+        elif f_prov != t_prov:
+            # tax condition for same country, diff province
+            query = (
+                query &
+                (
+                    (Q(region_id=f_ctry) &
+                     Q(province="") &
+                     Q(shipping_to_region_id=t_ctry) &
+                     Q(shipping_to_province="")) |
+                    (Q(region_id=f_ctry) &
+                     Q(province=f_prov) &
+                     Q(shipping_to_region_id=t_ctry) &
+                     Q(shipping_to_province="")) |
+                    (Q(region_id=f_ctry) &
+                     Q(province="") &
+                     Q(shipping_to_region_id=t_ctry) &
+                     Q(shipping_to_province=t_prov)) |
+                    (Q(region_id=f_ctry) &
+                     Q(province=f_prov) &
+                     Q(shipping_to_region_id=t_ctry) &
+                     Q(shipping_to_province=t_prov))
+                )
+            )
+        else:
+            # tax condition for same country, same province
+            query = (
+                query &
+                (
+                    (Q(region_id=f_ctry) &
+                     Q(province="") &
+                     Q(shipping_to_region_id=t_ctry) &
+                     Q(shipping_to_province="")) |
+                    (Q(region_id=f_ctry) &
+                     Q(province=f_prov) &
+                     Q(shipping_to_region_id=t_ctry) &
+                     Q(shipping_to_province=t_prov))
+                )
+            )
+
+
+        # shipping tax condition:
+        #      taxable = True & applies_to = everything
+        # sale's tax condition:
+        #      taxable = False &
+        #      (applies_to = everything or sale's category type)
+        if shipping_tax:
+            query = query & Q(taxable=True) & Q(applies_to_id=None)
+        else:
+            query = (query &
+                     (Q(taxable=False) |
+                      Q(taxable=None)) &
+                     (Q(applies_to_id=None) |
+                      Q(applies_to_id=pro_category)))
+
+        rates = Rate.objects.filter(query).order_by('-apply_after')
+        taxes = {}
+        taxes_list = []
+        for rate in rates:
+            tax = {'name': rate.name}
+            amount = price
+            if rate.apply_after:
+                pre_tax = taxes[rate.apply_after]
+                amount = pre_tax['amount'] + pre_tax['tax']
+            tax['amount'] = amount
+            tax['tax'] = float(amount) * rate.rate / 100.0
+            taxes[rate.id] = tax
+            taxes_list.append(tax)
+
+        return taxes_list
+
+    def get_shipping(self,
+                     handling_fee, shipping_fee,
+                     id_carrier, id_service,
+                     from_address, to_address):
+        shipping = {}
+        if id_carrier and id_service:
+            carrier = Carrier.objects.get(id_carrier)
+            service = Service.objects.get(id_service)
+            shipping['desc'] = ' - '.join([carrier.desc, service.desc])
+            shipping['postage'] = service
+        fee = 0.0
+        if handling_fee:
+            shipping['handling_fee'] = handling_fee
+            fee += float(handling_fee)
+        if shipping_fee:
+            shipping['shipping_fee'] = shipping_fee
+            fee += float(shipping_fee)
+        subtotal = fee
+        total_tax = 0.0
+        if fee:
+            fee_taxes = self.get_tax(fee, None, from_address, to_address,
+                                     shipping_tax=True)
+            shipping['taxes'] = fee_taxes
+            for tax in fee_taxes:
+                subtotal += tax['tax']
+                total_tax += tax['tax']
+
+        shipping['subtotal'] = subtotal
+        return shipping, fee, total_tax
+
+    def invoice_number(self):
+        # TODO: implementation
+        return 2506
+
+    def get_payment(self):
+        # TODO implementation
+        pass

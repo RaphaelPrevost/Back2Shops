@@ -1,0 +1,62 @@
+<!ENTITY % INVOICE.version "-//BACKTOSHOPS//INVOICE" >
+<!ENTITY % NS.prefixed "IGNORE" >
+<!ENTITY % INVOICE.prefix "invoice" >
+<!ENTITY % INVOICE.global.attrs.prefixed "INCLUDE" >
+
+<?doc type="doctype" role="title" { BackToShops Invoice } ?>
+
+<!-- root -->
+<!ELEMENT invoices (invoice+) >
+<!ATTLIST invoices version CDATA #REQUIRED >
+
+<!-- invoice -->
+<!ELEMENT invoice (seller, buyer, item+, shipping, total, payment?) >
+<!ATTLIST invoice number CDATA #REQUIRED
+                  currency CDATA #REQUIRED
+                  date CDATA #REQUIRED >
+
+<!-- seller -->
+<!ELEMENT seller (name, img, id+, address) >
+<!ELEMENT name (#PCDATA) >
+<!ELEMENT img (#PCDATA) >
+
+<!ELEMENT id (#PCDATA) >
+<!ATTLIST id type (business | tax | personal) "business" >
+
+<!ELEMENT address (addr, zip?, city, province, country) >
+<!ELEMENT addr (#PCDATA) >
+<!ELEMENT zip (#PCDATA) >
+<!ELEMENT city (#PCDATA) >
+<!ELEMENT province (#PCDATA) >
+<!ELEMENT country (#PCDATA) >
+<!ATTLIST country province CDATA #IMPLIED >
+
+<!-- buyer -->
+<!ELEMENT buyer (name, address) >
+
+<!-- items -->
+<!ELEMENT item (desc, price, qty, tax*, subtotal, detail?) >
+<!ELEMENT desc (#PCDATA) >
+<!ELEMENT price (#PCDATA) >
+<!ATTLIST price original CDATA #IMPLIED >
+<!ELEMENT qty (#PCDATA) >
+<!ELEMENT tax (#PCDATA) >
+<!ATTLIST tax name CDATA #REQUIRED
+              amount CDATA #REQUIRED>
+<!ELEMENT subtotal (#PCDATA) >
+<!ELEMENT detail (subitem+) >
+<!ELEMENT subitem (desc, qty) >
+
+<!-- shipping fees -->
+<!ELEMENT shipping (desc?, postage?, handling?, tax?, subtotal) >
+<!ELEMENT postage (#PCDATA) >
+<!ELEMENT handling (#PCDATA) >
+
+<!ELEMENT total (#PCDATA) >
+<!ATTLIST total gross CDATA #IMPLIED
+                tax CDATA #IMPLIED >
+
+<!ELEMENT payment (period, penalty?, instructions?) >
+<!ELEMENT period (#PCDATA) >
+<!ELEMENT penalty (#PCDATA) >
+<!ELEMENT instructions (#PCDATA) >

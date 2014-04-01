@@ -178,11 +178,15 @@ CREATE TABLE invoices (
     id_order BIGINT REFERENCES orders(id),
     id_shipment BIGINT REFERENCES shipments(id),
     creation_time timestamp without time zone DEFAULT now() NOT NULL,
+    update_time timestamp without time zone DEFAULT now() NOT NULL,
     amount_due double precision NOT NULL,
     amount_paid double precision DEFAULT 0.0 NOT NULL,
-    due_within BIGINT NOT NULL,
+    due_within BIGINT,
     currency character varying(3) REFERENCES currency(code),
-    invoice_file character varying(100)
+    invoice_file character varying(100),
+    invoice_xml text,
+    invoice_number BIGINT NOT NULL,
+    status SMALLINT DEFAULT 1 NOT NULL
 );
 
 CREATE TABLE invoice_status(

@@ -33,7 +33,7 @@ def create_shipment(conn, id_order, id_brand, id_shop,
         'id_order': id_order,
         'id_brand': id_brand,
         'id_shop': id_shop,
-        'status': SHIPMENT_STATUS.PACKING,
+        'status': status,
         'create_time': datetime.utcnow(),
         'update_time': datetime.utcnow(),
         }
@@ -762,15 +762,20 @@ def update_shipment(conn, id_shipment, values, shipment=None):
 
 SHIPMENT_SERVICES_FIELDS = [
     'id', 'id_shipment', 'id_postage', 'supported_services']
-def get_shipping_supported_services(conn, id_shipment):
+
+def get_supported_services(conn, id_shipment):
     query_str = ("SELECT %s "
-                 "FROM shipping_supported_services "
-                 "WHERE id_shipment = %%s"
+                   "FROM shipping_supported_services "
+                  "WHERE id_shipment = %%s"
                  % ", ".join(SHIPMENT_SERVICES_FIELDS))
     r = query(conn, query_str, (id_shipment,))
     serv_list = []
     for item in r:
         serv_list.append(dict(zip(SHIPMENT_SERVICES_FIELDS, item)))
+    return serv_list
+
+def get_shipping_supported_services(conn, id_shipment):
+    serv_list = get_supported_services(conn, id_shipment)
 
     carrier_services_map = defaultdict(list)
     for item in serv_list:
@@ -778,6 +783,7 @@ def get_shipping_supported_services(conn, id_shipment):
         for id_service, id_carrier in supported_services.iteritems():
             carrier_services_map[id_carrier].append(id_service)
     return carrier_services_map.items()
+
 
 def get_shipping_postage(conn, id_shipment):
     query_str = ("SELECT id_postage "
@@ -816,6 +822,7 @@ SHIPPING_ITEM_FIELDS = [
     ('id_shop', 'oi.id_shop'),
     ('id_variant', 'oi.id_variant'),
     ('id_weight_type', 'oi.id_weight_type'),
+    ('id_price_type', 'oi.id_price_type'),
     ('shipping_status', 'spl.status'),
     ('id_orig_shipping_list', 'spl.id_orig_shipping_list')]
 
