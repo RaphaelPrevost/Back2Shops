@@ -404,3 +404,20 @@ def order_item_exist(conn, id_sale, id_variant, id_shop,
         return False
     else:
         return r[0][0]
+
+ORDER_FIELDS = ['id', 'id_user', 'confirmation_time', 'id_shipaddr',
+                'id_billaddr', 'id_phone']
+def get_order(conn, id_order, id_user=None):
+    where = "WHERE id = %s " % id_order
+    if id_user:
+        where += "AND id_user = %s" % id_user
+
+    sql = ("SELECT %(fields)s "
+             "FROM orders as o "
+             "JOIN order_shipment_details as osd "
+               "ON o.id = osd.id_order "
+        "%(where)s "
+        % {'fields': ', '.join(ORDER_FIELDS),
+            'where': where})
+    r = query(conn, sql)
+    return len(r) > 0 and dict(zip(ORDER_FIELDS, r[0])) or None

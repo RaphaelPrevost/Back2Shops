@@ -59,3 +59,7 @@ RUNNING_TEST = False
 CRYPTO_RESP_DEBUGING = True
 
 PRODUCTION = False
+
+INVOICE_VALIDATE_PATH = 'files/invoice/invoice.dtd'
+INVOICE_XSLT_PATH = 'files/invoice/invoice.xsl'
+INVOICE_XSLT_REQUIRED = True

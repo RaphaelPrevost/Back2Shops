@@ -371,6 +371,11 @@ def remote_xml_shipping_services(carrier_services=None, id_sale=None):
     content = get_from_sale_server(uri, **query)
     return content
 
+def remote_xml_invoice(query):
+    uri = 'private/invoice/get'
+    content = get_from_sale_server(uri, **query)
+    return content
+
 def get_from_sale_server(uri, **query):
     remote_uri = settings.SALES_SERVER_API_URL % {'api': uri}
     if query:
@@ -411,3 +416,4 @@ def weight_convert(from_unit, weight):
     elif from_unit == 'lb':
         weight_in_gram = oz_to_gram(weight)
         return gram_to_kilogram(weight_in_gram)
+

@@ -1,0 +1,72 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE invoices PUBLIC "-//BACKTOSHOPS//INVOICE" "invoice.dtd">
+<invoices version="1.0">
+    {% for object in object_list %}
+        <!-- invoice -->
+        <invoice number="{{ object.number }}"
+                 currency="{{ object.currency }}"
+                 date="{{ object.date }}">
+            <!-- seller -->
+            <seller>
+                <name>{{ object.seller.name }}</name>
+                <img>{{ object.seller.img }}</img>
+                <id type="business">{{ object.seller.business }}</id>
+                <id type="tax">{{ object.seller.tax }}</id>
+                <id type="personal"></id>
+                <address>
+                    <addr>{{ object.seller.address.addr }}</addr>
+                    <zip>{{ object.seller.address.zip }}</zip>
+                    <city>{{ object.seller.address.city }}</city>
+                    <province>{{ object.seller.address.province}}</province>
+                    <country>{{ object.seller.address.country }}</country>
+                </address>
+            </seller>
+            <!-- buyer -->
+            <buyer>
+                <name>{{ object.buyer.name }}</name>
+                <address>
+                    <addr>{{ object.buyer.address.addr }}</addr>
+                    <zip>{{ object.buyer.address.zip }}</zip>
+                    <city>{{ object.buyer.address.city }}</city>
+                    <province>{{ object.buyer.address.province}}</province>
+                    <country>{{ object.buyer.address.country }}</country>
+                </address>
+            </buyer>
+            <!-- items -->
+            {% for item in object.items %}
+                <item>
+                    <desc>{{ item.desc }}</desc>
+                    <price original="{{ item.price.original }}">{{ item.price.discount }}</price>
+                    <qty>{{ item.qty }}</qty>
+                    {% for tax in item.taxes %}
+                        <tax name="{{ tax.name }}" amount="{{ tax.amount }}">{{ tax.tax }}</tax>
+                    {% endfor %}
+                    <subtotal>{{ item.subtotal }}</subtotal>
+                </item>
+            {% endfor %}
+
+            <!-- shipping fees -->
+            <shipping>
+                {% if object.shipping.desc %}
+                    <desc>{{ object.shipping.desc }}</desc>
+                {% endif %}
+                {% if object.shipping.postage %}
+                    <postage>{{ object.shipping.postage }}</postage>
+                {% endif %}
+                {% if object.shipping.handling_fee %}
+                    <handling>{{ object.shipping.handling_fee }}</handling>
+                {% endif %}
+                {% if object.shipping.shipping_fee %}
+                    <shipping>{{ object.shipping.shipping_fee }}</shipping>
+                {% endif %}
+                {% for tax in object.shipping.taxes %}
+                    <tax name="{{ tax.name }}" amount="{{ tax.amount }}">{{ tax.tax }}</tax>
+                {% endfor %}
+                <subtotal>{{ object.shipping.subtotal }}</subtotal>
+            </shipping>
+
+            <total gross="{{ object.total.gross }}" tax="{{ object.total.tax }}">{{ object.total.total }}</total>
+
+        </invoice>
+    {% endfor %}
+</invoices>

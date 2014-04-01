@@ -4,7 +4,7 @@ from webservice.views import SalesListView, BrandInfoView, BrandListView, SalesI
                              VicinityShopsListView, VicinitySalesListView, \
                              authenticate, barcode_increment, barcode_decrement, barcode_returned, \
                              BrandingsListView, apikey, SalesFindView, TaxesListView, ShippingInfoView, \
-                             ShippingFeesView, ShippingServicesInfoView
+                             ShippingFeesView, ShippingServicesInfoView, InvoiceView
 
 
 
@@ -30,6 +30,7 @@ urlpatterns = patterns(settings.SITE_NAME,
     url(r'1.0/private/taxes/get', TaxesListView.as_view()),
     url(r'1.0/private/shipping/info', ShippingInfoView.as_view()),
     url(r'1.0/private/shipping/services/info', ShippingServicesInfoView.as_view()),
+    url(r'1.0/private/invoice/get', InvoiceView.as_view()),
     url(r'1.0/vicinity/shops',    VicinityShopsListView.as_view()),
     url(r'1.0/vicinity/sales',    VicinitySalesListView.as_view()),
 )

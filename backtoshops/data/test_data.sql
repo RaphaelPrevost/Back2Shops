@@ -7,17 +7,17 @@ BEGIN ;
 -- Data for Name: address_address; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY address_address (id, address, zipcode, city, country_id) FROM stdin;
-1000001 	beijing qing nian hui	1000001	BEIJING	CN
-1000002 	beijing qing nian gong she	1000001	BEIJING	CN
-1000003 	qing nian lu	100002	BEIJING	CN
-1000004 	tong zhou li yuan	100004	BEIJING	CN
-1000005 	beijing qing nian hui	1000001	BEIJING	CN
-1000006 	beijing qing nian gong she	1000001	BEIJING	CN
-1000007 	qing nian lu	100002	BEIJING	CN
-1000008 	tong zhou li yuan	100004	BEIJING	CN
-1000009 	qing nian lu	100002	BEIJING	CN
-1000010 	tong zhou li yuan	100004	BEIJING	CN
+COPY address_address (id, address, zipcode, city, country_id, province_code) FROM stdin;
+1000001	beijing qing nian hui	1000001	BEIJING	CN	\N
+1000002	beijing qing nian gong she	1000001	BEIJING	CN	\N
+1000003	qing nian lu	100002	BEIJING	CN	\N
+1000004	tong zhou li yuan	100004	BEIJING	CN	\N
+1000005	beijing qing nian hui	1000001	BEIJING	CN	\N
+1000007	qing nian lu	100002	BEIJING	CN	\N
+1000008	tong zhou li yuan	100004	BEIJING	CN	\N
+1000009	qing nian lu	100002	BEIJING	CN	\N
+1000010	tong zhou li yuan	100004	BEIJING	CN	\N
+1000006	Alabama center	112233	ALABAMA	US	AL
 \.
 
 --
@@ -558,6 +558,20 @@ COPY stocks_productstock (id, sale_id, brand_attribute_id, common_attribute_id, 
 10000041	1000033	1000014	1000003	1000002	32	32
 \.
 
+
+--
+-- Data for Name: taxes_rate; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY taxes_rate (id, name, region_id, province, applies_to_id, shipping_to_region_id, shipping_to_province, rate, apply_after, enabled, display_on_front, taxable) FROM stdin;
+1	Out China	CN		\N	\N		5	\N	t	f	f
+2	Out US	US		\N	\N		3	\N	t	f	f
+3	US to CN	US		\N	CN		4	\N	t	\N	f
+4	US to US	US		\N	US		1	\N	t	\N	f
+6	US-AL to US-AL	US	AL	1000001	US	AL	0.5	\N	t	\N	\N
+5	US-AL to US-AK after	US	AL	\N	US	AK	2	4	t	\N	f
+7	US AL to AL shipping fee	US	AL	\N	US	AL	1	\N	t	\N	t
+\.
 
 --
 -- PostgreSQL database dump complete

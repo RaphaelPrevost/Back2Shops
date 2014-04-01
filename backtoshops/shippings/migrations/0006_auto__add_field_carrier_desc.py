@@ -3,39 +3,38 @@ import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
-from django.core.management import call_command
 
 
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'CustomShippingRate.desc'
-        db.add_column(u'shippings_customshippingrate', 'desc',
+        # Adding field 'Carrier.desc'
+        db.add_column(u'shippings_carrier', 'desc',
                       self.gf('django.db.models.fields.TextField')(max_length=500, null=True, blank=True),
                       keep_default=False)
 
-        # Adding field 'Service.desc'
-        db.add_column(u'shippings_service', 'desc',
-                      self.gf('django.db.models.fields.TextField')(max_length=500, null=True, blank=True),
-                      keep_default=False)
 
     def backwards(self, orm):
-        # Deleting field 'CustomShippingRate.desc'
-        db.delete_column(u'shippings_customshippingrate', 'desc')
-
-        # Deleting field 'Service.desc'
-        db.delete_column(u'shippings_service', 'desc')
+        # Deleting field 'Carrier.desc'
+        db.delete_column(u'shippings_carrier', 'desc')
 
 
     models = {
         u'accounts.brand': {
             'Meta': {'object_name': 'Brand'},
+            'address': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['address.Address']", 'unique': 'True'}),
+            'business_reg_num': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'logo': ('django.db.models.fields.files.ImageField', [], {'max_length': '100'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
+            'tax_reg_num': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+        },
+        u'address.address': {
+            'Meta': {'object_name': 'Address'},
             'address': ('django.db.models.fields.CharField', [], {'max_length': '250', 'null': 'True', 'blank': 'True'}),
             'city': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'country': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['countries.Country']", 'null': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'logo': ('django.db.models.fields.files.ImageField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'province_code': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True', 'blank': 'True'}),
             'zipcode': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'})
         },
@@ -49,6 +48,7 @@ class Migration(SchemaMigration):
         },
         u'shippings.carrier': {
             'Meta': {'object_name': 'Carrier'},
+            'desc': ('django.db.models.fields.TextField', [], {'max_length': '500', 'null': 'True', 'blank': 'True'}),
             'flag': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})

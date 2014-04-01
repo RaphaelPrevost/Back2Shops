@@ -1,5 +1,0 @@
-[{"pk": 1, "model": "shippings.carrier", "fields": {"name": "EMS", "flag": "EMS"}},
- {"pk": 1, "model": "shippings.service", "fields": {"name": "Express", "carrier": 1, "desc": "EMS express service"}},
- {"pk": 2, "model": "shippings.carrier", "fields": {"name": "USPS", "flag": "USPS"}},
- {"pk": 2, "model": "shippings.service", "fields": {"name": "Express", "carrier": 2, "desc": "USPS express service"}}
-]

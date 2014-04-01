@@ -32,6 +32,7 @@ SHIPPING_TOTAL_ORDER_TYPE = (
 class Carrier(models.Model):
     name = models.CharField(max_length=50)
     flag = models.CharField(max_length=50, blank=True)
+    desc = models.TextField(max_length=500, null=True, blank=True)
 
     def __unicode__(self):
         return self.name

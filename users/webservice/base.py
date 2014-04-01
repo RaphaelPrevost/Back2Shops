@@ -60,6 +60,7 @@ class BaseResource(object):
                 method = getattr(self, '_on_' + method_name)
                 data = method(req, resp, conn, **kwargs)
             except ValidationError, e:
+                logging.error('Validation Error: %s', (e,), exc_info=True)
                 data = {'res': RESP_RESULT.F,
                         'err': str(e)}
             except DatabaseError, e:
@@ -112,7 +113,8 @@ class BaseXmlResource(BaseResource):
     template = ""
     encrypt = False
     def gen_resp(self, resp, data):
-        if isinstance(data, dict) and 'error' in data:
+        if isinstance(data, dict) and ('error' in data or 'err' in data):
+            data['error'] = data.get('error') or data.get('err')
             return gen_xml_resp('error.xml', resp, **data)
 
         resp = gen_xml_resp(self.template, resp, **data)
