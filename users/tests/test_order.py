@@ -53,7 +53,7 @@ class TestOrder(BaseOrderTestCase):
                               wwwOrder)
 
     @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
-    def testOrderInDiffShopSameBrand(self):
+    def __testOrderInDiffShopSameBrand(self):
         # test posOrder items in shop 1, brand 1.
         # order: shop:1,
         #        barcode:11111, barcode:11112 for sale:1
@@ -108,7 +108,7 @@ class TestOrder(BaseOrderTestCase):
                               wwwOrder)
 
     @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
-    def testOrderInDiffShopDiffBrand(self):
+    def __testOrderInDiffShopDiffBrand(self):
         # test posOrder items in shop 1, brand 1.
         # order: shop:1,
         #        barcode:11111, barcode:11112 for sale:1

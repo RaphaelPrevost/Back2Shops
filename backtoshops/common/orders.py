@@ -81,16 +81,18 @@ def get_order_packing_list(order_id):
                       order_id, e, exc_info=True)
         raise UsersServerError
 
-def send_new_shipment(id_order, id_shipment, handling_fee, shipping_fee, content):
+def send_new_shipment(id_order, id_shop, id_brand,
+                      handling_fee, shipping_fee, content):
     if isinstance(content, list):
         content = ujson.dumps(content)
 
     try:
         data = {'action': 'create',
                 'order': id_order,
+                'shop': id_shop,
+                'brand': id_brand,
                 'handling_fee': handling_fee,
                 'shipping_fee': shipping_fee,
-                'id_orig_shipment': id_shipment,
                 'content': content}
         data = ujson.dumps(data)
         data = gen_encrypt_json_context(
@@ -108,19 +110,16 @@ def send_new_shipment(id_order, id_shipment, handling_fee, shipping_fee, content
         logging.error('Failed to create shipment %s,'
                       'error: %s',
             {'id_order': id_order,
-             'id_shipment': id_shipment,
+             'id_shop': id_shop,
              'content': content}, e, exc_info=True)
         raise UsersServerError
 
 def send_update_shipment(id_shipment, shipping_fee=None, handling_fee=None,
                          status=None, tracking_num=None, content=None,
                          shipping_date=None, tracking_name=None,
-                         shipping_carrier=None, remaining_content=None):
+                         shipping_carrier=None):
     if isinstance(content, list):
         content = ujson.dumps(content)
-
-    if isinstance(remaining_content, list):
-        remaining_content = ujson.dumps(remaining_content)
 
     try:
         data = {}
@@ -140,8 +139,6 @@ def send_update_shipment(id_shipment, shipping_fee=None, handling_fee=None,
             data['tracking_name'] = tracking_name
         if shipping_carrier:
             data['shipping_carrier'] = shipping_carrier
-        if remaining_content:
-            data['remaining_content'] = remaining_content
 
         if not data:
             return

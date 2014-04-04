@@ -11,12 +11,16 @@ from webservice.base import BaseResource
 from webservice.base import BaseXmlResource
 from webservice.base import BaseJsonResource
 from models.actors.shipping_fees import ActorShippingFees
+from models.order import get_order_items
+from models.order import _get_order_status
 from models.order import user_accessable_order
 from models.actors.sale import CachedSale
+from models.actors.shop import CachedShop
 from models.actors.shipping import ActorCarriers
 from models.shipments import conf_shipping_service
 from models.shipments import get_shipping_fee
 from models.shipments import get_shipments_by_order
+from models.shipments import order_item_grouped_quantity
 from models.shipments import remote_get_supported_services
 from models.shipments import get_shipping_supported_services
 from models.shipments import get_shipping_list
@@ -27,6 +31,7 @@ from models.shipping_fees import ShipmentShippingFees
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
 from B2SProtocol.settings import SHIPPING_CURRENCY
 from B2SProtocol.settings import SHIPPING_WEIGHT_UNIT
+from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SRespUtils.generate import gen_xml_resp
 from B2SUtils.base_actor import actor_to_dict
 
@@ -43,33 +48,70 @@ class BaseShippingListResource(BaseXmlResource):
         id_order = req._params.get('id_order')
         shipment_list = get_shipments_by_order(conn, id_order)
 
+        object_list = []
         for shipment in shipment_list:
+            if shipment['status'] == SHIPMENT_STATUS.DELETED:
+                continue
             id_shipment = shipment['id']
             shipment['carriers'] = self._get_supported_services(
                                                 conn, shipment)
             shipment['tracking_info'] = self._get_tracking_info(id_shipment)
-            shipment['fee_info'] = self._get_fee_info(conn, shipment)
+            shipment['fee_info'] = get_shipping_fee(conn, shipment['id'])
             shipment['shipping_list'] = self._get_shipping_list(
                                                 conn, id_shipment)
             shipment['postage'] = get_shipping_postage(conn, id_shipment)
+            object_list.append(shipment)
 
-        return {'object_list': shipment_list,
+        unpacking_list = self._get_unpacking_shipment(conn, id_order)
+        object_list.extend(unpacking_list)
+        order_status = _get_order_status(conn, id_order)
+        return {'object_list': object_list,
+                'order_status': order_status,
                 'shipping_currency': SHIPPING_CURRENCY,
                 'shipping_weight_unit': SHIPPING_WEIGHT_UNIT}
 
     def _on_post(self, req, resp, conn, **kwargs):
         return self._on_get(req, resp, conn, **kwargs)
 
-    def _get_fee_info(self, conn, shipment):
-        cal_method = shipment['calculation_method']
-        if cal_method not in [SCM.CARRIER_SHIPPING_RATE,
-                              SCM.CUSTOM_SHIPPING_RATE,
-                              SCM.FLAT_RATE,
-                              SCM.MANUAL]:
-            return
+    def _get_unpacking_shipment(self, conn, id_order):
+        order_items = get_order_items(conn, id_order)
+        shop_shipment = {}
 
-        id_shipment= shipment['id']
-        return get_shipping_fee(conn, id_shipment)
+        for order_item in order_items:
+            id_order_item = order_item['item_id']
+            quantity = order_item['quantity']
+            grouped_quantity = order_item_grouped_quantity(
+                conn, id_order_item)
+            if quantity == grouped_quantity:
+                continue
+            elif quantity < grouped_quantity:
+                logging.error("shipment_group_err: grouped item quantity "
+                              "bigger than orig item quantity for order "
+                              "item %s", id_order_item)
+                continue
+            id_shop = order_item['shop_id']
+            if shop_shipment.get(id_shop) is None:
+                id_brand = CachedShop(id_shop=id_shop).shop.brand.id
+                shop_shipment[id_shop] = {
+                    'id': 0,
+                    'calculation_method': SCM.MANUAL,
+                    'id_brand': id_brand,
+                    'id_shop': id_shop,
+                    'status': SHIPMENT_STATUS.PACKING,
+                    'shipping_list': []
+                }
+
+            sale_item = self._gen_shipping_sale_item(
+                order_item['sale_id'],
+                order_item['id_variant'],
+                order_item['id_weight_type'],
+                quantity-grouped_quantity,
+                0)
+            shipping = {'id_sale': order_item['sale_id'],
+                        'id_item': order_item['item_id'],
+                        'sale_item': sale_item}
+            shop_shipment[id_shop]['shipping_list'].append(shipping)
+        return shop_shipment.values()
 
     def _get_supported_services(self, conn, shipment):
         cal_method = shipment['calculation_method']
@@ -88,44 +130,52 @@ class BaseShippingListResource(BaseXmlResource):
         #  shipping status is DELIVER
         pass
 
+    def _gen_shipping_sale_item(self, id_sale, id_variant, id_weight_type,
+                                quantity, packing_quantity):
+        sale = CachedSale(id_sale).sale
+
+        weight = (sale.exist('standard_weight') and
+                  sale.standard_weight or
+                  None)
+
+        sel_weight_type = None
+        try:
+            sel_weight_type = sale.get_type_weight(id_weight_type)
+            weight = sel_weight_type.weight
+        except NotExistError:
+            pass
+
+        sel_variant = None
+        try:
+            sel_variant = sale.get_variant(id_variant)
+        except NotExistError:
+            pass
+
+        weight = weight_convert(sale.weight_unit, weight) * quantity
+        item = actor_to_dict(sale)
+        item['quantity'] = quantity
+        item['packing_quantity'] = packing_quantity
+        item['weight'] = weight
+        item['sel_variant'] = (sel_variant and
+                               actor_to_dict(sel_variant) or
+                               None)
+        item['sel_weight_type'] = (sel_weight_type and
+                                   actor_to_dict(sel_weight_type) or
+                                   None)
+        return item
+
     def _get_shipping_list(self, conn, id_shipment):
         r = []
 
         shipping_list = get_shipping_list(conn, id_shipment)
         for shipping in shipping_list:
-            id_sale = shipping['id_sale']
-            id_variant = shipping['id_variant']
-            id_weight_type = shipping['id_weight_type']
-            quantity = shipping['quantity']
+            item = self._gen_shipping_sale_item(
+                shipping['id_sale'],
+                shipping['id_variant'],
+                shipping['id_weight_type'],
+                shipping['quantity'],
+                shipping['packing_quantity'])
 
-            sale = CachedSale(id_sale).sale
-            weight = (sale.exist('standard_weight') and
-                      getattr(sale, 'standard_weight') or
-                      None)
-
-            sel_weight_type = None
-            try:
-                sel_weight_type = sale.get_type_weight(id_weight_type)
-                weight = sel_weight_type.weight
-            except NotExistError:
-                pass
-
-            sel_variant = None
-            try:
-                sel_variant = sale.get_variant(id_variant)
-            except NotExistError:
-                pass
-
-            weight = weight_convert(sale.weight_unit, weight) * quantity
-            item = actor_to_dict(sale)
-            item['quantity'] = quantity
-            item['weight'] = weight
-            item['sel_variant'] = (sel_variant and
-                                   actor_to_dict(sel_variant) or
-                                   None)
-            item['sel_weight_type'] = (sel_weight_type and
-                                       actor_to_dict(sel_weight_type) or
-                                       None)
             shipping['sale_item'] = item
             r.append(shipping)
 

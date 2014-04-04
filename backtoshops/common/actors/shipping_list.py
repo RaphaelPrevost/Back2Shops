@@ -6,7 +6,8 @@ st_desc_map = {
     SHIPMENT_STATUS.PACKING: 'PACKING',
     SHIPMENT_STATUS.DELAYED: 'DELAYED',
     SHIPMENT_STATUS.DELIVER: 'DELIVER',
-    SHIPMENT_STATUS.DELETED: 'DELETED'
+    SHIPMENT_STATUS.DELETED: 'DELETED',
+    SHIPMENT_STATUS.FETCHED: 'FETCHED',
 }
 
 class ActorService(BaseActor):
@@ -92,7 +93,7 @@ class ActorItem(BaseActor):
     attrs_map = {'sale': '@sale',
                  'name': 'name',
                  'quantity': 'quantity',
-                 'id_shipping_list': '@id_shipping_list',
+                 'packing_quantity': 'packing_quantity',
                  'shipping_status': 'shipping_status',
                  'id_order_item': "@id_order_item"}
     @property
@@ -112,6 +113,10 @@ class ActorItem(BaseActor):
     @property
     def weight(self):
         return ActorWeight(data=self.data.get('weight'))
+
+    @property
+    def remaining_quantity(self):
+        return int(self.quantity) - int(self.packing_quantity)
 
 
 class ActorShipment(BaseActor):
@@ -147,6 +152,7 @@ class ActorShipment(BaseActor):
 
 
 class ActorShipments(BaseActor):
+    attrs_map = {'order_status': "@order_status"}
     @property
     def shipments(self):
         shipments_data = as_list(self.data.get('shipment'))

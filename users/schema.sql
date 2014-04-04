@@ -153,12 +153,11 @@ CREATE TABLE shipping_list (
     id_item BIGINT REFERENCES order_items(id),
     id_shipment BIGINT REFERENCES shipments(id),
     quantity INTEGER NOT NULL,
+    packing_quantity INTEGER NOT NULL default 0,
     picture character varying(200),
-    free_shipping boolean DEFAULT false NOT NULL,
-    id_orig_shipping_list bigint,
-    status smallint DEFAULT 1,
-    FOREIGN KEY (id_orig_shipping_list) REFERENCES shipping_list(id)
+    free_shipping boolean DEFAULT false NOT NULL
 );
+CREATE UNIQUE INDEX shipping_list_by_item_shipment ON shipping_list USING btree (id_item, id_shipment);
 
 CREATE TABLE free_shipping_fee (
     id_shipment BIGINT UNIQUE,

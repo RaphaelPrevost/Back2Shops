@@ -1,8 +1,7 @@
 import logging
 
 from common.constants import INVOICE_STATUS
-from common.constants import ORDER_STATUS
-
+from B2SProtocol.constants import ORDER_STATUS
 from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import query
@@ -154,13 +153,15 @@ ORDER_ITEM_FIELDS_COLUMNS = [('item_id', 'order_items.id'),
                              ('quantity', 'quantity'),
                              ('sale_id', 'id_sale'),
                              ('shop_id', 'id_shop'),
-                             ('brand_id', 'id_variant'),
+                             ('id_variant', 'id_variant'),
                              ('price', 'price'),
                              ('name', 'name'),
                              ('picture', 'picture'),
                              ('description', 'description'),
                              ('copy_time', 'copy_time'),
                              ('barcode', 'barcode'),
+                             ('id_weight_type', 'id_weight_type'),
+                             ('id_price_type', 'id_price_type'),
                              ]
 
 
@@ -192,14 +193,39 @@ def _get_invoice_info_for_order_item(conn, item_id):
     # not implemented yet.
     return {}
 
-def _get_shipments_status(shipping_list):
-    status = SHIPMENT_STATUS.DELIVER
-    for shipment in shipping_list:
-        if shipment['status'] < status:
-            status = shipment['status']
-    return status
+def _get_order_shipments_status(conn, id_order):
+    query_str = ("SELECT status "
+                   "FROM shipments "
+                  "WHERE id_order = %s")
+    rst = query(conn, query_str, (id_order,))
+    return [item[0] for item in rst]
 
-def _get_order_status(order_items_list):
+def _get_order_invoice_status(conn, id_order):
+    query_str = ("SELECT status "
+                   "FROM invoices "
+                  "WHERE id_order = %s")
+    rst = query(conn, query_str, (id_order,))
+    return [item[0] for item in rst]
+
+def _all_order_items_packed(conn, id_order):
+    item_qtt_sql = ("SELECT sum(quantity) "
+                      "FROM order_details "
+                     "WHERE id_order = %s")
+
+    grouped_qtt_sql = ("SELECT sum(spl.quantity), sum(spl.packing_quantity) "
+                         "FROM shipping_list as spl "
+                         "JOIN shipments as sp "
+                           "ON spl.id_shipment = sp.id "
+                        "WHERE sp.id_order = %s "
+                          "AND sp.status <> %s")
+    item_qtt = query(conn, item_qtt_sql, (id_order,))[0][0]
+    grouped_qtt, packed_qtt = query(conn,
+                        grouped_qtt_sql,
+                        (id_order, SHIPMENT_STATUS.DELETED))[0]
+
+    return item_qtt == grouped_qtt and item_qtt == packed_qtt
+
+def _get_order_status(conn, order_id):
     """
     There is 4 status.
     Pending order is the initial status.
@@ -209,15 +235,11 @@ def _get_order_status(order_items_list):
     When the merchant has set the status of all shipments as sent, the order
     is "completed".
     """
-    shipment_status_set = set()
-    invoice_status_set = set()
-    for order_item_dict in order_items_list:
-        for item_id, item_info in order_item_dict.iteritems():
-            shipment_status = _get_shipments_status(item_info['shipment_info'])
-            shipment_status_set.add(shipment_status)
+    shipment_status_set = set(_get_order_shipments_status(conn, order_id))
+    invoice_status_set = set(_get_order_invoice_status(conn, order_id))
 
-            invoice_status = item_info['invoice_info'].get('status', 0)
-            invoice_status_set.add(invoice_status)
+    if shipment_status_set == set([SHIPMENT_STATUS.FETCHED]):
+        return ORDER_STATUS.COMPLETED
 
     if (invoice_status_set == set([INVOICE_STATUS.INVOICE_PAID]) and
             shipment_status_set == set([SHIPMENT_STATUS.DELIVER])):
@@ -227,7 +249,8 @@ def _get_order_status(order_items_list):
             shipment_status_set != set([SHIPMENT_STATUS.DELIVER])):
         return ORDER_STATUS.AWAITING_SHIPPING
 
-    if invoice_status_set != set([INVOICE_STATUS.INVOICE_PAID]):
+    if (invoice_status_set != set([INVOICE_STATUS.INVOICE_PAID]) and
+        _all_order_items_packed(conn, order_id)):
         return ORDER_STATUS.AWAITING_PAYMENT
 
     return ORDER_STATUS.PENDING
@@ -286,7 +309,7 @@ def get_orders_list(conn, brand_id, filter_where='', filter_params=None):
             sorted_order_ids.append(order_id)
 
     for order_id, order in orders_dict.iteritems():
-        order['order_status'] = _get_order_status(order['order_items'])
+        order['order_status'] = _get_order_status(conn, order_id)
 
     orders = []
     for order_id in sorted_order_ids:
@@ -314,17 +337,11 @@ def _get_order_items(conn, order_id, brand_id, shops_id=None):
     #                  ...]
     # }
     items = {'order_items': []}
-    fields, columns = zip(*ORDER_ITEM_FIELDS_COLUMNS)
-    query_str = ("SELECT %s FROM order_details "
-                 "LEFT JOIN order_items ON "
-                 "order_details.id_item = order_items.id "
-                 "WHERE id_order = %%s") % ', '.join(columns)
-    if shops_id:
-        query_str += ("AND order_items.id_shop in (%s)"
-                      % ', '.join([str(s) for s in shops_id]))
-    results_list = query(conn, query_str, params=[order_id, ])
-    for result in results_list:
-        order_item = dict(zip(fields, result))
+    results_list = get_order_items(conn, order_id)
+    for order_item in results_list:
+        if shops_id and order_item['shop_id'] not in shops_id:
+            continue
+
         if not _valid_sale_brand(order_item['sale_id'], brand_id):
             continue
 
@@ -333,6 +350,18 @@ def _get_order_items(conn, order_id, brand_id, shops_id=None):
         items['order_items'].append({item_id: order_item})
     return items
 
+def get_order_items(conn, order_id):
+    fields, columns = zip(*ORDER_ITEM_FIELDS_COLUMNS)
+    query_str = ("SELECT %s "
+                   "FROM order_details "
+              "LEFT JOIN order_items "
+                     "ON order_details.id_item = order_items.id "
+                  "WHERE id_order = %%s") % ', '.join(columns)
+    results_list = query(conn, query_str, params=[order_id, ])
+    order_items = []
+    for result in results_list:
+        order_items.append(dict(zip(fields, result)))
+    return order_items
 
 def get_order_detail(conn, order_id, brand_id, shops_id=None):
     fields, columns = zip(*ORDER_FIELDS_COLUMNS)
@@ -360,7 +389,7 @@ def get_order_detail(conn, order_id, brand_id, shops_id=None):
     details.update(order_items)
     details.update({
         'first_sale_id': order_items['order_items'][0].values()[0]['sale_id'],
-        'order_status': _get_order_status(order_items['order_items'])})
+        'order_status': _get_order_status(conn, order_id)})
     return details
 
 def user_accessable_order(conn, id_order, id_user):
@@ -421,3 +450,11 @@ def get_order(conn, id_order, id_user=None):
             'where': where})
     r = query(conn, sql)
     return len(r) > 0 and dict(zip(ORDER_FIELDS, r[0])) or None
+
+def order_item_quantity(conn, id_item):
+    query_str = ("SELECT quantity "
+                   "FROM order_details "
+                  "WHERE order_details.id_item = %s ")
+
+    r = query(conn, query_str, (id_item, ))
+    return r and r[0][0] or None
