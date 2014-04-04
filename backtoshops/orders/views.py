@@ -16,7 +16,6 @@ from common.actors.shipping_list import ActorShipments
 from common.constants import FAILURE
 from common.constants import TARGET_MARKET_TYPES
 from common.constants import USERS_ROLE
-from common.constants import ORDER_STATUS
 
 from common.error import UsersServerError
 from common.error import InvalidRequestError
@@ -34,8 +33,10 @@ from orders.models import Shipping
 from sales.models import Sale
 from shippings.models import Carrier
 from shops.models import Shop
+from B2SProtocol.constants import CUSTOM_SHIPPING_CARRIER
+from B2SProtocol.constants import FREE_SHIPPING_CARRIER
+from B2SProtocol.constants import ORDER_STATUS
 from B2SProtocol.constants import SHIPMENT_STATUS
-from B2SProtocol.constants import SHIPPING_STATUS
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
 
 from B2SUtils.base_actor import actor_to_dict
@@ -219,7 +220,6 @@ class ListOrdersView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
                 orders_by_status[order['order_status']].append({order_id: order})
 
         status = self.request.POST.get('status')
-        print status
         if status and status.isdigit() and int(status) in orders_by_status:
             status = int(status)
         else:
@@ -321,11 +321,11 @@ class BaseOrderPacking(OperatorUpperLoginRequiredMixin, View):
 
     def _accessable_sale(self, actor_shipment, user, id_shipment=None):
         sp_status = actor_shipment.delivery.status
-        if int(sp_status) not in [SHIPMENT_STATUS.PACKING,
-                             SHIPMENT_STATUS.DELAYED,
-                             SHIPMENT_STATUS.DELIVER,
-                             SHIPMENT_STATUS.DELETED]:
-            return False
+#        if int(sp_status) not in [SHIPMENT_STATUS.PACKING,
+#                             SHIPMENT_STATUS.DELAYED,
+#                             SHIPMENT_STATUS.DELIVER,
+#                             SHIPMENT_STATUS.DELETED]:
+#            return False
 
         if id_shipment and int(id_shipment) != int(actor_shipment.id):
             return False
@@ -357,54 +357,51 @@ class BaseOrderPacking(OperatorUpperLoginRequiredMixin, View):
             else:
                 return False
 
+    def _populate_shipment(self, spm_actor):
+        spm_shop_id = spm_actor.shop
+        spm = actor_to_dict(spm_actor)
+        spm['shop_name'] = Shop.objects.get(pk=spm_shop_id).name
+        spm['shop_currency'] = Shop.objects.get(pk=spm_shop_id).default_currency
+        packing_list, remaining_list = self._divide_packing_items(spm_actor)
+        spm['packing_list'] = packing_list
+        spm['remaining_list'] = remaining_list
+        sp_carriers = spm_actor.delivery.carriers
+        if (len(sp_carriers) > 1 or
+            len(sp_carriers) == 1 and len(sp_carriers[0].services) > 1):
+            spm['method'] = SCM.MANUAL
+        return spm
+
     def _parse_shipment(self, spms_actor, user, id_shipment=None):
-        spms = []
+        spms = {'remaining_shipments': [],
+                'packing_shipments': []}
         for spm_actor in spms_actor.shipments:
             if not self._accessable_sale(spm_actor, user, id_shipment):
                 continue
-            spm = {'id': spm_actor.id,
-                   'packing_list': self._get_spm_packing_list(spm_actor),
-                   'remaining_list': self._get_spm_remaining_list(spm_actor),
-                   'status': spm_actor.delivery.status_desc,
-                   'shop': spm_actor.shop,
-                   }
-            spm.update(actor_to_dict(spm_actor))
-            if spm['packing_list'] or spm['remaining_list']:
-                spms.append(spm)
+            spm = self._populate_shipment(spm_actor)
+            if int(spm_actor.id) == 0:
+                spms['remaining_shipments'].append(spm)
+            else:
+                spms['packing_shipments'].append(spm)
+
         return spms
 
-    def _get_spm_packing_list(self, spm_actor):
+    def _divide_packing_items(self, spm_actor):
         packing_list = []
-
-        auto_shipping_method = [SCM.CARRIER_SHIPPING_RATE,
-                                SCM.CUSTOM_SHIPPING_RATE]
-
-        if not spm_actor.method:
-            return packing_list
-
-        # packing list condition:
-        # * Auto shipping shipment with service selected
-        # * Or other shipping method shipment.
-        if ((int(spm_actor.method) in auto_shipping_method and
-             len(spm_actor.delivery.carriers) == 1 and
-             len(spm_actor.delivery.carriers[0].services) == 1) or
-            int(spm_actor.method) not in auto_shipping_method):
-                for item in spm_actor.items:
-                    if (int(item.shipping_status) == SHIPPING_STATUS.PACKING and
-                        int(item.quantity) > 0):
-                        packing_list.append(actor_to_dict(item))
-
-        return packing_list
-
-    def _get_spm_remaining_list(self, spm_actor):
         remaining_list = []
 
         for item in spm_actor.items:
-            if (int(item.shipping_status) == SHIPPING_STATUS.TO_PACKING and
-                int(item.quantity) > 0):
-                remaining_list.append(actor_to_dict(item))
+            quantity = int(item.quantity)
+            packing_quantity = int(item.packing_quantity)
+            currency = Sale.objects.get(pk=item.sale).product.currency.code
+            item = actor_to_dict(item)
+            item['currency'] = currency
 
-        return remaining_list
+            if packing_quantity < quantity:
+                remaining_list.append(item)
+            if packing_quantity > 0:
+                packing_list.append(item)
+
+        return packing_list, remaining_list
 
     def _get_deadline(self, order_id):
         # TODO: implementation
@@ -445,7 +442,7 @@ class BaseOrderPacking(OperatorUpperLoginRequiredMixin, View):
             else:
                 return False
 
-    def remaining_items_content(self, post):
+    def remaining_items_content(self, post, id_shop):
         '''
         @param post:
             id_shipment
@@ -453,41 +450,30 @@ class BaseOrderPacking(OperatorUpperLoginRequiredMixin, View):
 
             remaining_item_ckb_$id_shipping_list
             remaining_item_choose_$id_shipping_list
-            order_item_for_$id_shipping_list
             sale_for_$id_shipping_list
 
             should in post dict
         @return: remaining items list in post request.
-            [{'id_order_item': xxx, 'id_shipping_list_item': xxx,
+            [{'id_order_item': xxx,
               'quantity': xxx} ...]
         '''
-        id_shipment = post.get('id_shipment')
         content = []
         ckb_prefix = "remaining_item_ckb_"
         qtt_prefix = "remaining_item_choose_"
-        ord_prefix = "order_item_for_"
         sale_prefix = "sale_for_"
-        shop_prefix = "shop_for_"
         items = [key for key, _ in post.iteritems()
-                 if key.startswith(qtt_prefix)]
-
-        id_shop = post.get(shop_prefix + id_shipment)
-        assert id_shop is not None, "miss shop info of %s" % id_shipment
+                 if key.startswith(ckb_prefix)]
 
         for item in items:
-            id_shipping_list = item[len(qtt_prefix):]
-            if post.get(ckb_prefix + id_shipping_list) != "on":
-                continue
+            id_order_item = item[len(ckb_prefix):]
 
-            quantity = post.get(item)
-            assert quantity is not None, "miss quantity of %s" % id_shipping_list
+            quantity = post.get(qtt_prefix + id_order_item)
+            assert quantity is not None, "miss quantity of %s" % id_order_item
             assert int(quantity) > 0, "quantity %s must be a positive number" % quantity
 
-            id_order_item = post.get(ord_prefix + id_shipping_list)
-            assert id_order_item is not None, "miss order item of %s" % id_shipping_list
 
-            id_sale = post.get(sale_prefix + id_shipping_list)
-            assert id_sale is not None, "miss sale info of %s" % id_shipping_list
+            id_sale = post.get(sale_prefix + id_order_item)
+            assert id_sale is not None, "miss sale info of %s" % id_order_item
 
             sale = Sale.objects.get(pk=id_sale)
             if not self.shop_match_check(sale, id_shop):
@@ -498,7 +484,6 @@ class BaseOrderPacking(OperatorUpperLoginRequiredMixin, View):
                                           "operate sale: %s" % id_sale)
 
             content.append({'id_order_item': id_order_item,
-                            'id_shipping_list_item': id_shipping_list,
                             'quantity': quantity})
         return content
 
@@ -577,11 +562,11 @@ def carrier_options():
 
     # free shipping option
     option.append({'label': _("Free Shipping"),
-                   'value': -1})
+                   'value': FREE_SHIPPING_CARRIER})
 
     # custom option
     option.append({'label': _("Others"),
-                   'value': 0})
+                   'value': CUSTOM_SHIPPING_CARRIER})
 
     return option
 
@@ -604,14 +589,14 @@ class OrderPacking(BaseOrderPacking, TemplateResponseMixin):
             xml_packing_list = get_order_packing_list(order_id)
             dict_pl = xmltodict.parse(xml_packing_list)
             spms_actor = ActorShipments(data=dict_pl['shipments'])
-            spm_list = self._parse_shipment(
+            spms = self._parse_shipment(
                 spms_actor,
                 request.user,
                 id_shipment=id_shipment)
-            packing['shipments'] = spm_list
-            if id_shipment and spm_list:
-                self.shipment = spm_list[0]
-                self.shipment['show_packing_list'] = request.GET.get('show_packing_list') or False
+            packing['shipments'] = spms
+            packing['order_status'] = spms_actor.order_status
+            if id_shipment and spms['packing_shipments']:
+                self.shipment = spms['packing_shipments'][0]
         except UsersServerError, e:
             self.error_msg = (
                 "Sorry, the system meets some issues, our engineers have been "
@@ -622,10 +607,11 @@ class OrderPacking(BaseOrderPacking, TemplateResponseMixin):
 
     def get_template_names(self):
         if self.request.GET.get('shipment'):
-            return ["_shipment_packing.html"]
+            return ["_shipment.html"]
+        elif self.request.GET.get('unpacking_reload'):
+            return ["_unpacking.html"]
         else:
             return super(OrderPacking, self).get_template_names()
-
 
 
 class OrderNewPacking(BaseOrderPacking):
@@ -651,9 +637,10 @@ class OrderNewPacking(BaseOrderPacking):
 
     def create_new_packing(self, request):
         id_order = request.POST.get('id_order')
-        id_shipment = request.POST.get('id_shipment')
+        id_shop = request.POST.get('id_shop')
+        id_brand = request.POST.get('id_brand')
 
-        content = self.remaining_items_content(request.POST)
+        content = self.remaining_items_content(request.POST, id_shop)
 
         sp_fee = request.POST.get("shipping_fee")
         hd_fee = request.POST.get("handling_fee")
@@ -661,7 +648,7 @@ class OrderNewPacking(BaseOrderPacking):
         assert hd_fee is not None, "miss handling fee"
         assert content, "At least one item must be selected"
 
-        return send_new_shipment(id_order, id_shipment,
+        return send_new_shipment(id_order, id_shop, id_brand,
                                  sp_fee, hd_fee, content)
 
 
@@ -687,12 +674,93 @@ class OrderUpdatePacking(BaseOrderPacking):
             rst = ujson.dumps(rst)
         return HttpResponse(rst, mimetype="application/json")
 
-    def update_packing(self, request):
-        id_shipment = request.POST.get('id_shipment')
+    def _sale_valid_check(self, id_sale, id_shop):
+        sale = Sale.objects.get(pk=id_sale)
+        if not self.shop_match_check(sale, id_shop):
+            raise InvalidRequestError("sale %s doesn't in shop %s"
+                                      % (id_sale, id_shop))
+        if not self.permission_check(sale, id_shop):
+            raise InvalidRequestError("You have no priority to "
+                                      "operate sale: %s" % id_sale)
 
+    def packing_items_content(self, post, id_shop):
+        '''
+        @param post:
+            id_shipment
+            shop_for_$id_shipment
+
+            remaining_item_ckb_$id_shipping_list
+            remaining_item_choose_$id_shipping_list
+            sale_for_$id_shipping_list
+
+            should in post dict
+        @return: remaining items list in post request.
+            [{'id_order_item': xxx,
+              'quantity': xxx} ...]
+        '''
+        content = {}
+        packing_ckb_prefix = "packing_item_ckb_"
+        packing_qtt_prefix = "packing_item_out_count_for_"
+        remaining_ckb_prefix = "remaining_item_ckb_"
+        remaining_qtt_prefix = "remaining_item_choose_"
+        total_count_prefix = "total_count_for_"
+        sale_prefix = "sale_for_"
+
+        packing_items = [key for key, _ in post.iteritems()
+                 if key.startswith(packing_qtt_prefix)]
+
+        remaining_items = [key for key, _ in post.iteritems()
+                         if key.startswith(remaining_ckb_prefix)]
+
+        for item in packing_items:
+            id_order_item = item[len(packing_qtt_prefix):]
+
+            packing_qtt = post.get(item)
+            assert packing_qtt is not None, "quantity must be a positive number"
+            assert int(packing_qtt) > 0, "quantity %s must be a positive number" % packing_qtt
+
+            id_sale = post.get(sale_prefix + id_order_item)
+            assert id_sale is not None, "miss sale info of %s" % id_order_item
+            self._sale_valid_check(id_sale, id_shop)
+
+
+            packing_ckb = post.get(packing_ckb_prefix + id_order_item)
+            remaining_ckb = post.get(remaining_ckb_prefix + id_order_item)
+            total_count = post.get(total_count_prefix + id_order_item)
+
+            if packing_ckb and packing_ckb.lower() == 'on':
+                quantity = int(packing_qtt)
+            elif remaining_ckb and remaining_ckb.lower() == 'on':
+                remaining_count = post.get(remaining_qtt_prefix + id_order_item)
+                quantity = int(total_count) - int(remaining_count)
+            else:
+                quantity = 0
+
+            content[id_order_item] = {'id_order_item': id_order_item,
+                                      'quantity': quantity}
+        for item in remaining_items:
+            id_order_item = item[len(remaining_ckb_prefix):]
+            if content.get(id_order_item):
+                continue
+
+            id_sale = post.get(sale_prefix + id_order_item)
+            assert id_sale is not None, "miss sale info of %s" % id_order_item
+            self._sale_valid_check(id_sale, id_shop)
+
+            total_count = post.get(total_count_prefix + id_order_item)
+            remaining_count = post.get(remaining_qtt_prefix + id_order_item)
+            quantity = int(total_count) - int(remaining_count)
+            content[id_order_item] = {'id_order_item': id_order_item,
+                                      'quantity': quantity}
+
+        return content.values()
+
+    def update_packing(self, request):
         post = request.POST
-        content = self.packing_items_content(post)
-        remaining_content = self.remaining_items_content(post)
+
+        id_shipment = post.get('id_shipment')
+        id_shop = post.get('shop_for_' + id_shipment)
+        content = self.packing_items_content(post, id_shop)
 
         sp_fee = post.get("shipping_fee") or None
         hd_fee = post.get("handling_fee") or None
@@ -702,7 +770,6 @@ class OrderUpdatePacking(BaseOrderPacking):
         shipping_carrier = post.get("shipping_carrier") or None
 
         content = content or None
-        remaining_content = remaining_content or None
         sp_date = post.get('shipping_date') or None
 
         return send_update_shipment(
@@ -714,8 +781,7 @@ class OrderUpdatePacking(BaseOrderPacking):
             content=content,
             shipping_date=sp_date,
             tracking_name=tracking_name,
-            shipping_carrier=shipping_carrier,
-            remaining_content=remaining_content)
+            shipping_carrier=shipping_carrier)
 
 
 class OrderDeletePacking(BaseOrderPacking):

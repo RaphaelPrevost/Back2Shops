@@ -235,10 +235,6 @@ p#order-status-tabs span {
     line-height: 40px;
     padding: 10px 5px;
 }
-p#order-status-tabs span.selected {
-    background-color: #BBBBBB;
-    font-weight: bold;
-}
 
 div#detail table {
     border: 1px solid #cbcbcb;
@@ -370,11 +366,15 @@ div.error_msg {
     margin-top: 5px;
 }
 
-.packing .new_packing_list{
+.remaining_packing {
+    margin-bottom: 20px;
+}
+
+.new_packing_list{
     height: 20px;
     cursor: pointer;
 }
-.packing .new_packing_list .create {
+.new_packing_list .create {
     line-height: 20px;
     height: 20px;
     background-color: #000;
@@ -400,6 +400,10 @@ div.error_msg {
 .outer_shipping_date {
     padding-left: 30px;
     display: None;
+}
+
+.remaining_packing_items {
+    padding-left: 20px;
 }
 /* Packing List end */
 
@@ -511,8 +515,11 @@ select[disabled] {
 }
 
 span.item_name {
-    max-width: 180px;
+    max-width: 160px;
+    white-space: nowrap;
     overflow: hidden;
+    text-overflow:ellipsis;
+    -o-text-overflow:ellipsis;
 }
 
 /*Btn Update, Delete, Cancel*/

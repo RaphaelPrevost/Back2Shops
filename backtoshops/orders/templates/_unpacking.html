@@ -1,0 +1,87 @@
+
+{% load i18n %}
+{% load is_auto_shipment %}
+{% load is_manual_shipment %}
+{% load is_carrier_shipping_rate %}
+{% load is_custom_shipping_rate %}
+{% load is_flat_rate %}
+{% load is_free_shipping %}
+{% load has_delivered %}
+{% load is_shop_manager_upper %}
+{% load is_fetched_shipment %}
+
+{% if packing.shipments.remaining_shipments %}
+<form class="remaining_packing_form" method="post">
+    <input type="hidden" id="id_order" name="id_order" value="{{ packing.order_id }}"/>
+    <input type="hidden" id="id_shop" name="id_shop"/>
+    <input type="hidden" id="id_brand" name="id_brand"/>
+
+    <div class="manual_shipping_fee formrow">
+        <span><p>{% trans "Shipping fee" %}: </p></span>
+            <span>
+                <input type="text" name="shipping_fee"/>
+            </span>
+        <span class="shipping_currency"></span>
+    </div>
+
+    <div class="manual_handling_fee formrow">
+        <span><p>{% trans "Handling fee" %}: </p></span>
+            <span>
+                <input type="text" name="handling_fee"/>
+            </span>
+        <span class="shipping_currency"></span>
+    </div>
+
+    <div class="formrow">
+        <span><p>{% trans "Remaining items to ship" %}: </p></span>
+    </div>
+
+    {% for shipment in packing.shipments.remaining_shipments %}
+        <div class="remaining_packing_items_for_shop"
+             id="packing_for_shop_{{ shipment.shop }}"
+             for_brand="{{ shipment.brand }}"
+             for_shop="{{ shipment.shop }}">
+            <div class="shop formrow">
+                <input type="checkbox"
+                       name="packing_ckb_for_shop_{{ shipment.shop }}"
+                       class='shop_ckb'
+                       id="packing_ckb_for_shop_{{ shipment.shop }}"
+                       for_shop="{{ shipment.shop }}">
+                <span>{{ shipment.shop_name }}</span>
+            </div>
+            <div class="remaining_packing_items"
+                 id="remaining_packing_items_for_shop_{{ shipment.shop }}">
+                {% for item in shipment.remaining_list %}
+                    <div class="packing_item formrow">
+                        <input type="hidden"
+                               name="sale_for_{{ item.id_order_item }}"
+                               id="sale_for_{{ item.id_order_item }}"
+                               value="{{ item.sale }}"/>
+                        <input type="hidden"
+                               name="currency_for_item_{{ item.id_order_item }}"
+                               id="currency_for_item_{{ item.id_order_item }}"
+                               value="{{ item.currency}}"/>
+                        <input type="checkbox"
+                               name="remaining_item_ckb_{{ item.id_order_item }}"
+                               class='new_packing_item_check'
+                               for_item="{{ item.id_order_item }}"
+                               for_shop="{{ shipment.shop }}"
+                               id="remaining_item_ckb_{{ item.id_order_item }}">
+                        <span class="item_name" title="{{ item.name }}">{{ item.name }}</span>
+                        <input type="text"
+                               name="remaining_item_choose_{{ item.id_order_item }}"
+                               class="item_count"
+                               value="{{ item.quantity }}"
+                               for_shop="{{ shipment.shop }}"
+                               id="remaining_item_choose_{{ item.id_order_item }}"/>
+                        <span>{% trans "out of" %} {{ item.quantity }} {% trans "items" %}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+    <div class="new_packing_list">
+        <span class="create" for_shipment="{{ shipment.id }}">{% trans "Create new packing list" %}</span>
+    </div>
+</form>
+{% endif %}

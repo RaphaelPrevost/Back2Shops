@@ -1,4 +1,4 @@
-<shipments version="1.0">
+<shipments version="1.0" order_status="{{ order_status }}">
     {% for shipment in object_list %}
         <shipment id="{{ shipment.id }}"
                   method="{% if shipment.calculation_method %}{{ shipment.calculation_method }}{% endif %}"
@@ -42,9 +42,8 @@
                 </fees>
             {% endif %}
             {% for shipping in shipment.shipping_list %}
-                <item sale="{{ shipping.id_sale }}" id_order_item="{{ shipping.id_item }}" id_shipping_list="{{ shipping.id_shipping_list }}">
+                <item sale="{{ shipping.id_sale }}" id_order_item="{{ shipping.id_item }}">
                     <name>{{ shipping.sale_item.name }}</name>
-                    <shipping_status>{{ shipping.shipping_status }}</shipping_status>
                     {% if shipping.sale_item.sel_weight_type %}
                         <type id="{{ shipping.sale_item.type.id }}">
                             <name>{{ shipping.sale_item.type.name }}</name>
@@ -60,6 +59,7 @@
                         {{ shipping.sale_item.weight }}
                     </weight>
                     <quantity>{{ shipping.sale_item.quantity }}</quantity>
+                    <packing_quantity>{{ shipping.sale_item.packing_quantity }}</packing_quantity>
                 </item>
             {% endfor %}
         </shipment>

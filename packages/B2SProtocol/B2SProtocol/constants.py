@@ -25,9 +25,11 @@ class SHIPPING_CALCULATION_METHODS(CustomEnum):
     INVOICE = 5
     MANUAL = 6
 
-class SHIPPING_STATUS(CustomEnum):
-    """ shipping list items status
-    """
-    PACKING = 1
-    TO_PACKING = 2
-    FETCHED = 3
+class ORDER_STATUS(CustomEnum):
+    PENDING = 1
+    AWAITING_PAYMENT = 2
+    AWAITING_SHIPPING = 3
+    COMPLETED = 4
+
+FREE_SHIPPING_CARRIER = -1
+CUSTOM_SHIPPING_CARRIER = 0

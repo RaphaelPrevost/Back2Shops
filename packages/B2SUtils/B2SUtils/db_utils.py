@@ -40,6 +40,13 @@ def query(conn, sql, params=None):
         conn.rollback()
         raise DatabaseError("%s:%s" % (e.pgcode, e.pgerror))
 
+def execute(conn, sql, params=None):
+    try:
+        return conn.execute(sql, params)
+    except psycopg2.Error, e:
+        conn.rollback()
+        raise DatabaseError("%s:%s" % (e.pgcode, e.pgerror))
+
 def select(conn, table_name, **kwargs):
     try:
         return conn.select(table_name, **kwargs)

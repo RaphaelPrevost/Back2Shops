@@ -9,9 +9,10 @@ from common.utils import remote_xml_shipping_fee
 from common.utils import remote_xml_shipping_services
 from common.utils import weight_convert
 
+from B2SProtocol.constants import FREE_SHIPPING_CARRIER
 from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS
-from B2SProtocol.constants import SHIPPING_STATUS
+from B2SUtils.db_utils import execute
 from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import query
 from B2SUtils.db_utils import update
@@ -45,6 +46,12 @@ def create_shipment(conn, id_order, id_brand, id_shop,
 
     if supported_services and len(supported_services) == 1:
         sm_values['shipping_carrier'] = int(supported_services.values()[0])
+
+    if (status == SHIPMENT_STATUS.FETCHED or
+        calculation_method == SHIPPING_CALCULATION_METHODS.FREE_SHIPPING):
+        sm_values['shipping_carrier'] = FREE_SHIPPING_CARRIER
+        shipping_fee = 0
+        handling_fee = 0
 
     sm_id = insert(conn, 'shipments', values=sm_values, returning='id')
     logging.info('shipment created: id: %s, values: %s',
@@ -107,14 +114,13 @@ def update_shipping_fee(conn, id_shipment, values):
     return r and r[0] or None
 
 
-def create_shipping_list(conn, id_item, quantity,
-                          id_shipment=None, picture=None,
-                          free_shipping=None,
-                          status=SHIPPING_STATUS.PACKING,
-                          id_orig_shipping_list=None):
+def create_shipping_list(conn, id_item, quantity, packing_quantity,
+                         id_shipment=None, picture=None,
+                         free_shipping=None):
     shipping_value = {
         'id_item': id_item,
         'quantity': quantity,
+        'packing_quantity': packing_quantity
         }
 
     if id_shipment:
@@ -123,40 +129,9 @@ def create_shipping_list(conn, id_item, quantity,
         shipping_value['picture'] = picture
     if free_shipping:
         shipping_value['free_shipping'] = free_shipping
-    if id_orig_shipping_list:
-        shipping_value['id_orig_shipping_list'] = id_orig_shipping_list
-    shipping_value['status']=status
-
 
     insert(conn, 'shipping_list', values=shipping_value)
     logging.info('shipping_list create: %s', shipping_value)
-
-def update_or_create_shipping_list(conn, id_item, quantity,
-                         id_shipment=None, picture=None,
-                         free_shipping=None,
-                         status=SHIPPING_STATUS.PACKING,
-                         id_orig_shipping_list=None):
-    exist_spl = get_spl_by_item(conn, id_shipment, id_item, status)
-    if exist_spl:
-        where = {'id': exist_spl['id']}
-        values = {'quantity': exist_spl['quantity'] + int(quantity),
-                  'status': status}
-        update_shipping_list(conn, where, values)
-    else:
-        create_shipping_list(conn, id_item, quantity,
-                             id_shipment=id_shipment,
-                             picture=picture,
-                             free_shipping=free_shipping,
-                             status=status,
-                             id_orig_shipping_list=id_orig_shipping_list)
-
-
-def _shipping_status_by_method(method):
-    if method == SHIPPING_CALCULATION_METHODS.INVOICE:
-        shipping_status = SHIPPING_STATUS.TO_PACKING
-    else:
-        shipping_status = SHIPMENT_STATUS.PACKING
-    return shipping_status
 
 
 class BaseShipments:
@@ -212,8 +187,8 @@ class posOrderShipments(BaseShipments):
                 create_shipping_list(self.conn,
                                   id_order_item,
                                   quantity,
-                                  id_shipment=id_shipment,
-                                  status=SHIPPING_STATUS.FETCHED)
+                                  quantity,
+                                  id_shipment=id_shipment)
         logging.info('posorder_shipment_internet_sales_handled: %s', groups)
 
     def handleLocalSales(self, sales):
@@ -236,8 +211,8 @@ class posOrderShipments(BaseShipments):
                 create_shipping_list(self.conn,
                                      id_order_item,
                                      quantity,
-                                     id_shipment=id_shipment,
-                                     status=SHIPPING_STATUS.FETCHED)
+                                     quantity,
+                                     id_shipment=id_shipment)
 
         logging.info('posorder_shipment_local_sales_handled: %s', groups)
 
@@ -342,6 +317,7 @@ class ShipmentsHandler(object):
                 create_shipping_list(self.conn,
                                      id_order_item,
                                      1,
+                                     1,
                                      id_shipment=id_shipment)
         logging.info('shipment_flat_rate_sales_handled: %s', sales)
 
@@ -378,12 +354,12 @@ class ShipmentsHandler(object):
             id_order_item = sale.order_props['id_order_item']
             for _ in range(int(sale.order_props['quantity'])):
                 id_shipment = self._create_shipment(
-                                              calculation_method=cal_method)
+                    calculation_method=cal_method)
                 create_shipping_list(self.conn,
                                      id_order_item,
                                      1,
-                                     id_shipment = id_shipment,
-                                     status=SHIPPING_STATUS.TO_PACKING)
+                                     0,
+                                     id_shipment = id_shipment)
 
     def handleSeparateFreeShippingSales(self, sales):
         cal_method = SHIPPING_CALCULATION_METHODS.FREE_SHIPPING
@@ -394,6 +370,7 @@ class ShipmentsHandler(object):
                                               calculation_method=cal_method)
                 create_shipping_list(self.conn,
                                      id_order_item,
+                                     1,
                                      1,
                                      id_shipment=id_shipment,
                                      free_shipping=True)
@@ -410,6 +387,7 @@ class ShipmentsHandler(object):
         custom_sales = []
         custom_sales_group= []
         invoice_sales = []
+
         for sale in sales:
             op = sale.shipping_setting.options
             allow_group = eval(op.group_shipment.value)
@@ -550,22 +528,23 @@ class ShipmentsHandler(object):
                                       supported_services=supported_services,
                                       calculation_method=cal_method)
 
-        shipping_status = _shipping_status_by_method(cal_method)
         for sale in group_sales:
             id_order_item = sale.order_props['id_order_item']
             quantity = sale.order_props['quantity']
+            packing_quantity = quantity
+            if len(supported_services) > 1:
+                packing_quantity = 0
             create_shipping_list(self.conn,
                                  id_order_item,
                                  quantity,
-                                 id_shipment=id_shipment,
-                                 status=shipping_status)
+                                 packing_quantity,
+                                 id_shipment=id_shipment)
 
         return ([sale for sale in sales if sale not in group_sales],
                 free_shipping_fee,
                 id_shipment)
 
     def separateShipments(self, sales, cal_method):
-        shipping_status = _shipping_status_by_method(cal_method)
         for sale in sales:
             service_carrier_map = sale.shipping_setting.supported_services
             shipping_fee = None
@@ -593,8 +572,8 @@ class ShipmentsHandler(object):
                 create_shipping_list(self.conn,
                                      id_order_item,
                                      1,
-                                     id_shipment=id_shipment,
-                                     status=shipping_status)
+                                     1,
+                                     id_shipment=id_shipment)
 
     def getMaxHandlingFee(self, sales):
         handlings = [float(sale.shipping_setting.fees.handling.value)
@@ -656,6 +635,7 @@ class ShipmentsHandler(object):
             create_shipping_list(self.conn,
                                  id_order_item,
                                  quantity,
+                                 quantity,
                                  id_shipment=spm_id,
                                  free_shipping=True)
         values = {'id_shipment': spm_id,
@@ -672,12 +652,11 @@ class ShipmentsHandler(object):
             create_shipping_list(self.conn,
                                  id_order_item,
                                  quantity,
+                                 quantity,
                                  id_shipment=id_shipment,
                                  free_shipping=True)
 
     def _groupShippingSales(self, sales, free_sales_group, cal_method):
-        if not sales:
-            return
         free_shipping_fee = None
         free_sales_shipment = None
         while sales:
@@ -817,14 +796,13 @@ SHIPPING_ITEM_FIELDS = [
     ('id_item', 'spl.id_item'),
     ('id_shipment', 'spl.id_shipment'),
     ('quantity', 'spl.quantity'),
+    ('packing_quantity', 'spl.packing_quantity'),
     ('free_shipping', 'spl.free_shipping'),
     ('id_sale', 'oi.id_sale'),
     ('id_shop', 'oi.id_shop'),
     ('id_variant', 'oi.id_variant'),
     ('id_weight_type', 'oi.id_weight_type'),
-    ('id_price_type', 'oi.id_price_type'),
-    ('shipping_status', 'spl.status'),
-    ('id_orig_shipping_list', 'spl.id_orig_shipping_list')]
+    ('id_price_type', 'oi.id_price_type')]
 
 def get_shipping_list(conn, id_shipment):
     query_str = ("SELECT %s "
@@ -841,7 +819,7 @@ def get_shipping_list(conn, id_shipment):
     return shipping_list
 
 SPL_ITEM_FIELDS = ['id', 'id_item', 'id_shipment', 'quantity', 'picture',
-                   'free_shipping', 'id_orig_shipping_list', 'status']
+                   'free_shipping']
 def get_spl_item_by_id(conn, id_shipping_list):
     """
     @param conn: database connection used to access database.
@@ -861,36 +839,20 @@ def get_spl_item_by_id(conn, id_shipping_list):
         shipping_list.append(dict(zip(SPL_ITEM_FIELDS, item)))
     return shipping_list and shipping_list[0] or None
 
-def get_spl_by_item(conn, id_shipment, id_item, status):
+def get_spl_by_item(conn, id_shipment, id_item):
     query_str = ("SELECT %s "
                  "FROM shipping_list "
                  "WHERE id_shipment=%%s "
                    "AND id_item=%%s "
-                   "AND status=%%s "
               "ORDER BY id"
                  % ", ".join(SPL_ITEM_FIELDS))
     r = query(conn,
               query_str,
-              (id_shipment, id_item, status))
+              (id_shipment, id_item))
     shipping_list = []
     for item in r:
         shipping_list.append(dict(zip(SPL_ITEM_FIELDS, item)))
     return shipping_list and shipping_list[0] or None
-
-def get_packing_spl_for_shipment(conn, id_shipment):
-    query_str = ("SELECT %s "
-                 "FROM shipping_list "
-                 "WHERE id_shipment=%%s "
-                   "AND status=%%s "
-                   "AND quantity>0 "
-                 % ", ".join(SPL_ITEM_FIELDS))
-    r = query(conn,
-              query_str,
-              (id_shipment, SHIPPING_STATUS.PACKING))
-    shipping_list = []
-    for item in r:
-        shipping_list.append(dict(zip(SPL_ITEM_FIELDS, item)))
-    return shipping_list
 
 def update_shipping_list(conn, where, values):
     r = update(conn,
@@ -932,6 +894,11 @@ def conf_shipping_service(conn, id_shipment, id_service,
            values={"shipping_fee": fee},
            where=where)
 
+    sql = ("UPDATE shipping_list "
+              "SET packing_quantity = quantity "
+            "WHERE id_shipment = %s")
+    execute(conn, sql, (id_shipment,))
+
     if fee_for_free:
         update(conn,
                "free_shipping_fee",
@@ -939,28 +906,22 @@ def conf_shipping_service(conn, id_shipment, id_service,
                where=where)
 
 
-SHIPMENT_ITEM_FIELDS = (
-    ("id_order", "spm.id_order"),
-    ("id_shipment", "spm.id"),
-    ("id_order_item", "spl.id_item"),
-    ("quantity", "spl.quantity"),
-    ("id_orig_shipping_list", "spl.id_orig_shipping_list"),
-    ("shipping_status", "spl.status"),
-)
-def shipment_item(conn, id_shipping_list_item):
-    query_str = ("SELECT %s "
+def shipping_list_item_quantity(conn, id_shipment, id_order_item):
+    query_str = ("SELECT quantity "
                    "FROM shipping_list as spl "
-                   "JOIN shipments as spm "
-                     "ON spm.id = spl.id_shipment "
-                  "WHERE spl.id = %%s "
-            % ", ".join([f[1] for f in SHIPMENT_ITEM_FIELDS]))
+                  "WHERE spl.id_item = %s "
+                    "AND spl.id_shipment = %s ")
 
-    r = query(conn, query_str, (id_shipping_list_item,))
-    shipping_list = []
-    for item in r:
-        shipping_list.append(dict(
-            zip([f[0] for f in SHIPMENT_ITEM_FIELDS], item)))
+    r = query(conn, query_str, (id_order_item, id_shipment))
+    return r and r[0][0] or None
 
-    return shipping_list
-
+def order_item_grouped_quantity(conn, id_order_item):
+    sql = ("SELECT sum(spl.quantity) "
+             "FROM shipping_list as spl "
+             "JOIN shipments as spm "
+               "ON spl.id_shipment = spm.id "
+            "WHERE id_item = %s "
+              "AND spm.status <> %s")
+    r = query(conn, sql, (id_order_item, SHIPMENT_STATUS.DELETED))
+    return r and r[0][0] or 0
 

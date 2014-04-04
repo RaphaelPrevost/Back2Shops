@@ -19,12 +19,6 @@ class TARGET_MARKET_TYPES(CustomEnum):
     GLOBAL = 'N'
     LOCAL = 'L'
 
-class ORDER_STATUS(CustomEnum):
-    PENDING = 1
-    AWAITING_PAYMENT = 2
-    AWAITING_SHIPPING = 3
-    COMPLETED = 4
-
 # response
 SUCCESS = 'SUCCESS'
 FAILURE = 'FAILURE'

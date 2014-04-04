@@ -1,0 +1,122 @@
+
+{% load i18n %}
+{% load is_auto_shipment %}
+{% load is_manual_shipment %}
+{% load is_carrier_shipping_rate %}
+{% load is_custom_shipping_rate %}
+{% load is_flat_rate %}
+{% load is_free_shipping %}
+{% load has_delivered %}
+{% load is_shop_manager_upper %}
+{% load is_fetched_shipment %}
+
+<div class="remaining_packing">
+    {% include "_unpacking.html" %}
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function(){
+        $('.shop_ckb').die().live('click', function(){
+            var id_shop = $(this).attr('for_shop');
+            var rpi = $('#remaining_packing_items_for_shop_' + id_shop);
+            var checked = $(this).prop('checked');
+            $("input:checkbox", rpi).prop('checked', checked);
+            $("input:checkbox", rpi).change();
+        });
+
+        $('.new_packing_item_check').die().live('change', function(){
+            var for_item = $(this).attr('for_item');
+            var for_shop = $(this).attr('for_shop');
+            var item_currency = $('#currency_for_item_' + for_item);
+            $('.shipping_currency').html(item_currency.val());
+
+            var checked = $(this).prop('checked');
+            if (checked) {
+                $('.new_packing_item_check:not([for_shop=' + for_shop + '])').prop('disabled', true);
+                $('.item_count:not([for_shop=' + for_shop + '])').prop('disabled', true);
+
+                var packing_for_shop = $('#packing_for_shop_' + for_shop);
+                $("#id_shop").val(packing_for_shop.attr('for_shop'));
+                $("#id_brand").val(packing_for_shop.attr('for_brand'));
+            } else {
+                if ($('.new_packing_item_check:checked').length == 0) {
+                    $('.new_packing_item_check').prop('disabled', false);
+                    $('.item_count').prop('disabled', false);
+                    $("#id_shop").val("");
+                    $("#id_brand").val("");
+                }
+            }
+
+        });
+
+        function shipment_reload(id_shipment) {
+            var shipment = $("#shipment_" + id_shipment);
+            var href = "{% url 'order_packing_list' %}";
+            href += "{{ packing.order_id }}";
+            href += "?shipment=" + id_shipment;
+
+            shipment.load(href, function(data){
+                shipment.fadeOut("normal", function() {
+                    shipment.html(data);
+                    shipment.fadeIn();
+                });
+            });
+        }
+
+        function unpacking_reload() {
+            var unpacking = $(".remaining_packing");
+            var href = "{% url 'order_packing_list' %}";
+            href += "{{ packing.order_id }}";
+            href += "?unpacking_reload=" + "true";
+
+            unpacking.load(href, function(data){
+                unpacking.fadeOut("normal", function() {
+                    unpacking.html(data);
+                    unpacking.fadeIn();
+                });
+            });
+
+        }
+        $(".new_packing_list .create").die().live('click', function(){
+            var form = $(".remaining_packing_form");
+            var shipping_fee = $("input[name=shipping_fee]", form);
+            if (shipping_fee && shipping_fee.val() == "") {
+                alert("Please input shipping fee");
+                return;
+            }
+
+            var handling_fee = $("input[name=handling_fee]", form);
+            if (handling_fee && handling_fee.val() == "") {
+                alert("Please input handling fee");
+                return;
+            }
+
+            if ($('.new_packing_item_check:checked').length == 0) {
+                var warning = "{% trans 'You must choose at least one item' %}";
+                alert(warning);
+                return;
+            }
+
+            var data = form.serialize();
+
+            $.ajax({
+                type: 'POST',
+                url: "/orders/new/packing",
+                data: data,
+                success: function(data, status) {
+                    if (data.res == 'SUCCESS') {
+                        var new_shipment = $("<div id='shipment_" + data.id_new_shipment + "'>");
+                        $('.group_packing').prepend(new_shipment);
+                        shipment_reload(data.id_new_shipment);
+                        unpacking_reload();
+                    } else {
+                        alert('{% trans "Error:" %}' + data.err);
+                    }
+
+                }
+            });
+        });
+
+    });
+</script>
