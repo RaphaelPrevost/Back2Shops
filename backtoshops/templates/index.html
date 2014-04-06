@@ -3,6 +3,7 @@
 {% load is_admin %}
 {% load is_shop_manager_upper %}
 {% load is_manager_upper %}
+{% load need_map %}
 
 {% block content %}
     <ul id="content_Home">
@@ -22,23 +23,23 @@
             <h3 class="link2">{% trans "Current sales" %}</h3>
             <a href="{% url 'list_sales' "current" %}">{% trans "Current sales" %}</a>
         </li>
+        {% if user|is_manager_upper %}
         <li>
             <h3 class="link5">{% trans "Statistics" %}</h3>
             <a href="stats_1.htm">{% trans "Statistics" %}</a>
         </li>
+        {% endif %}
+        {% if user|is_manager_upper %}
         <li>
             <h3 class="link3">{% trans "History" %}</h3>
             <a href="{% url 'list_sales' "old" %}">{% trans "History" %}</a>
         </li>
+        {% endif %}
+        {% if user|need_map %}
         <li>
             <h3 class="link6">{% trans "Performance Map" %}</h3>
             <a href="map_1.htm">{% trans "Performance Map" %}</a>
         </li>
-        {% if user|is_shop_manager_upper %}
-            <li>
-                <h3 class="link7">{% trans "Operators mgmt" %}</h3>
-                <a href="{% url 'operators' %}" class="bottom">{% trans "Operators mgmt" %}</a>
-            </li>
         {% endif %}
         <li>
             <h3 class="link8">{% trans "Orders" %}</h3>
@@ -54,6 +55,12 @@
         <li>
             <h3 class="link12">{% trans "Settings" %}</h3>
             <a href="{% url 'sa_settings' %}" >{% trans "Settings" %}</a>
+        </li>
+        {% endif %}
+        {% if user|is_shop_manager_upper %}
+        <li>
+            <h3 class="link7">{% trans "Operators mgmt" %}</h3>
+            <a href="{% url 'operators' %}" class="bottom">{% trans "Operators mgmt" %}</a>
         </li>
         {% endif %}
     </ul>
