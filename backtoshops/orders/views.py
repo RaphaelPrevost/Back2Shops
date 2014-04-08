@@ -1,3 +1,4 @@
+import datetime
 import logging
 import settings
 import ujson
@@ -20,6 +21,9 @@ from common.constants import USERS_ROLE
 from common.error import UsersServerError
 from common.error import InvalidRequestError
 from common.fees import compute_fee
+from common.utils import get_default_setting
+from common.utils import get_valid_sort_fields
+from common.utils import Sorter
 from common.orders import get_order_detail
 from common.orders import get_order_packing_list
 from common.orders import get_order_list
@@ -277,22 +281,71 @@ class ListOrdersView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
 
     def get(self, request, orders_type=None):
         self.set_orders_list(request)
-        self.form = ListOrdersForm()
+        self.form = ListOrdersForm(self.status)
+        self._sort(request)
         self.make_page()
         return self.render_to_response(self.__dict__)
 
     def post(self, request, orders_type=None):
         self.set_orders_list(request)
-        self.form = ListOrdersForm(request.POST)
+        self.form = ListOrdersForm(self.status, request.POST)
         if self.form.is_valid():
             order_by1 = self.form.cleaned_data['order_by1']
             order_by2 = self.form.cleaned_data['order_by2']
-            self._sort_orders(order_by1, order_by2)
+            self._sort(request, order_by1, order_by2)
         self.make_page()
         return self.render_to_response(self.__dict__)
 
-    def _sort_orders(self, order_by1, order_by2):
-        pass
+    def _sort(self, request, order_by1=None, order_by2=None):
+        sort_fields = get_valid_sort_fields(order_by1, order_by2,
+                                   self._get_default_sort_field())
+        if not sort_fields: return
+
+        need_shipping_deadline = 'shipping_deadline' in sort_fields \
+                               or '-shipping_deadline' in sort_fields
+        if need_shipping_deadline:
+            for order_dict in self.orders:
+                for order_info in order_dict.itervalues():
+                    self._set_order_shipping_deadline(request, order_info)
+
+        sorter = Sorter(self.orders)
+        sorter.sort(sort_fields,
+                    lambda item, field: item.values()[0][field])
+
+    def _get_default_sort_field(self):
+        field = None
+        if self.status == ORDER_STATUS.PENDING:
+            field = 'confirmation_time'
+        elif self.status == ORDER_STATUS.AWAITING_PAYMENT:
+            field = '-confirmation_time'
+        elif self.status == ORDER_STATUS.AWAITING_SHIPPING:
+            field = 'shipping_deadline'
+        return field
+
+    def _set_order_shipping_deadline(self, request, order_info):
+        if not getattr(self, 'cache_shipping_period', None):
+            self.cache_shipping_period = {} # shop_id: shipping period days
+
+        order_deadline = None
+        for paid_time_dict in order_info.get('paid_time_info'):
+            shop_id = paid_time_dict['shop_id']
+            paid_time = paid_time_dict.get('timestamp')
+            if not paid_time: continue
+
+            if shop_id in self.cache_shipping_period:
+                days = self.cache_shipping_period[shop_id]
+            else:
+                days = get_default_setting('default_shipment_period',
+                                           request.user,
+                                           Shop.objects.get(pk=shop_id))
+                self.cache_shipping_period[shop_id] = days
+
+            deadline = paid_time \
+                     + datetime.timedelta(days=int(days)).total_seconds()
+            if order_deadline is None or deadline < order_deadline:
+                order_deadline = deadline
+
+        order_info['shipping_deadline'] = order_deadline
 
 
 class OrderDetails(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin):

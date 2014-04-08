@@ -1,4 +1,5 @@
 import logging
+import ujson
 
 from common.constants import INVOICE_STATUS
 from B2SProtocol.constants import ORDER_STATUS
@@ -255,6 +256,32 @@ def _get_order_status(conn, order_id):
 
     return ORDER_STATUS.PENDING
 
+def _get_order_carrier_ids(conn, order_id):
+    query_str = (
+        "SELECT id_postage, supported_services FROM shipments "
+          "JOIN shipping_supported_services "
+            "ON shipments.id = shipping_supported_services.id_shipment "
+         "WHERE id_order = %s "
+           "AND id_postage is not null")
+    results = query(conn, query_str, params=[order_id, ])
+    return [str(ujson.loads(s_mapping)[str(s_id)])
+            for s_id, s_mapping in results]
+
+def _get_paid_time_list(conn, order_id):
+    fields, columns = zip(*[('shop_id', 'id_shop'),
+                            ('timestamp', 'invoice_status.timestamp')])
+    query_str = (
+        "SELECT %s FROM shipments "
+     "LEFT JOIN invoices "
+            "ON shipments.id = invoices.id_shipment "
+     "LEFT JOIN invoice_status "
+            "ON invoices.id = invoice_status.id_invoice "
+         "WHERE shipments.id_order = %%s "
+           "AND invoice_status.status = %%s ") \
+                % ', '.join(columns)
+    results = query(conn, query_str, params=[order_id,
+                                             INVOICE_STATUS.INVOICE_PAID])
+    return [dict(zip(fields, r)) for r in results]
 
 def _update_extra_info_for_order_item(conn, item_id, order_item):
     order_item.update(
@@ -292,7 +319,7 @@ def get_orders_list(conn, brand_id, filter_where='', filter_params=None):
         if order_id not in orders_dict:
             id_user = order_item.pop('user_id')
             id_shipaddr = order_item.pop('id_shipaddr')
-            id_phone= order_item.pop('id_phone')
+            id_phone = order_item.pop('id_phone')
             orders_dict[order_id] = {
                 'user_info': get_user_profile(conn, id_user),
                 'user_id': id_user,
@@ -300,16 +327,22 @@ def get_orders_list(conn, brand_id, filter_where='', filter_params=None):
                 'first_sale_id': order_item['sale_id'],
                 'shipping_dest': get_user_dest_addr(conn, id_user, id_shipaddr),
                 'contact_phone': get_user_sel_phone_num(conn, id_user, id_phone),
-                'order_items': []}
+                'order_items': [],
+                'shop_ids': []}
         item_id = order_item.pop('item_id')
         _update_extra_info_for_order_item(conn, item_id, order_item)
         orders_dict[order_id]['order_items'].append({item_id: order_item})
+        orders_dict[order_id]['shop_ids'].append(order_item['shop_id'])
 
         if order_id not in sorted_order_ids:
             sorted_order_ids.append(order_id)
 
     for order_id, order in orders_dict.iteritems():
         order['order_status'] = _get_order_status(conn, order_id)
+        if order['order_status'] > ORDER_STATUS.AWAITING_PAYMENT:
+            order['paid_time_info'] = _get_paid_time_list(conn, order_id)
+        order['shop_ids'] = list(set(order['shop_ids']))
+        order['carrier_ids'] = list(set(_get_order_carrier_ids(conn, order_id)))
 
     orders = []
     for order_id in sorted_order_ids:
