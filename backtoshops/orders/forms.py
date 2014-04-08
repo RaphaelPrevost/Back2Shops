@@ -2,6 +2,7 @@ from django import forms
 from orders.models import Shipping
 from django.utils.translation import ugettext_lazy as _
 from shippings.models import Carrier, Service
+from B2SProtocol.constants import ORDER_STATUS
 
 
 class ShippingForm(forms.ModelForm):
@@ -40,8 +41,25 @@ class ShippingForm(forms.ModelForm):
 
 
 class ListOrdersForm(forms.Form):
-    ORDER_BY_ITEMS = {('confirmation_time', _("Confirmation time")),
-                      }
+    ORDER_BY_ITEMS = [
+        ('', "---" * 3),
+        ('confirmation_time', _("Order creation time")),
+        ('shop_ids', _("Shop")),
+        ('carrier_ids', _("Carrier")),
+    ]
+    ORDER_BY_ITEMS_AFTER_PAYMENT = [
+        ('shipping_deadline', _("Order deadline")),
+    ]
     status = forms.IntegerField(widget=forms.HiddenInput())
     order_by1 = forms.ChoiceField(required=False, choices=ORDER_BY_ITEMS)
     order_by2 = forms.ChoiceField(required=False, choices=ORDER_BY_ITEMS)
+
+    def __init__(self, status, *args, **kwargs):
+        super(ListOrdersForm, self).__init__(*args, **kwargs)
+        if status > ORDER_STATUS.AWAITING_PAYMENT:
+            choices = self.ORDER_BY_ITEMS + self.ORDER_BY_ITEMS_AFTER_PAYMENT
+            self.fields['order_by1'] = forms.ChoiceField(
+                                       required=False, choices=choices)
+            self.fields['order_by1'] = forms.ChoiceField(
+                                       required=False, choices=choices)
+

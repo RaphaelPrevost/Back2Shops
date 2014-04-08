@@ -36,6 +36,7 @@ from common.constants import TARGET_MARKET_TYPES
 from common.error import InvalidRequestError
 from common.utils import get_currency
 from common.utils import get_default_setting
+from common.utils import get_valid_sort_fields
 from fouillis.views import manager_upper_required
 from fouillis.views import ManagerUpperLoginRequiredMixin
 from fouillis.views import OperatorUpperLoginRequiredMixin
@@ -226,7 +227,9 @@ class ListSalesView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin
         if self.form.is_valid():
             order_by1 = self.form.cleaned_data['order_by1']
             order_by2 = self.form.cleaned_data['order_by2']
-            self.sales = self.sales.extra(order_by=[order_by1,order_by2])
+            sort_fields = get_valid_sort_fields(order_by1, order_by2)
+            if sort_fields:
+                self.sales = self.sales.extra(order_by=sort_fields)
         self.make_page()
         return self.render_to_response(self.__dict__)
 
