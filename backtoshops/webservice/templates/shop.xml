@@ -5,12 +5,8 @@
     <brand id="{{ object.mother_brand.pk }}">
         <name>{{ object.mother_brand.name }}</name>
         <img>{% if object.mother_brand.logo %}{{ object.mother_brand.logo.url }}{% endif %}</img>
-        <!-- business registration details -->
-        <business registration="{{ object.mother_brand.business_reg_num }}">
-            <tax>{{ object.mother_brand.tax_reg_num }}</tax>
-        </business>
         <!-- corporate account address -->
-        <address>
+        <address id="{{ object.mother_brand.address.id }}">
             <addr>{{ object.mother_brand.address.address }}</addr>
             <zip>{{ object.mother_brand.address.zipcode }}</zip>
             <city>{{ object.mother_brand.address.city }}</city>
@@ -18,16 +14,18 @@
                 {{ object.mother_brand.address.country.iso }}
             </country>
         </address>
+        <!-- business registration details -->
+        <id type="business">{{ object.mother_brand.business_reg_num }}</id>
+        <id type="tax">{{ object.mother_brand.tax_reg_num }}</id>
     </brand>
     <name>{{ object.name }}</name>
-    <business registration="{{ object.business_reg_num }}">
-        <tax>{{ object.tax_reg_num }}</tax>
-    </business>
+    <id type="business">{{ object.business_reg_num }}</id>
+    <id type="tax">{{ object.tax_reg_num }}</id>
     <desc>{{ object.description }}</desc>
     <caption>{{ object.catcher }}</caption>
     <img>{% if object.image %}{{ object.image.url }}{% endif %}</img>
     <!-- shop address -->
-    <address>
+    <address id="{{ object.address.id }}">
         <addr>{{ object.address.address }}</addr>
         <zip>{{ object.address.zipcode }}</zip>
         <city>{{ object.address.city }}</city>

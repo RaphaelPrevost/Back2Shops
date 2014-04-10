@@ -4,6 +4,8 @@ import xmltodict
 import ujson
 import urllib
 import urllib2
+from lxml import etree
+from StringIO import StringIO
 from redis.exceptions import RedisError, ConnectionError
 
 import settings
@@ -28,6 +30,7 @@ from common.constants import BARCODE_ATTR_ID
 from common.constants import BARCODE_SALE_ID
 from common.constants import BARCODE_VARIANT_ID
 from common.constants import SHOP_WITH_BARCODE
+from common.error import ServerError
 from common.redis_utils import get_redis_cli
 from models.actors.sale import ActorSale
 from B2SUtils.base_actor import as_list
@@ -40,6 +43,9 @@ class CacheProxy:
     list_api = None
     obj_api = None
     obj_key = None
+
+    LIST_API_VALIDATE_PATH = None
+    OBJ_API_VALIDATE_PATH = None
 
     def get(self, **kw):
         try:
@@ -83,7 +89,12 @@ class CacheProxy:
         resp = urllib2.urlopen(req)
 
         is_entire_result = (obj_id is None and query == '')
-        return self.parse_xml("".join(resp.readlines()), is_entire_result)
+        xmltext = "".join(resp.readlines())
+        valid = self.validate_xml(xmltext, obj_id is None)
+        if not valid:
+            logging.debug("invalidate xml response: %s", xmltext, exc_info=True)
+            raise ServerError("invalidate %s" % api)
+        return self.parse_xml(xmltext, is_entire_result)
 
     def _set_to_redis(self, name, value):
         logging.info('save to redis: %s - %s', name, value)
@@ -126,6 +137,24 @@ class CacheProxy:
     def parse_xml(self, xml, is_entire_result):
         raise NotImplementedError
 
+    def validate_xml(self, xml, list_api):
+        _path = self.LIST_API_VALIDATE_PATH if list_api \
+                else self.OBJ_API_VALIDATE_PATH
+        if not _path:
+            return True
+
+        with open(_path) as f:
+            dtd_content = f.read()
+            f.close()
+
+        xml = xml.strip()
+        dtd = etree.DTD(StringIO(dtd_content))
+        root = etree.XML(xml)
+        rst = dtd.validate(root)
+        if not rst:
+            logging.error(dtd.error_log.filter_from_errors())
+        return rst
+
     def _filter_interact(self, key, id, pre_ids):
         if id is None:
             return pre_ids
@@ -166,6 +195,9 @@ class SalesCacheProxy(CacheProxy):
     list_api = "pub/sales/list?%s"
     obj_api = "pub/sales/info/%s"
     obj_key = SALE
+
+    LIST_API_VALIDATE_PATH = settings.SALES_VALIDATE_PATH
+    OBJ_API_VALIDATE_PATH = settings.SALEINFO_VALIDATE_PATH
 
     @property
     def query_options(self):
@@ -292,6 +324,9 @@ class ShopsCacheProxy(CacheProxy):
     list_api = "pub/shops/list?%s"
     obj_api = "pub/shops/info/%s"
     obj_key = SHOP
+
+    LIST_API_VALIDATE_PATH = settings.SHOPS_VALIDATE_PATH
+    OBJ_API_VALIDATE_PATH = settings.SHOPINFO_VALIDATE_PATH
 
     @property
     def query_options(self):
