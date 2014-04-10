@@ -1,0 +1,39 @@
+<!ENTITY % SHOPINFO.version "-//BACKTOSHOPS//SHOPINFO" >
+<!ENTITY % NS.prefixed "IGNORE" >
+<!ENTITY % SHOPINFO.prefix "shop" >
+<!ENTITY % SHOPINFO.global.attrs.prefixed "INCLUDE" >
+
+<?doc type="doctype" role="title" { BackToShops Shops List } ?>
+
+<!-- root -->
+<!ELEMENT info (shop) >
+<!ATTLIST info version CDATA #REQUIRED >
+
+<!-- common markup -->
+<!ELEMENT name (#PCDATA) >
+<!ELEMENT desc (#PCDATA) >
+<!ELEMENT img (#PCDATA) >
+
+<!-- address common format -->
+<!ELEMENT address (addr,zip?,city,country) >
+<!ATTLIST address id CDATA #IMPLIED >
+<!ELEMENT addr (#PCDATA) >
+<!ELEMENT zip (#PCDATA) >
+<!ELEMENT city (#PCDATA) >
+<!ELEMENT country (#PCDATA) >
+<!ATTLIST country province CDATA #IMPLIED >
+
+<!ELEMENT id (#PCDATA) >
+<!ATTLIST id type (business | tax | personal) "business" >
+
+<!ELEMENT shop (brand, name, id*, desc, caption, img, address, upc, location, hours) >
+<!ATTLIST shop id CDATA #REQUIRED >
+<!ELEMENT caption (#PCDATA) >
+<!ELEMENT upc (#PCDATA) >
+<!ELEMENT location EMPTY >
+<!ATTLIST location lat CDATA #REQUIRED >
+<!ATTLIST location long CDATA #REQUIRED >
+<!ELEMENT hours (#PCDATA) >
+
+<!ELEMENT brand (name, img, address?, id*) >
+<!ATTLIST brand id CDATA #REQUIRED >

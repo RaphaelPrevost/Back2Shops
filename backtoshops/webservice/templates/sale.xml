@@ -1,0 +1,134 @@
+{% load get_preview %}
+{% load l10n %}
+{% load get_typeattributeweight %}
+{% load get_typeattributeprice %}
+
+<sale id="{{ object.pk }}">
+    <!-- item category -->
+    <category id="{{ object.product.category.pk }}">{{ object.product.category.name }}</category>
+    
+    <!-- item type -->
+    <type id="{{ object.product.type.pk }}">
+        <name>{{ object.product.type.name }}</name>
+        {% for ca in object.product.type.common_attributes.all %}
+        <attribute id="{{ca.pk}}">
+            <name>{{ca.name}}</name>
+            {% with typeattributeweight=object|get_typeattributeweight:ca %}
+            <weight unit="{{object.product.weight_unit_id}}">{{typeattributeweight.type_attribute_weight}}</weight>
+            {% endwith %}
+            {% with typeattributeprice=object|get_typeattributeprice:ca %}
+            <price currency="{{object.product.currency}}">{{typeattributeprice.type_attribute_price}}</price>
+            {% endwith %}
+        </attribute>
+        {% endfor %}
+    </type>
+    
+    <!-- basic information -->
+    <name>{{ object.product.name }}</name>
+    <desc>{{ object.product.description }}</desc>
+    {% for pic in object.product.pictures.all %}
+    <img>{{ pic.picture.url }}</img>
+    {% endfor %}
+    
+    <!-- brand responsible for sale-->
+    <brand id="{{ object.mother_brand.pk }}">
+        <name>{{ object.mother_brand.name }}</name>
+        <img>{% if object.mother_brand.logo %}{{ object.mother_brand.logo.url }}{% endif %}</img>
+        <address id="{{ object.mother_brand.address.id }}">
+            <addr>{{ object.mother_brand.address.address }}</addr>
+            <zip>{{ object.mother_brand.address.zipcode }}</zip>
+            <city>{{ object.mother_brand.address.city }}</city>
+            <country province="{% if object.mother_brand.address.province_code %}{{ object.mother_brand.address.province_code }}{% endif %}">
+                {{ object.mother_brand.address.country.iso }}
+            </country>
+        </address>
+        <id type="business">{{ object.mother_brand.business_reg_num }}</id>
+        <id type="tax">{{ object.mother_brand.tax_reg_num }}</id>
+    </brand>
+
+    <!-- weight unit -->
+    <weight unit="{{object.product.weight_unit_id}}">{{ object.product.standard_weight|floatformat }}</weight>
+
+    <!-- default price -->
+    <price currency="{{object.product.currency}}">{{ object.product.normal_price|floatformat }}</price>
+
+    <!-- discount (type: "ratio" or "fixed" ) if it has -->
+    {% if object.product.discount %}
+    <discount type="{% if object.product.discount_type == 'percentage' %}ratio{% else %}fixed{% endif %}">{{ object.product.discount|floatformat }}</discount>
+    {% endif %}
+
+    <!-- if there is some variants for this product, list them here -->
+    {% for variant in object.product.brand_attributes.all %}
+        {% with preview=variant|get_preview:object.product %}
+        <variant id="{{ variant.pk }}">
+            <name>{{ variant.name }}</name>
+            <thumb>{% if variant.texture %}{{ variant.texture.url }}{% endif %}</thumb>
+            <img>{{ preview.preview.picture.url }}</img>
+            <premium type="{% if variant.premium_type == 'percentage' %}ratio{% else %}fixed{% endif %}">{% firstof variant.premium_amount "0" %}</premium>
+        </variant>
+        {% endwith %}
+    {% endfor %}
+    <!-- end of the optional variants list -->
+
+    <!-- list of shops where the product is available (country=2 letters ISO code) -->
+    {% for shop in object.shops.all %}
+    <shop id="{{ shop.pk }}">
+        <name>{{ shop.name }}</name>
+        <id type="business">{{ shop.business_reg_num }}</id>
+        <id type="tax">{{ shop.tax_reg_num }}</id>
+        <desc>{{ shop.description }}</desc>
+        <caption>{{ shop.catcher }}</caption>
+        <img>{% if shop.image %}{{ shop.image.url }}{% endif %}</img>
+        <address id="{{ shop.address.id }}">
+            <addr>{{ shop.address.address }}</addr>
+            <zip>{{ shop.address.zipcode }}</zip>
+            <city>{{ shop.address.city }}</city>
+            <country province="{% if shop.address.province_code %}{{ shop.address.province_code }}{% endif %}">
+                {{ shop.address.country.iso }}
+            </country>
+        </address>
+        <upc>{% if shop.upc %}{{ shop.upc }}{% endif %}</upc>
+        <location lat="{{ shop.latitude|unlocalize }}" long="{{ shop.longitude|unlocalize }}" />
+        <hours>{{ shop.opening_hours }}</hours>
+    </shop>
+    {% endfor %}
+    <!-- end of shops list -->
+
+    <available from="{{ object.product.valid_from|date:"c" }}"
+            {% if object.product.valid_to %}
+               to="{{ object.product.valid_to|date:"c" }}"
+            {% endif %}
+            >
+    {% for ba in object.product.brand_attributes.all %}
+        {% for ca in object.product.type.common_attributes.all %}
+        <stocks variant="{{ ba.pk }}" attribute="{{ ca.pk }}">
+            {% for barcode in object.barcodes.all %}
+                {% if barcode.brand_attribute == ba and barcode.common_attribute == ca %}
+                <upc>{% if barcode.upc %}{{ barcode.upc }}{% endif %}</upc>
+                {% endif %}
+            {% endfor %}
+            {% for stock in object.detailed_stock.all %}
+                {% if stock.brand_attribute == ba and stock.common_attribute == ca %}
+                <stock shop="{% if stock.shop %}{{ stock.shop.pk }}{% endif %}">{{ stock.rest_stock }}</stock>
+                {% endif %}
+            {% endfor %}
+        </stocks>
+        {% endfor %}
+    {% empty %}
+        {% for ca in object.product.type.common_attributes.all %}
+            <stocks variant="" attribute="{{ ca.pk }}">
+                {% for barcode in object.barcodes.all %}
+                    {% if barcode.common_attribute == ca %}
+                    <upc>{% if barcode.upc %}{{ barcode.upc }}{% endif %}</upc>
+                    {% endif %}
+                {% endfor %}
+                {% for stock in object.detailed_stock.all %}
+                    {% if stock.common_attribute == ca %}
+                    <stock shop="{% if stock.shop %}{{ stock.shop.pk }}{% endif %}">{{ stock.rest_stock }}</stock>
+                    {% endif %}
+                {% endfor %}
+            </stocks>
+        {% endfor %}
+    {% endfor %}
+    </available>
+</sale>

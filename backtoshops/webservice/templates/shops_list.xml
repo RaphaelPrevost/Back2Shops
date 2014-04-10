@@ -1,3 +1,6 @@
+<?xml version="1.0" standalone="no" ?>
+<!DOCTYPE sales PUBLIC "-//BACKTOSHOPS//SHOPSLIST" "shops.dtd">
+
 {% load l10n %}
 
 <shops version="1.0">

@@ -62,6 +62,10 @@ PRODUCTION = False
 
 INVOICE_VALIDATE_PATH = 'files/invoice/invoice.dtd'
 INVOICE_XSLT_PATH = 'files/invoice/invoice.xsl'
+SALES_VALIDATE_PATH = 'files/sales/sales.dtd'
+SALEINFO_VALIDATE_PATH = 'files/sales/sale_info.dtd'
+SHOPS_VALIDATE_PATH = 'files/shops/shops.dtd'
+SHOPINFO_VALIDATE_PATH = 'files/shops/shop_info.dtd'
 
 MAIL_HOST = 'smtp.gmail.com:587'
 MAIL_FROM_USER = 'xxx'

@@ -1,3 +1,6 @@
+<?xml version="1.0" standalone="no" ?>
+<!DOCTYPE sales PUBLIC "-//BACKTOSHOPS//SHOPINFO" "shop_info.dtd">
+
 {% load l10n %}
 
 <info type="shop" version="1.0">
