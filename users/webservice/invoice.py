@@ -253,7 +253,6 @@ class InvoiceSendResource(BaseJsonResource, BaseInvoiceMixin):
                 order_invoices = get_invoice_by_order(conn, id_order)
 
             invoices = dict([(oi['id_shipment'], oi) for oi in order_invoices])
-
             users_mail = get_user_email(conn, self.users_id)
             for id_spm in id_shipments:
                 content = invoices[id_spm]['invoice_xml']

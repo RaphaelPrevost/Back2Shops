@@ -44,3 +44,16 @@ def get_invoice_by_order(conn, id_order):
               WHERE id_order = %s"""
     r = query(conn, sql, (id_order,))
     return r
+
+def get_sum_amount_due(conn, id_invoices):
+    if len(id_invoices) == 1:
+        where = "id = %s" % id_invoices[0]
+    else:
+        where = "id in (%s)" % ", ".join(id_invoices)
+
+    sql = """SELECT sum(amount_due)
+               FROM invoices
+               WHERE %s
+          """ % where
+    r = query(conn, sql)
+    return r and r[0][0] or None
