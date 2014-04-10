@@ -1,2 +1,5 @@
 == version 0.0.1 ==
 1. add common functions to generate html/xml/pdf/json response.
+
+== version 0.0.2 ==
+1. add temp_content function to generate html/xml/pdf content

@@ -9,6 +9,7 @@ from webservice.orders import OrderListResource
 from webservice.orders import OrderResource
 from webservice.orders import OrderStatusResource
 from webservice.orders import ShippingFeeResource
+from webservice.payment import PaymentInitResource
 from webservice.sales import SalesResource
 from webservice.shipment import ShipmentResource
 from webservice.shipping import ShippingListResource
@@ -30,6 +31,7 @@ urlpatterns = {
     '/webservice/1.0/pub/shipping/fees': ShippingFeesResource,
     '/webservice/1.0/pub/shops/list': ShopsResource,
     '/webservice/1.0/pub/order': OrderResource,
+    '/webservice/1.0/pub/payment/init': PaymentInitResource,
     '/webservice/1.0/pub/apikey.pem': ApiKeyResource,
     '/webservice/1.0/pub/invoice/request': InvoiceResource,
 

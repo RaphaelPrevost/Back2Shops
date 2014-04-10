@@ -277,9 +277,11 @@ THUMBNAIL_DEBUG = True
 GEONAMES_USERNAME = "moonstrap"
 
 USR_SERVER = 'http://localhost:8100'
+FIN_SERVER = 'http://localhost:9000'
 
 SERVER_APIKEY_URI_MAP = {
-    'USR': '%s/webservice/1.0/pub/apikey.pem' % USR_SERVER,
+    'USR': os.path.join(USR_SERVER, 'webservice/1.0/pub/apikey.pem'),
+    'FIN': os.path.join(FIN_SERVER, 'webservice/1.0/pub/apikey.pem'),
 }
 
 PRIVATE_KEY_PATH = 'static/keys/adm_pri.key'

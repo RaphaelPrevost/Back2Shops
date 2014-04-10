@@ -15,6 +15,7 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.views.generic import View, ListView, DetailView, TemplateView
 from django.views.decorators.csrf import csrf_exempt
 
+from B2SCrypto.utils import decrypt_json_resp
 from B2SCrypto.utils import gen_encrypt_json_context
 from B2SCrypto.constant import SERVICES
 
@@ -29,6 +30,7 @@ from common.filter_utils import get_filter, get_order_by
 from common.error import InvalidRequestError
 from common.error import ParamsValidCheckError
 from common.fees import compute_fee
+from common.transaction import remote_payment_init
 from sales.models import ProductCategory
 from sales.models import ProductType
 from sales.models import STOCK_TYPE_GLOBAL
@@ -1028,4 +1030,25 @@ class InvoiceView(BaseCryptoWebService, ListView):
         return payment
 
 
+@csrf_exempt
+def payment_init(request, *args, **kwargs):
+    data = decrypt_json_resp(
+        request,
+        settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+        settings.PRIVATE_KEY_PATH)
+
+    resp = remote_payment_init(data)
+    resp = json.loads(resp)
+
+    content = {'pm_init': resp['pm_init'],
+               'cookie': resp['cookie']}
+
+    content = json.dumps(content)
+    content = gen_encrypt_json_context(
+        content ,
+        settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+        settings.PRIVATE_KEY_PATH
+    )
+
+    return HttpResponse(content, mimetype='application/json')
 

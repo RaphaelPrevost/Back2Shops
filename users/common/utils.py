@@ -20,6 +20,8 @@ from hashlib import sha1
 
 from common.constants import HASH_ALGORITHM
 from common.constants import HASH_ALGORITHM_NAME
+from common.error import ServerError
+from B2SCrypto.utils import gen_encrypt_json_context
 from B2SCrypto.utils import get_from_remote
 from B2SCrypto.constant import SERVICES
 from B2SUtils.errors import ValidationError
@@ -416,4 +418,36 @@ def weight_convert(from_unit, weight):
     elif from_unit == 'lb':
         weight_in_gram = oz_to_gram(weight)
         return gram_to_kilogram(weight_in_gram)
+
+def remote_payment_init(id_order, id_user, amount, iv_id, iv_data):
+    uri = 'private/payment/init'
+    remote_uri = settings.SALES_SERVER_API_URL % {'api': uri}
+    if isinstance(iv_id, list):
+        iv_id = ujson.dumps(iv_id)
+
+    query = {"order": id_order,
+             "user": id_user,
+             "amount": amount,
+             "invoices": iv_id,
+             "invoicesData": iv_data}
+
+    try:
+        query = ujson.dumps(query)
+        query = gen_encrypt_json_context(
+            query,
+            settings.SERVER_APIKEY_URI_MAP[SERVICES.ADM],
+            settings.PRIVATE_KEY_PATH)
+
+        resp = get_from_remote(
+            remote_uri,
+            settings.SERVER_APIKEY_URI_MAP[SERVICES.ADM],
+            settings.PRIVATE_KEY_PATH,
+            data=query,
+            headers={'Content-Type': 'application/json'})
+        return resp
+    except Exception, e:
+        logging.error('Failed to get payment init %s,'
+                      'error: %s',
+                      query, e, exc_info=True)
+        raise ServerError('remote_payment_init_err: %s' % str(e))
 

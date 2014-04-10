@@ -255,3 +255,13 @@ CREATE TABLE return_status (
 --  1024 (1 << 10)  RETURN_PROPOSAL_ACCEPT,
 --  2048 (1 << 11) - RETURN_PROPOSAL_REJECT
 ---
+CREATE TABLE transactions (
+    id serial PRIMARY KEY,
+    id_order BIGINT NOT NULL,
+    id_invoices text NOT NULL,
+    status SMALLINT NOT NULL,
+    create_time timestamp without time zone NOT NULL,
+    update_time timestamp without time zone NOT NULL,
+    amount_due double precision NOT NULL,
+    cookie character varying(100)
+);

@@ -47,6 +47,9 @@ def _json_resp(resp, data):
     resp.body = ujson.dumps(data)
     return resp
 
+def temp_content(template, **data):
+    return _temp_content(template, **data)
+
 def gen_html_resp(template, resp, **data):
     content = _temp_content(template, **data)
     return _html_resp(resp, content)

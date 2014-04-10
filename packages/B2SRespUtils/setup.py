@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-from B2SUtils import __version__
+from B2SRespUtils import __version__
 
 setup(
     name='B2SRespUtils',

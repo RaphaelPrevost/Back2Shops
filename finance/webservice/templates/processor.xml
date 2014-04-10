@@ -1,0 +1,8 @@
+<payment version="1.0">
+    {% for proc in obj_list %}
+        <processor id="{{ proc.id }}">
+            <name>{{ proc.name }}</name>
+            <img>{% if proc.img %}{{ proc.img }}{% endif %}</img>
+        </processor>
+    {% endfor %}
+</payment>

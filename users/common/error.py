@@ -116,3 +116,8 @@ class ErrorCode:
                             # or order item doesn't exist
                             # or order items' brand not same.
     )
+
+    # payment errors
+    PM_ERR_INVALID_REQ = (
+        170, "Invalid Request"
+    )
