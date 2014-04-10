@@ -62,4 +62,8 @@ PRODUCTION = False
 
 INVOICE_VALIDATE_PATH = 'files/invoice/invoice.dtd'
 INVOICE_XSLT_PATH = 'files/invoice/invoice.xsl'
-INVOICE_XSLT_REQUIRED = True
+
+MAIL_HOST = 'smtp.gmail.com:587'
+MAIL_FROM_USER = 'xxx'
+MAIL_FROM_PASS = 'xxx'
+MAIL_POSTFIX = 'gmail.com'

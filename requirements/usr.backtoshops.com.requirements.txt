@@ -15,3 +15,4 @@ xmltodict==0.7.0
 B2SUtils==0.0.3
 B2SRespUtils==0.0.1
 B2SProtocol==0.0.3
+email==4.0.2

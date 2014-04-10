@@ -24,6 +24,7 @@ from attributes.models import CommonAttribute
 from accounts.models import Brand
 from barcodes.models import Barcode
 from brandings.models import Branding
+from brandsettings.models import BrandSettings
 from common.filter_utils import get_filter, get_order_by
 from common.error import InvalidRequestError
 from common.error import ParamsValidCheckError
@@ -798,7 +799,8 @@ class InvoiceView(BaseCryptoWebService, ListView):
             'shipping': shipping,
             'total': {'gross': gross,
                       'tax': tax,
-                      'total': total}
+                      'total': total},
+            'payment': self.get_payment(id_brand)
         }
 
         return [invoice]
@@ -986,8 +988,8 @@ class InvoiceView(BaseCryptoWebService, ListView):
                      from_address, to_address):
         shipping = {}
         if id_carrier and id_service:
-            carrier = Carrier.objects.get(id_carrier)
-            service = Service.objects.get(id_service)
+            carrier = Carrier.objects.get(pk=id_carrier)
+            service = Service.objects.get(pk=id_service)
             shipping['desc'] = ' - '.join([carrier.desc, service.desc])
             shipping['postage'] = service
         fee = 0.0
@@ -1014,6 +1016,16 @@ class InvoiceView(BaseCryptoWebService, ListView):
         # TODO: implementation
         return 2506
 
-    def get_payment(self):
-        # TODO implementation
-        pass
+    def get_payment(self, id_brand):
+        payment = {}
+        period = BrandSettings.objects.filter(brand_id=id_brand,
+                                              key="default_payment_period")
+        if period:
+            payment['period'] = period[0].value
+
+        # TODO: penalty, instructions info
+
+        return payment
+
+
+

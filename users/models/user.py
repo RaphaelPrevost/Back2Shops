@@ -116,3 +116,8 @@ def get_user_dest_addr(conn, id_user, id_addr=None):
                'province': user_address['province_code'],
                'postalcode': user_address['postal_code']}
     return address
+
+def get_user_email(conn, id_user):
+    where = {'id': id_user}
+    r = select(conn, 'users', where=where, columns=['email'])
+    return r and r[0][0] or None

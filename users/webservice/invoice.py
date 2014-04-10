@@ -5,6 +5,8 @@ import settings
 
 from lxml import etree
 from StringIO import StringIO
+from common.constants import FAILURE, SUCCESS
+from common.email_utils import send_html_email
 from common.error import ServerError
 from common.utils import remote_xml_invoice
 from models.actors.invoices import ActorInvoices
@@ -17,7 +19,9 @@ from models.shipments import get_shipping_list
 from models.shipments import get_supported_services
 from models.user import get_user_dest_addr
 from models.user import get_user_profile
+from models.user import get_user_email
 
+from webservice.base import BaseJsonResource
 from webservice.base import BaseXmlResource
 
 from B2SUtils.errors import ValidationError
@@ -29,50 +33,11 @@ DTD_HEADER = """<!DOCTYPE invoices PUBLIC "-//BACKTOSHOPS//INVOICE" "invoice.dtd
 CONTENT_HEADER = """<invoices version="1.0">"""
 CONTENT_ROOT = """</invoices>"""
 
-
-class InvoiceResource(BaseXmlResource):
-    template = "invoices.xml"
-    encrypt = False
-    login_required = {'get': False, 'post': True}
+INVOICE_MAIL_SUB = "[Backtoshops]: Invoice"
 
 
-    def gen_resp(self, resp, data):
-        if data.get('content'):
-            try:
-                content = data['content']
-                content_data = [HEADER, CONTENT_HEADER]
-                content_data.extend(content)
-                content_data.append(CONTENT_ROOT)
-                content = '\n'.join(content_data)
-                if settings.INVOICE_XSLT_REQUIRED:
-                    resp.body = self.invoice_xslt(content)
-                    resp.content_type = "text/html"
-                    return resp
-                else:
-                    resp.body = content
-                    resp.content_type = "application/xml"
-            except Exception, e:
-                return super(InvoiceResource, self).gen_resp(
-                    resp, {'error': "Server error"})
-            return resp
-        else:
-            return super(InvoiceResource, self).gen_resp(resp, data)
-
-    def invoice_xslt(self, content):
-        try:
-            xml_input = etree.fromstring(content)
-            xslt_root = etree.parse(settings.INVOICE_XSLT_PATH)
-            transform = etree.XSLT(xslt_root)
-            return str(transform(xml_input))
-        except Exception, e:
-            logging.error("invoce_xslt_err with content: %s, "
-                          "error: %s",
-                          content,
-                          str(e),
-                          exc_info=True)
-            raise ServerError("Invoice xslt error")
-
-    def _on_post(self, req, resp, conn, **kwargs):
+class BaseInvoiceMixin:
+    def get_and_save_invoices(self, conn, req):
         id_order = req.get_param('order')
 
         if not id_order:
@@ -115,7 +80,7 @@ class InvoiceResource(BaseXmlResource):
 
         content = self.gen_invoices_content(
             [invoices[id_shipment][0] for id_shipment in shipments_id])
-        return {'content': content}
+        return content
 
     def save_invoice(self, conn, id_order, id_shipment, invoice):
         invoice_xml = invoice[0]
@@ -128,13 +93,25 @@ class InvoiceResource(BaseXmlResource):
                               invoice_xml,
                               invoice_actor.number)
 
+    def parse_invoices_content(self, xml):
+        content = xml[len(HEADER):].strip()
+        content = content[len(DTD_HEADER):].strip()
+        content = content[len(CONTENT_HEADER):]
+        content = content[:-len(CONTENT_ROOT)]
+        return content
+
+    def unitary_content(self, content_list):
+        content_data = [HEADER, CONTENT_HEADER]
+        content_data.extend(content_list)
+        content_data.append(CONTENT_ROOT)
+        content = '\n'.join(content_data)
+        return content
+
+
     def gen_invoices_content(self, invoices_xml):
         invoices = []
         for xml in invoices_xml:
-            content = xml[len(HEADER):].strip()
-            content = content[len(DTD_HEADER):].strip()
-            content = content[len(CONTENT_HEADER):]
-            content = content[:-len(CONTENT_ROOT)]
+            content = self.parse_invoices_content(xml)
             invoices.append(content)
 
         return invoices
@@ -211,3 +188,95 @@ class InvoiceResource(BaseXmlResource):
         if not rst:
             logging.error(dtd.error_log.filter_from_errors())
         return rst
+
+    def invoice_xslt(self, content):
+        try:
+            xml_input = etree.fromstring(content)
+            xslt_root = etree.parse(settings.INVOICE_XSLT_PATH)
+            transform = etree.XSLT(xslt_root)
+            return str(transform(xml_input))
+        except Exception, e:
+            logging.error("invoce_xslt_err with content: %s, "
+                          "error: %s",
+                          content,
+                          str(e),
+                          exc_info=True)
+            raise ServerError("Invoice xslt error")
+
+class InvoiceResource(BaseXmlResource, BaseInvoiceMixin):
+    template = "invoices.xml"
+    encrypt = False
+    login_required = {'get': False, 'post': True}
+
+
+    def gen_resp(self, resp, data):
+        if data.get('content'):
+            try:
+                content = data['content']
+                content = self.unitary_content(content)
+                resp.body = content
+                resp.content_type = "application/xml"
+            except Exception, e:
+                return super(InvoiceResource, self).gen_resp(
+                    resp, {'error': "Server error"})
+            return resp
+        else:
+            return super(InvoiceResource, self).gen_resp(resp, data)
+
+    def _on_post(self, req, resp, conn, **kwargs):
+        content = self.get_and_save_invoices(conn, req)
+        return {'content': content}
+
+
+class InvoiceSendResource(BaseJsonResource, BaseInvoiceMixin):
+    encrypt = True
+    login_required = {'get': False, 'post': True}
+
+    def _on_post(self, req, resp, conn, **kwargs):
+        try:
+            id_order = req.get_param('order')
+            id_shipments = req.get_param('shipment') or []
+
+            shipments = get_shipments_by_order(conn, id_order)
+            valid_shipments = [sp['id'] for sp in shipments]
+
+            if id_shipments:
+                id_shipments = ujson.loads(id_shipments)
+                invalid_shipments = set(id_shipments) - set(valid_shipments)
+                if len(invalid_shipments) > 0:
+                    raise ValidationError("shipments %s not belongs to "
+                                          "order %s"
+                                          % (invalid_shipments, id_order))
+            order_invoices = get_invoice_by_order(conn, id_order)
+            if len(order_invoices) == 0:
+                self.get_and_save_invoices(conn, req)
+                order_invoices = get_invoice_by_order(conn, id_order)
+
+            invoices = dict([(oi['id_shipment'], oi) for oi in order_invoices])
+
+            users_mail = get_user_email(conn, self.users_id)
+            for id_spm in id_shipments:
+                content = invoices[id_spm]['invoice_xml']
+                content_html = self.invoice_xslt(content)
+                send_html_email(users_mail, INVOICE_MAIL_SUB, content_html)
+
+            if not id_shipments:
+                content_list = []
+                for id_spm in valid_shipments:
+                    content = invoices[id_spm]['invoice_xml']
+                    content = self.parse_invoices_content(content)
+                    content_list.append(content)
+                content = self.unitary_content(content_list)
+                content_html = self.invoice_xslt(content)
+                send_html_email(users_mail, INVOICE_MAIL_SUB, content_html)
+
+            return {'res': SUCCESS}
+        except ValidationError, e:
+            logging.error("send_invoice_invalidate: ", str(e), exc_info=True)
+            return {'res': FAILURE,
+                    'err': str(e)}
+        except Exception, e:
+            logging.error("send_invoice_server_err: ", str(e), exc_info=True)
+            return {'res': FAILURE,
+                    'reason': str(e),
+                    'err': "SERVER_ERROR"}

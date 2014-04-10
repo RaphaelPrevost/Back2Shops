@@ -56,7 +56,7 @@
 <!ATTLIST total gross CDATA #IMPLIED
                 tax CDATA #IMPLIED >
 
-<!ELEMENT payment (period, penalty?, instructions?) >
+<!ELEMENT payment (period?, penalty?, instructions?) >
 <!ELEMENT period (#PCDATA) >
 <!ELEMENT penalty (#PCDATA) >
 <!ELEMENT instructions (#PCDATA) >
