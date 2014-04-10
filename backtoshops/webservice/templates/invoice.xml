@@ -50,14 +50,11 @@
                 {% if object.shipping.desc %}
                     <desc>{{ object.shipping.desc }}</desc>
                 {% endif %}
-                {% if object.shipping.postage %}
-                    <postage>{{ object.shipping.postage }}</postage>
+                {% if object.shipping.shipping_fee %}
+                    <postage>{{ object.shipping.shipping_fee}}</postage>
                 {% endif %}
                 {% if object.shipping.handling_fee %}
                     <handling>{{ object.shipping.handling_fee }}</handling>
-                {% endif %}
-                {% if object.shipping.shipping_fee %}
-                    <shipping>{{ object.shipping.shipping_fee }}</shipping>
                 {% endif %}
                 {% for tax in object.shipping.taxes %}
                     <tax name="{{ tax.name }}" amount="{{ tax.amount }}">{{ tax.tax }}</tax>
@@ -66,6 +63,12 @@
             </shipping>
 
             <total gross="{{ object.total.gross }}" tax="{{ object.total.tax }}">{{ object.total.total }}</total>
+
+            <payment>
+                {% if object.payment.period %}
+                    <period>{{ object.payment.period }}</period>
+                {% endif %}
+            </payment>
 
         </invoice>
     {% endfor %}
