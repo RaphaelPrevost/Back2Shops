@@ -27,7 +27,7 @@
     <name>{{ object.product.name }}</name>
     <desc>{{ object.product.description }}</desc>
     {% for pic in object.product.pictures.all %}
-    <img>{{ pic.picture.url }}</img>
+        <img>{{ pic.picture.url }}</img>
     {% endfor %}
     
     <!-- brand responsible for sale-->
@@ -47,7 +47,11 @@
     </brand>
 
     <!-- weight unit -->
-    <weight unit="{{object.product.weight_unit_id}}">{{ object.product.standard_weight|floatformat }}</weight>
+    <weight unit="{{object.product.weight_unit_id}}">
+        {% if object.product.standard_weight %}
+            {{ object.product.standard_weight|floatformat }}
+        {% endif %}
+    </weight>
 
     <!-- default price -->
     <price currency="{{object.product.currency}}">{{ object.product.normal_price|floatformat }}</price>

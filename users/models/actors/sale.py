@@ -13,13 +13,32 @@ from B2SUtils.base_actor import BaseActor
 
 class ActorSaleCategory(BaseActor):
     attrs_map = {'id': '@id',
-                 'name': 'name'}
+                 'name': '#text'}
+
+class ActorWeight(BaseActor):
+    attrs_map = {'unit': '@unit',
+                 'value': '#text'}
+
+class ActorPrice(BaseActor):
+    attrs_map = {'currency': '@currency',
+                 'value': '#text'}
 
 
 class ActorSaleCommonAttr(BaseActor):
     attrs_map = {'id': '@id',
-                 'name': '@name'}
+                 'name': 'name'}
 
+    @property
+    def weight(self):
+        wt = self.data.get('weight')
+        if wt:
+            return ActorWeight(data=wt)
+
+    @property
+    def price(self):
+        pr = self.data.get('price')
+        if pr:
+            return ActorPrice(data=pr)
 
 class ActorSaleType(BaseActor):
     attrs_map = {'id': '@id',
@@ -30,24 +49,58 @@ class ActorSaleType(BaseActor):
         attrs = as_list(self.data.get('attribute', None))
         return [ActorSaleCommonAttr(data=attr) for attr in attrs]
 
+    def get_attr(self, id_attr):
+        for attr in self.attributes:
+            if int(id_attr) == int(attr.id):
+                return attr
 
-class ActorSaleTypeWeight(BaseActor):
+class ActorSaleCountry(BaseActor):
+    attrs_map = {'province': '@province',
+                 'value': '#text'}
+
+class ActorAddress(BaseActor):
     attrs_map = {'id': '@id',
-                 'name': 'name',
-                 'weight': 'weight'}
+                 'addr': 'addr',
+                 'city': 'city',
+                 'zip': 'zip'}
+
+    @property
+    def country(self):
+        return ActorSaleCountry(data=self.data['country'])
+
+class ActorReg(BaseActor):
+    attrs_map = {'type': '@type',
+                 'value': '#text'}
 
 class ActorSaleBrand(BaseActor):
     attrs_map = {'id': '@id',
-                 'id_address': '@id_address',
                  'name': 'name',
                  'img': 'img'}
 
+    @property
+    def id_address(self):
+        return self.address.id
 
-class ActorSalePrice(BaseActor):
-    attrs_map = {'currency': '@currency',
-                 'text': '#text',
-                 'attribute': '@attribute'}
+    @property
+    def address(self):
+        return ActorAddress(data=self.data['address'])
 
+    @property
+    def regs(self):
+        regs_data = as_list(self.data['id'])
+        return [ActorReg(data=item) for item in regs_data]
+
+    @property
+    def business_reg(self):
+        for reg in self.regs:
+            if reg.type == 'business':
+                return reg
+
+    @property
+    def tax_reg(self):
+        for reg in self.regs:
+            if reg.type == 'tax':
+                return reg
 
 class ActorSaleDiscount(BaseActor):
     attrs_map = {'type': '@type',
@@ -74,18 +127,12 @@ class ActorShopLocaltion(BaseActor):
     attrs_map = {'lat': '@lat',
                  'long': '@long'}
 
-
 class ActorShop(BaseActor):
     attrs_map = {'id': '@id',
-                 'id_address': '@id_address',
                  'name': 'name',
                  'desc': 'desc',
                  'caption': 'caption',
                  'img': 'img',
-                 'addr': 'addr',
-                 'zip': 'zip',
-                 'city': 'city',
-                 'country': 'country',
                  'upc': 'upc',
                  'hours': 'hours',
                  }
@@ -93,6 +140,31 @@ class ActorShop(BaseActor):
     @property
     def localtion(self):
         return ActorShopLocaltion(data=self.data.get('location'))
+
+    @property
+    def id_address(self):
+        return self.address.id
+
+    @property
+    def address(self):
+        return ActorAddress(data=self.data['address'])
+
+    @property
+    def regs(self):
+        regs_data = as_list(self.data['id'])
+        return [ActorReg(data=item) for item in regs_data]
+
+    @property
+    def business_reg(self):
+        for reg in self.regs:
+            if reg.type == 'business':
+                return reg
+
+    @property
+    def tax_reg(self):
+        for reg in self.regs:
+            if reg.type == 'tax':
+                return reg
 
 class ActorStock(BaseActor):
     attrs_map = {'shop': '@shop',
@@ -124,8 +196,6 @@ class ActorSale(BaseActor):
     attrs_map = {'id': '@id',
                  'name': 'name',
                  'desc': 'desc',
-                 'weight_unit': 'weight_unit',
-                 'standard_weight': 'standard_weight',
                  }
 
     # attributes set/used in orders
@@ -152,9 +222,20 @@ class ActorSale(BaseActor):
         return ActorSaleBrand(data=self.data['brand'])
 
     @property
+    def weight(self):
+        return ActorWeight(data=self.data['weight'])
+
+    @property
+    def weight_unit(self):
+        return self.weight.unit
+
+    @property
+    def standard_weight(self):
+        return self.weight.value
+
+    @property
     def price(self):
-        price_list = as_list(self.data['price'])
-        return [ActorSalePrice(data=data) for data in price_list]
+        return ActorPrice(data=self.data['price'])
 
     @property
     def discount(self):
@@ -175,33 +256,22 @@ class ActorSale(BaseActor):
     def available(self):
         return ActorSaleAvailable(data=self.data.get('available'))
 
-    @property
-    def typeWeights(self):
-        weight_list = as_list(self.data.get('type_weight', None))
-        return [ActorSaleTypeWeight(data=item) for item in weight_list]
-
     def get_type_weight(self, id_type):
-        for tw in self.typeWeights:
-            if int(id_type) == int(tw.id):
-                return tw
+        attr = self.type.get_attr(id_type)
+        if attr and attr.weight:
+            return attr.weight
+
         raise NotExistError('weight for type %s not exist for Sale %s'
                             % (id_type, self.id))
 
     def get_type_price(self, id_type, raise_not_exist=True):
-        for p in self.price:
-            if p.exist('attribute') and int(p.attribute) == int(id_type):
-                return p
+        attr = self.type.get_attr(id_type)
+        if attr and attr.price:
+            return attr.price
+
         if raise_not_exist:
             raise NotExistError('price for type %s not exist for Sale %s'
                                 % (id_type, self.id))
-
-    def get_normal_price(self, raise_not_exist=True):
-        for p in self.price:
-            if not p.exist('attribute'):
-                return p
-        if raise_not_exist:
-            raise NotExistError('normal price not exist for Sale %s'
-                                % (self.id,))
 
     def get_variant(self, id_variant):
         for v in self.variant:
@@ -232,9 +302,9 @@ class ActorSale(BaseActor):
                 p = self.get_type_price(id_price_type,
                                         raise_not_exist=False)
             else:
-                p = self.get_normal_price()
+                p = self.price
 
-            return Decimal(p.text)
+            return Decimal(p.value)
 
         base_price = Decimal(__base_price())
         _discount = __diff_price(base_price, self.discount)

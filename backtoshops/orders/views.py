@@ -413,8 +413,9 @@ class BaseOrderPacking(OperatorUpperLoginRequiredMixin, View):
     def _populate_shipment(self, spm_actor):
         spm_shop_id = spm_actor.shop
         spm = actor_to_dict(spm_actor)
-        spm['shop_name'] = Shop.objects.get(pk=spm_shop_id).name
-        spm['shop_currency'] = Shop.objects.get(pk=spm_shop_id).default_currency
+        if int(spm_shop_id):
+            spm['shop_name'] = Shop.objects.get(pk=spm_shop_id).name
+            spm['shop_currency'] = Shop.objects.get(pk=spm_shop_id).default_currency
         packing_list, remaining_list = self._divide_packing_items(spm_actor)
         spm['packing_list'] = packing_list
         spm['remaining_list'] = remaining_list

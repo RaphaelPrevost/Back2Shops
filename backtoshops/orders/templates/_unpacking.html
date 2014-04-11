@@ -47,7 +47,7 @@
                        class='shop_ckb'
                        id="packing_ckb_for_shop_{{ shipment.shop }}"
                        for_shop="{{ shipment.shop }}">
-                <span>{{ shipment.shop_name }}</span>
+                <span>{% if shipment.shop == '0' %}{% trans "Internal Sales" %}{% else %}{{ shipment.shop_name }}{% endif %}</span>
             </div>
             <div class="remaining_packing_items"
                  id="remaining_packing_items_for_shop_{{ shipment.shop }}">

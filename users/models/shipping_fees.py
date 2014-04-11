@@ -59,7 +59,7 @@ class SaleShippingFees(BaseShippingFees):
 
     def _get_sale_weight(self, sale):
         if int(self.id_weight_type):
-            return sale.get_type_weight(self.id_weight_type).weight
+            return sale.get_type_weight(self.id_weight_type).value
         else:
             return sale.standard_weight
 
@@ -155,15 +155,13 @@ class ShipmentShippingFees(BaseShippingFees):
                 continue
             id_sale = shipping['id_sale']
             sale = CachedSale(id_sale).sale
-            weight = (sale.exist('standard_weight') and
-                      getattr(sale, 'standard_weight') or
-                      None)
+            weight = sale.standard_weight or None
             id_weight_type = shipping['id_weight_type']
             quantity = shipping['quantity']
 
             if weight is None:
                 sel_weight_type = sale.get_type_weight(id_weight_type)
-                weight = sel_weight_type.weight
+                weight = sel_weight_type.value
 
             weight = weight_convert(sale.weight_unit,
                                     float(weight)) * quantity
