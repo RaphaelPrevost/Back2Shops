@@ -40,9 +40,10 @@ INST=""
 
 function usage() {
     echo "Usage: $0 option"
-    echo "option: everything - Deploy both backoffice server and users server"
+    echo "option: everything - Deploy backoffice server, users server, finance server"
     echo "        backoffice - Deploy only the backoffice server"
     echo "        user       - Deploy only the user server"
+    echo "        finance    - Deploy only the finance server"
     echo "        testdata   - Import backoffice test data into database"
     exit 1
 }
@@ -312,6 +313,48 @@ function deploy_test() {
     psql -U bts -d backtoshops -f $CWD/public_html/data/test_data.sql
 }
 
+
+########## finance related functions ##########
+
+function setup_finance_db() {
+    if [ ! -z $RESETDB ]; then
+        su postgres -c "dropdb finance"
+        su postgres -c "createdb -E UNICODE finance -O postgres"
+    fi
+}
+
+function make_finance_src_dir() {
+    # remove old sourcecode
+    [ -d $CWD/finance -a -d $CWD/finance_src ] && rm -rf $CWD/finance_src
+
+    if [ -d $CWD/finance -a ! -d $CWD/finance_src ]; then
+        mv $CWD/finance $CWD/finance_src
+        cp $CWD/finance_src/settings_product.py $CWD/finance_src/settings.py
+        chown -R backtoshops.www-data $CWD/finance_src
+        chmod -R 2750 $CWD/finance_src
+    fi
+}
+
+function setup_finance() {
+    cd $CWD/finance_src/
+    source $CWD/env/bin/activate
+
+    # db
+    bash setupdb.sh
+
+    # start server
+    nohup python fin_server.py &
+}
+
+function deploy_finance() {
+    sanity_checks $FIN_REQUIREMENT "${FIN_DEPS[*]}"
+    create_python_env $FIN_REQUIREMENT
+    setup_finance_db
+    make_finance_src_dir
+    setup_finance
+    echo "(i) Deploy finance server finished"
+}
+
 ########## main ##########
 [ $1 ] || usage
 case $1 in
@@ -321,10 +364,14 @@ case $1 in
         user)
             deploy_user
             ;;
+        finance)
+            deploy_finance
+            ;;
         everything)
             deploy_backoffice
             deploy_user
             deploy_test
+            deploy_finance
             ;;
         testdata)
             deploy_test
