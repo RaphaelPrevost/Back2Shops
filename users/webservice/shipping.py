@@ -56,7 +56,8 @@ class BaseShippingListResource(BaseXmlResource):
             shipment['carriers'] = self._get_supported_services(
                                                 conn, shipment)
             shipment['tracking_info'] = self._get_tracking_info(id_shipment)
-            shipment['fee_info'] = get_shipping_fee(conn, shipment['id'])
+            shipment['fee_info'] = self._get_shipping_fee(conn,
+                                                          shipment['id'])
             shipment['shipping_list'] = self._get_shipping_list(
                                                 conn, id_shipment)
             shipment['postage'] = get_shipping_postage(conn, id_shipment)
@@ -72,6 +73,12 @@ class BaseShippingListResource(BaseXmlResource):
 
     def _on_post(self, req, resp, conn, **kwargs):
         return self._on_get(req, resp, conn, **kwargs)
+
+    def _get_shipping_fee(self, conn, id_shipment):
+        try:
+            return get_shipping_fee(conn, id_shipment)
+        except AssertionError:
+            pass
 
     def _get_unpacking_shipment(self, conn, id_order):
         order_items = get_order_items(conn, id_order)
@@ -90,8 +97,9 @@ class BaseShippingListResource(BaseXmlResource):
                               "item %s", id_order_item)
                 continue
             id_shop = order_item['shop_id']
+            id_sale = order_item['sale_id']
             if shop_shipment.get(id_shop) is None:
-                id_brand = CachedShop(id_shop=id_shop).shop.brand.id
+                id_brand = CachedSale(id_sale).sale.brand.id
                 shop_shipment[id_shop] = {
                     'id': 0,
                     'calculation_method': SCM.MANUAL,
@@ -134,14 +142,12 @@ class BaseShippingListResource(BaseXmlResource):
                                 quantity, packing_quantity):
         sale = CachedSale(id_sale).sale
 
-        weight = (sale.exist('standard_weight') and
-                  sale.standard_weight or
-                  None)
+        weight = sale.standard_weight or None
 
         sel_weight_type = None
         try:
             sel_weight_type = sale.get_type_weight(id_weight_type)
-            weight = sel_weight_type.weight
+            weight = sel_weight_type.value
         except NotExistError:
             pass
 

@@ -2,6 +2,7 @@ from common.constants import SHOP_WITH_BARCODE
 from common.constants import SHOP
 from common.redis_utils import get_redis_cli
 from B2SUtils.base_actor import BaseActor
+from B2SUtils.base_actor import as_list
 
 def get_shop_id(upc_shop):
     cli = get_redis_cli()
@@ -24,11 +25,25 @@ class ActorBrand(BaseActor):
                 'img': 'img'}
     @property
     def business(self):
-        return BusinessRegistration(data=self.data['business'])
+        for reg in self.regs:
+            if reg.type == 'business':
+                return reg
+
+    @property
+    def tax(self):
+        for reg in self.regs:
+            if reg.type == 'tax':
+                return reg
+
+    @property
+    def regs(self):
+        regs_data = as_list(self.data['id'])
+        return [Registration(data=item) for item in regs_data]
 
     @property
     def address(self):
         return Address(data=self.data['address'])
+
 
 class Location(BaseActor):
     attrs_map = {'lat': '@lat',
@@ -40,6 +55,7 @@ class Country(BaseActor):
 
 class Address(BaseActor):
     attrs_map = {
+        'id': '@id',
         'addr': 'addr',
         'zip': 'zip',
         'city': 'city',
@@ -49,9 +65,9 @@ class Address(BaseActor):
     def country(self):
         return Country(data=self.data['country'])
 
-class BusinessRegistration(BaseActor):
-    attrs_map = {'registration': '@registration',
-                 'tax': 'tax'}
+class Registration(BaseActor):
+    attrs_map = {'type': '@type',
+                 'value': '#text'}
 
 
 class ActorShop(BaseActor):
@@ -65,7 +81,20 @@ class ActorShop(BaseActor):
                  }
     @property
     def business(self):
-        return BusinessRegistration(data=self.data['business'])
+        for reg in self.regs:
+            if reg.type == 'business':
+                return reg
+
+    @property
+    def tax(self):
+        for reg in self.regs:
+            if reg.type == 'tax':
+                return reg
+
+    @property
+    def regs(self):
+        regs_data = as_list(self.data['id'])
+        return [Registration(data=item) for item in regs_data]
 
     @property
     def address(self):
