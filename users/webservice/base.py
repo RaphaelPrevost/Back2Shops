@@ -7,6 +7,7 @@ from datetime import datetime
 
 from common.utils import cookie_verify
 from common.constants import RESP_RESULT
+from B2SRespUtils.generate import gen_html_resp
 from B2SRespUtils.generate import gen_json_resp
 from B2SRespUtils.generate import gen_xml_resp
 from B2SRespUtils.generate import gen_text_resp
@@ -22,6 +23,7 @@ class BaseResource(object):
     request = None
     response = None
     conn = None
+    service = SERVICES.ADM
 
     def on_get(self, req, resp, **kwargs):
         self.request = req
@@ -87,7 +89,7 @@ class BaseResource(object):
         resp.content_type = "application/json"
         resp.body = gen_encrypt_json_context(
             content,
-            settings.SERVER_APIKEY_URI_MAP[SERVICES.ADM],
+            settings.SERVER_APIKEY_URI_MAP[self.service],
             settings.PRIVATE_KEY_PATH)
         return resp
 
@@ -113,12 +115,35 @@ class BaseXmlResource(BaseResource):
     template = ""
     encrypt = False
     def gen_resp(self, resp, data):
-        if isinstance(data, dict) and ('error' in data or 'err' in data):
-            data['error'] = data.get('error') or data.get('err')
-            return gen_xml_resp('error.xml', resp, **data)
-
-        resp = gen_xml_resp(self.template, resp, **data)
+        if isinstance(data, dict):
+            if 'error' in data or 'err' in data:
+                data['error'] = data.get('error') or data.get('err')
+                resp = gen_xml_resp('error.xml', resp, **data)
+            else:
+                resp = gen_xml_resp(self.template, resp, **data)
+        else:
+            resp.body = data
+            resp.content_type = "application/xml"
         if not self.encrypt or self.debugging_resp():
             return resp
         else:
             return self.encrypt_resp(resp, resp.body)
+
+class BaseHtmlResource(BaseResource):
+    template = ""
+    def gen_resp(self, resp, data):
+        if isinstance(data, dict):
+            if data.get('error') or data.get('err'):
+                data['error'] = data.get('error') or data.get('err')
+                resp = gen_html_resp('error.html', resp, **data)
+            else:
+                resp = gen_html_resp(self.template, resp, **data)
+        else:
+            resp.body = data
+            resp.content_type = "text/html"
+
+        if not self.encrypt or self.debugging_resp():
+            return resp
+        else:
+            return self.encrypt_resp(resp, resp.body)
+
