@@ -39,7 +39,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     settings.RUNNING_TEST = args.test
     if settings.RUNNING_TEST:
-        load_redis_data()
         print 'Start server for running test ...'
     else:
         load_redis_data()
