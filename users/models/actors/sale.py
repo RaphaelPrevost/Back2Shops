@@ -257,17 +257,19 @@ class ActorSale(BaseActor):
         return ActorSaleAvailable(data=self.data.get('available'))
 
     def get_type_weight(self, id_type):
-        attr = self.type.get_attr(id_type)
-        if attr and attr.weight:
-            return attr.weight
+        if id_type:
+            attr = self.type.get_attr(id_type)
+            if attr and attr.weight:
+                return attr.weight
 
         raise NotExistError('weight for type %s not exist for Sale %s'
                             % (id_type, self.id))
 
     def get_type_price(self, id_type, raise_not_exist=True):
-        attr = self.type.get_attr(id_type)
-        if attr and attr.price:
-            return attr.price
+        if id_type:
+            attr = self.type.get_attr(id_type)
+            if attr and attr.price:
+                return attr.price
 
         if raise_not_exist:
             raise NotExistError('price for type %s not exist for Sale %s'
