@@ -1,5 +1,5 @@
 # users.backtoshops.com settings
-
+import os
 from common.constants import HASH_ALGORITHM
 
 DEBUG = True
@@ -38,11 +38,12 @@ HMAC_KEY_SIZE = 128
 HMAC_KEY_FILE_PATH = 'hmac.pem'
 
 ADM_ROOT_URI = "http://localhost:8000"
+FIN_ROOT_URI = "http://localhost:9000"
 SALES_SERVER_API_URL = "%s/webservice/1.0/%%(api)s" % ADM_ROOT_URI
 
 SERVER_APIKEY_URI_MAP = {
-    'USR': 'http://localhost:8100/webservice/1.0/pub/apikey.pem',
-    'ADM': '%s/webservice/1.0/pub/apikey.pem' % ADM_ROOT_URI
+    'ADM': os.path.join(ADM_ROOT_URI, 'webservice/1.0/pub/apikey.pem'),
+    'FIN': os.path.join(FIN_ROOT_URI, 'webservice/1.0/pub/apikey.pem'),
 }
 
 

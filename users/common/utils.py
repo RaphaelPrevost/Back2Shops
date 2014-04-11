@@ -451,3 +451,41 @@ def remote_payment_init(id_order, id_user, amount, iv_id, iv_data):
                       query, e, exc_info=True)
         raise ServerError('remote_payment_init_err: %s' % str(e))
 
+def remote_payment_form(cookie, id_processor, id_trans):
+    uri = "webservice/1.0/private/payment/form"
+    # TODO: change to real urls after implementation
+    url_gateway = "webservice/1.0/pub/gateway"
+    url_success = "webservice/1.0/pub/payment/success"
+    url_failure = "webservice/1.0/pub/payment/failure"
+
+    remote_uri = os.path.join(settings.FIN_ROOT_URI, uri)
+
+    url_query = urllib.urlencode({'transaction': id_trans})
+
+    query = {'cookie': cookie,
+             'processor': id_processor,
+             'gateway': '?'.join([url_gateway, url_query]),
+             'success': '?'.join([url_success, url_query]),
+             'failure': '?'.join([url_failure, url_query])
+             }
+
+    try:
+        query = ujson.dumps(query)
+        query = gen_encrypt_json_context(
+            query,
+            settings.SERVER_APIKEY_URI_MAP[SERVICES.FIN],
+            settings.PRIVATE_KEY_PATH)
+
+        resp = get_from_remote(
+            remote_uri,
+            settings.SERVER_APIKEY_URI_MAP[SERVICES.FIN],
+            settings.PRIVATE_KEY_PATH,
+            data=query,
+            headers={'Content-Type': 'application/json'})
+        return resp
+
+    except Exception, e:
+        logging.error('Failed to get payment form %s,'
+                      'error: %s',
+                      query, e, exc_info=True)
+        raise ServerError('remote_payment_form_err: %s' % str(e))

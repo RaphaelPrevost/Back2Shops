@@ -1,13 +1,19 @@
 import logging
 import ujson
 
+from datetime import datetime
+
+from webservice.base import BaseHtmlResource
 from webservice.base import BaseXmlResource
 from common.error import UserError
 from common.error import ErrorCode
 from common.utils import remote_payment_init
+from common.utils import remote_payment_form
 from models.invoice import get_invoice_by_order
 from models.invoice import get_sum_amount_due
 from models.transaction import create_trans
+from models.transaction import get_trans_by_id
+from models.transaction import update_trans
 from webservice.invoice import BaseInvoiceMixin
 
 class PaymentInitResource(BaseXmlResource, BaseInvoiceMixin):
@@ -84,3 +90,47 @@ class PaymentInitResource(BaseXmlResource, BaseInvoiceMixin):
             raise UserError(ErrorCode.PM_ERR_INVALID_REQ[0],
                             ErrorCode.PM_ERR_INVALID_REQ[1])
         return id_order, id_invoices, oi
+
+
+class PaymentFormResource(BaseHtmlResource):
+    login_required = {'get': False, 'post': True}
+
+    def _on_post(self, req, resp, conn, **kwargs):
+        try:
+            id_trans = req.get_param('transaction')
+            id_processor = req.get_param('processor')
+            url_success = req.get_param('success')
+            url_failure = req.get_param('failure')
+            trans = self.valid_check(conn, id_trans, id_processor,
+                                     url_success, url_failure)
+
+            values = {'id_processor': id_processor,
+                      'url_success': url_success,
+                      'url_failure': url_failure,
+                      'update_time': datetime.now(),
+                    }
+            where = {'id': id_trans}
+            update_trans(conn, values, where)
+
+            pm_form = remote_payment_form(trans['cookie'],
+                                          id_processor,
+                                          id_trans)
+            return pm_form
+        except UserError, e:
+            logging.error("pm_form_err: %s", e, exc_info=True)
+            return {'error': e.code}
+
+    def valid_check(self, conn, id_trans, id_processor, url_success, url_failure):
+        try:
+            assert id_trans is not None, "Miss transaction in request"
+            assert id_processor is not None, "Miss processor in request"
+            assert url_success is not None , "Miss success URL in request"
+            assert url_failure is not None , "Miss failure URL in request"
+
+            trans = get_trans_by_id(conn, id_trans)
+            assert len(trans) == 1, "Transaction not exist"
+            return trans[0]
+        except AssertionError, e:
+            logging.error("pm_form_req_err: %s", e, exc_info=True)
+            raise UserError(ErrorCode.PM_ERR_INVALID_REQ[0],
+                            ErrorCode.PM_ERR_INVALID_REQ[1])

@@ -3,6 +3,8 @@ import ujson
 
 from datetime import datetime
 from B2SUtils.db_utils import insert
+from B2SUtils.db_utils import query
+from B2SUtils.db_utils import update
 from B2SProtocol.constants import TRANS_STATUS
 
 def create_trans(conn, id_order, id_invoices,
@@ -27,3 +29,16 @@ def create_trans(conn, id_order, id_invoices,
                  trans_id[0], values)
 
     return trans_id[0]
+
+def get_trans_by_id(conn, id_trans):
+    sql = ("SELECT * "
+             "FROM transactions "
+            "WHERE id=%s")
+    r = query(conn, sql, (id_trans,))
+    return r
+
+def update_trans(conn, values, where):
+    update(conn,
+           'transactions',
+           values=values,
+           where=where)
