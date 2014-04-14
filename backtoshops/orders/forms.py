@@ -60,6 +60,6 @@ class ListOrdersForm(forms.Form):
             choices = self.ORDER_BY_ITEMS + self.ORDER_BY_ITEMS_AFTER_PAYMENT
             self.fields['order_by1'] = forms.ChoiceField(
                                        required=False, choices=choices)
-            self.fields['order_by1'] = forms.ChoiceField(
+            self.fields['order_by2'] = forms.ChoiceField(
                                        required=False, choices=choices)
 
