@@ -161,8 +161,8 @@ class BaseShippingListResource(BaseXmlResource):
 
         sel_weight_type = None
         try:
-            sel_weight_type = sale.get_type_weight(id_weight_type)
-            weight = sel_weight_type.value
+            sel_weight_type = sale.get_weight_attr(id_weight_type)
+            weight = sel_weight_type.weight.value
         except NotExistError:
             pass
 

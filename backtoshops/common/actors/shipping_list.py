@@ -71,7 +71,7 @@ class ActorDelivery(BaseActor):
 
 class ActorAttribute(BaseActor):
     attrs_map = {'id': '@id',
-                 'name': '@name'}
+                 'name': 'name'}
 
 
 class ActorType(BaseActor):

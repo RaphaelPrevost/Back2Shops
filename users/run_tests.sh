@@ -53,7 +53,11 @@ waiting 3 'Waiting for redis server ...'
 python server.py --test > /dev/null 2>&1 &
 waiting 3 'Waiting for user server loading data ...'
 
-python -m unittest discover -s tests -p test_*.py -v
+if [ -z $1 ]; then
+    python -m unittest discover -s tests -p test_*.py -v
+else
+    python -m unittest discover -s tests -p $1 -v
+fi
 
 get_pid && kill $PID
 redis-cli -p 6279 shutdown

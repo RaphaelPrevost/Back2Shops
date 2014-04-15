@@ -51,7 +51,9 @@
                     {% if shipping.sale_item.sel_weight_type %}
                         <type id="{{ shipping.sale_item.type.id }}">
                             <name>{{ shipping.sale_item.type.name }}</name>
-                            <attribute id="{{ shipping.sale_item.sel_weight_type.id }}" name="{{ shipping.sale_item.sel_weight_type.name }}"/>
+                            <attribute id="{{ shipping.sale_item.sel_weight_type.id }}">
+                                <name>"{{ shipping.sale_item.sel_weight_type.name }}"</name>
+                            </attribute>
                         </type>
                     {% endif %}
                     {% if shipping.sale_item.sel_variant %}
