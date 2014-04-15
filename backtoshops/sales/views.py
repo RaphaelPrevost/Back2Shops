@@ -168,13 +168,13 @@ class ListSalesView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin
             )
 
         if sales_type == "old":
-            self.sales.filter(
+            self.sales = self.sales.filter(
                 Q(product__valid_to__isnull=False) &
                 Q(product__valid_to__lt=date.today())
             )
             self.page_title = _("History")
         else:
-            self.sales.filter(
+            self.sales = self.sales.filter(
                 Q(product__valid_to__isnull=True) |
                 Q(product__valid_to__gte=date.today())
             )

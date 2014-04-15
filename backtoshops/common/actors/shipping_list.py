@@ -129,6 +129,10 @@ class ActorShipment(BaseActor):
                  'tracking_name': "tracking_name"}
 
     @property
+    def paid_date(self):
+        return self.data.get('@paid_date')
+
+    @property
     def delivery(self):
         return ActorDelivery(data=self.data.get('delivery'))
 
@@ -152,7 +156,8 @@ class ActorShipment(BaseActor):
 
 
 class ActorShipments(BaseActor):
-    attrs_map = {'order_status': "@order_status"}
+    attrs_map = {'order_status': "@order_status",
+                 'order_create_date': "@order_create_date"}
     @property
     def shipments(self):
         shipments_data = as_list(self.data.get('shipment'))

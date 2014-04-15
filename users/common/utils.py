@@ -453,20 +453,17 @@ def remote_payment_init(id_order, id_user, amount, iv_id, iv_data):
 
 def remote_payment_form(cookie, id_processor, id_trans):
     uri = "webservice/1.0/private/payment/form"
-    # TODO: change to real urls after implementation
-    url_gateway = "webservice/1.0/pub/gateway"
-    url_success = "webservice/1.0/pub/payment/success"
-    url_failure = "webservice/1.0/pub/payment/failure"
+    url_gateway = settings.PAYMENT_GATEWAY
+    url_success = settings.PAYMENT_SUCCESS % {'id_trans': id_trans}
+    url_failure = settings.PAYMENT_FAILURE % {'id_trans': id_trans}
 
     remote_uri = os.path.join(settings.FIN_ROOT_URI, uri)
 
-    url_query = urllib.urlencode({'transaction': id_trans})
-
     query = {'cookie': cookie,
              'processor': id_processor,
-             'gateway': '?'.join([url_gateway, url_query]),
-             'success': '?'.join([url_success, url_query]),
-             'failure': '?'.join([url_failure, url_query])
+             'gateway': url_gateway,
+             'success': url_success,
+             'failure': url_failure
              }
 
     try:

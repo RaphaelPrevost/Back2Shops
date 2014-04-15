@@ -526,6 +526,10 @@ span.item_name {
     -o-text-overflow:ellipsis;
 }
 
+span.deadline {
+    color: red;
+}
+
 /*Btn Update, Delete, Cancel*/
 .btnForm {
     display: block;

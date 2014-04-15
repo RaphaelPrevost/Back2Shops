@@ -11,23 +11,25 @@ from webservice.base import BaseResource
 from webservice.base import BaseXmlResource
 from webservice.base import BaseJsonResource
 from models.actors.shipping_fees import ActorShippingFees
+from models.order import get_order
 from models.order import get_order_items
 from models.order import _get_order_status
 from models.order import user_accessable_order
 from models.actors.sale import CachedSale
-from models.actors.shop import CachedShop
 from models.actors.shipping import ActorCarriers
 from models.shipments import conf_shipping_service
 from models.shipments import get_shipping_fee
 from models.shipments import get_shipments_by_order
 from models.shipments import order_item_grouped_quantity
 from models.shipments import remote_get_supported_services
+from models.shipments import get_shipment_paid_time
 from models.shipments import get_shipping_supported_services
 from models.shipments import get_shipping_list
 from models.shipments import get_shipping_postage
 from models.shipments import user_accessable_shipment
 from models.shipping_fees import SaleShippingFees
 from models.shipping_fees import ShipmentShippingFees
+from B2SProtocol.constants import ORDER_STATUS
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
 from B2SProtocol.settings import SHIPPING_CURRENCY
 from B2SProtocol.settings import SHIPPING_WEIGHT_UNIT
@@ -46,6 +48,9 @@ class BaseShippingListResource(BaseXmlResource):
             return {"error": e.code}
 
         id_order = req._params.get('id_order')
+        order_status = _get_order_status(conn, id_order)
+        order_create_date = self._get_order_create_date(conn, id_order)
+
         shipment_list = get_shipments_by_order(conn, id_order)
 
         object_list = []
@@ -61,18 +66,28 @@ class BaseShippingListResource(BaseXmlResource):
             shipment['shipping_list'] = self._get_shipping_list(
                                                 conn, id_shipment)
             shipment['postage'] = get_shipping_postage(conn, id_shipment)
+
+            if int(order_status) == ORDER_STATUS.AWAITING_SHIPPING:
+                paid_time = get_shipment_paid_time(conn,
+                                                   id_shipment)['paid_time']
+                shipment['paid_date'] = paid_time.date()
+
             object_list.append(shipment)
 
         unpacking_list = self._get_unpacking_shipment(conn, id_order)
         object_list.extend(unpacking_list)
-        order_status = _get_order_status(conn, id_order)
         return {'object_list': object_list,
                 'order_status': order_status,
+                'order_create_date': order_create_date,
                 'shipping_currency': SHIPPING_CURRENCY,
                 'shipping_weight_unit': SHIPPING_WEIGHT_UNIT}
 
     def _on_post(self, req, resp, conn, **kwargs):
         return self._on_get(req, resp, conn, **kwargs)
+
+    def _get_order_create_date(self, conn, id_order):
+        order = get_order(conn, id_order)
+        return  order['confirmation_time'].date()
 
     def _get_shipping_fee(self, conn, id_shipment):
         try:

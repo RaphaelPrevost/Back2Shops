@@ -5,7 +5,9 @@
     <h3>{% trans "Order" %}#{{ packing.order_id }}</h3>
     <em>
         {% if packing.deadline %}
-            {{ packing.deadline }}
+            <span class="deadline">
+                {% trans "Deadline:" %}{{ packing.deadline.0 }} ({{ packing.deadline.1 }} {% trans 'working days left' %})
+            </span>
         {% endif %}
     </em>
 
