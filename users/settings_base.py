@@ -72,3 +72,7 @@ MAIL_HOST = 'smtp.gmail.com:587'
 MAIL_FROM_USER = 'xxx'
 MAIL_FROM_PASS = 'xxx'
 MAIL_POSTFIX = 'gmail.com'
+
+PAYMENT_GATEWAY = "payment/gateway.html"
+PAYMENT_SUCCESS = "payment/%(id_trans)s/success.html"
+PAYMENT_FAILURE = "payment/%(id_trans)s/failure.html"

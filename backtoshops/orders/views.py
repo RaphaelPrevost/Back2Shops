@@ -54,6 +54,12 @@ def is_decimal(val):
         return False
     return True
 
+def get_shop(id_shop):
+    if int(id_shop) == 0:
+        return
+    return Shop.objects.get(pk=id_shop)
+
+
 class ShippingFee(OperatorUpperLoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         fee = compute_fee(request.GET)
@@ -337,7 +343,7 @@ class ListOrdersView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
             else:
                 days = get_default_setting('default_shipment_period',
                                            request.user,
-                                           Shop.objects.get(pk=shop_id))
+                                           get_shop(shop_id))
                 self.cache_shipping_period[shop_id] = days
 
             deadline = paid_time \
@@ -457,9 +463,52 @@ class BaseOrderPacking(OperatorUpperLoginRequiredMixin, View):
 
         return packing_list, remaining_list
 
-    def _get_deadline(self, order_id):
-        # TODO: implementation
-        pass
+    def _get_deadline(self, request, spms_actor):
+        if not getattr(self, 'cache_shipping_period', None):
+            self.cache_shipping_period = {} # shop_id: shipping period days
+        if not getattr(self, 'cache_payment_period',  None):
+            self.cache_payment_period = {} # shop_id: payment period days
+
+        order_status = spms_actor.order_status
+        deadline = None
+        if int(order_status) in [ORDER_STATUS.PENDING,
+                                 ORDER_STATUS.AWAITING_PAYMENT]:
+            order_create_date = datetime.datetime.strptime(
+                spms_actor.order_create_date, "%Y-%m-%d")
+            days = None
+            for spm in spms_actor.shipments:
+                id_shop = spm.shop
+                if id_shop in self.cache_payment_period:
+                    period = self.cache_payment_period[id_shop]
+                else:
+                    period = get_default_setting(
+                        'default_shipment_period',
+                        request.user,
+                        get_shop(id_shop))
+                    self.cache_payment_period[id_shop] = period
+                # Make the longest payment period as order's payment period.
+                if days is None or days < period:
+                    days = period
+            deadline = order_create_date + datetime.timedelta(days=int(days))
+        elif int(order_status) == ORDER_STATUS.AWAITING_SHIPPING:
+            for spm in spms_actor.shipments:
+                id_shop = spm.shop
+                paid_date = datetime.datetime.strptime(
+                    spm.paid_date, "%Y-%m-%d")
+                if id_shop in self.cache_shipping_period:
+                    period = self.cache_shipping_period[id_shop]
+                else:
+                    period = get_default_setting(
+                        'default_shipment_period',
+                        request.user,
+                        get_shop(id_shop))
+                sp_deadline = paid_date + datetime.timedelta(days=int(period))
+                if deadline is None or deadline > sp_deadline:
+                    deadline = sp_deadline
+
+        if deadline:
+            return (deadline.date().strftime("%Y-%m-%d"),
+                    (deadline.date() - datetime.datetime.now().date()).days)
 
     def shop_match_check(self, sale, id_shop):
         if int(id_shop) == 0:
@@ -629,7 +678,6 @@ class OrderPacking(BaseOrderPacking, TemplateResponseMixin):
 
     def get(self, request, order_id):
         packing = {'order_id': order_id,
-                   'deadline': self._get_deadline(order_id),
                    'shipment_status': [
                        {'label': _("PACKING"),
                         'value': str(SHIPMENT_STATUS.PACKING)},
@@ -649,6 +697,7 @@ class OrderPacking(BaseOrderPacking, TemplateResponseMixin):
                 id_shipment=id_shipment)
             packing['shipments'] = spms
             packing['order_status'] = spms_actor.order_status
+            packing['deadline'] = self._get_deadline(request, spms_actor)
             if id_shipment and spms['packing_shipments']:
                 self.shipment = spms['packing_shipments'][0]
         except UsersServerError, e:

@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from accounts.models import Brand
+from shops.models import Shop
 
 SETTING_KEY_CHOICES = (
                        ('default_currency', 'default currency'),
@@ -23,3 +24,11 @@ class BrandSettings(models.Model):
     def __unicode__(self):
         return self.key
 
+
+class InvoiceNumber(models.Model):
+    shop = models.ForeignKey(Shop, blank=True, null=True)
+    brand = models.ForeignKey(Brand)
+    invoice_number = models.IntegerField()
+
+    class Meta:
+        unique_together = ('shop', 'brand')

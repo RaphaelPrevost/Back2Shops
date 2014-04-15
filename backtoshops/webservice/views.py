@@ -10,6 +10,7 @@ from datetime import datetime
 from django.contrib.auth import authenticate as _authenticate
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Max
+from django.db.models import F
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseForbidden
 from django.views.generic import View, ListView, DetailView, TemplateView
@@ -19,18 +20,21 @@ from B2SCrypto.utils import decrypt_json_resp
 from B2SCrypto.utils import gen_encrypt_json_context
 from B2SCrypto.constant import SERVICES
 
+from accounts.models import UserProfile
 from address.models import Address
 from attributes.models import BrandAttributePreview
 from attributes.models import CommonAttribute
 from accounts.models import Brand
 from barcodes.models import Barcode
 from brandings.models import Branding
-from brandsettings.models import BrandSettings
+from brandsettings.models import InvoiceNumber
 from common.filter_utils import get_filter, get_order_by
+from common.constants import USERS_ROLE
 from common.error import InvalidRequestError
 from common.error import ParamsValidCheckError
 from common.fees import compute_fee
 from common.transaction import remote_payment_init
+from common.utils import get_default_setting
 from sales.models import ProductCategory
 from sales.models import ProductType
 from sales.models import STOCK_TYPE_GLOBAL
@@ -792,7 +796,7 @@ class InvoiceView(BaseCryptoWebService, ListView):
         tax = items_tax + shipping_tax
         total = gross + tax
         invoice = {
-            'number': self.invoice_number(),
+            'number': self.invoice_number(id_brand, id_shop),
             'date': datetime.now().date().strftime('%Y-%m-%d'),
             'currency': currency,
             'seller': seller,
@@ -802,7 +806,7 @@ class InvoiceView(BaseCryptoWebService, ListView):
             'total': {'gross': gross,
                       'tax': tax,
                       'total': total},
-            'payment': self.get_payment(id_brand)
+            'payment': self.get_payment(id_brand, id_shop)
         }
 
         return [invoice]
@@ -1014,16 +1018,39 @@ class InvoiceView(BaseCryptoWebService, ListView):
         shipping['subtotal'] = subtotal
         return shipping, fee, total_tax
 
-    def invoice_number(self):
-        # TODO: implementation
-        return 2506
+    def invoice_number(self, id_brand, id_shop):
+        iv_num = self._get_settings('starting_invoice_number',
+                                    id_brand,
+                                    id_shop)
+        iv_num_obj, created = InvoiceNumber.objects.get_or_create(
+            shop=Shop.objects.get(pk=id_shop),
+            brand=Brand.objects.get(pk=id_brand),
+            defaults={"invoice_number": iv_num})
 
-    def get_payment(self, id_brand):
-        payment = {}
-        period = BrandSettings.objects.filter(brand_id=id_brand,
-                                              key="default_payment_period")
-        if period:
-            payment['period'] = period[0].value
+        if not created:
+            iv_num_obj.invoice_number = F('invoice_number') + 1
+            iv_num_obj.save()
+            iv_num_obj = InvoiceNumber.objects.get(pk=iv_num_obj.id)
+
+        return iv_num_obj.invoice_number
+
+    def _get_settings(self, key, id_brand, id_shop):
+        user = None
+        shop = None
+        if int(id_shop) != 0:
+            shop = Shop.objects.get(pk=id_shop)
+            user = shop.owner
+
+        if user is None:
+            user = UserProfile.objects.filter(
+                Q(work_for_id=id_brand) & Q(role=USERS_ROLE.ADMIN))[0].user
+
+        return get_default_setting(key, user, shop)
+
+    def get_payment(self, id_brand, id_shop):
+        payment = {'period': self._get_settings("default_payment_period",
+                                                id_brand,
+                                                id_shop),}
 
         # TODO: penalty, instructions info
 

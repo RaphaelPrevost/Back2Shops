@@ -267,21 +267,33 @@ def _get_order_carrier_ids(conn, order_id):
     return [str(ujson.loads(s_mapping)[str(s_id)])
             for s_id, s_mapping in results]
 
-def _get_paid_time_list(conn, order_id):
-    fields, columns = zip(*[('shop_id', 'id_shop'),
-                            ('timestamp', 'invoice_status.timestamp')])
-    query_str = (
-        "SELECT %s FROM shipments "
-     "LEFT JOIN invoices "
-            "ON shipments.id = invoices.id_shipment "
-     "LEFT JOIN invoice_status "
-            "ON invoices.id = invoice_status.id_invoice "
-         "WHERE shipments.id_order = %%s "
-           "AND invoice_status.status = %%s ") \
-                % ', '.join(columns)
+def _get_paid_time_list(conn, status, order_id):
+    if status == ORDER_STATUS.COMPLETED:
+        fields, columns = zip(*[('shop_id', 'id_shop'),
+                                ('timestamp', 'invoice_status.timestamp')])
+        query_str = (
+            "SELECT %s FROM shipments "
+         "LEFT JOIN invoices "
+                "ON shipments.id = invoices.id_shipment "
+         "LEFT JOIN invoice_status "
+                "ON invoices.id = invoice_status.id_invoice "
+             "WHERE shipments.id_order = %%s "
+               "AND invoice_status.status = %%s ") \
+                    % ', '.join(columns)
+    else:
+        fields, columns = zip(*[('shop_id', 'id_shop'),
+                                ('timestamp', 'invoices.update_time')])
+        query_str = (
+            "SELECT %s FROM shipments "
+         "LEFT JOIN invoices "
+                "ON shipments.id = invoices.id_shipment "
+             "WHERE shipments.id_order = %%s "
+               "AND invoices.status = %%s ") \
+                    % ', '.join(columns)
     results = query(conn, query_str, params=[order_id,
                                              INVOICE_STATUS.INVOICE_PAID])
     return [dict(zip(fields, r)) for r in results]
+
 
 def _update_extra_info_for_order_item(conn, item_id, order_item):
     order_item.update(
@@ -340,7 +352,8 @@ def get_orders_list(conn, brand_id, filter_where='', filter_params=None):
     for order_id, order in orders_dict.iteritems():
         order['order_status'] = _get_order_status(conn, order_id)
         if order['order_status'] > ORDER_STATUS.AWAITING_PAYMENT:
-            order['paid_time_info'] = _get_paid_time_list(conn, order_id)
+            order['paid_time_info'] = _get_paid_time_list(
+                conn, order['order_status'], order_id)
         order['shop_ids'] = list(set(order['shop_ids']))
         order['carrier_ids'] = list(set(_get_order_carrier_ids(conn, order_id)))
 

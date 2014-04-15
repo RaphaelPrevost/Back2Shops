@@ -1,9 +1,13 @@
-<shipments version="1.0" order_status="{{ order_status }}">
+<shipments version="1.0" order_status="{{ order_status }}" order_create_date="{{ order_create_date}}">
     {% for shipment in object_list %}
         <shipment id="{{ shipment.id }}"
                   method="{% if shipment.calculation_method %}{{ shipment.calculation_method }}{% endif %}"
                   brand="{{ shipment.id_brand }}"
-                  shop="{{ shipment.id_shop }}">
+                  shop="{{ shipment.id_shop }}"
+                  {% if shipment.paid_date %}
+                      paid_date="{{ shipment.paid_date }}"
+                  {% endif %}
+                >
             <delivery status="{{ shipment.status }}" postage="{% if shipment.postage %}{{ shipment.postage }}{% endif %}">
                 {% for carrier in shipment.carriers %}
                     <carrier id="{{ carrier.id }}">

@@ -121,3 +121,4 @@ class CachedShop:
         if self._shop is None:
             self._shop = ActorShop(xml_data=self._xml_shop)
         return self._shop
+

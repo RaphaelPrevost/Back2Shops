@@ -4,6 +4,7 @@ import xmltodict
 from collections import defaultdict
 from datetime import datetime
 
+from common.constants import INVOICE_STATUS
 from common.utils import get_from_sale_server
 from common.utils import remote_xml_shipping_fee
 from common.utils import remote_xml_shipping_services
@@ -925,3 +926,15 @@ def order_item_grouped_quantity(conn, id_order_item):
     r = query(conn, sql, (id_order_item, SHIPMENT_STATUS.DELETED))
     return r and r[0][0] or 0
 
+def get_shipment_paid_time(conn, id_shipment):
+    fields, columns = zip(*[('paid_time', 'invoices.update_time')])
+    query_str = (
+        "SELECT %s FROM shipments "
+     "LEFT JOIN invoices "
+            "ON shipments.id = invoices.id_shipment "
+         "WHERE shipments.id = %%s "
+           "AND invoices.status = %%s ") \
+                % ', '.join(columns)
+    r = query(conn, query_str, params=[id_shipment,
+                                       INVOICE_STATUS.INVOICE_PAID])
+    return r and dict(zip(fields, r[0])) or None
