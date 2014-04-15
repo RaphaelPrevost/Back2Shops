@@ -1,3 +1,4 @@
+import datetime
 import unittest
 import ujson
 import urllib
@@ -638,6 +639,7 @@ class TestShippingList(BaseShipmentTestCase):
                           'id': u'1000029',
                           'name': u'item1 type weight type price with variant',
                           'quantity': 2,
+                          'packing_quantity': 2,
                           'sel_variant': {
                               'id': u'1000011',
                               'name': u'product brand attr for test',
@@ -656,7 +658,9 @@ class TestShippingList(BaseShipmentTestCase):
                  'postage': 1,
                  'tracking_info': None}],
             'shipping_currency': 'EUR',
-            'shipping_weight_unit': 'kg'}
+            'shipping_weight_unit': 'kg',
+            'order_create_date': datetime.datetime.now().strftime("%Y-%m-%d"),
+            'order_status': 2}
         shipping_data['object_list'][0]['id'] = id_shp
         self._xml_resp_check('shipping_list.xml',
                             shipping_data,
