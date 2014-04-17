@@ -70,14 +70,21 @@ class Sorter(object):
 
     def sort(self, sort_fields, get_sort_field_func=None):
         # sort_fields is a list of field in order of priority
-        # e.g. ['creation', '-shop_id']
+        # e.g. ['creation', '-shop_id', 'product__valid_to']
+        # '__' is the split for child attribute.
+        # e.g. 'product__valid_to', will first get attribute with 'product'
+        #      then get attribute 'valid_to'.
 
         sort_fields = [f for f in sort_fields if f]
         if not sort_fields: return
 
         if get_sort_field_func is None:
-            get_sort_field_func = (lambda item, field:
-                                          getattr(item, 'field', None))
+            def __sort_field_func(item, field):
+                attrs = field.split('__')
+                for attr in attrs:
+                    item = getattr(item, attr, None)
+                return item
+            get_sort_field_func = __sort_field_func
 
         self.object_list.sort(lambda x, y: self._cmp(x, y, sort_fields,
                                                      get_sort_field_func))

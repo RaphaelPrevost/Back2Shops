@@ -35,7 +35,6 @@ from common.constants import USERS_ROLE
 from common.constants import TARGET_MARKET_TYPES
 from common.error import InvalidRequestError
 from common.utils import get_currency
-from common.utils import get_default_setting
 from common.utils import get_valid_sort_fields
 from fouillis.views import manager_upper_required
 from fouillis.views import ManagerUpperLoginRequiredMixin
@@ -189,6 +188,19 @@ class ListSalesView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin
             if prices:
                 sale.max_type_attribute_price = max(prices)
                 sale.min_type_attribute_price = min(prices)
+                base_price = min(prices)
+            else:
+                base_price = sale.product.normal_price
+
+            if sale.product.discount_type == 'percentage':
+                sale.product.discount_price = base_price * sale.product.discount / 100.0
+            elif sale.product.discount_type == 'amount':
+                sale.product.discount_price = base_price - sale.product.discount
+            else:
+                sale.product.discount_price = base_price
+        self.sales = list(self.sales)
+
+
         return
 
     def make_page(self):
@@ -229,7 +241,9 @@ class ListSalesView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin
             order_by2 = self.form.cleaned_data['order_by2']
             sort_fields = get_valid_sort_fields(order_by1, order_by2)
             if sort_fields:
-                self.sales = self.sales.extra(order_by=sort_fields)
+                from common.utils import Sorter
+                sorter = Sorter(self.sales)
+                sorter.sort(sort_fields)
         self.make_page()
         return self.render_to_response(self.__dict__)
 
