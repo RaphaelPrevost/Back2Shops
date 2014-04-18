@@ -431,9 +431,10 @@ def remote_payment_init(id_order, id_user, amount, iv_id, iv_data):
              "invoices": iv_id,
              "invoicesData": iv_data}
 
+    logging.info("remote_payment_init_query: %s", query)
     try:
         query = ujson.dumps(query)
-        query = gen_encrypt_json_context(
+        en_query = gen_encrypt_json_context(
             query,
             settings.SERVER_APIKEY_URI_MAP[SERVICES.ADM],
             settings.PRIVATE_KEY_PATH)
@@ -442,8 +443,9 @@ def remote_payment_init(id_order, id_user, amount, iv_id, iv_data):
             remote_uri,
             settings.SERVER_APIKEY_URI_MAP[SERVICES.ADM],
             settings.PRIVATE_KEY_PATH,
-            data=query,
+            data=en_query,
             headers={'Content-Type': 'application/json'})
+        logging.info("payment_init_response: %s", resp)
         return resp
     except Exception, e:
         logging.error('Failed to get payment init %s,'
@@ -468,7 +470,7 @@ def remote_payment_form(cookie, id_processor, id_trans):
 
     try:
         query = ujson.dumps(query)
-        query = gen_encrypt_json_context(
+        en_query = gen_encrypt_json_context(
             query,
             settings.SERVER_APIKEY_URI_MAP[SERVICES.FIN],
             settings.PRIVATE_KEY_PATH)
@@ -477,7 +479,7 @@ def remote_payment_form(cookie, id_processor, id_trans):
             remote_uri,
             settings.SERVER_APIKEY_URI_MAP[SERVICES.FIN],
             settings.PRIVATE_KEY_PATH,
-            data=query,
+            data=en_query,
             headers={'Content-Type': 'application/json'})
         return resp
 

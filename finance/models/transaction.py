@@ -42,6 +42,9 @@ def update_trans(conn, values, where=None):
                values=values,
                where=where,
                returning="id")
+    logging.info('transaction_update, values - %s, where - %s',
+                 values,
+                 where)
     return r
 
 def get_trans_by_id(conn, id_trans):

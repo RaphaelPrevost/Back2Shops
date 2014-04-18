@@ -131,7 +131,7 @@ class EditShopView(BaseShopView, UpdateView):
         if not self._valid_shop(obj):
             raise InvalidRequestError(
                 "User %s trying to edit shop %s which is not owned to him",
-                self.request.user.pk, self.object.pk)
+                self.request.user.pk, obj.pk)
         return obj
 
     def get(self, request, *args, **kwargs):

@@ -550,7 +550,7 @@ class ShipmentsHandler(object):
             service_carrier_map = sale.shipping_setting.supported_services
             shipping_fee = None
             if len(service_carrier_map) == 1:
-                weight = self.totalWeight([sale])
+                weight = self.oneSaleItemWeight(sale)
                 unit = DEFAULT_WEIGHT_UNIT
                 dest = self.getDestAddr()
                 id_orig_address = self._getShippingFeeOrigAddress(sale)
@@ -595,15 +595,20 @@ class ShipmentsHandler(object):
         shipping_fee = ActorShippingFees(dict_fee['carriers'])
         return float(shipping_fee.carriers[0].services[0].fee.value)
 
+    def oneSaleItemWeight(self, sale):
+        sale_weight = float(sale.shipping_setting.weight.value)
+        sale_weight_unit = sale.shipping_setting.weight.unit
+        if sale_weight_unit != DEFAULT_WEIGHT_UNIT:
+            sale_weight = weight_convert(sale_weight_unit, sale_weight)
+        return sale_weight
+
     def totalWeight(self, sales):
         weight = 0
 
         for sale in sales:
-            sale_weight = float(sale.shipping_setting.weight.value)
-            sale_weight_unit = sale.shipping_setting.weight.unit
-            if sale_weight_unit != DEFAULT_WEIGHT_UNIT:
-                sale_weight = weight_convert(sale_weight_unit, sale_weight)
-            weight += sale_weight
+            sale_weight = self.oneSaleItemWeight(sale)
+            quantity = sale.order_props['quantity']
+            weight += sale_weight * quantity
 
         return weight
 

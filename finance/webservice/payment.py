@@ -22,6 +22,7 @@ class PaymentInitResource(BaseJsonResource):
         data = decrypt_json_resp(req.stream,
                                  settings.SERVER_APIKEY_URI_MAP[SERVICES.ADM],
                                  settings.PRIVATE_KEY_PATH)
+        logging.info("payment_init_request: %s", data)
         data = ujson.loads(data)
 
         id_trans = create_trans(conn,
@@ -29,8 +30,8 @@ class PaymentInitResource(BaseJsonResource):
                                 data['invoices'], data['amount'],
                                 data['invoicesData'])
 
-        pm_cookie = {"id_user": data['user'],
-                     "id_order": data['order'],
+        pm_cookie = {"id_user": long(data['user']),
+                     "id_order": long(data['order']),
                      "amount_due": data['amount'],
                      "id_invoices": data['invoices'],
                      "internal_trans": id_trans}
@@ -59,6 +60,7 @@ class PaymentFormResource(BaseHtmlResource):
         data = decrypt_json_resp(req.stream,
                                  settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
                                  settings.PRIVATE_KEY_PATH)
+        logging.info("payment_form_request: %s", data)
         data = ujson.loads(data)
         self.valid_check(conn, data)
         return self.payment_form(data['processor'],

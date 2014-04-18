@@ -49,6 +49,7 @@ def get_sum_amount_due(conn, id_invoices):
     if len(id_invoices) == 1:
         where = "id = %s" % id_invoices[0]
     else:
+        id_invoices = [str(id_iv) for id_iv in id_invoices]
         where = "id in (%s)" % ", ".join(id_invoices)
 
     sql = """SELECT sum(amount_due)
