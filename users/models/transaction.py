@@ -42,3 +42,6 @@ def update_trans(conn, values, where):
            'transactions',
            values=values,
            where=where)
+    logging.info("trans_updated: "
+                 "values - %s, "
+                 "where - %s", values, where)

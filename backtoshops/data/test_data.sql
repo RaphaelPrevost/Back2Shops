@@ -15,9 +15,9 @@ COPY address_address (id, address, zipcode, city, country_id, province_code) FRO
 1000005	beijing qing nian hui	1000001	BEIJING	CN	\N
 1000007	qing nian lu	100002	BEIJING	CN	\N
 1000008	tong zhou li yuan	100004	BEIJING	CN	\N
-1000009	qing nian lu	100002	BEIJING	CN	\N
-1000010	tong zhou li yuan	100004	BEIJING	CN	\N
 1000006	Alabama center	112233	ALABAMA	US	AL
+1000009	Alabama center	100002	ALABAMA	US	AL
+1000010	Alabama center	100004	ALABAMA	US	AL
 \.
 
 --
@@ -66,8 +66,8 @@ COPY shops_shop (id, mother_brand_id, gestion_name, phone, name, catcher, descri
 1000002	1000001	shop 2		shop name 2				114	116	22222	shop_images/大学宿舍_2.jpeg	1000006	2000002	2000002
 1000003	1000002	shop 3		shop name 3				114	116	33333	shop_images/大学宿舍_3.jpeg	1000007	2000003	2000003
 1000004	1000002	shop 4		shop name 4				114	116	44444	shop_images/大学宿舍_4.jpeg	1000008	2000004	2000004
-1000005	1000003	shop 5 	123123123123	shop name 5	Caption 5	The 5th shop	{}	39.911785100000003	116.422241400000075	55555	shop_images/earth2.jpg	1000009	2000005	1000005
-1000006	1000003	shop name 6	34534534534	shop name 6	caption 6	the 6th shop	{}	39.9117109000000028	116.409731700000066	66666		1000010	2000006	1000006
+1000005	1000003	shop 5 	123123123123	shop name 5	Caption 5	The 5th shop	{}	34.1568725999999998	-85.6963627000000088	55555		1000009	\N	2000005	1000005
+1000006	1000003	shop name 6	34534534534	shop name 6	caption 6	the 6th shop	{}	34.1568725999999998	-85.6963627000000088	66666		1000010	\N	2000006	1000006
 \.
 
 

@@ -7,10 +7,8 @@ from common.constants import SUCCESS
 from common.constants import FAILURE
 from common.error import ErrorCode as E_C
 from common.test_utils import is_backoffice_server_running
-from common.test_utils import MockResponse
-from tests.base_order_test import BaseOrderTestCase
+from tests.base_order_test import BaseShipmentTestCase
 
-from B2SRespUtils.generate import gen_xml_resp
 from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SProtocol.settings import SHIPPING_CURRENCY
 from B2SUtils import db_utils
@@ -18,171 +16,6 @@ from B2SUtils import db_utils
 SKIP_REASON = "Please run backoffice server before running this test"
 
 
-class BaseShipmentTestCase(BaseOrderTestCase):
-    def _freeShippingCheck(self, id_shipment, expecte_shipping_fee):
-        sql = """SELECT fee
-                   FROM free_shipping_fee
-                  WHERE id_shipment =%s
-         """
-        with db_utils.get_conn() as conn:
-            results = db_utils.query(conn, sql, (id_shipment,))
-        self.assertTrue(len(results) > 0,
-                        'No free shipping fee record '
-                        'found for shipment: %s' % id_shipment)
-        self.assertEqual(results[0][0],
-                         expecte_shipping_fee,
-                         'Free shipping fee for: %s is '
-                         'not as expected: %s - %s'
-                         % (id_shipment, results[0][0],
-                            expecte_shipping_fee))
-
-    def _shipmentsCountCheck(self, id_order, expected_count):
-        sql = """SELECT id
-                   FROM shipments
-                  WHERE id_order=%s
-               ORDER BY id
-         """
-        with db_utils.get_conn() as conn:
-            results = db_utils.query(conn, sql, (id_order,))
-        shipments_index = [item[0] for item in results]
-        self.assertEqual(len(shipments_index),
-                         expected_count,
-                         "Shipments count is not as expected:"
-                         "%s-%s" % (shipments_index, expected_count))
-        return shipments_index
-
-    def _shipping_list_item(self, id_shipment):
-        sql = """SELECT id
-                   FROM shipping_list
-                  WHERE id_shipment=%s
-         """
-        with db_utils.get_conn() as conn:
-            results = db_utils.query(conn, sql, (id_shipment,))
-        return [item[0] for item in results]
-
-    def _order_item(self, id_order):
-        sql = """SELECT id_item
-                   FROM order_details
-                  WHERE id_order=%s
-         """
-        with db_utils.get_conn() as conn:
-            results = db_utils.query(conn, sql, (id_order,))
-        return [item[0] for item in results]
-
-
-    def _successShipment(self, id_shipment,
-                         expect_order=None, expect_status=None,
-                         expect_shipping_fee=None,
-                         expect_handling_fee=None,
-                         expect_none_shipping_fee=False,
-                         expect_none_handling_fee=False,
-                         expect_supported_services=None):
-        def __shipment_check():
-            columns = ["id_order", "status"]
-            sql = """SELECT %s
-                       FROM shipments
-                      WHERE id=%%s
-             """ % ", ".join(columns)
-            with db_utils.get_conn() as conn:
-                results = db_utils.query(conn, sql,
-                                         (id_shipment, ))
-            self.assertTrue(len(results) > 0,
-                            'Shipment-%s not exist' % id_shipment)
-
-            r = dict(zip(tuple(columns), tuple(results[0])))
-            if expect_order is not None:
-                self.assertEqual(
-                    r['id_order'],
-                    expect_order,
-                    'shipment(id_order) is not as expected: %s-%s'
-                    % (r['id_order'], expect_order))
-
-            if expect_status is not None:
-                self.assertEqual(
-                    r['status'],
-                    expect_status,
-                    'shipment(status) is not as expected: %s-%s'
-                    % (r['status'], expect_status))
-
-        def __shipping_fee_check():
-            columns = ["id_shipment", "handling_fee", "shipping_fee"]
-            sql = """SELECT %s
-                       FROM shipping_fee
-                      WHERE id_shipment=%%s
-             """ % ", ".join(columns)
-            with db_utils.get_conn() as conn:
-                results = db_utils.query(conn, sql,
-                                         (id_shipment, ))
-            if (expect_handling_fee is not None or
-                expect_shipping_fee is not None):
-                self.assert_(
-                    len(results),
-                    'There is no fee for shipment: %s'
-                    % id_shipment)
-
-            r = results and results[0] or None
-            if expect_none_shipping_fee:
-                self.assert_(
-                    r is None or r['shipping_fee'] is None,
-                    'shipment(shipping_fee) is not as expected: %s-%s'
-                    % (r and r['shipping_fee'] or None, None))
-
-            if expect_none_handling_fee:
-                self.assert_(
-                    r is None or r['shipping_fee'] is None,
-                    'shipment(handling_fee) is not as expected: %s-%s'
-                    % (r and r['handling_fee'] or None, None))
-
-
-            if expect_shipping_fee is not None:
-                self.assertEqual(
-                    r['shipping_fee'],
-                    expect_shipping_fee,
-                    'shipment(shipping_fee) is not as expected: %s-%s'
-                    % (r['shipping_fee'], expect_shipping_fee))
-
-            if expect_handling_fee is not None:
-                self.assertEqual(
-                    r['handling_fee'],
-                    expect_handling_fee,
-                    'shipment(handling_fee) is not as expected: %s-%s'
-                    % (r['handling_fee'], expect_handling_fee))
-
-        def __support_services_check():
-            if expect_supported_services is None:
-                return
-            columns = ["id_shipment", "id_postage", "supported_services"]
-            sql = """SELECT %s
-                       FROM shipping_supported_services
-                      WHERE id_shipment=%%s
-             """ % ", ".join(columns)
-            with db_utils.get_conn() as conn:
-                results = db_utils.query(conn, sql,
-                                         (id_shipment, ))
-            self.assert_(
-                len(results),
-                'There is no supported services for shipment: %s'
-                % id_shipment)
-            r = results[0]
-            if expect_supported_services is not None:
-                self.assertEqual(
-                    r['supported_services'],
-                    expect_supported_services,
-                    'shipment(supported_services) is not as expected: %s-%s'
-                    % (r['supported_services'], expect_supported_services))
-        __shipment_check()
-        __support_services_check()
-        __shipping_fee_check()
-
-    def _xml_resp_check(self, template, data, resp_content):
-        mock_resp = MockResponse()
-        expect_resp = gen_xml_resp(template, mock_resp, **data)
-
-        self.assertEqual(expect_resp.body.strip(),
-                         resp_content.strip(),
-                         "Xml response is not as expected: \n"
-                         "Resp: %s \n"
-                         "Expected: %s" % (resp_content, expect_resp.body))
 
 class TestShipment(BaseShipmentTestCase):
     @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
@@ -379,40 +212,44 @@ class TestShipment(BaseShipmentTestCase):
           * shipment1: groups item1, item2, item4
           * shipment2: groups item3
         """
+        item1_quantity = 3
         item1_with_ems_usps = {
             'id_sale': 1000014,
             'id_variant': 0,
-            'quantity': 3,
+            'quantity': item1_quantity,
             'id_shop': 1000006,
             'id_price_type': 0,
             'id_weight_type': 0}
         item1_handling_fee = 11.0
         item1_weight = 1.0
 
+        item2_quantity = 2
         item2_with_ems_usps = {
             'id_sale': 1000015,
             'id_variant': 0,
-            'quantity': 2,
+            'quantity': item2_quantity,
             'id_shop': 1000006,
             'id_price_type': 0,
             'id_weight_type': 0}
         item2_weight = 2.0
         item2_handling_fee = 12.0
 
+        item3_quantity = 2
         item3_with_usps = {
             'id_sale': 1000016,
             'id_variant': 0,
-            'quantity': 2,
+            'quantity': item3_quantity,
             'id_shop': 1000006,
             'id_price_type': 0,
             'id_weight_type': 0}
         item3_weight = 3.0
         item3_handling_fee = 13.0
 
+        item4_quantity = 2
         item4_with_ems = {
             'id_sale': 1000017,
             'id_variant': 0,
-            'quantity': 2,
+            'quantity': item4_quantity,
             'id_shop': 1000006,
             'id_price_type': 0,
             'id_weight_type': 0}
@@ -429,9 +266,9 @@ class TestShipment(BaseShipmentTestCase):
         expect_handling_fee = max([item1_handling_fee,
                     item2_handling_fee,
                     item4_handling_fee])
-        expect_shipping_fee =  2.0 * (item1_weight +
-                                      item2_weight +
-                                      item4_weight)
+        expect_shipping_fee =  2.0 * (item1_weight * item1_quantity +
+                                      item2_weight * item2_quantity +
+                                      item4_weight * item4_quantity)
         services = '{"1":"1"}'
         self._successShipment(spm1,
                               expect_order=id_order,
@@ -441,7 +278,7 @@ class TestShipment(BaseShipmentTestCase):
                               expect_supported_services=services)
 
         expect_handling_fee = item3_handling_fee
-        expect_shipping_fee = 3.0 * item3_weight
+        expect_shipping_fee = 3.0 * item3_weight * item3_quantity
         services = '{"2":"2"}'
         self._successShipment(spm2,
                               expect_order=id_order,
@@ -620,7 +457,7 @@ class TestShippingList(BaseShipmentTestCase):
                  'fee_info': {'handling_fee': 5.0,
                               'id': 349,
                               'id_shipment': 427L,
-                              'shipping_fee': 3.0},
+                              'shipping_fee': 6.0},
                  'id': 431,
                  'calculation_method': 3,
                  'id_brand': 1000001,

@@ -263,7 +263,7 @@ CREATE TABLE transactions (
     create_time timestamp without time zone NOT NULL,
     update_time timestamp without time zone NOT NULL,
     amount_due double precision NOT NULL,
-    cookie character varying(100),
+    cookie character varying(300),
     id_processor BIGINT,
     url_success character varying(100),
     url_failure character varying(100)

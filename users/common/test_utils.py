@@ -144,3 +144,12 @@ def is_backoffice_server_running():
     else:
         return False
 
+def is_finace_server_running():
+    pids = os.popen(
+            "ps -aef | grep 'python fin_server.py' | grep -v 'grep' | awk '{ print $3 }'") \
+            .read().strip().split( '\n' )
+    pids = [pid for pid in pids if pid]
+    if len(pids) == 1:
+        return True
+    else:
+        return False

@@ -32,6 +32,9 @@ class PaymentInitResource(BaseXmlResource, BaseInvoiceMixin):
         try:
             id_order = req.get_param('order')
             id_invoices = req.get_param('invoices')
+            logging.info("payment_init_request: "
+                         "id_order - %s, "
+                         "id_invoices - %s", id_order, id_invoices)
             id_order, id_invoices, invoices = self.valid_check(conn,
                                                      id_order,
                                                      id_invoices)
@@ -58,6 +61,9 @@ class PaymentInitResource(BaseXmlResource, BaseInvoiceMixin):
         except UserError, e:
             logging.error("pm_init_err: %s", e, exc_info=True)
             return {'error': e.code}
+        except Exception, e:
+            logging.error("pm_init_err: %s", e, exc_info=True)
+            return {'error': "SERVER ERROR"}
 
     def get_unitary_invoice(self, invoices):
         iv_content_list = []
@@ -101,6 +107,12 @@ class PaymentFormResource(BaseHtmlResource):
             id_processor = req.get_param('processor')
             url_success = req.get_param('success')
             url_failure = req.get_param('failure')
+            logging.info("payment_form_request: "
+                         "id_trans - %s,"
+                         "id_processor - %s,"
+                         "url_success - %s,"
+                         "url_failure - %s ",
+                         id_trans, id_processor, url_success, url_failure)
             trans = self.valid_check(conn, id_trans, id_processor,
                                      url_success, url_failure)
 
@@ -115,10 +127,14 @@ class PaymentFormResource(BaseHtmlResource):
             pm_form = remote_payment_form(trans['cookie'],
                                           id_processor,
                                           id_trans)
+            logging.info("payment_form_response: %s", pm_form)
             return pm_form
         except UserError, e:
             logging.error("pm_form_err: %s", e, exc_info=True)
             return {'error': e.code}
+        except Exception, e:
+            logging.error("pm_form_err: %s", e, exc_info=True)
+            return {'error': "SERVER ERROR"}
 
     def valid_check(self, conn, id_trans, id_processor, url_success, url_failure):
         try:

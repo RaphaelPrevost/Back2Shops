@@ -11,7 +11,7 @@ DATABASE = {
     'PASSWORD': '',
     'HOST': 'localhost',
     'PORT': '5432',
-    'MAX_CONN': 10,
+    'MAX_CONN': 50,
     'CONN_EXPIRATION': 1, #minute
 }
 CENTRAL_REDIS = {
