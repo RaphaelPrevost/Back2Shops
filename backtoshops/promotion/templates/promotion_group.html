@@ -45,6 +45,7 @@
         {% if promotion_pk or not user.is_superuser %}
         <fieldset>
             {{ form.non_field_errors }}
+            {{ form.name.errors }}
             <div class="formrow">
                 <label for="{{form.name.auto_id}}">{% trans form.name.label %}</label>
                 {{ form.name }}
