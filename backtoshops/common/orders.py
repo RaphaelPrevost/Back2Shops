@@ -122,8 +122,7 @@ def remote_send_invoices(id_order, id_brand, id_shops):
             headers={'Content-Type': 'application/json'})
         return data
     except Exception, e:
-        logging.error('Failed to get order(id=%s) invoices from '
-                      'usr servers: %s',
+        logging.error('Failed to send order(id=%s) invoices for: %s',
                       id_order, e, exc_info=True)
         raise UsersServerError
 
