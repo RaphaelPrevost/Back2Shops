@@ -453,6 +453,7 @@ def remote_payment_init(id_order, id_user, amount, iv_id, iv_data):
                       query, e, exc_info=True)
         raise ServerError('remote_payment_init_err: %s' % str(e))
 
+
 def remote_payment_form(cookie, id_processor, id_trans):
     uri = "webservice/1.0/private/payment/form"
     url_gateway = settings.PAYMENT_GATEWAY

@@ -203,6 +203,7 @@ fieldset { border: none 0; }
     color: #fff;
     background-image: url(../img/icon.png);
     background-repeat: no-repeat;
+    cursor: pointer;
 }
     .seeDetail.seePacking {
         right: 341px;
@@ -210,7 +211,9 @@ fieldset { border: none 0; }
         background-position: 133px -203px;
         background-color: #555555;
 }
-    .seeDetail.seeInvoice {
+
+.seeDetail.sendInvoices,
+.seeDetail.seeInvoices {
         right: 165px;
         width: 170px;
         background-position: 152px -203px;
@@ -221,6 +224,12 @@ fieldset { border: none 0; }
         width: 160px;
         background-position: 142px -203px;
         background-color: #000;
+    }
+    .sendInvoices {
+        color: #fff;
+        background-color: #555555;
+        width: 170px;
+        cursor: pointer;
     }
 
 
@@ -299,6 +308,7 @@ div.error_msg {
     display: None;
 }
 
+.invoices .invoices_title,
 .packing .packing_list_title {
     position: relative;
     line-height: 20px;
@@ -306,6 +316,7 @@ div.error_msg {
     margin-bottom: 5px;
 }
 
+.invoices .invoices_title .see_invoice,
 .packing .packing_list_title .see_pk_list {
     background-color: #000;
     width: 160px;
@@ -527,6 +538,10 @@ span.item_name {
 }
 
 span.deadline {
+    color: red;
+}
+
+.red {
     color: red;
 }
 

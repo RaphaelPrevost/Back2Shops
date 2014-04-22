@@ -11,8 +11,8 @@ from common.utils import remote_xml_shipping_services
 from common.utils import weight_convert
 
 from B2SProtocol.constants import FREE_SHIPPING_CARRIER
-from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS
+from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SUtils.db_utils import execute
 from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import query
@@ -691,10 +691,33 @@ def get_shipments_by_order(conn, id_order):
     query_str = ("SELECT %s "
                    "FROM shipments "
                   "WHERE id_order=%%s "
+                    "AND status <> %%s"
                  % ", ".join(SHIPMENT_FIELDS))
     r = query(conn,
               query_str,
-              (id_order,))
+              (id_order, SHIPMENT_STATUS.DELETED))
+    shipment_list = []
+    for item in r:
+        shipment_list.append(dict(zip(SHIPMENT_FIELDS, item)))
+    return shipment_list
+
+def get_shipments_by_id(conn, id_shipments):
+    assert len(id_shipments) > 0
+
+    if len(id_shipments) == 1:
+        where = "id = %s"
+        where_condition = id_shipments[0]
+    else:
+        where = "id in (%s)"
+        where_condition = ', '.join([str(id) for id in id_shipments])
+    where = where % where_condition
+
+    query_str = ("SELECT %s "
+                   "FROM shipments "
+                  "WHERE %s "
+                 % (", ".join(SHIPMENT_FIELDS), where))
+    r = query(conn,
+              query_str)
     shipment_list = []
     for item in r:
         shipment_list.append(dict(zip(SHIPMENT_FIELDS, item)))
@@ -943,3 +966,4 @@ def get_shipment_paid_time(conn, id_shipment):
     r = query(conn, query_str, params=[id_shipment,
                                        INVOICE_STATUS.INVOICE_PAID])
     return r and dict(zip(fields, r[0])) or None
+

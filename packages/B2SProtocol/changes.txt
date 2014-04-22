@@ -13,3 +13,6 @@
 
 == version 0.0.4 ==
 1. Add TRANS_STATUS
+
+== version 0.0.5 ==
+1. Add ORDER_IV_SENT_STATUS

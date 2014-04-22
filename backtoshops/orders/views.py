@@ -9,6 +9,7 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View, TemplateResponseMixin
 from django.views.generic.edit import CreateView, UpdateView
 from fouillis.views import OperatorUpperLoginRequiredMixin
@@ -26,6 +27,8 @@ from common.utils import get_valid_sort_fields
 from common.utils import Sorter
 from common.orders import get_order_detail
 from common.orders import get_order_packing_list
+from common.orders import remote_invoices
+from common.orders import remote_send_invoices
 from common.orders import get_order_list
 from common.orders import send_shipping_fee
 from common.orders import send_delete_shipment
@@ -379,13 +382,6 @@ class BaseOrderPacking(OperatorUpperLoginRequiredMixin, View):
 
 
     def _accessable_sale(self, actor_shipment, user, id_shipment=None):
-        sp_status = actor_shipment.delivery.status
-#        if int(sp_status) not in [SHIPMENT_STATUS.PACKING,
-#                             SHIPMENT_STATUS.DELAYED,
-#                             SHIPMENT_STATUS.DELIVER,
-#                             SHIPMENT_STATUS.DELETED]:
-#            return False
-
         if id_shipment and int(id_shipment) != int(actor_shipment.id):
             return False
 
@@ -716,7 +712,6 @@ class OrderPacking(BaseOrderPacking, TemplateResponseMixin):
         else:
             return super(OrderPacking, self).get_template_names()
 
-
 class OrderNewPacking(BaseOrderPacking):
     def post(self, request, *args, **kwargs):
         try:
@@ -938,3 +933,30 @@ class OrderDeletePacking(BaseOrderPacking):
 
         return send_delete_shipment(id_shipment)
 
+
+class OrderInvoices(View, TemplateResponseMixin):
+    template_name = "_order_invoices.html"
+
+    def get(self, request, order_id):
+        req_u_profile = request.user.get_profile()
+        id_brand = req_u_profile.work_for.id
+        shops_id = _get_req_user_shops(request.user)
+
+        resp = remote_invoices(order_id, id_brand, shops_id)
+        resp = ujson.loads(resp)
+
+        self.obj = resp
+        self.order_id = order_id
+        return self.render_to_response(self.__dict__)
+
+class SendInvoices(OperatorUpperLoginRequiredMixin, View):
+    template_name = ""
+
+    def post(self, request, *args, **kwargs):
+        req_u_profile = request.user.get_profile()
+        id_order = request.POST.get('id_order');
+        id_brand = req_u_profile.work_for.id
+        shops_id = _get_req_user_shops(request.user)
+
+        resp = remote_send_invoices(id_order, id_brand, shops_id)
+        return HttpResponse(resp, mimetype="application/json")

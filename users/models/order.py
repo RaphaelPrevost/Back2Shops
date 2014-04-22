@@ -1,4 +1,5 @@
 import logging
+import urllib2
 import ujson
 
 from common.constants import INVOICE_STATUS
@@ -10,6 +11,8 @@ from B2SUtils.db_utils import select
 from B2SUtils.db_utils import update
 from models.actors.sale import CachedSale
 from models.actors.shop import get_shop_id
+from models.invoice import order_iv_sent_status
+from models.invoice import iv_to_sent_qty
 from models.shipments import wwwOrderShipments
 from models.shipments import posOrderShipments
 from models.user import get_user_profile
@@ -301,10 +304,16 @@ def _update_extra_info_for_order_item(conn, item_id, order_item):
          'invoice_info': _get_invoice_info_for_order_item(conn, item_id),
          })
 
-def get_orders_list(conn, brand_id, filter_where='', filter_params=None):
+def get_orders_list(conn, brand_id, shops_id, filter_params=None):
     fields, columns = zip(*(ORDER_FIELDS_COLUMNS +
                             ORDER_SHIPMENT_COLUMNS +
                             ORDER_ITEM_FIELDS_COLUMNS))
+
+    filter_where = ""
+    if shops_id:
+        filter_where = ("where order_items.id_shop in (%s)"
+                 % ', '.join([str(shop_id) for shop_id in shops_id]))
+
     query_str = '''
         SELECT %s
           FROM orders
@@ -354,6 +363,15 @@ def get_orders_list(conn, brand_id, filter_where='', filter_params=None):
         if order['order_status'] > ORDER_STATUS.AWAITING_PAYMENT:
             order['paid_time_info'] = _get_paid_time_list(
                 conn, order['order_status'], order_id)
+        if order['order_status'] == ORDER_STATUS.PENDING:
+            order['iv_sent_status'] = order_iv_sent_status(conn,
+                                                           order_id,
+                                                           brand_id,
+                                                           shops_id)
+            order['iv_to_sent_qty'] = iv_to_sent_qty(conn,
+                                                     order_id,
+                                                     brand_id,
+                                                     shops_id)
         order['shop_ids'] = list(set(order['shop_ids']))
         order['carrier_ids'] = list(set(_get_order_carrier_ids(conn, order_id)))
 
@@ -361,21 +379,6 @@ def get_orders_list(conn, brand_id, filter_where='', filter_params=None):
     for order_id in sorted_order_ids:
         orders.append({order_id: orders_dict[order_id]})
     return orders
-
-
-def get_orders_filter_by_confirmation_time(conn, brand_id, start_time,
-                                           end_time):
-    filter_where = ('WHERE confirmation_time >= %%s AND ',
-                    'confirmation_time < %%s')
-    filter_params = [start_time, end_time]
-    return get_orders_list(conn, brand_id, filter_where, filter_params)
-
-
-def get_orders_filter_by_user(conn, brand_id, user_id):
-    filter_where = 'WHERE id_user = %%s'
-    filter_params = [user_id, ]
-    return get_orders_list(conn, brand_id, filter_where, filter_params)
-
 
 def _get_order_items(conn, order_id, brand_id, shops_id=None):
     # {'order_items': [item_1_id: {},

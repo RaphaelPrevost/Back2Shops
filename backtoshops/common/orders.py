@@ -1,6 +1,7 @@
 import settings
 import logging
 import ujson
+import urllib
 
 from B2SCrypto.constant import SERVICES
 from B2SCrypto.utils import gen_encrypt_json_context
@@ -80,6 +81,52 @@ def get_order_packing_list(order_id):
                       'usr servers: %s',
                       order_id, e, exc_info=True)
         raise UsersServerError
+
+
+def remote_invoices(id_order, id_brand, id_shops):
+    try:
+        if isinstance(id_shops, list):
+            id_shops = ujson.dumps(id_shops)
+
+        uri = "%s?order=%s&brand=%s&shops=%s" % (
+            settings.ORDER_INVOICES,
+            id_order, id_brand, id_shops)
+
+        data = get_from_remote(
+            uri,
+            settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+            settings.PRIVATE_KEY_PATH
+        )
+        return data
+    except Exception, e:
+        logging.error('Failed to get order(id=%s) invoices from '
+                      'usr servers: %s',
+                      id_order, e, exc_info=True)
+        raise UsersServerError
+
+
+def remote_send_invoices(id_order, id_brand, id_shops):
+    try:
+        if isinstance(id_shops, list):
+            id_shops = ujson.dumps(id_shops)
+
+        query = {'order': id_order,
+                 'brand': id_brand,
+                 'shops': id_shops}
+
+        data = get_from_remote(
+            settings.ORDER_SEND_INVOICES,
+            settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+            settings.PRIVATE_KEY_PATH,
+            data=ujson.dumps(query),
+            headers={'Content-Type': 'application/json'})
+        return data
+    except Exception, e:
+        logging.error('Failed to get order(id=%s) invoices from '
+                      'usr servers: %s',
+                      id_order, e, exc_info=True)
+        raise UsersServerError
+
 
 def send_new_shipment(id_order, id_shop, id_brand,
                       handling_fee, shipping_fee, content):

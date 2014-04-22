@@ -3,6 +3,7 @@
 {% load l10n %}
 {% load thumbnail %}
 {% load is_manager_upper %}
+{% load is_order_pending %}
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block head %}
@@ -88,7 +89,7 @@
                         </span>
                     </div>
                     <div class="prix">
-                        {% if order.status > 1 %}
+                        {% if order.order_status > 1 %}
                         <span class="status-pending-blue">&nbsp;</span>
                         {% else %}
                         <a href="{% url 'order_packing_list' order_id %}" class="seePacking">
@@ -98,7 +99,7 @@
 
                         <span class="status-next">&nbsp;</span>
 
-                        {% if order.status > 2 %}
+                        {% if order.order_status > 2 %}
                             <span class="status-payment-blue">&nbsp;</span>
                         {% else %}
                             <span class="status-payment-gray">&nbsp;</span>
@@ -106,7 +107,7 @@
 
                         <span class="status-next">&nbsp;</span>
 
-                        {% if order.status > 3 %}
+                        {% if order.order_status > 3 %}
                             <span class="status-shipping-blue">&nbsp;</span>
                         {% else %}
                             <span class="status-shipping-gray">&nbsp;</span>
@@ -115,7 +116,19 @@
                 </div>
                 <div class="clear"></div>
                 <a href="{% url 'order_packing_list' order_id %}" class="seeDetail seePacking">{% trans "Packing lists" %}</a>
-                <a href="" class="seeDetail seeInvoice">{% trans "Invoices" %}</a>
+                <span id="iv_btn_{{ order_id }}">
+                {% if order.order_status|is_order_pending %}
+                    {% if order.iv_sent_status == 1 or order.iv_sent_status == 2 %}
+                        <span url="{% url 'send_invoices' %}" id_order="{{ order_id }}" class="seeDetail sendInvoices">{% trans "Send Invoices" %} ({{ order.iv_to_sent_qty }})</span>
+                    {% elif order.iv_sent_status == 3 %}
+                        <a href="{% url 'order_invoices_list' order_id %}" class="seeDetail seeInvoices">{% trans "Invoices" %} <span class="red">.</span></a>
+                    {% else %}
+                        <a href="{% url 'order_invoices_list' order_id %}" class="seeDetail seeInvoices">{% trans "Invoices" %}</a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'order_invoices_list' order_id %}" class="seeDetail seeInvoices">{% trans "Invoices" %}</a>
+                {% endif %}
+                </span>
                 <a href="{% url 'order_details' order_id %}" class="seeDetail seeMain">{% trans "Details" %}</a>
             </div>
             {% endfor %}
@@ -171,7 +184,7 @@
         $("#order-status-tabs span").click(function(){
             var code = $(this).attr("status_code");
             if (code ==  $("#{{ form.status.auto_id }}").val()) return;
-            $("#{{ form.status.auto_id }}").val(code)
+            $("#{{ form.status.auto_id }}").val(code);
             $("#main_form").submit();
         });
 
@@ -184,9 +197,51 @@
             $("#content_Right #detail").load($(this)[0].href);
             return false;
         });
-        $(".seeInvoice").click(function(){
+        $(".seeInvoices").die().live('click', function(){
             $("#content_Right #controls").html('{% trans "Loading..." %}');
-{#            $("#content_Right #controls").load($(this)[0].href);#}
+            $("#content_Right #controls").load($(this)[0].href);
+            return false;
+        });
+        $(".sendInvoices").die().live('click', function(){
+            var url = $(this).attr('url');
+            var id_order = $(this).attr('id_order');
+            var data = "id_order=" + id_order;
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: data,
+                success: function(data, status) {
+                    if (data['res'] == 'FAILURE') {
+                        alert("{% trans 'Server Error, please connect admin' %}");
+                    } else {
+                        var iv_sent_status = data['order_iv_status'];
+                        var iv_btn = $("#iv_btn_" + id_order);
+                        if (iv_sent_status == 1) {
+                            alert("{% trans 'Pleas conf shipping method before send invoices' %}");
+                        } else if (iv_sent_status == 2) {
+                        } else if (iv_sent_status == 3) {
+                            alert("{% trans 'Invoices have been sent for the current packing lists, please create new shipment for the remaining items' %}");
+                            var new_iv_btn = $("<a>");
+                            new_iv_btn.attr('href', "{% url 'order_invoices_list' %}" + id_order);
+                            new_iv_btn.attr('class', "seeDetail seeInvoices");
+                            var dot_span = $("<span class='red'>");
+                            dot_span.html(".")
+                            new_iv_btn.append("{% trans 'Invoices ' %}");
+                            new_iv_btn.append(dot_span);
+                            iv_btn.html(new_iv_btn);
+                            new_iv_btn.click();
+                        } else if (iv_sent_status == 4) {
+                            alert("{% trans 'Invoices have been sent for this order' %}");
+                            var new_iv_btn = $("<a>");
+                            new_iv_btn.attr('href', "{% url 'order_invoices_list' %}" + id_order);
+                            new_iv_btn.attr('class', "seeDetail seeInvoices");
+                            new_iv_btn.html("{% trans 'Invoices' %}");
+                            iv_btn.html(new_iv_btn);
+                            new_iv_btn.click();
+                        }
+                    }
+                }
+            });
             return false;
         });
         $(".seeMain").click(function(){

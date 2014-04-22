@@ -19,6 +19,7 @@ from webservice.shipping import ShippingFeesResource
 from webservice.shipping import PubShippingListResource
 from webservice.shops import ShopsResource
 from webservice.invoice import InvoiceResource
+from webservice.invoice import InvoiceGetResource
 from webservice.invoice import InvoiceSendResource
 
 
@@ -44,6 +45,7 @@ urlpatterns = {
     '/webservice/1.0/private/order/detail': OrderDetailResource,
     '/webservice/1.0/private/order/delete': OrderDeleteResource,
     '/webservice/1.0/private/order/status': OrderStatusResource,
+    '/webservice/1.0/private/invoice/get': InvoiceGetResource,
     '/webservice/1.0/private/invoice/send': InvoiceSendResource,
 
     '/webservice/1.0/protected/shipping/list': ShippingListResource,

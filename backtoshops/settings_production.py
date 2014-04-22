@@ -271,6 +271,8 @@ ORDER_LIST_URL = '%s/webservice/1.0/private/order/orders' % USR_SERVER
 ORDER_DETAIL_URL = '%s/webservice/1.0/private/order/detail' % USR_SERVER
 ORDER_SHIPPING_LIST = '%s/webservice/1.0/protected/shipping/list' % USR_SERVER
 ORDER_SHIPMENT = '%s/webservice/1.0/protected/shipment' % USR_SERVER
+ORDER_INVOICES = '%s/webservice/1.0/private/invoice/get' % USR_SERVER
+ORDER_SEND_INVOICES = '%s/webservice/1.0/private/invoice/send' % USR_SERVER
 
 # config to see decrypt content for response,
 # only used for debugging
