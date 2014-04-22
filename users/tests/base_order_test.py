@@ -193,6 +193,21 @@ class BaseOrderTestCase(BaseTestCase):
         (self.telephone, self.shipaddr,
          self.billaddr) = self.get_user_info(self.users_id)
 
+    def _shipmentsCountCheck(self, id_order, expected_count):
+        sql = """SELECT id
+                   FROM shipments
+                  WHERE id_order=%s
+               ORDER BY id
+         """
+        with db_utils.get_conn() as conn:
+            results = db_utils.query(conn, sql, (id_order,))
+        shipments_index = [item[0] for item in results]
+        self.assertEqual(len(shipments_index),
+                         expected_count,
+                         "Shipments count is not as expected:"
+                         "%s-%s" % (shipments_index, expected_count))
+        return shipments_index
+
 
 class BaseShipmentTestCase(BaseOrderTestCase):
     def _freeShippingCheck(self, id_shipment, expecte_shipping_fee):
@@ -211,21 +226,6 @@ class BaseShipmentTestCase(BaseOrderTestCase):
                          'not as expected: %s - %s'
                          % (id_shipment, results[0][0],
                             expecte_shipping_fee))
-
-    def _shipmentsCountCheck(self, id_order, expected_count):
-        sql = """SELECT id
-                   FROM shipments
-                  WHERE id_order=%s
-               ORDER BY id
-         """
-        with db_utils.get_conn() as conn:
-            results = db_utils.query(conn, sql, (id_order,))
-        shipments_index = [item[0] for item in results]
-        self.assertEqual(len(shipments_index),
-                         expected_count,
-                         "Shipments count is not as expected:"
-                         "%s-%s" % (shipments_index, expected_count))
-        return shipments_index
 
     def _shipping_list_item(self, id_shipment):
         sql = """SELECT id
