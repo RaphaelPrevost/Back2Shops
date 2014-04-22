@@ -11,8 +11,10 @@ from orders.views import OrderPacking
 from orders.views import ShippingFee
 from orders.views import ShippingStatusView
 from orders.views import OrderDeletePacking
+from orders.views import OrderInvoices
 from orders.views import OrderNewPacking
 from orders.views import OrderUpdatePacking
+from orders.views import SendInvoices
 
 
 urlpatterns = patterns(settings.get_site_prefix()+'orders',
@@ -40,5 +42,11 @@ urlpatterns = patterns(settings.get_site_prefix()+'orders',
         shop_manager_upper_required(OrderDeletePacking.as_view(),
                                     login_url="bo_login"),
         name='order_delete_shipment'),
+    url(r'/invoices/(?:(?P<order_id>\d+)/)?$',
+        operator_upper_required(OrderInvoices.as_view(), login_url="bo_login"),
+        name='order_invoices_list'),
+    url(r'/send/invoices',
+        operator_upper_required(SendInvoices.as_view(), login_url="bo_login"),
+        name='send_invoices'),
 )
 

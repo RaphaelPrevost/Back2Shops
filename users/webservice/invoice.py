@@ -12,8 +12,13 @@ from common.utils import remote_xml_invoice
 from models.actors.invoices import ActorInvoices
 from models.invoice import create_invoice
 from models.invoice import get_invoice_by_order
+from models.invoice import get_invoices_by_shipments
+from models.invoice import order_iv_sent_status
+from models.invoice import iv_to_sent_qty
 from models.order import get_order
+from models.order import _get_order_status
 from models.shipments import get_shipments_by_order
+from models.shipments import get_shipments_by_id
 from models.shipments import get_shipping_fee
 from models.shipments import get_shipping_list
 from models.shipments import get_supported_services
@@ -37,54 +42,48 @@ INVOICE_MAIL_SUB = "[Backtoshops]: Invoice"
 
 
 class BaseInvoiceMixin:
-    def get_and_save_invoices(self, conn, req):
+    def get_and_save_invoices(self, conn, req, id_user,
+                              id_shipments=None):
         id_order = req.get_param('order')
 
         if not id_order:
             raise ValidationError("Miss param in request")
 
-        order = get_order(conn, id_order, self.users_id)
+        order = get_order(conn, id_order, id_user=id_user)
         if order is None:
             raise ValidationError("Order not exist")
 
-        exist_invoice = get_invoice_by_order(conn, id_order)
-        if len(exist_invoice) > 0:
-            raise ValidationError("Invoice for Order: %s "
-                                  "have already handled" % id_order)
-
         # address
         id_shipaddr = order['id_shipaddr']
-        dest = get_user_dest_addr(conn, self.users_id, id_shipaddr)
+        dest = get_user_dest_addr(conn, id_user, id_shipaddr)
         dest = ujson.dumps(dest)
 
         # customer
-        user = get_user_profile(conn, self.users_id)
+        user = get_user_profile(conn, id_user)
         customer = ' '.join([user['first_name'], user['last_name']])
 
-        shipments = get_shipments_by_order(conn, id_order)
+        if id_shipments is not None:
+            shipments = get_shipments_by_id(conn, id_shipments)
+        else:
+            shipments = get_shipments_by_order(conn, id_order)
 
         invoices = {}
         for sp in shipments:
             invoice_xml = self.get_shipment_invoice(conn, dest, customer, sp)
-            invoice = xmltodict.parse(invoice_xml)
-            invoice_actor = ActorInvoices(data=invoice['invoices'])
-            invoices[sp['id']] = (invoice_xml, invoice_actor)
+            if invoice_xml is None:
+                continue
+            invoices[sp['id']] = invoice_xml
 
         shipments_id = invoices.keys()
         shipments_id.sort()
-        for id_shipment in shipments_id:
-            self.save_invoice(conn,
-                              id_order,
-                              id_shipment,
-                              invoices[id_shipment])
 
         content = self.gen_invoices_content(
-            [invoices[id_shipment][0] for id_shipment in shipments_id])
+            [invoices[id_shipment]
+             for id_shipment in shipments_id if invoices.get(id_shipment)])
         return content
 
-    def save_invoice(self, conn, id_order, id_shipment, invoice):
-        invoice_xml = invoice[0]
-        invoice_actor = invoice[1].invoices[0]
+    def save_invoice(self, conn, id_order, id_shipment,
+                     invoice_xml, invoice_actor):
         return create_invoice(conn,
                               id_order,
                               id_shipment,
@@ -118,9 +117,17 @@ class BaseInvoiceMixin:
 
     def get_shipment_invoice(self, conn, dest, customer, shipment):
         id_shipment = shipment['id']
+
+        # get from database
+        iv_from_db = get_invoices_by_shipments(conn, [id_shipment])
+        if iv_from_db:
+            return iv_from_db[0]['invoice_xml']
+
+        # get from remote
         cal_method = shipment['calculation_method']
         id_shop = shipment['id_shop']
         id_brand = shipment['id_brand']
+        id_order = shipment['id_order']
         query = {'customer': customer,
                  'dest': dest,
                  'shop': id_shop,
@@ -138,6 +145,11 @@ class BaseInvoiceMixin:
                 id_carrier = servs[str(id_service)]
                 query['carrier'] = id_carrier
                 query['service'] = id_service
+            elif shipment['shipping_carrier']:
+                pass
+            else:
+                logging.error("Shipment %s haven't been conf", id_shipment)
+                return
 
         if cal_method in [SCM.CARRIER_SHIPPING_RATE,
                           SCM.CUSTOM_SHIPPING_RATE,
@@ -160,6 +172,13 @@ class BaseInvoiceMixin:
             logging.error("invalidate_invoice_result: %s",
                           xml_invoice, exc_info=True)
             raise ServerError("invalidate invoice result")
+
+        # Save invoice into database
+        invoice = xmltodict.parse(xml_invoice)
+        actor_invoices = ActorInvoices(data=invoice['invoices'])
+        for actor_invoice in actor_invoices.invoices:
+            self.save_invoice(conn, id_order, id_shipment,
+                              xml_invoice, actor_invoice)
 
         return xml_invoice
 
@@ -224,44 +243,139 @@ class InvoiceResource(BaseXmlResource, BaseInvoiceMixin):
             return super(InvoiceResource, self).gen_resp(resp, data)
 
     def _on_post(self, req, resp, conn, **kwargs):
-        content = self.get_and_save_invoices(conn, req)
+        content = self.get_and_save_invoices(conn,
+                                             req,
+                                             self.users_id)
         return {'content': content}
+
+
+class InvoiceGetResource(BaseJsonResource, BaseInvoiceMixin):
+    encrypt = True
+    login_required = {'get': False, 'post': False}
+
+    def _on_get(self, req, resp, conn, **kwargs):
+        try:
+            id_order = req.get_param('order')
+            id_brand = req.get_param('brand')
+            id_shops = req.get_param('shops')
+
+            if not id_brand or not id_shops or not id_order:
+                raise ValidationError("iv_get_req_err: miss params")
+            id_brand = int(id_brand)
+            id_shops = [int(id_shop) for id_shop in ujson.loads(id_shops)]
+
+            shipments = get_shipments_by_order(conn, id_order)
+            invoices = get_invoice_by_order(conn, id_order)
+
+            spm_dict = dict([(spm['id'], spm) for spm in shipments])
+
+            content = []
+            for iv in invoices:
+                id_shipment = iv['id_shipment']
+                spm = spm_dict.get(id_shipment)
+                if not spm:
+                    continue
+                if (spm['id_shop'] not in id_shops or
+                    spm['id_brand'] != id_brand):
+                    continue
+                content.append(
+                    {'id': iv['id'],
+                     'id_shipment': iv['id_shipment'],
+                     'html': self.invoice_xslt(iv['invoice_xml'])})
+
+            order_iv_status = order_iv_sent_status(conn, id_order, id_brand,
+                                                   id_shops)
+            order_status = _get_order_status(conn, id_order)
+            to_sent_qty = iv_to_sent_qty(conn, id_order, id_brand, id_shops)
+            return {'res': SUCCESS,
+                    'iv_sent_status': order_iv_status,
+                    'iv_to_sent_qty': to_sent_qty,
+                    'order_status': order_status,
+                    'content': content}
+        except ValidationError, e:
+            logging.error("get_invoice_invalidate: %s", str(e), exc_info=True)
+            return {'res': FAILURE,
+                    'err': str(e)}
+        except Exception, e:
+            logging.error("get_invoice_server_err: %s", str(e), exc_info=True)
+            return {'res': FAILURE,
+                    'reason': str(e),
+                    'err': "SERVER_ERROR"}
 
 
 class InvoiceSendResource(BaseJsonResource, BaseInvoiceMixin):
     encrypt = True
-    login_required = {'get': False, 'post': True}
+    login_required = {'get': False, 'post': False}
 
     def _on_post(self, req, resp, conn, **kwargs):
         try:
-            id_order = req.get_param('order')
-            id_shipments = req.get_param('shipment') or []
+            params= req.stream.read()
+            params = ujson.loads(params)
+            req._params.update(params)
+
+            id_order = params.get('order')
+            id_shipments = params.get('shipment') or '[]'
+            id_brand = params.get('brand')
+            id_shops = params.get('shops')
+
+            if not id_brand or not id_shops or not id_order:
+                raise ValidationError("iv_send_req_err: miss params")
+            id_brand = int(id_brand)
+            id_shops = [int(id_shop) for id_shop in ujson.loads(id_shops)]
+            id_shipments = [int(id_spm)
+                            for id_spm in ujson.loads(id_shipments)]
+            orig_id_spms = id_shipments
 
             shipments = get_shipments_by_order(conn, id_order)
-            valid_shipments = [sp['id'] for sp in shipments]
+            shipments = dict([(sp['id'], sp) for sp in shipments])
+            valid_shipments = shipments.keys()
+            order = get_order(conn, id_order)
 
             if id_shipments:
-                id_shipments = ujson.loads(id_shipments)
                 invalid_shipments = set(id_shipments) - set(valid_shipments)
                 if len(invalid_shipments) > 0:
                     raise ValidationError("shipments %s not belongs to "
                                           "order %s"
                                           % (invalid_shipments, id_order))
+
+                for id_spm in id_shipments:
+                    spm_brand = shipments[id_spm]['id_brand']
+                    spm_shop = shipments[id_spm]['id_shop']
+
+                    if spm_brand != id_brand:
+                        raise ValidationError(
+                            "iv_send_req_err: spm brand %s is not "
+                            "same with given %s"
+                            % (spm_brand, id_brand))
+                    if spm_shop not in id_shops:
+                        raise ValidationError(
+                            "iv_send_req_err: spm shop %s is not "
+                            "in given shops %s"
+                            % (spm_shop, id_shops))
+            else:
+                for id_spm, spm in shipments.iteritems():
+                    if (spm['id_brand'] == id_brand and
+                        spm['id_shop'] in id_shops):
+                        id_shipments.append(id_spm)
+
+            self.get_and_save_invoices(conn, req, order['id_user'],
+                                       id_shipments=id_shipments)
             order_invoices = get_invoice_by_order(conn, id_order)
-            if len(order_invoices) == 0:
-                self.get_and_save_invoices(conn, req)
-                order_invoices = get_invoice_by_order(conn, id_order)
 
             invoices = dict([(oi['id_shipment'], oi) for oi in order_invoices])
-            users_mail = get_user_email(conn, self.users_id)
-            for id_spm in id_shipments:
-                content = invoices[id_spm]['invoice_xml']
-                content_html = self.invoice_xslt(content)
-                send_html_email(users_mail, INVOICE_MAIL_SUB, content_html)
-
-            if not id_shipments:
+            users_mail = get_user_email(conn, order['id_user'])
+            if orig_id_spms:
+                for id_spm in id_shipments:
+                    if invoices.get(id_spm) is None:
+                        continue
+                    content = invoices[id_spm]['invoice_xml']
+                    content_html = self.invoice_xslt(content)
+                    send_html_email(users_mail, INVOICE_MAIL_SUB, content_html)
+            else:
                 content_list = []
-                for id_spm in valid_shipments:
+                for id_spm in id_shipments:
+                    if invoices.get(id_spm) is None:
+                        continue
                     content = invoices[id_spm]['invoice_xml']
                     content = self.parse_invoices_content(content)
                     content_list.append(content)
@@ -269,13 +383,16 @@ class InvoiceSendResource(BaseJsonResource, BaseInvoiceMixin):
                 content_html = self.invoice_xslt(content)
                 send_html_email(users_mail, INVOICE_MAIL_SUB, content_html)
 
-            return {'res': SUCCESS}
+            order_iv_status = order_iv_sent_status(conn, id_order, id_brand,
+                                                   id_shops)
+            return {'res': SUCCESS,
+                    'order_iv_status': order_iv_status}
         except ValidationError, e:
-            logging.error("send_invoice_invalidate: ", str(e), exc_info=True)
+            logging.error("send_invoice_invalidate: %s", str(e), exc_info=True)
             return {'res': FAILURE,
                     'err': str(e)}
         except Exception, e:
-            logging.error("send_invoice_server_err: ", str(e), exc_info=True)
+            logging.error("send_invoice_server_err: %s", str(e), exc_info=True)
             return {'res': FAILURE,
                     'reason': str(e),
                     'err': "SERVER_ERROR"}

@@ -34,7 +34,7 @@ def _list_actor_to_dict(list_actor):
 
 def _dict_actor_to_dict(dict_actor):
     new_d = {}
-    for key, value in dict_actor:
+    for key, value in dict_actor.iteritems():
         if isinstance(value, list):
             new_d[key] = _list_actor_to_dict(value)
         elif isinstance(value, dict):
@@ -56,7 +56,7 @@ def actor_to_dict(actor):
 
     d = {}
     for prop in props:
-        value = getattr(actor, prop)
+        value = getattr(actor, prop, None)
         if isinstance(value, BaseActor):
             d[prop] = actor_to_dict(value)
         elif isinstance(value, list):
@@ -67,7 +67,7 @@ def actor_to_dict(actor):
             d[prop] = value
 
     for prop in actor.attrs_map.keys():
-        d[prop] = getattr(actor, prop)
+        d[prop] = getattr(actor, prop, None)
 
     return d
 

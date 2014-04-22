@@ -91,7 +91,8 @@ class ActorShipping(BaseActor):
 
     @property
     def tax(self):
-        return ActorTax(data=self.data.get('tax'))
+        taxes = as_list(self.data.get('tax'))
+        return [ActorTax(data=item) for item in taxes]
 
 class ActorTotal(BaseActor):
     attrs_map = {'gross': '@gross',
