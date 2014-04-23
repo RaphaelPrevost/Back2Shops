@@ -1,48 +1,144 @@
-
 == Dependency ==
-=== For user.backtoshops.com ===
-1. Pillow dependency(Details reference: https://pypi.python.org/pypi/Pillow/2.1.0):
-   * Ubuntu 12.04 LTS or Raspian Wheezy 7.0:
-     $ sudo apt-get install libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev liblcms1-dev libwebp-dev
+1. admin(backtoshops) server:
+   sudo apt-get install libapache2-mod-wsgi python2.7-dev libpq-dev python-pip git \
+          libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev \
+          liblcms1-dev libwebp-dev gettext libevent-dev swig
 
-   * Max OS X
-     $ brew install libtiff libjpeg webp littlecms
+2. user server:
+   sudo apt-get install python2.7-dev libpq-dev python-pip git \
+          libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev \
+          liblcms1-dev libwebp-dev libevent-dev swig redis-server
 
-2. install gevent / redis
-   * Ubuntu 12.04 LTS or Raspian Wheezy 7.0:
-     $ sudo apt-get install libevent-dev redis-server
+3. finance server:
+   sudo apt-get install python2.7-dev libpq-dev python-pip git python-lxml \
+          libcairo2 libpango1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info \
+          libxml2-dev libxslt1-dev
 
-   * Max OS X
-     $ brew install libevent redis
 
-3. install swig
-   * Ubuntu 12.04 LTS or Raspian Wheezy 7.0:
-     $ sudo apt-get install swig
+== Database ==
+1. install postgres 9.1
+    sudo apt-get install postgresql-9.1
+2. Config pg_hba.conf (/etc/postgresql/9.1/main/pg_hba.conf):
+   host    all             bts              $(your ip)/32          trust
+   host    all             postgres         $(your ip)/32          trust
+   host    all             $(your name)     $(your ip)/32          trust
+   host    all             all              127.0.0.1/32           trust
+   host    all             all              0.0.0.0  0.0.0.0       reject
+   host    all             all              ::1/128                md5
 
-   * Max OS X
-     $ brew install swig
+3. Config postgresql.conf (/etc/postgresql/9.1/main/pg_hba.conf)
+   change listen_addresses to '*'
+   change ssl = true to ssl = false
+   change port to 5432
+4. Create user
+   $ sudo su - postgres
+   $ psql template1
+   # CREATE USER bts;
+   # CREATE USER $(your name);
+   # ALTER USER bts WITH SUPERUSER;
+   # ALTER USER $(your name) WITH SUPERUSER;
+5. Restart database:
+   $ sudo /etc/init.d/postgresql restart
 
-4. Add pip config to install M2Crypto
+
+== Checkout Code ==
+$ svn co http://trac.lbga.fr/svn/backtoshops/
+
+== Virtualenv ==
+1. Install:
+   $ pip install virtualenv
+   $ pip install virtualenvwrapper
+2. Config:
+   * Add following config into ~/.bashrc
+     export WORKON_HOME=$HOME/.virtualenvs
+   * Add following config into ~/.profile
+     source /usr/local/bin/virtualenvwrapper.sh
+3. Add new virtualenv:
+   $ mkvirtualenv env --no-site-packages
+4. Active virtualenv:
+   $ workon env
+
+
+== Create Project database ==
+1. admin server:
+   * create database
+     $ createdb -E UNICODE backtoshops
+     $ cd $(PROJECT_HOME)/backtoshops
+     $ ./manage.py syncdb
+     $ ./manage.py migrate
+   * load test data
+     $ psql backtoshops -f data/test_data.sql
+2. user server:
+   $ cd $(PROJECT_HOME)/users
+   $ ./setupdb.sh
+3. finance server:
+   $ cd $(PROJECT_HOME)/finance
+   $ ./setupdb.sh
+
+== Project Python Library ==
+1. Add pip config to install Local python library
    $ cd ~/.pip
    $ touch pip.conf
    Add following config into pip.conf (change the path to your real path, e.g. /home/jessica/svn/backtoshops/packages/dist)
     {{{
     [global]
     find-links =
-        /path/to/backtoshops/packages/dist
+        /$(PROJECT_HOME)/packages/dist
 
     [install]
     find-links =
-        /path/to/backtoshops/packages/dist
+        /$(PROJECT_HOME)/packages/dist
     }}}
+2. install libraries
+   * admin server
+     $ workon env
+     $ cd /$(PROJECT_HOME)
+     $ pip install -r requirements/adm.backtoshops.com.requirements.txt
+   * user server
+     $ workon env
+     $ cd /$(PROJECT_HOME)
+     $ pip install -r requirements/usr.backtoshops.com.requirements.txt
+   * finance server
+     $ workon env
+     $ cd /$(PROJECT_HOME)
+     $ pip install -r requirements/finance.backtoshops.com.requirements.txt
 
 
-=== For finance.backtoshops.com ===
-1. Weasy Print
-   * Ubuntu 12.04 LTS or Raspian Wheezy 7.0:
-     $ sudo apt-get install swig
-     $ sudo apt-get install python-lxml libcairo2 libpango1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-data libxml2-dev libxslt1-dev
+== Start servers ==
+1. admin server:
+   * change following line in $(PROJECT_HOME)/backtoshops/settings.py
+     from settings_production import *
+     to
+     from settings_local import *
+   * start admin server
+     $ workon env
+     $ cd $(PROJECT_HOME)/backtoshops
+     $ ./manage.py runserver 0.0.0.0:8000
+2. user server:
+   $ workon env
+   $ cd $(PROJECT_HOME)/users
+   $ ./start_redis.sh
+   $ python server.py
+
+3. finance server:
+   $ workon env
+   $ cd $(PROJECT_HOME)/finance
+   $ python fin_server.py
 
 
-   * Max OS X
-     $ brew install python cairo pango gdk-pixbuf libxml2 libxslt libffi
+== Admin server (backoffice) access ==
+1. url (change $(server-ip) to the ip which start admin server):
+   http://$(server-ip):8000/
+2. Login with test account (loaded by test_data.sql):
+   Super Admin:
+    * test_admin_1000000/admin4u
+   Brand Admin:
+    * test_user1_1000000/user14u
+    * test_user2_1000000/user24u
+    * test_user3_1000000/user34u
+    * test_user4_1000000/user44u
+
+
+== Test ==
+1. Please follow the following wiki to run user server tests
+   http://trac.lbga.fr/backtoshops/wiki/BTS/tests
