@@ -1,8 +1,8 @@
 import settings
 from common.cache import find_cache_proxy
-from common.constants import RESP_RESULT
 from common import field_utils
 from webservice.base import BaseJsonResource
+from B2SProtocol.constants import RESP_RESULT
 from B2SUtils import db_utils
 from B2SUtils.errors import ValidationError
 from B2SRespUtils.generate import gen_json_resp

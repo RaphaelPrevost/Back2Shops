@@ -6,7 +6,7 @@ import settings
 from datetime import datetime
 
 from common.utils import cookie_verify
-from common.constants import RESP_RESULT
+from B2SProtocol.constants import RESP_RESULT
 from B2SRespUtils.generate import gen_html_resp
 from B2SRespUtils.generate import gen_json_resp
 from B2SRespUtils.generate import gen_xml_resp

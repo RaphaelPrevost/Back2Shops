@@ -7,6 +7,7 @@ from common.utils import generate_random_str
 from common.utils import gen_cookie_expiry
 from common.utils import _parse_auth_cookie
 from B2SUtils import db_utils
+from B2SProtocol.constants import USER_AUTH_COOKIE_NAME
 
 class TestUserAuth(BaseTestCase):
     def setUp(self):
@@ -41,7 +42,7 @@ class TestUserAuth(BaseTestCase):
 
         # csrf updated every request
         self.pass_auth_verification()
-        new_auth_cookie = self.b.get_cookies().get(settings.USER_AUTH_COOKIE_NAME)
+        new_auth_cookie = self.b.get_cookies().get(USER_AUTH_COOKIE_NAME)
         new_data = _parse_auth_cookie(new_auth_cookie.value.strip('"'))
         self.assertNotEquals(old_data['csrf'], new_data['csrf'])
 

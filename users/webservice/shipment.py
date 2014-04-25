@@ -3,8 +3,8 @@ import logging
 import settings
 import ujson
 
-from common.constants import SUCCESS
-from common.constants import FAILURE
+from B2SProtocol.constants import SUCCESS
+from B2SProtocol.constants import FAILURE
 from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
 from common.error import UserError

@@ -3,7 +3,6 @@ import os
 from datetime import datetime, timedelta
 
 import settings
-from common.constants import RESP_RESULT
 from common.utils import encrypt_password
 from common.utils import get_authenticator
 from common.utils import gen_cookie_expiry
@@ -14,6 +13,8 @@ from common.utils import get_preimage
 from common.utils import make_auth_cookie
 from common.utils import set_cookie
 from webservice.base import BaseJsonResource
+from B2SProtocol.constants import RESP_RESULT
+from B2SProtocol.constants import USER_AUTH_COOKIE_NAME
 from B2SUtils import db_utils
 from B2SUtils.errors import ValidationError
 from B2SRespUtils.generate import gen_json_resp
@@ -79,8 +80,7 @@ class UserLoginResource(BaseJsonResource):
         # set cookie
         expiry = gen_cookie_expiry(utc_expiry)
         auth_cookie = make_auth_cookie(expiry, csrf_token, auth_token, users_id)
-        set_cookie(resp, settings.USER_AUTH_COOKIE_NAME, auth_cookie,
-                   domain=settings.USER_AUTH_COOKIE_DOMAIN,
+        set_cookie(resp, USER_AUTH_COOKIE_NAME, auth_cookie,
                    expiry=expiry, secure=True)
 
     def auth_update(self, conn, users_id, raw_password):
