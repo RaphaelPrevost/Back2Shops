@@ -1,6 +1,6 @@
-from common.constants import SHOP_WITH_BARCODE
-from common.constants import SHOP
 from common.redis_utils import get_redis_cli
+from B2SProtocol.constants import SHOP_WITH_BARCODE
+from B2SProtocol.constants import SHOP
 from B2SUtils.base_actor import BaseActor
 from B2SUtils.base_actor import as_list
 

@@ -1,12 +1,12 @@
 import logging
 from decimal import Decimal
-from common.constants import SALE
-from common.constants import BARCODE
-from common.constants import BARCODE_VARIANT_ID
-from common.constants import BARCODE_SALE_ID
 from common.error import NotExistError
 from common.utils import order_img_download
 from common.redis_utils import get_redis_cli
+from B2SProtocol.constants import SALE
+from B2SProtocol.constants import BARCODE
+from B2SProtocol.constants import BARCODE_VARIANT_ID
+from B2SProtocol.constants import BARCODE_SALE_ID
 from B2SUtils.base_actor import as_list
 from B2SUtils.base_actor import BaseActor
 

@@ -1,8 +1,6 @@
 import logging
 import xmltodict
 
-from common.constants import SUCCESS
-from common.constants import FAILURE
 from common.error import NotExistError
 from common.error import UserError
 from common.error import ErrorCode as E_C
@@ -29,6 +27,8 @@ from models.shipments import get_shipping_postage
 from models.shipments import user_accessable_shipment
 from models.shipping_fees import SaleShippingFees
 from models.shipping_fees import ShipmentShippingFees
+from B2SProtocol.constants import SUCCESS
+from B2SProtocol.constants import FAILURE
 from B2SProtocol.constants import ORDER_STATUS
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
 from B2SProtocol.settings import SHIPPING_CURRENCY

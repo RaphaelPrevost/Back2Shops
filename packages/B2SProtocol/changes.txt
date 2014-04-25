@@ -16,3 +16,8 @@
 
 == version 0.0.5 ==
 1. Add ORDER_IV_SENT_STATUS
+
+== version 0.0.6 ==
+1. Add RESP_RESULT
+2. Add USER_AUTH_COOKIE_NAME
+3. Add constants for central redis key

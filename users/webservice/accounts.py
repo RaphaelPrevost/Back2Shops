@@ -3,7 +3,6 @@ import re
 import settings
 from common.constants import ADDR_TYPE
 from common.constants import GENDER
-from common.constants import RESP_RESULT
 from common import field_utils
 from common.utils import cookie_verify
 from common.utils import addr_reexp, city_reexp
@@ -12,6 +11,7 @@ from common.utils import postal_code_reexp, phone_num_reexp
 from common.utils import encrypt_password
 from common.utils import is_valid_email
 from webservice.base import BaseJsonResource
+from B2SProtocol.constants import RESP_RESULT
 from B2SUtils import db_utils
 from B2SUtils.errors import ValidationError
 

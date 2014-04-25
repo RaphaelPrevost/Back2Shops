@@ -3,13 +3,13 @@ import unittest
 import ujson
 import urllib
 
-from common.constants import SUCCESS
-from common.constants import FAILURE
 from common.error import ErrorCode as E_C
 from common.test_utils import is_backoffice_server_running
 from tests.base_order_test import BaseShipmentTestCase
 
 from B2SProtocol.constants import SHIPMENT_STATUS
+from B2SProtocol.constants import SUCCESS
+from B2SProtocol.constants import FAILURE
 from B2SProtocol.settings import SHIPPING_CURRENCY
 from B2SUtils import db_utils
 

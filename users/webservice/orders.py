@@ -4,7 +4,6 @@ import settings
 import urllib2
 import ujson
 
-from common.constants import RESP_RESULT
 from common.error import NotExistError
 from models.order import create_order
 from models.order import get_order_detail
@@ -14,6 +13,7 @@ from models.actors.sale import CachedSale
 from models.actors.sale import get_sale_by_barcode
 from models.actors.shop import CachedShop
 from webservice.base import BaseJsonResource
+from B2SProtocol.constants import RESP_RESULT
 from B2SCrypto.constant import SERVICES
 from B2SCrypto.utils import decrypt_json_resp
 from B2SCrypto.utils import gen_encrypt_json_context

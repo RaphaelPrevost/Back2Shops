@@ -7,7 +7,7 @@ from B2SCrypto.constant import SERVICES
 from B2SCrypto.utils import decrypt_json_resp
 from B2SCrypto.utils import gen_encrypt_json_context
 from common import cache
-from common.constants import RESP_RESULT
+from B2SProtocol.constants import RESP_RESULT
 from webservice.base import BaseJsonResource
 
 class InvalidationResource(BaseJsonResource):

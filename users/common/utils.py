@@ -26,6 +26,7 @@ from B2SCrypto.utils import get_from_remote
 from B2SCrypto.constant import SERVICES
 from B2SUtils.errors import ValidationError
 from B2SUtils import db_utils
+from B2SProtocol.constants import USER_AUTH_COOKIE_NAME
 
 phone_num_reexp = r'^[0-9]+$'
 postal_code_reexp = r'^[0-9]+$'
@@ -271,14 +272,14 @@ def cookie_verify(conn, req, resp):
         raise ValidationError('LOGIN_REQUIRED_ERR_UNSET_COOKIE')
 
     # 'USER_AUTH' should be in the cookie.
-    required_fields = [settings.USER_AUTH_COOKIE_NAME]
+    required_fields = [USER_AUTH_COOKIE_NAME]
     for field in required_fields:
         if not cookie.has_key(field):
             raise ValidationError('LOGIN_REQUIRED_ERR_EMPTY_COOKIE')
 
     # authenticated information should be contained in 'USER_AUTH'
     auth_fields = ['exp', 'csrf', 'auth', 'digest', 'users_id']
-    user_auth = cookie.get(settings.USER_AUTH_COOKIE_NAME).value
+    user_auth = cookie.get(USER_AUTH_COOKIE_NAME).value
     user_auth = _parse_auth_cookie(user_auth)
     for field in auth_fields:
         if not user_auth.has_key(field):
@@ -299,8 +300,7 @@ def cookie_verify(conn, req, resp):
                                    csrf_token,
                                    user_auth['auth'],
                                    users_id)
-    set_cookie(resp, settings.USER_AUTH_COOKIE_NAME, auth_cookie,
-               domain=settings.USER_AUTH_COOKIE_DOMAIN,
+    set_cookie(resp, USER_AUTH_COOKIE_NAME, auth_cookie,
                expiry=user_auth['exp'], secure=True)
 
     db_utils.update(conn,

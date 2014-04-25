@@ -5,7 +5,6 @@ import settings
 
 from lxml import etree
 from StringIO import StringIO
-from common.constants import FAILURE, SUCCESS
 from common.email_utils import send_html_email
 from common.error import ServerError
 from common.utils import remote_xml_invoice
@@ -30,6 +29,7 @@ from webservice.base import BaseJsonResource
 from webservice.base import BaseXmlResource
 
 from B2SUtils.errors import ValidationError
+from B2SProtocol.constants import FAILURE, SUCCESS
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
 
 

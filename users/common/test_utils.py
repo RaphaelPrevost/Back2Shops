@@ -9,7 +9,8 @@ from mechanize import Browser
 from mechanize import Cookie
 
 import settings
-from common.constants import RESP_RESULT
+from B2SProtocol.constants import RESP_RESULT
+from B2SProtocol.constants import USER_AUTH_COOKIE_NAME
 from B2SUtils.db_utils import init_db_pool
 
 class BaseBrowser(Browser):
@@ -108,7 +109,7 @@ class BaseTestCase(unittest.TestCase):
         self.assertEquals(ujson.loads(resp),
                          {"res": RESP_RESULT.S, "err": ""})
         cookie = browser.get_cookies()
-        return cookie.get(settings.USER_AUTH_COOKIE_NAME)
+        return cookie.get(USER_AUTH_COOKIE_NAME)
 
     def pass_auth_verification(self, email, browser=None):
         if browser is None:
