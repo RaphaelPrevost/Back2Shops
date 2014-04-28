@@ -1,5 +1,6 @@
 from common.data_access import data_access
 from views.base import BaseHtmlResource
+from B2SProtocol.constants import RESP_RESULT
 from B2SUtils.errors import ValidationError
 from B2SFrontUtils.constants import REMOTE_API_NAME
 
@@ -19,4 +20,8 @@ class LoginResource(BaseHtmlResource):
                                   req, resp,
                                   email=email,
                                   password=password)
+        if remote_resp.get('res') == RESP_RESULT.S:
+            self.redirect('/')
+            return {}
         return remote_resp
+

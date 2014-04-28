@@ -1,4 +1,5 @@
 import copy
+import falcon
 import logging
 import time
 from datetime import datetime
@@ -64,6 +65,10 @@ class BaseResource(object):
 
     def gen_resp(self, resp, data):
         raise NotImplementedError
+
+    def redirect(self, redirect_to):
+        self.response.status = falcon.HTTP_302
+        self.response.set_header('Location', redirect_to)
 
 
 class BaseHtmlResource(BaseResource):
