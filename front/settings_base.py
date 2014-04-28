@@ -16,6 +16,8 @@ CENTRAL_REDIS = {
 TEMPLATE_PATH = ['views/templates']
 DEFAULT_TEMPLATE = 'default.html'
 
+STATIC_FILES_PATH = 'static'
+
 LOG_CONFIG_FILE = 'logging.cfg'
 
 USR_ROOT_URI = "http://localhost:8100"
