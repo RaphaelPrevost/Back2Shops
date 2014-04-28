@@ -27,4 +27,6 @@ class RegisterResource(BaseHtmlResource):
                         req, resp,
                         email=email,
                         password=password)
+            self.redirect('/')
+            return {}
         return remote_resp
