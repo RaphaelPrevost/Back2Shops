@@ -59,22 +59,6 @@ $ svn co http://trac.lbga.fr/svn/backtoshops/
    $ workon env
 
 
-== Create Project database ==
-1. admin server:
-   * create database
-     $ createdb -E UNICODE backtoshops
-     $ cd $(PROJECT_HOME)/backtoshops
-     $ ./manage.py syncdb
-     $ ./manage.py migrate
-   * load test data
-     $ psql backtoshops -f data/test_data.sql
-2. user server:
-   $ cd $(PROJECT_HOME)/users
-   $ ./setupdb.sh
-3. finance server:
-   $ cd $(PROJECT_HOME)/finance
-   $ ./setupdb.sh
-
 == Project Python Library ==
 1. Add pip config to install Local python library
    $ cd ~/.pip
@@ -102,6 +86,27 @@ $ svn co http://trac.lbga.fr/svn/backtoshops/
      $ workon env
      $ cd /$(PROJECT_HOME)
      $ pip install -r requirements/finance.backtoshops.com.requirements.txt
+   * front server
+     $ workon env
+     $ cd /$(PROJECT_HOME)
+     $ pip install -r requirements/front.requirements.txt
+
+
+== Create Project database ==
+1. admin server:
+   * create database
+     $ createdb -E UNICODE backtoshops
+     $ cd $(PROJECT_HOME)/backtoshops
+     $ ./manage.py syncdb
+     $ ./manage.py migrate
+   * load test data
+     $ psql backtoshops -f data/test_data.sql
+2. user server:
+   $ cd $(PROJECT_HOME)/users
+   $ ./setupdb.sh
+3. finance server:
+   $ cd $(PROJECT_HOME)/finance
+   $ ./setupdb.sh
 
 
 == Start servers ==
@@ -124,6 +129,11 @@ $ svn co http://trac.lbga.fr/svn/backtoshops/
    $ workon env
    $ cd $(PROJECT_HOME)/finance
    $ python fin_server.py
+
+4. front server
+   $ workon env
+   $ cd $(PROJECT_HOME)/front
+   $ python front_server.py
 
 
 == Admin server (backoffice) access ==
