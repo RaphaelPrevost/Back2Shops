@@ -8,7 +8,7 @@ from B2SUtils.db_utils import update
 from B2SProtocol.constants import TRANS_STATUS
 
 def create_trans(conn, id_order, id_user, id_invoices,
-                 amount_due, invoices_data,
+                 iv_numbers, amount_due, currency, invoices_data,
                  status=TRANS_STATUS.TRANS_OPEN,
                  create_time=datetime.now(),
                  update_time=datetime.now(),
@@ -19,10 +19,12 @@ def create_trans(conn, id_order, id_user, id_invoices,
         'id_order': id_order,
         'id_user': id_user,
         'id_invoices': id_invoices,
+        'iv_numbers': iv_numbers,
         'status': status,
         'create_time': create_time,
         'update_time': update_time,
         'amount_due': amount_due,
+        'currency': currency,
         'invoices_data': invoices_data
         }
 

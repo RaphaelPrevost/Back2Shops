@@ -1,5 +1,6 @@
 import copy
 import logging
+import falcon
 import time
 import ujson
 import settings
@@ -99,6 +100,10 @@ class BaseResource(object):
             debugging.lower() == 'true'):
             return True
         return False
+
+    def redirect(self, redirect_to):
+        self.response.status = falcon.HTTP_302
+        self.response.set_header('Location', redirect_to)
 
 class BaseJsonResource(BaseResource):
     def gen_resp(self, resp, data):

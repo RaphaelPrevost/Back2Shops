@@ -1,16 +1,25 @@
+import falcon
 import logging
+import settings
 import ujson
+import urllib
+import urllib2
 
 from datetime import datetime
 
 from webservice.base import BaseHtmlResource
 from webservice.base import BaseXmlResource
+from webservice.base import BaseJsonResource
+from webservice.base import BaseResource
+from common.constants import PaymentStatus
 from common.error import UserError
 from common.error import ErrorCode
 from common.utils import remote_payment_init
 from common.utils import remote_payment_form
 from models.invoice import get_invoice_by_order
+from models.invoice import get_iv_numbers
 from models.invoice import get_sum_amount_due
+from models.paypal import create_trans_paypal
 from models.transaction import create_trans
 from models.transaction import get_trans_by_id
 from models.transaction import update_trans
@@ -38,13 +47,15 @@ class PaymentInitResource(BaseXmlResource, BaseInvoiceMixin):
             id_order, id_invoices, invoices = self.valid_check(conn,
                                                      id_order,
                                                      id_invoices)
-            amount_due = get_sum_amount_due(conn, id_invoices)
+            amount_due, currency = get_sum_amount_due(conn, id_invoices)
+
             iv_data = self.get_unitary_invoice(invoices)
+            iv_numbers = get_iv_numbers(conn, id_invoices)
 
             resp = remote_payment_init(
                 id_order, self.users_id,
-                amount_due, id_invoices,
-                iv_data)
+                amount_due, currency, id_invoices,
+                iv_numbers, iv_data)
 
             resp = ujson.loads(resp)
             pm_init = resp['pm_init']
@@ -99,7 +110,10 @@ class PaymentInitResource(BaseXmlResource, BaseInvoiceMixin):
 
 
 class PaymentFormResource(BaseHtmlResource):
-    login_required = {'get': False, 'post': True}
+    login_required = {'get': False, 'post': False}
+
+    def _on_get(self, req, resp, conn, **kwargs):
+        return self._on_post(req, resp, conn, **kwargs)
 
     def _on_post(self, req, resp, conn, **kwargs):
         try:
@@ -150,3 +164,35 @@ class PaymentFormResource(BaseHtmlResource):
             logging.error("pm_form_req_err: %s", e, exc_info=True)
             raise UserError(ErrorCode.PM_ERR_INVALID_REQ[0],
                             ErrorCode.PM_ERR_INVALID_REQ[1])
+
+class PaymentProcessResource(BaseResource):
+    def _on_get(self, req, resp, conn, **kwargs):
+        id_trans = kwargs['id_trans']
+        trans = get_trans_by_id(conn, id_trans)[0]
+        payment_status = req.get_param('payment_status')
+        if payment_status.lower() == PaymentStatus.COMPLETED:
+            url = trans['url_success']
+        else:
+            url = trans['url_failure']
+
+        req._params.update(kwargs)
+        create_trans_paypal(conn, req._params)
+        query = urllib.urlencode(req._params)
+        uri = '?'.join([url, query])
+
+        self.redirect(uri)
+
+class PaymentGatewayResource(BaseResource):
+    def _on_post(self, req, resp, conn, **kwargs):
+        r_verify = self.return_ipn_msg()
+        logging.error(r_verify)
+
+    def gen_resp(self, resp, data):
+        resp.status = falcon.HTTP_202
+
+    def return_ipn_msg(self):
+        query_string = "cmd=_notify-validate&"
+        query_string += self.request.query_string
+        req = urllib2.Request(settings.PAYPAL_SERVER, data=query_string)
+        resp = urllib2.urlopen(req)
+        return resp.read()

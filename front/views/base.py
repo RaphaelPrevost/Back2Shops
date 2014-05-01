@@ -75,9 +75,9 @@ class BaseHtmlResource(BaseResource):
     template = ""
 
     def gen_resp(self, resp, data):
-        self._add_common_data(data)
 
         if isinstance(data, dict):
+            self._add_common_data(data)
             resp = gen_html_resp(self.template, resp, data)
         else:
             resp.body = data
