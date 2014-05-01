@@ -419,16 +419,22 @@ def weight_convert(from_unit, weight):
         weight_in_gram = oz_to_gram(weight)
         return gram_to_kilogram(weight_in_gram)
 
-def remote_payment_init(id_order, id_user, amount, iv_id, iv_data):
+def remote_payment_init(id_order, id_user, amount, currency, iv_id,
+                        iv_numbers, iv_data):
     uri = 'private/payment/init'
     remote_uri = settings.SALES_SERVER_API_URL % {'api': uri}
     if isinstance(iv_id, list):
         iv_id = ujson.dumps(iv_id)
 
+    if isinstance(iv_numbers, list):
+        iv_numbers = ujson.dumps(iv_numbers)
+
     query = {"order": id_order,
              "user": id_user,
              "amount": amount,
+             "currency": currency,
              "invoices": iv_id,
+             "invoices_num": iv_numbers,
              "invoicesData": iv_data}
 
     logging.info("remote_payment_init_query: %s", query)
@@ -456,17 +462,17 @@ def remote_payment_init(id_order, id_user, amount, iv_id, iv_data):
 
 def remote_payment_form(cookie, id_processor, id_trans):
     uri = "webservice/1.0/private/payment/form"
-    url_gateway = settings.PAYMENT_GATEWAY
-    url_success = settings.PAYMENT_SUCCESS % {'id_trans': id_trans}
-    url_failure = settings.PAYMENT_FAILURE % {'id_trans': id_trans}
+    url_gateway = settings.PAYMENT_GATEWAY % {'id_trans': id_trans}
+    url_return = settings.PAYMENT_RETURN % {'id_trans': id_trans}
+    url_cancel = settings.PAYMENT_CANCEL % {'id_trans': id_trans}
 
     remote_uri = os.path.join(settings.FIN_ROOT_URI, uri)
 
     query = {'cookie': cookie,
              'processor': id_processor,
-             'gateway': url_gateway,
-             'success': url_success,
-             'failure': url_failure
+             'url_notify': url_gateway,
+             'url_return': url_return,
+             'url_cancel': url_cancel,
              }
 
     try:
@@ -489,3 +495,16 @@ def remote_payment_form(cookie, id_processor, id_trans):
                       'error: %s',
                       query, e, exc_info=True)
         raise ServerError('remote_payment_form_err: %s' % str(e))
+
+def currency_exchange(from_, to, amount):
+    if from_ not in settings.CURRENCY_EX_RATE:
+        logging.error("currency_exchange_err: not supported currency "
+                      "%s", from_, exc_info=True)
+        raise ServerError('currency_exchange_err')
+
+    if to not in settings.CURRENCY_EX_RATE[from_]:
+        logging.error("currency_exchange_err: not supported currency "
+                      "%s", to, exc_info=True)
+        raise ServerError('currency_exchange_err')
+
+    return float(amount) * settings.CURRENCY_EX_RATE[from_][to]

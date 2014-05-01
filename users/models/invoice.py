@@ -1,5 +1,6 @@
 import logging
 
+from common.utils import currency_exchange
 from datetime import datetime
 from B2SProtocol.constants import ORDER_IV_SENT_STATUS
 from B2SProtocol.constants import SHIPMENT_STATUS
@@ -69,13 +70,40 @@ def get_sum_amount_due(conn, id_invoices):
         id_invoices = [str(id_iv) for id_iv in id_invoices]
         where = "id in (%s)" % ", ".join(id_invoices)
 
-    sql = """SELECT sum(amount_due)
+    sql = """SELECT amount_due, currency
                FROM invoices
-               WHERE %s
+              WHERE %s
           """ % where
     r = query(conn, sql)
-    return r and r[0][0] or None
 
+    currency = set([item[1] for item in r])
+    sum_amount = 0.0
+    if len(currency) > 1:
+        for amount_due, from_currency in r:
+            due = currency_exchange(from_currency, 'EUR', amount_due)
+            sum_amount += due
+        return sum_amount, 'EUR'
+    elif len(currency) == 1:
+        for amount_due, _ in r:
+            sum_amount += amount_due
+        return sum_amount, list(currency)[0]
+
+    return None, None
+
+def get_iv_numbers(conn, iv_ids):
+    if len(iv_ids) == 1:
+        where = "id = %s" % iv_ids[0]
+    else:
+        iv_ids = [str(id_iv) for id_iv in iv_ids]
+        where = "id in (%s)" % ", ".join(iv_ids)
+
+    sql = """SELECT invoice_number
+               FROM invoices
+              WHERE %s
+          """ % where
+    r = query(conn, sql)
+
+    return [item[0] for item in r]
 
 def _shops_where(tb, id_shops):
     shops_where = ""

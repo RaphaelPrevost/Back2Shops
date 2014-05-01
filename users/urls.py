@@ -11,6 +11,8 @@ from webservice.orders import OrderStatusResource
 from webservice.orders import ShippingFeeResource
 from webservice.payment import PaymentInitResource
 from webservice.payment import PaymentFormResource
+from webservice.payment import PaymentProcessResource
+from webservice.payment import PaymentGatewayResource
 from webservice.sales import SalesResource
 from webservice.shipment import ShipmentResource
 from webservice.shipping import ShippingListResource
@@ -50,4 +52,7 @@ urlpatterns = {
 
     '/webservice/1.0/protected/shipping/list': ShippingListResource,
     '/webservice/1.0/protected/shipment': ShipmentResource,
+
+    r'/payment/{id_trans}/process': PaymentProcessResource,
+    r'/payment/{id_trans}/gateway': PaymentGatewayResource,
 }

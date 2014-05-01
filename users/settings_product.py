@@ -10,4 +10,5 @@ SERVER_APIKEY_URI_MAP = {
     'ADM': '%s/webservice/1.0/pub/apikey.pem' % ADM_ROOT_URI
 }
 
+PAYPAL_SERVER = "https://www.paypal.com/cgi-bin/webscr"
 

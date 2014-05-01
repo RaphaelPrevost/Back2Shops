@@ -56,3 +56,6 @@ HASH_ALGORITHM_NAME = {
     HASH_ALGORITHM.SHA256: "sha256",
 }
 
+class PaymentStatus(CustomEnum):
+    COMPLETED = 'completed'
+    PENDING = 'pending'

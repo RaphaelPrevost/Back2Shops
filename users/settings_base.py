@@ -37,6 +37,8 @@ HMAC_KEY_FILE_PATH = 'hmac.pem'
 
 ADM_ROOT_URI = "http://localhost:8000"
 FIN_ROOT_URI = "http://localhost:9000"
+FRONT_ROOT_URI = "http://188.165.192.57:9500"
+
 SALES_SERVER_API_URL = "%s/webservice/1.0/%%(api)s" % ADM_ROOT_URI
 
 SERVER_APIKEY_URI_MAP = {
@@ -71,6 +73,21 @@ MAIL_FROM_USER = 'xxx'
 MAIL_FROM_PASS = 'xxx'
 MAIL_POSTFIX = 'gmail.com'
 
-PAYMENT_GATEWAY = "payment/gateway.html"
-PAYMENT_SUCCESS = "payment/%(id_trans)s/success.html"
-PAYMENT_FAILURE = "payment/%(id_trans)s/failure.html"
+
+
+PAYMENT_GATEWAY = "http://188.165.192.57:8100/payment/%(id_trans)s/gateway"
+PAYMENT_RETURN = "http://188.165.192.57:8100/payment/%(id_trans)s/process"
+PAYMENT_CANCEL = "%s/payment/%%(id_trans)s/cancel.html" % FRONT_ROOT_URI
+
+FRONT_PAYMENT_SUCCESS = "%s/payment/%%(id_trans)s/success" % FRONT_ROOT_URI
+FRONT_PAYMENT_FAILURE = "%s/payment/%%(id_trans)s/failure" % FRONT_ROOT_URI
+
+PAYPAL_SERVER = "https://www.sandbox.paypal.com/cgi-bin/webscr"
+
+CURRENCY_EX_RATE = {
+    'EUR': {'EUR': 1.0,
+            'USD': 1.38251},
+
+    'USD': {'USD': 1.0,
+            'EUR': 0.72332}
+}

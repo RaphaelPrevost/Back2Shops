@@ -30,3 +30,6 @@ PRIVATE_KEY_PATH = 'static/keys/finance_pri.key'
 PUB_KEY_PATH = 'static/keys/finance_pub.key'
 
 CRYPTO_RESP_DEBUGING = False
+
+# need override in settings_local and settings_product
+SELLER_EMAIL = None

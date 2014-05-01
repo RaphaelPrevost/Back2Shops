@@ -26,8 +26,12 @@ class PaymentInitResource(BaseJsonResource):
         data = ujson.loads(data)
 
         id_trans = create_trans(conn,
-                                data['order'], data['user'],
-                                data['invoices'], data['amount'],
+                                data['order'],
+                                data['user'],
+                                data['invoices'],
+                                data['invoices_num'],
+                                data['amount'],
+                                data['currency'],
                                 data['invoicesData'])
 
         pm_cookie = {"id_user": long(data['user']),
@@ -52,7 +56,7 @@ class PaymentInitResource(BaseJsonResource):
 
 
 class PaymentFormResource(BaseHtmlResource):
-    template = "payment_form.html"
+    template = ""
     encrypt = True
     service = SERVICES.USR
 
@@ -61,16 +65,14 @@ class PaymentFormResource(BaseHtmlResource):
                                  settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
                                  settings.PRIVATE_KEY_PATH)
         logging.info("payment_form_request: %s", data)
-        data = ujson.loads(data)
-        self.valid_check(conn, data)
-        return self.payment_form(data['processor'],
-                                 data['success'],
-                                 data['failure'])
+        query = ujson.loads(data)
+        trans = self.valid_check(conn, query)
+        return self.payment_form(query, trans)
 
     def valid_check(self, conn, data):
         try:
-            required_fields = ['cookie', 'processor', 'gateway', 'success',
-                               'failure']
+            required_fields = ['cookie', 'processor', 'url_notify',
+                               'url_return', 'url_cancel']
             for field in required_fields:
                 assert field in data, "Miss %s in request" % field
 
@@ -89,8 +91,22 @@ class PaymentFormResource(BaseHtmlResource):
             raise UserError(ErrorCode.PMF_INVALID_REQ[0],
                             ErrorCode.PMF_INVALID_REQ[1])
 
-    def payment_form(self, id_processor, url_success, url_failure):
-        # TODO: implementation
-        return {'processor': id_processor,
-                'success': url_success,
-                'failure': url_failure}
+    def payment_form(self, query, trans):
+        processor = query['processor']
+        url_return = query['url_return']
+        url_cancel = query['url_cancel']
+        url_notify = query['url_notify']
+
+        if int(processor) == 1:
+            self.template = "paypal_form.html"
+
+        return {'object': {
+            'seller_email': settings.SELLER_EMAIL,
+            'currency': trans['currency'],
+            'iv_numbers': trans['iv_numbers'],
+            'amount_due': trans['amount_due'],
+            'url_return': url_return,
+            'url_cancel': url_cancel,
+            'url_notify': url_notify
+            }}
+

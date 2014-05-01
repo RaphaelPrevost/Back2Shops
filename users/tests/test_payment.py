@@ -188,25 +188,29 @@ class TestPayment(BaseShipmentTestCase):
             return id_trans
 
     def _send_payment_form(self, id_trans):
-        mock_success_url = "http://localhost:6000/mock/suc"
-        mock_failure_url = "http://localhost:6000/mock/fail"
+        trans = {'id_trans': id_trans}
+        success_url = settings.FRONT_PAYMENT_SUCCESS % trans
+        failure_url = settings.FRONT_PAYMENT_FAILURE % trans
+
         resp = self.b._access("webservice/1.0/pub/payment/form",
                        {'transaction': id_trans,
                        'processor': 1,
-                       'success': mock_success_url,
-                       'failure': mock_failure_url})
+                       'success': success_url,
+                       'failure': failure_url})
         resp = resp.read()
 
         self._expect_trans(id_trans,
                            exp_processor=1,
-                           exp_success=mock_success_url,
-                           exp_failure=mock_failure_url
+                           exp_success=success_url,
+                           exp_failure=failure_url
                            )
 
         self.assert_(
-            settings.PAYMENT_SUCCESS % {'id_trans': id_trans} in resp)
+            settings.PAYMENT_RETURN % trans in resp)
         self.assert_(
-            settings.PAYMENT_FAILURE % {'id_trans': id_trans} in resp)
+            settings.PAYMENT_CANCEL % trans in resp)
+        self.assert_(
+            settings.PAYMENT_GATEWAY % trans in resp)
 
     def expect_invoices_due(self, id_order, exp_amount_due):
         sql = """SELECT sum(amount_due)
