@@ -121,3 +121,19 @@ class ErrorCode:
     PM_ERR_INVALID_REQ = (
         170, "Invalid Request"
     )
+
+    # paypal errors
+    PP_ERR_RECEIVER_EMAIL = (
+        180, 'Invalid Receiver Email'
+    )
+    PP_ERR_NO_TRANS = (
+        181, 'Processed transaction not exist'
+    )
+    PP_ERR_MC_GROSS = (
+        182, 'Processed mc_gross is not as expected'
+    )
+
+    # Finance paypal verified error
+    PP_FIN_HANDLED_ERR = (
+        183, 'Paypal failed to handled in finance server'
+    )

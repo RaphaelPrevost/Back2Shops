@@ -1,6 +1,5 @@
 import logging
 import binascii
-import cgi
 import Cookie
 import datetime
 import hashlib
@@ -13,7 +12,6 @@ import ujson
 import urllib
 import urllib2
 import settings
-import xmltodict
 
 from hashlib import sha1
 
@@ -137,24 +135,6 @@ def get_cookie(req):
         cookie = Cookie.SimpleCookie()
         cookie.load(req.env['HTTP_COOKIE'])
         return cookie
-
-def parse_form_params(req, resp, params):
-    if req.method == 'GET':
-        return
-    if 'x-www-form-urlencoded' not in req.content_type:
-        return
-
-    # in falcon 0.1.6 req._params doesn't support form params
-    try:
-        body = req.stream.read(req.content_length)
-    except:
-        pass
-    else:
-        form_params = cgi.parse_qs(body)
-        for p in form_params:
-            form_params[p] = form_params[p][0]
-        import logging
-        req._params.update(form_params)
 
 def get_client_ip(req):
     ip_adds = req.get_header('x-forwarded-for') or ''

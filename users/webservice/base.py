@@ -33,6 +33,7 @@ class BaseResource(object):
 
     def on_post(self, req, resp, **kwargs):
         self.request = req
+        self.response = resp
         self._msg_handler('post', req, resp, **kwargs)
 
     def _msg_handler(self, method_name, req, resp, **kwargs):

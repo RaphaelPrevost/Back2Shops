@@ -268,22 +268,3 @@ CREATE TABLE transactions (
     url_success character varying(100),
     url_failure character varying(100)
 );
-
-CREATE TABLE trans_paypal (
-    id serial PRIMARY KEY,
-    id_internal_trans BIGINT not null,
-    txn_id character varying(50) not null,
-    tax float not null,
-    payment_status character varying(20) not null,
-    payer_id character varying(25) not null,
-    receiver_id character varying(25) not null,
-    mc_fee double precision not Null,
-    mc_currency character varying(3) NOT NULL,
-    mc_gross double precision not NULL,
-    content text,
-
-    FOREIGN KEY (id_trans) REFERENCES transactions (id)
-);
-CREATE UNIQUE INDEX trans_paypal_by_txn_id ON trans_paypal USING btree (txn_id);
-
-

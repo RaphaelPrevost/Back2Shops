@@ -16,14 +16,12 @@ CENTRAL_REDIS = {
 TEMPLATE_PATH = ['views/templates']
 DEFAULT_TEMPLATE = 'default.html'
 
-STATIC_FILES_PATH = 'static'
-
 LOG_CONFIG_FILE = 'logging.cfg'
 
 USR_ROOT_URI = "http://localhost:8100"
 
 
-PM_SUCCESS = "http://188.165.192.57:9500/payment/%(id_trans)s/success"
-PM_FAILURE = "http://188.165.192.57:9500/payment/%(id_trans)s/failure"
+PP_SUCCESS = "http://188.165.192.57:9500/payment/%(id_trans)s/success"
+PP_FAILURE = "http://188.165.192.57:9500/payment/%(id_trans)s/failure"
 
 USER_PM_FORM_URL = '%s/webservice/1.0/pub/payment/form' % USR_ROOT_URI

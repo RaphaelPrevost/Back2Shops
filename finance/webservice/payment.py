@@ -1,3 +1,4 @@
+import falcon
 import logging
 import settings
 import ujson
@@ -7,12 +8,16 @@ from common.error import UserError
 from models.transaction import create_trans
 from models.transaction import update_trans
 from models.transaction import get_trans_by_id
+from models.paypal import update_or_create_trans_paypal
 from models.processor import get_processor
 from webservice.base import BaseJsonResource
 from webservice.base import BaseHtmlResource
+from webservice.base import BaseResource
 
 from B2SCrypto.utils import decrypt_json_resp
 from B2SCrypto.constant import SERVICES
+from B2SProtocol.constants import TRANS_PAYPAL_STATUS
+from B2SProtocol.constants import TRANS_STATUS
 from B2SRespUtils.generate import temp_content
 
 class PaymentInitResource(BaseJsonResource):
@@ -61,13 +66,17 @@ class PaymentFormResource(BaseHtmlResource):
     service = SERVICES.USR
 
     def _on_post(self, req, resp, conn, **kwargs):
-        data = decrypt_json_resp(req.stream,
-                                 settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
-                                 settings.PRIVATE_KEY_PATH)
-        logging.info("payment_form_request: %s", data)
-        query = ujson.loads(data)
-        trans = self.valid_check(conn, query)
-        return self.payment_form(query, trans)
+        try:
+            data = decrypt_json_resp(req.stream,
+                                     settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+                                     settings.PRIVATE_KEY_PATH)
+            logging.info("payment_form_request: %s", data)
+            query = ujson.loads(data)
+            trans = self.valid_check(conn, query)
+            return self.payment_form(query, trans)
+        except Exception, e:
+            logging.error('payment_form_err: %s', e, exc_info=True)
+            raise
 
     def valid_check(self, conn, data):
         try:
@@ -110,3 +119,23 @@ class PaymentFormResource(BaseHtmlResource):
             'url_notify': url_notify
             }}
 
+class PaypalTransResource(BaseResource):
+    def _on_post(self, req, resp, conn, **kwargs):
+        """
+        1. Update transaction status to Paid for completed paypal transaction.
+        2. Update or create paypal transaction.
+        """
+        try:
+            req._params.update(kwargs)
+            id_trans = req.get_param('id_trans')
+
+            payment_status = req.get_param('payment_status')
+            if payment_status.lower() == TRANS_PAYPAL_STATUS.COMPLETED:
+                update_trans(conn,
+                             values={'status': TRANS_STATUS.TRANS_PAID},
+                             where={'id': id_trans})
+            update_or_create_trans_paypal(conn, req._params)
+        except Exception, e:
+            logging.error('paypal_verified_err: %s', e, exc_info=True)
+            resp.status = falcon.HTTP_500
+        resp.status = falcon.HTTP_200

@@ -763,7 +763,6 @@ def update_shipment(conn, id_shipment, values, shipment=None):
                        'status': shipment['status'],
                        'timestamp': shipment['update_time']})
 
-        pass
     logging.info("shipment_%s updated: %s", id_shipment, values)
     return r and r[0] or None
 
