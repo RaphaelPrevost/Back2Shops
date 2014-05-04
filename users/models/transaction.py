@@ -38,6 +38,7 @@ def get_trans_by_id(conn, id_trans):
     return r
 
 def update_trans(conn, values, where):
+    values.update({'update_time': datetime.now()})
     update(conn,
            'transactions',
            values=values,

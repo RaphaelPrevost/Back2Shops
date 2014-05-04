@@ -6,6 +6,7 @@ from B2SProtocol.constants import ORDER_IV_SENT_STATUS
 from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import query
+from B2SUtils.db_utils import update
 
 from common.constants import INVOICE_STATUS
 
@@ -47,6 +48,13 @@ def get_invoice_by_order(conn, id_order):
               WHERE id_order = %s"""
     r = query(conn, sql, (id_order,))
     return r
+
+def get_invoice_by_id(conn, id_iv):
+    query_str = ("SELECT * "
+                   "FROM invoices "
+                  "WHERE id = %s")
+    r = query(conn, query_str, (id_iv,))
+    return r and r[0] or None
 
 def get_invoices_by_shipments(conn, id_shipments):
     assert len(id_shipments) > 0
@@ -194,5 +202,30 @@ def order_iv_sent_status(conn, order_id, id_brand, id_shops):
     else:
         return ORDER_IV_SENT_STATUS.SENT
 
+def update_invoice(conn, id_iv, values, iv=None):
+    where = {'id': id_iv}
 
+    values['update_time'] = datetime.now()
+    if iv is None or iv['id'] != int(id_iv):
+        iv = get_invoice_by_id(conn, id_iv)
+    if iv is None:
+        logging.error('iv_update_err: invoice %s not exist',
+                      id_iv)
+        return
 
+    r = update(conn,
+               "invoices",
+               values=values,
+               where=where,
+               returning='id')
+    if (values.get('status') and
+        int(values.get('status') != iv['status'])):
+        insert(conn,
+               'invoice_status',
+               values={'id_invoice': id_iv,
+                       'status': iv['status'],
+                       'amount_paid': iv['amount_paid'],
+                       'timestamp': iv['update_time']})
+
+    logging.info("invoice_%s updated: %s", id_iv, values)
+    return r and r[0] or None

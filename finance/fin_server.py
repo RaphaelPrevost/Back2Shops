@@ -8,13 +8,14 @@ from gevent.pywsgi import WSGIServer
 
 import settings
 from urls import urlpatterns
+from B2SUtils.common import parse_form_params
 from B2SUtils.db_utils import init_db_pool
 from B2SUtils.log import setupLogging
 
 setupLogging(settings.LOG_CONFIG_FILE)
 
 # falcon.API instances are callable WSGI apps
-app = api = falcon.API()
+app = api = falcon.API(before=[parse_form_params])
 
 # Resources are represented by long-lived class instances
 for url, res in urlpatterns.iteritems():

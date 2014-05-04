@@ -79,10 +79,12 @@ PAYMENT_GATEWAY = "http://188.165.192.57:8100/payment/%(id_trans)s/gateway"
 PAYMENT_RETURN = "http://188.165.192.57:8100/payment/%(id_trans)s/process"
 PAYMENT_CANCEL = "%s/payment/%%(id_trans)s/cancel.html" % FRONT_ROOT_URI
 
-FRONT_PAYMENT_SUCCESS = "%s/payment/%%(id_trans)s/success" % FRONT_ROOT_URI
-FRONT_PAYMENT_FAILURE = "%s/payment/%%(id_trans)s/failure" % FRONT_ROOT_URI
+FRONT_PAYMENT_SUCCESS = "%s/paypal/%%(id_trans)s/success" % FRONT_ROOT_URI
+FRONT_PAYMENT_FAILURE = "%s/paypal/%%(id_trans)s/failure" % FRONT_ROOT_URI
 
 PAYPAL_SERVER = "https://www.sandbox.paypal.com/cgi-bin/webscr"
+
+FIN_PAYPAL_TRANS = 'http://188.165.192.57:9000/webservice/1.0/pub/paypal/trans/%{id_trans}s'
 
 CURRENCY_EX_RATE = {
     'EUR': {'EUR': 1.0,

@@ -5,8 +5,8 @@ import urllib2
 from views.base import BaseHtmlResource
 
 
-class PaymentSuccessResource(BaseHtmlResource):
-    template = "payment_success.html"
+class PaypalSuccessResource(BaseHtmlResource):
+    template = "paypal_success.html"
 
     def _on_get(self, req, resp, **kwargs):
         params = req._params
@@ -14,8 +14,8 @@ class PaymentSuccessResource(BaseHtmlResource):
         return {'result': params}
 
 
-class PaymentFailureResource(BaseHtmlResource):
-    template = "payment_failure.html"
+class PaypalFailureResource(BaseHtmlResource):
+    template = "paypal_failure.html"
 
     def _on_get(self, req, resp, **kwargs):
         params = req._params
@@ -29,8 +29,8 @@ class PaymentFormResource(BaseHtmlResource):
         trans = {'id_trans': id_trans}
         query = {'transaction': id_trans,
                  'processor': 1,
-                 'success': settings.PM_SUCCESS % trans,
-                 'failure': settings.PM_FAILURE % trans}
+                 'success': settings.PP_SUCCESS % trans,
+                 'failure': settings.PP_FAILURE % trans}
         query_string = urllib.urlencode(query)
         url = '?'.join([settings.USER_PM_FORM_URL, query_string])
         req = urllib2.Request(url)

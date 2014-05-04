@@ -48,6 +48,11 @@ class ORDER_IV_SENT_STATUS(CustomEnum):
     WAITING_SPM_CREATE = 3
     SENT = 4
 
+class TRANS_PAYPAL_STATUS (CustomEnum):
+    COMPLETED = 'completed'
+    PENDING = 'pending'
+
+
 FREE_SHIPPING_CARRIER = -1
 CUSTOM_SHIPPING_CARRIER = 0
 

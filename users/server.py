@@ -9,12 +9,13 @@ import gevent
 from gevent.pywsgi import WSGIServer
 
 import settings
-from common.utils import parse_form_params
 from urls import urlpatterns
 from webservice.sales import import_sales_list
 from webservice.shops import import_shops_list
+from B2SUtils.common import parse_form_params
 from B2SUtils.db_utils import init_db_pool
 from B2SUtils.log import setupLogging
+
 
 setupLogging(settings.LOG_CONFIG_FILE)
 

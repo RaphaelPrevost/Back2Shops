@@ -12,3 +12,6 @@ SERVER_APIKEY_URI_MAP = {
     'ADM': os.path.join(ADM_ROOT_URI,
                         'webservice/1.0/pub/apikey.pem')
 }
+
+# TODO: change to real paypal seller email
+SELLER_EMAIL = 'test@infinite-code.com'
