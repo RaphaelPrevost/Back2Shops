@@ -39,12 +39,12 @@ def update_or_create_trans_paypal(conn, data):
                        ujson.dumps(data))
 
         update_sql = ("UPDATE trans_paypal "
-                         "SET content = concat(content + '%s') "
+                         "SET content = concat(content, '%s') "
                        "WHERE id = %%s"
                       % new_content)
-        execute(conn, update_sql, id_trans[0])
+        execute(conn, update_sql, (id_trans[0][0],))
     except Exception, e:
         logging.error('create_trans_paypal_err: %s', e)
         raise
 
-    return id_trans[0]
+    return id_trans[0][0]

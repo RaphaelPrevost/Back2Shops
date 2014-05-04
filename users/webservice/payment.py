@@ -1,5 +1,5 @@
-import falcon
 import gevent
+import httplib
 import logging
 import settings
 import ujson
@@ -191,7 +191,7 @@ class BasePaypalHandlerResource(BaseResource):
                             ErrorCode.PP_ERR_NO_TRANS[1])
 
         trans = trans[0]
-        amount_due = float(trans('amount_due'))
+        amount_due = float(trans['amount_due'])
         mc_gross = float(self.request.get_param('mc_gross'))
         if amount_due != mc_gross:
             logging.error('paypal_valid_err: mc_gross %s is not same '
@@ -236,8 +236,12 @@ class BasePaypalHandlerResource(BaseResource):
 
         req = urllib2.Request(url, data=self.request.query_string)
         resp = urllib2.urlopen(req)
-        if resp.status != falcon.HTTP_200:
-            logging.error('paypal_trans_failure for %s', fin_internal_trans)
+        resp_code = resp.getcode()
+        if resp_code != httplib.OK:
+            logging.error('paypal_trans_failure for %s '
+                          'got status: %s',
+                          fin_internal_trans,
+                          resp_code)
             raise UserError(ErrorCode.PP_FIN_HANDLED_ERR[0],
                             ErrorCode.PP_FIN_HANDLED_ERR[1])
 
@@ -281,7 +285,7 @@ class PaypalGatewayResource(BasePaypalHandlerResource):
         gevent.spawn(self.confirm_ipn_msg, conn)
 
     def gen_resp(self, resp, data):
-        resp.status = falcon.HTTP_200
+        resp.status = httplib.OK
 
     def confirm_ipn_msg(self, conn):
         """
