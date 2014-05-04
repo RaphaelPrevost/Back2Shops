@@ -303,7 +303,7 @@ class PaypalGatewayResource(BasePaypalHandlerResource):
         if confirm_r == PAYPAL_VERIFIED:
             self.handle_completed(conn, trans)
         else:
-            logging.error('invalid_paypal_ipn: %s', query_string)
+            logging.error('invalid_paypal_ipn: %s - %s', confirm_r, query_string)
 
         self.fin_paypal_trans_notify(trans)
 

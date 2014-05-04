@@ -31,6 +31,8 @@ def update_or_create_trans_paypal(conn, data):
             values['create_time'] = datetime.datetime.now()
             id_trans = insert(conn, 'trans_paypal', values=values,
                               returning='id')
+        else:
+            id_trans = id_trans[0]
 
         # append new content for log
         new_content = ('; ' +
@@ -42,9 +44,9 @@ def update_or_create_trans_paypal(conn, data):
                          "SET content = concat(content, '%s') "
                        "WHERE id = %%s"
                       % new_content)
-        execute(conn, update_sql, (id_trans[0][0],))
+        execute(conn, update_sql, (id_trans[0],))
     except Exception, e:
         logging.error('create_trans_paypal_err: %s', e)
         raise
 
-    return id_trans[0][0]
+    return id_trans[0]

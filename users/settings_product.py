@@ -12,5 +12,6 @@ SERVER_APIKEY_URI_MAP = {
         'FIN': '%s/webservice/1.0/pub/apikey.pem' % FIN_ROOT_URI
 }
 
-PAYPAL_SERVER = "https://www.paypal.com/cgi-bin/webscr"
+# TODO: uncommon this after go live
+#PAYPAL_SERVER = "https://www.paypal.com/cgi-bin/webscr"
 
