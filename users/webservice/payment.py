@@ -1,4 +1,5 @@
 import gevent
+import falcon
 import httplib
 import logging
 import settings
@@ -282,10 +283,10 @@ class PaypalGatewayResource(BasePaypalHandlerResource):
     id_trans = None
     def _on_post(self, req, resp, conn, **kwargs):
         super(PaypalGatewayResource, self)._on_post(req, resp, conn, **kwargs)
-        gevent.spawn(self.confirm_ipn_msg, conn)
+        self.confirm_ipn_msg(conn)
 
     def gen_resp(self, resp, data):
-        resp.status = httplib.OK
+        resp.status = falcon.HTTP_200
 
     def confirm_ipn_msg(self, conn):
         """
@@ -305,6 +306,6 @@ class PaypalGatewayResource(BasePaypalHandlerResource):
         else:
             logging.error('invalid_paypal_ipn: %s - %s', confirm_r, query_string)
 
-        self.fin_paypal_trans_notify(trans)
+        gevent.spawn(self.fin_paypal_trans_notify, trans)
 
         return confirm_r
