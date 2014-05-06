@@ -115,10 +115,9 @@ class PaymentInitResource(BaseXmlResource, BaseInvoiceMixin):
 
 
 class PaymentFormResource(BaseHtmlResource):
+    # TODO: update post login_required to True,
+    # currently make it to False to do test
     login_required = {'get': False, 'post': False}
-
-    def _on_get(self, req, resp, conn, **kwargs):
-        return self._on_post(req, resp, conn, **kwargs)
 
     def _on_post(self, req, resp, conn, **kwargs):
         try:
