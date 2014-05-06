@@ -109,6 +109,13 @@ $ svn co http://trac.lbga.fr/svn/backtoshops/
    $ ./setupdb.sh
 
 
+== Generate Hmac Key ==
+* required for user login
+  $ workon env
+  $ cd /$(PROJECT_HOME)/users
+  $ ./scripts/gen_hmac_key.py
+
+
 == Start servers ==
 1. admin server:
    * change following line in $(PROJECT_HOME)/backtoshops/settings.py

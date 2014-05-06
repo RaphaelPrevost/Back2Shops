@@ -128,7 +128,7 @@ class UserResource(BaseJsonResource):
              'province_code': field_utils.AjaxFieldType(
                         "State or Province", "",
                         "/webservice/1.0/pub/JSONAPI?get=provinces",
-                        depends="country"),
+                        depends="country_code"),
              'address_desp': field_utils.TextFieldType("Description", "", "")},
             addresses)
 

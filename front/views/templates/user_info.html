@@ -9,6 +9,7 @@
 
 <script type="text/javascript">
 var profile = #{user_profile};
+var delayCallbacks = [];
 
 function getTemplate(name, item)
 {
@@ -108,11 +109,11 @@ function getTemplate(name, item)
     } break;
 
     case 'ajax': {
-        console.log(name);
         if (typeof item.depends !== 'undefined' && item.depends) {
-            console.log(name + " " + item.depends + " " + item.source);
+            // console.log(name + " " + item.depends + " " + item.source);
+
             /* setup a onchange hook */
-            result.callbacks.push(function() {
+            delayCallbacks.push(function() {
                 $('#' + item.depends).live('change', function() {
                     $.ajax({ 'url': item.source,
                              'data': { "dep": this.value,
@@ -132,7 +133,7 @@ function getTemplate(name, item)
             });
             result.template = '<p id="wrapper_' + name + '"></p>';
         } else {
-            console.log(name + " " + item.source);
+            // console.log(name + " " + item.source);
             result.callbacks.push(function() {
                 $.ajax({ 'url': item.source,
                          'data': { "val": item.value },
@@ -163,6 +164,9 @@ $(document).ready(function() {
         $("#formContainer").append(elem.template);
         for (c in elem.callbacks) elem.callbacks[c]();
     }
+
+    // loop for dependent elements after form init
+    for(d in delayCallbacks) delayCallbacks[d]();
 });
 </script>
 

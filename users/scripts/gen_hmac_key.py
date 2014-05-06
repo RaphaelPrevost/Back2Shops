@@ -1,7 +1,8 @@
 import logging
 import os
 from datetime import datetime
-
+import sys
+sys.path.append('.')
 import settings
 from B2SUtils import db_utils
 
