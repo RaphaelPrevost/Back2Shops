@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from accounts.models import Brand
 from address.models import Address
+from common.assets_utils import AssetsStorage
 from common.cache_invalidation import post_delete_handler
 from common.cache_invalidation import post_save_handler
 from shippings.models import Shipping
@@ -21,7 +22,9 @@ class Shop(models.Model):
     phone = models.CharField(verbose_name=_("Phone number"), max_length=50, blank=True, null=True)
     name = models.CharField(verbose_name=_("Shop name"), max_length=50)
     catcher = models.CharField(verbose_name=_("Caption"), max_length=250, blank=True, null=True)
-    image = ImageField(verbose_name=_("Shop picture"), upload_to="shop_images", blank=True, null=True)
+    image = ImageField(verbose_name=_("Shop picture"),
+                       upload_to="img/shop_images", blank=True, null=True,
+                       storage=AssetsStorage())
     description = models.CharField(verbose_name=_("Description"), max_length=500, blank=True, null=True)
     opening_hours = models.CharField(max_length=1000, blank=True, null=True)
     latitude = models.FloatField()

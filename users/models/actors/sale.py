@@ -1,7 +1,6 @@
 import logging
 from decimal import Decimal
 from common.error import NotExistError
-from common.utils import order_img_download
 from common.redis_utils import get_redis_cli
 from B2SProtocol.constants import SALE
 from B2SProtocol.constants import BARCODE
@@ -341,8 +340,7 @@ class ActorSale(BaseActor):
         elif self.img:
             img_path = self.img[0]
         if img_path:
-            new_path = order_img_download(img_path)
-            return new_path
+            return img_path
         else:
             logging.info('No main image for sale: %s, variant: %s',
                          self.id, id_variant)

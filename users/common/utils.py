@@ -10,7 +10,6 @@ import string
 import re
 import ujson
 import urllib
-import urllib2
 import settings
 
 from hashlib import sha1
@@ -303,29 +302,6 @@ def encrypt_password(raw_password):
               "hash_algorithm": hash_algorithm,
               "hash_iteration_count": hash_iteration_count}
     return auth_token, values
-
-def order_img_download(img_path):
-    img_url = os.path.join(settings.ADM_ROOT_URI, img_path.strip('/'))
-    try:
-        resp = urllib2.urlopen(img_url)
-        img_content = resp.read()
-        _, ext = os.path.split(img_path)
-        new_name = sha1(img_content).hexdigest()
-        new_file = '.'.join([new_name, ext])
-        save_path = os.path.join(
-            settings.STATIC_ORDERS_IMG_PATH, new_file)
-        with open(save_path, 'w') as f:
-            f.write(img_content)
-            f.close()
-        return save_path
-    except urllib2.URLError, e:
-        if settings.RUNNING_TEST:
-            return ''
-        raise
-    except Exception, e:
-        logging.error("Failed down load order's img: %s, err: %s",
-                      img_path, e, exc_info=True)
-        raise
 
 def remote_xml_shipping_fee(carrier_services, weight, unit, dest,
                             id_address):

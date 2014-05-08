@@ -3,6 +3,7 @@ from django.db import models
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from address.models import Address
+from common.assets_utils import AssetsStorage
 from common.constants import USERS_ROLE
 
 
@@ -19,7 +20,8 @@ class UserProfile(models.Model):
 
 class Brand(models.Model):
     name = models.CharField(max_length=50)
-    logo = models.ImageField(upload_to="brand_logos")
+    logo = models.ImageField(upload_to="img/brand_logos",
+                                       storage=AssetsStorage())
     address = models.ForeignKey(Address, unique=True)
     business_reg_num = models.CharField(verbose_name="Business Registration Number", max_length=100)
     tax_reg_num = models.CharField(verbose_name="Tax Registration Number", max_length=100)

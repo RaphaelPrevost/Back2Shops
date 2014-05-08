@@ -3,6 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from sorl.thumbnail import ImageField
 
 from accounts.models import Brand
+from common.assets_utils import AssetsStorage
 from sales.models import DISCOUNT_TYPE
 from sales.models import Product
 from sales.models import ProductPicture
@@ -10,12 +11,19 @@ from sales.models import ProductType
 
 
 class BrandAttribute(models.Model):
-    product = models.ManyToManyField(Product, through="BrandAttributePreview", related_name="brand_attributes")
-    mother_brand = models.ForeignKey(Brand, related_name="brand_attributes")
+    product = models.ManyToManyField(Product,
+                                     through="BrandAttributePreview",
+                                     related_name="brand_attributes")
+    mother_brand = models.ForeignKey(Brand,
+                                     related_name="brand_attributes")
     name = models.CharField(max_length=50, null=True, blank=True)
-    texture = ImageField(null=True, upload_to="product_pictures")
-    premium_type = models.CharField(choices=DISCOUNT_TYPE, max_length=10, blank=True, verbose_name=_('type of premium price'),null=True)
-    premium_amount = models.FloatField(verbose_name=_('amount of premium'),null=True)
+    texture = ImageField(upload_to="img/product_pictures",
+                         storage=AssetsStorage(), null=True)
+    premium_type = models.CharField(choices=DISCOUNT_TYPE,
+                                    verbose_name=_('type of premium price'),
+                                    max_length=10, blank=True, null=True)
+    premium_amount = models.FloatField(verbose_name=_('amount of premium'),
+                                       null=True)
 
     def __unicode__(self):
         return self.name

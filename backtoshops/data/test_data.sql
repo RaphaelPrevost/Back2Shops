@@ -25,10 +25,10 @@ COPY address_address (id, address, zipcode, city, country_id, province_code) FRO
 --
 
 COPY accounts_brand (id, name, logo, address_id, business_reg_num, tax_reg_num) FROM stdin;
-1000001	corporate account 1	brand_logos/test.jpeg 	1000001	1000001	1000004
-1000002	corporate account 2	brand_logos/test.jpeg 	1000002	1000002	1000004
-1000003	corporate account 3	brand_logos/test.jpeg	1000003	1000003	1000004
-1000004	corporate account 4	brand_logos/test.jpeg	1000004	1000004	1000004
+1000001	corporate account 1	img/brand_logos/test.jpeg 	1000001	1000001	1000004
+1000002	corporate account 2	img/brand_logos/test.jpeg 	1000002	1000002	1000004
+1000003	corporate account 3	img/brand_logos/test.jpeg	1000003	1000003	1000004
+1000004	corporate account 4	img/brand_logos/test.jpeg	1000004	1000004	1000004
 \.
 
 
@@ -62,10 +62,10 @@ COPY accounts_userprofile (id, user_id, work_for_id, language, role, allow_inter
 --
 
 COPY shops_shop (id, mother_brand_id, gestion_name, phone, name, catcher, description, opening_hours, latitude, longitude, upc, image, address_id, business_reg_num, tax_reg_num) FROM stdin;
-1000001	1000001	shop 1		shop name 1				114	116	11111	shop_images/大学宿舍_1.jpeg	1000005	2000001	2000001
-1000002	1000001	shop 2		shop name 2				114	116	22222	shop_images/大学宿舍_2.jpeg	1000006	2000002	2000002
-1000003	1000002	shop 3		shop name 3				114	116	33333	shop_images/大学宿舍_3.jpeg	1000007	2000003	2000003
-1000004	1000002	shop 4		shop name 4				114	116	44444	shop_images/大学宿舍_4.jpeg	1000008	2000004	2000004
+1000001	1000001	shop 1		shop name 1				114	116	11111	img/shop_images/大学宿舍_1.jpeg	1000005	2000001	2000001
+1000002	1000001	shop 2		shop name 2				114	116	22222	img/shop_images/大学宿舍_2.jpeg	1000006	2000002	2000002
+1000003	1000002	shop 3		shop name 3				114	116	33333	img/shop_images/大学宿舍_3.jpeg	1000007	2000003	2000003
+1000004	1000002	shop 4		shop name 4				114	116	44444	img/shop_images/大学宿舍_4.jpeg	1000008	2000004	2000004
 1000005	1000003	shop 5 	123123123123	shop name 5	Caption 5	The 5th shop	{}	34.1568725999999998	-85.6963627000000088	55555		1000009	2000005	1000005
 1000006	1000003	shop name 6	34534534534	shop name 6	caption 6	the 6th shop	{}	34.1568725999999998	-85.6963627000000088	66666		1000010	2000006	1000006
 \.
@@ -96,10 +96,10 @@ COPY attributes_brandattribute (id, mother_brand_id, name, texture, premium_type
 --
 
 COPY sales_productbrand (id, seller_id, name, picture) FROM stdin;
-1000001	1000001	product brand 1	product_brands/test.jpeg
-1000002	1000002	product brand 2	product_brands/test.jpeg
-1000003	1000003	product brand 3	product_brands/test.jpeg
-1000004	1000004	product brand 4	product_brands/test.jpeg
+1000001	1000001	product brand 1	img/product_brands/test.jpeg
+1000002	1000002	product brand 2	img/product_brands/test.jpeg
+1000003	1000003	product brand 3	img/product_brands/test.jpeg
+1000004	1000004	product brand 4	img/product_brands/test.jpeg
 \.
 
 
@@ -209,11 +209,11 @@ COPY sales_product (id, sale_id, category_id, type_id, brand_id, name, descripti
 --
 
 COPY sales_productpicture (id, product_id, is_brand_attribute, picture) FROM stdin;
-1000002	1000002	f	product_pictures/test.jpeg
-1000003	1000003	f	product_pictures/test.jpeg
-1000004	1000004	f	product_pictures/test.jpeg
-1000001	1000001	f	product_pictures/test.jpeg
-1000005	\N	f	product_pictures/test.jpeg
+1000002	1000002	f	img/product_pictures/test.jpeg
+1000003	1000003	f	img/product_pictures/test.jpeg
+1000004	1000004	f	img/product_pictures/test.jpeg
+1000001	1000001	f	img/product_pictures/test.jpeg
+1000005	\N	f	img/product_pictures/test.jpeg
 \.
 
 

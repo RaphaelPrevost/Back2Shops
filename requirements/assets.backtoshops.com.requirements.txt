@@ -1,0 +1,8 @@
+Cython==0.19.1
+falcon==0.1.7
+ujson==1.33
+gevent==0.13.8
+M2Crypto==0.21.1.B2S
+B2SCrypto==0.0.2
+B2SUtils==0.0.5
+B2SProtocol==0.0.7
