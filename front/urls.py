@@ -7,6 +7,7 @@ from views.product import ProductInfoResource
 from views.product import ProductListResource
 from views.register import RegisterResource
 from views.user import UserResource
+from webservice import download
 from webservice.aux import AuxResource
 
 urlpatterns = {
@@ -22,4 +23,9 @@ urlpatterns = {
 
     # TODO: Remove, here just for payment test
     r'/payment/{id_trans}/form': PaymentFormResource,
+
+    # static files
+    r'/js/{name}': download.JsItem,
+    r'/css/{name}': download.CssItem,
+    r'/img/{name}': download.ImgItem,
 }

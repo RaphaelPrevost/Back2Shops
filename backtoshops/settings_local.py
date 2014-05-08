@@ -1,5 +1,6 @@
 # Django settings for backtoshops project.
 import os
+from platform import node
 
 SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
 SITE_NAME = "backtoshops"
@@ -278,10 +279,13 @@ GEONAMES_USERNAME = "moonstrap"
 
 USR_SERVER = 'http://localhost:8100'
 FIN_SERVER = 'http://localhost:9000'
+AST_SERVER = 'http://localhost:9300'
+ASSETS_CDN = 'http://%s:9300' % node()
 
 SERVER_APIKEY_URI_MAP = {
     'USR': os.path.join(USR_SERVER, 'webservice/1.0/pub/apikey.pem'),
     'FIN': os.path.join(FIN_SERVER, 'webservice/1.0/pub/apikey.pem'),
+    'AST': os.path.join(AST_SERVER, 'webservice/1.0/pub/apikey.pem'),
 }
 
 PRIVATE_KEY_PATH = 'static/keys/adm_pri.key'

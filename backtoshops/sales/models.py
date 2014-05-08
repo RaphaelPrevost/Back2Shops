@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from sorl.thumbnail import ImageField
 
 from accounts.models import Brand
+from common.assets_utils import AssetsStorage
 from common.cache_invalidation import post_delete_handler
 from shippings.models import Shipping
 from shops.models import Shop
@@ -82,7 +83,8 @@ class ProductCurrency(models.Model):
 class ProductPicture(models.Model):
     product = models.ForeignKey("Product", related_name="pictures", null=True, blank=True)
     is_brand_attribute = models.BooleanField(default=False)
-    picture = ImageField(upload_to="product_pictures")
+    picture = ImageField(upload_to="img/product_pictures",
+                         storage=AssetsStorage())
 
     def __unicode__(self):
         return self.picture.url
@@ -103,7 +105,8 @@ class ProductType(models.Model):
 class ProductBrand(models.Model):
     seller = models.ForeignKey(Brand, related_name="sold_brands")
     name = models.CharField(max_length=50)
-    picture = models.ImageField(upload_to="product_brands", default="NULL")
+    picture = models.ImageField(upload_to="img/product_brands", default="NULL",
+                                storage=AssetsStorage())
 
     def __unicode__(self):
         return self.name

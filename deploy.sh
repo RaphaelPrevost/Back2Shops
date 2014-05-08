@@ -19,6 +19,7 @@ FIN_DOMAIN=''
 ADM_REQUIREMENT=$CWD/requirements/adm.backtoshops.com.requirements.txt
 USR_REQUIREMENT=$CWD/requirements/usr.backtoshops.com.requirements.txt
 FIN_REQUIREMENT=$CWD/requirements/finance.backtoshops.com.requirements.txt
+AST_REQUIREMENT=$CWD/requirements/assets.backtoshops.com.requirements.txt
 
 ADM_DEPS=(libapache2-mod-wsgi python2.7-dev libpq-dev python-pip git \
           libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev \
@@ -29,6 +30,7 @@ USR_DEPS=(python2.7-dev libpq-dev python-pip git \
 FIN_DEPS=(python2.7-dev libpq-dev python-pip git python-lxml \
           libcairo2 libpango1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info \
           libxml2-dev libxslt1-dev)
+AST_DEPS=(python2.7-dev python-pip git)
 DPKG=$(dpkg -l)
 
 INITDB=${INITDB:-""}
@@ -44,6 +46,7 @@ function usage() {
     echo "        backoffice - Deploy only the backoffice server"
     echo "        user       - Deploy only the user server"
     echo "        finance    - Deploy only the finance server"
+    echo "        assets     - Deploy only the assets server"
     echo "        testdata   - Import backoffice test data into database"
     exit 1
 }
@@ -355,6 +358,44 @@ function deploy_finance() {
     echo "(i) Deploy finance server finished"
 }
 
+
+########## assets related functions ##########
+
+function make_assets_src_dir() {
+    # remove old sourcecode
+    [ -d $CWD/assets -a -d $CWD/assets_src ] && rm -rf $CWD/assets_src
+
+    if [ -d $CWD/assets -a ! -d $CWD/assets_src ]; then
+        mv $CWD/assets $CWD/assets_src
+        cp $CWD/assets_src/settings_product.py $CWD/assets_src/settings.py
+        chown -R backtoshops.www-data $CWD/assets_src
+        chmod -R 2750 $CWD/assets_src
+
+        # allow writing in the upload directories
+        chmod -R 2770 $CWD/assets_src/static/js
+        chmod -R 2770 $CWD/assets_src/static/css
+        chmod -R 2770 $CWD/assets_src/static/img
+        chmod -R 2770 $CWD/assets_src/static/html
+    fi
+}
+
+function setup_assets() {
+    cd $CWD/assets_src/
+    source $CWD/env/bin/activate
+
+    # start server
+    nohup python assets_server.py &
+}
+
+function deploy_assets() {
+    sanity_checks $AST_REQUIREMENT "${AST_DEPS[*]}"
+    create_python_env $AST_REQUIREMENT
+    make_assets_src_dir
+    setup_assets
+    echo "(i) Deploy assets server finished"
+}
+
+
 ########## main ##########
 [ $1 ] || usage
 case $1 in
@@ -367,11 +408,15 @@ case $1 in
         finance)
             deploy_finance
             ;;
+        assets)
+            deploy_assets
+            ;;
         everything)
             deploy_backoffice
             deploy_user
             deploy_test
             deploy_finance
+            deploy_assets
             ;;
         testdata)
             deploy_test

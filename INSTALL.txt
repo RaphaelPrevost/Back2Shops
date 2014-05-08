@@ -14,6 +14,12 @@
           libcairo2 libpango1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info \
           libxml2-dev libxslt1-dev
 
+4. front server:
+   sudo apt-get install python2.7-dev python-pip git
+
+5. assets server:
+   sudo apt-get install python2.7-dev python-pip git
+
 
 == Database ==
 1. install postgres 9.1
@@ -90,6 +96,10 @@ $ svn co http://trac.lbga.fr/svn/backtoshops/
      $ workon env
      $ cd /$(PROJECT_HOME)
      $ pip install -r requirements/front.requirements.txt
+   * assets server
+     $ workon env
+     $ cd /$(PROJECT_HOME)
+     $ pip install -r requirements/assets.backtoshops.com.requirements.txt
 
 
 == Create Project database ==

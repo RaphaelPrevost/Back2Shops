@@ -50,8 +50,6 @@ SERVER_APIKEY_URI_MAP = {
 PRIVATE_KEY_PATH = 'static/keys/usr_pri.key'
 PUB_KEY_PATH = 'static/keys/usr_pub.key'
 
-STATIC_ORDERS_IMG_PATH = 'static/orders_img/'
-
 ORDERS_QUERY_LIMIT = 100
 RUNNING_TEST = False
 
