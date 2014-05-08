@@ -9,7 +9,7 @@ SALES_SERVER_API_URL = "%s/webservice/1.0/%%(api)s" % ADM_ROOT_URI
 SERVER_APIKEY_URI_MAP = {
     'USR': 'http://localhost:8100/webservice/1.0/pub/apikey.pem',
     'ADM': '%s/webservice/1.0/pub/apikey.pem' % ADM_ROOT_URI,
-        'FIN': '%s/webservice/1.0/pub/apikey.pem' % FIN_ROOT_URI
+    'FIN': '%s/webservice/1.0/pub/apikey.pem' % FIN_ROOT_URI,
 }
 
 # TODO: uncommon this after go live

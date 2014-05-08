@@ -1,6 +1,7 @@
 from platform import node
 
 DEVELOPMENT_HOST='Nicholass-MacBook-Pro.local'
+DEVELOPMENT_HOST = 'ada-pc'
 
 if node() == DEVELOPMENT_HOST:
     from settings_local import *
