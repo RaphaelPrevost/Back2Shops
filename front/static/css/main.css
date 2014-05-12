@@ -1,0 +1,518 @@
+* {
+    color: #000000;
+    font-family: Verdana,Tahoma,Helvetica,Sans-Serif;
+    font-size: 11px;
+    margin: 0;
+    padding: 0;
+}
+body {
+    background: url("/img/motif.jpg") repeat scroll 0 0 rgba(0, 0, 0, 0);
+    min-width: 1083px;
+    padding-top: 115px;
+}
+h1, h2, h3, h4, h5 {
+    font-size: 12px;
+    font-weight: bold;
+}
+ul {
+    list-style-type: none;
+}
+a {
+    text-decoration: none;
+}
+a img {
+    border: 0 none;
+}
+.clear {
+    clear: both;
+    display: block;
+    float: none;
+    min-height: 1px;
+}
+#wrapheader {
+    background: url("/img/pix-header.png") repeat-x scroll 0 0 rgba(0, 0, 0, 0);
+    box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.5);
+    height: 83px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000000;
+}
+#header {
+    background: url("/img/ornement-header.png") no-repeat scroll right bottom rgba(0, 0, 0, 0);
+    height: 118px;
+    margin: auto;
+    position: relative;
+    width: 1060px;
+}
+#header #logo {
+    background: url("/img/dragon-dollar.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+    display: block;
+    height: 159px;
+    left: 20px;
+    overflow: hidden;
+    position: absolute;
+    text-indent: -500px;
+    top: 1px;
+    width: 174px;
+    z-index: 1;
+}
+#header #ornement {
+    background: url("/img/ornement.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+    bottom: -30px;
+    display: block;
+    height: 11px;
+    position: absolute;
+    width: 958px;
+}
+#panier {
+    background: url("/img/bourse.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+    color: #FFFFFF;
+    display: block;
+    font-weight: bold;
+    height: 49px;
+    line-height: 30px;
+    padding-right: 10px;
+    position: absolute;
+    right: 22px;
+    top: 40px;
+    width: 81px;
+}
+#panier em {
+    background-color: #FFC900;
+    border: 1px solid #670000;
+    border-radius: 10px;
+    color: #670000;
+    display: block;
+    font-style: normal;
+    height: 20px;
+    left: 8px;
+    letter-spacing: -0.15em;
+    line-height: 18px;
+    position: absolute;
+    text-align: center;
+    top: 34px;
+    transition: background-color 0.2s ease 0s;
+    width: 20px;
+}
+#panier:hover em {
+    background-color: #FFE481;
+}
+#nav {
+    height: 30px;
+    left: 186px;
+    position: absolute;
+    top: 45px;
+    width: 896px;
+}
+#menu {
+    float: left;
+    height: 30px;
+}
+#menu li, #menu li a {
+    display: block;
+    float: left;
+    height: 26px;
+}
+#menu li {
+    margin: 0 4px;
+}
+#menu li a {
+    color: #FFFFFF;
+    font-weight: bold;
+    line-height: 25px;
+    padding: 0 10px;
+    text-shadow: 1px 1px 1px #380018;
+    text-transform: uppercase;
+}
+#menu li a:hover {
+    text-decoration: underline;
+}
+#cash {
+    bottom: 47px;
+    color: #FFFFFF;
+    display: block;
+    font-family: tahoma,verdana;
+    font-size: 11px;
+    font-weight: bold;
+    position: absolute;
+    right: 60px;
+}
+#cash:hover {
+    text-decoration: underline;
+}
+#partage {
+    bottom: -6px;
+    height: 42px;
+    position: absolute;
+    right: 135px;
+    width: 165px;
+}
+#partage .btnSocial {
+    background: url("/img/social.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+    display: inline-block;
+    height: 42px;
+    margin: 0 0 0 -4px;
+    width: 33px;
+}
+#partage .btnSocial a {
+    background: url("/img/social-ico.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+    display: block;
+    height: 42px;
+    width: 33px;
+}
+#partage .btnSocial.fck a {
+    background-position: -2px 5px;
+}
+#partage .btnSocial.gg a {
+    background-position: -5px -50px;
+}
+#partage .btnSocial.twt a {
+    background-position: -3px -105px;
+}
+#partage .btnSocial.du a {
+    background-position: -4px -160px;
+}
+#partage .btnSocial.wu a {
+    background-position: -4px -212px;
+}
+#partage .btnSocial:hover {
+    background: url("/img/social.png") no-repeat scroll 0 bottom rgba(0, 0, 0, 0);
+}
+#conteneur, #conteneurTop {
+    background: url("/img/motif.jpg") repeat scroll 0 0 rgba(0, 0, 0, 0);
+    margin: 0 auto;
+    padding: 0 0 30px;
+    width: 100%;
+}
+#conteneurBottom {
+    background: url("/img/motif.jpg") repeat scroll 0 0 rgba(0, 0, 0, 0);
+    margin: 0 auto;
+    padding-top: 30px;
+    width: 100%;
+}
+#conteneurBottom .boxCenter {
+    margin: 0 auto 20px;
+    position: relative;
+}
+#caligraphie {
+    background: url("/img/dragon.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+    bottom: -75px;
+    height: 545px;
+    left: -190px;
+    position: absolute;
+    width: 380px;
+}
+.boxCenter {
+    margin: auto;
+    width: 958px;
+}
+.slideCoins {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background: none repeat scroll 0 0 #000000;
+    border-color: -moz-use-text-color rgba(255, 228, 126, 0.4) rgba(255, 228, 126, 0.4);
+    border-image: none;
+    border-right: 1px solid rgba(255, 228, 126, 0.4);
+    border-style: none solid solid;
+    border-width: medium 1px 1px;
+    margin: 40px auto;
+    position: relative;
+    width: 958px;
+}
+#collectors {
+    margin: 20px 0;
+}
+#collectors li {
+    display: inline-block;
+    margin: 0 12px 2px 23px;
+}
+#collectors li a {
+    display: block;
+    padding: 9px 0 15px;
+}
+#collectors li a:hover {
+    background-color: rgba(157, 1, 1, 0.35);
+}
+#collectors li a .visuelTool {
+    display: block;
+    height: 105px;
+    margin: 0;
+    overflow: hidden;
+    width: 150px;
+}
+#collectors li a .visuelTool img {
+    display: block;
+    width: 150px;
+}
+#collectors li a .titreTool {
+    color: #FFFFFF;
+    display: block;
+    font-size: 15px;
+    font-weight: normal;
+    margin-top: 5px;
+}
+#collectors li a:hover .titreTool {
+    text-decoration: underline;
+}
+#collectors li a .prixTool {
+    color: #FBB924;
+    display: block;
+    font-size: 12px;
+    margin: 5px 0 0;
+}
+.detail {
+    background: url("/img/plus.gif") no-repeat scroll 52px 6px #FFF6C8;
+    border-radius: 4px;
+    color: #000000;
+    display: block;
+    float: left;
+    font-weight: bold;
+    padding: 5px 25px 5px 7px;
+}
+.titleLine {
+    background: linear-gradient(to bottom, #9A070D 0%, #A2070F 24%, #A1070E 38%, #9B070D 55%, #87050A 86%, #81060A 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
+    border-bottom: 1px solid #EC9F02;
+    clear: both;
+    color: #FFFFFF;
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    height: 30px;
+    line-height: 30px;
+    margin: 0 0 12px;
+    padding-left: 10px;
+    text-shadow: 1px 1px 1px #730022;
+}
+.titleLine {
+    margin: 0;
+    padding-left: 0;
+    position: relative;
+    width: 958px;
+}
+.titleLine strong {
+    background: url("/img/ornementTitle_L.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+    display: block;
+    height: 31px;
+    left: -1px;
+    position: absolute;
+    top: -1px;
+    width: 960px;
+}
+.titleLine span {
+    background: url("/img/ornementTitle_R.png") no-repeat scroll right 0 rgba(0, 0, 0, 0);
+    color: #FFFFFF;
+    display: block;
+    font-size: 13px;
+    height: 31px;
+    line-height: 30px;
+    padding-left: 20px;
+    text-shadow: 1px 1px #730022;
+    width: 940px;
+}
+.titleLine2 {
+    background: url("/img/titlebloc.png") repeat-x scroll 0 0 rgba(0, 0, 0, 0);
+    clear: both;
+    color: #FFE19E;
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    height: 49px;
+    line-height: 49px;
+    position: relative;
+    text-align: center;
+    text-shadow: 1px 1px 1px #730022;
+    width: 958px;
+}
+#slider-one {
+    margin: 10px;
+}
+.linkProd strong, .linkProd span {
+    color: #FFFFFF;
+    display: block;
+    text-align: center;
+}
+.linkProd strong {
+    color: #FFC900;
+}
+.linkProd:hover span {
+    text-decoration: underline;
+}
+#fancybox-title-inside {
+    font-weight: bold;
+}
+.ornementinside {
+    background: url("/img/ornement.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+    clear: both;
+    display: block;
+    height: 30px;
+    margin: 20px auto 0;
+    width: 958px;
+}
+.ornementinside.ornemBottom {
+    margin: 5px auto 0;
+}
+#learn {
+    float: left;
+    height: 450px;
+    overflow: hidden;
+    padding: 0 0 0 10px;
+    position: relative;
+    width: 371px;
+}
+#learn strong {
+    color: #FFFFFF;
+    display: block;
+    font-size: 18px;
+}
+#blockSearch {
+    float: left;
+    margin: 0;
+    position: relative;
+    width: 958px;
+    z-index: 1;
+}
+#blockSearch div {
+    display: block;
+    float: left;
+    margin: 0;
+}
+#blockSearch div label {
+    color: #FFD76F;
+    font-size: 19px;
+    font-weight: normal;
+    margin: 5px 0 0;
+}
+#blockSearch .linkSearch {
+    background: url("/img/btnBack.png") repeat-x scroll 0 0 rgba(0, 0, 0, 0);
+    display: block;
+    float: left;
+    font-size: 13px;
+    height: 46px;
+    line-height: 46px;
+    margin: 0 0 5px 30px;
+    position: relative;
+    text-align: center;
+    width: 177px;
+}
+#blockSearch .linkSearch:hover {
+    background: url("/img/btnBack-hover.png") repeat-x scroll 0 0 rgba(0, 0, 0, 0);
+}
+#blockSearch .linkSearch strong {
+    background: url("/img/btnLeft.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+    display: block;
+    height: 46px;
+    left: -8px;
+    position: absolute;
+    top: 0;
+    width: 179px;
+}
+#blockSearch .linkSearch span {
+    background: url("/img/btnRight.png") no-repeat scroll right 0 rgba(0, 0, 0, 0);
+    color: #FFFFFF;
+    display: block;
+    font-size: 13px;
+    height: 46px;
+    line-height: 46px;
+    padding-right: 5px;
+    position: absolute;
+    right: -13px;
+    text-align: center;
+    text-shadow: 1px 1px #7F0025;
+    top: 0;
+    width: 179px;
+}
+#blockSearch #recherche {
+    display: inline-block;
+    float: none;
+    height: 34px;
+    margin-left: 10px;
+    margin-top: 10px;
+    position: relative;
+    width: 247px;
+}
+#blockSearch #recherche input {
+    background: url("/img/search.png") no-repeat scroll 424px 4px #FFF9DE;
+    border: 1px solid #D7D7D7;
+    border-radius: 3px;
+    box-shadow: 0 1px 1px #F2E28E inset;
+    color: #4A4A4A;
+    font-size: 12px;
+    height: 24px;
+    padding-left: 7px;
+    width: 239px;
+}
+#blockSearch #recherche input:hover, #blockSearch #recherche input:focus {
+    background: url("/img/search.png") no-repeat scroll 424px 4px #FFF6C8;
+    box-shadow: 0 0 1px 1px rgba(255, 237, 0, 0.9) inset;
+    color: #343434;
+}
+#blockSearch #recherche #submitsearch {
+    background: url("/img/search.png") no-repeat scroll 11px 4px #FFF9DE;
+    cursor: pointer;
+    display: block;
+    height: 26px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 40px;
+}
+#blockSearch #recherche #submitsearch:hover, #blockSearch #recherche #submitsearch:hover {
+    background-color: #FFE462;
+}
+#blockSearch #chinaMap {
+    background: url("/img/mapBack.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+    height: 801px;
+    margin: 20px 0 30px -10px;
+    padding: 8px;
+    width: 960px;
+}
+#blockSearch #chinaMap div {
+    border: 2px ridge #FFD400;
+}
+#blockSearch #chinaMap img {
+    margin: 0;
+}
+#footer {
+    background-color: #A5080F;
+    border-bottom: 1px solid rgba(255, 228, 126, 0.59);
+    border-top: 1px solid rgba(255, 228, 126, 0.59);
+    box-shadow: 0 0 2px 0 #000000;
+    margin-bottom: 50px;
+    padding-top: 7px;
+    position: relative;
+}
+#footer ul {
+    display: block;
+    margin: 0 auto 7px;
+    width: 950px;
+}
+#footer ul li {
+    color: #FFE1C0;
+    display: inline;
+}
+#footer ul li a, #footer ul li span, #footer ul li strong {
+    color: #FFE1C0;
+    font-size: 11px;
+    margin-right: 5px;
+    text-align: center;
+}
+#footer ul li a:hover {
+    color: #FFFFFF;
+    text-decoration: underline;
+}
+#copyright {
+    display: block;
+    float: right;
+}
+#blockSearch #chinaMap .totomaptest01 {
+    background-color: rgba(116, 8, 58, 0.4);
+}
+
+
+label {
+    color: #FFFFFF;
+    font-weight: bold;
+}

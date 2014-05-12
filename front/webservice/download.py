@@ -1,5 +1,6 @@
 import os
 import falcon
+import logging
 import settings
 
 class Item(object):
@@ -15,25 +16,25 @@ class Item(object):
             logging.error("%s", e, exc_info=True)
             resp.status = falcon.HTTP_404
 
-    def _get_media_type(self, ext):
+    def _get_media_type(self, name):
         raise NotImplementedError
 
 class JsItem(Item):
     storage_path = settings.STATIC_FILES_PATH + '/js/'
 
-    def _get_media_type(self, ext):
+    def _get_media_type(self, name):
         return 'application/javascript'
 
 class CssItem(Item):
     storage_path = settings.STATIC_FILES_PATH + '/css/'
 
-    def _get_media_type(self, ext):
+    def _get_media_type(self, name):
         return 'text/css'
 
 class ImgItem(Item):
     storage_path = settings.STATIC_FILES_PATH + '/img/'
 
-    def _get_media_type(self, ext):
+    def _get_media_type(self, name):
         ext = os.path.splitext(name)[1][1:]
         return 'image/%s' % ext
 

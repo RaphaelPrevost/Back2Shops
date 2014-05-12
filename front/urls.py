@@ -16,7 +16,7 @@ urlpatterns = {
     r'/register': RegisterResource,
     r'/user_info': UserResource,
     r'/products': ProductListResource,
-    r'/product_info': ProductInfoResource,
+    r'/products/{id_sale}': ProductInfoResource,
     r'/paypal/{id_trans}/success': PaypalSuccessResource,
     r'/paypal/{id_trans}/failure': PaypalFailureResource,
     r'/webservice/1.0/pub/JSONAPI': AuxResource,

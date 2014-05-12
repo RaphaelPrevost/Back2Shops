@@ -1,1 +1,31 @@
-${products}
+<!--SLIDER_COIN-->
+<div class="slideCoins"> 
+    <h1 class="titleLine2">${{_('DRAGON_DOLLARS')}}</h1>
+    <!--SLIDER-ONE-->
+    <ul id="slider-one">
+        <?py for p in product_list: ?>
+        <li style="width: 250px;">
+            <a href="${p['link']}"><img src="${p['img']}" alt="${p['name']}" /></a>
+            <p>
+                <a class="linkProd" href="${p['link']}">
+                    <span><strong>${p['name']}</strong>${p['desc']}</span>
+                </a>
+            </p>
+        </li>
+        <?py #endfor ?>
+    </ul>
+    <!--//SLIDER-ONE-->
+    <div class="clear"></div>
+</div>
+<!--//SLIDER_COIN-->    
+
+<script>
+$(function(){
+    $('#slider-one').movingBoxes({
+        startPanel   : 1,       // start with this panel
+        wrap         : false,   // if true, the panel will "wrap" (it really rewinds/fast forwards) at the ends
+        buildNav     : true,   // if true, navigation links will be added
+        navFormatter : function(){ return "&#9679;"; } // function which returns the navigation text for each panel
+    });
+});
+</script>

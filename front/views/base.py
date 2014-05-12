@@ -78,15 +78,13 @@ class BaseHtmlResource(BaseResource):
 
         if isinstance(data, dict):
             self._add_common_data(data)
-            resp = gen_html_resp(self.template, resp, data)
+            resp = gen_html_resp(self.template, resp, data, lang='en')
         else:
             resp.body = data
             resp.content_type = "text/html"
         return resp
 
     def _add_common_data(self, resp_dict):
-        if 'title' not in resp_dict:
-            resp_dict['title'] = 'Dragon Dollar & Chinese Coins'
         if 'err' not in resp_dict:
             resp_dict['err'] = ''
 
