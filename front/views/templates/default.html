@@ -3,10 +3,61 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>${title}</title>
+    <title>${{_('TITLE')}}</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/fancymoves.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/ficheProd.css"/>
     <script type="text/javascript" src="/js/jquery-1.5.2.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.movingboxes.js"></script>
+    <script type="text/javascript" src="/js/jquery.maphilight.js"></script>
+    <link rel="icon" type="image/png" href="/img/favicon.png" />
 </head>
 <body>
+    <!--HEADER-->
+    <div id="wrapheader">
+        <!--HEADER-->
+        <div id="header">
+            <a id="logo" href="/">${{_('TITLE')}}</a>
+            <!--NAV-->
+            <div id="nav">
+                <!--MENU-->
+                <ul id="menu"> 
+                    <li>
+                        <a href="#">${{_('BUY')}}</a>
+                    </li>
+                    <li>
+                        <a href="#">${{_('LEARN')}}</a>
+                    </li>
+                    <li>
+                        <a href="#">${{_('COLLECT')}}</a>
+                    </li>
+                    <li>
+                        <a href="#">${{_('LIBRARY')}}</a>
+                    </li>
+                    <li>
+                        <a href="#">${{_('YOUR_COIN_WORTH')}}</a>
+                    </li>
+                </ul>
+                <!--FIN MENU-->
+                
+                <ul id="partage">
+                    <li class="btnSocial fck"><a href="http://www.facebook.com/sharer.php?u=http://www.dragondollar.com/" target="_blank"></a></li>
+                    <li class="btnSocial gg"><a href="https://plusone.google.com/_/+1/confirm?hl=en&url=http://www.dragondollar.com" target="_blank"></a></li>
+                    <li class="btnSocial twt"><a href="http://twitter.com/share?url=http://www.dragondollar.com&text=Description" target="_blank"></a></li>
+                    <li class="btnSocial du"><a href="http://like.baidu.com/set?buttontype=small&cb=bdShare.ajax._callback&index=0&url=http://www.dragondollar.com" target="_blank"></a></li>
+                    <li class="btnSocial wu"><a href="http://service.weibo.com/share/share.php?url=http://www.dragondollar.com&appkey=&title=Description&pic=&ralateUid=&language=zh_cn" target="_blank"></a></li>
+                </ul>
+            </div>
+            <!--FIN NAV-->
+            
+            <!--PANIER-->
+            <a href="#" id="panier"><em id="nb_prod">0</em></a>
+            
+        </div>
+        <!--FIN HEADER-->
+    </div>
+    <!--FIN HEADER-->
+
     <!--content-->
     <div id="content">
     #{_content}
@@ -14,7 +65,12 @@
     <!--FIN content-->
 
 	<!--FOOTER-->
-	<div id="footer">
+    <div id="footer">
+        <ul>
+            <li><a href="#">${{_('DRAGON_DOLLARS')}}</a>|</li>
+            <li><a href="#">${{_('TERMS_CONDITIONS')}}</a>|</li>
+            <li><strong id="copyright">${{_('COPYRIGHT')}}</strong></li>
+        </ul>
     </div>
 	<!--FIN FOOTER-->
 
