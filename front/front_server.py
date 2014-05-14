@@ -4,6 +4,7 @@ monkey.patch_all()
 import falcon
 import gevent
 from gevent.pywsgi import WSGIServer
+import signal
 
 import settings
 from common.data_access import data_access
@@ -15,16 +16,23 @@ from B2SFrontUtils.utils import parse_form_params
 
 setupLogging(settings.LOG_CONFIG_FILE)
 
-# falcon.API instances are callable WSGI apps
-app = api = falcon.API(before=[parse_form_params])
+def get_app():
+    # falcon.API instances are callable WSGI apps
+    app = falcon.API(before=[parse_form_params])
 
-# Resources are represented by long-lived class instances
-for url, res in urlpatterns.iteritems():
-    api.add_route(url, res())
+    # Resources are represented by long-lived class instances
+    # TODO get routing from BO
+    for url, res in urlpatterns.iteritems():
+        app.add_route(url, res())
+    return app
 
-def load_data():
-    data_access(REMOTE_API_NAME.GET_SALES)
-gevent.spawn(load_data)
+gevent.spawn(data_access, REMOTE_API_NAME.GET_SALES)
+app = get_app()
+
+def load_app(server, app=None):
+    if not app:
+        app = get_app()
+    server.application = app
 
 if __name__ == '__main__':
     import logging
@@ -32,5 +40,8 @@ if __name__ == '__main__':
 
     listener = ('0.0.0.0', settings.SERVER_PORT)
     print "frontend instance is running at http://%s:%s" % listener
-    httpd = WSGIServer(listener, app)
+    httpd = WSGIServer(listener, None)
+    load_app(httpd, app)
+    gevent.signal(signal.SIGHUP, load_app, httpd)
     httpd.serve_forever()
+

@@ -20,6 +20,7 @@ ADM_REQUIREMENT=$CWD/requirements/adm.backtoshops.com.requirements.txt
 USR_REQUIREMENT=$CWD/requirements/usr.backtoshops.com.requirements.txt
 FIN_REQUIREMENT=$CWD/requirements/finance.backtoshops.com.requirements.txt
 AST_REQUIREMENT=$CWD/requirements/assets.backtoshops.com.requirements.txt
+FRT_REQUIREMENT=$CWD/requirements/front.requirements.txt
 
 ADM_DEPS=(libapache2-mod-wsgi python2.7-dev libpq-dev python-pip git \
           libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev \
@@ -31,6 +32,7 @@ FIN_DEPS=(python2.7-dev libpq-dev python-pip git python-lxml \
           libcairo2 libpango1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info \
           libxml2-dev libxslt1-dev)
 AST_DEPS=(python2.7-dev python-pip git)
+FRT_DEPS=(python2.7-dev python-pip git)
 DPKG=$(dpkg -l)
 
 INITDB=${INITDB:-""}
@@ -396,6 +398,39 @@ function deploy_assets() {
 }
 
 
+########## front related functions ##########
+
+function make_front_src_dir() {
+    # remove old sourcecode
+    [ -d $CWD/front -a -d $CWD/front_src ] && rm -rf $CWD/front_src
+
+    if [ -d $CWD/front -a ! -d $CWD/front_src ]; then
+        mv $CWD/front $CWD/front_src
+        cp $CWD/front_src/settings_product.py $CWD/front_src/settings.py
+        chown -R backtoshops.www-data $CWD/front_src
+        chmod -R 2750 $CWD/front_src
+    fi
+}
+
+function setup_front() {
+    cd $CWD/front_src/
+    source $CWD/env/bin/activate
+
+    # start server
+    gunicorn -k sync -w 8 -b 0.0.0.0:9500 front_server:app
+
+    # TODO apache ??
+}
+
+function deploy_front() {
+    sanity_checks $FRT_REQUIREMENT "${FRT_DEPS[*]}"
+    create_python_env $FRT_REQUIREMENT
+    make_front_src_dir
+    setup_front
+    echo "(i) Deploy front server finished"
+}
+
+
 ########## main ##########
 [ $1 ] || usage
 case $1 in
@@ -411,12 +446,16 @@ case $1 in
         assets)
             deploy_assets
             ;;
+        front)
+            deploy_front
+            ;;
         everything)
             deploy_backoffice
             deploy_user
             deploy_test
             deploy_finance
             deploy_assets
+            deploy_front
             ;;
         testdata)
             deploy_test
