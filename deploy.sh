@@ -49,6 +49,7 @@ function usage() {
     echo "        user       - Deploy only the user server"
     echo "        finance    - Deploy only the finance server"
     echo "        assets     - Deploy only the assets server"
+    echo "        front      - Deploy only the front server"
     echo "        testdata   - Import backoffice test data into database"
     exit 1
 }
@@ -417,9 +418,9 @@ function setup_front() {
     source $CWD/env/bin/activate
 
     # start server
-    gunicorn -k sync -w 8 -b 0.0.0.0:9500 front_server:app
+    gunicorn -k sync -w 8 -p gunicorn.pid -b 0.0.0.0:9500 front_server:app &
 
-    # TODO apache ??
+    # TODO apache/nginx
 }
 
 function deploy_front() {

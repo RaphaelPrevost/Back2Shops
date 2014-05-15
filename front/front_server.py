@@ -21,7 +21,7 @@ def get_app():
     app = falcon.API(before=[parse_form_params])
 
     # Resources are represented by long-lived class instances
-    # TODO get routing from BO
+    # TODO get routing from users server
     for url, res in urlpatterns.iteritems():
         app.add_route(url, res())
     return app

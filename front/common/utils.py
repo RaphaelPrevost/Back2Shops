@@ -1,3 +1,5 @@
+import os
+import signal
 import settings
 from common.constants import FRT_ROUTE_ROLE
 from common.template import render_template
@@ -44,8 +46,11 @@ def get_brief_product_list(sales):
 
     return product_list
 
+def send_reload_signal():
+    os.kill(os.getpid(), signal.SIGHUP)
+
 def get_url_format(role):
-    #TODO get url format from BO
+    #TODO get url format from users server
     return {
         FRT_ROUTE_ROLE.PRDT_LIST: '/products',
         FRT_ROUTE_ROLE.PRDT_INFO: '/products/%s',
