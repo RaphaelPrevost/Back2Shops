@@ -6,7 +6,7 @@
 <?doc type="doctype" role="title" { BackToShops Shops List } ?>
 
 <!-- root -->
-<!ELEMENT shops (shop+) >
+<!ELEMENT shops (shop*) >
 <!ATTLIST shops version CDATA #REQUIRED >
 
 <!-- common markup -->

@@ -6,7 +6,7 @@
 <?doc type="doctype" role="title" { BackToShops Sales List } ?>
 
 <!-- root -->
-<!ELEMENT sales (sale+) >
+<!ELEMENT sales (sale*) >
 <!ATTLIST sales version CDATA #REQUIRED >
 
 <!-- common markup -->

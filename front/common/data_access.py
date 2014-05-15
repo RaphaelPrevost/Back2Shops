@@ -7,6 +7,8 @@ from B2SFrontUtils.constants import USR_API_SETTINGS
 
 
 def data_access(api_name, req=None, resp=None, **kwargs):
+    kwargs['brand'] = settings.BRAND_ID
+
     resp_dict = {}
     if api_name in cache_proxy:
         resp_dict = cache_proxy[api_name](get_redis_cli(),
