@@ -157,7 +157,7 @@ function make_adm_html_dir() {
     [ -d $CWD/backtoshops -a -d $CWD/public_html ] && rm -rf $CWD/public_html
 
     if [ -d $CWD/backtoshops -a ! -d $CWD/public_html ]; then
-        cp $CWD/backtoshops $CWD/public_html
+        cp -r $CWD/backtoshops $CWD/public_html
         chown -R backtoshops.www-data $CWD/public_html
         chmod -R 2750 $CWD/public_html
         # allow writing in the upload directories
@@ -277,9 +277,8 @@ function deploy_backoffice() {
 function setup_usr_db() {
     if [ ! -z $RESETDB ]; then
         if [ -z $INITDB ]; then
-            su postgres -c "dropdb backtoshops"
+            su postgres -c "dropdb users"
         fi
-        su postgres -c "dropdb users"
         su postgres -c "createdb -E UNICODE users -O postgres"
     fi
 }
@@ -289,7 +288,7 @@ function make_usr_src_dir() {
     [ -d $CWD/users -a -d $CWD/users_src ] && rm -rf $CWD/users_src
 
     if [ -d $CWD/users -a ! -d $CWD/users_src ]; then
-        cp $CWD/users $CWD/users_src
+        cp -r $CWD/users $CWD/users_src
         cp $CWD/users/settings_product.py $CWD/users_src/settings.py
         chown -R backtoshops.www-data $CWD/users_src
         chmod -R 2750 $CWD/users_src
@@ -366,7 +365,7 @@ function make_finance_src_dir() {
     [ -d $CWD/finance -a -d $CWD/finance_src ] && rm -rf $CWD/finance_src
 
     if [ -d $CWD/finance -a ! -d $CWD/finance_src ]; then
-        cp $CWD/finance $CWD/finance_src
+        cp -r $CWD/finance $CWD/finance_src
         cp $CWD/finance/settings_product.py $CWD/finance_src/settings.py
         chown -R backtoshops.www-data $CWD/finance_src
         chmod -R 2750 $CWD/finance_src
@@ -422,12 +421,13 @@ function make_assets_src_dir() {
     [ -d $CWD/assets -a -d $CWD/assets_src ] && rm -rf $CWD/assets_src
 
     if [ -d $CWD/assets -a ! -d $CWD/assets_src ]; then
-        cp $CWD/assets $CWD/assets_src
+        cp -r $CWD/assets $CWD/assets_src
         cp $CWD/assets/settings_product.py $CWD/assets_src/settings.py
         chown -R backtoshops.www-data $CWD/assets_src
         chmod -R 2750 $CWD/assets_src
     fi
 
+    chown -R backtoshops.www-data $CWD/assets
     # allow writing in the upload directories
     chmod -R 2770 $CWD/assets/static/js
     chmod -R 2770 $CWD/assets/static/css
@@ -496,7 +496,7 @@ function make_front_src_dir() {
     [ -d $CWD/front -a -d $CWD/front_src ] && rm -rf $CWD/front_src
 
     if [ -d $CWD/front -a ! -d $CWD/front_src ]; then
-        cp $CWD/front $CWD/front_src
+        cp -r $CWD/front $CWD/front_src
         cp $CWD/front/settings_product.py $CWD/front_src/settings.py
         chown -R backtoshops.www-data $CWD/front_src
         chmod -R 2750 $CWD/front_src
