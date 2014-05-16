@@ -427,12 +427,16 @@ function make_assets_src_dir() {
         chmod -R 2750 $CWD/assets_src
     fi
 
-    chown -R backtoshops.www-data $CWD/assets
-    # allow writing in the upload directories
-    chmod -R 2770 $CWD/assets/static/js
-    chmod -R 2770 $CWD/assets/static/css
-    chmod -R 2770 $CWD/assets/static/img
-    chmod -R 2770 $CWD/assets/static/html
+    if [ ! -d $CWD/assets_files ]; then
+        mkdir $CWD/assets_files
+        cp -r $CWD/assets/static/css $CWD/assets_files/
+        cp -r $CWD/assets/static/js $CWD/assets_files/
+        cp -r $CWD/assets/static/img $CWD/assets_files/
+        cp -r $CWD/assets/static/html $CWD/assets_files/
+        chown -R backtoshops.www-data $CWD/assets_files
+        # allow writing in the upload directories
+        chmod -R 2770 $CWD/assets_files
+    fi
 }
 
 function setup_assets() {
@@ -450,19 +454,19 @@ server {
     listen    $AST_ADDR;
     server_name    $AST_DOMAIN;
     location /img/ {
-        alias /home/backtoshops/assets/static/img/;
+        alias /home/backtoshops/assets_files/img/;
         autoindex off;
     }
     location /js/ {
-        alias /home/backtoshops/assets/static/js/;
+        alias /home/backtoshops/assets_files/js/;
         autoindex off;
     }
     location /css/ {
-        alias /home/backtoshops/assets/static/css/;
+        alias /home/backtoshops/assets_files/css/;
         autoindex off;
     }
     location /html/ {
-        alias /home/backtoshops/assets/static/html/;
+        alias /home/backtoshops/assets_files/html/;
         autoindex off;
     }
     location / {
