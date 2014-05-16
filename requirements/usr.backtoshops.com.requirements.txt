@@ -1,3 +1,4 @@
+uWSGI==2.0.4
 Cython==0.19.1
 falcon==0.1.7
 ujson==1.33
@@ -16,3 +17,4 @@ B2SUtils==0.0.5
 B2SRespUtils==0.0.2
 B2SProtocol==0.0.7
 email==4.0.2
+lxml==3.3.3

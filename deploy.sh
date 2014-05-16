@@ -14,7 +14,15 @@ set -ex
 CWD=$(pwd)
 ADM_DOMAIN=${ADM_DOMAIN:-sales.backtoshops.com}
 USR_DOMAIN=${USR_DOMAIN:-usr.backtoshops.com}
-FIN_DOMAIN=''
+FIN_DOMAIN=${FIN_DOMAIN:-finance.backtoshops.com}
+AST_DOMAIN=${AST_DOMAIN:-assets.backtoshops.com}
+FRT_DOMAIN=${FRT_DOMAIN:-front.backtoshops.com}
+
+ADM_ADDR='37.187.48.33:80'
+USR_ADDR='92.222.30.2:80'
+FIN_ADDR='92.222.30.3:80'
+AST_ADDR='92.222.30.4:80'
+FRT_ADDR='92.222.30.5:80'
 
 ADM_REQUIREMENT=$CWD/requirements/adm.backtoshops.com.requirements.txt
 USR_REQUIREMENT=$CWD/requirements/usr.backtoshops.com.requirements.txt
@@ -25,7 +33,7 @@ FRT_REQUIREMENT=$CWD/requirements/front.requirements.txt
 ADM_DEPS=(libapache2-mod-wsgi python2.7-dev libpq-dev python-pip git \
           libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev \
           liblcms1-dev libwebp-dev gettext libevent-dev swig)
-USR_DEPS=(python2.7-dev libpq-dev python-pip git \
+USR_DEPS=(python2.7-dev libpq-dev python-pip git python-lxml \
           libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev \
           liblcms1-dev libwebp-dev libevent-dev swig redis-server)
 FIN_DEPS=(python2.7-dev libpq-dev python-pip git python-lxml \
@@ -149,13 +157,11 @@ function make_adm_html_dir() {
     [ -d $CWD/backtoshops -a -d $CWD/public_html ] && rm -rf $CWD/public_html
 
     if [ -d $CWD/backtoshops -a ! -d $CWD/public_html ]; then
-        mv $CWD/backtoshops $CWD/public_html
+        cp $CWD/backtoshops $CWD/public_html
         chown -R backtoshops.www-data $CWD/public_html
         chmod -R 2750 $CWD/public_html
         # allow writing in the upload directories
         mkdir -p $CWD/public_html/media/cache
-        mkdir -p $CWD/public_html/media/brand_logos
-        mkdir -p $CWD/public_html/media/product_brands
         chmod -R 2770 $CWD/public_html/media/
     fi
 }
@@ -270,6 +276,9 @@ function deploy_backoffice() {
 
 function setup_usr_db() {
     if [ ! -z $RESETDB ]; then
+        if [ -z $INITDB ]; then
+            su postgres -c "dropdb backtoshops"
+        fi
         su postgres -c "dropdb users"
         su postgres -c "createdb -E UNICODE users -O postgres"
     fi
@@ -280,8 +289,8 @@ function make_usr_src_dir() {
     [ -d $CWD/users -a -d $CWD/users_src ] && rm -rf $CWD/users_src
 
     if [ -d $CWD/users -a ! -d $CWD/users_src ]; then
-        mv $CWD/users $CWD/users_src
-        cp $CWD/users_src/settings_product.py $CWD/users_src/settings.py
+        cp $CWD/users $CWD/users_src
+        cp $CWD/users/settings_product.py $CWD/users_src/settings.py
         chown -R backtoshops.www-data $CWD/users_src
         chmod -R 2750 $CWD/users_src
     fi
@@ -303,7 +312,28 @@ function setup_usr() {
     PYTHONPATH=$CWD/users_src python scripts/gen_hmac_key.py
 
     # start server
-    nohup python server.py &
+    uwsgi -s 127.0.0.1:8100 -w server -M -p4 --callable app -d uwsgi.log
+
+    # nginx
+    if [ ! -r /etc/nginx/sites-available/users ]; then
+        echo "(-) Creating Nginx Site..."
+        cat > /etc/nginx/sites-available/users <<EOF
+server {
+    listen    $USR_ADDR;
+    server_name    $USR_DOMAIN;
+    location / {
+        include uwsgi_params;
+        uwsgi_pass 127.0.0.1:8100;
+        uwsgi_param SCRIPT_NAME '';
+    }
+}
+EOF
+        ln -s /etc/nginx/sites-available/users /etc/nginx/sites-enabled/
+    else
+        echo "(i) Nginx Server OK"
+    fi
+
+    service nginx restart
 }
 
 function deploy_user() {
@@ -324,7 +354,9 @@ function deploy_test() {
 
 function setup_finance_db() {
     if [ ! -z $RESETDB ]; then
-        su postgres -c "dropdb finance"
+        if [ -z $INITDB ]; then
+            su postgres -c "dropdb finance"
+        fi
         su postgres -c "createdb -E UNICODE finance -O postgres"
     fi
 }
@@ -334,8 +366,8 @@ function make_finance_src_dir() {
     [ -d $CWD/finance -a -d $CWD/finance_src ] && rm -rf $CWD/finance_src
 
     if [ -d $CWD/finance -a ! -d $CWD/finance_src ]; then
-        mv $CWD/finance $CWD/finance_src
-        cp $CWD/finance_src/settings_product.py $CWD/finance_src/settings.py
+        cp $CWD/finance $CWD/finance_src
+        cp $CWD/finance/settings_product.py $CWD/finance_src/settings.py
         chown -R backtoshops.www-data $CWD/finance_src
         chmod -R 2750 $CWD/finance_src
     fi
@@ -349,7 +381,28 @@ function setup_finance() {
     bash setupdb.sh
 
     # start server
-    nohup python fin_server.py &
+    uwsgi -s 127.0.0.1:9000 -w fin_server -M -p4 --callable app -d uwsgi.log
+
+    # nginx
+    if [ ! -r /etc/nginx/sites-available/finance ]; then
+        echo "(-) Creating Nginx Site..."
+        cat > /etc/nginx/sites-available/finance <<EOF
+server {
+    listen    $FIN_ADDR;
+    server_name    $FIN_DOMAIN;
+    location / {
+        include uwsgi_params;
+        uwsgi_pass 127.0.0.1:9000;
+        uwsgi_param SCRIPT_NAME '';
+    }
+}
+EOF
+        ln -s /etc/nginx/sites-available/finance /etc/nginx/sites-enabled/
+    else
+        echo "(i) Nginx Server OK"
+    fi
+
+    service nginx restart
 }
 
 function deploy_finance() {
@@ -369,17 +422,17 @@ function make_assets_src_dir() {
     [ -d $CWD/assets -a -d $CWD/assets_src ] && rm -rf $CWD/assets_src
 
     if [ -d $CWD/assets -a ! -d $CWD/assets_src ]; then
-        mv $CWD/assets $CWD/assets_src
-        cp $CWD/assets_src/settings_product.py $CWD/assets_src/settings.py
+        cp $CWD/assets $CWD/assets_src
+        cp $CWD/assets/settings_product.py $CWD/assets_src/settings.py
         chown -R backtoshops.www-data $CWD/assets_src
         chmod -R 2750 $CWD/assets_src
-
-        # allow writing in the upload directories
-        chmod -R 2770 $CWD/assets_src/static/js
-        chmod -R 2770 $CWD/assets_src/static/css
-        chmod -R 2770 $CWD/assets_src/static/img
-        chmod -R 2770 $CWD/assets_src/static/html
     fi
+
+    # allow writing in the upload directories
+    chmod -R 2770 $CWD/assets/static/js
+    chmod -R 2770 $CWD/assets/static/css
+    chmod -R 2770 $CWD/assets/static/img
+    chmod -R 2770 $CWD/assets/static/html
 }
 
 function setup_assets() {
@@ -387,7 +440,44 @@ function setup_assets() {
     source $CWD/env/bin/activate
 
     # start server
-    nohup python assets_server.py &
+    uwsgi -s 127.0.0.1:9300 -w assets_server -M -p4 --callable app -d uwsgi.log
+
+    # nginx
+    if [ ! -r /etc/nginx/sites-available/assets ]; then
+        echo "(-) Creating Nginx Site..."
+        cat > /etc/nginx/sites-available/assets <<EOF
+server {
+    listen    $AST_ADDR;
+    server_name    $AST_DOMAIN;
+    location /img/ {
+        alias /home/backtoshops/assets/static/img/;
+        autoindex off;
+    }
+    location /js/ {
+        alias /home/backtoshops/assets/static/js/;
+        autoindex off;
+    }
+    location /css/ {
+        alias /home/backtoshops/assets/static/css/;
+        autoindex off;
+    }
+    location /html/ {
+        alias /home/backtoshops/assets/static/html/;
+        autoindex off;
+    }
+    location / {
+        include uwsgi_params;
+        uwsgi_pass 127.0.0.1:9300;
+        uwsgi_param SCRIPT_NAME '';
+    }
+}
+EOF
+        ln -s /etc/nginx/sites-available/assets /etc/nginx/sites-enabled/
+    else
+        echo "(i) Nginx Server OK"
+    fi
+
+    service nginx restart
 }
 
 function deploy_assets() {
@@ -406,8 +496,8 @@ function make_front_src_dir() {
     [ -d $CWD/front -a -d $CWD/front_src ] && rm -rf $CWD/front_src
 
     if [ -d $CWD/front -a ! -d $CWD/front_src ]; then
-        mv $CWD/front $CWD/front_src
-        cp $CWD/front_src/settings_product.py $CWD/front_src/settings.py
+        cp $CWD/front $CWD/front_src
+        cp $CWD/front/settings_product.py $CWD/front_src/settings.py
         chown -R backtoshops.www-data $CWD/front_src
         chmod -R 2750 $CWD/front_src
     fi
@@ -418,9 +508,40 @@ function setup_front() {
     source $CWD/env/bin/activate
 
     # start server
-    gunicorn -k sync -w 8 -p gunicorn.pid -b 0.0.0.0:9500 front_server:app &
+    uwsgi -s 127.0.0.1:9500 -w front_server -M -p4 --callable app -d uwsgi.log
 
-    # TODO apache/nginx
+    # nginx
+    if [ ! -r /etc/nginx/sites-available/front ]; then
+        echo "(-) Creating Nginx Site..."
+        cat > /etc/nginx/sites-available/front <<EOF
+server {
+    listen    $FRT_ADDR;
+    server_name    $FRT_DOMAIN;
+    location /img/ {
+        alias /home/backtoshops/front_src/static/img/;
+        autoindex off;
+    }
+    location /js/ {
+        alias /home/backtoshops/front_src/static/js/;
+        autoindex off;
+    }
+    location /css/ {
+        alias /home/backtoshops/front_src/static/css/;
+        autoindex off;
+    }
+    location / {
+        include uwsgi_params;
+        uwsgi_pass 127.0.0.1:9500;
+        uwsgi_param SCRIPT_NAME '';
+    }
+}
+EOF
+        ln -s /etc/nginx/sites-available/front /etc/nginx/sites-enabled/
+    else
+        echo "(i) Nginx Server OK"
+    fi
+
+    service nginx restart
 }
 
 function deploy_front() {
@@ -453,7 +574,7 @@ case $1 in
         everything)
             deploy_backoffice
             deploy_user
-            deploy_test
+            #deploy_test
             deploy_finance
             deploy_assets
             deploy_front

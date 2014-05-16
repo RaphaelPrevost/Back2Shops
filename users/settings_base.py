@@ -36,8 +36,9 @@ HMAC_KEY_SIZE = 128
 HMAC_KEY_FILE_PATH = 'hmac.pem'
 
 ADM_ROOT_URI = "http://localhost:8000"
+USR_ROOT_URI = "http://localhost:8100"
 FIN_ROOT_URI = "http://localhost:9000"
-FRONT_ROOT_URI = "http://188.165.192.57:9500"
+FRONT_ROOT_URI = "http://localhost:9500"
 
 SALES_SERVER_API_URL = "%s/webservice/1.0/%%(api)s" % ADM_ROOT_URI
 
@@ -73,8 +74,8 @@ MAIL_POSTFIX = 'gmail.com'
 
 
 
-PAYMENT_GATEWAY = "http://188.165.192.57:8100/payment/%(id_trans)s/gateway"
-PAYMENT_RETURN = "http://188.165.192.57:8100/payment/%(id_trans)s/process"
+PAYMENT_GATEWAY = "%s/payment/%%(id_trans)s/gateway" % USR_ROOT_URI
+PAYMENT_RETURN = "%s/payment/%%(id_trans)s/process" % USR_ROOT_URI
 PAYMENT_CANCEL = "%s/payment/%%(id_trans)s/cancel.html" % FRONT_ROOT_URI
 
 FRONT_PAYMENT_SUCCESS = "%s/paypal/%%(id_trans)s/success" % FRONT_ROOT_URI
@@ -82,7 +83,7 @@ FRONT_PAYMENT_FAILURE = "%s/paypal/%%(id_trans)s/failure" % FRONT_ROOT_URI
 
 PAYPAL_SERVER = "https://www.sandbox.paypal.com/cgi-bin/webscr"
 
-FIN_PAYPAL_TRANS = 'http://188.165.192.57:9000/webservice/1.0/pub/paypal/trans/%(id_trans)s'
+FIN_PAYPAL_TRANS = '%s/webservice/1.0/pub/paypal/trans/%%(id_trans)s' % FIN_ROOT_URI
 SELLER_EMAIL = 'test@infinite-code.com'
 
 CURRENCY_EX_RATE = {

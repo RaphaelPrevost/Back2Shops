@@ -5,23 +5,23 @@
         <!--VISUEL PROD-->
         <div id="visuelsProd">
             <div id="visuelXL">
-                <img src="${product_info['img']}" alt="${product_info['name']}" />
+                <img src="${product_info.get('img')}" alt="${product_info.get('name')}" />
             </div>
             <ul id="visuelXS">
-                <li><a href="#"><img src="${product_info['img']}" alt="${product_info['name']}" /></a></li>
+                <li><a href="#"><img src="${product_info.get('img')}" alt="${product_info.get('name')}" /></a></li>
             </ul>
         </div>
         <!--//VISUEL PROD-->
         
         <!--INFOS PROD-->
         <div id="infosProd">
-            <h1 class="titleLine"><strong><span>${product_info['name']}<em id="prix">${product_info['price']['#text']} ${product_info['price']['@currency']}</em></span></strong></h1>
+            <h1 class="titleLine"><strong><span>${product_info.get('name')}<em id="prix">${product_info['price']['#text']} ${product_info['price']['@currency']}</em></span></strong></h1>
             <!--left-->
             <div id="recapLeft">
                 <!--DESCRIPTION-->
                 <div id="descrProd">
                     <p>
-                        <strong>${product_info['name']}</strong>, ${product_info['desc']}
+                        <strong>${product_info.get('name')}</strong>, ${product_info.get('desc')}
                     </p>
                 </div>
                 <!--//DESCRIPTION-->
