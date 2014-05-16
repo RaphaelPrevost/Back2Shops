@@ -1,6 +1,6 @@
+uWSGI==2.0.4
 Cython==0.19.1
 falcon==0.1.7
-gunicorn==18.0
 ujson==1.33
 enum==0.4.4
 gevent==0.13.8

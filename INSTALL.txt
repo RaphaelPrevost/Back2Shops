@@ -5,7 +5,7 @@
           liblcms1-dev libwebp-dev gettext libevent-dev swig
 
 2. user server:
-   sudo apt-get install python2.7-dev libpq-dev python-pip git \
+   sudo apt-get install python2.7-dev libpq-dev python-pip git python-lxml \
           libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev \
           liblcms1-dev libwebp-dev libevent-dev swig redis-server
 

@@ -3,7 +3,8 @@ import os
 from settings_base import *
 
 PRODUCTION = True
-ADM_ROOT_URI = "http://188.165.192.57"
+ADM_ROOT_URI = "http://37.187.48.33"
+USR_ROOT_URI = "http://92.222.30.2"
 SALES_SERVER_API_URL = "%s/webservice/1.0/%%(api)s" % ADM_ROOT_URI
 
 SERVER_APIKEY_URI_MAP = {

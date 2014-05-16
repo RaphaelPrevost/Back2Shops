@@ -33,6 +33,9 @@ def load_redis_data():
     gevent.spawn(import_sales_list)
     gevent.spawn(import_shops_list)
 
+load_redis_data()
+init_db()
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='User Server',
                                      add_help=False)
@@ -41,10 +44,6 @@ if __name__ == '__main__':
     settings.RUNNING_TEST = args.test
     if settings.RUNNING_TEST:
         print 'Start server for running test ...'
-    else:
-        load_redis_data()
-
-    init_db()
 
     import logging
     logging.info('user server start on port %s' % settings.SERVER_PORT)

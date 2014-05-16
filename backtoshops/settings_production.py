@@ -253,10 +253,10 @@ THUMBNAIL_DEBUG = True
 GEONAMES_USERNAME = "moonstrap"
 
 # TODO: change according with product env.
-USR_SERVER = 'http://localhost:8100'
-FIN_SERVER = 'http://localhost:9000'
-AST_SERVER = 'http://localhost:9300'
-ASSETS_CDN = 'http://188.165.192.57:9300'
+USR_SERVER = 'http://92.222.30.2'
+FIN_SERVER = 'http://92.222.30.3'
+AST_SERVER = 'http://92.222.30.4'
+ASSETS_CDN = 'http://92.222.30.4'
 
 SERVER_APIKEY_URI_MAP = {
     'USR': os.path.join(USR_SERVER, 'webservice/1.0/pub/apikey.pem'),
