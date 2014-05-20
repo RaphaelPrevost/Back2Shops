@@ -274,15 +274,6 @@ function deploy_backoffice() {
 
 ########## usr related functions ##########
 
-function setup_usr_db() {
-    if [ ! -z $RESETDB ]; then
-        if [ -z $INITDB ]; then
-            su postgres -c "dropdb users"
-        fi
-        su postgres -c "createdb -E UNICODE users -O postgres"
-    fi
-}
-
 function make_usr_src_dir() {
     # remove old sourcecode
     [ -d $CWD/users -a -d $CWD/users_src ] && rm -rf $CWD/users_src
@@ -302,7 +293,10 @@ function setup_usr() {
     # edit the settings if needed
 
     # db
-    bash setupdb.sh
+    if [ ! -z $RESETDB ]; then
+        source ./dbconf.sh
+        bash setupdb.sh $DBNAME
+    fi
 
     # start redis
     bash start_redis.sh
@@ -331,14 +325,12 @@ EOF
     else
         echo "(i) Nginx Server OK"
     fi
-
     service nginx restart
 }
 
 function deploy_user() {
     sanity_checks $USR_REQUIREMENT "${USR_DEPS[*]}"
     create_python_env $USR_REQUIREMENT
-    setup_usr_db
     make_usr_src_dir
     setup_usr
     echo "(i) Deploy user server finished"
@@ -350,15 +342,6 @@ function deploy_test() {
 
 
 ########## finance related functions ##########
-
-function setup_finance_db() {
-    if [ ! -z $RESETDB ]; then
-        if [ -z $INITDB ]; then
-            su postgres -c "dropdb finance"
-        fi
-        su postgres -c "createdb -E UNICODE finance -O postgres"
-    fi
-}
 
 function make_finance_src_dir() {
     # remove old sourcecode
@@ -377,7 +360,10 @@ function setup_finance() {
     source $CWD/env/bin/activate
 
     # db
-    bash setupdb.sh
+    if [ ! -z $RESETDB ]; then
+        source ./dbconf.sh
+        bash setupdb.sh $DBNAME
+    fi
 
     # start server
     uwsgi -s 127.0.0.1:9000 -w fin_server -M -p4 --callable app -d uwsgi.log
@@ -407,7 +393,6 @@ EOF
 function deploy_finance() {
     sanity_checks $FIN_REQUIREMENT "${FIN_DEPS[*]}"
     create_python_env $FIN_REQUIREMENT
-    setup_finance_db
     make_finance_src_dir
     setup_finance
     echo "(i) Deploy finance server finished"
@@ -557,6 +542,23 @@ function deploy_front() {
 }
 
 
+function restart_servers() {
+    service apache2 reload
+
+    killall -9 uwsgi
+    source $CWD/env/bin/activate
+    cd $CWD/users_src
+    uwsgi -s 127.0.0.1:8100 -w server -M -p4 --callable app -d uwsgi.log
+    cd $CWD/finance_src
+    uwsgi -s 127.0.0.1:9000 -w fin_server -M -p4 --callable app -d uwsgi.log
+    cd $CWD/assets_src
+    uwsgi -s 127.0.0.1:9300 -w assets_server -M -p4 --callable app -d uwsgi.log
+    cd $CWD/front_src
+    uwsgi -s 127.0.0.1:9500 -w front_server -M -p4 --callable app -d uwsgi.log
+
+    service nginx reload
+}
+
 ########## main ##########
 [ $1 ] || usage
 case $1 in
@@ -582,6 +584,9 @@ case $1 in
             deploy_finance
             deploy_assets
             deploy_front
+            ;;
+        restart)
+            restart_servers            
             ;;
         testdata)
             deploy_test
