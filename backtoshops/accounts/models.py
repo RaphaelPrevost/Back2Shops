@@ -23,8 +23,8 @@ class Brand(models.Model):
     logo = models.ImageField(upload_to="img/brand_logos",
                                        storage=AssetsStorage())
     address = models.ForeignKey(Address, unique=True)
-    business_reg_num = models.CharField(verbose_name="Business Registration Number", max_length=100)
-    tax_reg_num = models.CharField(verbose_name="Tax Registration Number", max_length=100)
+    business_reg_num = models.CharField(verbose_name="Business Registration Number", max_length=100, null=True, blank=True, default='')
+    tax_reg_num = models.CharField(verbose_name="Tax Registration Number", max_length=100, null=True, blank=True, default='')
 
     def __str__(self):
         return self.name
