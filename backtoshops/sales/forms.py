@@ -227,6 +227,7 @@ class ShopForm(forms.Form):
         # to global.
         if (target_market == TARGET_MARKET_TYPES.GLOBAL and
             (self.request.user.is_superuser or
+             self.request.user.get_profile().role == USERS_ROLE.ADMIN or
              self.request.user.get_profile().allow_internet_operate)):
             data['shops'] = []
         else:
