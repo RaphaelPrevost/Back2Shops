@@ -38,3 +38,31 @@ class ImgItem(Item):
         ext = os.path.splitext(name)[1][1:]
         return 'image/%s' % ext
 
+
+class AssetItem(Item):
+    storage_path = 'views/templates/%s/%s/%s'
+
+    def on_get(self, req, resp, **kwargs):
+        theme = kwargs.get('theme')
+        file_type = kwargs.get('file_type')
+        name = kwargs.get('name')
+
+        try:
+            resp.content_type = self._get_media_type(file_type, name)
+
+            if resp.content_type is not None:
+                path = self.storage_path % (theme, file_type, name)
+                resp.stream = open(path, 'rb')
+                resp.stream_len = os.path.getsize(path)
+        except IOError, e:
+            raise e
+
+    def _get_media_type(self, file_type, name):
+        if file_type == 'js':
+            return 'text/javascript'
+        elif file_type == 'css':
+            return 'text/css'
+        elif file_type == 'img':
+            ext = os.path.splitext(name)[1][1:]
+            return 'image/%s' % ext
+        return None

@@ -1,0 +1,123 @@
+<!doctype html>
+<!--[if lte IE 7]> <html class="no-js ie67 ie678" lang="fr"> <![endif]-->
+<!--[if IE 8]> <html class="no-js ie8 ie678" lang="fr"> <![endif]-->
+<!--[if IE 9]> <html class="no-js ie9" lang="fr"> <![endif]-->
+<!--[if gt IE 9]> <!--><html class="no-js" lang="fr"> <!--<![endif]-->
+<head>
+		<meta charset="UTF-8">
+		<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+		<title>Breuer</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<!--[if lt IE 9]>
+		<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+
+  <link rel="stylesheet" type="text/css" media="screen" href="/templates/breuer/css/main.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="templates/breuer/css/easyzoom.css" />
+
+  <link rel="icon" type="image/png" href="img/favicon.png" />
+  <script type="text/javascript" src="templates/breuer/js/jquery-1.10.2.js"></script>
+  <script type="text/javascript" src="templates/breuer/js/jquery-ui-1.10.4.js"></script>
+</head>
+<body>
+	<!--WRAPPER-->
+	<div id="wrapper">
+		<!--HEADER-->
+		<header id="header" role="banner">
+			<div id="logo"><a href="index.php">Breuer</a></div>
+			<div id="linkHead">
+				<a href="#">Newsletter</a><br />
+				<a href="#">Facebook</a> - <a href="#">Twitter</a><br />
+				<a href="#">Mon panier</a> - <a href="#">Mon compte</a>
+			</div>
+			<nav id="nav" role="navigation">
+				<ul>
+					<li><a class="on" href="#">E-shop</a></li>
+					<li><a href="#">Lookbook</a></li>
+				</ul>
+			</nav>
+		</header>
+		<!--//HEADER-->
+
+		<nav id="nav_prod" role="navigation">
+			<strong>Printemps-été 2014</strong>
+			<ul>
+				<li><a href="liste-produit.php">Chemises</a></li>
+				<li><a href="liste-produit.php">Pulls</a></li>
+				<li><a href="liste-produit.php">Polos</a></li>
+				<li><a href="liste-produit.php">Outerwear</a></li>
+				<li><a href="liste-produit.php">Maillots de bain</a></li>
+				<li><a href="liste-produit.php">Cravattes</a></li>
+				<li><a href="liste-produit.php">Echarpes</a></li>
+			</ul>
+		</nav>
+
+	    <!--CONTENT-->
+	    <div id="main" role="main">
+		#{_content}
+	    </div>
+	    <!--//CONTENT-->
+
+		<!--FOOTER-->
+		<footer id="footer" role="contentinfo">
+			<div>
+				<strong>Siège Social</strong>
+				<p>
+					270, avenue Saite Marguerite
+					<br />06200 Nice - France
+				</p>
+			</div>
+			<div>
+				<strong>Show Room Paris</strong>
+				<p>
+					10, rue du Chevalier de Saint George 
+					<br />75001 Paris - France
+				</p>
+			</div>
+			<div class="third">
+				<strong>Show Room New York</strong>
+				<p>
+					130 West - 57th Street - Suite 5E 
+					<br />New York - NY 10019
+				</p>
+			</div>
+
+			<div id="footline">
+				<a href="mentions-legales.php">Mention Légales</a> - <a href="cgv.php">CGV</a> - <a href="commandes-livraisons.php">Commandes et Livraisons</a> - <span>Breuer 2014 &copy;</span>
+			</div>
+
+		</footer>
+		<!--//FOOTER-->
+
+	</div>
+	<!--//WRAPPER-->
+	<script src="/templates/breuer/js/easyzoom.js"></script>
+	<script src="/templates/breuer/js/jquery.simpleGal.js"></script>
+	<script>
+		// Instantiate EasyZoom plugin
+		var $easyzoom = $('.easyzoom').easyZoom();
+
+		// Get the instance API
+		var api = $easyzoom.data('easyZoom');
+	</script>
+
+	<script>
+		$(document).ready(function () {
+			$('.thumbnails').simpleGal({
+				mainImage: '.custom'
+			});
+		});
+	</script>
+
+	<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-XXXXXXXX-X', 'XXXXXXXXXXX.TLD');
+		ga('send', 'pageview');
+	</script>
+
+</body>
+</html>

@@ -28,4 +28,7 @@ urlpatterns = {
     r'/js/{name}': download.JsItem,
     r'/css/{name}': download.CssItem,
     r'/img/{name}': download.ImgItem,
+
+    # access theme assets
+    r'/templates/{theme}/{file_type}/{name}': download.AssetItem,
 }
