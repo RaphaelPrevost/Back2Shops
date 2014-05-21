@@ -13,6 +13,7 @@ CENTRAL_REDIS = {
 }
 
 
+# TEMPLATE_PATH = ['views/templates/breuer']
 TEMPLATE_PATH = ['views/templates']
 DEFAULT_TEMPLATE = 'default.html'
 
