@@ -7,6 +7,7 @@
 {% load is_admin_upper %}
 {% load is_local_sale %}
 {% load is_manager_upper %}
+{% load show_step_shop %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
@@ -49,7 +50,11 @@
             {% for sale in page.object_list %}
             <div class="vente" sale="{{ sale.id }}">
                 <!--NOM, CATEGORIE, TYPE de Prod-->
+                {% if sale|show_step_shop:request.user %}
                 <a href="{% if request.user|is_manager_upper %}{% url 'edit_sale' sale_id=sale.pk step="shop" %}{% endif %}"><h3>{{ sale.product.name }}</h3></a>
+                {% else %}
+                <a href="{% if request.user|is_manager_upper %}{% url 'edit_sale' sale_id=sale.pk step="product" %}{% endif %}"><h3>{{ sale.product.name }}</h3></a>
+                {% endif %}
                 <h4>
                     {% if request.user|is_admin_upper %}
                         <a class="delete" href="#">[X]</a>

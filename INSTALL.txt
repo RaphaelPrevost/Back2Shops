@@ -7,7 +7,8 @@
 2. user server:
    sudo apt-get install python2.7-dev libpq-dev python-pip git python-lxml \
           libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev \
-          liblcms1-dev libwebp-dev libevent-dev swig redis-server
+          liblcms1-dev libwebp-dev libevent-dev swig redis-server \
+          libxml2-dev  libxslt1-dev
 
 3. finance server:
    sudo apt-get install python2.7-dev libpq-dev python-pip git python-lxml \
@@ -32,7 +33,7 @@
    host    all             all              0.0.0.0  0.0.0.0       reject
    host    all             all              ::1/128                md5
 
-3. Config postgresql.conf (/etc/postgresql/9.1/main/pg_hba.conf)
+3. Config postgresql.conf (/etc/postgresql/9.1/main/postgresql.conf)
    change listen_addresses to '*'
    change ssl = true to ssl = false
    change port to 5432

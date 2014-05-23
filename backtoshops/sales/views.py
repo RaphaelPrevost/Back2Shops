@@ -376,6 +376,34 @@ class SaleDetailsShop(OperatorUpperLoginRequiredMixin, View, TemplateResponseMix
         self.shops.filter(productstock__sale=self.sale).distinct()
         return self.render_to_response(self.__dict__)
 
+
+def _has_valid_shop(mother_brand, user):
+    if Shop.objects.filter(mother_brand=mother_brand):
+        return True
+
+    if (not user.is_superuser and
+            user.get_profile().role in (USERS_ROLE.ADMIN, USERS_ROLE.MANAGER) and
+            user.get_profile().allow_internet_operate and
+            user.get_profile().shops.all()):
+        return True
+
+    return False
+
+
+def show_step_shop(wizard):
+    if wizard.get_form(SaleWizardNew.STEP_SHOP).initial.get('shops', []):
+        return True
+
+    shop_form_kws = wizard.get_form_kwargs(SaleWizardNew.STEP_SHOP)
+    user = shop_form_kws.get('request').user
+    mother_brand=shop_form_kws.get('mother_brand')
+    if _has_valid_shop(mother_brand, user):
+        return True
+
+    wizard.skip_shop_step = True
+    return False
+
+
 def add_sale(request, *args, **kwargs):
     forms = [
         (SaleWizardNew.STEP_SHOP, ShopForm),
@@ -398,7 +426,9 @@ def add_sale(request, *args, **kwargs):
         SaleWizardNew.as_view(forms,
                               initial_dict=initials,
                               url_name="add_sale",
-                              done_step_name="list_sales"),
+                              done_step_name="list_sales",
+                              condition_dict={SaleWizardNew.STEP_SHOP: show_step_shop}
+        ),
         login_url="/",
         super_allowed=False)
     return sale_wizard(request, *args, **kwargs)
@@ -584,6 +614,7 @@ def edit_sale(request, *args, **kwargs):
         SaleWizardNew.as_view(forms, initial_dict=initials,
                               url_name="edit_sale",
                               done_step_name="list_sales",
+                              condition_dict={SaleWizardNew.STEP_SHOP: show_step_shop},
                               **settings),
         login_url="bo_login")
 
@@ -627,9 +658,16 @@ class SaleWizardNew(NamedUrlSessionWizardView):
     base_template = "add_sale_base.html"
     edit_mode = False
     sale = None
+    skip_shop_step = False
 
     @transaction.commit_on_success
     def done(self, form_list, **kwargs):
+        if self.skip_shop_step:
+            product_form, stock_form, shipping_form, target_form = form_list
+            shop_form = None
+        else:
+            shop_form, product_form, stock_form, shipping_form, target_form = form_list
+
         if self.edit_mode:
             sale = self.sale
             product = sale.product
@@ -642,14 +680,15 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             product = Product()
             shipping = Shipping()
             sale.mother_brand = self.request.user.get_profile().work_for
-        sale.type_stock = form_list[0].cleaned_data['target_market']
+        sale.type_stock = shop_form and shop_form.cleaned_data['target_market'] or 'N'
         sale.save()
         if sale.type_stock == STOCK_TYPE_DETAILED:
             ShopsInSale.objects.filter(sale=sale).update(is_freezed=True)
-            for shop in form_list[0].cleaned_data['shops']:
-                shops_in_sale, created = ShopsInSale.objects.get_or_create(sale=sale,shop=shop)
-                shops_in_sale.is_freezed = False
-                shops_in_sale.save()
+            if shop_form:
+                for shop in shop_form.cleaned_data['shops']:
+                    shops_in_sale, created = ShopsInSale.objects.get_or_create(sale=sale,shop=shop)
+                    shops_in_sale.is_freezed = False
+                    shops_in_sale.save()
             #if the rest stock is same as initial stock and it is frozen, delete.
             #also remove the stock record for these.
             #update sale's total stock and rest_stock
@@ -658,25 +697,25 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             stocks_to_be_removed.delete()
             shops_to_be_removed.delete()
 
-        product_form = form_list[1].cleaned_data
+        product_data = product_form.cleaned_data
         product.sale = sale
-        product.brand = product_form['brand']
-        product.type = ProductType.objects.get(pk=product_form['type'])
-        product.category = product_form['category']
-        product.name = product_form['name']
-        product.description = product_form['description']
-        product.weight_unit = product_form['weight_unit']
-        product.standard_weight = product_form['standard_weight']
-        product.valid_from = product_form['valid_from'] or date.today()
-        product.valid_to = product_form['valid_to']
-        product.normal_price = product_form['normal_price']
-        product.currency = product_form['currency']
-        product.discount = product_form['discount']
+        product.brand = product_data['brand']
+        product.type = ProductType.objects.get(pk=product_data['type'])
+        product.category = product_data['category']
+        product.name = product_data['name']
+        product.description = product_data['description']
+        product.weight_unit = product_data['weight_unit']
+        product.standard_weight = product_data['standard_weight']
+        product.valid_from = product_data['valid_from'] or date.today()
+        product.valid_to = product_data['valid_to']
+        product.normal_price = product_data['normal_price']
+        product.currency = product_data['currency']
+        product.discount = product_data['discount']
         product.discount_type = \
-            product.discount and product_form['discount_type'] or None
+            product.discount and product_data['discount_type'] or None
         product.save()
 
-        brand_attributes = form_list[1].brand_attributes
+        brand_attributes = product_form.brand_attributes
         ba_pks = []
         for ba in brand_attributes.cleaned_data:
             preview=None
@@ -698,14 +737,12 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 if bap:
                     bap.delete()
 
-        pictures = form_list[1].pictures
-        pp_pks = [int(pp['pk']) for pp in pictures.cleaned_data if not pp['DELETE']]
+        pp_pks = [int(pp['pk']) for pp in product_form.pictures.cleaned_data if not pp['DELETE']]
         product.pictures = ProductPicture.objects.filter(pk__in=pp_pks)
         product.save()
 
-        stock_step = form_list[2]
 
-        for i in stock_step.stocks:
+        for i in stock_form.stocks:
             if i.is_valid() and i.cleaned_data and i.cleaned_data['stock']:
                 ba_pk = i.cleaned_data['brand_attribute']
                 stock, created = ProductStock.objects.get_or_create(sale=sale,
@@ -734,7 +771,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         if sale.total_stock < sale.total_rest_stock:
             sale.total_stock = sale.total_rest_stock
 
-        for i in stock_step.barcodes:
+        for i in stock_form.barcodes:
             if i.is_valid() and i.cleaned_data and i.cleaned_data['upc']:
                 ba_pk = i.cleaned_data['brand_attribute']
                 barcode, created = Barcode.objects.get_or_create(sale=sale,
@@ -745,7 +782,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 barcode.save()
 
 
-        shipping_data = form_list[3].cleaned_data
+        shipping_data = shipping_form.cleaned_data
         shipping.sale = sale
         shipping.handling_fee = shipping_data['handling_fee']
         shipping.allow_group_shipment = shipping_data['allow_group_shipment']
@@ -757,12 +794,13 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         shipping.save()
 
         if shipping_data['set_as_default_shop_shipping']:
-            for shop in form_list[0].cleaned_data['shops']:
-                df_shipping, _ = DefaultShipping.objects.get_or_create(
-                    shop=shop,
-                    defaults={'shipping': shipping})
-                df_shipping.shipping = shipping
-                df_shipping.save()
+            if shop_form:
+                for shop in shop_form.cleaned_data['shops']:
+                    df_shipping, _ = DefaultShipping.objects.get_or_create(
+                        shop=shop,
+                        defaults={'shipping': shipping})
+                    df_shipping.shipping = shipping
+                    df_shipping.save()
 
         if self.edit_mode:
             # Remove useless records.
@@ -825,13 +863,13 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             sale.shippinginsale = ShippingInSale.objects.create(
                 sale=sale, shipping=shipping)
 
-        target = form_list[4].cleaned_data
+        target = target_form.cleaned_data
         sale.gender = target['gender']
         sale.complete = True
         sale.product = product
         sale.save()
 
-        type_attribute_prices = form_list[1].type_attribute_prices
+        type_attribute_prices = product_form.type_attribute_prices
         for tap in type_attribute_prices.cleaned_data:
             if tap['DELETE']:
                 if tap['tap_id'] < 0:
@@ -853,7 +891,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 )
                 s_tap.save()
 
-        type_attribute_weights = form_list[1].type_attribute_weights
+        type_attribute_weights = product_form.type_attribute_weights
         for taw in type_attribute_weights.cleaned_data:
             if taw['DELETE']:
                 if taw['taw_id'] < 0:
@@ -1008,12 +1046,12 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         elif self.steps.current == self.STEP_STOCKS:
             context.update({
                 'form_title': _("Stock Allocation"),
-                'attributes': self.brand_attributes,
+                'attributes': getattr(self, 'brand_attributes', []),
                 'preview_shop': self._render_preview(self.STEP_SHOP),
                 'preview_product': self._render_preview(self.STEP_PRODUCT),
-                'common_attributes': self.common_attributes,
-                'shops': self.shops,
-                'global_stock': True if self.target_market == "N" else False
+                'common_attributes': getattr(self, 'common_attributes', []),
+                'shops': getattr(self, 'shops', []),
+                'global_stock': True if getattr(self, 'target_market', '') == "N" else False
             })
         elif self.steps.current == self.STEP_SHIPPING:
             context.update({
@@ -1094,6 +1132,10 @@ class SaleWizardNew(NamedUrlSessionWizardView):
 
         if step == self.STEP_PRODUCT:
             initial_product = super(SaleWizardNew, self).get_form_initial(step)
+            # the shop step is skipped, set default value "global"
+            if self.skip_shop_step is True:
+                self.storage.set_step_data(self.STEP_SHOP,
+                                           {'shop-target_market': 'N'})
             if not self.edit_mode:
                 shop_obj = self.get_form(self.STEP_SHOP,
                                          data=self.storage.get_step_data(self.STEP_SHOP))
