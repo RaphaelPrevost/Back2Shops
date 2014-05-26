@@ -100,11 +100,13 @@ class BrandRoutes(object):
         for url, res in fixed_urlpatterns.iteritems():
             urlpatterns[url] = res()
 
-        if not self.routes_dict:
-            if settings.PRODUCTION:
-                self.refresh()
-            else:
-                gevent.spawn(self.refresh)
+        if settings.PRODUCTION:
+            self.refresh()
+        elif not self.routes_dict:
+            # in dev env, we have to fetch routes after server is up,
+            # since routes api in users server is private and need
+            # cryto key from front server.
+            gevent.spawn(self.refresh)
 
         if self.routes_dict:
             for route in self.routes_dict.itervalues():
