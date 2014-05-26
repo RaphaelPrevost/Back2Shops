@@ -41,19 +41,19 @@
             <button class="navForm" id="btn_prev_step" name="wizard_prev_step" value="{{ wizard.steps.prev }}">{% trans "Back" %}</button>
             {% endif %}
             <button class="navForm" id="btn_cancel" name="wizard_cancel" value="{{ wizard.steps.current }}">{% trans "Cancel" %}</button>
-            {% if wizard.steps.step0 == 0 %}
+            {% if wizard.steps.current == "shop" %}
             <input class="btn select" type="submit" value="{% trans "Next: Product" %}"/>
             {% endif %}
-            {% if wizard.steps.step0 == 1 %}
+            {% if wizard.steps.current == "product" %}
             <input class="btn select" type="submit" value="{% trans "Next: Stock Qty" %}"/>
             {% endif %}
-            {% if wizard.steps.step0 == 2 %}
+            {% if wizard.steps.current == "stocks" %}
             <input class="btn select" type="submit" value="{% trans "Next: Shipping" %}"/>
             {% endif %}
-            {% if wizard.steps.step0 == 3 %}
+            {% if wizard.steps.current == "shipping" %}
             <input class="btn select" type="submit" value="{% trans "Next: Target" %}"/>
             {% endif %}
-            {% if wizard.steps.step0 == 4 %}
+            {% if wizard.steps.current == "target" %}
             <input class="btn select" type="submit" value="{% trans "Update Sale" %}"/>
             {% endif %}
         </form>
