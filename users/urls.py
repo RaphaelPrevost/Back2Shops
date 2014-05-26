@@ -14,6 +14,7 @@ from webservice.payment import PaymentFormResource
 from webservice.payment import PaypalProcessResource
 from webservice.payment import PaypalGatewayResource
 from webservice.sales import SalesResource
+from webservice.routes import RoutesResource
 from webservice.shipment import ShipmentResource
 from webservice.shipping import ShippingListResource
 from webservice.shipping import ShippingConfResource
@@ -43,6 +44,7 @@ urlpatterns = {
     '/webservice/protected/invalidate': InvalidationResource,
     '/webservice/protected/shipping/fee': ShippingFeeResource,
 
+    '/webservice/1.0/private/routes/list': RoutesResource,
     '/webservice/1.0/private/order/orders': OrderListResource,
     '/webservice/1.0/private/order/detail': OrderDetailResource,
     '/webservice/1.0/private/order/delete': OrderDeleteResource,

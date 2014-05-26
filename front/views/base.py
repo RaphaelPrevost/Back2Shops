@@ -14,6 +14,9 @@ class BaseResource(object):
     request = None
     response = None
 
+    def __init__(self, **kwargs):
+        object.__init__(self)
+
     def on_get(self, req, resp, **kwargs):
         self.request = req
         self.response = resp
@@ -66,13 +69,18 @@ class BaseResource(object):
     def gen_resp(self, resp, data):
         raise NotImplementedError
 
-    def redirect(self, redirect_to):
+    def redirect(self, redirect_to, code=falcon.HTTP_302):
         self.response.status = falcon.HTTP_302
-        self.response.set_header('Location', redirect_to)
+        self.response.location = redirect_to
 
 
 class BaseHtmlResource(BaseResource):
     template = ""
+
+    def __init__(self, **kwargs):
+        super(BaseHtmlResource, self).__init__(**kwargs)
+        self.title = kwargs.get('title') or ''
+        self.desc = kwargs.get('desc') or ''
 
     def gen_resp(self, resp, data):
 
@@ -87,4 +95,7 @@ class BaseHtmlResource(BaseResource):
     def _add_common_data(self, resp_dict):
         if 'err' not in resp_dict:
             resp_dict['err'] = ''
+        resp_dict['err'] = ''
+        resp_dict['title'] = self.title
+        resp_dict['desc'] = self.desc
 

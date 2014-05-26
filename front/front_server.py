@@ -8,7 +8,7 @@ import signal
 
 import settings
 from common.data_access import data_access
-from urls import urlpatterns
+from urls import BrandRoutes
 from B2SUtils.log import setupLogging
 from B2SFrontUtils.constants import REMOTE_API_NAME
 from B2SFrontUtils.utils import parse_form_params
@@ -21,13 +21,13 @@ def get_app():
     app = falcon.API(before=[parse_form_params])
 
     # Resources are represented by long-lived class instances
-    # TODO get routing from users server
-    for url, res in urlpatterns.iteritems():
-        app.add_route(url, res())
+    routes = BrandRoutes()
+    for url, instance in routes.url_res_mapping().iteritems():
+        app.add_route(url, instance)
     return app
 
-gevent.spawn(data_access, REMOTE_API_NAME.GET_SALES)
 app = get_app()
+gevent.spawn(data_access, REMOTE_API_NAME.GET_SALES)
 
 def load_app(server, app=None):
     if not app:

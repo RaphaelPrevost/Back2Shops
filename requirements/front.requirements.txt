@@ -3,10 +3,10 @@ Cython==0.19.1
 falcon==0.1.7
 ujson==1.33
 enum==0.4.4
-gevent==0.13.8
+gevent==1.0.1
 redis==2.8.0
 hiredis==0.1.1
 Tenjin==1.1.1
 B2SUtils==0.0.5
 B2SProtocol==0.0.7
-B2SFrontUtils==0.0.1
+B2SFrontUtils==0.0.2
