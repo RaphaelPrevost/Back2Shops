@@ -11,6 +11,7 @@ class CustomEnum(Enum):
         return result
 
 class REMOTE_API_NAME(CustomEnum):
+    GET_ROUTES = "GET_ROUTES"
     LOGIN = "LOGIN"
     REGISTER = "REGISTER"
     GET_USERINFO = "GET_USERINFO"
@@ -24,6 +25,10 @@ class HTTP_METHOD(CustomEnum):
 
 
 USR_API_SETTINGS = {
+    REMOTE_API_NAME.GET_ROUTES: {
+        'url': '/webservice/1.0/private/routes/list',
+        'method': HTTP_METHOD.GET,
+    },
     REMOTE_API_NAME.LOGIN: {
         'url': '/webservice/1.0/pub/connect',
         'method': HTTP_METHOD.POST,
@@ -47,6 +52,6 @@ USR_API_SETTINGS = {
     REMOTE_API_NAME.GET_SALES: {
         'url': '/webservice/1.0/pub/sales/list',
         'method': HTTP_METHOD.GET,
-    }
+    },
 }
 

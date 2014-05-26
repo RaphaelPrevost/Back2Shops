@@ -38,7 +38,7 @@ HMAC_KEY_FILE_PATH = 'hmac.pem'
 ADM_ROOT_URI = "http://localhost:8000"
 USR_ROOT_URI = "http://localhost:8100"
 FIN_ROOT_URI = "http://localhost:9000"
-FRONT_ROOT_URI = "http://localhost:9500"
+FRONT_ROOT_URI = "http://localhost:9500" # for testing only
 
 SALES_SERVER_API_URL = "%s/webservice/1.0/%%(api)s" % ADM_ROOT_URI
 

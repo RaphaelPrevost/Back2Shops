@@ -1,14 +1,19 @@
 import Cookie
 import logging
+import re
 import ujson
 import urllib
 import urllib2
 from constants import USR_API_SETTINGS
+from B2SCrypto.utils import decrypt_json_resp
+from B2SCrypto.utils import gen_encrypt_json_context
 from B2SProtocol.constants import RESP_RESULT
 from B2SProtocol.constants import USER_AUTH_COOKIE_NAME
 
 
-def remote_call(usr_root_uri, api_name, req, resp, **kwargs):
+def remote_call(usr_root_uri, api_name,
+                pri_key_path, usr_pub_key_uri,
+                req, resp, **kwargs):
     if api_name not in USR_API_SETTINGS:
         raise Exception('wrong api calling: %s' % api_name)
 
@@ -16,14 +21,21 @@ def remote_call(usr_root_uri, api_name, req, resp, **kwargs):
         url = usr_root_uri + USR_API_SETTINGS[api_name]['url']
         method = USR_API_SETTINGS[api_name]['method']
         headers = generate_remote_req_headers(req)
-        remote_resp = _request_remote_server(url, method, kwargs,
-                                             headers=headers)
+        encrypt = re.search('/(private|protected)/', url)
+
+        remote_resp = _request_remote_server(
+            url, method, kwargs, headers,
+            encrypt, pri_key_path, usr_pub_key_uri)
         set_new_auth_cookie(resp, remote_resp.headers)
-        return ujson.loads(remote_resp.read())
+        if encrypt:
+            content = decrypt_json_resp(remote_resp, usr_pub_key_uri, pri_key_path)
+        else:
+            content = remote_resp.read()
+        return ujson.loads(content)
 
     except Exception, e:
-        logging.error("Failed to get from Users Server %s", e,
-                      exc_info=True)
+        logging.error("Failed to get %s from Users Server %s",
+                      url, e, exc_info=True)
         return {'res': RESP_RESULT.F, 'err': 'SERVER_ERR'}
 
 
@@ -46,7 +58,8 @@ def set_new_auth_cookie(resp, remote_resp_headers):
             resp.set_header('set-cookie', header_value.strip())
 
 
-def _request_remote_server(uri, method, params, headers=None):
+def _request_remote_server(uri, method, params, headers,
+               encrypt=False, pri_key_path=None, usr_pub_key_uri=None):
     data = None
     headers = headers or {}
 
@@ -57,9 +70,14 @@ def _request_remote_server(uri, method, params, headers=None):
         else:
             data = query_str
 
-    req = urllib2.Request(uri, data=data, headers=headers)
     try:
+        if encrypt and data:
+            data = gen_encrypt_json_context(
+                data, usr_pub_key_uri, pri_key_path)
+
+        req = urllib2.Request(uri, data=data, headers=headers)
         return urllib2.urlopen(req)
+
     except urllib2.HTTPError, e:
         logging.error('_request_remote_server HTTPError: '
                       'error: %s, '

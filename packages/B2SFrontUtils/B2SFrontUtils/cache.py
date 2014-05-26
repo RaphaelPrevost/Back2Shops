@@ -27,9 +27,12 @@ class BaseCacheProxy(object):
     usr_root_uri = None
     local_cache = None
 
-    def __init__(self, redis_cli, usr_root_uri):
+    def __init__(self, redis_cli, usr_root_uri,
+                 pri_key_path, usr_pub_key_uri):
         self.redis_cli = redis_cli
         self.usr_root_uri = usr_root_uri
+        self.pri_key_path = pri_key_path
+        self.usr_pub_key_uri = usr_pub_key_uri
 
     def get(self, **kw):
         try:
@@ -47,6 +50,7 @@ class BaseCacheProxy(object):
 
     def _get_from_server(self, obj_id=None, **kw):
         resp_dict = remote_call(self.usr_root_uri, self.api_name,
+                                self.pri_key_path, self.usr_pub_key_uri,
                                 None, None, **kw)
         if resp_dict.get('res') == RESP_RESULT.F:
             return resp_dict
@@ -110,6 +114,9 @@ class BaseCacheProxy(object):
             logging.error("Failed to write %s: %s", self.local_cache_file, e,
                           exc_info=True)
 
+    def _match_obj(self, obj, **valid_kwargs):
+        raise NotImplementedError
+
     def _filter_obj_ids(self, **kw):
         obj_ids = set(self.redis_cli.lrange(self.list_redis_key % ALL, 0, -1))
         for arg_name, filter_key in self.filter_args.iteritems():
@@ -126,8 +133,30 @@ class BaseCacheProxy(object):
         filter_ids = set(self.redis_cli.lrange(key % id_, 0, -1))
         return pre_ids.intersection(filter_ids)
 
+
+class RoutesCacheProxy(BaseCacheProxy):
+    api_name = REMOTE_API_NAME.GET_ROUTES
+    local_cache_file = "static/cache/%s.json" % api_name
+
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(RoutesCacheProxy,
+                                  cls).__new__(cls, *args, **kwargs)
+        return cls._instance
+
+    def get(self, **kw):
+        resp_dict = self._get_from_server(**kw)
+
+        if resp_dict.get('res') == RESP_RESULT.F:
+            resp_dict = self._get_from_local(**kw)
+        else:
+            self._update_local_cache(resp_dict)
+        return resp_dict
+
     def _match_obj(self, obj, **valid_kwargs):
-        raise NotImplementedError
+        return True
 
 
 class SalesCacheProxy(BaseCacheProxy):
@@ -160,5 +189,6 @@ class SalesCacheProxy(BaseCacheProxy):
 
 
 cache_proxy = {
+    RoutesCacheProxy.api_name: RoutesCacheProxy,
     SalesCacheProxy.api_name: SalesCacheProxy,
 }

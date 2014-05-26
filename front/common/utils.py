@@ -38,7 +38,8 @@ def get_brief_product_list(sales):
             'name': info.get('name') or '',
             'desc': info.get('desc') or '',
             'img': info.get('img') or '',
-            'link': get_url_format(FRT_ROUTE_ROLE.PRDT_INFO) % _id,
+            'link': get_url_format(FRT_ROUTE_ROLE.PRDT_INFO)
+                    % {'id_sale': _id},
         }
         if not settings.PRODUCTION and not product_info['img']:
             product_info['img'] = '/img/dollar-exemple.jpg'
@@ -46,12 +47,10 @@ def get_brief_product_list(sales):
 
     return product_list
 
+def get_url_format(role):
+    from urls import BrandRoutes
+    return BrandRoutes().get_url_format(role)
+
 def send_reload_signal():
     os.kill(os.getpid(), signal.SIGHUP)
 
-def get_url_format(role):
-    #TODO get url format from users server
-    return {
-        FRT_ROUTE_ROLE.PRDT_LIST: '/products',
-        FRT_ROUTE_ROLE.PRDT_INFO: '/products/%s',
-    }.get(role)

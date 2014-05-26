@@ -305,7 +305,7 @@ function setup_usr() {
     PYTHONPATH=$CWD/users_src python scripts/gen_hmac_key.py
 
     # start server
-    uwsgi -s 127.0.0.1:8100 -w server -M -p4 --callable app -d uwsgi.log
+    start_uwsgi 8100 server
 
     # nginx
     if [ ! -r /etc/nginx/sites-available/users ]; then
@@ -366,7 +366,7 @@ function setup_finance() {
     fi
 
     # start server
-    uwsgi -s 127.0.0.1:9000 -w fin_server -M -p4 --callable app -d uwsgi.log
+    start_uwsgi 9000 fin_server
 
     # nginx
     if [ ! -r /etc/nginx/sites-available/finance ]; then
@@ -429,7 +429,7 @@ function setup_assets() {
     source $CWD/env/bin/activate
 
     # start server
-    uwsgi -s 127.0.0.1:9300 -w assets_server -M -p4 --callable app -d uwsgi.log
+    start_uwsgi 9300 assets_server
 
     # nginx
     if [ ! -r /etc/nginx/sites-available/assets ]; then
@@ -497,7 +497,7 @@ function setup_front() {
     source $CWD/env/bin/activate
 
     # start server
-    uwsgi -s 127.0.0.1:9500 -w front_server -M -p4 --callable app -d uwsgi.log
+    start_uwsgi 9500 front_server
 
     # nginx
     if [ ! -r /etc/nginx/sites-available/front ]; then
@@ -516,6 +516,14 @@ server {
     }
     location /css/ {
         alias /home/backtoshops/front_src/static/css/;
+        autoindex off;
+    }
+    location /templates/ {
+        alias /home/backtoshops/front_src/views/templates/;
+        autoindex off;
+    }
+    location /webservice/1.0/pub/apikey.pem {
+        alias /home/backtoshops/front_src/static/keys/front_pub.key;
         autoindex off;
     }
     location / {
@@ -543,20 +551,25 @@ function deploy_front() {
 
 
 function restart_servers() {
-    service apache2 reload
+    service apache2 restart
 
     killall -9 uwsgi
     source $CWD/env/bin/activate
-    cd $CWD/users_src
-    uwsgi -s 127.0.0.1:8100 -w server -M -p4 --callable app -d uwsgi.log
-    cd $CWD/finance_src
-    uwsgi -s 127.0.0.1:9000 -w fin_server -M -p4 --callable app -d uwsgi.log
-    cd $CWD/assets_src
-    uwsgi -s 127.0.0.1:9300 -w assets_server -M -p4 --callable app -d uwsgi.log
-    cd $CWD/front_src
-    uwsgi -s 127.0.0.1:9500 -w front_server -M -p4 --callable app -d uwsgi.log
 
-    service nginx reload
+    cd $CWD/users_src
+    start_uwsgi 8100 server
+    cd $CWD/finance_src
+    start_uwsgi 9000 fin_server
+    cd $CWD/assets_src
+    start_uwsgi 9300 assets_server
+    cd $CWD/front_src
+    start_uwsgi 9500 front_server
+
+    service nginx restart
+}
+
+function start_uwsgi() {
+    uwsgi -s 127.0.0.1:$1 -w $2 -M -p4 --callable app -d uwsgi.log --gevent 100
 }
 
 ########## main ##########

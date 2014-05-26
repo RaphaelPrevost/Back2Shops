@@ -15,7 +15,7 @@
         
         <!--INFOS PROD-->
         <div id="infosProd">
-            <h1 class="titleLine"><strong><span>${product_info.get('name')}<em id="prix">${product_info['price']['#text']} ${product_info['price']['@currency']}</em></span></strong></h1>
+            <h1 class="titleLine"><strong><span>${product_info.get('name')}<em id="prix">${product_info['price'].get('#text')} ${product_info['price'].get('@currency')}</em></span></strong></h1>
             <!--left-->
             <div id="recapLeft">
                 <!--DESCRIPTION-->
@@ -40,7 +40,7 @@
                     </tr>
                     <tr>
                         <td class="label">${{_('WEIGHT')}} :</td>
-                        <td>${product_info['weight']['#text']}${product_info['weight']['@unit']}</td>
+                        <td>${product_info['weight'].get('#text')}${product_info['weight'].get('@unit')}</td>
                     </tr>
                     <tr>
                         <td class="label">${{_('CONDITION')}} : </td>

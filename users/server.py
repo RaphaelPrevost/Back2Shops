@@ -33,8 +33,8 @@ def load_redis_data():
     gevent.spawn(import_sales_list)
     gevent.spawn(import_shops_list)
 
-load_redis_data()
 init_db()
+load_redis_data()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='User Server',
@@ -52,3 +52,4 @@ if __name__ == '__main__':
     print "user server is running at http://%s:%s" % listener
     httpd = WSGIServer(listener, app)
     httpd.serve_forever()
+

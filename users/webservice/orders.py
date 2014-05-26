@@ -25,7 +25,7 @@ from B2SRespUtils.generate import gen_json_resp
 
 class BaseOrderResource(BaseJsonResource):
     encrypt = True
-    def on_post(self, req, resp, conn, **kwargs):
+    def on_post(self, req, resp, **kwargs):
         return gen_json_resp(resp,
                              {'res': RESP_RESULT.F,
                               'err': 'INVALID_REQUEST'})
@@ -204,7 +204,7 @@ class OrderResource(BaseJsonResource):
 class ShippingFeeResource(BaseJsonResource):
     login_required = {'get': False, 'post': False}
 
-    def on_get(self, req, resp, conn, **kwargs):
+    def on_get(self, req, resp, **kwargs):
         return gen_json_resp(resp,
                              {'res': RESP_RESULT.F,
                              'err': 'INVALID_REQUEST'})
@@ -272,7 +272,7 @@ class OrderDetailResource(BaseOrderResource):
 
 class OrderDeleteResource(BaseOrderResource):
     # A stub function for now, needs to implemented later
-    def on_get(self, req, resp, conn, **kwargs):
+    def on_get(self, req, resp, **kwargs):
         return gen_json_resp(resp,
                              {'res': RESP_RESULT.F,
                              'err': 'INVALID_REQUEST'})
@@ -280,7 +280,7 @@ class OrderDeleteResource(BaseOrderResource):
 
 class OrderStatusResource(BaseOrderResource):
     # A stub function for now, needs to implemented later
-    def on_get(self, req, resp, conn, **kwargs):
+    def on_get(self, req, resp, **kwargs):
         return gen_json_resp(resp,
                              {'res': RESP_RESULT.F,
                              'err': 'INVALID_REQUEST'})
