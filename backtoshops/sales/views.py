@@ -652,8 +652,8 @@ class SaleWizardNew(NamedUrlSessionWizardView):
     STEP_SHOP = 'shop'
     STEP_PRODUCT = 'product'
     STEP_STOCKS = 'stocks'
-    STEP_TARGET = 'target'
     STEP_SHIPPING = 'shipping'
+    STEP_TARGET = 'target'
     file_storage = FileSystemStorage()
     base_template = "add_sale_base.html"
     edit_mode = False
