@@ -1,0 +1,24 @@
+{% load i18n %}
+{% load thumbnail %}
+
+<div>
+    <h4 class="shopTitle done"><a href ="#">{{ stock_link }}</a></h4>
+    <div>
+        <p>
+            <em>{{ stock_label }}</em>
+            <span class="contForm taille">
+            {% for attribute in attributes %}
+                <strong>
+                    {% thumbnail attribute.texture "15x15" as im %}
+                        <img style='margin:{{ im|margin:"15x15" }}' src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}"/>
+                    {% endthumbnail %}
+                    {{ attribute.name }}
+                </strong>
+                {% include "_stock_stock_block.html" %}
+            {% empty %}
+                {% include "_stock_stock_block.html" %}
+            {% endfor %}
+            </span>
+        </p>
+    </div>
+</div>

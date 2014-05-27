@@ -214,7 +214,7 @@ class ListSalesView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin
             self.request.session['page_size'] = p_size
         except:
             self.current_page = 1
-        paginator = Paginator(self.sales,settings.get_page_size(self.request))
+        paginator = Paginator(self.sales, settings.get_page_size(self.request))
         try:
             self.page = paginator.page(self.current_page)
         except(EmptyPage, InvalidPage):
@@ -546,7 +546,7 @@ def edit_sale(request, *args, **kwargs):
     for i in ProductStock.objects.filter(sale=sale):
         initial_stocks.append({
             'brand_attribute': i.brand_attribute.pk if i.brand_attribute else None,
-            'common_attribute': i.common_attribute.pk,
+            'common_attribute': i.common_attribute.pk if i.common_attribute else None,
             'shop': i.shop.pk if i.shop else None,
             'stock': i.rest_stock
         })
@@ -555,7 +555,7 @@ def edit_sale(request, *args, **kwargs):
     for i in Barcode.objects.filter(sale=sale):
         initial_barcodes.append({
             'brand_attribute': i.brand_attribute.pk if i.brand_attribute else None,
-            'common_attribute': i.common_attribute.pk,
+            'common_attribute': i.common_attribute.pk if i.common_attribute else None,
             'upc': i.upc
         })
 
@@ -680,7 +680,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             product = Product()
             shipping = Shipping()
             sale.mother_brand = self.request.user.get_profile().work_for
-        sale.type_stock = shop_form and shop_form.cleaned_data['target_market'] or 'N'
+        sale.type_stock = shop_form and shop_form.cleaned_data['target_market'] or STOCK_TYPE_GLOBAL
         sale.save()
         if sale.type_stock == STOCK_TYPE_DETAILED:
             ShopsInSale.objects.filter(sale=sale).update(is_freezed=True)
@@ -742,13 +742,15 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         product.save()
 
 
+
         for i in stock_form.stocks:
             if i.is_valid() and i.cleaned_data and i.cleaned_data['stock']:
                 ba_pk = i.cleaned_data['brand_attribute']
+                ca_pk = i.cleaned_data['common_attribute']
                 stock, created = ProductStock.objects.get_or_create(sale=sale,
                     shop=Shop.objects.get(pk=i.cleaned_data['shop']) if i.cleaned_data['shop'] else None,
-                    common_attribute=CommonAttribute.objects.get(pk=i.cleaned_data['common_attribute']),
-                    brand_attribute = BrandAttribute.objects.get(pk=ba_pk) if ba_pk else None,
+                    common_attribute=CommonAttribute.objects.get(pk=ca_pk) if ca_pk else None,
+                    brand_attribute=BrandAttribute.objects.get(pk=ba_pk) if ba_pk else None,
                     )
                 stock.rest_stock = i.cleaned_data['stock']
                 if stock.stock < stock.rest_stock:
@@ -774,8 +776,9 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         for i in stock_form.barcodes:
             if i.is_valid() and i.cleaned_data and i.cleaned_data['upc']:
                 ba_pk = i.cleaned_data['brand_attribute']
+                ca_pk = i.cleaned_data['common_attribute']
                 barcode, created = Barcode.objects.get_or_create(sale=sale,
-                    common_attribute=CommonAttribute.objects.get(pk=i.cleaned_data['common_attribute']),
+                    common_attribute=CommonAttribute.objects.get(pk=ca_pk) if ca_pk else None,
                     brand_attribute=BrandAttribute.objects.get(pk=ba_pk) if ba_pk else None,
                     )
                 barcode.upc = i.cleaned_data['upc']
@@ -1051,7 +1054,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 'preview_product': self._render_preview(self.STEP_PRODUCT),
                 'common_attributes': getattr(self, 'common_attributes', []),
                 'shops': getattr(self, 'shops', []),
-                'global_stock': True if getattr(self, 'target_market', '') == "N" else False
+                'global_stock': getattr(self, 'target_market', '') == STOCK_TYPE_GLOBAL
             })
         elif self.steps.current == self.STEP_SHIPPING:
             context.update({
@@ -1135,7 +1138,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             # the shop step is skipped, set default value "global"
             if self.skip_shop_step is True:
                 self.storage.set_step_data(self.STEP_SHOP,
-                                           {'shop-target_market': 'N'})
+                                           {'shop-target_market': STOCK_TYPE_GLOBAL})
             if not self.edit_mode:
                 shop_obj = self.get_form(self.STEP_SHOP,
                                          data=self.storage.get_step_data(self.STEP_SHOP))
@@ -1167,22 +1170,34 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             if shop_obj.cleaned_data['target_market'] == STOCK_TYPE_GLOBAL: #National market
                 if self.brand_attributes:
                     for ba in self.brand_attributes:
-                        for ca in self.common_attributes:
-                            initials.append(self._get_stock_initial(ba.pk, ca.pk, None, self._get_stock(ba.pk, ca.pk, None)))
+                        if self.common_attributes:
+                            for ca in self.common_attributes:
+                                initials.append(self._get_stock_initial(ba.pk, ca.pk, None, self._get_stock(ba.pk, ca.pk, None)))
+                        else:
+                            initials.append(self._get_stock_initial(ba.pk, None, None, self._get_stock(ba.pk, None, None)))
                 else:
-                    for ca in self.common_attributes:
-                        initials.append(self._get_stock_initial(None, ca.pk, None, self._get_stock(None, ca.pk, None)))
+                    if self.common_attributes:
+                        for ca in self.common_attributes:
+                            initials.append(self._get_stock_initial(None, ca.pk, None, self._get_stock(None, ca.pk, None)))
+                    else:
+                        initials.append(self._get_stock_initial(None, None, None, self._get_stock(None, None, None)))
 
             else:
                 if self.brand_attributes:
                     for shop in self.shops:
                         for ba in self.brand_attributes:
-                            for ca in self.common_attributes:
-                                initials.append(self._get_stock_initial(ba.pk, ca.pk, shop.pk, self._get_stock(ba.pk, ca.pk, shop.pk)))
+                            if self.common_attributes:
+                                for ca in self.common_attributes:
+                                    initials.append(self._get_stock_initial(ba.pk, ca.pk, shop.pk, self._get_stock(ba.pk, ca.pk, shop.pk)))
+                            else:
+                                initials.append(self._get_stock_initial(ba.pk, None, shop.pk, self._get_stock(ba.pk, None, shop.pk)))
                 else:
                     for shop in self.shops:
-                        for ca in self.common_attributes:
-                            initials.append(self._get_stock_initial(None, ca.pk, shop.pk, self._get_stock(None, ca.pk, shop.pk)))
+                        if self.common_attributes:
+                            for ca in self.common_attributes:
+                                initials.append(self._get_stock_initial(None, ca.pk, shop.pk, self._get_stock(None, ca.pk, shop.pk)))
+                        else:
+                            initials.append(self._get_stock_initial(None, None, shop.pk, self._get_stock(None, None, shop.pk)))
 
             self.stocks_infos.stocks_expired = False
             self.stocks_infos.last_stocks_initials = {'stocks_initials': initials}
@@ -1195,19 +1210,33 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             initials = []
             if self.brand_attributes:
                 for ba in self.brand_attributes:
-                    for ca in self.common_attributes:
+                    if self.common_attributes:
+                        for ca in self.common_attributes:
+                            initials.append({
+                                'brand_attribute': ba.pk,
+                                'common_attribute': ca.pk,
+                                'upc': self._get_barcode(ba.pk, ca.pk),
+                            })
+                    else:
                         initials.append({
                             'brand_attribute': ba.pk,
-                            'common_attribute': ca.pk,
-                            'upc': self._get_barcode(ba.pk, ca.pk),
-                        })
+                            'common_attribute': None,
+                            'upc': self._get_barcode(ba.pk, None),
+                            })
             else:
-                for ca in self.common_attributes:
+                if self.common_attributes:
+                    for ca in self.common_attributes:
+                        initials.append({
+                            'brand_attribute': None,
+                            'common_attribute': ca.pk,
+                            'upc': self._get_barcode(None, ca.pk),
+                        })
+                else:
                     initials.append({
                         'brand_attribute': None,
-                        'common_attribute': ca.pk,
-                        'upc': self._get_barcode(None, ca.pk),
-                    })
+                        'common_attribute': None,
+                        'upc': self._get_barcode(None, None),
+                        })
 
             self.stocks_infos.barcodes_expired = False
             self.stocks_infos.last_barcodes_initials = {'barcodes_initials': initials}

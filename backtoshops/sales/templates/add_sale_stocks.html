@@ -1,14 +1,11 @@
 {% extends base_template %}
 {% load i18n %}
-{% load counter %}
-{% load getform %}
 {% load thumbnail %}
 
 {#Form to add stocks#}
 
 {% block form %}
-    {% counter i %}
-    {% counter j %}
+    {% trans "default attribute" as da_name %}
     {{ wizard.management_form }}
     {{ wizard.form.management_form }}
     <fieldset>
@@ -17,49 +14,7 @@
         {{ wizard.form.non_field_errors }}
         <div id="barcodes_form">
             <div id="barcode_accordion" class="accordion">
-                <div>
-                    <h4 class="shopTitle done"><a href ="#">{% trans "Product Barcodes" %}</a></h4>
-                    <div>
-                        <p>
-                            <em>{% trans "Product Barcodes" %}</em>
-                            <span class="contForm taille">
-                            {% for attribute in attributes %}
-                                <strong>
-                                    {% thumbnail attribute.texture "15x15" as im %}
-                                        <img style='margin:{{ im|margin:"15x15" }}' src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}"/>
-                                    {% endthumbnail %}
-                                    {{ attribute.name }}
-                                </strong>
-                                {% for c in common_attributes %}
-                                    {% with curform=wizard.form.barcodes|getform:j %}
-                                    <label for="{{ curform.upc.auto_id }}">{{ c.name }}</label>
-                                    <input id="{{ curform.upc.auto_id }}" type="text"  name="{{ curform.upc.html_name }}" maxlength="5" value="{% if curform.upc.value %}{{ curform.upc.value }}{% endif %}">
-                                    <span style="display: none;">
-                                        {{ curform.brand_attribute }}
-                                        {{ curform.common_attribute }}
-                                        <input type="checkbox" name="{{ curform.DELETE.html_name }}" id="{{ curform.DELETE.auto_id }}" checked="true">
-                                    </span>
-                                    {% endwith %}
-                                    {% counter j %}
-                                {% endfor %}
-                            {% empty %}
-                                {% for c in common_attributes %}
-                                    {% with curform=wizard.form.barcodes|getform:j %}
-                                    <label for="{{ curform.upc.auto_id }}">{{ c.name }}</label>
-                                    <input id="{{ curform.upc.auto_id }}" type="text"  name="{{ curform.upc.html_name }}" maxlength="5" value="{% if curform.upc.value %}{{ curform.upc.value }}{% endif %}">
-                                    <span style="display: none;">
-                                        {{ curform.brand_attribute }}
-                                        {{ curform.common_attribute }}
-                                        <input type="checkbox" name="{{ curform.DELETE.html_name }}" id="{{ curform.DELETE.auto_id }}" checked="true">
-                                    </span>
-                                    {% endwith %}
-                                    {% counter j %}
-                                {% endfor %}
-                            {% endfor %}
-                            </span>
-                        </p>
-                    </div>
-                </div>
+                {% include "_stock_upc.html" %}
             </div>
         </div>
 
@@ -68,104 +23,19 @@
         {% if global_stock %}
         <div id="global_stocks_form">
             <div id="accordion" class="accordion">
-                <div>
-                    <h4 class="shopTitle done"><a href ="#">{% trans "Initial stock quantity" %}</a></h4>
-                    <div>
-                        <p>
-                            <em>{% trans "Initial stock quantity" %}</em>
-                            <span class="contForm taille">
-                            {% for attribute in attributes %}
-                                <strong>
-                                    {% thumbnail attribute.texture "15x15" as im %}
-                                        <img style='margin:{{ im|margin:"15x15" }}' src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}"/>
-                                    {% endthumbnail %}
-                                    {{ attribute.name }}
-                                </strong>
-                                {% for c in common_attributes %}
-                                    {% with curform=wizard.form.stocks|getform:i %}
-                                    <label for="{{ curform.stock.auto_id }}">{{ c.name }}</label>
-                                    <input id="{{ curform.stock.auto_id }}" type="text"  name="{{ curform.stock.html_name }}" maxlength="5" value="{% if curform.stock.value %}{{ curform.stock.value }}{% endif %}">
-                                    <span style="display: none;">
-                                        {{ curform.shop }}
-                                        {{ curform.brand_attribute }}
-                                        {{ curform.common_attribute }}
-                                        <input type="checkbox" name="{{ curform.DELETE.html_name }}" id="{{ curform.DELETE.auto_id }}" checked="true">
-                                    </span>
-                                    {% endwith %}
-                                    {% counter i %}
-                                {% endfor %}
-                            {% empty %}
-                                {% for c in common_attributes %}
-                                    {% with curform=wizard.form.stocks|getform:i %}
-                                    <label for="{{ curform.stock.auto_id }}">{{ c.name }}</label>
-                                    <input id="{{ curform.stock.auto_id }}" type="text"  name="{{ curform.stock.html_name }}" maxlength="5" value="{% if curform.stock.value %}{{ curform.stock.value }}{% endif %}">
-                                    <span style="display: none;">
-                                        {{ curform.shop }}
-                                        {{ curform.brand_attribute }}
-                                        {{ curform.common_attribute }}
-                                        <input type="checkbox" name="{{ curform.DELETE.html_name }}" id="{{ curform.DELETE.auto_id }}" checked="true">
-                                    </span>
-                                    {% endwith %}
-                                    {% counter i %}
-                                {% endfor %}
-                            {% endfor %}
-                            </span>
-                        </p>
-                    </div>
-                </div>
+                {% trans "Initial stock quantity" as stock_link %}
+                {% trans "Initial stock quantity" as stock_label %}
+                {% include "_stock_stock.html" %}
             </div>
         </div>
         {% else %}
         <div id="detailed_stocks_form">
             <div id="accordion2" class="accordion">
                 {% for shop in shops %}
-                <div>
-                    <h4 class="shopTitle done"><a href ="#">{{ shop.name }}</a></h4>
-                    <div>
-                        <p>
-                            <em>{% trans "Initial stock allocation" %}</em>
-                            <span class="contForm taille">
-                            {% for attribute in attributes %}
-                                <strong>
-                                    {% thumbnail attribute.texture "15x15" as im %}
-                                        <img style='margin:{{ im|margin:"15x15" }}' src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}"/>
-                                    {% endthumbnail %}
-                                    {{ attribute.name }}
-                                </strong>
-                                {% for c in common_attributes %}
-                                    {% with curform=wizard.form.stocks|getform:i %}
-                                    {{ curform.errors }}
-                                    <label for="{{ curform.stock.auto_id }}">{{ c.name }}</label>
-                                    <input id="{{ curform.stock.auto_id }}" type="text"  name="{{ curform.stock.html_name }}" maxlength="5" value="{% if curform.stock.value %}{{ curform.stock.value }}{% endif %}">
-                                    <span style="display: none;">
-                                        {{ curform.shop }}
-                                        {{ curform.brand_attribute }}
-                                        {{ curform.common_attribute }}
-                                        <input type="checkbox" name="{{ curform.DELETE.html_name }}" id="{{ curform.DELETE.auto_id }}" checked="true">
-                                    </span>
-                                    {% endwith %}
-                                    {% counter i %}
-                                {% endfor %}
-                            {% empty %}
-                                {% for c in common_attributes %}
-                                    {% with curform=wizard.form.stocks|getform:i %}
-                                    {{ curform.errors }}
-                                    <label for="{{ curform.stock.auto_id }}">{{ c.name }}</label>
-                                    <input id="{{ curform.stock.auto_id }}" type="text"  name="{{ curform.stock.html_name }}" maxlength="5" value="{% if curform.stock.value %}{{ curform.stock.value }}{% endif %}">
-                                    <span style="display: none;">
-                                        {{ curform.shop }}
-                                        {{ curform.brand_attribute }}
-                                        {{ curform.common_attribute }}
-                                        <input type="checkbox" name="{{ curform.DELETE.html_name }}" id="{{ curform.DELETE.auto_id }}" checked="true">
-                                    </span>
-                                    {% endwith %}
-                                    {% counter i %}
-                                {% endfor %}
-                            {% endfor %}
-                            </span>
-                        </p>
-                    </div>
-                </div>
+                    {% with stock_link=shop.name %}
+                        {% trans "Initial stock allocation" as stock_label %}
+                        {% include "_stock_stock.html" %}
+                    {% endwith %}
                 {% endfor %}
             </div>
         </div>
