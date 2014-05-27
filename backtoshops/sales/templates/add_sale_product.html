@@ -189,7 +189,7 @@
                         <input id="premium_amount" class="inputXS" type="text" />
                         <span id="premium_marker" class="premium_marker">%</span>
                         <input style="display:none;" id="premium_price_val" type="hidden" />
-                        <span id="premium_result">Premium price : <strong id="premium_price">N/A</strong> <strong id="id_premium_price_marker">&nbsp;</strong></span>
+                        <span id="premium_result">Premium price : <strong id="premium_price">{% trans "N/A" %}</strong> <strong id="id_premium_price_marker">&nbsp;</strong></span>
                     </span>
                 </div>
                 {% for f in wizard.form.brand_attributes %}
@@ -781,11 +781,13 @@
             $("span#premium_result").show();
 
             var display_price = new_price > 0 ? new_price : normal_price;
+            if (isNaN(normal_price)) normal_price = "{% trans "N/A" %}";
+            if (isNaN(display_price)) display_price = "{% trans "N/A" %}";
             $("#discount_price").html(display_price);
             base_price_input.val(normal_price);
-            base_price_preview.html(normal_price + selected_cur);
+            base_price_preview.html(normal_price + "&nbsp;" + selected_cur);
             discount_price_str_input.val(display_price);
-            discount_preview.html(display_price + selected_cur);
+            discount_preview.html(display_price + "&nbsp;" + selected_cur);
 
             if (premium_price > 0) {
                 $("#premium_price_val").val(parseFloat(premium_price));
@@ -833,7 +835,9 @@
         var discount_type = $("#{{ wizard.form.discount_type.auto_id }}").val();
         var selected_cur = $("#{{wizard.form.currency.auto_id}} option:selected").text();
         var discount_price = $("#{{ wizard.form.preview_discount_price_str.auto_id }}").val();
+        if (isNaN(discount_price)) discount_price = "{% trans "N/A" %}";
         var base_price = $("#{{ wizard.form.preview_base_price.auto_id }}").val();
+        if (isNaN(base_price)) base_price = "{% trans "N/A" %}";
 
         $("#preview-{{ wizard.form.name.auto_id }}").html(name);
         $("#preview-{{ wizard.form.description.auto_id }}").html(description);
@@ -843,8 +847,8 @@
             $("#preview-{{ wizard.form.valid_to.auto_id }}").html("").parents("span:first").hide();
         }
         $("#preview-{{ wizard.form.discount.auto_id }}").html(discount + (discount_type == "percentage" ? "%" : selected_cur));
-        $("#preview-{{ wizard.form.preview_discount_price_str.auto_id }}").html(discount_price + selected_cur);
-        $("#preview-{{ wizard.form.preview_base_price.auto_id }}").html(base_price + selected_cur);
+        $("#preview-{{ wizard.form.preview_discount_price_str.auto_id }}").html(discount_price + "&nbsp;" + selected_cur);
+        $("#preview-{{ wizard.form.preview_base_price.auto_id }}").html(base_price + "&nbsp;" + selected_cur);
     }
 
     function update_ba_premium() {
