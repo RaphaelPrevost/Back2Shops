@@ -1,0 +1,11 @@
+{% load getform %}
+{% for c in common_attributes %}
+    {% with curform=wizard.form.stocks|getform:forloop.counter cname=c.name %}
+        {{ curform.errors }}
+        {% include "_stock_stock_input.html" %}
+    {% endwith %}
+{% empty %}
+    {% with curform=wizard.form.stocks.0 cname=da_name %}
+        {% include "_stock_stock_input.html" %}
+    {% endwith %}
+{% endfor %}

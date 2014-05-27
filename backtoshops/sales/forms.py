@@ -398,7 +398,7 @@ class ProductForm(forms.Form):
 
 class BarcodeForm(forms.Form):
     brand_attribute = forms.IntegerField(required=False)
-    common_attribute = forms.IntegerField()
+    common_attribute = forms.IntegerField(required=False)
     upc = forms.CharField(label=_("Barcode"), required=False)
 
 BarcodeFormset = formset_factory(BarcodeForm, can_delete=True, extra=0)
@@ -406,7 +406,7 @@ BarcodeFormset = formset_factory(BarcodeForm, can_delete=True, extra=0)
 
 class StockForm(forms.Form):
     brand_attribute = forms.IntegerField(required=False)
-    common_attribute = forms.IntegerField()
+    common_attribute = forms.IntegerField(required=False)
     shop = forms.IntegerField(required=False)
     stock = forms.IntegerField(label=_("Stock"), error_messages = {'required': _(u'This field is required.')})
     def clean_stock(self):
