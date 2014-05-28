@@ -8,12 +8,18 @@ from B2SUtils.errors import ValidationError
 from B2SFrontUtils.constants import REMOTE_API_NAME
 
 
-class CategoryListResource(BaseHtmlResource):
+class TypeListResource(BaseHtmlResource):
     template = "product_list.html"
 
     def _on_get(self, req, resp, **kwargs):
+        obj_id = kwargs.get('id_type')
+        if not obj_id:
+            raise ValidationError('ERR_ID')
+
+        req._params['type'] = obj_id
         sales = data_access(REMOTE_API_NAME.GET_SALES,
                             req, resp, **req._params)
+
         return {'product_list': get_brief_product_list(sales)}
 
 
