@@ -13,18 +13,18 @@
 		<![endif]-->
 
   <link rel="stylesheet" type="text/css" media="screen" href="/templates/breuer/css/main.css" />
-  <link rel="stylesheet" type="text/css" media="screen" href="templates/breuer/css/easyzoom.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="/templates/breuer/css/easyzoom.css" />
 
   <link rel="icon" type="image/png" href="img/favicon.png" />
-  <script type="text/javascript" src="templates/breuer/js/jquery-1.10.2.js"></script>
-  <script type="text/javascript" src="templates/breuer/js/jquery-ui-1.10.4.js"></script>
+  <script type="text/javascript" src="/templates/breuer/js/jquery-1.10.2.js"></script>
+  <script type="text/javascript" src="/templates/breuer/js/jquery-ui-1.10.4.js"></script>
 </head>
 <body>
 	<!--WRAPPER-->
 	<div id="wrapper">
 		<!--HEADER-->
 		<header id="header" role="banner">
-			<div id="logo"><a href="index.php">Breuer</a></div>
+			<div id="logo"><a href="/">Breuer</a></div>
 			<div id="linkHead">
 				<a href="#">Newsletter</a><br />
 				<a href="#">Facebook</a> - <a href="#">Twitter</a><br />
@@ -42,13 +42,9 @@
 		<nav id="nav_prod" role="navigation">
 			<strong>Printemps-été 2014</strong>
 			<ul>
-				<li><a href="liste-produit.php">Chemises</a></li>
-				<li><a href="liste-produit.php">Pulls</a></li>
-				<li><a href="liste-produit.php">Polos</a></li>
-				<li><a href="liste-produit.php">Outerwear</a></li>
-				<li><a href="liste-produit.php">Maillots de bain</a></li>
-				<li><a href="liste-produit.php">Cravattes</a></li>
-				<li><a href="liste-produit.php">Echarpes</a></li>
+				<?py for key in menus: ?>
+				<li><a href="/category/${key}">${menus[key]['name']}</a></li>
+				<?py #endfor ?>
 			</ul>
 		</nav>
 

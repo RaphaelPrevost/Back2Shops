@@ -18,6 +18,9 @@ from B2SProtocol.constants import SALES_FOR_SHOP
 from B2SProtocol.constants import SALES_FOR_BRAND
 from B2SProtocol.constants import SALES_VERSION
 from B2SProtocol.constants import SALES_ALL
+from B2SProtocol.constants import TYPE
+from B2SProtocol.constants import TYPES_VERSION
+from B2SProtocol.constants import TYPES_FOR_BRAND
 from B2SProtocol.constants import SHOP
 from B2SProtocol.constants import SHOPS_FOR_BRAND
 from B2SProtocol.constants import SHOPS_FOR_CITY
@@ -94,7 +97,7 @@ class CacheProxy:
         if not valid:
             logging.debug("invalidate xml response: %s", xmltext, exc_info=True)
             raise ServerError("invalidate %s" % api)
-        return self.parse_xml(xmltext, is_entire_result)
+        return self.parse_xml(xmltext, is_entire_result, **kw)
 
     def _set_to_redis(self, name, value):
         logging.info('save to redis: %s - %s', name, value)
@@ -134,7 +137,7 @@ class CacheProxy:
             pipe.set(name, data_str)
         pipe.execute()
 
-    def parse_xml(self, xml, is_entire_result):
+    def parse_xml(self, xml, is_entire_result, **kw):
         raise NotImplementedError
 
     def validate_xml(self, xml, list_api):
@@ -402,6 +405,65 @@ class ShopsCacheProxy(CacheProxy):
             self._rem_diff_objs(SHOPS_ALL, [s['@id'] for s in shops])
 
 
+class TypesCacheProxy(CacheProxy):
+    list_api = "pub/types/list?%s"
+    obj_key = TYPE
+
+    @property
+    def query_options(self):
+        return ('seller')
+
+    def _get_from_redis(self, **kw):
+        brand_id = kw.get('seller')
+        types_id = []
+
+        types_id = set(get_redis_cli().lrange(TYPES_FOR_BRAND % brand_id, 0, -1))
+
+        if not types_id:
+            raise Exception('To load data from server')
+
+        types = {}
+        for t_id in types_id:
+            t = get_redis_cli().get(TYPE % t_id)
+            if t:
+                t = ujson.loads(t)
+                types[t_id] = t
+        return types
+
+    def _rem_attrs_for_obj(self, id):
+        pass
+
+    def parse_xml(self, xml, is_entire_result, **kw):
+        logging.info('parse shops xml: %s, is_entire_result:%s',
+                     xml, is_entire_result)
+        data = xmltodict.parse(xml)
+        data = data.get('types', data.get('info'))
+        version = data['@version']
+        types = as_list(data.get('type', None))
+
+        try:
+            self._refresh_redis(version, types, is_entire_result, **kw)
+        except (RedisError, ConnectionError), e:
+            logging.error('Redis Error: %s', (e,), exc_info=True)
+
+        return dict([(t['@id'], t) for t in types])
+
+    def _refresh_redis(self, version, types, is_entire_result, **kw):
+
+        # save version
+        brand_id = kw.get('seller')
+        self._set_to_redis(TYPES_VERSION, version)
+
+        # save shops info into redis
+        self._save_objs_to_redis(types)
+
+        pipe = get_redis_cli().pipeline()
+        for t in types:
+            type_id = t['@id']
+            pipe.rpush(TYPES_FOR_BRAND % brand_id, type_id)
+        pipe.execute()
+
+
 class SalesFindProxy:
     find_api = "pub/sales/find?%s"
     def get(self, query):
@@ -447,3 +509,4 @@ class SalesFindProxy:
 sales_cache_proxy = SalesCacheProxy()
 shops_cache_proxy = ShopsCacheProxy()
 find_cache_proxy = SalesFindProxy()
+types_cache_proxy = TypesCacheProxy()

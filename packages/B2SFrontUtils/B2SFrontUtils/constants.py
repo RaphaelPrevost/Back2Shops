@@ -18,6 +18,7 @@ class REMOTE_API_NAME(CustomEnum):
     SET_USERINFO = "SET_USERINFO"
     AUX = "AUX"
     GET_SALES = "GET_SALES"
+    GET_TYPES = "GET_TYPES"
 
 class HTTP_METHOD(CustomEnum):
     GET = "GET"
@@ -53,5 +54,8 @@ USR_API_SETTINGS = {
         'url': '/webservice/1.0/pub/sales/list',
         'method': HTTP_METHOD.GET,
     },
+    REMOTE_API_NAME.GET_TYPES: {
+        'url': '/webservice/1.0/pub/types/list',
+        'method': HTTP_METHOD.GET
+    }
 }
-

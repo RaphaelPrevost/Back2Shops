@@ -4,3 +4,5 @@
 == version 0.0.2 ==
 1. add pri_key_path, usr_pub_key_uri params for protected/private api access
 
+== version 0.0.3 ==
+1. add get product types constants.

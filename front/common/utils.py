@@ -38,9 +38,12 @@ def get_brief_product_list(sales):
             'name': info.get('name') or '',
             'desc': info.get('desc') or '',
             'img': info.get('img') or '',
-            'link': get_url_format(FRT_ROUTE_ROLE.PRDT_INFO)
-                    % {'id_sale': _id},
+            'link': get_url_format(FRT_ROUTE_ROLE.PRDT_INFO) % {'id_sale': _id},
+            'price': info.get('price').get('#text') or '',
+            'currency': info.get('price').get('@currency') or '',
+            'variant': info.get('variant') if (isinstance(info.get('variant'), list) or info.get('variant') is None) else [info.get('variant')]
         }
+
         if not settings.PRODUCTION and not product_info['img']:
             product_info['img'] = '/img/dollar-exemple.jpg'
         product_list.append(product_info)

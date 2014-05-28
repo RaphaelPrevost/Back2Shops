@@ -24,3 +24,6 @@
 
 == version 0.0.7 ==
 1. ADD TRANS_PAYPAL_STATUS
+
+== version 0.0.8 ==
+1. Add constants for product type redis key
