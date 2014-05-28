@@ -7,7 +7,7 @@ from views.login import LoginResource
 from views.payment import PaypalSuccessResource
 from views.payment import PaypalFailureResource
 from views.payment import PaymentFormResource
-from views.product import CategoryListResource
+from views.product import TypeListResource
 from views.product import ProductInfoResource
 from views.product import ProductListResource
 from views.redirect import GenericRedirectResource
@@ -31,7 +31,7 @@ role_res_mapping = {
     FRT_ROUTE_ROLE.USER_INFO: UserResource,
     FRT_ROUTE_ROLE.PRDT_LIST: ProductListResource,
     FRT_ROUTE_ROLE.PRDT_INFO: ProductInfoResource,
-    FRT_ROUTE_ROLE.CAT_LIST: CategoryListResource,
+    FRT_ROUTE_ROLE.TYPE_LIST: TypeListResource,
 }
 
 # default url of roles
@@ -41,7 +41,7 @@ role_default_urlpatterns = {
     FRT_ROUTE_ROLE.REGISTER: r'/register',
     FRT_ROUTE_ROLE.USER_INFO: r'/user_info',
     FRT_ROUTE_ROLE.PRDT_LIST: r'/products',
-    FRT_ROUTE_ROLE.CAT_LIST: r'/category/{id_category}',
+    FRT_ROUTE_ROLE.TYPE_LIST: r'/type/{id_type}',
     FRT_ROUTE_ROLE.PRDT_INFO: r'/products/{id_sale}',
 }
 
