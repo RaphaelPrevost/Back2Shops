@@ -18,3 +18,4 @@ class FRT_ROUTE_ROLE(CustomEnum):
     USER_INFO = "USER_INFO"
     PRDT_LIST = "PRDT_LIST"
     PRDT_INFO = "PRDT_INFO"
+    CAT_LIST = "CAT_LIST"

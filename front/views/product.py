@@ -8,13 +8,21 @@ from B2SUtils.errors import ValidationError
 from B2SFrontUtils.constants import REMOTE_API_NAME
 
 
+class CategoryListResource(BaseHtmlResource):
+    template = "product_list.html"
+
+    def _on_get(self, req, resp, **kwargs):
+        sales = data_access(REMOTE_API_NAME.GET_SALES,
+                            req, resp, **req._params)
+        return {'product_list': get_brief_product_list(sales)}
+
+
 class ProductListResource(BaseHtmlResource):
     template = "product_list.html"
 
     def _on_get(self, req, resp, **kwargs):
         sales = data_access(REMOTE_API_NAME.GET_SALES,
                             req, resp, **req._params)
-
         return {'product_list': get_brief_product_list(sales)}
 
 
@@ -36,7 +44,6 @@ class ProductInfoResource(BaseHtmlResource):
         if not settings.PRODUCTION and not product_info.get('img'):
             product_info['img'] = '/img/dollar-exemple.jpg'
 
-        # product_info['type'] = product_info.get('type') if isinstance(product_info.get('type'), list) else [product_info.get('type')]
         product_info['variant'] = product_info.get('variant') if (isinstance(product_info.get('variant'), list) or product_info.get('variant') is None) else [product_info.get('variant')]
 
         # product list
