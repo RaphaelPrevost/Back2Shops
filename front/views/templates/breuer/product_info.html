@@ -1,35 +1,36 @@
 <!--INFOS PRODUCTS-->
 <div id="infosProd">
 	<strong id="breuer">Breuer</strong>
-	<h1>Nom du produit</h1>
-	<span class="descrpt">Descriptif du produit</span>
-	<span class="prix1">185&euro;00</span>
-	<em class="prix2">au lieu de <span>450,00&euro;</span></em>
+	<h1>${product_info.get('name')}</h1>
+	<span class="descrpt">${product_info.get('desc')}</span>
+	<span class="prix1">${product_info.get('display').get('price')} ${product_info.get('price').get('@currency')}</span>
+	<em class="prix2">au lieu de <span>${product_info.get('display').get('ori_price')} ${product_info.get('price').get('@currency')}</span></em>
 	<p>
-		Quaestione igitur per multiplices dilatata fortunas cum ambigerentur quaedam, non nulla levius ambo pater et filius in exilium actest, fractis cruribus occiduntur.
 	</p>
-	
+
+<?py if product_info.get('variant') is not None: ?>
 	<strong class="coloris">Coloris</strong>
 	<ul>
-		<li><a href="#"><img src="/templates/breuer/img/produits/48130P446507-v0_tn.jpg" alt="Thumbnails" /></a></li>
-		<li><a href="#"><img src="/templates/breuer/img/produits/48130P446507-v0_tn.jpg" alt="Thumbnails" /></a></li>
-		<li><a href="#"><img src="/templates/breuer/img/produits/48130P446507-v0_tn.jpg" alt="Thumbnails" /></a></li>
+	<?py for variant in product_info.get('variant'): ?>
+		<li><a href="#"><img src="${variant.get('thumb')}" alt="Thumbnails" /></a></li>
+	<?py #endfor ?>
 	</ul>
-	
+<?py #endif ?>
+
+<?py if product_info.get('type') is not None: ?>
 	<a id="guideBtn" href="#">Guide des tailles</a>
-	
 	<div id="selectTaille">
 		<select>
 			<option>Selectionner la taille</option>
-			<option>XL</option>
-			<option>L</option>
-			<option>M</option>
-			<option>S</option>
+			<?py for product_type in product_info.get('type').get('attribute'): ?>
+			<option>${product_type.get('name')}</option>
+			<?py #endfor ?>
 		</select>
 	</div>
-	
 	<a href="#" id="btnBuy">Ajouter au panier</a>
 </div>
+<?py #endif ?>
+
 <!--//INFOS PRODUCTS-->
 
 
@@ -37,107 +38,54 @@
 <div id="visuelProd">
 	<div class="main-image">
 		<div class="easyzoom easyzoom--overlay">
-			<a href="/templates/breuer/img/produits/48130P446507-v0-zoom.jpg" >
-				<img src="/templates/breuer/img/produits/48130P446507-v0-m.jpg" alt="" width="523" height="523" class="custom" />
+			<a href="${get_single_attribute(product_info, 'img')}" >
+				<img src="${get_single_attribute(product_info, 'img')}" alt="" width="523" height="523" class="custom" />
 			</a>
 		</div>
 	</div>
 
+<?py if isinstance(product_info.get('img'),list): ?>
 	<ul class="thumbnails">
-		<li><a href="/templates/breuer/img/produits/48130P446507-v0-m.jpg"><img src="/templates/breuer/img/produits/48130P446507-v0-th.jpg" alt="Thumbnails" /></a></li>
-		<li><a href="/templates/breuer/img/produits/48130P446507-v1-m.jpg"><img src="/templates/breuer/img/produits/48130P446507-v1-th.jpg" alt="Thumbnails" /></a></li>
-		<li><a href="/templates/breuer/img/produits/48130P446507-v2-m.jpg"><img src="/templates/breuer/img/produits/48130P446507-v2-th.jpg" alt="Thumbnails" /></a></li>
+		<?py for img in product_info.get('img'): ?>
+		<li><a href="${img}"><img src="${img}" alt="Thumbnails" /></a></li>
+		</li>
+		<?py #endfor ?>
 	</ul>
+<?py #endif ?>
 </div>
 <!--//VISUEL PRODUCT-->
 
 
 </div>
-<!--//MAIN PRODUCT-->	
+<!--//MAIN PRODUCT-->
 
 
 <div class="listProd listFiche">
 <strong class="discover"><span>&Agrave; découvrir également</span></strong>
 
-<div class="produit"> 
-	<a href="fiche-produit.php">
-		<span class="main-image">
-			<img src="/templates/breuer/img/produits/48130P446505-v0.jpg" alt="visuel produit" class="custom" />
-		</span>
-		<h2 class="name">Chemise popeline coton stonedwashed</h2>
-	</a>
-	<strong class="modele">Nom du colori</strong>
-	<span class="prix">Prix : 180,00 &euro;</span>
-	
-	<ul class="thumbnails">
-		<li><a href="/templates/breuer/img/produits/48130P446505-v0.jpg"><img src="/templates/breuer/img/produits/48130P446505-v0_tn.jpg" alt="Thumbnails"></a></li>
-		<li><a href="/templates/breuer/img/produits/48130P446507-v0.jpg"><img src="/templates/breuer/img/produits/48130P446507-v0_tn.jpg" alt="Thumbnails"></a></li>
-		<li><a href="/templates/breuer/img/produits/48130P446508-v0.jpg"><img src="/templates/breuer/img/produits/48130P446508-v0_tn.jpg" alt="Thumbnails"></a></li>
-		<li><a href="/templates/breuer/img/produits/48130H340401-v0.jpg"><img src="/templates/breuer/img/produits/48130H340401-v0_tn.jpg" alt="Thumbnails"></a></li>
-	</ul>
-</div>
-
+<?py i = 0 ?>
+<?py for p in product_list: ?>
+	<?py i += 1 ?>
+	<?py if i == 5: ?>
+	<?py 	break ?>
+	<?py #endif ?>
 <div class="produit">
-	<a href="fiche-produit.php">
+	<a href="${p.get('link')}">
 		<span class="main-image">
-			<img src="/templates/breuer/img/produits/48130P446508-v0.jpg" alt="visuel produit" class="custom" />
+			<img src="${get_single_attribute(p, 'img')}" alt="visuel produit" class="custom" />
 		</span>
-		<h2 class="name">Chemise popeline coton stonedwashed</h2>
+		<h2 class="name">${p.get('name')}</h2>
 	</a>
-	<strong class="modele">Nom du colori</strong>
-	<span class="prix">Prix : 180,00 &euro;</span>
-	
-	<ul class="thumbnails">
-		<li><a href="/templates/breuer/img/produits/48130P446505-v0.jpg"><img src="/templates/breuer/img/produits/48130P446505-v0_tn.jpg" alt="Thumbnails"></a></li>
-		<li><a href="/templates/breuer/img/produits/48130P446507-v0.jpg"><img src="/templates/breuer/img/produits/48130P446507-v0_tn.jpg" alt="Thumbnails"></a></li>
-		<li><a href="/templates/breuer/img/produits/48130P446508-v0.jpg"><img src="/templates/breuer/img/produits/48130P446508-v0_tn.jpg" alt="Thumbnails"></a></li>
-		<li><a href="/templates/breuer/img/produits/48130H340401-v0.jpg"><img src="/templates/breuer/img/produits/48130H340401-v0_tn.jpg" alt="Thumbnails"></a></li>
-	</ul>
-</div>
+	<strong class="modele">${p.get('desc')}</strong>
+	<span class="prix">Prix : ${p.get('price')} ${p.get('currency')}</span>
 
-<div class="produit">
-	<a href="fiche-produit.php">
-		<span class="main-image">
-			<img src="/templates/breuer/img/produits/58280P446601-v0.jpg" alt="visuel produit" class="custom" />
-		</span>
-		<h2 class="name">Chemise coton imprimé stonedwashed</h2>
-	</a>
-	<strong class="modele">Nom du colori</strong>
-	<span class="prix">Prix : 180,00 &euro;</span>
-	
+	<?py if p.get('variant'): ?>
 	<ul class="thumbnails">
-		<li><a href="/templates/breuer/img/produits/58280P446601-v0.jpg"><img src="/templates/breuer/img/produits/58280P446601-v0_tn.jpg" alt="Thumbnails"></a></li>
-		<li><a href="/templates/breuer/img/produits/58280P446602-v0.jpg"><img src="/templates/breuer/img/produits/58280P446602-v0_tn.jpg" alt="Thumbnails"></a></li>
+		<?py for variant in p.get('variant'): ?>
+		<li><a href="${variant.get('thumb')}"><img src="${variant.get('thumb')}" alt="Thumbnails"></a>
+		</li>
+		<?py #endfor ?>
 	</ul>
+	<?py #endif ?>
 </div>
-
-<div class="produit">
-	<a href="fiche-produit.php">
-		<span class="main-image">
-			<img src="/templates/breuer/img/produits/58280P446602-v0.jpg" alt="visuel produit" class="custom" />
-		</span>
-		<h2 class="name">Chemise coton imprimé stonedwashed</h2>
-	</a>
-	<strong class="modele">Nom du colori</strong>
-	<span class="prix">Prix : 180,00 &euro;</span>
-	
-	<ul class="thumbnails">
-		<li><a href="/templates/breuer/img/produits/58280P446601-v0.jpg"><img src="/templates/breuer/img/produits/58280P446601-v0_tn.jpg" alt="Thumbnails"></a></li>
-		<li><a href="/templates/breuer/img/produits/58280P446602-v0.jpg"><img src="/templates/breuer/img/produits/58280P446602-v0_tn.jpg" alt="Thumbnails"></a></li>
-	</ul>
-</div>
-
-<div class="produit">
-	<a href="fiche-produit.php">
-		<span class="main-image">
-			<img src="/templates/breuer/img/produits/45503P444701-v0.jpg" alt="visuel produit" class="custom" />
-		</span>
-		<h2 class="name">Chemise coton imprimé stonedwashed</h2>
-	</a>
-	<strong class="modele">Nom du colori</strong>
-	<span class="prix">Prix : 180,00 &euro;</span>
-	
-	<ul class="thumbnails">
-		<li><a href="/templates/breuer/img/produits/45503P444701-v0.jpg"><img src="/templates/breuer/img/produits/45503P444701-v0_tn.jpg" alt="Thumbnails"></a></li>
-	</ul>
-</div>
+<?py #endfor ?>

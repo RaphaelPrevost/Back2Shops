@@ -13,8 +13,8 @@ CENTRAL_REDIS = {
 }
 
 
-# TEMPLATE_PATH = ['views/templates/breuer']
-TEMPLATE_PATH = ['views/templates']
+# TEMPLATE_PATH = ['views/templates/breuer', 'views/templates/dragondollar']
+TEMPLATE_PATH = ['views/templates/dragondollar']
 DEFAULT_TEMPLATE = 'default.html'
 
 STATIC_FILES_PATH = 'static'
@@ -37,4 +37,3 @@ PP_SUCCESS = "http://localhost:9500/paypal/%(id_trans)s/success"
 PP_FAILURE = "http://localhost:9500/paypal/%(id_trans)s/failure"
 
 BRAND_ID = "1000001"
-

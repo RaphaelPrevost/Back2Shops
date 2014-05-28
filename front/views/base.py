@@ -5,7 +5,9 @@ import time
 from datetime import datetime
 
 import settings
+from common.data_access import data_access
 from common.utils import gen_html_resp
+from B2SFrontUtils.constants import REMOTE_API_NAME
 from B2SProtocol.constants import RESP_RESULT
 from B2SUtils.errors import ValidationError
 
@@ -92,7 +94,23 @@ class BaseHtmlResource(BaseResource):
             resp.content_type = "text/html"
         return resp
 
+    def get_single_attribute(self, data, key):
+        resp = data.get(key, '')
+        if(isinstance(resp, list)):
+            resp = resp[0]
+
+        return resp
+
     def _add_common_data(self, resp_dict):
+        resp_dict['get_single_attribute'] = self.get_single_attribute
+
+        # navigation menu
+        remote_resp = data_access(REMOTE_API_NAME.GET_TYPES)
+        if remote_resp.get('res') == RESP_RESULT.F:
+            resp_dict['err'] = remote_resp.get('err')
+        else:
+            resp_dict['menus'] = remote_resp
+
         if 'err' not in resp_dict:
             resp_dict['err'] = ''
         resp_dict['err'] = ''

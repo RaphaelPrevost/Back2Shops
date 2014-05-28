@@ -16,6 +16,7 @@ from webservice import crypto
 from webservice import download
 from webservice.aux import AuxResource
 
+
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
 from common.utils import send_reload_signal
@@ -43,6 +44,7 @@ role_default_urlpatterns = {
 
 # these urls are not configurable in BO
 fixed_urlpatterns = {
+    r'/category/{id_category}': ProductListResource,
     r'/paypal/{id_trans}/success': PaypalSuccessResource,
     r'/paypal/{id_trans}/failure': PaypalFailureResource,
     r'/webservice/1.0/pub/JSONAPI': AuxResource,
