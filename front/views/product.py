@@ -57,16 +57,16 @@ class ProductInfoResource(BaseHtmlResource):
 
         # price
         product_info['display'] = dict()
-        price = ori_price = product_info.get('price').get('#text')
+        price = ori_price = product_info.get('price', {}).get('#text')
 
         if product_info.get('discount'):
-            discount_type = product_info.get('discount').get('@type')
+            discount_type = product_info.get('discount', {}).get('@type')
             if discount_type == 'fixed':
-                price = product_info.get('discount').get('#text')
+                price = product_info.get('discount', {}).get('#text')
                 product_info['display']['discount'] = ((float(ori_price) - float(price))/float(ori_price)) * 100
             if discount_type == 'ratio':
-                product_info['display']['discount'] = product_info.get('discount').get('#text')
-                price =  float(price) * (100 - float(product_info['display']['discount']))
+                product_info['display']['discount'] = product_info.get('discount', {}).get('#text')
+                price =  float(price) * (100 - float(product_info.get('display', {}).get('discount')))
 
         product_info['display']['price'] = price
         product_info['display']['ori_price'] = ori_price
