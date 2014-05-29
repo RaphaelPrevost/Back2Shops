@@ -25,6 +25,7 @@ MESSAGE_CATALOG = {
         'CHECK_CERTIFICATE': 'Check Certificate',
         'ADD_TO_WISHLIST': 'Add to Wishlist',
         'DRAGONDOLLAR_WARRANTY': 'DragonDollar Warranty',
+        'DETAIL': 'Detail',
     },
 }
 

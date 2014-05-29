@@ -1,8 +1,6 @@
 import settings
-from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
 from common.utils import get_brief_product_list
-from common.utils import get_url_format
 from views.base import BaseHtmlResource
 from B2SUtils.errors import ValidationError
 from B2SFrontUtils.constants import REMOTE_API_NAME
@@ -66,11 +64,12 @@ class ProductInfoResource(BaseHtmlResource):
                 product_info['display']['discount'] = ((float(ori_price) - float(price))/float(ori_price)) * 100
             if discount_type == 'ratio':
                 product_info['display']['discount'] = product_info.get('discount', {}).get('#text')
-                price =  float(price) * (100 - float(product_info.get('display', {}).get('discount')))
+                price = float(price) * (100 - float(product_info.get('display', {}).get('discount')))
 
         product_info['display']['price'] = price
         product_info['display']['ori_price'] = ori_price
 
-        return {'product_info': product_info,
-                'product_list': product_list,
-                'prodlist_url_format': get_url_format(FRT_ROUTE_ROLE.PRDT_LIST)}
+        return {
+            'product_info': product_info,
+            'product_list': product_list,
+        }

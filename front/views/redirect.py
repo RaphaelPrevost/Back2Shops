@@ -14,3 +14,5 @@ class GenericRedirectResource(BaseHtmlResource):
             params[to_name] = kwargs.get(name) or ''
         return self.redirect(self.redirect_to % params, code=falcon.HTTP_301)
 
+    def _on_post(self, req, resp, **kwargs):
+        raise NotImplemented

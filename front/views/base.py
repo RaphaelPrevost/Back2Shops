@@ -5,8 +5,10 @@ import time
 from datetime import datetime
 
 import settings
+from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
 from common.utils import gen_html_resp
+from common.utils import get_url_format
 from B2SFrontUtils.constants import REMOTE_API_NAME
 from B2SProtocol.constants import RESP_RESULT
 from B2SUtils.errors import ValidationError
@@ -72,7 +74,7 @@ class BaseResource(object):
         raise NotImplementedError
 
     def redirect(self, redirect_to, code=falcon.HTTP_302):
-        self.response.status = falcon.HTTP_302
+        self.response.status = code
         self.response.location = redirect_to
 
 
@@ -85,7 +87,6 @@ class BaseHtmlResource(BaseResource):
         self.desc = kwargs.get('desc') or ''
 
     def gen_resp(self, resp, data):
-
         if isinstance(data, dict):
             self._add_common_data(data)
             resp = gen_html_resp(self.template, resp, data, lang='en')
@@ -116,4 +117,9 @@ class BaseHtmlResource(BaseResource):
         resp_dict['err'] = ''
         resp_dict['title'] = self.title
         resp_dict['desc'] = self.desc
+
+        resp_dict.update({
+            'prodlist_url_format': get_url_format(FRT_ROUTE_ROLE.PRDT_LIST),
+            'basket_url_format': get_url_format(FRT_ROUTE_ROLE.BASKET),
+        })
 

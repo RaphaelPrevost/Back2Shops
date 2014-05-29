@@ -54,7 +54,7 @@ class CacheProxy:
         try:
             return self._get_from_redis(**kw)
         except Exception, e:
-            logging.error("Faled to get from Redis %s", e, exc_info=True)
+            logging.error("Failed to get from Redis %s", e, exc_info=True)
             return self._get_from_server(**kw)
 
     def refresh(self, obj_id=None):

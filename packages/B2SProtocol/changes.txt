@@ -27,3 +27,6 @@
 
 == version 0.0.8 ==
 1. Add constants for product type redis key
+
+== version 0.0.9 ==
+1. Add constants for user basket redis key and cookie name

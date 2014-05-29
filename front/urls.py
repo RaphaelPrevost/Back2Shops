@@ -2,6 +2,7 @@ import re
 import gevent
 import settings
 
+from views.basket import BasketResource
 from views.homepage import HomepageResource
 from views.login import LoginResource
 from views.payment import PaypalSuccessResource
@@ -32,6 +33,7 @@ role_res_mapping = {
     FRT_ROUTE_ROLE.PRDT_LIST: ProductListResource,
     FRT_ROUTE_ROLE.PRDT_INFO: ProductInfoResource,
     FRT_ROUTE_ROLE.TYPE_LIST: TypeListResource,
+    FRT_ROUTE_ROLE.BASKET: BasketResource,
 }
 
 # default url of roles
@@ -43,6 +45,7 @@ role_default_urlpatterns = {
     FRT_ROUTE_ROLE.PRDT_LIST: r'/products',
     FRT_ROUTE_ROLE.TYPE_LIST: r'/type/{id_type}',
     FRT_ROUTE_ROLE.PRDT_INFO: r'/products/{id_sale}',
+    FRT_ROUTE_ROLE.BASKET: r'/basket',
 }
 
 # these urls are not configurable in BO
@@ -144,7 +147,7 @@ class BrandRoutes(object):
         return urlpatterns
 
     def get_url_format(self, role):
-        if self.role_mapping:
+        if self.role_mapping and role in self.role_mapping:
             route = self.role_mapping[role].values()[0]
             url_pattern = self._format_url(route, '%%(%s)s')
         else:
