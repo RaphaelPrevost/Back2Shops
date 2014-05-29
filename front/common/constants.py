@@ -19,3 +19,4 @@ class FRT_ROUTE_ROLE(CustomEnum):
     PRDT_LIST = "PRDT_LIST"
     PRDT_INFO = "PRDT_INFO"
     TYPE_LIST = "TYPE_LIST"
+    BASKET = "BASKET"

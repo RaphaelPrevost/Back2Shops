@@ -1,0 +1,36 @@
+<!--CONTENEUR BOTTOM-->
+<div id="conteneurBottom">  
+    <!--CONTENU-->
+    <div class="boxCenter"> 
+        <!--MAP SHOPS-->
+
+        <div id="wrapCompte">
+            <h3 id="titleWish">Basket</h3>
+
+            <?py for item in basket: ?>
+            <!--Produit-->
+            <div class="prod">
+                <h1 class="titleProd"><strong><span><em class="prix">${item['product']['price']} ${item['product']['currency']}</em></span></strong></h1>
+                <a class="visuel" href="${item['product']['link']}"><img src="${item['product']['img']}" alt="${item['product']['name']}"/></a>
+                <!--DESCRIPTION-->
+                <div class="descrProd">
+                    <p>
+                        <strong>${item['product']['name']}</strong>, ${item['item']}
+                    </p>
+                </div>
+                <!--//DESCRIPTION-->
+                <div class="bouton">
+                    <a>${item['quantity']}</a>
+                </div>
+                <a class="detail"  href="${item['product']['link']}">${{_('DETAIL')}}</a>
+            </div>
+            <!--//Produit-->
+            <?py #endfor ?>
+
+        </div>
+        <!--//MAP SHOPS-->
+        <div class="clear"></div>
+    </div>
+    <!--FIN CONTENU-->
+</div>
+<!--FIN CONTENEUR-->

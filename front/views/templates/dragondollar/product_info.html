@@ -18,16 +18,20 @@
             <h1 class="titleLine"><strong><span>${product_info.get('name')}<em id="prix">${product_info['price'].get('#text')} ${product_info['price'].get('@currency')}</em></span></strong></h1>
             <!--left-->
             <div id="recapLeft">
-                <!--DESCRIPTION-->
-                <div id="descrProd">
-                    <p>
-                        <strong>${product_info.get('name')}</strong>, ${product_info.get('desc')}
-                    </p>
-                </div>
-                <!--//DESCRIPTION-->
-                <div id="bouton">
-                    <a href="#">Buy</a>
-                </div>
+                <form id="addForm" method="post" action="${basket_url_format}">
+                    <input type="hidden" name="cmd" value="add" />
+                    <input type="hidden" name="id_sale" value="${product_info['@id']}" />
+                    <!--DESCRIPTION-->
+                    <div id="descrProd">
+                        <p>
+                            <strong>${product_info.get('name')}</strong>, ${product_info.get('desc')}
+                        </p>
+                    </div>
+                    <!--//DESCRIPTION-->
+                    <div id="bouton">
+                        <a href="javascript:addToBasket()">${{_('BUY')}}</a>
+                    </div>
+                </form>
             </div>
             <!--//left-->
             <!--right-->
@@ -87,3 +91,9 @@
     <!--FIN CONTENU-->
 </div>
 <!--FIN CONTENEUR-->
+
+<script type="text/javascript">
+function addToBasket(id_sale) {
+    $("#addForm").submit();
+}
+</script>

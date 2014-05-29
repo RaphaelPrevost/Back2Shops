@@ -8,34 +8,41 @@
 	<p>
 	</p>
 
-<?py if product_info.get('variant') is not None: ?>
-	<strong class="coloris">Coloris</strong>
-	<ul>
-		<?py variants = product_info.get('variant')?>
-		<?py variants = variants if isinstance(variants, list) else [variants] ?>
-		<?py for variant in variants: ?>
-		<li><a href="#"><img src="${variant.get('thumb')}" alt="Thumbnails" /></a></li>
-		<?py #endfor ?>
-	</ul>
-<?py #endif ?>
+    <form id="addForm" method="post" action="${basket_url_format}">
+        <input type="hidden" name="cmd" value="add" />
+        <input type="hidden" name="id_sale" value="${product_info['@id']}" />
 
-<?py if product_info.get('type') is not None: ?>
-	<a id="guideBtn" href="#">Guide des tailles</a>
+        <?py if product_info.get('variant') is not None: ?>
+        <strong class="coloris">Coloris</strong>
+        <ul id="selectColoris">
+            <?py variants = product_info.get('variant',{})?>
+            <?py variants = variants if isinstance(variants, list) else [variants] ?>
+            <?py for variant in variants: ?>
+            <li value="${variant.get('@id')}"><a href="javascript:void(0)"><img src="${variant.get('thumb')}" alt="${variant.get('@id')}" /></a></li>
+            <?py #endfor ?>
+        </ul>
+        <input type="hidden" name="id_variant" value="" />
+        <?py #endif ?>
 
+        <?py if product_info.get('type') is not None: ?>
+        <a id="guideBtn" href="#">Guide des tailles</a>
 
-	<div id="selectTaille">
-		<select>
-			<option>Selectionner la taille</option>
-			<?py attributes = product_info.get('type',{}).get('attribute')?>
-			<?py attributes = attributes if isinstance(attributes, list) else [attributes] ?>
-			<?py for product_type in attributes: ?>
-			<option>${product_type.get('name')}</option>
-			<?py #endfor ?>
-		</select>
-	</div>
-	<a href="#" id="btnBuy">Ajouter au panier</a>
+        <div id="selectTaille">
+            <select name="id_type">
+                <option value="">Selectionner la taille</option>
+                <?py attributes = product_info.get('type',{}).get('attribute',{}) ?>
+                <?py attributes = attributes if isinstance(attributes, list) else [attributes] ?>
+                <?py for product_type in attributes: ?>
+                <option value="${product_type.get('@id')}">${product_type.get('name')}</option>
+                <?py #endfor ?>
+            </select>
+        </div>
+        <?py #endif ?>
+
+        <a href="javascript:addToBasket()" id="btnBuy">Ajouter au panier</a>
+
+    </form>
 </div>
-<?py #endif ?>
 
 <!--//INFOS PRODUCTS-->
 
@@ -53,7 +60,7 @@
 <?py if isinstance(product_info.get('img'),list): ?>
 	<ul class="thumbnails">
 		<?py for img in product_info.get('img'): ?>
-		<li><a href="${img}"><img src="${img}" alt="Thumbnails" /></a></li>
+		<li><a href="${img}"><img src="${img}" alt="product_info.get('name')" /></a></li>
 		</li>
 		<?py #endfor ?>
 	</ul>
@@ -88,10 +95,34 @@
 	<?py if p.get('variant'): ?>
 	<ul class="thumbnails">
 		<?py for variant in p.get('variant'): ?>
-		<li><a href="${variant.get('thumb')}"><img src="${variant.get('thumb')}" alt="Thumbnails"></a>
+		<li><a href="${variant.get('thumb')}"><img src="${variant.get('thumb')}" alt="${variant.get('@id')}"></a>
 		</li>
 		<?py #endfor ?>
 	</ul>
 	<?py #endif ?>
 </div>
 <?py #endfor ?>
+
+<script type="text/javascript">
+$(function(){
+    $("#selectColoris li").click(function(){
+        $(this).attr('class', 'selected').siblings().attr('class', '');
+    });
+});
+
+function addToBasket() {
+    var form = $("#addForm");
+    var id_variant = $("#selectColoris li[class=selected]")
+    if ($("#selectColoris li[class=selected]").length == 0) {
+        alert("Please choose coloris.");
+        return;
+    }
+    form[0].id_variant.value = id_variant.attr('value');
+
+    if (form[0].id_type.value == "") {
+        alert("Please choose taille.");
+        return;
+    }
+    form.submit();
+}
+</script>

@@ -135,6 +135,11 @@ def get_cookie(req):
         cookie.load(req.env['HTTP_COOKIE'])
         return cookie
 
+def get_cookie_value(req, cookie_name):
+    cookies = get_cookie(req)
+    if cookies and cookie_name in cookies:
+        return cookies[cookie_name].value
+
 def get_client_ip(req):
     ip_adds = req.get_header('x-forwarded-for') or ''
     return ip_adds.split(',')[0].strip()
