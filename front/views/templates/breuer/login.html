@@ -21,13 +21,14 @@ function toRegister() {
 $(function() {
     $( "#dialog-login" ).dialog({
         autoOpen: false,
-        height: 180,
+        height: 250,
         modal: true,
         buttons: {
             ${{_('LOGIN')}}: function() {
                 $.post('/ajax_login',
                     $("#loginForm").serializeArray(),
                     function(data) {
+                        console.log(data); 
                         if (data['res'] == 'FAILURE') {
                             $("#loginForm .errwrapper").text(data['err']);
                         } else {

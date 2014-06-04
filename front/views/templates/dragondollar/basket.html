@@ -27,6 +27,10 @@
             <!--//Produit-->
             <?py #endfor ?>
 
+            <!--//DESCRIPTION-->
+            <div id="bouton">
+                <a href="javascript:checkout()">${{_('CHECKOUT')}}</a>
+            </div>
         </div>
         <!--//MAP SHOPS-->
         <div class="clear"></div>
@@ -34,3 +38,9 @@
     <!--FIN CONTENU-->
 </div>
 <!--FIN CONTENEUR-->
+
+<script type="text/javascript">
+function checkout() {
+     $("#dialog-login").dialog('open');
+}
+</script>

@@ -4,7 +4,7 @@ import settings
 
 from views.basket import BasketResource
 from views.homepage import HomepageResource
-from views.login import LoginResource
+from views.login import LoginAPIResource
 from views.payment import PaypalSuccessResource
 from views.payment import PaypalFailureResource
 from views.payment import PaymentFormResource
@@ -12,7 +12,7 @@ from views.product import TypeListResource
 from views.product import ProductInfoResource
 from views.product import ProductListResource
 from views.redirect import GenericRedirectResource
-from views.register import RegisterResource
+from views.register import RegisterAPIResource
 from views.user import UserResource
 from webservice import crypto
 from webservice import download
@@ -27,8 +27,6 @@ from B2SFrontUtils.constants import REMOTE_API_NAME
 # the url of these roles are configurable in BO
 role_res_mapping = {
     FRT_ROUTE_ROLE.HOMEPAGE: HomepageResource,
-    FRT_ROUTE_ROLE.LOGIN: LoginResource,
-    FRT_ROUTE_ROLE.REGISTER: RegisterResource,
     FRT_ROUTE_ROLE.USER_INFO: UserResource,
     FRT_ROUTE_ROLE.PRDT_LIST: ProductListResource,
     FRT_ROUTE_ROLE.PRDT_INFO: ProductInfoResource,
@@ -39,8 +37,6 @@ role_res_mapping = {
 # default url of roles
 role_default_urlpatterns = {
     FRT_ROUTE_ROLE.HOMEPAGE: r'/',
-    FRT_ROUTE_ROLE.LOGIN: r'/login',
-    FRT_ROUTE_ROLE.REGISTER: r'/register',
     FRT_ROUTE_ROLE.USER_INFO: r'/user_info',
     FRT_ROUTE_ROLE.PRDT_LIST: r'/products',
     FRT_ROUTE_ROLE.TYPE_LIST: r'/type/{id_type}',
@@ -48,8 +44,11 @@ role_default_urlpatterns = {
     FRT_ROUTE_ROLE.BASKET: r'/basket',
 }
 
-# these urls are not configurable in BO
+# fixed urls which are not configurable in BO
 fixed_urlpatterns = {
+    r'/ajax_login': LoginAPIResource,
+    r'/ajax_register': RegisterAPIResource,
+
     r'/paypal/{id_trans}/success': PaypalSuccessResource,
     r'/paypal/{id_trans}/failure': PaypalFailureResource,
     r'/webservice/1.0/pub/JSONAPI': AuxResource,

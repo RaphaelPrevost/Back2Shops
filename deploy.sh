@@ -52,12 +52,13 @@ INST=""
 
 function usage() {
     echo "Usage: $0 option"
-    echo "option: everything - Deploy backoffice server, users server, finance server"
+    echo "option: everything - Deploy all servers"
     echo "        backoffice - Deploy only the backoffice server"
     echo "        user       - Deploy only the user server"
     echo "        finance    - Deploy only the finance server"
     echo "        assets     - Deploy only the assets server"
     echo "        front      - Deploy only the front server"
+    echo "        restart    - Restart servers"
     echo "        testdata   - Import backoffice test data into database"
     exit 1
 }
@@ -305,7 +306,11 @@ function setup_usr() {
     PYTHONPATH=$CWD/users_src python scripts/gen_hmac_key.py
 
     # start server
-    start_uwsgi 8100 server
+    PORT=8100
+    SERVER=server
+    ps aux | grep $PORT | grep $SERVER | grep -v grep | awk '{print $2}' | xargs kill -9 || echo "no uwsgi process to kill"
+    sleep 1
+    start_uwsgi $PORT $SERVER
 
     # nginx
     if [ ! -r /etc/nginx/sites-available/users ]; then
@@ -366,7 +371,11 @@ function setup_finance() {
     fi
 
     # start server
-    start_uwsgi 9000 fin_server
+    PORT=9000
+    SERVER=fin_server
+    ps aux | grep $PORT | grep $SERVER | grep -v grep | awk '{print $2}' | xargs kill -9 || echo "no uwsgi process to kill"
+    sleep 1
+    start_uwsgi $PORT $SERVER
 
     # nginx
     if [ ! -r /etc/nginx/sites-available/finance ]; then
@@ -429,7 +438,11 @@ function setup_assets() {
     source $CWD/env/bin/activate
 
     # start server
-    start_uwsgi 9300 assets_server
+    PORT=9300
+    SERVER=assets_server
+    ps aux | grep $PORT | grep $SERVER | grep -v grep | awk '{print $2}' | xargs kill -9 || echo "no uwsgi process to kill"
+    sleep 1
+    start_uwsgi $PORT $SERVER
 
     # nginx
     if [ ! -r /etc/nginx/sites-available/assets ]; then
@@ -497,7 +510,11 @@ function setup_front() {
     source $CWD/env/bin/activate
 
     # start server
-    start_uwsgi 9500 front_server
+    PORT=9500
+    SERVER=front_server
+    ps aux | grep $PORT | grep $SERVER | grep -v grep | awk '{print $2}' | xargs kill -9 || echo "no uwsgi process to kill"
+    sleep 1
+    start_uwsgi $PORT $SERVER
 
     # nginx
     if [ ! -r /etc/nginx/sites-available/front ]; then

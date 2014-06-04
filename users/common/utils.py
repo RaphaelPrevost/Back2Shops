@@ -21,6 +21,7 @@ from common.error import ServerError
 from B2SCrypto.utils import gen_encrypt_json_context
 from B2SCrypto.utils import get_from_remote
 from B2SCrypto.constant import SERVICES
+from B2SUtils.common import set_cookie, get_cookie
 from B2SUtils.errors import ValidationError
 from B2SUtils import db_utils
 from B2SProtocol.constants import USER_AUTH_COOKIE_NAME
@@ -105,48 +106,13 @@ def make_auth_cookie(expiry, csrf_token, auth_token, users_id):
             'users_id': users_id}
     return '&'.join(['%s=%s' % (k, v) for k, v in data.iteritems()])
 
-def set_cookie(resp, k, v, expiry=None, domain=None, path='/', secure=False):
-    if settings.DEBUG:
-        domain = None
-        secure = False
-
-    values = ['%s="%s"' % (k, v)]
-    if expiry:
-        values.append('expires=%s' % expiry)
-    if domain:
-        values.append('domain=%s' % domain)
-    if path:
-        values.append('path=%s' % path)
-    if secure is True:
-        values.append('secure')
-
-    resp.set_header('Set-Cookie', ';'.join(values))
-
-def get_cookie(req):
-    """ Get cookie from request environment.
-
-    req: request
-
-    return: SimpleCookie instance if cookie exist in request,
-            otherwise return None.
-    """
-    if req.env.has_key('HTTP_COOKIE'):
-        cookie = Cookie.SimpleCookie()
-        cookie.load(req.env['HTTP_COOKIE'])
-        return cookie
-
-def get_cookie_value(req, cookie_name):
-    cookies = get_cookie(req)
-    if cookies and cookie_name in cookies:
-        return cookies[cookie_name].value
-
 def get_client_ip(req):
     ip_adds = req.get_header('x-forwarded-for') or ''
     return ip_adds.split(',')[0].strip()
 
 def get_hashed_headers(req):
     headers = ";".join([
-            req.get_header('Accept') or '',
+            #req.get_header('Accept') or '',
             req.get_header('Accept-Language') or '',
             req.get_header('Accept-Encoding') or '',
             req.get_header('Accept-Charset') or '',
@@ -192,13 +158,14 @@ def _user_verify(conn, users_id, user_auth, ip, headers):
 
     columns = ('password', 'hash_algorithm',
                'csrf_token', 'users_logins.id')
+    where = {'users.id': users_id,
+             'users_logins.headers': headers,
+             'users_logins.ip_address': ip,
+             'users_logins.cookie_expiry__gt': datetime.datetime.utcnow()}
     result = db_utils.join(conn, ('users', 'users_logins'),
                             columns=columns,
                             on=[('users.id', 'users_logins.users_id')],
-                            where={'users.id': users_id,
-                                   'users_logins.headers': headers,
-                                   'users_logins.ip_address': ip,
-                                   'users_logins.cookie_expiry__gt': datetime.datetime.utcnow()},
+                            where=where,
                             limit=1)
     if not result or len(result) == 0:
         raise ValidationError('LOGIN_REQUIRED_ERR_INVALID_USER')
@@ -284,8 +251,7 @@ def cookie_verify(conn, req, resp):
                                    csrf_token,
                                    user_auth['auth'],
                                    users_id)
-    set_cookie(resp, USER_AUTH_COOKIE_NAME, auth_cookie,
-               expiry=user_auth['exp'], secure=True)
+    set_cookie(resp, USER_AUTH_COOKIE_NAME, auth_cookie, expiry=user_auth['exp'])
 
     db_utils.update(conn,
                     'users_logins',

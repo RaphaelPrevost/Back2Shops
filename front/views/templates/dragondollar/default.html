@@ -6,14 +6,20 @@
     <meta name="description" content="${desc}">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
+    <link rel="icon" type="image/png" href="/img/favicon.png" />
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/jquery-ui-1.10.4.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="/css/fancymoves.css"/>
     <link rel="stylesheet" type="text/css" media="screen" href="/css/ficheProd.css"/>
     <link rel="stylesheet" type="text/css" media="screen" href="/css/compte.css"/>
-    <script type="text/javascript" src="/js/jquery-1.5.2.min.js"></script>
+
+    <script type="text/javascript" src="/js/jquery-1.10.2.js"></script>
+    <script type="text/javascript" src="/js/jquery-ui-1.10.4.js"></script>
     <script type="text/javascript" src="/js/jquery.movingboxes.js"></script>
     <script type="text/javascript" src="/js/jquery.maphilight.js"></script>
-    <link rel="icon" type="image/png" href="/img/favicon.png" />
+    <script type="text/javascript">
+        ${set_cookies_js}
+    </script>
 </head>
 <body>
     <!--HEADER-->
@@ -61,6 +67,13 @@
     </div>
     <!--FIN HEADER-->
 
+    <div id="dialog-login" title="Login">
+        <?py include('login.html') ?>
+    </div>
+    <div id="dialog-register" title="Register">
+        <?py include('registration.html') ?>
+    </div>
+
     <!--content-->
     <div id="content">
     #{_content}
@@ -76,6 +89,5 @@
         </ul>
     </div>
 	<!--FIN FOOTER-->
-
 </body>
 </html>

@@ -12,6 +12,8 @@
 == version 0.0.4 ==
 1. fix bug for actor_to_dict
 
-
 == version 0.0.5 ==
 1. add common function parse_form_params
+
+== version 0.0.6 ==
+1. add common function get_cookie, get_cookie_value, set_cookie

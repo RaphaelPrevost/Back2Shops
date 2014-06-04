@@ -26,7 +26,8 @@ def remote_call(usr_root_uri, api_name,
         remote_resp = _request_remote_server(
             url, method, kwargs, headers,
             encrypt, pri_key_path, usr_pub_key_uri)
-        set_new_auth_cookie(resp, remote_resp.headers)
+        if resp and 'set-cookie' in remote_resp.headers:
+            resp.set_header('set-cookie', remote_resp.headers['set-cookie'])
         if encrypt:
             content = decrypt_json_resp(remote_resp, usr_pub_key_uri, pri_key_path)
         else:
@@ -44,18 +45,6 @@ def generate_remote_req_headers(req):
     if 'content-length' in headers:
         headers.pop('content-length')
     return headers
-
-def set_new_auth_cookie(resp, remote_resp_headers):
-    if not resp or 'set-cookie' not in remote_resp_headers:
-        return
-
-    cookies = Cookie.SimpleCookie()
-    cookies.load(remote_resp_headers['set-cookie'])
-    if cookies and USER_AUTH_COOKIE_NAME in cookies:
-        new_auth_cookie = cookies.get(USER_AUTH_COOKIE_NAME)
-        if new_auth_cookie:
-            _, header_value = new_auth_cookie.output().split(':', 1)
-            resp.set_header('set-cookie', header_value.strip())
 
 
 def _request_remote_server(uri, method, params, headers,
