@@ -1,4 +1,3 @@
-import Cookie
 import os
 import signal
 import time
@@ -61,39 +60,6 @@ def get_url_format(role):
 
 def send_reload_signal():
     os.kill(os.getpid(), signal.SIGHUP)
-
-def set_cookie(resp, k, v, expiry=None, domain=None, path='/', secure=False):
-    if not settings.PRODUCTION:
-        domain = None
-        secure = False
-
-    values = ['%s="%s"' % (k, v)]
-    if expiry:
-        values.append('expires=%s' % expiry)
-    if domain:
-        values.append('domain=%s' % domain)
-    if path:
-        values.append('path=%s' % path)
-    if secure is True:
-        values.append('secure')
-
-    resp.set_header('Set-Cookie', ';'.join(values))
-
-def get_cookie(req):
-    """ Get cookie from request environment.
-    req: request
-    return: SimpleCookie instance if cookie exist in request,
-            otherwise return None.
-    """
-    if req.env.has_key('HTTP_COOKIE'):
-        cookie = Cookie.SimpleCookie()
-        cookie.load(req.env['HTTP_COOKIE'])
-        return cookie
-
-def get_cookie_value(req, cookie_name):
-    cookies = get_cookie(req)
-    if cookies and cookie_name in cookies:
-        return cookies[cookie_name].value
 
 def generate_random_key():
     return uuid.uuid4()

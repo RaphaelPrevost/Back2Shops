@@ -1,6 +1,8 @@
+import Cookie
 import copy
 import falcon
 import logging
+import re
 import time
 from datetime import datetime
 
@@ -11,6 +13,7 @@ from common.utils import gen_html_resp
 from common.utils import get_url_format
 from B2SFrontUtils.constants import REMOTE_API_NAME
 from B2SProtocol.constants import RESP_RESULT
+from B2SRespUtils.generate import gen_json_resp
 from B2SUtils.errors import ValidationError
 
 
@@ -43,6 +46,7 @@ class BaseResource(object):
                         req.uri, params))
 
         data = self.msg_handler(method_name, req, resp, **kwargs)
+        self.handle_cookies(resp, data)
         self.gen_resp(resp, data)
 
         end_time = time.time() * 1000
@@ -63,6 +67,15 @@ class BaseResource(object):
             data = {'res': RESP_RESULT.F,
                     'err': 'SERVER_ERR'}
         return data
+
+    def handle_cookies(self, resp, data):
+        data['set_cookies_js'] = ''
+        if 'set-cookie' in resp._headers:
+            c = Cookie.SimpleCookie()
+            c.load(resp._headers['set-cookie'])
+            m = re.findall(r'(document\.cookie.*\n)', c.js_output())
+            if m:
+                data['set_cookies_js'] = ''.join(m)
 
     def _on_get(self, req, resp, **kwargs):
         return {}
@@ -114,7 +127,6 @@ class BaseHtmlResource(BaseResource):
 
         if 'err' not in resp_dict:
             resp_dict['err'] = ''
-        resp_dict['err'] = ''
         resp_dict['title'] = self.title
         resp_dict['desc'] = self.desc
 
@@ -123,3 +135,6 @@ class BaseHtmlResource(BaseResource):
             'basket_url_format': get_url_format(FRT_ROUTE_ROLE.BASKET),
         })
 
+class BaseJsonResource(BaseResource):
+    def gen_resp(self, resp, data):
+        return gen_json_resp(resp, data)

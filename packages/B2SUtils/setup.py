@@ -14,7 +14,7 @@ setup(
     install_requires=[
        'psycopg2==2.5.1',
        'pypgwrap==0.1.4',
-       'gevent==0.13.8',
+       'gevent==1.0.1',
        'gevent-psycopg2==0.0.3',
        'ujson==1.33',
         ],

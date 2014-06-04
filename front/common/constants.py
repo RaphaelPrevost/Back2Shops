@@ -13,8 +13,6 @@ class CustomEnum(Enum):
 #TODO move to B2SProtocol later
 class FRT_ROUTE_ROLE(CustomEnum):
     HOMEPAGE = "HOMEPAGE"
-    LOGIN = "LOGIN"
-    REGISTER = "REGISTER"
     USER_INFO = "USER_INFO"
     PRDT_LIST = "PRDT_LIST"
     PRDT_INFO = "PRDT_INFO"

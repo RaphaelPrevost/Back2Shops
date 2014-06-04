@@ -26,6 +26,7 @@ MESSAGE_CATALOG = {
         'ADD_TO_WISHLIST': 'Add to Wishlist',
         'DRAGONDOLLAR_WARRANTY': 'DragonDollar Warranty',
         'DETAIL': 'Detail',
+        'CHECKOUT': 'Checkout',
     },
 }
 

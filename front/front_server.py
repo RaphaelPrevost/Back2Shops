@@ -10,8 +10,8 @@ import settings
 from common.data_access import data_access
 from urls import BrandRoutes
 from B2SUtils.log import setupLogging
+from B2SUtils.common import parse_form_params
 from B2SFrontUtils.constants import REMOTE_API_NAME
-from B2SFrontUtils.utils import parse_form_params
 
 
 setupLogging(settings.LOG_CONFIG_FILE)
