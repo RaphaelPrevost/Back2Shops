@@ -14,7 +14,7 @@ CENTRAL_REDIS = {
 
 
 TEMPLATE_PATH = ['views/templates/breuer', 'views/templates/dragondollar']
-TEMPLATE_PATH = ['views/templates/dragondollar']
+#TEMPLATE_PATH = ['views/templates/dragondollar']
 DEFAULT_TEMPLATE = 'default.html'
 
 STATIC_FILES_PATH = 'static'
