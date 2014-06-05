@@ -119,7 +119,8 @@ class BaseHtmlResource(BaseResource):
         resp_dict['get_single_attribute'] = self.get_single_attribute
 
         # navigation menu
-        remote_resp = data_access(REMOTE_API_NAME.GET_TYPES)
+        remote_resp = data_access(REMOTE_API_NAME.GET_TYPES,
+                                  seller=settings.BRAND_ID)
         if remote_resp.get('res') == RESP_RESULT.F:
             resp_dict['err'] = remote_resp.get('err')
         else:

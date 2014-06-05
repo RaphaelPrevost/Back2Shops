@@ -413,25 +413,21 @@ class TypesCacheProxy(CacheProxy):
     def query_options(self):
         return ('seller')
 
+    def refresh(self, obj_id=None):
+        pass
+
+    def del_obj(self, obj_id):
+        pass
+
+    def _get_from_server(self, obj_id=None, **kw):
+        return CacheProxy._get_from_server(self, **kw)
+
     def _get_from_redis(self, **kw):
         brand_id = kw.get('seller')
-        types_id = []
-
-        types_id = set(get_redis_cli().lrange(TYPES_FOR_BRAND % brand_id, 0, -1))
-
-        if not types_id:
+        types = get_redis_cli().get(TYPES_FOR_BRAND % brand_id)
+        if not types:
             raise Exception('To load data from server')
-
-        types = {}
-        for t_id in types_id:
-            t = get_redis_cli().get(TYPE % t_id)
-            if t:
-                t = ujson.loads(t)
-                types[t_id] = t
-        return types
-
-    def _rem_attrs_for_obj(self, id):
-        pass
+        return dict([(t["@id"], t) for t in ujson.loads(types)])
 
     def parse_xml(self, xml, is_entire_result, **kw):
         logging.info('parse shops xml: %s, is_entire_result:%s',
@@ -449,19 +445,14 @@ class TypesCacheProxy(CacheProxy):
         return dict([(t['@id'], t) for t in types])
 
     def _refresh_redis(self, version, types, is_entire_result, **kw):
-
         # save version
-        brand_id = kw.get('seller')
         self._set_to_redis(TYPES_VERSION, version)
 
-        # save shops info into redis
-        self._save_objs_to_redis(types)
-
-        pipe = get_redis_cli().pipeline()
-        for t in types:
-            type_id = t['@id']
-            pipe.rpush(TYPES_FOR_BRAND % brand_id, type_id)
-        pipe.execute()
+        brand_id = kw.get('seller')
+        if brand_id:
+            get_redis_cli().setex(TYPES_FOR_BRAND % brand_id,
+                                  ujson.dumps(types),
+                                  settings.DEFAULT_REDIS_CACHE_TTL)
 
 
 class SalesFindProxy:

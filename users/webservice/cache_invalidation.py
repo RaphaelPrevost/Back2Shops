@@ -25,7 +25,7 @@ class InvalidationResource(BaseJsonResource):
             self.gen_resp(resp, {'res': RESP_RESULT.F})
         else:
             self.gen_resp(resp, {'res': RESP_RESULT.S})
-            gevent.spawn(refresh_cache, method, obj_name, obj_id)
+            gevent.spawn_later(5, refresh_cache, method, obj_name, obj_id)
 
 
     def gen_resp(self, resp, data_dict):

@@ -8,6 +8,7 @@
 <!-- root -->
 <!ELEMENT info (shop) >
 <!ATTLIST info version CDATA #REQUIRED >
+<!ATTLIST info type (shop) "shop" >
 
 <!-- common markup -->
 <!ELEMENT name (#PCDATA) >

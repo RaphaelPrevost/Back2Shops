@@ -28,6 +28,7 @@ from accounts.models import Brand
 from barcodes.models import Barcode
 from brandings.models import Branding
 from brandsettings.models import InvoiceNumber
+from common.cache_invalidation import send_cache_invalidation
 from common.filter_utils import get_filter, get_order_by
 from common.constants import USERS_ROLE
 from common.error import InvalidRequestError
@@ -282,12 +283,16 @@ def stock_setter(request,val):
     except:
          return fail('shop is not found in this sale')
 
+    invalid_cache = need_invalidate_cache(sale.total_rest_stock, val)
+
     if sale.type_stock == STOCK_TYPE_GLOBAL: #stocks at global level
         pass
     else: #stocks at shops level
         if user.is_staff or shop in user.get_profile().shops.all(): # can update
             try:
                 stock = sale.detailed_stock.get(shop=shop)
+                if not invalid_cache:
+                    invalid_cache = need_invalidate_cache(stock.rest_stock, val)
                 stock.rest_stock += val
                 if stock.rest_stock < 0:
                     stock.rest_stock = 0
@@ -305,7 +310,15 @@ def stock_setter(request,val):
     if sale.total_stock < sale.total_rest_stock:
         sale.total_stock = sale.total_rest_stock
     sale.save()
+
+    if invalid_cache:
+        send_cache_invalidation("PUT", 'sale', sale.id)
+
     return HttpResponse(json.dumps({'success': True, 'total_stock': sale.total_stock, 'total_rest_stock': sale.total_rest_stock}), mimetype='text/json')
+
+def need_invalidate_cache(stock, val):
+    return stock <= 0 and stock + val > 0 \
+        or stock > 0 and stock + val <= 0
 
 @csrf_exempt
 @basic_auth
