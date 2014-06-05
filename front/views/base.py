@@ -46,7 +46,7 @@ class BaseResource(object):
                         req.uri, params))
 
         data = self.msg_handler(method_name, req, resp, **kwargs)
-        self.handle_cookies(resp, data)
+        if data: self.handle_cookies(resp, data)
         self.gen_resp(resp, data)
 
         end_time = time.time() * 1000

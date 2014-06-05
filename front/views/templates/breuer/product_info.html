@@ -12,7 +12,7 @@
         <input type="hidden" name="cmd" value="add" />
         <input type="hidden" name="id_sale" value="${product_info['@id']}" />
 
-        <?py if product_info.get('variant') is not None: ?>
+        <?py if product_info.get('variant'): ?>
         <strong class="coloris">Coloris</strong>
         <ul id="selectColoris">
             <?py variants = product_info.get('variant',{})?>
@@ -24,7 +24,7 @@
         <input type="hidden" name="id_variant" value="" />
         <?py #endif ?>
 
-        <?py if product_info.get('type') is not None: ?>
+        <?py if product_info.get('type',{}).get('attribute',{}): ?>
         <a id="guideBtn" href="#">Guide des tailles</a>
 
         <div id="selectTaille">
@@ -112,14 +112,17 @@ $(function(){
 
 function addToBasket() {
     var form = $("#addForm");
-    var id_variant = $("#selectColoris li[class=selected]")
-    if ($("#selectColoris li[class=selected]").length == 0) {
-        alert("Please choose coloris.");
-        return;
-    }
-    form[0].id_variant.value = id_variant.attr('value');
 
-    if (form[0].id_type.value == "") {
+    if ($("#selectColoris li").length > 0) {
+        var id_variant = $("#selectColoris li[class=selected]");
+        if ($("#selectColoris li[class=selected]").length == 0) {
+            alert("Please choose coloris.");
+            return;
+        }
+        form[0].id_variant.value = id_variant.attr('value');
+    }
+
+    if ($('#selectTaille').length > 0 && form[0].id_type.value == "") {
         alert("Please choose taille.");
         return;
     }
