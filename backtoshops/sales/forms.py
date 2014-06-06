@@ -410,9 +410,11 @@ class StockForm(forms.Form):
     brand_attribute = forms.IntegerField(required=False)
     common_attribute = forms.IntegerField(required=False)
     shop = forms.IntegerField(required=False)
-    stock = forms.IntegerField(label=_("Stock"), error_messages = {'required': _(u'This field is required.')})
+    stock = forms.IntegerField(label=_("Stock"), required=False)
     def clean_stock(self):
         data = self.cleaned_data['stock']
+        if not data:
+            return None
         try:
             int_data = int(data)
         except:
@@ -444,7 +446,17 @@ class StockStepForm(forms.Form):
                 if form.errors:
                     raise forms.ValidationError(form.errors)
         self._clean_barcodes()
+        self._clean_stocks()
         return super(StockStepForm, self).clean()
+
+    def _clean_stocks(self):
+        has_stock = False
+        for stock in self.stocks:
+            if stock.cleaned_data['stock'] is not None and not stock.cleaned_data['DELETE']:
+                has_stock = True
+                break
+        if not has_stock:
+            raise forms.ValidationError(_('Please input valid stock quantity.'))
 
     def _clean_barcodes(self):
         shops = []
