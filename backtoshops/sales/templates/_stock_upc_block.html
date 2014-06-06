@@ -8,7 +8,7 @@
     {% endwith %}
 {% empty %}
     {% with formindex=b_index|add:1 %}
-        {% with curform=wizard.form.barcodes|getform:fromindex cname=da_name %}
+        {% with curform=wizard.form.barcodes|getform:formindex cname=da_name %}
             {% include "_stock_upc_input.html" %}
         {% endwith %}
     {% endwith %}
