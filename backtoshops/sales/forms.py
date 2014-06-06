@@ -322,13 +322,15 @@ class ProductForm(forms.Form):
     def __init__(self, mother_brand=None, data=None, files=None,
                  auto_id='id_%s', prefix=None, initial=None,
                  error_class=ErrorList, label_suffix=':',
-                 empty_permitted=False):
+                 empty_permitted=False, add_new=False):
         super(ProductForm, self).__init__(data, files, auto_id, prefix,
                                           initial, error_class, label_suffix,
                                           empty_permitted)
         self.fields['brand'] = forms.ModelChoiceField(
             queryset=ProductBrand.objects.filter(seller=mother_brand)
         )
+        if add_new:
+            self.fields['category'].queryset = ProductCategory.objects.filter(valid=True)
         formset = formset_factory(BrandAttributeForm, extra=0, can_delete=True)
         if initial:
             self.brand_attributes = formset(data=data, initial=initial.get('brand_attributes', None), prefix="brand_attributes")

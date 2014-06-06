@@ -51,6 +51,7 @@ from sales.forms import StockStepForm
 from sales.forms import TargetForm
 from sales.models import Product
 from sales.models import ProductBrand
+from sales.models import ProductCategory
 from sales.models import ProductCurrency
 from sales.models import ProductPicture
 from sales.models import ProductType
@@ -1085,6 +1086,8 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             else:
                 kwargs.update(
                     {'mother_brand': self.request.user.get_profile().work_for,})
+            if step == self.STEP_PRODUCT and not self.edit_mode:
+                kwargs.update({'add_new': True,})
 
             return kwargs
         return super(SaleWizardNew, self).get_form_kwargs(step)
@@ -1258,7 +1261,9 @@ def get_product_types(request, *args, **kwargs):
     product_types = ProductType.objects.filter(
         category_id=kwargs.get('cat_id', None))
     for type in product_types:
-        product_types_list.append({'label': type.name, 'value': type.id})
+        product_types_list.append({'label': type.name,
+                                   'value': type.id,
+                                   'valid': type.valid})
     return HttpResponse(json.dumps(product_types_list),
                         mimetype='application/json')
 

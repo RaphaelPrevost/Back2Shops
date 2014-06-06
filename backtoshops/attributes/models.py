@@ -40,6 +40,14 @@ class BrandAttributePreview(models.Model):
 class CommonAttribute(models.Model):
     for_type = models.ForeignKey(ProductType, related_name="common_attributes")
     name = models.CharField(max_length=50)
+    valid = models.BooleanField(default=True)
 
     def __unicode__(self):
         return self.name
+
+    def delete(self, using=None):
+        if self.barcode_set.all() or self.productstock_set.all():
+            self.valid = False
+            self.save()
+        else:
+            super(CommonAttribute, self).delete(using)

@@ -16,7 +16,6 @@ from accounts.models import UserProfile
 from brandsettings import get_ba_settings
 from brandsettings import save_ba_settings
 from brandings.models import Branding
-from countries.models import Country
 from common.constants import USERS_ROLE
 from globalsettings import get_setting
 from globalsettings.models import GlobalSettings
@@ -171,15 +170,26 @@ class SACategoryForm(forms.ModelForm):
     
     class Meta:
         model = ProductCategory
+        exclude = ['valid', ]
 
 
 class SAAttributeForm(forms.ModelForm):
     error_css_class = 'error'
     required_css_class = 'required'
-    
+
+    def __init__(self, *args, **kwargs):
+       super(SAAttributeForm, self).__init__(*args, **kwargs)
+       self.fields['category'].queryset = ProductCategory.objects.filter(valid=True)
+
     class Meta:
         model = ProductType
+        exclude = ['valid', ]
 
+class SACommonAttributeForm(forms.ModelForm):
+    class Meta:
+        from attributes.models import CommonAttribute
+        model = CommonAttribute
+        exclude = ['valid', ]
 
 class SACarrierForm(forms.ModelForm):
     error_css_class = 'error'
