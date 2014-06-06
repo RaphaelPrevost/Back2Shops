@@ -1,11 +1,21 @@
 {% load getform %}
+{% load multiply %}
+
+{% with shopformstart=s_index|multiply:attributes.count|multiply:common_attributes.count %}
+
 {% for c in common_attributes %}
-    {% with curform=wizard.form.stocks|getform:forloop.counter cname=c.name %}
-        {{ curform.errors }}
-        {% include "_stock_stock_input.html" %}
+    {% with formindex=b_index|multiply:common_attributes.count|add:forloop.counter0|add:shopformstart|add:1 %}
+        {% with curform=wizard.form.stocks|getform:formindex cname=c.name %}
+            {{ curform.errors }}
+            {% include "_stock_stock_input.html" %}
+        {% endwith %}
     {% endwith %}
 {% empty %}
-    {% with curform=wizard.form.stocks.0 cname=da_name %}
-        {% include "_stock_stock_input.html" %}
+    {% with formindex=shopformstart|add:b_index|add:1 %}
+        {% with curform=wizard.form.stocks|getform:b_index cname=da_name %}
+            {% include "_stock_stock_input.html" %}
+        {% endwith %}
     {% endwith %}
 {% endfor %}
+
+{% endwith %}

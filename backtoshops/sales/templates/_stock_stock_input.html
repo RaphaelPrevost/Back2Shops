@@ -2,8 +2,9 @@
 <label for="{{ curform.stock.auto_id }}">{{ cname }}</label>
 <input id="{{ curform.stock.auto_id }}" type="text"  name="{{ curform.stock.html_name }}" maxlength="5" value="{% if curform.stock.value %}{{ curform.stock.value }}{% endif %}">
 <span style="display: none;">
-    {{ curform.shop }}
-    {{ curform.brand_attribute }}
     {{ curform.common_attribute }}
+    <input id="{{ curform.brand_attribute.auto_id }}" name="{{ curform.brand_attribute.html_name }}" type="text" value="{{attribute.id}}" />
+    <input id="{{ curform.shop.auto_id }}" name="{{ curform.shop.html_name }}" type="text" value="{{shop.id}}" />
     <input type="checkbox" name="{{ curform.DELETE.html_name }}" id="{{ curform.DELETE.auto_id }}" checked="true">
 </span>
+
