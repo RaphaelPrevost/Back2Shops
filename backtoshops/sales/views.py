@@ -731,12 +731,16 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 bap.save()
                 ba_pks.append(ba['ba_id'])
             else:
-                bap = BrandAttributePreview.objects.get(
-                    brand_attribute=BrandAttribute.objects.get(pk=ba['ba_id']),
-                    product=product,
-                    preview=preview)
-                if bap:
-                    bap.delete()
+                try:
+                    bap = BrandAttributePreview.objects.get(
+                        brand_attribute=BrandAttribute.objects.get(pk=ba['ba_id']),
+                        product=product,
+                        preview=preview)
+                except BrandAttributePreview.DoesNotExist:
+                    pass
+                else:
+                    if bap:
+                        bap.delete()
 
         pp_pks = [int(pp['pk']) for pp in product_form.pictures.cleaned_data if not pp['DELETE']]
         product.pictures = ProductPicture.objects.filter(pk__in=pp_pks)
