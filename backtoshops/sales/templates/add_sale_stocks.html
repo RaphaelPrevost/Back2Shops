@@ -49,13 +49,18 @@
     <script type="text/javascript">
         function validateForm() {
             var stocks = $("input[id*='-stock']");
+            var has_stock = false;
             for (var i = 0; i < stocks.length; i++) {
                 var val = $.trim($(stocks[i]).val());
-                //if (val.length == 0) continue;
-                if (!/^\d+$/.test(val)) {
+                if (val.length == 0) {
+                    continue
+                } else if (!/^\d+$/.test(val)) {
                     return false;
+                } else {
+                    has_stock = true;
                 }
             }
+            if (!has_stock) return false;
 
             var barcodes = $("input[id*='-upc']");
             for (var i = 0; i < barcodes.length; i++) {
