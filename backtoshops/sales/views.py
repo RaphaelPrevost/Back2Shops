@@ -1026,7 +1026,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 'preview_shop': "blank",
                 'shops_cant_be_deleted': ','.join(list(set(
                    [str(p.shop.pk) for p in ProductStock.objects.filter(sale=self.sale).exclude(stock=F('rest_stock'))
-                    if p.shop.pk in ShopsInSale.objects.filter(sale=self.sale,is_freezed=False).values_list('shop_id',flat=True)]
+                    if p.shop and p.shop.pk in ShopsInSale.objects.filter(sale=self.sale,is_freezed=False).values_list('shop_id',flat=True)]
                    ))),
                 'freezed_shops': ','.join([str(s.shop.pk) for s in ShopsInSale.objects.filter(sale=self.sale,is_freezed=True)]),
             })
@@ -1237,7 +1237,6 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                         'common_attribute': None,
                         'upc': self._get_barcode(None, None),
                         })
-
             self.stocks_infos.barcodes_expired = False
             self.stocks_infos.last_barcodes_initials = {'barcodes_initials': initials}
             toret.update({'barcodes_initials': initials})

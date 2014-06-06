@@ -25,14 +25,16 @@
             <div id="accordion" class="accordion">
                 {% trans "Initial stock quantity" as stock_link %}
                 {% trans "Initial stock quantity" as stock_label %}
-                {% include "_stock_stock.html" %}
+                {% with shop=None s_index=0 %}
+                    {% include "_stock_stock.html" %}
+                {% endwith %}
             </div>
         </div>
         {% else %}
         <div id="detailed_stocks_form">
             <div id="accordion2" class="accordion">
                 {% for shop in shops %}
-                    {% with stock_link=shop.name %}
+                    {% with stock_link=shop.name s_index=forloop.counter0 %}
                         {% trans "Initial stock allocation" as stock_label %}
                         {% include "_stock_stock.html" %}
                     {% endwith %}

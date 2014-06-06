@@ -14,9 +14,13 @@
                     {% endthumbnail %}
                     {{ attribute.name }}
                 </strong>
-                {% include "_stock_stock_block.html" %}
+                {% with b_attr=attribute.id b_index=forloop.counter0 %}
+                    {% include "_stock_stock_block.html" %}
+                {% endwith %}
             {% empty %}
-                {% include "_stock_stock_block.html" %}
+                {% with b_attr='' b_index=0 %}
+                    {% include "_stock_stock_block.html" %}
+                {% endwith %}
             {% endfor %}
             </span>
         </p>
