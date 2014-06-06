@@ -96,6 +96,8 @@ def get_item_attributes(request, *args, **kwargs):
     item_attrs = CommonAttribute.objects.filter(
         for_type_id=kwargs.get('tid', None))
     for attr in item_attrs:
-        item_attrs_list.append({'label': attr.name, 'value': attr.id})
+        item_attrs_list.append({'label': attr.name,
+                                'value': attr.id,
+                                'valid': attr.valid})
     return HttpResponse(json.dumps(item_attrs_list),
                         mimetype='application/json')

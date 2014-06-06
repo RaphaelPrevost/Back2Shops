@@ -243,12 +243,6 @@
 
 .pag_nav { margin: 10px 20px 35px 20px; }
 
-
-
-
-
-
-
-
-
-
+.disabled {
+    color: #999999;
+}

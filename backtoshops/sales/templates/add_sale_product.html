@@ -1068,7 +1068,11 @@
                 success: function(data, textStatus){
                     $("#product_type_selector").empty();
                     $.each(data, function(i, option){
-                        $("#product_type_selector").append($("<option>", {value: option.value, text: option.label}));
+                        if (option.valid) {
+                            $("#product_type_selector").append($("<option>", {value: option.value, text: option.label}));
+                        } else if ("{{ wizard.form.type.value }}" != "None" && option.value == {{ wizard.form.type.value }}) {
+                            $("#product_type_selector").append($("<option>", {value: option.value, text: "({% trans "invalid" %})" + option.label}));
+                        }
                     });
                     if ("{{ wizard.form.type.value }}") {
                         $("#product_type_selector").val("{{ wizard.form.type.value }}").change();
@@ -1097,7 +1101,9 @@
                         $("#type_attribute_selector").prepend($("<option>", {value: 0, text: "{% trans "Unified price" %}"}));
                     }
                     $.each(data, function(i, option){
-                        $("#type_attribute_selector").append($("<option>", {value: option.value, text: option.label}));
+                        if (option.valid) {
+                            $("#type_attribute_selector").append($("<option>", {value: option.value, text: option.label}));
+                        }
                     });
 
                     // initialise weight selector
@@ -1107,7 +1113,9 @@
                         $("#type_attribute_weight_selector").prepend($("<option>", {value: 0, text: "{% trans "Standard Weight" %}"}));
                     }
                     $.each(data, function(i, option){
-                        $("#type_attribute_weight_selector").append($("<option>", {value: option.value, text: option.label}));
+                        if (option.valid) {
+                            $("#type_attribute_weight_selector").append($("<option>", {value: option.value, text: option.label}));
+                        }
                     });
                 }
             });
@@ -1164,5 +1172,6 @@
             $("#preview-{{ wizard.form.valid_to.auto_id }}").html(dateText).parents("span:first").show();
         }
     });
+
 </script>
 {% endblock %}

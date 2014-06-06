@@ -1,8 +1,8 @@
 from django.db import models
-from django.db.models.signals import post_delete
-from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from sorl.thumbnail import ImageField
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 from accounts.models import Brand
 from common.assets_utils import AssetsStorage
@@ -91,16 +91,42 @@ class ProductPicture(models.Model):
 
 class ProductCategory(models.Model):
     name = models.CharField(max_length=50)
+    valid = models.BooleanField(default=True)
 
     def __unicode__(self):
         return self.name
+
+    def delete(self, using=None):
+        if self.products.all():
+            for pt in self.producttype_set.all():
+                pt.delete()
+            self.valid = False
+            self.save()
+        else:
+            # Can't use 'super', why?
+            from django.db import models
+            models.Model.delete(self, using)
+
 
 class ProductType(models.Model):
     name = models.CharField(max_length=50, verbose_name='name')
     category = models.ForeignKey(ProductCategory, verbose_name='category')
+    valid = models.BooleanField(default=True)
 
     def __unicode__(self):
         return self.name
+
+    def delete(self, using=None):
+        if self.products.all():
+            for ca in self.common_attributes.all():
+                ca.delete()
+            self.valid = False
+            self.save()
+        else:
+            # Can't use 'super', why?
+            from django.db import models
+            models.Model.delete(self, using)
+
 
 class ProductBrand(models.Model):
     seller = models.ForeignKey(Brand, related_name="sold_brands")
@@ -146,3 +172,4 @@ class WeightUnit(models.Model):
 
     def __unicode__(self):
         return self.key
+

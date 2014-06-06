@@ -17,7 +17,17 @@ from django.views.generic.edit import UpdateView
 from accounts.models import Brand
 from accounts.models import UserProfile
 from attributes.models import CommonAttribute
-from backend import forms
+from backend.forms import SAAttributeForm
+from backend.forms import SABrandForm
+from backend.forms import SABrandSettingsForm
+from backend.forms import SABrandingForm
+from backend.forms import SACarrierForm
+from backend.forms import SACategoryForm
+from backend.forms import SACommonAttributeForm
+from backend.forms import SACreateUserForm
+from backend.forms import SASettingsForm
+from backend.forms import SATaxForm
+from backend.forms import SAUserForm
 from brandings.models import Branding
 from common.constants import USERS_ROLE
 from fouillis.views import super_admin_required
@@ -71,7 +81,7 @@ class SARequiredMixin(object):
      
 class BaseBrandView(SARequiredMixin):
     template_name = "sa_brand.html"
-    form_class = forms.SABrandForm
+    form_class = SABrandForm
     model = Brand
     
 class CreateBrandView(BaseBrandView, CreateView):
@@ -169,7 +179,7 @@ class BaseUserView(SARequiredMixin):
 
 
 class CreateUserView(BaseUserView, CreateView):
-    form_class = forms.SACreateUserForm
+    form_class = SACreateUserForm
     
     def get_success_url(self):
         return reverse('sa_edit_user',args=[self.object.user.pk])
@@ -185,7 +195,7 @@ class EditUserView(BaseUserView, UpdateView):
     this class uses get_object overriding to make a fail safe call of UserProfile.
     in other words, if there is a User but it doesn't have UserProfile, Edit View will make one for the User.
     """
-    form_class = forms.SAUserForm
+    form_class = SAUserForm
     queryset = User.objects.all()
     
     def get_object(self):
@@ -236,7 +246,7 @@ def ajax_user_search(request):
 
 class BaseCategoryView(SARequiredMixin):
     template_name = "sa_category.html"
-    form_class = forms.SACategoryForm
+    form_class = SACategoryForm
     model = ProductCategory
 
 class CreateCategoryView(BaseCategoryView, CreateView):
@@ -251,14 +261,17 @@ class EditCategoryView(BaseCategoryView, UpdateView):
 class DeleteCategoryView(BaseCategoryView, DeleteView):
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
+        content = {"category_pk": self.kwargs.get('pk', None)}
         self.object.delete()
-        return HttpResponse(content=json.dumps({"category_pk": self.kwargs.get('pk', None)}),
+        if self.object.products.all():
+            content.update({'reprieve': True, 'name': self.object.name})
+        return HttpResponse(content=json.dumps(content),
                             mimetype="application/json")
 
 
 class BaseCarrierView(SARequiredMixin):
     template_name = "sa_carrier.html"
-    form_class = forms.SACarrierForm
+    form_class = SACarrierForm
     model = Carrier
     formset = inlineformset_factory(Carrier, Service, extra=0)
 
@@ -316,18 +329,19 @@ class DeleteCarrierView(BaseCarrierView, DeleteView):
 
 class BaseAttributeView(SARequiredMixin):
     template_name = "sa_attribute.html"
-    form_class = forms.SAAttributeForm
+    form_class = SAAttributeForm
     model = ProductType
-    formset = inlineformset_factory(ProductType, CommonAttribute, extra=0)
-    
+    formset = inlineformset_factory(ProductType, CommonAttribute,
+                                    form=SACommonAttributeForm, extra=0)
+
     def get_context_data(self, **kwargs):
         kwargs.update({"formset": self.formset,})
         return super(BaseAttributeView,self).get_context_data(**kwargs)
     
 class CreateAttributeView(BaseAttributeView, CreateView):
     def get_success_url(self):
-        return reverse('sa_edit_attribute',args=[self.object.id])
-        
+        return reverse('sa_edit_attribute', args=[self.object.id])
+
     def post(self, request, *args, **kwargs):
         self.object = None
         form_class = self.get_form_class()
@@ -348,16 +362,26 @@ class EditAttributeView(BaseAttributeView, UpdateView):
     
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        formset = inlineformset_factory(ProductType, CommonAttribute,extra=0)
-        self.formset = formset(instance = self.get_object())
-        return super(BaseAttributeView,self).get(request, *args, **kwargs)
+        self.formset = self.formset(instance=self.get_object())
+        invalid_attrs = {'class': 'disabled', 'disabled': True}
+        if not self.object.valid:
+            form = self.get_form(self.form_class)
+            for field in form.fields.iterkeys():
+                form.fields[field].widget.attrs.update(invalid_attrs)
+            for subform in self.formset.forms:
+                subform.fields['name'].widget.attrs.update(invalid_attrs)
+
+        for subform in self.formset.forms:
+            if not subform.instance.valid:
+                subform.fields['name'].widget.attrs.update(invalid_attrs)
+        return super(BaseAttributeView, self).get(request, *args, **kwargs)
     
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         if form.is_valid():
-            product_type=form.save(commit=False)
+            product_type = form.save(commit=False)
             formset = self.formset(data=self.request.POST, instance=product_type)
             if formset.is_valid():
                 form.save(commit=True)
@@ -368,13 +392,16 @@ class EditAttributeView(BaseAttributeView, UpdateView):
 class DeleteAttributeView(BaseAttributeView, DeleteView):
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
+        content = {"attribute_pk": self.kwargs.get('pk', None)}
         self.object.delete()
-        return HttpResponse(content=json.dumps({"attribute_pk": self.kwargs.get('pk', None)}),
+        if self.object.products.all():
+            content.update({'reprieve': True, 'name': self.object.name})
+        return HttpResponse(content=json.dumps(content),
                             mimetype="application/json")
 
 class BaseBrandingView(SARequiredMixin):
     template_name = "sa_branding.html"
-    form_class = forms.SABrandingForm
+    form_class = SABrandingForm
     model = Branding
     
 class CreateBrandingView(BaseBrandingView, CreateView):
@@ -403,7 +430,7 @@ def settings_view(request):
 def sa_settings(request):
     is_saved = False
     if request.method == 'POST':
-        form = forms.SASettingsForm(data=request.POST, user=request.user)
+        form = SASettingsForm(data=request.POST, user=request.user)
         if form.is_valid():
             global_settings = GlobalSettings.objects.all()
             for global_setting in global_settings:
@@ -417,7 +444,7 @@ def sa_settings(request):
             user.save()
             is_saved = True
     else:
-        form = forms.SASettingsForm(user=request.user)
+        form = SASettingsForm(user=request.user)
     return render_to_response('sa_settings.html',
                 {'form':form, 'is_saved':is_saved, 'request':request, },
                 context_instance=RequestContext(request))
@@ -426,12 +453,12 @@ def sa_settings(request):
 def brand_settings(request):
     is_saved = False
     if request.method == 'POST':
-        form = forms.SABrandSettingsForm(data=request.POST, user=request.user)
+        form = SABrandSettingsForm(data=request.POST, user=request.user)
         if form.is_valid():
             form.save(request.user)
             is_saved = True
     else:
-        form = forms.SABrandSettingsForm(user=request.user)
+        form = SABrandSettingsForm(user=request.user)
     return render_to_response('brand_settings.html',
                 {'form':form, 'is_saved':is_saved, 'request':request, },
                 context_instance=RequestContext(request))
@@ -439,7 +466,7 @@ def brand_settings(request):
 
 class BaseTaxView(SARequiredMixin):
     template_name = "sa_tax.html"
-    form_class = forms.SATaxForm
+    form_class = SATaxForm
     model = Rate
 
 
