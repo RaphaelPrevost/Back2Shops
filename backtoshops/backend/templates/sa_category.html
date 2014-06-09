@@ -41,6 +41,12 @@
     {% endif %}
 
         <fieldset>
+            {% if not form.instance.valid %}
+                <p class="uneditable-msg">
+                    {% trans "This sales category is invalid and not editable." %}
+                    {% trans "Admin user want to delete it but some old sales are still using it." %}
+                </p>
+            {% endif %}
             {{ form.name.errors }}
             <div class="formrow">
                 <label for="{{form.name.auto_id}}">{% trans form.name.label %}</label>
@@ -48,7 +54,9 @@
             </div>
         </fieldset>
         <!--BOUTONS-->
+        {% if form.instance.valid %}
         <input class="btn valider" type="submit" value='{% trans "Save" %}'/>
+        {% endif %}
         <button type="reset" class="btn annuler">{% trans "Cancel" %}</button>
     </form>
     <!--FIN FORM-->

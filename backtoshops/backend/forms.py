@@ -27,6 +27,8 @@ from shippings.models import Carrier
 from taxes.models import Rate
 from widgets import AdvancedFileInput
 
+
+DISABLED_WIDGET_ATTRS = {'class': 'disabled', 'disabled': True}
 class CountryField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return _(obj.printable_name)
@@ -167,7 +169,15 @@ class SAUserForm(BaseUserForm):
 class SACategoryForm(forms.ModelForm):
     error_css_class = 'error'
     required_css_class = 'required'
-    
+
+    def __init__(self, *args, **kwargs):
+        super(SACategoryForm, self).__init__(*args, **kwargs)
+        cat = kwargs.get('instance', None)
+        if cat:
+            if not cat.valid:
+                for field in self.fields.iterkeys():
+                    self.fields[field].widget.attrs.update(DISABLED_WIDGET_ATTRS)
+
     class Meta:
         model = ProductCategory
         exclude = ['valid', ]
@@ -178,14 +188,29 @@ class SAAttributeForm(forms.ModelForm):
     required_css_class = 'required'
 
     def __init__(self, *args, **kwargs):
-       super(SAAttributeForm, self).__init__(*args, **kwargs)
-       self.fields['category'].queryset = ProductCategory.objects.filter(valid=True)
+        super(SAAttributeForm, self).__init__(*args, **kwargs)
+        self.fields['category'].queryset = ProductCategory.objects.filter(valid=True)
+        sa_attr = kwargs.get('instance', None)
+        if sa_attr:
+            if not sa_attr.valid:
+                for field in self.fields.iterkeys():
+                    self.fields[field].widget.attrs.update(DISABLED_WIDGET_ATTRS)
+
 
     class Meta:
         model = ProductType
         exclude = ['valid', ]
 
 class SACommonAttributeForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(SACommonAttributeForm, self).__init__(*args, **kwargs)
+        common_attr = kwargs.get('instance', None)
+        if common_attr:
+            if not common_attr.valid:
+                for field in self.fields.iterkeys():
+                    self.fields[field].widget.attrs.update(DISABLED_WIDGET_ATTRS)
+
     class Meta:
         from attributes.models import CommonAttribute
         model = CommonAttribute

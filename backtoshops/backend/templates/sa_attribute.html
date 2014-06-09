@@ -39,8 +39,13 @@
     {% else %}
         <h3>{% trans "Add a new item type" %}</h3>
     {% endif %}
-
         <fieldset>
+            {% if not form.instance.valid %}
+            <p class="uneditable-msg">
+                {% trans "This item type is invalid and not editable." %}
+                {% trans "Admin user want to delete it but some old sales are still using it." %}
+            </p>
+            {% endif %}
             {{ form.category.errors }}
             <div class="formrow">
                 <label for="{{form.category.auto_id}}">{% trans "Sales category" %}</label>
@@ -60,6 +65,7 @@
             <h3>{% trans "Item generic properties (e.g. sizes)" %}</h3>
             <div>{{ formset.management_form }}</div>
 
+            {% if form.instance.valid %}
             <div class="add_subform">
                 <div class="formrow">
                     <label for="new_ca_name">Nom</label>
@@ -67,6 +73,7 @@
                     <input type="button" id="add_ca" value="{% trans "Add" %}" />
                 </div>
             </div>
+            {% endif %}
         {% for subform in formset.forms %}
             <div class="formrow">
                 <label for="{{subform.name.auto_id}}">{% trans subform.name.label %}
@@ -80,7 +87,9 @@
             </div>
         {% endfor %}
         </fieldset>
+        {% if form.instance.valid %}
         <input class="btn valider" type="submit" value="{% trans 'Save' %}"/>
+        {% endif %}
         <button type="reset" class="btn annuler">{% trans "Cancel" %}</button>
     </form>
     <!--FIN FORM-->
