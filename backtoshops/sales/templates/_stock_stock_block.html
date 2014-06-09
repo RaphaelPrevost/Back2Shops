@@ -12,7 +12,7 @@
     {% endwith %}
 {% empty %}
     {% with formindex=shopformstart|add:b_index|add:1 %}
-        {% with curform=wizard.form.stocks|getform:b_index cname=da_name %}
+        {% with curform=wizard.form.stocks|getform:b_index cname=sale_title %}
             {% include "_stock_stock_input.html" %}
         {% endwith %}
     {% endwith %}

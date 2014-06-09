@@ -1059,7 +1059,8 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 'preview_product': self._render_preview(self.STEP_PRODUCT),
                 'common_attributes': getattr(self, 'common_attributes', []),
                 'shops': getattr(self, 'shops', []),
-                'global_stock': getattr(self, 'target_market', '') == STOCK_TYPE_GLOBAL
+                'global_stock': getattr(self, 'target_market', '') == STOCK_TYPE_GLOBAL,
+                'sale_title': self.sale_title,
             })
         elif self.steps.current == self.STEP_SHIPPING:
             context.update({
@@ -1169,6 +1170,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             self.brand_attributes = BrandAttribute.objects.filter(pk__in=brand_attributes)
             self.shops = shop_obj.cleaned_data['shops'] or None
             self.target_market = shop_obj.cleaned_data['target_market']
+            self.sale_title = product_obj.cleaned_data['name']
 
             toret = {}
             # if self.stocks_infos.stocks_expired:

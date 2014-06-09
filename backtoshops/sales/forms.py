@@ -13,8 +13,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from barcodes.models import Barcode
-from common.constants import USERS_ROLE
 from common.constants import TARGET_MARKET_TYPES
+from common.constants import USERS_ROLE
 from common.utils import get_currency
 from sales.models import DISCOUNT_TYPE
 from sales.models import GENDERS
@@ -446,17 +446,7 @@ class StockStepForm(forms.Form):
                 if form.errors:
                     raise forms.ValidationError(form.errors)
         self._clean_barcodes()
-        self._clean_stocks()
         return super(StockStepForm, self).clean()
-
-    def _clean_stocks(self):
-        has_stock = False
-        for stock in self.stocks:
-            if stock.cleaned_data['stock'] is not None and not stock.cleaned_data['DELETE']:
-                has_stock = True
-                break
-        if not has_stock:
-            raise forms.ValidationError(_('Please input valid stock quantity.'))
 
     def _clean_barcodes(self):
         shops = []
