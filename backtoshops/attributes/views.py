@@ -68,14 +68,20 @@ class BrandAttributeView(OperatorUpperLoginRequiredMixin,
         if premium_type: ba.premium_type = premium_type
         if premium_amount: ba.premium_amount = premium_amount
         if texture: ba.texture = texture
-        ba.save()
-        pk = ba.pk
-        success = True
+        try:
+            ba.save()
+            pk = ba.pk
+            success = True
+            err = ''
+        except Exception, e:
+            success = False
+            err = str(e)
         texture_thumb = None
         if ba.texture:
             texture_thumb = get_thumbnail(ba.texture, "15x15").url
         to_ret.update({'pk': pk,
                        'success': success,
+                       'err': err,
                        'premium_type': premium_type,
                        'premium_amount': premium_amount,
                        'texture_thumb': texture_thumb})

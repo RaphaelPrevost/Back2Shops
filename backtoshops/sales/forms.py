@@ -279,7 +279,10 @@ class ProductForm(forms.Form):
         label=_("Product category"),
         queryset=ProductCategory.objects.all())
     type = forms.IntegerField(widget=forms.HiddenInput())
-    name = forms.CharField(label=_("Product name"), show_hidden_initial=True)
+    name = forms.CharField(
+        label=_("Product name"),
+        max_length=50,
+        show_hidden_initial=True)
     description = forms.CharField(
         label=_("Description"),
         widget=forms.Textarea())
