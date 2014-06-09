@@ -359,21 +359,10 @@ class EditAttributeView(BaseAttributeView, UpdateView):
     def get_success_url(self):
         pk = self.kwargs.get('pk', None)
         return reverse("sa_edit_attribute",args=[pk])
-    
+
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         self.formset = self.formset(instance=self.get_object())
-        invalid_attrs = {'class': 'disabled', 'disabled': True}
-        if not self.object.valid:
-            form = self.get_form(self.form_class)
-            for field in form.fields.iterkeys():
-                form.fields[field].widget.attrs.update(invalid_attrs)
-            for subform in self.formset.forms:
-                subform.fields['name'].widget.attrs.update(invalid_attrs)
-
-        for subform in self.formset.forms:
-            if not subform.instance.valid:
-                subform.fields['name'].widget.attrs.update(invalid_attrs)
         return super(BaseAttributeView, self).get(request, *args, **kwargs)
     
     def post(self, request, *args, **kwargs):

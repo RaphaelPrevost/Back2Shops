@@ -51,9 +51,11 @@
             <div class="vente" sale="{{ sale.id }}">
                 <!--NOM, CATEGORIE, TYPE de Prod-->
                 {% if sale|show_step_shop:request.user %}
-                <a href="{% if request.user|is_manager_upper %}{% url 'edit_sale' sale_id=sale.pk step="shop" %}{% endif %}"><h3>{{ sale.product.name }}</h3></a>
+                <a href="{% if request.user|is_manager_upper %}{% url 'edit_sale' sale_id=sale.pk step="shop" %}{% endif %}"><h3>{{ sale.product.name }}</h3>
+                <input type="button" value="{% trans "Edit" %}" class="edit-sale"></a>
                 {% else %}
-                <a href="{% if request.user|is_manager_upper %}{% url 'edit_sale' sale_id=sale.pk step="product" %}{% endif %}"><h3>{{ sale.product.name }}</h3></a>
+                <a href="{% if request.user|is_manager_upper %}{% url 'edit_sale' sale_id=sale.pk step="product" %}{% endif %}"><h3>{{ sale.product.name }}</h3>
+                <input type="button" value="{% trans "Edit" %}" class="edit-sale"></a>
                 {% endif %}
                 <h4>
                     {% if request.user|is_admin_upper %}
