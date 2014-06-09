@@ -165,13 +165,14 @@
             <span>{{ wizard.form.valid_from.label }}</span>{{ wizard.form.valid_from }}
             <span>{{ wizard.form.valid_to.label }}</span>{{ wizard.form.valid_to }}
         </div>
+        <ul id="ba_error" style="display:none;" class="errorlist"></ul>
         <div class="marge formrow">
             <label>{% trans "Brand attributes" %}</label>
             {{ wizard.form.brand_attributes.management_form }}
             <span class="contForm" id="brand_attributes">
                 <div id="add_ba_form">
                     <div id="ba">
-                        <input id="ba_input" type="text"/>
+                        <input id="ba_input" type="text" maxlength="50"/>
 
                         <img id="ba_texture_btn" role="button">
                         <input id="ba_texture_upload" type="file" name="texture_file"/>
@@ -633,6 +634,7 @@
             data_send,
             function(data) {
                 if (data.success) {
+                    $('#ba_error').hide().empty();
                     $("#brand_attributes").append(form);
                     $(ba_id).val(data.pk);
                     $(texture).val(data.texture_thumb);
@@ -650,6 +652,8 @@
                     nb_of_forms++;
                     $("#{{ wizard.form.brand_attributes.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
                     _clearBaForm();
+                } else {
+                    $('#ba_error').show().append("<li>" + data.err + "</li>");
                 }
             }
         );
