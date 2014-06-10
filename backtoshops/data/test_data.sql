@@ -107,9 +107,9 @@ COPY sales_productbrand (id, seller_id, name, picture) FROM stdin;
 -- Data for Name: sales_productcategory; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY sales_productcategory (id, name) FROM stdin;
-1000001	product category 1
-1000002	product category 2
+COPY sales_productcategory (id, name, valid) FROM stdin;
+1000001	product category 1	t
+1000002	product category 2	t
 \.
 
 
@@ -117,12 +117,12 @@ COPY sales_productcategory (id, name) FROM stdin;
 -- Data for Name: sales_producttype; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY sales_producttype (id, name, category_id) FROM stdin;
-1000001	product type 1	1000001
-1000002	product type 2	1000001
-1000003	product type 3	1000002
-1000004	product type 4	1000002
-1000005	item type 1	1000001
+COPY sales_producttype (id, name, category_id, valid) FROM stdin;
+1000001	product type 1	1000001	t
+1000002	product type 2	1000001	t
+1000003	product type 3	1000002	t
+1000004	product type 4	1000002	t
+1000005	item type 1	1000001	t
 \.
 
 
@@ -245,13 +245,13 @@ COPY attributes_brandattributepreview (id, product_id, brand_attribute_id, previ
 -- Data for Name: attributes_commonattribute; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY attributes_commonattribute (id, for_type_id, name) FROM stdin;
-1000001	1000005	item gen prop 1
-1000002	1000005	item gen prop 2
-1000003	1000001	common attr1 for product type 1
-1000004	1000002	common attr1 for product type 2
-1000005	1000003	common attr1 for product type 3
-1000006	1000004	common attr1 for product type 4
+COPY attributes_commonattribute (id, for_type_id, name, valid) FROM stdin;
+1000001	1000005	item gen prop 1	t
+1000002	1000005	item gen prop 2	t
+1000003	1000001	common attr1 for product type 1	t
+1000004	1000002	common attr1 for product type 2	t
+1000005	1000003	common attr1 for product type 3	t
+1000006	1000004	common attr1 for product type 4	t
 \.
 
 
