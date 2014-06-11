@@ -14,7 +14,7 @@
 		<?py if p.get('variant') is not None: ?>
 			<ul class="thumbnails">
    				<?py for variant in p.get('variant'): ?>
-				<li><a href="${variant.get('thumb','')}"><img src="${variant.get('thumb','')}" alt="Thumbnails"></a></li>
+				<li><a href="${variant.get('img') or get_single_attribute(p, 'img')}"><img src="${variant.get('thumb','')}" alt="Thumbnails"></a></li>
 				<?py #endfor ?>
 			</ul>
 		<?py #endif ?>
