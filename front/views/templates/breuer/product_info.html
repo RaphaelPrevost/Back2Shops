@@ -18,7 +18,7 @@
             <?py variants = product_info.get('variant',{})?>
             <?py variants = variants if isinstance(variants, list) else [variants] ?>
             <?py for variant in variants: ?>
-            <li value="${variant.get('@id')}"><a href="javascript:void(0)"><img src="${variant.get('thumb')}" alt="${variant.get('@id')}" /></a></li>
+            <li value="${variant.get('@id')}"><a href="javascript:void(0)" src="${variant.get('img') or get_single_attribute(product_info, 'img')}"><img src="${variant.get('thumb')}" alt="${variant.get('@id')}" /></a></li>
             <?py #endfor ?>
         </ul>
         <input type="hidden" name="id_variant" value="" />
@@ -107,6 +107,25 @@
 $(function(){
     $("#selectColoris li").click(function(){
         $(this).attr('class', 'selected').siblings().attr('class', '');
+    });
+
+    $("#selectColoris li a").click(function(){
+        var img = $(this).attr('src');
+        api.$link.attr("href", img);
+        api.$image.attr("src", img);
+        if (api.$zoom) {
+            api.$zoom.remove();
+            api.isReady = false;
+        }
+    });
+
+    $("#visuelProd .thumbnails li a").click(function(){
+        var img = $(this).attr('href');
+        api.$link.attr("href", img);
+        if (api.$zoom) {
+            api.$zoom.remove();
+            api.isReady = false;
+        }
     });
 });
 
