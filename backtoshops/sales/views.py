@@ -26,20 +26,21 @@ from django.views.generic.base import View
 from formwizard.views import NamedUrlSessionWizardView
 from sorl.thumbnail import get_thumbnail
 
+from B2SProtocol.settings import SHIPPING_WEIGHT_UNIT
 from attributes.models import BrandAttribute
 from attributes.models import BrandAttributePreview
 from attributes.models import CommonAttribute
 from barcodes.models import Barcode
 from common.cache_invalidation import send_cache_invalidation
-from common.constants import USERS_ROLE
 from common.constants import TARGET_MARKET_TYPES
+from common.constants import USERS_ROLE
 from common.error import InvalidRequestError
 from common.utils import get_currency
 from common.utils import get_valid_sort_fields
-from fouillis.views import manager_upper_required
 from fouillis.views import ManagerUpperLoginRequiredMixin
 from fouillis.views import OperatorUpperLoginRequiredMixin
 from fouillis.views import ShopManagerUpperLoginRequiredMixin
+from fouillis.views import manager_upper_required
 from globalsettings import get_setting
 from promotion.utils import save_sale_promotion_handler
 from sales.forms import ListSalesForm
@@ -51,7 +52,6 @@ from sales.forms import StockStepForm
 from sales.forms import TargetForm
 from sales.models import Product
 from sales.models import ProductBrand
-from sales.models import ProductCategory
 from sales.models import ProductCurrency
 from sales.models import ProductPicture
 from sales.models import ProductType
@@ -64,15 +64,14 @@ from sales.models import TypeAttributePrice
 from sales.models import TypeAttributeWeight
 from sales.models import WeightUnit
 from shippings.forms import CustomShippingRateFormModel
+from shippings.models import FlatRateInShipping
 from shippings.models import SC_CARRIER_SHIPPING_RATE
 from shippings.models import SC_CUSTOM_SHIPPING_RATE
 from shippings.models import SC_FLAT_RATE
 from shippings.models import Shipping
-from shippings.models import FlatRateInShipping
 from shops.models import DefaultShipping
 from shops.models import Shop
 from stocks.models import ProductStock
-from B2SProtocol.settings import SHIPPING_WEIGHT_UNIT
 
 def get_sale_currency(request, shop_data):
     target_market = shop_data['target_market']
@@ -333,7 +332,6 @@ class SaleDetails(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin):
                 self.total_stock += stock_sum
                 self.total_rest_stock += rest_stock_sum
         return rows
-
 
     def get(self, request, sale_id, shop_id=None):
         self.sale = Sale.objects.get(pk=sale_id)
@@ -922,6 +920,9 @@ class SaleWizardNew(NamedUrlSessionWizardView):
 
         if self.request.session.get('stocks_infos', None):
             del(self.request.session['stocks_infos'])
+        if (not self.edit_mode and
+                self.request.session.get('abandoned_sale', None)):
+            del(self.request.session['abandoned_sale'])
 
         send_cache_invalidation(self.edit_mode and "PUT" or "POST",
                                 'sale', sale.id)
@@ -932,6 +933,22 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         self.stocks_infos = request.session.get('stocks_infos', StocksInfos())
         return super(SaleWizardNew, self).dispatch(request, *args, **kwargs)
 
+    def _reset_storage(self):
+        self.storage.reset()
+        self.storage.current_step = self.steps.first
+
+    def get(self, request, *args, **kwargs):
+        step_url = kwargs.get('step', None)
+        if self.edit_mode:
+            if step_url == self.steps.first:
+                self._reset_storage()
+        else:
+            if step_url is None:
+                self._reset_storage()
+                if self.request.session.get('abandoned_sale', None):
+                    self.storage.data = self.request.session['abandoned_sale']
+        return super(NamedUrlSessionWizardView, self).get(*args, **kwargs)
+
     def post(self, *args, **kwargs):
         """
         Override post to catch cancel actions, else just call super
@@ -941,6 +958,9 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             self.storage.reset()
             if self.request.session.get('stocks_infos', None):
                 del(self.request.session['stocks_infos'])
+            if (not self.edit_mode and
+                    self.request.session.get('abandoned_sale', None)):
+                del(self.request.session['abandoned_sale'])
 
             return redirect('/')
         if self.edit_mode:
@@ -948,6 +968,8 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             if prev_step and prev_step in self.get_form_list():
                 self.storage.current_step = prev_step
                 return redirect(self.url_name, step=prev_step, sale_id=self.sale.pk)
+        else:
+            self.request.session['abandoned_sale'] = self.storage.data
 
         return super(SaleWizardNew, self).post(*args, **kwargs)
 
@@ -966,7 +988,6 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             self.storage.set_step_data(self.STEP_STOCKS, None)
             self.storage.set_step_files(self.STEP_STOCKS, None)
         return super(SaleWizardNew, self).process_step(form)
-
 
     def render(self, form=None, **kwargs):
 #        if self.request.session.get("edit_mode", False):
