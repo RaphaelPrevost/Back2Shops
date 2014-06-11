@@ -11,6 +11,8 @@
 	{% for category in categories %}
     <category id="{{ category.pk }}">
         <name>{{ category.name }}</name>
+        <thumb>{% if category.thumbnail %}{{ category.thumbnail.url }}{% endif %}</thumb>
+        <img>{% if category.picture %}{{ category.picture.url }}{% endif %}</img>
     </category>
     {% endfor %}
 </types>

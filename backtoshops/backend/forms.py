@@ -169,6 +169,8 @@ class SAUserForm(BaseUserForm):
 class SACategoryForm(forms.ModelForm):
     error_css_class = 'error'
     required_css_class = 'required'
+    thumbnail = forms.ImageField(widget=AdvancedFileInput)
+    picture = forms.ImageField(widget=AdvancedFileInput)
 
     def __init__(self, *args, **kwargs):
         super(SACategoryForm, self).__init__(*args, **kwargs)

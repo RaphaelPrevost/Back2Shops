@@ -5,7 +5,11 @@
 
 <sale id="{{ object.pk }}">
     <!-- item category -->
-    <category id="{{ object.product.category.pk }}">{{ object.product.category.name }}</category>
+    <category id="{{ object.product.category.pk }}">
+        <name>{{ object.product.category.name }}</name>
+        <thumb>{% if object.product.category.thumbnail %}{{ object.product.category.thumbnail.url }}{% endif %}</thumb>
+        <img>{% if object.product.category.picture %}{{ object.product.category.picture.url }}{% endif %}</img>
+    </category>
     
     <!-- item type -->
     <type id="{{ object.product.type.pk }}">

@@ -92,6 +92,12 @@ class ProductPicture(models.Model):
 class ProductCategory(models.Model):
     name = models.CharField(max_length=50)
     valid = models.BooleanField(default=True)
+    thumbnail = models.ImageField(upload_to='img/category_images',
+                                  null=True, blank=True,
+                                  storage=AssetsStorage())
+    picture = models.ImageField(upload_to='img/category_images',
+                                null=True, blank=True,
+                                storage=AssetsStorage())
 
     def __unicode__(self):
         return self.name
