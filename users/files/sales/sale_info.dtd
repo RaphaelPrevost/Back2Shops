@@ -31,7 +31,7 @@
 <!ELEMENT sale (category, type, name, desc, img*, brand, weight?, price?, discount?, variant*, shop*, available) >
 <!ATTLIST sale id CDATA #REQUIRED >
 
-<!ELEMENT category (#PCDATA) >
+<!ELEMENT category (name, thumb, img) >
 <!ATTLIST category id CDATA #REQUIRED >
 
 <!ELEMENT type (name, attribute*) >
