@@ -54,6 +54,17 @@ def get_brief_product(sale):
 def get_brief_product_list(sales):
     return [get_brief_product(s) for s in sales.itervalues()]
 
+
+def get_category_from_sales(sales):
+    category = (sales.itervalues().next()).get('category')
+    category_info = {
+        'id': category.get('@id', ''),
+        'name': category.get('name', ''),
+        'img': category.get('img', ''),
+        'thumb': category.get('thumb', ''),
+    }
+    return category_info
+
 def get_url_format(role):
     from urls import BrandRoutes
     return BrandRoutes().get_url_format(role)

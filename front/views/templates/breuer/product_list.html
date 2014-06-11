@@ -1,4 +1,8 @@
+<?py if category.get('img'): ?>
+<img src="${ category.get('img','') }" />
+<?py else: ?>
 <img src="/templates/breuer/img/visuel-chemises.jpg" alt="Les Chemises Breuer" />
+<?py #endif ?>
 
 <div class="listProd">
 	<h1><span>Les Chemises</span></h1>
