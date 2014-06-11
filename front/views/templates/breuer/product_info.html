@@ -95,7 +95,7 @@
 	<?py if p.get('variant'): ?>
 	<ul class="thumbnails">
 		<?py for variant in p.get('variant'): ?>
-		<li><a href="${variant.get('thumb')}"><img src="${variant.get('thumb')}" alt="${variant.get('@id')}"></a>
+		<li><a href="${variant.get('img') or get_single_attribute(p, 'img')}"><img src="${variant.get('thumb')}" alt="${variant.get('@id')}"></a>
 		</li>
 		<?py #endfor ?>
 	</ul>
