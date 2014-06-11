@@ -1,6 +1,7 @@
 import settings
 from common.data_access import data_access
 from common.utils import get_brief_product_list
+from common.utils import get_category_from_sales
 from views.base import BaseHtmlResource
 from B2SUtils.errors import ValidationError
 from B2SFrontUtils.constants import REMOTE_API_NAME
@@ -18,7 +19,8 @@ class TypeListResource(BaseHtmlResource):
         sales = data_access(REMOTE_API_NAME.GET_SALES,
                             req, resp, **req._params)
 
-        return {'product_list': get_brief_product_list(sales)}
+        return {'category': get_category_from_sales(sales),
+                'product_list': get_brief_product_list(sales)}
 
 
 class ProductListResource(BaseHtmlResource):
