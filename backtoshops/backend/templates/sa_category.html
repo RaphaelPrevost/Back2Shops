@@ -52,6 +52,14 @@
                 <label for="{{form.name.auto_id}}">{% trans form.name.label %}</label>
                 {{ form.name }}
             </div>
+            <div class="formrow">
+                <label for="{{form.thumbnail.auto_id}}">{% trans form.thumbnail.label %}</label>
+                {{ form.thumbnail }}
+            </div>
+            <div class="formrow">
+                <label for="{{form.picture.auto_id}}">{% trans form.picture.label %}</label>
+                {{ form.picture }}
+            </div>
         </fieldset>
         <!--BOUTONS-->
         {% if form.instance.valid %}
