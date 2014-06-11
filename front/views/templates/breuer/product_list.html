@@ -5,7 +5,7 @@
 <?py #endif ?>
 
 <div class="listProd">
-	<h1><span>Les Chemises</span></h1>
+	<h1><span>${category.get('name', '')}</span></h1>
 	<?py for p in product_list: ?>
 	<div class="produit">
 		<a href="${p.get('link')}">
