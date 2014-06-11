@@ -399,7 +399,6 @@ def show_step_shop(wizard):
     if _has_valid_shop(mother_brand, user):
         return True
 
-    wizard.skip_shop_step = True
     return False
 
 
@@ -947,6 +946,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 self._reset_storage()
                 if self.request.session.get('abandoned_sale', None):
                     self.storage.data = self.request.session['abandoned_sale']
+        self.skip_shop_step = (self.steps.count == 4)  # hard code
         return super(NamedUrlSessionWizardView, self).get(*args, **kwargs)
 
     def post(self, *args, **kwargs):
