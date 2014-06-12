@@ -29,7 +29,8 @@ class ProductListResource(BaseHtmlResource):
     def _on_get(self, req, resp, **kwargs):
         sales = data_access(REMOTE_API_NAME.GET_SALES,
                             req, resp, **req._params)
-        return {'product_list': get_brief_product_list(sales)}
+        return {'category': dict(),
+                'product_list': get_brief_product_list(sales)}
 
 
 class ProductInfoResource(BaseHtmlResource):
