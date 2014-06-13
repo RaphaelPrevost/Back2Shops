@@ -720,6 +720,17 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             if ba['preview_pk']:
                 preview=ProductPicture.objects.get(pk=ba['preview_pk'])
             if not ba['DELETE']:
+                try:
+                    bap = BrandAttributePreview.objects.get(
+                        brand_attribute_id=ba['ba_id'],
+                        product=product)
+                except BrandAttributePreview.DoesNotExist:
+                    pass
+                else:
+                    if ba['preview_pk'] and bap.preview_id != ba['preview_pk']:
+                        bap.preview = preview
+                        bap.save()
+
                 (bap, created) = BrandAttributePreview.objects.get_or_create(
                     brand_attribute=BrandAttribute.objects.get(pk=ba['ba_id']),
                     product=product,
@@ -742,8 +753,6 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         pp_pks = [int(pp['pk']) for pp in product_form.pictures.cleaned_data if not pp['DELETE']]
         product.pictures = ProductPicture.objects.filter(pk__in=pp_pks)
         product.save()
-
-
 
         for i in stock_form.stocks:
             if i.is_valid() and i.cleaned_data and i.cleaned_data['stock']:
