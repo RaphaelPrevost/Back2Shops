@@ -10,3 +10,6 @@
 == version 0.0.4 ==
 1. remove common method parse_form_params which is included in B2SUtils
 2. pass set-cookie header for api access
+
+== version 0.0.5 ==
+1. add cache.TypesCacheProxy

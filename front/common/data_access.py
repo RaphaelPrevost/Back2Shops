@@ -8,7 +8,8 @@ from B2SFrontUtils.constants import USR_API_SETTINGS
 
 
 def data_access(api_name, req=None, resp=None, **kwargs):
-    kwargs['brand'] = settings.BRAND_ID
+    if 'seller' not in kwargs:
+        kwargs['brand'] = settings.BRAND_ID
 
     resp_dict = {}
     pri_key_path = settings.PRIVATE_KEY_PATH

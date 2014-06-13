@@ -1,10 +1,15 @@
+import gevent
+import logging
 import os
 import signal
 import time
 import uuid
 import settings
 from common.constants import FRT_ROUTE_ROLE
+from common.redis_utils import get_redis_cli
 from common.template import render_template
+from B2SProtocol.constants import INVALIDATE_CACHE_LIST
+from B2SProtocol.constants import INVALIDATE_CACHE_OBJ
 
 def gen_html_resp(template, resp, data, lang='en'):
     resp.body = render_template(template, data, lang=lang)
@@ -74,4 +79,19 @@ def send_reload_signal():
 
 def generate_random_key():
     return uuid.uuid4()
+
+def watching_invalidate_cache_list():
+    redis_down = False
+    while True:
+        try:
+            cache = get_redis_cli().blpop(
+                INVALIDATE_CACHE_LIST % settings.BRAND_ID, 0)
+        except:
+            logging.warn("Redis is down ???")
+            redis_down = True
+            gevent.sleep(5)
+        else:
+            if redis_down or cache and cache[1] == INVALIDATE_CACHE_OBJ.ROUTES:
+                send_reload_signal()
+            redis_down = False
 

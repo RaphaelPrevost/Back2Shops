@@ -11,4 +11,4 @@ Jinja2==2.7.1
 WeasyPrint==0.19.2
 B2SUtils==0.0.6
 B2SRespUtils==0.0.2
-B2SProtocol==0.0.9
+B2SProtocol==0.0.10

@@ -30,3 +30,6 @@
 
 == version 0.0.9 ==
 1. Add constants for user basket redis key and cookie name
+
+== version 0.0.10 ==
+1. Add constants for cache invalidation list
