@@ -194,7 +194,7 @@
                     </span>
                 </div>
                 {% for f in wizard.form.brand_attributes %}
-                <span id="{{ f.prefix }}-row" class="brand_attribute_form" {% if f.DELETE.value == "on" %}style="display: none;"{% endif %}>
+                <span id="{{ f.prefix }}-row" class="brand_attribute_form brand_attribute_form_{{ f.ba_id.value }}" {% if f.DELETE.value == "on" %}style="display: none;"{% endif %}>
                     {{ f.name }}
                     {{ f.ba_id }}
                     {{ f.texture }}
@@ -229,16 +229,18 @@
                             {% endif %}
                         {% endif %}
                     </span>
-                    {% if f.texture.value %}
-                    <img class="classtext" role="button" src="{{ f.texture.value }}"/>
-                    {% else %}
-                    <img class="classprod" role="button" src="{{ STATIC_URL }}/img/empty_attr.png"/>
-                    {% endif %}
-                    {% if f.preview.value %}
-                    <img class="classprod" role="button" src="{{ f.preview.value }}"/>
-                    {% else %}
-                    <img class="classprod" role="button" src="{{ STATIC_URL }}/img/empty_attr.png"/>
-                    {% endif %}
+                    <img class="classtex ba_texture_btn_change" role="button"
+                         id="ba_texture_btn_change_{{ f.ba_id.value }}"
+                         src="{% if f.texture.value %}{{ f.texture.value }}{% else %}{{ STATIC_URL }}/img/empty_attr.png{% endif %}"/>
+                    <input class="ba_texture_upload_change" type="file" name="texture_file"
+                           title="click to change brandattribute's texture image"
+                           data-ba_id="{{ f.ba_id.value }}" />
+                    <img class="classprod ba_preview_btn_change" role="button"
+                         id="ba_preview_btn_change_{{ f.ba_id.value }}"
+                         src="{% if f.preview.value %}{{ f.preview.value }}{% else %}{{ STATIC_URL }}/img/empty_attr.png{% endif %}"/>
+                    <input class="ba_preview_upload_change" type="file" name="files[]"
+                           title="{% trans "click to change brandattriibute's preview imgage." %}"
+                           data-ba_id="{{ f.ba_id.value }}"/>
                     <a class="remove_brand_attribute" href="#">{% trans "Remove" %}</a>
                 </span>
                 {% endfor %}
@@ -487,7 +489,7 @@
     $("#ba_preview_upload").fileupload({
         dataType: 'json',
         url: "{% url 'upload_product_picture' %}",
-        dropZone: $("#ba_preview"),
+        dropZone: $("#ba_preview_upload"),
         namespace: 'ba_preview',
         formData: {is_brand_attribute: true},
         add: function(e, data) {
@@ -497,6 +499,23 @@
         done: function(e, data) {
             _updateBackgroundImage($("#ba_preview_btn"), data.result.thumb_url);
             _updateData({preview_pk: data.result.pk})
+        }
+    });
+
+    // change preview for existing brandattribue
+    $(".ba_preview_upload_change").fileupload({
+        dataType: 'json',
+        url: "{% url 'upload_product_picture' %}",
+        dropZone: $(this),
+        namespace: 'ba_preview',
+        formData: {is_brand_attribute: true},
+        add: function(e, data) {
+            _updateBackgroundImage($("#ba_preview_btn_change_" + $(this).data("ba_id")), "{{ STATIC_URL }}img/loading2.gif");
+            data.submit();
+        },
+        done: function(e, data) {
+            _updateBackgroundImage($("#ba_preview_btn_change_" + $(this).data("ba_id")), data.result.thumb_url);
+            $(".brand_attribute_form_" + $(this).data("ba_id")).find("input[id$='preview_pk']").val(data.result.pk);
         }
     });
 
@@ -513,6 +532,29 @@
         done: function(e, data) {
             _updateBackgroundImage($("#ba_texture_btn"), data.result.texture_thumb);
             _updateData({ba_pk: -1, texture_pk: data.result.pk, type_pk: 'new'});
+        }
+    });
+
+    // change texture for existing brandattribue
+    $(".ba_texture_upload_change").fileupload({
+        dataType: 'json',
+        url: "{% url 'brand_attributes_view' %}",
+        dropZone: $(this),
+        namespace: 'ba_texture',
+        add: function(e, data) {
+            var img_el = $("#ba_texture_btn_change_" + $(this).data("ba_id"));
+            var old_src = img_el.attr("src");
+            _updateBackgroundImage(img_el, "{{ STATIC_URL }}img/loading2.gif");
+            if (confirm("{% trans "Are you sure you want to change the texture of this existing brand attribute?" %}" +
+                        "{% trans "(Note, the new texture will replace the old texture even you cancel the edit! )" %}")) {
+                data.formData={pk: $(this).data("ba_id")};
+                data.submit();
+            } else {
+                _updateBackgroundImage(img_el, old_src);
+            }
+        },
+        done: function(e, data) {
+            _updateBackgroundImage($("#ba_texture_btn_change_" + $(this).data("ba_id")), data.result.texture_thumb);
         }
     });
 
@@ -660,9 +702,10 @@
         return false;
     });
 
-    $(".brand_attribute_form").live('click', function(){
-        $(this).hide();
-        var delete_input_id = "#id_"+$(this).attr('id').replace('-row', '-DELETE');
+    $(".remove_brand_attribute").live('click', function(){
+        var ba = $(this).parents(".brand_attribute_form:first");
+        ba.hide();
+        var delete_input_id = "#id_"+ ba.attr('id').replace('-row', '-DELETE');
         $(delete_input_id).attr('checked', 'checked');
         return false;
     });

@@ -370,7 +370,8 @@
 
     /*-Thumbnail__Input-file-*/
     /*TEXTURE*/
-    #main_form #brand_attributes #ba_texture_btn {
+    #main_form #brand_attributes #ba_texture_btn,
+    #main_form #brand_attributes .ba_texture_btn_change {
         position: absolute;
         display: block;
         top: 12px;
@@ -382,7 +383,8 @@
         background-color: #b1cee7;
         cursor: pointer;
     }
-    #main_form #brand_attributes #ba_texture_upload {
+    #main_form #brand_attributes #ba_texture_upload,
+    #main_form #brand_attributes .ba_texture_upload_change {
         position: absolute;
         top: 12px;
         left: 180px;
@@ -398,7 +400,8 @@
 
     /*-Thumbnail__Input-file-*/
     /*PREVIEW PROD*/
-    #main_form #brand_attributes #ba_preview_btn {
+    #main_form #brand_attributes #ba_preview_btn,
+    #main_form #brand_attributes .ba_preview_btn_change {
         position: absolute;
         display: block;
         top: 0px;
@@ -410,7 +413,8 @@
         background-color: #b1cee7;
         border: 1px solid #c9c9c9;
     }
-    #main_form #brand_attributes #ba_preview_upload {
+    #main_form #brand_attributes #ba_preview_upload,
+    #main_form #brand_attributes .ba_preview_upload_change {
         position: absolute;
         display: block;
         top: 0px;
@@ -421,6 +425,9 @@
         filter: alpha(opacity=0);
         cursor: pointer;
         padding: 0;
+    }
+    #main_form #brand_attributes .ba_preview_upload_change {
+        right: -48px;
     }
 
     /*-BOUTON AJOUT-*/
