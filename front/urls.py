@@ -98,21 +98,21 @@ class BrandRoutes(object):
         self.role_mapping = role_mapping
         self.routes_dict = dict([(route['@id'], route) for route in routes])
 
-        if not settings.PRODUCTION:
-            send_reload_signal()
-
-    def url_res_mapping(self):
+    def url_res_mapping(self, reload_):
         urlpatterns = {}
         for url, res in fixed_urlpatterns.iteritems():
             urlpatterns[url] = res()
 
         if settings.PRODUCTION:
             self.refresh()
-        elif not self.routes_dict:
-            # in dev env, we have to fetch routes after server is up,
-            # since routes api in users server is private and need
-            # cryto key from front server.
-            gevent.spawn(self.refresh)
+        else:
+            if reload_:
+                self.refresh()
+            else:
+                # in dev env, will send reload signal to fetch routes from
+                # user server after FO is up, since routes api in users server
+                # is private and need cryto key from front server.
+                pass
 
         if self.routes_dict:
             for route in self.routes_dict.itervalues():

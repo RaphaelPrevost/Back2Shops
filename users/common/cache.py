@@ -426,7 +426,7 @@ class TypesCacheProxy(CacheProxy):
         brand_id = kw.get('seller')
         types = get_redis_cli().get(TYPES_FOR_BRAND % brand_id)
         if not types:
-            raise Exception('To load data from server')
+            raise Exception('no typelist data in redis')
         return dict([(t["@id"], t) for t in ujson.loads(types)])
 
     def parse_xml(self, xml, is_entire_result, **kw):

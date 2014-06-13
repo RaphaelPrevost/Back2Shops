@@ -12,6 +12,7 @@ from B2SProtocol.constants import SALES_FOR_TYPE
 from B2SProtocol.constants import SALES_FOR_CATEGORY
 from B2SProtocol.constants import SALES_FOR_SHOP
 from B2SProtocol.constants import SALES_FOR_BRAND
+from B2SProtocol.constants import TYPES_FOR_BRAND
 
 
 class BaseCacheProxy(object):
@@ -44,7 +45,7 @@ class BaseCacheProxy(object):
 
         if resp_dict.get('res') == RESP_RESULT.F:
             resp_dict = self._get_from_local(**kw)
-        else:
+        elif self._need_save_local_cache(**kw):
             self._update_local_cache(resp_dict)
         return resp_dict
 
@@ -90,6 +91,9 @@ class BaseCacheProxy(object):
             if obj and self._match_obj(obj, **valid_args):
                 resp_dict[_id] = obj
         return resp_dict
+
+    def _need_save_local_cache(self, **kw):
+        return kw.get('brand') and len(kw) == 1
 
     def _update_local_cache(self, resp_dict):
         if self.local_cache is None:
@@ -151,7 +155,7 @@ class RoutesCacheProxy(BaseCacheProxy):
 
         if resp_dict.get('res') == RESP_RESULT.F:
             resp_dict = self._get_from_local(**kw)
-        else:
+        elif self._need_save_local_cache(**kw):
             self._update_local_cache(resp_dict)
         return resp_dict
 
@@ -188,7 +192,34 @@ class SalesCacheProxy(BaseCacheProxy):
         return True
 
 
+class TypesCacheProxy(BaseCacheProxy):
+    api_name = REMOTE_API_NAME.GET_TYPES
+    local_cache_file = "static/cache/%s.json" % api_name
+
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(TypesCacheProxy,
+                                  cls).__new__(cls, *args, **kwargs)
+        return cls._instance
+
+    def _get_from_redis(self, **kw):
+        brand_id = kw.get('seller')
+        types = self.redis_cli.get(TYPES_FOR_BRAND % brand_id)
+        if not types:
+            raise Exception('no typelist data in redis')
+        return dict([(t["@id"], t) for t in ujson.loads(types)])
+
+    def _need_save_local_cache(self, **kw):
+        return kw.get('seller') and len(kw) == 1
+
+    def _match_obj(self, obj, **valid_kwargs):
+        return True
+
+
 cache_proxy = {
     RoutesCacheProxy.api_name: RoutesCacheProxy,
     SalesCacheProxy.api_name: SalesCacheProxy,
+    TypesCacheProxy.api_name: TypesCacheProxy,
 }
