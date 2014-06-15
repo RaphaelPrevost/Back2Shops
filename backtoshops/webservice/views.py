@@ -36,6 +36,7 @@ from common.error import ParamsValidCheckError
 from common.fees import compute_fee
 from common.transaction import remote_payment_init
 from common.utils import get_default_setting
+from routes.models import Route
 from sales.models import ProductCategory
 from sales.models import ProductType
 from sales.models import STOCK_TYPE_GLOBAL
@@ -73,6 +74,21 @@ class BaseWebservice(View):
 #
 # Public webservices
 #
+
+
+class RoutesListView(BaseWebservice, ListView):
+    template_name = "routes_list.xml"
+
+    def get_queryset(self):
+        brand = self.request.GET.get('brand', None)
+
+        queryset = Route.objects.all()
+        if brand:
+            queryset = queryset.filter(mother_brand=brand).distinct()
+
+        return queryset
+
+
 class SalesListView(BaseWebservice, ListView):
     template_name = "sales_list.xml"
 

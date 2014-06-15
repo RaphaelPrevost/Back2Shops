@@ -152,6 +152,7 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     # SITE_ROOT+'/backend/templates',
+    SITE_ROOT+'/routes/templates',
     SITE_ROOT+'/pictures/templates',
     SITE_ROOT+'/sale/templates',
     SITE_ROOT+'/shop/templates',
@@ -198,6 +199,7 @@ INSTALLED_APPS = (
     get_site_prefix()+'orders',
     get_site_prefix()+'taxes',
     get_site_prefix()+'promotion',
+    get_site_prefix()+'routes',
     'south',
     'form_utils',
     'formwizard',

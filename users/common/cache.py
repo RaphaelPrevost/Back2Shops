@@ -11,6 +11,9 @@ from redis.exceptions import RedisError, ConnectionError
 import settings
 from B2SProtocol.constants import ALL
 from B2SProtocol.constants import GLOBAL_MARKET
+from B2SProtocol.constants import ROUTE
+from B2SProtocol.constants import ROUTES_VERSION
+from B2SProtocol.constants import ROUTES_FOR_BRAND
 from B2SProtocol.constants import SALE
 from B2SProtocol.constants import SALES_FOR_TYPE
 from B2SProtocol.constants import SALES_FOR_CATEGORY
@@ -94,6 +97,7 @@ class CacheProxy:
         is_entire_result = (obj_id is None and query == '')
         xmltext = "".join(resp.readlines())
         valid = self.validate_xml(xmltext, obj_id is None)
+
         if not valid:
             logging.debug("invalidate xml response: %s", xmltext, exc_info=True)
             raise ServerError("invalidate %s" % api)
@@ -455,6 +459,43 @@ class TypesCacheProxy(CacheProxy):
                                   settings.DEFAULT_REDIS_CACHE_TTL)
 
 
+class RoutesCacheProxy(CacheProxy):
+    list_api = "private/routes/list?%s"
+    obj_key = ROUTE
+
+    @property
+    def query_options(self):
+        return ('brand')
+
+    def _get_from_redis(self, **kw):
+        brand_id = kw.get('brand')
+        routes = get_redis_cli().get(ROUTES_FOR_BRAND % brand_id)
+        if not routes:
+            raise Exception('To load data from server')
+        return routes
+
+    def parse_xml(self, xml, is_entire_result, **kw):
+        data = xmltodict.parse(xml)
+        data = data.get('routes', data.get('info'))
+        version = data.get('@version')
+
+        try:
+            self._refresh_redis(version, data, is_entire_result, **kw)
+        except (RedisError, ConnectionError), e:
+            logging.error('Redis Error: %s', (e,), exc_info=True)
+
+        return data
+
+    def _refresh_redis(self, version, data, is_entire_result, **kw):
+        # save version
+        self._set_to_redis(ROUTES_VERSION, version)
+
+        brand_id = kw.get('brand')
+        if brand_id:
+            get_redis_cli().setex(ROUTES_FOR_BRAND % brand_id,
+                                  ujson.dumps(data),
+                                  settings.DEFAULT_REDIS_CACHE_TTL)
+
 class SalesFindProxy:
     find_api = "pub/sales/find?%s"
     def get(self, query):
@@ -496,8 +537,8 @@ class SalesFindProxy:
         sales = sales_cache_proxy.parse_xml(xml, False)
         return sales.keys()
 
-
 sales_cache_proxy = SalesCacheProxy()
 shops_cache_proxy = ShopsCacheProxy()
 find_cache_proxy = SalesFindProxy()
 types_cache_proxy = TypesCacheProxy()
+routes_cache_proxy = RoutesCacheProxy()
