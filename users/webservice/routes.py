@@ -1,6 +1,7 @@
 import xmltodict
 
 import settings
+from common.cache import routes_cache_proxy
 from common.utils import get_client_ip
 from webservice.base import BaseJsonResource
 from B2SCrypto.constant import SERVICES
@@ -12,32 +13,9 @@ class RoutesResource(BaseJsonResource):
     def _on_get(self, req, resp, conn, **kwargs):
         # TODO getting from BO and convert xml resp to json
         brand = req.get_param('brand', required=True)
-        resp_dict = xmltodict.parse("""
-<routes version="1.0">
-<route id="456" modified="date">
-    <url>/coins.html</url>
-    <template>PRDT_LIST</template>
-    <meta name="title">page title</meta>
-    <content>descriptions</content>
-</route>
-<route id="321" modified="date">
-    <url>/old_coins/(\p{L}+?).html</url>
-    <param number="1" required="true">sale_id</param>
-    <template>PRDT_INFO</template>
-    <meta name="title">page title</meta>
-    <content>description</content>
-    <redirect to="123">
-        <map param="1" to="1" />
-    </redirect>
-</route>
-<route id="123" modified="date">
-    <url>/coins/(\p{L}+?).html</url>
-    <param number="1" required="true">id_sale</param>
-    <template>PRDT_INFO</template>
-    <meta name="title">page title</meta>
-    <content>description</content>
-</route>
-</routes>""")
+        resp_dict = routes_cache_proxy.get(
+            brand=req._params.get('brand'))
+
         return resp_dict
 
     def encrypt_resp(self, resp, content):

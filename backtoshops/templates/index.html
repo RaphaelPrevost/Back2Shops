@@ -60,7 +60,13 @@
         {% if user|is_shop_manager_upper %}
         <li>
             <h3 class="link7">{% trans "Operators mgmt" %}</h3>
-            <a href="{% url 'operators' %}" class="bottom">{% trans "Operators mgmt" %}</a>
+            <a href="{% url 'operators' %}" >{% trans "Operators mgmt" %}</a>
+        </li>
+        {% endif %}
+        {% if user|is_admin %}
+        <li>
+            <h3 class="link8">{% trans "Content and Presentation" %}</h3>
+            <a href="{% url 'routes' %}" class="bottom">{% trans "Content and Presentation" %}</a>
         </li>
         {% endif %}
     </ul>

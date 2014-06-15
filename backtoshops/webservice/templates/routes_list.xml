@@ -1,0 +1,26 @@
+<?xml version="1.0" standalone="yes"?>
+<!DOCTYPE invoices PUBLIC "-/BACKTOSHOPS//ROUTESLIST" "routes.dtd">
+
+<routes version="1.0">
+{% for object in object_list %}
+	<route id="{{object.pk}}" modified="{{object.last_update | date:"d-m-Y H:i:s"}}">
+		<url>{{object.url_format}}</url>
+		{% for param in object.routeparams.all %}
+			<param number="{{forloop.counter}}" required="{{param.is_required}}">{{param.name}}</param>
+		{% endfor %}
+		<template>{{object.page_role}}</template>
+		{% for meta in object.htmlmetas.all %}
+		<meta name="{{meta.name}}">{{meta.value}}</meta>
+		{% endfor %}
+		<content></content>
+
+		{% if object.redirects_to %}
+		<redirect to="{{object.redirects_to.pk}}">
+			{% for param in object.routeparams.all %}
+				<map param="{{forloop.counter}}" to="{{param.pk}}" />
+			{% endfor %}
+		</redirect>
+		{% endif %}
+	</route>
+{% endfor %}
+</routes>

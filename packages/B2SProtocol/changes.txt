@@ -33,3 +33,6 @@
 
 == version 0.0.10 ==
 1. Add constants for cache invalidation list
+
+== version 0.0.11 ==
+1. Add constants for route type redis key

@@ -85,7 +85,9 @@ class BrandRoutes(object):
         resp_dict = data_access(REMOTE_API_NAME.GET_ROUTES)
         if not resp_dict: return
 
-        routes = resp_dict['routes'].get('route') or []
+        routes = resp_dict['route'] or []
+        if not any(routes): return
+
         if isinstance(routes, dict):
             routes = [routes]
 
@@ -116,11 +118,15 @@ class BrandRoutes(object):
 
         if self.routes_dict:
             for route in self.routes_dict.itervalues():
-                kwargs = {
-                    'title': route['meta']['#text']
-                             if route['meta']['@name'] == 'title' else '',
-                    'desc': route.get('content', ''),
-                }
+
+                kwargs = {}
+                if(route.get('meta', '')):
+                    kwargs = {
+                        'title': route['meta']['#text']
+                                 if route['meta']['@name'] == 'title' else '',
+                        'desc': route.get('content', ''),
+                    }
+
                 url = self._format_url(route)
                 if route.get('redirect') and route['redirect'].get('@to'):
                     redirect_to, param_mapping = self._format_redirect_url(route)

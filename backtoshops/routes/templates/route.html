@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load is_admin %}
+{% load is_admin_upper %}
+
+{% block title %}
+{% if shop_pk %}
+{% trans "Edit shop information" %}
+{% else %}
+{% trans "Add a new shop" %}
+{% endif %}
+{% endblock %}
+
+{% block head %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.ui.autocomplete.html.js"></script>
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/add_route.css" />
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/ui-lightness/jquery-ui-1.8.16.custom.css" />
+{% endblock %}
+
+{% block navigation %}
+{% include "_quick_nav.html" %}
+{% endblock %}
+
+
+{% block content %}
+<!--content-left-->
+<div id="content_Left">
+    <!--Title-->
+    <div id="title">
+        <span>{% trans "Presentations" %}</span>
+        <h2>{% trans "Presentations" %}</h2>
+    </div>
+
+    {{ form.errors }}
+    <!--FORM-->
+    {% if pk %}
+    <form id="main_form" method="post" action="{% url 'edit_route' pk %}" enctype="multipart/form-data">{% csrf_token %}
+    {% else %}
+    <form id="main_form" method="post" action="{% url 'routes' %}{% if pk %}/{{ pk }}{% endif %}" enctype="multipart/form-data">{% csrf_token %}
+    {% endif %}
+
+	    {% if pk %}
+	    <h3>{% trans "Edit presentation Route" %}</h3>
+	    {% else %}
+	    <h3>{% trans "Add presentation Route" %}</h3>
+	    {% endif %}
+	    <fieldset>
+	    	{{ form.page_type.errors }}
+	    	<div class="formrow">
+	    		<label for="{{form.page_type.auto_id}}" >{% trans form.page_type.label %}</label>
+	    		{{ form.page_type }}
+	    	</div>
+
+            {{ form.page_role.errors }}
+            <div class="formrow">
+                <label for="{{form.page_role.auto_id}}" >{% trans form.page_role.label %}</label>
+                {{ form.page_role }}
+            </div>
+
+            <div>{{ meta_form.management_form }}</div>
+            <div class="formrow">
+                <label>{% trans "Html Meta" %}</label>
+                <span class="contForm" id="html_metas_form">
+                    <div class='html_meta_row'>
+                        <input id="new_meta_input_name" class="inputM" type="text" name="html_meta_input_name" placeholder="{% trans 'meta name' %}" />
+                        <input id="new_meta_input_value" class="inputL" type="text" name="html_meta_input_value" placeholder="{% trans 'value' %}" />
+                        <input type="button" id="add_wa" value="{% trans "Add" %}">
+                    </div>
+                    {% for subform in meta_form.forms %}
+                    <div class="html_meta_row">
+                        {{subform.id}}
+                        {{subform.name}}
+                        {{subform.value}}
+                        <input style="display: none;" type="checkbox" name="{{subform.DELETE.html_name}}" id="{{subform.DELETE.auto_id}}" />
+                        <input type="button" class="del_wa" value="{% trans "Delete" %}" />
+                    </div>
+                    {% endfor %}
+                </span>
+            </div>
+
+            {{ form.url_format.errors }}
+            <div class="formrow">
+                <label for="{{form.url_format.auto_id}}" >{% trans form.url_format.label %}</label>
+                <span style="float:left;">/</span>{{ form.url_format }}
+            </div>
+
+            <div>{{ routeparam_form.management_form }}</div>
+            <div class="formrow">
+                <label>{% trans "Url Params" %}</label>
+                <span class="contForm" id="route_params_form">
+                    {% for subform in routeparam_form.forms %}
+                    <div class="ajax_row">
+                        {{subform.id}}
+                        {{subform.is_required}}
+                        <span style='float:right;'>{% trans "is Required" %}</span>
+                        {{ subform.name }}
+                        <input style="display: none;" class="uparam_delete" type="checkbox" name="{{subform.DELETE.html_name}}" id="{{subform.DELETE.auto_id}}" />
+                    </div>
+                    {% endfor %}
+                </span>
+            </div>
+
+            {{ form.redirects_to.errors }}
+            <div class="formrow">
+                <label for="{{form.redirects_to.auto_id}}" >{% trans form.redirects_to.label %}</label>
+                {{ form.redirects_to }}
+            </div>
+
+            {{form.mother_brand}}
+	    </fieldset>
+        <!--BOUTONS-->
+        <input class="btn valider" type="submit" value='{% trans "Save" %}'/>
+        <button type="reset" class="btn annuler">{% trans "Cancel" %}</button>
+    </form>
+
+    <!-- WA FORM -->
+    <div id="add_wa_form" style="display:none;">
+        <div class='html_meta_row'>
+            {{ meta_form.empty_form.name }}
+            {{ meta_form.empty_form.value }}
+            <input style="display: none;" type="checkbox" name="{{meta_form.empty_form.DELETE.html_name}}" id="{{meta_form.empty_form.DELETE.auto_id}}" />
+            <input type="button" class="del_wa" value="{% trans "Delete" %}" />
+        </div>
+    </div>
+
+    <!-- URL Params -->
+    <div id="add_uparams_form" style="display:none;">
+        <div class="ajax_row">
+            {{ routeparam_form.empty_form.is_required }}
+            <span style='float:right;'>{% trans "is Required" %}</span>
+            {{ routeparam_form.empty_form.name }}
+            <input style="display: none;" class="uparam_delete" type="checkbox" name="{{routeparam_form.empty_form.DELETE.html_name}}" id="{{routeparam_form.empty_form.DELETE.auto_id}}" />
+        </div>
+    </div>
+
+</div>
+<div id="content_Right">
+	<h4 class="titleRight">{% trans "Presentation list" %}</h4>
+	<div class="boxRight" id="listeShop">
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <th class="nom on"><a href="#">{% trans "Type" %}</a></th>
+                <th class="ville off"><a href="#">{% trans "Role" %}</a></th>
+                <th class="action"><a href="#">{% trans "Actions" %}</a></th>
+            </tr>
+
+            {% for route in routes.object_list %}
+            <tr id="route_{{route.pk}}">
+                <td><a href="{% url 'edit_route' route.pk %}">{{ route.page_type }}</a></td>
+                <td>{{ route.page_role }}</td>
+                <td><a class="modif" href="{% url 'edit_route' route.pk %}">{% trans "Edit" %}</a>
+                {%if request.user|is_admin_upper %}<a class="out delete_route" href="{% url 'delete_route' route.pk %}">{% trans "Delete" %}</a>{%endif%}
+                </td>
+            </tr>
+            {% empty %}
+            <tr class="noshop">
+                <td colspan="3">{% trans "The Routelist is empty."%}</td>
+            </tr>
+            {% endfor %}
+        </table>
+	</div>
+    <!--//Liste-Attribute-->
+    <a class="btn ajouter" href="{% url 'routes' %}">{% trans "Add a new Route" %}</a>
+</div>
+{% endblock %}
+
+{% block empty_forms %}
+
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+        // delete routes record
+        $(".delete_route").click(function() {
+            if(confirm('{% trans "Are your sure you want to delete this route?" %}')) {
+                $.post(this.href, function(data){
+                    $("#route"+data.pk).remove();
+                    if(data.pk == "{% firstof pk "0" %}") {
+                        location.replace("{% url 'routes' %}");
+                    }
+                });
+            }
+            return false;
+        });
+
+        // delete html meta
+        $('.del_wa').live("click", function(e){
+            if(confirm('{% trans "Are your sure you want to delete this property?" %}')) {
+                $(this).parent().hide();
+                $(this).siblings("input[type='checkbox']").attr('checked','checked');
+            }
+        });
+
+        // add html meta
+        $("#add_wa").click(function(e){
+            var meta_name = $('#new_meta_input_name').val();
+            var meta_value = $('#new_meta_input_value').val();
+
+            if(!meta_name) {
+                alert("{% trans "Please enter meta name" %}");
+                e.preventDefault();
+                return false;
+            }
+
+            if(!meta_value) {
+                alert("{% trans "Please enter meta value"%}");
+                e.preventDefault();
+                return false;
+            }
+
+            var new_form = $('#add_wa_form').html();
+            var total_forms = $('#{{ meta_form.management_form.TOTAL_FORMS.auto_id }}').val();
+            new_form = new_form.replace(/__prefix__/g, total_forms.toString());
+
+            // clear data
+            $('#new_meta_input_name').val('');
+            $('#new_meta_input_value').val('');
+            $('#html_metas_form').append(new_form);
+
+            // replace new value
+            $('#{{meta_form.empty_form.name.auto_id}}'.replace(/__prefix__/g,total_forms.toString())).val(meta_name);
+            $('#{{meta_form.empty_form.value.auto_id}}'.replace(/__prefix__/g,total_forms.toString())).val(meta_value);
+
+            total_forms++;
+            $("#{{ meta_form.management_form.TOTAL_FORMS.auto_id }}").val(total_forms);
+        });
+
+        // hide params form
+        $('.uparam_delete').live('change', function(e){
+            if($(this).is(':checked')){
+                $(this).parent().hide();
+                $(this).attr('checked','checked');
+            }else{
+                $(this).parent().show();
+                $(this).removeAttr('checked');
+            }
+        });
+
+        // delete route params
+        var delete_route_params = function(total_params, total_forms){
+            for (var i = total_forms - 1; i >= total_params; i--) {
+                // hide or delete previous create field
+                $('#{{routeparam_form.empty_form.DELETE.auto_id}}'.replace(/__prefix__/g,i)).trigger('click');
+            };
+        };
+
+        // total params form
+        var total_param_forms = $('#{{ routeparam_form.management_form.TOTAL_FORMS.auto_id }}').val();
+
+        // generate route param dynamically based on no. of bracket within regex
+        var generate_route_params = function(){
+            var url = $('#id_url_format').val();
+            var total_params = 0;
+
+            var params_regex = url.match(/\(.+?\)/g);
+            if (params_regex){
+                var total_params = params_regex.length;
+                var new_form = $('#add_uparams_form').html();
+
+                if(total_params > total_param_forms){
+                    for (var i = total_param_forms; i < total_params; i++) {
+                        var $target_obj = $('#{{routeparam_form.empty_form.name.auto_id}}'.replace(/__prefix__/g, i));
+                        if($target_obj.length > 0 ) {
+                            // $target_obj.trigger('click');
+                            $('#{{routeparam_form.empty_form.DELETE.auto_id}}'.replace(/__prefix__/g,i)).trigger('click');
+                        }else{
+                            // append form
+                            form = new_form.replace(/__prefix__/g, i);
+                            $('#route_params_form').append(form);
+
+                            // set placeholder
+                            $target_obj.attr('placeholder', '{% trans 'params' %} ' + (parseInt(i) + 1));
+                        }
+                    };
+                    $('#{{ routeparam_form.management_form.TOTAL_FORMS.auto_id }}').val(total_params);
+                }else if(total_params < total_param_forms){
+                    delete_route_params(total_params, total_param_forms);
+                }
+            }else{
+                total_params = 0;
+                delete_route_params(total_params, total_param_forms);
+            }
+
+            total_param_forms = total_params;
+        };
+
+        // url params
+        $('#id_url_format').keyup(function(){
+            var timer = 0;
+            clearTimeout(timer);
+            timer = setTimeout(generate_route_params, 500);
+        });
+
+        // on paste
+        $('#id_url_format').live('paste', function(){
+            generate_route_params();
+        });
+
+        // on submit checking
+        $('#main_form').submit(function(e){
+            // check valid regex
+            try{
+                var url = $('#id_url_format').val();
+                var regex = new RegExp(url);
+            }catch(error){
+                e.preventDefault();
+                alert("{% trans "Invalid regex format." %}");
+                $('#id_url_format').focus();
+            };
+        });
+
+        // auto completion
+        $("#id_page_role").autocomplete({
+            autoFocus: true,
+            source: "/routes/get_page_roles/",
+            min_length: 2,
+            html: true,
+            showTyping: true
+        });
+</script>
+{% endblock %}
