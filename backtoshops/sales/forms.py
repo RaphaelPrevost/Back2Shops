@@ -271,6 +271,7 @@ class ProductPictureForm(forms.Form):
     pk = forms.IntegerField(widget=forms.HiddenInput())
     url = forms.CharField(widget=forms.HiddenInput())
     thumb_url = forms.CharField(widget=forms.HiddenInput())
+    sort_order = forms.CharField(widget=forms.HiddenInput(), required=False)
 
 
 class ProductForm(forms.Form):
