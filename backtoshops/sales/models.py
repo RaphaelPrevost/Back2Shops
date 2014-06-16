@@ -85,6 +85,7 @@ class ProductPicture(models.Model):
     is_brand_attribute = models.BooleanField(default=False)
     picture = ImageField(upload_to="img/product_pictures",
                          storage=AssetsStorage())
+    sort_order = models.SmallIntegerField(null=True, blank=True)
 
     def __unicode__(self):
         return self.picture.url

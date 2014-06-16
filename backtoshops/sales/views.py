@@ -198,8 +198,10 @@ class ListSalesView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin
                 sale.product.discount_price = base_price - sale.product.discount
             else:
                 sale.product.discount_price = base_price
-        self.sales = list(self.sales)
 
+            if sale.product.pictures.count() > 0:
+                sale.cover = sale.product.pictures.order_by('sort_order', 'id')[0]
+        self.sales = list(self.sales)
 
         return
 
@@ -485,11 +487,12 @@ def edit_sale(request, *args, **kwargs):
     }
 
     pictures = []
-    for pic in sale.product.pictures.exclude(is_brand_attribute=True):
+    for pic in sale.product.pictures.exclude(is_brand_attribute=True).order_by('sort_order', 'id'):
         pictures.append({
             'pk': pic.pk,
             'url': pic.picture.url,
-            'thumb_url': get_thumbnail(pic.picture, '40x43').url
+            'thumb_url': get_thumbnail(pic.picture, '40x43').url,
+            'sort_order': pic.sort_order,
         })
     brand_attributes = []
     for i in sale.product.brand_attributes.all():
@@ -749,6 +752,12 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 else:
                     if bap:
                         bap.delete()
+
+        for pp_data in product_form.pictures.cleaned_data:
+            if not pp_data['DELETE']:
+                pp = ProductPicture.objects.get(pk=int(pp_data['pk']))
+                pp.sort_order = pp_data['sort_order']
+                pp.save()
 
         pp_pks = [int(pp['pk']) for pp in product_form.pictures.cleaned_data if not pp['DELETE']]
         product.pictures = ProductPicture.objects.filter(pk__in=pp_pks)
@@ -1033,12 +1042,13 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         }
         if step == self.STEP_PRODUCT:
             if context['context'].is_valid():
-                pictures = None
+                picture = None
                 if len(context['context'].pictures.cleaned_data) > 0:
-                    pictures = ProductPicture.objects.get(pk=context['context'].pictures.cleaned_data[0]['pk'])
+                    sorted_pictures = sorted(context['context'].pictures.cleaned_data, key=lambda x: (x['sort_order'], x['pk']))
+                    picture = ProductPicture.objects.get(pk=sorted_pictures[0]['pk'])
                 context.update({
                     'brand_object': ProductBrand.objects.get(pk=context['context'].cleaned_data['brand'].pk),
-                    'product_picture': pictures,
+                    'product_picture': picture,
                 })
         t = loader.get_template("add_sale_preview_"+step+".html")
         c = Context(context)
@@ -1069,11 +1079,12 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             product_picture = None
             if self.edit_mode:
                 if self.sale.product.pictures.count() > 0:
-                    product_picture = self.sale.product.pictures.all()[0]
+                    product_picture = self.sale.product.pictures.order_by('sort_order', 'id')[0]
             else:
                 if form.pictures.is_valid():
                     if len(form.pictures.cleaned_data) > 0:
-                        product_picture = ProductPicture.objects.get(pk=form.pictures.cleaned_data[0]['pk'])
+                        sorted_pictures = sorted(form.pictures.cleaned_data, key=lambda x: (x['sort_order'], x['pk']))
+                        product_picture = ProductPicture.objects.get(pk=sorted_pictures[0]['pk'])
             context.update({
                 'form_title': _("Sale Details"),
                 'preview_shop': self._render_preview(self.STEP_SHOP),

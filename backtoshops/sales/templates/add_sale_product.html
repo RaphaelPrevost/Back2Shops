@@ -33,6 +33,7 @@
                     <input id="pp_upload" type="file" name="files[]" multiple>
                 </label>
                 <ul id="pp_queue"></ul>
+                <p id="existing_pp" />
             </div>
         </div>
         {{ wizard.form.brand.errors }}
@@ -316,6 +317,7 @@
             {{ wizard.form.pictures.empty_form.pk }}
             {{ wizard.form.pictures.empty_form.thumb_url }}
             {{ wizard.form.pictures.empty_form.url }}
+            {{ wizard.form.pictures.empty_form.sort_order }}
             <a id="{{ wizard.form.pictures.empty_form.prefix }}-link"><img id="{{ wizard.form.pictures.empty_form.prefix }}-img"/></a>
         </span>
     </span>
@@ -387,12 +389,18 @@
         var picture_pk = "#{{ wizard.form.pictures.empty_form.pk.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
         var thumb_url = "#{{ wizard.form.pictures.empty_form.thumb_url.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
         var url = "#{{ wizard.form.pictures.empty_form.url.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
+        var sort_order = "#{{ wizard.form.pictures.empty_form.sort_order.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
         var link = "#{{ wizard.form.pictures.empty_form.prefix }}-link".replace(/__prefix__/g, nb_of_forms.toString());
         var img = "#{{ wizard.form.pictures.empty_form.prefix }}-img".replace(/__prefix__/g, nb_of_forms.toString());
-        $("#product_pictures").append(form);
+        if (nb_of_forms >= 2 && !$("#existing_pp").hasClass("horizontal_pp")) {
+            $("#existing_pp").addClass("horizontal_pp");
+        }
+        $("#existing_pp").append(form);
+        $("#existing_pp").sortable("refresh");
         $(picture_pk).val(result.pk);
         $(thumb_url).val(result.thumb_url);
         $(url).val(result.url);
+        $(sort_order).val($("#existing_pp").find("span.product_picture_form").length);
         $(link).attr('href', result.url);
         $(img).attr('src', result.thumb_url);
 
@@ -402,18 +410,29 @@
         $("#preview-product-picture").html(result.preview_html);
     }
 
+    var upload_max_file_size = 1024 * 1024; // bytes, 1M
+    var upload_max_file_size_err = "{% trans "File exceeds maximum allowed size of 1MB" %}";
+    function _validate_max_file_size(file) {
+        if (file.size > upload_max_file_size) {
+            alert(upload_max_file_size_err);
+            return false;
+        }
+        return true;
+    }
     $("#pp_upload").fileupload({
         dataType: 'json',
         url: "{% url 'upload_product_picture' %}",
         dropZone: $("#product_pictures"),
         namespace: 'product_pictures',
         add: function(e, data) {
-            $.each(data.files, function(key, file) {
-                var id = file.name.replace(/\W+/g, '-');
-                var to_append = '<li id="pp_'+id+'">'+file.name+' <b></b></li>';
-                $("#pp_queue").append(to_append);
-            });
-            data.submit();
+            if (_validate_max_file_size(data.files[0])) {
+                $.each(data.files, function(key, file) {
+                    var id = file.name.replace(/\W+/g, '-');
+                    var to_append = '<li id="pp_'+id+'">'+file.name+' <b></b></li>';
+                    $("#pp_queue").append(to_append);
+                });
+                data.submit();
+            }
         },
         progress: function(e, data) {
             $.each(data.files, function(key, file) {
@@ -438,11 +457,25 @@
             '{{ pp.pk }}'+
             '{{ pp.url }}'+
             '{{ pp.thumb_url }}'+
+            '{{ pp.sort_order }}'+
             '<input style="display: none;" type="checkbox" name="{{ pp.DELETE.html_name }}" id="{{ pp.DELETE.auto_id }}" {% if pp.DELETE.value == "on" %}checked="checked"{% endif %}>'+
             '<a id="{{ pp.prefix }}-link" href="{{ pp.url.value }}"><img id="{{ pp.prefix }}-img" src="{{ pp.thumb_url.value }}"/></a>'+
         '</span>';
     {% endfor %}
-    $("#product_pictures").append(product_pictures);
+    if ({{ wizard.form.pictures|length }} > 2) {
+        $("p#existing_pp").addClass("horizontal_pp");
+    }
+    $("#existing_pp").append(product_pictures);
+    $("#existing_pp").sortable({
+        update: function(e, ui) {
+            var self = this;
+            var sort_order = $(self).sortable("toArray");
+            $(self).find("span.product_picture_form").each(function(){
+                $(this).find("input[id^=id_product_pictures][id$=-sort_order]").val(sort_order.indexOf($(this).attr("id")));
+            });
+        }
+    });
+
 
     function _updateBackgroundImage(selector, url) {
         $(selector).attr('src', url);
@@ -493,8 +526,10 @@
         namespace: 'ba_preview',
         formData: {is_brand_attribute: true},
         add: function(e, data) {
-            _updateBackgroundImage($("#ba_preview_btn"), "{{ STATIC_URL }}img/loading2.gif");
-            data.submit();
+            if (_validate_max_file_size(data.files[0])) {
+                _updateBackgroundImage($("#ba_preview_btn"), "{{ STATIC_URL }}img/loading2.gif");
+                data.submit();
+            }
         },
         done: function(e, data) {
             _updateBackgroundImage($("#ba_preview_btn"), data.result.thumb_url);
@@ -510,8 +545,10 @@
         namespace: 'ba_preview',
         formData: {is_brand_attribute: true},
         add: function(e, data) {
-            _updateBackgroundImage($("#ba_preview_btn_change_" + $(this).data("ba_id")), "{{ STATIC_URL }}img/loading2.gif");
-            data.submit();
+            if (_validate_max_file_size(data.files[0])) {
+                _updateBackgroundImage($("#ba_preview_btn_change_" + $(this).data("ba_id")), "{{ STATIC_URL }}img/loading2.gif");
+                data.submit();
+            }
         },
         done: function(e, data) {
             _updateBackgroundImage($("#ba_preview_btn_change_" + $(this).data("ba_id")), data.result.thumb_url);
@@ -526,8 +563,10 @@
         namespace: 'ba_texture',
         formData: {pk: _getFromData("texture_pk")},
         add: function(e, data) {
-            _updateBackgroundImage($("#ba_texture_btn"), "{{ STATIC_URL }}img/loading2.gif");
-            data.submit();
+            if (_validate_max_file_size(data.files[0])) {
+                _updateBackgroundImage($("#ba_texture_btn"), "{{ STATIC_URL }}img/loading2.gif");
+                data.submit();
+            }
         },
         done: function(e, data) {
             _updateBackgroundImage($("#ba_texture_btn"), data.result.texture_thumb);
@@ -542,15 +581,17 @@
         dropZone: $(this),
         namespace: 'ba_texture',
         add: function(e, data) {
-            var img_el = $("#ba_texture_btn_change_" + $(this).data("ba_id"));
-            var old_src = img_el.attr("src");
-            _updateBackgroundImage(img_el, "{{ STATIC_URL }}img/loading2.gif");
-            if (confirm("{% trans "Are you sure you want to change the texture of this existing brand attribute?" %}" +
-                        "{% trans "(Note, the new texture will replace the old texture even you cancel the edit! )" %}")) {
-                data.formData={pk: $(this).data("ba_id")};
-                data.submit();
-            } else {
-                _updateBackgroundImage(img_el, old_src);
+            if (_validate_max_file_size(data.files[0])) {
+                var img_el = $("#ba_texture_btn_change_" + $(this).data("ba_id"));
+                var old_src = img_el.attr("src");
+                _updateBackgroundImage(img_el, "{{ STATIC_URL }}img/loading2.gif");
+                if (confirm("{% trans "Are you sure you want to change the texture of this existing brand attribute?" %}" +
+                            "{% trans "(Note, the new texture will replace the old texture even you cancel the edit! )" %}")) {
+                    data.formData={pk: $(this).data("ba_id")};
+                    data.submit();
+                } else {
+                    _updateBackgroundImage(img_el, old_src);
+                }
             }
         },
         done: function(e, data) {

@@ -1336,3 +1336,12 @@ div.add-new-csr-dialog p.between input {
     font-size: 12px;
 }
 
+#main_form .formrow input#pp_upload {
+    width: 100px;
+}
+
+#main_form .formrow .horizontal_pp {
+    clear: both;
+    padding-top: 8px;
+    margin-left: 175px;
+}
