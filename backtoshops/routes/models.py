@@ -1,7 +1,12 @@
 from django.db import models
+from django.db.models.signals import post_delete
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
 from accounts.models import Brand
+from common.cache_invalidation import post_delete_handler
+from common.cache_invalidation import post_save_handler
 
 
 class Route(models.Model):
@@ -28,3 +33,12 @@ class RouteParam(models.Model):
     route = models.ForeignKey(Route, related_name='routeparams')
     name = models.CharField(verbose_name=_("Name"), blank=True, max_length=100)
     is_required = models.BooleanField(default=0)
+
+
+@receiver(post_save, sender=Route, dispatch_uid='routes.models.Route')
+def on_route_saved(sender, **kwargs):
+    post_save_handler('route', sender, **kwargs)
+
+@receiver(post_delete, sender=Route, dispatch_uid='routes.models.Route')
+def on_route_deleted(sender, **kwargs):
+    post_delete_handler('route', sender, **kwargs)

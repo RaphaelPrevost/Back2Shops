@@ -36,6 +36,8 @@ from B2SProtocol.constants import BARCODE_ATTR_ID
 from B2SProtocol.constants import BARCODE_SALE_ID
 from B2SProtocol.constants import BARCODE_VARIANT_ID
 from B2SProtocol.constants import SHOP_WITH_BARCODE
+from B2SProtocol.constants import INVALIDATE_CACHE_LIST
+from B2SProtocol.constants import INVALIDATE_CACHE_OBJ
 from common.error import ServerError
 from common.redis_utils import get_redis_cli
 from models.actors.sale import ActorSale
@@ -57,7 +59,7 @@ class CacheProxy:
         try:
             return self._get_from_redis(**kw)
         except Exception, e:
-            logging.error("Failed to get from Redis %s", e, exc_info=True)
+            logging.error("Failed to get from Redis: %s", e, exc_info=True)
             return self._get_from_server(**kw)
 
     def refresh(self, obj_id=None):
@@ -463,6 +465,18 @@ class RoutesCacheProxy(CacheProxy):
     list_api = "private/routes/list?%s"
     obj_key = ROUTE
 
+    def refresh(self, brand=None):
+        cli = get_redis_cli()
+        cli.rpush(INVALIDATE_CACHE_LIST % brand,
+                  INVALIDATE_CACHE_OBJ.ROUTES)
+
+    def del_obj(self, brand):
+        self.refresh(brand)
+
+    def _del_cached_query(self, brand, del_all):
+        cli = get_redis_cli()
+        cli.delete(ROUTES_FOR_BRAND % brand)
+
     @property
     def query_options(self):
         return ('brand')
@@ -472,11 +486,10 @@ class RoutesCacheProxy(CacheProxy):
         routes = get_redis_cli().get(ROUTES_FOR_BRAND % brand_id)
         if not routes:
             raise Exception('To load data from server')
-        return routes
+        return ujson.loads(routes)
 
     def parse_xml(self, xml, is_entire_result, **kw):
         data = xmltodict.parse(xml)
-        data = data.get('routes', data.get('info'))
         version = data.get('@version')
 
         try:
@@ -492,9 +505,9 @@ class RoutesCacheProxy(CacheProxy):
 
         brand_id = kw.get('brand')
         if brand_id:
-            get_redis_cli().setex(ROUTES_FOR_BRAND % brand_id,
-                                  ujson.dumps(data),
-                                  settings.DEFAULT_REDIS_CACHE_TTL)
+            get_redis_cli().set(ROUTES_FOR_BRAND % brand_id,
+                                ujson.dumps(data))
+
 
 class SalesFindProxy:
     find_api = "pub/sales/find?%s"
