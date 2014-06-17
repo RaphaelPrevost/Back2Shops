@@ -1,5 +1,3 @@
-import xmltodict
-
 import settings
 from common.cache import routes_cache_proxy
 from common.utils import get_client_ip
@@ -11,11 +9,8 @@ class RoutesResource(BaseJsonResource):
     encrypt = True
 
     def _on_get(self, req, resp, conn, **kwargs):
-        # TODO getting from BO and convert xml resp to json
-        brand = req.get_param('brand', required=True)
-        resp_dict = routes_cache_proxy.get(
-            brand=req._params.get('brand'))
-
+        brand = req.get_param('brand')
+        resp_dict = routes_cache_proxy.get(brand=brand)
         return resp_dict
 
     def encrypt_resp(self, resp, content):

@@ -1,6 +1,7 @@
 import gevent
 import logging
 import os
+import re
 import signal
 import time
 import uuid
@@ -44,8 +45,7 @@ def get_brief_product(sale):
         'name': sale.get('name') or '',
         'desc': sale.get('desc') or '',
         'img': sale.get('img') or '',
-        'link': get_url_format(FRT_ROUTE_ROLE.PRDT_INFO)
-                % {'id_sale': id_sale},
+        'link': get_url_format(FRT_ROUTE_ROLE.PRDT_INFO) % id_sale,
         'price': sale.get('price', {}).get('#text') or '',
         'currency': sale.get('price', {}).get('@currency') or '',
         'variant': sale.get('variant') if (isinstance(sale.get('variant'), list)
@@ -72,7 +72,8 @@ def get_category_from_sales(sales):
 
 def get_url_format(role):
     from urls import BrandRoutes
-    return BrandRoutes().get_url_format(role)
+    url_pattern = BrandRoutes().get_url_format(role)
+    return re.sub(r'%\(\w+\)s', '%s', url_pattern)
 
 def send_reload_signal():
     os.kill(os.getpid(), signal.SIGHUP)

@@ -67,7 +67,7 @@ fixed_urlpatterns = {
 }
 
 
-param_pattern = re.compile(r'\(\\p{L}\+\?\)')
+param_pattern = re.compile(r'\(.+?\)')
 
 class BrandRoutes(object):
     _instance = None
@@ -85,7 +85,7 @@ class BrandRoutes(object):
         resp_dict = data_access(REMOTE_API_NAME.GET_ROUTES)
         if not resp_dict: return
 
-        routes = resp_dict['route'] or []
+        routes = resp_dict['routes'].get('route') or []
         if not any(routes): return
 
         if isinstance(routes, dict):
