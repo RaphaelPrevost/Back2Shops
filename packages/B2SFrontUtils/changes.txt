@@ -13,3 +13,6 @@
 
 == version 0.0.5 ==
 1. add cache.TypesCacheProxy
+
+== version 0.0.6 ==
+1. add get order invoices constants.

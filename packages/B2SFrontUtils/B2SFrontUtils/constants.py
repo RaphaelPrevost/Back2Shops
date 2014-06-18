@@ -19,6 +19,7 @@ class REMOTE_API_NAME(CustomEnum):
     AUX = "AUX"
     GET_SALES = "GET_SALES"
     GET_TYPES = "GET_TYPES"
+    GET_INVOICES = "GET_INVOICES"
 
 class HTTP_METHOD(CustomEnum):
     GET = "GET"
@@ -56,6 +57,10 @@ USR_API_SETTINGS = {
     },
     REMOTE_API_NAME.GET_TYPES: {
         'url': '/webservice/1.0/pub/types/list',
+        'method': HTTP_METHOD.GET
+    },
+    REMOTE_API_NAME.GET_INVOICES: {
+        'url': '/webservice/1.0/private/invoice/get4fuser',
         'method': HTTP_METHOD.GET
     }
 }

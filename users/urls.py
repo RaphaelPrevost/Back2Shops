@@ -3,28 +3,29 @@ from webservice.auth import UserLoginResource
 from webservice.aux import AuxResource
 from webservice.cache_invalidation import InvalidationResource
 from webservice.crypto import ApiKeyResource
+from webservice.invoice import InvoiceGet4FUserResource
+from webservice.invoice import InvoiceGetResource
+from webservice.invoice import InvoiceResource
+from webservice.invoice import InvoiceSendResource
 from webservice.orders import OrderDeleteResource
 from webservice.orders import OrderDetailResource
 from webservice.orders import OrderListResource
 from webservice.orders import OrderResource
 from webservice.orders import OrderStatusResource
 from webservice.orders import ShippingFeeResource
-from webservice.payment import PaymentInitResource
 from webservice.payment import PaymentFormResource
-from webservice.payment import PaypalProcessResource
+from webservice.payment import PaymentInitResource
 from webservice.payment import PaypalGatewayResource
-from webservice.sales import SalesResource
+from webservice.payment import PaypalProcessResource
 from webservice.routes import RoutesResource
+from webservice.sales import SalesResource
 from webservice.shipment import ShipmentResource
-from webservice.shipping import ShippingListResource
+from webservice.shipping import PubShippingListResource
 from webservice.shipping import ShippingConfResource
 from webservice.shipping import ShippingFeesResource
-from webservice.shipping import PubShippingListResource
+from webservice.shipping import ShippingListResource
 from webservice.shops import ShopsResource
 from webservice.types import TypesResource
-from webservice.invoice import InvoiceResource
-from webservice.invoice import InvoiceGetResource
-from webservice.invoice import InvoiceSendResource
 
 
 urlpatterns = {
@@ -53,6 +54,7 @@ urlpatterns = {
     '/webservice/1.0/private/order/status': OrderStatusResource,
     '/webservice/1.0/private/invoice/get': InvoiceGetResource,
     '/webservice/1.0/private/invoice/send': InvoiceSendResource,
+    '/webservice/1.0/private/invoice/get4fuser': InvoiceGet4FUserResource,
 
     '/webservice/1.0/protected/shipping/list': ShippingListResource,
     '/webservice/1.0/protected/shipment': ShipmentResource,

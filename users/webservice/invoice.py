@@ -3,31 +3,34 @@ import ujson
 import xmltodict
 import settings
 
-from lxml import etree
 from StringIO import StringIO
+from lxml import etree
+
 from common.email_utils import send_html_email
 from common.error import ServerError
 from common.utils import remote_xml_invoice
 from models.actors.invoices import ActorInvoices
+from models.actors.shop import CachedShop
 from models.invoice import create_invoice
 from models.invoice import get_invoice_by_order
 from models.invoice import get_invoices_by_shipments
-from models.invoice import order_iv_sent_status
 from models.invoice import iv_to_sent_qty
-from models.order import get_order
+from models.invoice import order_iv_sent_status
 from models.order import _get_order_status
-from models.shipments import get_shipments_by_order
+from models.order import get_order
 from models.shipments import get_shipments_by_id
+from models.shipments import get_shipments_by_order
 from models.shipments import get_shipping_fee
 from models.shipments import get_shipping_list
 from models.shipments import get_supported_services
 from models.user import get_user_dest_addr
-from models.user import get_user_profile
 from models.user import get_user_email
+from models.user import get_user_profile
 
 from webservice.base import BaseJsonResource
 from webservice.base import BaseXmlResource
 
+from B2SCrypto.constant import SERVICES
 from B2SUtils.errors import ValidationError
 from B2SProtocol.constants import FAILURE, SUCCESS
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
@@ -249,35 +252,32 @@ class InvoiceResource(BaseXmlResource, BaseInvoiceMixin):
         return {'content': content}
 
 
-class InvoiceGetResource(BaseJsonResource, BaseInvoiceMixin):
+class BaseInvoiceGetResource(BaseJsonResource, BaseInvoiceMixin):
     encrypt = True
     login_required = {'get': False, 'post': False}
 
-    def _on_get(self, req, resp, conn, **kwargs):
+    def _get_invoices(self, conn, id_order, id_brand, id_shops):
         try:
-            id_order = req.get_param('order')
-            id_brand = req.get_param('brand')
-            id_shops = req.get_param('shops')
-
-            if not id_brand or not id_shops or not id_order:
-                raise ValidationError("iv_get_req_err: miss params")
-            id_brand = int(id_brand)
-            id_shops = [int(id_shop) for id_shop in ujson.loads(id_shops)]
-
             shipments = get_shipments_by_order(conn, id_order)
             invoices = get_invoice_by_order(conn, id_order)
-
             spm_dict = dict([(spm['id'], spm) for spm in shipments])
-
             content = []
+
             for iv in invoices:
                 id_shipment = iv['id_shipment']
                 spm = spm_dict.get(id_shipment)
                 if not spm:
                     continue
-                if (spm['id_shop'] not in id_shops or
-                    spm['id_brand'] != id_brand):
+                if spm['id_brand'] != id_brand:
                     continue
+                if id_shops:
+                    if spm['id_shop'] not in id_shops:
+                        continue
+                else:
+                    cached_shop = CachedShop(id_shop=spm['id_shop'])
+                    if int(cached_shop.shop.brand.id) != id_brand:
+                        continue
+
                 content.append(
                     {'id': iv['id'],
                      'id_shipment': iv['id_shipment'],
@@ -292,15 +292,44 @@ class InvoiceGetResource(BaseJsonResource, BaseInvoiceMixin):
                     'iv_to_sent_qty': to_sent_qty,
                     'order_status': order_status,
                     'content': content}
-        except ValidationError, e:
-            logging.error("get_invoice_invalidate: %s", str(e), exc_info=True)
-            return {'res': FAILURE,
-                    'err': str(e)}
         except Exception, e:
             logging.error("get_invoice_server_err: %s", str(e), exc_info=True)
             return {'res': FAILURE,
                     'reason': str(e),
                     'err': "SERVER_ERROR"}
+
+
+class InvoiceGet4FUserResource(BaseInvoiceGetResource):
+    service = SERVICES.FRO
+
+    def _on_get(self, req, resp, conn, **kwargs):
+        try:
+            id_order = req.get_param('order')
+            id_brand = req.get_param('brand')
+            if not id_brand or not id_order:
+                raise ValidationError("iv_get_req_err: miss params")
+        except ValidationError, e:
+            logging.error("get_invoice_invalidate: %s", str(e), exc_info=True)
+            return {'res': FAILURE, 'err': str(e)}
+
+        return self._get_invoices(conn, id_order, int(id_brand), id_shops=[])
+
+
+class InvoiceGetResource(BaseInvoiceGetResource):
+
+    def _on_get(self, req, resp, conn, **kwargs):
+        try:
+            id_order = req.get_param('order')
+            id_brand = req.get_param('brand')
+            id_shops = req.get_param('shops')
+            if not id_brand or not id_shops or not id_order:
+                raise ValidationError("iv_get_req_err: miss params")
+        except ValidationError, e:
+            logging.error("get_invoice_invalidate: %s", str(e), exc_info=True)
+            return {'res': FAILURE, 'err': str(e)}
+
+        id_shops = [int(id_shop) for id_shop in ujson.loads(id_shops)]
+        return self._get_invoices(conn, id_order, int(id_brand), id_shops)
 
 
 class InvoiceSendResource(BaseJsonResource, BaseInvoiceMixin):

@@ -5,3 +5,4 @@ class SERVICES(Enum):
     ADM = 'ADM'
     FIN = 'FIN'
     AST = 'AST'
+    FRO = 'FRO'

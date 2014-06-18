@@ -1,16 +1,21 @@
+import settings
 import re
 import gevent
-import settings
 
+from B2SFrontUtils.constants import REMOTE_API_NAME
+from common.constants import FRT_ROUTE_ROLE
+from common.data_access import data_access
+from common.utils import send_reload_signal
 from views.basket import BasketResource
 from views.homepage import HomepageResource
+from views.invoice import InvoiceResource
 from views.login import LoginAPIResource
-from views.payment import PaypalSuccessResource
-from views.payment import PaypalFailureResource
 from views.payment import PaymentFormResource
-from views.product import TypeListResource
+from views.payment import PaypalFailureResource
+from views.payment import PaypalSuccessResource
 from views.product import ProductInfoResource
 from views.product import ProductListResource
+from views.product import TypeListResource
 from views.redirect import GenericRedirectResource
 from views.register import RegisterAPIResource
 from views.user import UserResource
@@ -18,11 +23,6 @@ from webservice import crypto
 from webservice import download
 from webservice.aux import AuxResource
 
-
-from common.constants import FRT_ROUTE_ROLE
-from common.data_access import data_access
-from common.utils import send_reload_signal
-from B2SFrontUtils.constants import REMOTE_API_NAME
 
 # the url of these roles are configurable in BO
 role_res_mapping = {
@@ -32,6 +32,7 @@ role_res_mapping = {
     FRT_ROUTE_ROLE.PRDT_INFO: ProductInfoResource,
     FRT_ROUTE_ROLE.TYPE_LIST: TypeListResource,
     FRT_ROUTE_ROLE.BASKET: BasketResource,
+    FRT_ROUTE_ROLE.ORDER_INVOICES: InvoiceResource,
 }
 
 # default url of roles
@@ -42,6 +43,7 @@ role_default_urlpatterns = {
     FRT_ROUTE_ROLE.TYPE_LIST: r'/type/{id_type}',
     FRT_ROUTE_ROLE.PRDT_INFO: r'/products/{id_sale}',
     FRT_ROUTE_ROLE.BASKET: r'/basket',
+    FRT_ROUTE_ROLE.ORDER_INVOICES: r'/invoices/{id_order}',
 }
 
 # fixed urls which are not configurable in BO
