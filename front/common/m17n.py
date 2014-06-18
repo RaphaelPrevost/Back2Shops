@@ -27,6 +27,9 @@ MESSAGE_CATALOG = {
         'DRAGONDOLLAR_WARRANTY': 'DragonDollar Warranty',
         'DETAIL': 'Detail',
         'CHECKOUT': 'Checkout',
+        'ORDER': 'Order',
+        'CONTACT_CUSTOMER_SERVICE': 'Please contact customer service.',
+        'NO_INVOICES': 'No invoices currently',
     },
 }
 

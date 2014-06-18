@@ -4,6 +4,6 @@ falcon==0.1.7
 ujson==1.33
 gevent==1.0.1
 M2Crypto==0.21.1.B2S
-B2SCrypto==0.0.2
+B2SCrypto==0.0.3
 B2SUtils==0.0.6
 B2SProtocol==0.0.11

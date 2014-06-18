@@ -6,7 +6,7 @@ pypgwrap==0.1.4
 gevent==1.0.1
 gevent-psycopg2==0.0.3
 M2Crypto==0.21.1.B2S
-B2SCrypto==0.0.2
+B2SCrypto==0.0.3
 Jinja2==2.7.1
 WeasyPrint==0.19.2
 B2SUtils==0.0.6

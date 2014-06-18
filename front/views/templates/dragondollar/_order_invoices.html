@@ -1,0 +1,14 @@
+<div>
+    <h3>${{_('ORDER')}}#${order_id}</h3>
+    <div class="invoices">
+    <?py if obj.get('err'): ?>
+        ${{_('CONTACT_CUSTOMER_SERVICE')}}
+    <?py else: ?>
+        <?py if not obj['content']: ?>
+            ${{_('NO_INVOICES')}}
+        <?py #endif ?>
+        <?py for iv in obj['content']: ?>
+        #{iv['html']}
+        <?py #endfor ?>
+    <?py #endif ?>
+</div>
