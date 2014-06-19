@@ -43,13 +43,7 @@
 		</header>
 		<!--//HEADER-->
 
-        <div id="dialog-login" title="Login">
-            <?py include('login.html') ?>
-        </div>
-        <div id="dialog-register" title="Register">
-            <?py include('registration.html') ?>
-        </div>
-
+		<?py if show_products_menu: ?>
 		<nav id="nav_prod" role="navigation">
 			<strong>Printemps-été 2014</strong>
 			<ul>
@@ -58,9 +52,14 @@
 				<?py #endfor ?>
 			</ul>
 		</nav>
+		<?py #endif ?>
 
 	    <!--CONTENT-->
-	    <div id="main" role="main">
+        <?py content_id= "main" ?>
+        <?py if not show_products_menu: ?>
+            <?py content_id= "panier" ?>
+        <?py #endif ?>
+	    <div id="${content_id}" role="main">
 		#{_content}
 	    </div>
 	    <!--//CONTENT-->

@@ -93,6 +93,7 @@ class BaseResource(object):
 
 class BaseHtmlResource(BaseResource):
     template = ""
+    show_products_menu = True
 
     def __init__(self, **kwargs):
         super(BaseHtmlResource, self).__init__(**kwargs)
@@ -117,14 +118,16 @@ class BaseHtmlResource(BaseResource):
 
     def _add_common_data(self, resp_dict):
         resp_dict['get_single_attribute'] = self.get_single_attribute
+        resp_dict['show_products_menu'] = self.show_products_menu
 
-        # navigation menu
-        remote_resp = data_access(REMOTE_API_NAME.GET_TYPES,
-                                  seller=settings.BRAND_ID)
-        if remote_resp.get('res') == RESP_RESULT.F:
-            resp_dict['err'] = remote_resp.get('err')
-        else:
-            resp_dict['menus'] = remote_resp
+        if self.show_products_menu:
+            # navigation menu
+            remote_resp = data_access(REMOTE_API_NAME.GET_TYPES,
+                                      seller=settings.BRAND_ID)
+            if remote_resp.get('res') == RESP_RESULT.F:
+                resp_dict['err'] = remote_resp.get('err')
+            else:
+                resp_dict['menus'] = remote_resp
 
         if 'err' not in resp_dict:
             resp_dict['err'] = ''
@@ -133,7 +136,11 @@ class BaseHtmlResource(BaseResource):
 
         resp_dict.update({
             'prodlist_url_format': get_url_format(FRT_ROUTE_ROLE.PRDT_LIST),
+            'user_url_format': get_url_format(FRT_ROUTE_ROLE.USER_INFO),
             'basket_url_format': get_url_format(FRT_ROUTE_ROLE.BASKET),
+            'order_auth_url_format': get_url_format(FRT_ROUTE_ROLE.ORDER_AUTH),
+            'order_user_url_format': get_url_format(FRT_ROUTE_ROLE.ORDER_USER),
+            'order_addr_url_format': get_url_format(FRT_ROUTE_ROLE.ORDER_ADDR),
         })
 
 class BaseJsonResource(BaseResource):

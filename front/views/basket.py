@@ -4,6 +4,7 @@ from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
 from common.redis_utils import get_redis_cli
 from common.utils import get_brief_product
+from common.utils import get_brief_product_list
 from common.utils import get_url_format
 from common.utils import generate_random_key
 from views.base import BaseHtmlResource
@@ -18,11 +19,14 @@ from B2SFrontUtils.constants import REMOTE_API_NAME
 
 class BasketResource(BaseHtmlResource):
     template = "basket.html"
+    show_products_menu = False
 
     def _on_get(self, req, resp, **kwargs):
-        brand = settings.BRAND_ID
         basket_key, basket_data = self._get_basket(req, resp)
-        # basket_data: key is sale id + attributes, value is quantity
+        # basket_data dict:
+        # - key is json string
+        #   {"id_sale": "", "id_type": "", "id_variant": ""}
+        # - value is quantity
 
         all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
         basket = []
@@ -31,33 +35,53 @@ class BasketResource(BaseHtmlResource):
             id_sale = item_info['id_sale']
             if id_sale not in all_sales:
                 continue
-            basket.append({'item': item_info,
-                           'quantity': quantity,
-                           'product': get_brief_product(all_sales[id_sale])})
-        return {'basket': basket}
+
+            sale_info = all_sales[id_sale]
+            basket.append({
+                'item': item,
+                'quantity': quantity,
+                'variant': self._get_valid_attr(
+                            sale_info.get('variant'),
+                            item_info.get('id_variant')),
+                'type': self._get_valid_attr(
+                            sale_info.get('type', {}).get('attribute'),
+                            item_info.get('id_type')),
+                'product': get_brief_product(sale_info)
+            })
+        return {
+            'basket': basket,
+            'product_list': get_brief_product_list(all_sales),
+        }
+
+    def _get_valid_attr(self, attrlist, attr_id):
+        if not attr_id or not attrlist:
+            return {}
+
+        if attrlist and not isinstance(attrlist, list):
+            attrlist = [attrlist]
+        for attr in attrlist:
+            if attr['@id'] == attr_id:
+                return attr
+        return {}
 
     def _on_post(self, req, resp, **kwargs):
         basket_key, basket_data = self._get_basket(req, resp)
 
         cmd = req.get_param('cmd')
-        id_sale = req.get_param('id_sale')
-        if not id_sale:
-            raise ValidationError('ERR_SALE')
-        item_params = req._params.copy()
-        item_params.pop('cmd')
-        chosen_item = ujson.dumps(item_params)
+        quantity = req.get_param('quantity') or 1
+        chosen_item = req.get_param('sale')
+        if not chosen_item:
+            chosen_item = {'id_sale': req.get_param('id_sale'),
+                           'id_type': req.get_param('id_type'),
+                           'id_variant': req.get_param('id_variant')}
+            chosen_item = ujson.dumps(chosen_item)
 
-        if cmd == 'add':
-            if chosen_item not in basket_data:
-                basket_data[chosen_item] = 0
-            basket_data[chosen_item] += 1
+        if cmd in ('add', 'update'):
+            basket_data[chosen_item] = quantity
 
         elif cmd == 'del':
             if chosen_item in basket_data:
-                if basket_data[chosen_item] == 1:
-                    basket_data.remove(chosen_item)
-                else:
-                    basket_data[chosen_item] -= 1
+                del basket_data[chosen_item]
         else:
             raise ValidationError('ERR_CMD')
 

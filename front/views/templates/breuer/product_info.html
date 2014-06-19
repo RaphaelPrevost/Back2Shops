@@ -4,7 +4,10 @@
 	<h1>${product_info.get('name')}</h1>
 	<span class="descrpt">${product_info.get('desc')}</span>
 	<span class="prix1">${product_info.get('display',{}).get('price')} ${product_info.get('price',{}).get('@currency')}</span>
+
+    <?py if product_info.get('display', {}).get('ori_price'): ?>
 	<em class="prix2">au lieu de <span>${product_info.get('display', {}).get('ori_price')} ${product_info.get('price', {}).get('@currency')}</span></em>
+    <?py #endif ?>
 	<p>
 	</p>
 
@@ -76,32 +79,10 @@
 <div class="listProd listFiche">
 <strong class="discover"><span>&Agrave; découvrir également</span></strong>
 
-<?py i = 0 ?>
-<?py for p in product_list: ?>
-	<?py i += 1 ?>
-	<?py if i == 5: ?>
-	<?py 	break ?>
-	<?py #endif ?>
-<div class="produit">
-	<a href="${p.get('link')}">
-		<span class="main-image">
-			<img src="${get_single_attribute(p, 'img')}" alt="visuel produit" class="custom" />
-		</span>
-		<h2 class="name">${p.get('name')}</h2>
-	</a>
-	<strong class="modele">${p.get('desc')}</strong>
-	<span class="prix">Prix : ${p.get('price')} ${p.get('currency')}</span>
-
-	<?py if p.get('variant'): ?>
-	<ul class="thumbnails">
-		<?py for variant in p.get('variant'): ?>
-		<li><a href="${variant.get('img') or get_single_attribute(p, 'img')}"><img src="${variant.get('thumb')}" alt="${variant.get('@id')}"></a>
-		</li>
-		<?py #endfor ?>
-	</ul>
-	<?py #endif ?>
-</div>
+<?py for p in product_list[:5]: ?>
+    <?py include('_product_list_item.html', p=p) ?>
 <?py #endfor ?>
+</div>
 
 <script type="text/javascript">
 $(function(){

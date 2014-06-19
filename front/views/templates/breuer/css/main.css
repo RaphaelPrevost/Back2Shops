@@ -628,9 +628,537 @@ a { color: #1f244a; }
 }
 
 
+/*-----------------------------------*/
+/*		 	 BASKET/ORDER            */
+/*-----------------------------------*/
 
-
-
+#panier {
+    margin-bottom: 80px;
+    overflow: auto;
+}
+#panier ul {
+    background-color: #ADCBEE;
+    height: 30px;
+    margin: 35px 0;
+    position: relative;
+}
+#panier ul li {
+    background: url("../img/sprite.png") no-repeat scroll right 0 #ADCBEE;
+    color: #FFFFFF;
+    font-size: 16px;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 40px 0 27px;
+    position: absolute;
+}
+#panier ul li.on {
+    background-color: #75AAE6;
+    background-position: right -31px;
+}
+#panier ul li.ok {
+    background-color: #75AAE6;
+    background-position: right -181px;
+}
+#panier ul li.li1 {
+    z-index: 6;
+}
+#panier ul li.li2 {
+    left: 120px;
+    z-index: 5;
+}
+#panier ul li.li3 {
+    left: 250px;
+    z-index: 4;
+}
+#panier ul li.li4 {
+    left: 350px;
+    z-index: 3;
+}
+#panier ul li.li5 {
+    left: 450px;
+    z-index: 2;
+}
+#panier ul li a {
+    color: #FFFFFF;
+}
+#panier table {
+    background-color: #F7F7F7;
+    width: 100%;
+}
+#panier table th {
+    background-color: #012247;
+    color: #FFFFFF;
+    font-weight: normal;
+    padding: 7px 20px;
+    text-align: center;
+}
+#panier table td {
+    border-bottom: 1px solid #DCE0E4;
+    border-top: 1px solid #FFFFFF;
+    font-size: 16px;
+    padding: 10px 20px;
+    text-align: center;
+}
+#panier table .left {
+    text-align: left;
+}
+#panier table .right {
+    text-align: right;
+}
+#panier table td h1, #panier table td strong {
+    font-size: 16px;
+    font-weight: normal;
+}
+#panier table td img {
+    border: 1px solid #DBDBDB;
+}
+#panier table td #nb_product {
+    border: 1px solid #E5E5E5;
+    font-size: 16px;
+    height: 25px;
+    line-height: 25px;
+    padding: 0 10px;
+    text-align: center;
+    width: 40px;
+}
+#panier table td #supprimer {
+    background: url("../img/sprite.png") no-repeat scroll 3px -144px #FFFFFF;
+    border-radius: 5px;
+    display: block;
+    height: 25px;
+    overflow: hidden;
+    text-indent: -1500px;
+    transition: all 0.2s ease 0s;
+    width: 25px;
+}
+#panier table td #supprimer:hover {
+    background-color: #FFCFCF;
+}
+#panier table span {
+    padding: 0 2px;
+}
+#code {
+    border: 1px solid #E5E5E5;
+    font-size: 16px;
+    height: 25px;
+    line-height: 25px;
+    padding: 0 10px;
+    width: 150px;
+}
+#btnOk {
+    background-color: #338AEB;
+    border: medium none;
+    color: #FFFFFF;
+    cursor: pointer;
+    display: inline-block;
+    font-family: arial;
+    font-size: 14px;
+    height: 25px;
+    line-height: 25px;
+    margin-left: 5px;
+    padding: 0 8px;
+}
+.btn {
+    background-image: url("../img/sprite.png");
+    background-repeat: no-repeat;
+    color: #FFFFFF;
+    display: block;
+    font-family: arial;
+    height: 32px;
+    line-height: 32px;
+    padding: 0 15px;
+}
+.btn.purchase {
+    background-color: #338AEB;
+    background-position: 69px -70px;
+    clear: left;
+    float: right;
+    font-size: 16px;
+    padding-right: 30px;
+    transition: all 0.2s ease 0s;
+}
+.btn.purchase:hover {
+    background-color: #57A4FF;
+}
+.btn.back {
+    background-color: #75AAE6;
+    background-position: 6px -104px;
+    float: left;
+    font-size: 14px;
+    padding-left: 30px;
+}
+#panier .float {
+    display: block;
+    float: left;
+    height: 240px;
+    width: 470px;
+}
+#panier .float.out {
+    margin-right: 20px;
+}
+#panier .log, #panier .adresse {
+    background-color: #F7F7F7;
+    border-bottom: 1px solid #DCE0E4;
+    display: block;
+    height: 160px;
+    margin-bottom: 10px;
+}
+#panier .log h1, #panier .adresse h1 {
+    background-color: #012247;
+    color: #FFFFFF;
+    display: block;
+    font-size: 16px;
+    font-weight: normal;
+    margin-bottom: 25px;
+    margin-top: 0;
+    padding: 5px 0 5px 15px;
+    text-align: left;
+}
+#panier .adresse h1 {
+    margin-bottom: 15px;
+}
+#panier .log input {
+    border: 1px solid #E5E5E5;
+    color: #161F48;
+    display: block;
+    font-size: 16px;
+    height: 30px;
+    line-height: 25px;
+    margin: 12px 20px;
+    padding: 0 12px;
+    width: 250px;
+}
+#panier .btnlog {
+    background: url("../img/sprite.png") no-repeat scroll 137px -73px #338AEB;
+    color: #FFFFFF;
+    display: block;
+    float: left;
+    font-family: arial;
+    font-size: 14px;
+    height: 25px;
+    line-height: 25px;
+    padding: 0 30px 0 8px;
+}
+#panier .float.in .btnlog {
+    background: url("../img/sprite.png") no-repeat scroll 105px -73px #338AEB;
+}
+#forgotpass {
+    clear: both;
+    display: block;
+    float: none;
+    font-family: arial;
+    font-size: 11px;
+    padding-top: 6px;
+}
+#forgotpass:hover {
+    text-decoration: underline;
+}
+#panier .adresse p {
+    color: #161F48;
+    display: block;
+    font-size: 14px;
+    line-height: 16px;
+    margin: 0 20px 12px;
+}
+#panier .adresse .modifier {
+    background-color: #012247;
+    color: #FFFFFF;
+    display: block;
+    float: left;
+    margin: 0 0 0 20px;
+    padding: 0 8px;
+}
+#titleLivre {
+    background-color: #012247;
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: normal;
+    padding: 7px 0 7px 15px;
+}
+#panier #fedex, #panier #chronopost {
+    display: block;
+    height: 75px;
+    margin-top: 40px;
+}
+#panier #fedex {
+    margin: 40px 200px 0 100px;
+    width: 210px;
+}
+#panier #chronopost {
+    margin-bottom: 60px;
+    width: 280px;
+}
+#fedex label, #chronopost label {
+    cursor: pointer;
+    display: block;
+    float: right;
+    overflow: hidden;
+    text-indent: -1500px;
+}
+#fedex label {
+    background: url("../img/fedex.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+    height: 71px;
+    width: 165px;
+}
+#chronopost label {
+    background: url("../img/chronopost.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+    height: 73px;
+    width: 232px;
+}
+#fedex input, #chronopost input {
+    display: block;
+    float: left;
+    margin-top: 30px;
+}
+#wrap_cdv {
+    clear: both;
+    float: right;
+    font-family: arial;
+    font-size: 12px;
+    padding-top: 20px;
+}
+#wrap_cdv a {
+    text-decoration: underline;
+}
+#paiementForm {
+    background-color: #F7F7F7;
+    border-bottom: 1px solid #DCE0E4;
+    margin: 80px auto 0;
+    padding: 0 0 20px;
+    width: 430px;
+}
+#paiementForm h1 {
+    background-color: #012247;
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: normal;
+    margin: 0 auto 20px;
+    padding: 7px 0 7px 15px;
+    width: 430px;
+}
+#paiementForm h1 span {
+    color: #FFFFFF;
+    display: block;
+    float: right;
+    font-weight: bold;
+    margin: 0 10px 0 0;
+}
+#paiementForm span, #paiementForm strong {
+    color: #006FA3;
+    display: block;
+    font-size: 16px;
+    font-weight: normal;
+    margin: 40px 0 35px -25px;
+    text-align: center;
+}
+#paiementForm strong {
+    margin: 45px 55px 25px -5px;
+}
+#paiementForm p {
+    height: 27px;
+    margin: 6px 7px 0 15px;
+}
+#paiementForm p label {
+    color: #1F244A;
+    display: block;
+    float: left;
+    font-family: arial;
+    font-size: 13px;
+    height: 27px;
+    line-height: 27px;
+    margin-right: 10px;
+    width: 130px;
+}
+#paiementForm p label a {
+    color: #1F244A;
+    font-family: verdana;
+    font-size: 13px;
+    line-height: 27px;
+    margin-right: 10px;
+    text-decoration: underline;
+}
+#paiementForm p input, #paiementForm p select {
+    border: 1px solid #CFCFCF;
+    color: #333333;
+    display: block;
+    float: left;
+    font-family: verdana;
+    font-size: 13px;
+    height: 25px;
+    padding-left: 5px;
+    width: 238px;
+}
+#paiementForm p input.middle {
+    width: 120px;
+}
+#paiementForm p input.small {
+    width: 70px;
+}
+#paiementForm p input.numCard {
+    margin-right: 11px;
+    width: 46px;
+}
+#paiementForm p select {
+    height: 27px;
+    line-height: 27px;
+    margin-right: 7px;
+    width: 85px;
+}
+#paiementForm p select option {
+    font-family: verdana;
+    line-height: 19px;
+}
+#paiementForm p #xmonth {
+    width: 152px;
+}
+#paiementForm input.erreur, #paiementForm select.erreur {
+    background-color: #FFFAF4;
+    border: 1px solid #F8C979;
+    color: #D57F00;
+}
+#paiementForm em.erreur {
+    color: #F49900;
+    display: block;
+    margin: 3px 0 0 140px;
+}
+#btnPaiement {
+    display: block;
+    float: none;
+    margin: 15px auto;
+    width: 100px;
+}
+#paiementForm #securite {
+    background-color: #F9FEF7;
+    border: 1px solid #DCF1BD;
+    color: #6F6F6F;
+    font-family: arial;
+    font-size: 12px;
+    height: auto;
+    margin: 20px 55px 0 0;
+    padding: 1px 12px;
+    text-align: justify;
+    width: 450px;
+}
+#paiementForm #securite img {
+    margin: 3px 5px 0 0;
+}
+#paiementForm #securite span {
+    background: url("../img/icocards.png") no-repeat scroll 197px 3px #F2F8E9;
+    border: 1px solid #FFFFFF;
+    display: block;
+    height: 28px;
+    margin: 5px -12px -1px;
+}
+#wrap_cdv {
+    clear: both;
+    float: none;
+    font-family: arial;
+    font-size: 12px;
+    margin: 10px auto 0;
+    padding-top: 0;
+    width: 340px;
+}
+#wrap_cdv a {
+    text-decoration: underline;
+}
+#wrap_cdv label {
+    color: #939393;
+}
+#titleInfo {
+    background-color: #012247;
+    color: #FFFFFF;
+    display: block;
+    font-size: 14px;
+    font-weight: normal;
+    padding: 7px;
+}
+#formContainer {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #F9F9F9;
+    border-color: -moz-use-text-color #E2E2E2 #E2E2E2;
+    border-image: none;
+    border-radius: 0 0 8px 8px;
+    border-right: 1px solid #E2E2E2;
+    border-style: none solid solid;
+    border-width: medium 1px 1px;
+    margin-bottom: 20px;
+    padding: 8px 15px 0;
+}
+#formContainer fieldset {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    border-color: #E3E3E3 -moz-use-text-color -moz-use-text-color;
+    border-image: none;
+    border-right: medium none;
+    border-style: solid none none;
+    border-width: 1px medium medium;
+    box-shadow: 0 1px #FFFFFF inset;
+    margin: 30px 0;
+    padding: 6px 0 2px;
+}
+#formContainer legend {
+    color: #012247;
+    font-size: 14px;
+    font-weight: bold;
+    margin: -7px 0 0;
+}
+#formContainer input {
+    display: inline-block;
+    font-size: 14px;
+    margin: 5px 8px 0 0;
+    width: auto;
+}
+#formContainer label {
+    color: #3E5269;
+    display: inline-block;
+    font-size: 14px;
+    height: 18px;
+    line-height: 18px;
+    margin: 0 5px 3px 0;
+    padding-top: 3px;
+    width: auto;
+}
+#formContainer p {
+    margin: 15px 0;
+}
+#formContainer p label {
+    color: #3E5269;
+    display: inline-block;
+    font-size: 14px;
+    height: 18px;
+    line-height: 18px;
+    margin: 0 5px 3px 0;
+    padding-top: 0;
+    width: 85px;
+}
+#formContainer p input {
+    background-color: #FFFFFF;
+    border: 1px solid #D9D9D9;
+    color: #000000;
+    display: inline-block;
+    font-size: 14px;
+    height: 25px;
+    line-height: 25px;
+    margin: 0 0 3px;
+    padding: 0 10px;
+    width: 220px;
+}
+#formContainer p select {
+    background-color: #FFFFFF;
+    border: 1px solid #D9D9D9;
+    color: #000000;
+    display: inline-block;
+    height: 25px;
+    line-height: 24px;
+    margin: 0 0 3px;
+    padding: 0 0 0 7px;
+    width: 220px;
+}
 
 
 

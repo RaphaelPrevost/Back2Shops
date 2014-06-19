@@ -1,0 +1,73 @@
+<ul>
+    <li class="li1 ok"><a href="#">Mon Panier</a></li>
+    <li class="li2 on">Identification</li>
+    <li class="li3">Adresse</li>
+    <li class="li4">Livraison</li>
+    <li class="li5">Paiement</li>
+</ul>
+
+<div class="float out">
+    <form id="registerForm" name="registerForm" method="POST">
+        <div class="log">
+            <h1>Créez votre compte</h1>
+            <div class="errwrapper">&nbsp;</div>
+            <input name="email" type="text" placeholder="Adresse e-mail" />
+            <input name="password" type="password" placeholder="Mot de passe" />
+        </div>
+        <a class="btnlog logout" href="javascript:register()">Créez votre compte</a>
+    </form>
+</div>
+
+<div class="float in">
+    <form id="loginForm" name="loginForm" method="POST">
+        <div class="log">
+            <h1>Déjà enregistré</h1>
+            <div class="errwrapper">&nbsp;</div>
+            <input name="email" type="text" placeholder="Adresse e-mail" /> 
+            <input name="password" type="password" placeholder="Mot de passe" />
+        </div>
+        <a class="btnlog login" href="javascript:login()">Identifiez-vous</a>
+        <a id="forgotpass" href="#">Mot de passe oublié ?</a>
+    </form>
+</div>
+
+<div class="listProd listFiche">
+<strong class="discover"><span>&Agrave; découvrir également</span></strong>
+<?py for p in product_list[:5]: ?>
+    <?py include('_product_list_item.html', p=p) ?>
+<?py #endfor ?>
+</div>
+
+<script>
+function login() {
+    $.post('/ajax_login',
+        $("#loginForm").serializeArray(),
+        function(data) {
+            if (data['res'] == 'FAILURE') {
+                $("#loginForm .errwrapper").text(data['err']);
+            } else {
+                if (data['set_cookies_js']) {
+                    eval(data['set_cookies_js']);
+                }
+                location = "${order_addr_url_format}";
+            }
+        }
+    )
+}
+
+function register() {
+    $.post('/ajax_register',
+        $("#registerForm").serializeArray(),
+        function(data) {
+            if (data['res'] == 'FAILURE') {
+                $("#registerForm .errwrapper").text(data['err']);
+            } else {
+                if (data['set_cookies_js']) {
+                    eval(data['set_cookies_js']);
+                }
+                location = "${order_user_url_format}";
+            }
+        }
+    )
+}
+</script>
