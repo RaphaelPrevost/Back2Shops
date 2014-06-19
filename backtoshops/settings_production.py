@@ -132,6 +132,7 @@ TEMPLATE_DIRS = (
     SITE_ROOT+'/shop/templates',
     SITE_ROOT+'/accounts/templates',
     SITE_ROOT+'/orders/templates',
+    SITE_ROOT+'/routes/templates',
     SITE_ROOT+'/templates',
 
 )
@@ -175,6 +176,7 @@ INSTALLED_APPS = (
     get_site_prefix()+'orders',
     get_site_prefix()+'taxes',
     get_site_prefix()+'promotion',
+    get_site_prefix()+'routes',
     'south',
     'form_utils',
     'formwizard',
