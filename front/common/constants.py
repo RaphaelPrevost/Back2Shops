@@ -10,7 +10,10 @@ class CustomEnum(Enum):
             result[k] = v
         return result
 
-#TODO move to B2SProtocol later
+class ADDR_TYPE(CustomEnum):
+    Shipping = 0
+    Billing = 1
+
 class FRT_ROUTE_ROLE(CustomEnum):
     HOMEPAGE = "HOMEPAGE"
     USER_INFO = "USER_INFO"
@@ -18,4 +21,7 @@ class FRT_ROUTE_ROLE(CustomEnum):
     PRDT_INFO = "PRDT_INFO"
     TYPE_LIST = "TYPE_LIST"
     BASKET = "BASKET"
+    ORDER_AUTH = "ORDER_AUTH"
+    ORDER_USER = "ORDER_USER"
+    ORDER_ADDR = "ORDER_ADDR"
     ORDER_INVOICES = 'ORDER_INVOICES'

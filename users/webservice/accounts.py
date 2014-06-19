@@ -102,7 +102,10 @@ class UserResource(BaseJsonResource):
                 "users_address", columns=columns,
                 where={'users_id': users_id})
         if len(addresses) == 0:
-            addresses = [dict([(c, c == 'id' and '0' or '') for c in columns])]
+            addresses = [
+                dict([(c, c == 'id' and '0' or '') for c in columns]),
+                dict([(c, c == 'id' and '00' or '') for c in columns]),
+            ]
         else:
             addresses = map(lambda x: {'id': x[0],
                                        'addr_type': x[1],

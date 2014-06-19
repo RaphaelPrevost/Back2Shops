@@ -10,6 +10,9 @@ from views.basket import BasketResource
 from views.homepage import HomepageResource
 from views.invoice import InvoiceResource
 from views.login import LoginAPIResource
+from views.order import OrderAddressResource
+from views.order import OrderAuthResource
+from views.order import OrderUserResource
 from views.payment import PaymentFormResource
 from views.payment import PaypalFailureResource
 from views.payment import PaypalSuccessResource
@@ -32,6 +35,9 @@ role_res_mapping = {
     FRT_ROUTE_ROLE.PRDT_INFO: ProductInfoResource,
     FRT_ROUTE_ROLE.TYPE_LIST: TypeListResource,
     FRT_ROUTE_ROLE.BASKET: BasketResource,
+    FRT_ROUTE_ROLE.ORDER_AUTH: OrderAuthResource,
+    FRT_ROUTE_ROLE.ORDER_USER: OrderUserResource,
+    FRT_ROUTE_ROLE.ORDER_ADDR: OrderAddressResource,
     FRT_ROUTE_ROLE.ORDER_INVOICES: InvoiceResource,
 }
 
@@ -43,6 +49,9 @@ role_default_urlpatterns = {
     FRT_ROUTE_ROLE.TYPE_LIST: r'/type/{id_type}',
     FRT_ROUTE_ROLE.PRDT_INFO: r'/products/{id_sale}',
     FRT_ROUTE_ROLE.BASKET: r'/basket',
+    FRT_ROUTE_ROLE.ORDER_AUTH: r'/order_auth',
+    FRT_ROUTE_ROLE.ORDER_USER: r'/order_user',
+    FRT_ROUTE_ROLE.ORDER_ADDR: r'/order_addr',
     FRT_ROUTE_ROLE.ORDER_INVOICES: r'/invoices/{id_order}',
 }
 

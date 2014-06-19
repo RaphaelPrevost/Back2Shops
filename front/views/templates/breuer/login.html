@@ -28,7 +28,6 @@ $(function() {
                 $.post('/ajax_login',
                     $("#loginForm").serializeArray(),
                     function(data) {
-                        console.log(data); 
                         if (data['res'] == 'FAILURE') {
                             $("#loginForm .errwrapper").text(data['err']);
                         } else {
