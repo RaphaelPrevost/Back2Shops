@@ -1044,7 +1044,13 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             if context['context'].is_valid():
                 picture = None
                 if len(context['context'].pictures.cleaned_data) > 0:
-                    sorted_pictures = sorted(context['context'].pictures.cleaned_data, key=lambda x: (x['sort_order'], x['pk']))
+                    sorted_pictures = context['context'].pictures.cleaned_data
+                    try:
+                        sorted_pictures = sorted(context['context'].pictures.cleaned_data, key=lambda x: (x['sort_order'], x['pk']))
+                    except KeyError, e:
+                        logging.error('KeyError Debug info, pictures.cleaned_data: %s, error: %s',
+                                      context['context'].pictures.cleaned_data, e)
+                        raise
                     picture = ProductPicture.objects.get(pk=sorted_pictures[0]['pk'])
                 context.update({
                     'brand_object': ProductBrand.objects.get(pk=context['context'].cleaned_data['brand'].pk),
