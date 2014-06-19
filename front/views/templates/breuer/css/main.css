@@ -737,6 +737,10 @@ a { color: #1f244a; }
 #panier table span {
     padding: 0 2px;
 }
+#panier .log .errwrapper {
+    height: 1px;
+    line-height: 1px;
+}
 #code {
     border: 1px solid #E5E5E5;
     font-size: 16px;
