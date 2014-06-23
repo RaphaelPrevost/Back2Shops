@@ -57,19 +57,23 @@ class BaseResource(object):
             try:
                 method = getattr(self, '_on_' + method_name)
                 data = method(req, resp, conn, **kwargs)
+                conn.commit()
             except ValidationError, e:
                 logging.error('Validation Error: %s', (e,), exc_info=True)
                 data = {'res': RESP_RESULT.F,
                         'err': str(e)}
+                conn.rollback()
             except DatabaseError, e:
                 logging.error('Server DB Error: %s', (e,), exc_info=True)
                 data = {"res": RESP_RESULT.F,
                         "err": "DB_ERR",
                         "ERR_SQLDB": str(e)}
+                conn.rollback()
             except Exception, e:
                 logging.error('Server Error: %s', (e,), exc_info=True)
                 data = {'res': RESP_RESULT.F,
                         'err': 'SERVER_ERR'}
+                conn.rollback()
         return data
 
     def _on_get(self, req, resp, conn, **kwargs):
