@@ -6,11 +6,13 @@
     <li class="li5">Paiement</li>
 </ul>
 
+<form id="addrForm" method="post">
 <div class="float out">
     <div class="adresse">
         <h1>Votre adresse de livraison</h1>
         <p>
             <?py if shipping_address: ?>
+            <input type="hidden" name="id_shipaddr" value="${shipping_address['id']}" />
             ${shipping_address['address_desp']}<br />
             ${shipping_address['address']}<br />
             ${shipping_address['postal_code']} ${shipping_address['city']}<br />
@@ -26,6 +28,7 @@
         <h1>Votre adresse de facturation</h1>
         <p>
             <?py if billing_address: ?>
+            <input type="hidden" name="id_billaddr" value="${billing_address['id']}" />
             ${billing_address['address_desp']}<br />
             ${billing_address['address']}<br />
             ${billing_address['postal_code']} ${billing_address['city']}<br />
@@ -34,8 +37,10 @@
         </p>
         <a href="${order_user_url_format}" class="modifier">> Modifier</a>
     </div>
-    <a href="#" class="btn purchase">Valider</a>
+    <input type="hidden" name="id_phone" value="${id_phone}" />
+    <a href="javascript:checkout()" class="btn purchase">Valider</a>
 </div>
+</form>
 
 <div class="listProd listFiche">
 <strong class="discover"><span>&Agrave; découvrir également</span></strong>
@@ -43,3 +48,9 @@
     <?py include('_product_list_item.html', p=p) ?>
 <?py #endfor ?>
 </div>
+
+<script type="text/javascript">
+function checkout() {
+    $("#addrForm").submit();
+}
+</script>

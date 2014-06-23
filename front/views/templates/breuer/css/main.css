@@ -588,6 +588,7 @@ a { color: #1f244a; }
 	text-decoration: underline;
 	background: url(../img/guide-taille.gif) no-repeat right 0;
 }
+#infosProd #selectShop,
 #infosProd #selectTaille {
 	display: block; clear: both;
 	width: 190px;
@@ -596,10 +597,13 @@ a { color: #1f244a; }
 	border: 1px solid #e5e5e5;
 	background: url(../img/select.gif) no-repeat right 0 #f7f7f7;	
 }
+#infosProd #selectShop:hover,
+#infosProd #selectShop:focus,
 #infosProd #selectTaille:hover,
 #infosProd #selectTaille:focus {
 	background: url(../img/select.gif) no-repeat right bottom #fff;	
 }
+#infosProd #selectShop select,
 #infosProd #selectTaille select { 
 	width: 210px;
 	padding: 4px 0 0 5px;
@@ -610,9 +614,11 @@ a { color: #1f244a; }
 	-webkit-appearance: none;
 	cursor: pointer;
 }
+#infosProd #selectShop select option,
 #infosProd #selectTaille select option {
 	padding: 3px 0 3px 10px;
 }
+#infosProd #selectShop select option:nth-child(2n).
 #infosProd #selectTaille select option:nth-child(2n) {
 	background-color: #EEF9FF;
 }

@@ -16,16 +16,30 @@ from B2SUtils.common import set_cookie
 from B2SUtils.errors import ValidationError
 from B2SFrontUtils.constants import REMOTE_API_NAME
 
+def get_basket(req, resp):
+    basket_key = get_cookie_value(req, USER_BASKET_COOKIE_NAME)
+    basket_data = None
+    if basket_key:
+        try:
+            basket_data = get_redis_cli().get(basket_key)
+        except:
+            pass
+    else:
+        basket_key = USER_BASKET % generate_random_key()
+        set_cookie(resp, USER_BASKET_COOKIE_NAME, basket_key)
+    basket_data = ujson.loads(basket_data) if basket_data else {}
+    return basket_key, basket_data
+
 
 class BasketResource(BaseHtmlResource):
     template = "basket.html"
     show_products_menu = False
 
     def _on_get(self, req, resp, **kwargs):
-        basket_key, basket_data = self._get_basket(req, resp)
+        basket_key, basket_data = get_basket(req, resp)
         # basket_data dict:
         # - key is json string
-        #   {"id_sale": "", "id_type": "", "id_variant": ""}
+        #   {"id_sale": **, "id_shop": **, "id_attr": **, "id_variant": **}
         # - value is quantity
 
         all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
@@ -45,7 +59,7 @@ class BasketResource(BaseHtmlResource):
                             item_info.get('id_variant')),
                 'type': self._get_valid_attr(
                             sale_info.get('type', {}).get('attribute'),
-                            item_info.get('id_type')),
+                            item_info.get('id_attr')),
                 'product': get_brief_product(sale_info)
             })
         return {
@@ -65,15 +79,22 @@ class BasketResource(BaseHtmlResource):
         return {}
 
     def _on_post(self, req, resp, **kwargs):
-        basket_key, basket_data = self._get_basket(req, resp)
+        basket_key, basket_data = get_basket(req, resp)
 
         cmd = req.get_param('cmd')
         quantity = req.get_param('quantity') or 1
         chosen_item = req.get_param('sale')
         if not chosen_item:
-            chosen_item = {'id_sale': req.get_param('id_sale'),
-                           'id_type': req.get_param('id_type'),
-                           'id_variant': req.get_param('id_variant')}
+            id_sale = req.get_param('id_sale')
+            all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
+            attr = self._get_valid_attr(
+                            all_sales[id_sale].get('type', {}).get('attribute'),
+                            req.get_param('id_attr'))
+            chosen_item = {'id_sale': id_sale,
+                           'id_shop': req.get_param('id_shop') or 0,
+                           'id_attr': req.get_param('id_attr'),
+                           'id_variant': req.get_param('id_variant'),
+                           'id_price_type': attr.get('@id') or 0}
             chosen_item = ujson.dumps(chosen_item)
 
         if cmd in ('add', 'update'):
@@ -90,18 +111,4 @@ class BasketResource(BaseHtmlResource):
 
         self.redirect(get_url_format(FRT_ROUTE_ROLE.BASKET))
 
-
-    def _get_basket(self, req, resp):
-        basket_key = get_cookie_value(req, USER_BASKET_COOKIE_NAME)
-        basket_data = None
-        if basket_key:
-            try:
-                basket_data = get_redis_cli().get(basket_key)
-            except:
-                pass
-        else:
-            basket_key = USER_BASKET % generate_random_key()
-            set_cookie(resp, USER_BASKET_COOKIE_NAME, basket_key)
-        basket_data = ujson.loads(basket_data) if basket_data else {}
-        return basket_key, basket_data
 

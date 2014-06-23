@@ -382,6 +382,8 @@ class CachedSale:
         try:
             if int(id_shop):
                 self.sale.get_shop(id_shop)
+            elif int(id_shop) == 0:
+                pass
             elif len(self.sale.shops) > 0:
                 raise NotExistError()
         except NotExistError:

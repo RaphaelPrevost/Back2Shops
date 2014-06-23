@@ -94,7 +94,7 @@ class BrandRoutes(object):
 
     def refresh(self):
         resp_dict = data_access(REMOTE_API_NAME.GET_ROUTES)
-        if not resp_dict: return
+        if not resp_dict or 'routes' not in resp_dict: return
 
         routes = resp_dict['routes'].get('route') or []
         if not any(routes): return

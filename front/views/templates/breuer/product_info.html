@@ -5,7 +5,7 @@
 	<span class="descrpt">${product_info.get('desc')}</span>
 	<span class="prix1">${product_info.get('display',{}).get('price')} ${product_info.get('price',{}).get('@currency')}</span>
 
-    <?py if product_info.get('display', {}).get('ori_price'): ?>
+    <?py if product_info.get('discount'): ?>
 	<em class="prix2">au lieu de <span>${product_info.get('display', {}).get('ori_price')} ${product_info.get('price', {}).get('@currency')}</span></em>
     <?py #endif ?>
 	<p>
@@ -31,12 +31,24 @@
         <a id="guideBtn" href="#">Guide des tailles</a>
 
         <div id="selectTaille">
-            <select name="id_type">
+            <select name="id_attr">
                 <option value="">Selectionner la taille</option>
                 <?py attributes = product_info.get('type',{}).get('attribute',{}) ?>
                 <?py attributes = attributes if isinstance(attributes, list) else [attributes] ?>
                 <?py for product_type in attributes: ?>
                 <option value="${product_type.get('@id')}">${product_type.get('name')}</option>
+                <?py #endfor ?>
+            </select>
+        </div>
+        <?py #endif ?>
+
+        <?py if product_info.get('shop',{}): ?>
+        <div id="selectShop">
+            <select name="id_shop">
+                <?py shops = product_info.get('shop',{}) ?>
+                <?py shops = shops if isinstance(shops, list) else [shops] ?>
+                <?py for shop in shops: ?>
+                <option value="${shop.get('@id')}">${shop.get('name')}</option>
                 <?py #endfor ?>
             </select>
         </div>
@@ -122,7 +134,7 @@ function addToBasket() {
         form[0].id_variant.value = id_variant.attr('value');
     }
 
-    if ($('#selectTaille').length > 0 && form[0].id_type.value == "") {
+    if ($('#selectTaille').length > 0 && form[0].id_attr.value == "") {
         alert("Please choose taille.");
         return;
     }
