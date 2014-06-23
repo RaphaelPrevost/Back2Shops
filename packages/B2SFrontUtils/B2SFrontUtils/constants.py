@@ -19,7 +19,10 @@ class REMOTE_API_NAME(CustomEnum):
     AUX = "AUX"
     GET_SALES = "GET_SALES"
     GET_TYPES = "GET_TYPES"
+    CREATE_ORDER = "CREATE_ORDER"
     GET_INVOICES = "GET_INVOICES"
+    INIT_PAYMENT = "INIT_PAYMENT"
+    PAYMENT_FORM = "PAYMENT_FORM"
 
 class HTTP_METHOD(CustomEnum):
     GET = "GET"
@@ -59,8 +62,20 @@ USR_API_SETTINGS = {
         'url': '/webservice/1.0/pub/types/list',
         'method': HTTP_METHOD.GET
     },
+    REMOTE_API_NAME.CREATE_ORDER: {
+        'url': '/webservice/1.0/pub/order',
+        'method': HTTP_METHOD.POST
+    },
     REMOTE_API_NAME.GET_INVOICES: {
         'url': '/webservice/1.0/private/invoice/get4fuser',
         'method': HTTP_METHOD.GET
-    }
+    },
+    REMOTE_API_NAME.INIT_PAYMENT: {
+        'url': '/webservice/1.0/pub/payment/init',
+        'method': HTTP_METHOD.POST
+    },
+    REMOTE_API_NAME.PAYMENT_FORM: {
+        'url': '/webservice/1.0/pub/payment/form',
+        'method': HTTP_METHOD.POST
+    },
 }
