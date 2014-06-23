@@ -92,9 +92,12 @@ class BasketResource(BaseHtmlResource):
                             req.get_param('id_attr'))
             chosen_item = {'id_sale': id_sale,
                            'id_shop': req.get_param('id_shop') or 0,
-                           'id_attr': req.get_param('id_attr'),
                            'id_variant': req.get_param('id_variant'),
-                           'id_price_type': attr.get('@id') or 0}
+                           'id_attr': req.get_param('id_attr')
+                                      if 'weight' in attr else 0,
+                           'id_price_type': req.get_param('id_attr')
+                                            if 'price' in attr else 0,
+                           }
             chosen_item = ujson.dumps(chosen_item)
 
         if cmd in ('add', 'update'):

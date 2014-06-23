@@ -7,21 +7,10 @@ from B2SCrypto.utils import gen_encrypt_json_context
 
 class RoutesResource(BaseJsonResource):
     encrypt = True
+    service = SERVICES.FRO
 
     def _on_get(self, req, resp, conn, **kwargs):
         brand = req.get_param('brand')
         resp_dict = routes_cache_proxy.get(brand=brand)
         return resp_dict
-
-    def encrypt_resp(self, resp, content):
-        client_ip = get_client_ip(self.request)
-        if not client_ip:
-            client_ip = settings.FRONT_ROOT_URI
-
-        resp.content_type = "application/json"
-        resp.body = gen_encrypt_json_context(
-            content,
-            '%s/webservice/1.0/pub/apikey.pem' % client_ip,
-            settings.PRIVATE_KEY_PATH)
-        return resp
 

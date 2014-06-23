@@ -9,6 +9,8 @@ from StringIO import StringIO
 from redis.exceptions import RedisError, ConnectionError
 
 import settings
+from B2SCrypto.constant import SERVICES
+from B2SCrypto.utils import decrypt_json_resp
 from B2SProtocol.constants import ALL
 from B2SProtocol.constants import GLOBAL_MARKET
 from B2SProtocol.constants import ROUTE
@@ -47,6 +49,9 @@ from B2SUtils.base_actor import as_list
 class NotExistError(Exception):
     pass
 
+class NoRedisData(Exception):
+    pass
+
 class CacheProxy:
     list_api = None
     obj_api = None
@@ -54,12 +59,14 @@ class CacheProxy:
 
     LIST_API_VALIDATE_PATH = None
     OBJ_API_VALIDATE_PATH = None
+    need_decrypt = False
 
     def get(self, **kw):
         try:
             return self._get_from_redis(**kw)
         except Exception, e:
-            logging.error("Failed to get from Redis: %s", e, exc_info=True)
+            if not isinstance(e, NoRedisData):
+                logging.error("Failed to get from Redis: %s", e, exc_info=True)
             return self._get_from_server(**kw)
 
     def refresh(self, obj_id=None):
@@ -95,9 +102,14 @@ class CacheProxy:
         req = urllib2.Request(
             settings.SALES_SERVER_API_URL % {'api': api})
         resp = urllib2.urlopen(req)
+        if self.need_decrypt:
+            xmltext = decrypt_json_resp(resp,
+                    settings.SERVER_APIKEY_URI_MAP[SERVICES.ADM],
+                    settings.PRIVATE_KEY_PATH)
+        else:
+            xmltext = resp.read()
 
         is_entire_result = (obj_id is None and query == '')
-        xmltext = "".join(resp.readlines())
         valid = self.validate_xml(xmltext, obj_id is None)
 
         if not valid:
@@ -432,7 +444,7 @@ class TypesCacheProxy(CacheProxy):
         brand_id = kw.get('seller')
         types = get_redis_cli().get(TYPES_FOR_BRAND % brand_id)
         if not types:
-            raise Exception('no typelist data in redis')
+            raise NoRedisData()
         return dict([(t["@id"], t) for t in ujson.loads(types)])
 
     def parse_xml(self, xml, is_entire_result, **kw):
@@ -464,6 +476,7 @@ class TypesCacheProxy(CacheProxy):
 class RoutesCacheProxy(CacheProxy):
     list_api = "private/routes/list?%s"
     obj_key = ROUTE
+    need_decrypt = True
 
     def refresh(self, brand=None):
         cli = get_redis_cli()
@@ -485,7 +498,7 @@ class RoutesCacheProxy(CacheProxy):
         brand_id = kw.get('brand')
         routes = get_redis_cli().get(ROUTES_FOR_BRAND % brand_id)
         if not routes:
-            raise Exception('To load data from server')
+            raise NoRedisData()
         return ujson.loads(routes)
 
     def parse_xml(self, xml, is_entire_result, **kw):

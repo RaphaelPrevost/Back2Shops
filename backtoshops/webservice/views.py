@@ -76,19 +76,6 @@ class BaseWebservice(View):
 #
 
 
-class RoutesListView(BaseWebservice, ListView):
-    template_name = "routes_list.xml"
-
-    def get_queryset(self):
-        brand = self.request.GET.get('brand', None)
-
-        queryset = Route.objects.all()
-        if brand:
-            queryset = queryset.filter(mother_brand=brand).distinct()
-
-        return queryset
-
-
 class SalesListView(BaseWebservice, ListView):
     template_name = "sales_list.xml"
 
@@ -450,6 +437,20 @@ class BaseCryptoWebService(BaseWebservice):
         })
 
         return HttpResponse(content, **response_kwargs)
+
+
+class RoutesListView(BaseCryptoWebService, ListView):
+    template_name = "routes_list.xml"
+
+    def get_queryset(self):
+        brand = self.request.GET.get('brand', None)
+
+        queryset = Route.objects.all()
+        if brand:
+            queryset = queryset.filter(mother_brand=brand).distinct()
+
+        return queryset
+
 
 class TaxesListView(BaseCryptoWebService, ListView):
     template_name = "taxes_list.xml"
