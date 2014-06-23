@@ -86,6 +86,11 @@ class UploadProductPictureView(View, TemplateResponseMixin):
 
     def post(self, request):
         if request.FILES:
+            new_img = request.FILES[u'files[]']
+            if new_img.size > settings.SALE_IMG_UPLOAD_MAX_SIZE:
+                content = {'status': 'max_limit_error'}
+                return HttpResponse(json.dumps(content), mimetype='application/json')
+
             is_brand_attribute = request.POST.get('is_brand_attribute', False)
             new_media = ProductPicture(picture=request.FILES[u'files[]'])
             new_media.is_brand_attribute = is_brand_attribute
@@ -754,7 +759,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                         bap.delete()
 
         for pp_data in product_form.pictures.cleaned_data:
-            if not pp_data['DELETE']:
+            if not pp_data['DELETE'] and pp_data['sort_order']:
                 pp = ProductPicture.objects.get(pk=int(pp_data['pk']))
                 pp.sort_order = pp_data['sort_order']
                 pp.save()
@@ -1096,7 +1101,8 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 'preview_shop': self._render_preview(self.STEP_SHOP),
                 'preview_product': "blank",
                 'product_picture': product_picture,
-                'product_brand_form': ProductBrandFormModel
+                'product_brand_form': ProductBrandFormModel,
+                'sale_img_upload_max_size': settings.SALE_IMG_UPLOAD_MAX_SIZE,
             })
         elif self.steps.current == self.STEP_STOCKS:
             context.update({

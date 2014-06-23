@@ -282,3 +282,6 @@ ORDER_SEND_INVOICES = '%s/webservice/1.0/private/invoice/send' % USR_SERVER
 # config to see decrypt content for response,
 # only used for debugging
 CRYPTO_RESP_DEBUGING = False
+
+
+SALE_IMG_UPLOAD_MAX_SIZE = 1024 * 1024  # Bytes, 1M
