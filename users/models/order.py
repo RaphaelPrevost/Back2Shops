@@ -137,6 +137,7 @@ def update_shipping_fee(conn, id_shipment, id_postage, shipping_fee):
                      'for shipment: %s,'
                      % (id_postage, shipping_fee, id_shipment))
     except Exception, e:
+        conn.rollback()
         logging.error('update_shipping_fee err: %s, '
                       'args: id_shipment: %s,'
                       'id_postage: %s, '
