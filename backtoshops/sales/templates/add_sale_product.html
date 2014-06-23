@@ -410,11 +410,11 @@
         $("#preview-product-picture").html(result.preview_html);
     }
 
-    var upload_max_file_size = 1024 * 1024; // bytes, 1M
-    var upload_max_file_size_err = "{% trans "File exceeds maximum allowed size of 1MB" %}";
+    var sale_img_upload_max_size = {{ sale_img_upload_max_size }};
+    var sale_img_upload_max_size_err = "{% trans "File exceeds maximum allowed size of 1MB" %}";
     function _validate_max_file_size(file) {
-        if (file.size > upload_max_file_size) {
-            alert(upload_max_file_size_err);
+        if (file.size > sale_img_upload_max_size) {
+            alert(sale_img_upload_max_size_err);
             return false;
         }
         return true;
@@ -442,11 +442,20 @@
             });
         },
         done: function(e, data) {
-            addProductPicture(data.result);
+            if (data.result.status == 'ok') {
+                addProductPicture(data.result);
+            } else if (data.result.status == 'max_limit_error'){
+                alert(sale_img_upload_max_size_err);
+            } else {
+                alert("{% trans "Error happened when uploading, please try later, or contact system admin." %}");
+            }
             $.each(data.files, function(key, file) {
                 var id = file.name.replace(/\W+/g, '-');
                 $("#pp_"+id).remove();
             });
+        },
+        fail: function(e, data) {
+            alert("{% trans "Error happened when uploading, please try later, or contact system admin." %}");
         }
     });
 
