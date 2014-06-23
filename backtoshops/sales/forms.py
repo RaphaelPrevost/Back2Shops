@@ -510,6 +510,7 @@ class ListSalesForm(forms.Form):
                      }
     order_by1 = forms.ChoiceField(required=False,choices=ORDER_BY_ITEMS)
     order_by2 = forms.ChoiceField(required=False,choices=ORDER_BY_ITEMS)
+    search_by = forms.CharField(required=False)
 
 
 class ShippingForm(forms.Form):

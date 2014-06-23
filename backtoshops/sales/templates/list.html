@@ -38,11 +38,15 @@
         <fieldset>
             <!--SELECT TRIER PAR-->
             <p id="triVente">
+                <label>{% trans "Search by:" %}</label>
+                {{ form.search_by }}
+                <input type="submit" name="search_sale" class="search-submit" value="{% trans "Search" %}" />
+                <br/>
                 <label for="trie01">{% trans "Sort by:" %}</label>
                 {{ form.order_by1 }}
                 <span>+</span>
                 {{ form.order_by2 }}
-                <input type="submit" value="{% trans "Sort" %}" />
+                <input type="submit" name="order_sale" value="{% trans "Sort" %}" />
             </p>
             <!--FIN SELECT TRIER PAR-->
 
@@ -160,6 +164,12 @@
 {% block javascript %}
 <script type="text/javascript">
     $(function() {
+        {% if search_sale %}
+            $("select#id_order_by1").val("");
+            $("select#id_order_by2").val("");
+        {% else %}
+            $("input#id_search_by").val("");
+        {% endif %}
         $(".seeDetail").click(function(){
             $("#content_Right #controls").html("");
             $("#content_Right #detail").html("");

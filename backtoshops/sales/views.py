@@ -160,7 +160,7 @@ class ListSalesView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin
                     Q(type_stock=STOCK_TYPE_GLOBAL))
         return sales
 
-    def set_sales_list(self,request,sales_type=None):
+    def set_sales_list(self, request, sales_type=None, contains=None):
         """
         this is just internal method to make the self.sales queryset.
         """
@@ -169,6 +169,12 @@ class ListSalesView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin
         else:
             self.sales = Sale.objects.filter(
                 mother_brand=request.user.get_profile().work_for
+            )
+
+        if contains is not None and contains != '':
+            self.sales = self.sales.filter(
+                Q(product__name__icontains=contains) |
+                Q(product__description__icontains=contains)
             )
 
         if sales_type == "old":
@@ -241,16 +247,21 @@ class ListSalesView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin
         return self.render_to_response(self.__dict__)
 
     def post(self, request, sales_type=None):
-        self.set_sales_list(request, sales_type)
         self.form = ListSalesForm(request.POST)
         if self.form.is_valid():
-            order_by1 = self.form.cleaned_data['order_by1']
-            order_by2 = self.form.cleaned_data['order_by2']
-            sort_fields = get_valid_sort_fields(order_by1, order_by2)
-            if sort_fields:
-                from common.utils import Sorter
-                sorter = Sorter(self.sales)
-                sorter.sort(sort_fields)
+            if 'search_sale' in request.POST:
+                search_by = self.form.cleaned_data['search_by']
+                self.set_sales_list(request, sales_type, contains=search_by)
+                self.search_sale = True
+            else:
+                self.set_sales_list(request, sales_type)
+                order_by1 = self.form.cleaned_data['order_by1']
+                order_by2 = self.form.cleaned_data['order_by2']
+                sort_fields = get_valid_sort_fields(order_by1, order_by2)
+                if sort_fields:
+                    from common.utils import Sorter
+                    sorter = Sorter(self.sales)
+                    sorter.sort(sort_fields)
         self.make_page()
         return self.render_to_response(self.__dict__)
 
