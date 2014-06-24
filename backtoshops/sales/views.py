@@ -174,8 +174,9 @@ class ListSalesView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin
         if contains is not None and contains != '':
             self.sales = self.sales.filter(
                 Q(product__name__icontains=contains) |
-                Q(product__description__icontains=contains)
-            )
+                Q(product__description__icontains=contains) |
+                Q(barcodes__upc__contains=contains)
+            ).distinct()
 
         if sales_type == "old":
             self.sales = self.sales.filter(
