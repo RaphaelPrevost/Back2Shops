@@ -30,7 +30,7 @@
     <!-- basic information -->
     <name>{{ object.product.name }}</name>
     <desc>{{ object.product.description }}</desc>
-    {% for pic in object.product.pictures.all %}
+    {% for pic in object.product.pictures.all|dictsort:"id"|dictsort:"sort_order" %}
         <img>{{ pic.picture.url }}</img>
     {% endfor %}
     

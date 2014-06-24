@@ -67,7 +67,7 @@ class ProductInfoResource(BaseHtmlResource):
                 product_info['display']['discount'] = ((float(ori_price) - float(price))/float(ori_price)) * 100
             elif discount_type == 'ratio':
                 product_info['display']['discount'] = product_info.get('discount', {}).get('#text')
-                price = float(price) * (100 - float(product_info.get('display', {}).get('discount')))
+                price = float(price) * (100 - float(product_info.get('display', {}).get('discount'))) / 100
 
         product_info['display']['price'] = price
         product_info['display']['ori_price'] = ori_price

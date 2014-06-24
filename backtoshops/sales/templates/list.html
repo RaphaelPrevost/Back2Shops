@@ -69,7 +69,8 @@
                 </h4>
                 <!--INFOS VENTE-->
                 <div class="content">
-                    <a class="imgProd" href="#">
+                    <a class="imgProd" href="{% if request.user|is_manager_upper %}{% url 'edit_sale' sale_id=sale.pk step=sale|show_step_shop:request.user|yesno:"shop,product" %}{% endif %}"
+                    title="{% trans "click to edit this sale" %}"">
                         {% thumbnail sale.cover.picture "40x43" as im %}
                             <img style='margin:{{ im|margin:"40x43" }}' src="{{ im.url }}" alt='{% trans "Product picture" %} {{ sale.product.name }}' width="{{ im.x }}" height="{{ im.y }}"/>
                         {% endthumbnail %}
