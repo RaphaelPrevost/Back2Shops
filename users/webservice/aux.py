@@ -54,12 +54,13 @@ class AuxResource(BaseJsonResource):
         dep_val = req.get_param('dep') or ''
         cur_val = req.get_param('val') or ''
 
-        if dep_val not in settings.SUPPORTED_MAJOR_COUNTRIES:
-            raise ValidationError('INVALID_REQUEST')
+        if dep_val in settings.SUPPORTED_MAJOR_COUNTRIES:
+            result = db_utils.select(conn, "province",
+                                    columns=("name", "code"),
+                                    where={'country_code': dep_val})
+        else:
+            result = []
 
-        result = db_utils.select(conn, "province",
-                                columns=("name", "code"),
-                                where={'country_code': dep_val})
         field = field_utils.SelectFieldType("Province",
                                             cur_val, dict(result))
         return field.toDict()

@@ -21,6 +21,8 @@ from views.product import ProductListResource
 from views.product import TypeListResource
 from views.redirect import GenericRedirectResource
 from views.register import RegisterAPIResource
+from views.user import UserAPIResource
+from views.user import UserAuthResource
 from views.user import UserResource
 from webservice import crypto
 from webservice import download
@@ -30,6 +32,7 @@ from webservice.aux import AuxResource
 # the url of these roles are configurable in BO
 role_res_mapping = {
     FRT_ROUTE_ROLE.HOMEPAGE: HomepageResource,
+    FRT_ROUTE_ROLE.USER_AUTH: UserAuthResource,
     FRT_ROUTE_ROLE.USER_INFO: UserResource,
     FRT_ROUTE_ROLE.PRDT_LIST: ProductListResource,
     FRT_ROUTE_ROLE.PRDT_INFO: ProductInfoResource,
@@ -44,6 +47,7 @@ role_res_mapping = {
 # default url of roles
 role_default_urlpatterns = {
     FRT_ROUTE_ROLE.HOMEPAGE: r'/',
+    FRT_ROUTE_ROLE.USER_AUTH: r'/auth',
     FRT_ROUTE_ROLE.USER_INFO: r'/user_info',
     FRT_ROUTE_ROLE.PRDT_LIST: r'/products',
     FRT_ROUTE_ROLE.TYPE_LIST: r'/type/{id_type}',
@@ -59,6 +63,7 @@ role_default_urlpatterns = {
 fixed_urlpatterns = {
     r'/ajax_login': LoginAPIResource,
     r'/ajax_register': RegisterAPIResource,
+    r'/ajax_user': UserAPIResource,
 
     r'/paypal/{id_trans}/success': PaypalSuccessResource,
     r'/paypal/{id_trans}/failure': PaypalFailureResource,

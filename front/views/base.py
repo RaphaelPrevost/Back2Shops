@@ -41,12 +41,13 @@ class BaseResource(object):
             if params.get(name):
                 params = copy.copy(req._params)
                 params[name] = '******'
-        logging.info('Got %s requet at %s UTC, %s with params %s'
+        logging.info('Got %s request at %s UTC, %s with params %s'
                      % (req.method, datetime.utcnow(),
                         req.uri, params))
 
         data = self.msg_handler(method_name, req, resp, **kwargs)
-        if data: self.handle_cookies(resp, data)
+        if data is not None:
+            self.handle_cookies(resp, data)
         self.gen_resp(resp, data)
 
         end_time = time.time() * 1000
@@ -136,6 +137,7 @@ class BaseHtmlResource(BaseResource):
 
         resp_dict.update({
             'prodlist_url_format': get_url_format(FRT_ROUTE_ROLE.PRDT_LIST),
+            'auth_url_format': get_url_format(FRT_ROUTE_ROLE.USER_AUTH),
             'user_url_format': get_url_format(FRT_ROUTE_ROLE.USER_INFO),
             'basket_url_format': get_url_format(FRT_ROUTE_ROLE.BASKET),
             'order_auth_url_format': get_url_format(FRT_ROUTE_ROLE.ORDER_AUTH),

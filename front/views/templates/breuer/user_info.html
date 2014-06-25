@@ -1,4 +1,4 @@
-<form id="formContainer" method="post" action="#">
+<form id="formContainer" method="post">
     <div class="errwrapper">&nbsp;</div>
 </form>
 <a class="btnlog logout" href="javascript:save()">Créer mon compte</a>
@@ -6,6 +6,7 @@
 <script type="text/javascript">
 var profile = #{user_profile};
 var profileErr = '${err}';
+var redirect_to = '${redirect_to}';
 var delayCallbacks = [];
 
 function getTemplate(name, item)
@@ -30,7 +31,7 @@ function getTemplate(name, item)
                     if (! reg.test(this.value)) {
                         /* XXX allow customisation of the
                            input error handling */
-                        alert('Bad value: ' + this.value);
+                        alert('Bad value for ' + item.name+ ': ' + this.value);
                     }
                 });
             });
@@ -89,14 +90,16 @@ function getTemplate(name, item)
                 tpl += '<legend>' + item.name + '</legend>';
 
             for (j in item.fields) {
+                var field_item = item.fields[j];
+                field_item = JSON.parse(JSON.stringify(field_item));
                 /* correct id for the dependency */
-                if (typeof item.fields[j].depends !== 'undefined') {
-                    if (item.fields[j].depends != '')
-                        item.fields[j].depends += '_' + item.values[i].id;
+                if (typeof field_item.depends !== 'undefined') {
+                    if (field_item.depends != '')
+                        field_item.depends += '_' + item.values[i].id;
                 }
                 /* add the matching value */
-                item.fields[j].value = item.values[i][j];
-                var ret = getTemplate(j + '_' + item.values[i].id, item.fields[j]);
+                field_item.value = item.values[i][j];
+                var ret = getTemplate(j + '_' + item.values[i].id, field_item);
                 tpl += ret.template;
                 result.callbacks = result.callbacks.concat(ret.callbacks);
             }
@@ -170,7 +173,23 @@ $(document).ready(function() {
 });
 
 function save() {
-    $("#formContainer").submit();    
+    $.post('/ajax_user',
+        $("#formContainer").serializeArray(),
+        function(data) {
+            if (data['set_cookies_js']) {
+                eval(data['set_cookies_js']);
+            }
+            if (data['res'] == 'FAILURE') {
+                $("#formContainer .errwrapper").text(data['err']);
+                location = '#';
+            } else {
+                if (redirect_to)
+                    location = redirect_to;
+                else
+                    location = '#';
+            }
+        }
+    )
 }
 </script>
 

@@ -6,7 +6,7 @@ from common.utils import get_brief_product_list
 from common.utils import get_url_format
 from views.base import BaseHtmlResource
 from views.basket import get_basket
-from views.user import UserResource
+from views.user import UserResource, UserAuthResource
 from B2SProtocol.constants import RESP_RESULT
 from B2SFrontUtils.constants import REMOTE_API_NAME
 
@@ -16,12 +16,12 @@ def _add_product_list(req, resp, data):
     return data
 
 
-class OrderAuthResource(BaseHtmlResource):
+class OrderAuthResource(UserAuthResource):
     template = "order_auth.html"
     show_products_menu = False
 
     def _on_get(self, req, resp, **kwargs):
-        data = {}
+        data = super(OrderAuthResource, self)._on_get(req, resp, **kwargs)
         _add_product_list(req, resp, data)
         return data
 
@@ -31,20 +31,14 @@ class OrderUserResource(UserResource):
     show_products_menu = False
 
     def _on_get(self, req, resp, **kwargs):
-        data = super(OrderUserResource, self)._on_get(req, resp, **kwargs)
+        data = self._get_user_info(req, resp)
         if data.get('err').startswith('LOGIN_REQUIRED_ERR'):
             self.redirect(get_url_format(FRT_ROUTE_ROLE.ORDER_AUTH))
             return
 
         _add_product_list(req, resp, data)
+        data['redirect_to'] = get_url_format(FRT_ROUTE_ROLE.ORDER_ADDR)
         return data
-
-    def _redirect(self, err):
-        if err:
-            self.redirect("%s?err=%s"
-                    % (get_url_format(FRT_ROUTE_ROLE.ORDER_USER), err))
-        else:
-            self.redirect(get_url_format(FRT_ROUTE_ROLE.ORDER_ADDR))
 
 
 class OrderAddressResource(BaseHtmlResource):
