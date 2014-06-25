@@ -74,7 +74,8 @@ class UserResource(BaseJsonResource):
         columns = ('id', 'country_num', 'phone_num', 'phone_num_desp')
         numbers = db_utils.select(conn,
                 "users_phone_num", columns=columns,
-                where={'users_id': users_id})
+                where={'users_id': users_id,
+                       'valid': True})
         if len(numbers) == 0:
             numbers = [dict([(c, c == 'id' and '0' or '') for c in columns])]
         else:
@@ -100,7 +101,8 @@ class UserResource(BaseJsonResource):
                    'country_code', 'province_code', 'address_desp')
         addresses = db_utils.select(conn,
                 "users_address", columns=columns,
-                where={'users_id': users_id})
+                where={'users_id': users_id,
+                       'valid': True})
         if len(addresses) == 0:
             addresses = [
                 dict([(c, c == 'id' and '0' or '') for c in columns]),
@@ -199,9 +201,15 @@ class UserResource(BaseJsonResource):
                     raise ValidationError('INVALID_PHONE_NUMBER')
                 number_dict[num_id][c] = p
 
-            num_referenced = self._is_filed_referenced(
-                conn, users_id, 'id_phone', 'users_phone_num', num_id)
-            if num_id.isdigit() and int(num_id) == 0 or num_referenced:
+            num_changed = self._item_changed(conn, users_id, columns,
+                          "users_phone_num", num_id, number_dict[num_id])
+            if num_changed:
+                num_referenced = self._is_filed_referenced(
+                    conn, users_id, 'id_phone', 'users_phone_num', num_id)
+            else:
+                num_referenced = False
+            if num_id.isdigit() and int(num_id) == 0 \
+                    or num_changed and num_referenced:
                 db_utils.insert(conn, "users_phone_num",
                                 values=number_dict[num_id])
             else:
@@ -231,20 +239,39 @@ class UserResource(BaseJsonResource):
                     raise ValidationError('INVALID_POSTAL_CODE')
                 addr_dict[addr_id][c] = p
 
-            ship_addr_referenced = self._is_filed_referenced(
-                conn, users_id, 'id_shipaddr', 'users_address', addr_id)
-            bill_addr_referenced = self._is_filed_referenced(
-                conn, users_id, 'id_billaddr', 'users_address', addr_id)
-            if (addr_id.isdigit() and
-                int(addr_id) == 0 or
-                ship_addr_referenced or
-                bill_addr_referenced):
+            addr_changed = self._item_changed(conn, users_id, columns,
+                          "users_address", addr_id, addr_dict[addr_id])
+            if addr_changed:
+                addr_referenced = self._is_filed_referenced(
+                    conn, users_id, 'id_shipaddr', 'users_address', addr_id) \
+                               or self._is_filed_referenced(
+                    conn, users_id, 'id_billaddr', 'users_address', addr_id)
+            else:
+                addr_referenced = False
+            if (addr_id.isdigit() and int(addr_id) == 0 or
+                    addr_changed and addr_referenced):
                 db_utils.insert(conn, "users_address",
                                 values=addr_dict[addr_id])
             else:
                 db_utils.update(conn, "users_address",
                                 values=addr_dict[addr_id],
                                 where={'id': addr_id})
+
+    def _item_changed(self, conn, users_id, columns,
+                   table, item_id, item_data):
+        if item_id.isdigit() and int(item_id) == 0:
+            return True
+
+        result = db_utils.select(conn, table,
+                                columns=columns,
+                                where={'id': item_id},
+                                limit=1)
+        if len(result) == 0:
+            return True
+        for i, c in enumerate(columns):
+            if str(item_data.get(c)) != str(result[0][i]):
+                return True
+        return False
 
     def _is_filed_referenced(self, conn, users_id, field,
                              field_orig_table, check_id):

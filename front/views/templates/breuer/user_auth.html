@@ -1,19 +1,4 @@
-<ul>
-    <li class="li1 ok"><a href="#">Mon Panier</a></li>
-    <li class="li2 on">Identification</li>
-    <li class="li3">Adresse</li>
-    <li class="li4">Livraison</li>
-    <li class="li5">Paiement</li>
-</ul>
-
 <?py include('_auth.html') ?>
-
-<div class="listProd listFiche">
-<strong class="discover"><span>&Agrave; découvrir également</span></strong>
-<?py for p in product_list[:5]: ?>
-    <?py include('_product_list_item.html', p=p) ?>
-<?py #endfor ?>
-</div>
 
 <script>
 function login() {
@@ -26,7 +11,7 @@ function login() {
                 if (data['set_cookies_js']) {
                     eval(data['set_cookies_js']);
                 }
-                location = "${order_addr_url_format}";
+                location = "${user_url_format}";
             }
         }
     )
@@ -42,7 +27,7 @@ function register() {
                 if (data['set_cookies_js']) {
                     eval(data['set_cookies_js']);
                 }
-                location = "${order_user_url_format}";
+                location = "${user_url_format}";
             }
         }
     )

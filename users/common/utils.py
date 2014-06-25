@@ -251,12 +251,12 @@ def cookie_verify(conn, req, resp):
                                    csrf_token,
                                    user_auth['auth'],
                                    users_id)
-    set_cookie(resp, USER_AUTH_COOKIE_NAME, auth_cookie, expiry=user_auth['exp'])
-
     db_utils.update(conn,
                     'users_logins',
                     values={'csrf_token': csrf_token},
                     where={'id': login_id})
+    conn.commit()
+    set_cookie(resp, USER_AUTH_COOKIE_NAME, auth_cookie, expiry=user_auth['exp'])
     return users_id
 
 def encrypt_password(raw_password):

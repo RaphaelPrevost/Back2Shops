@@ -16,6 +16,7 @@ class ADDR_TYPE(CustomEnum):
 
 class FRT_ROUTE_ROLE(CustomEnum):
     HOMEPAGE = "HOMEPAGE"
+    USER_AUTH = "USER_AUTH"
     USER_INFO = "USER_INFO"
     PRDT_LIST = "PRDT_LIST"
     PRDT_INFO = "PRDT_INFO"
