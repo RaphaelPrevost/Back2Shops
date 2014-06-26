@@ -1,15 +1,16 @@
 <!--INFOS PRODUCTS-->
 <div id="infosProd">
-	<strong id="breuer">Breuer</strong>
-	<h1>${product_info.get('name')}</h1>
-	<span class="descrpt">${product_info.get('desc')}</span>
-	<span class="prix1">${product_info.get('display',{}).get('price')} ${product_info.get('price',{}).get('@currency')}</span>
+    <strong id="breuer">Breuer</strong>
+    <h1>${product_info.get('name')}</h1>
+    <span class="descrpt">${product_info.get('desc')}</span>
+    <?py display=product_info.get('display',{}) ?>
+    <span id="discounted_price" class="prix1">${display.get('price')} ${product_info.get('price',{}).get('@currency')}</span>
 
     <?py if product_info.get('discount'): ?>
-	<em class="prix2">au lieu de <span>${product_info.get('display', {}).get('ori_price')} ${product_info.get('price', {}).get('@currency')}</span></em>
+    <em class="prix2">au lieu de <span id="ori_price">${display.get('ori_price')} ${product_info.get('price', {}).get('@currency')}</span></em>
     <?py #endif ?>
-	<p>
-	</p>
+    <p>
+    </p>
 
     <form id="addForm" method="post" action="${basket_url_format}">
         <input type="hidden" name="cmd" value="add" />
@@ -31,12 +32,12 @@
         <a id="guideBtn" href="#">Guide des tailles</a>
 
         <div id="selectTaille">
-            <select name="id_attr">
+            <select name="id_attr" id="type_attribute_selector">
                 <option value="">Selectionner la taille</option>
                 <?py attributes = product_info.get('type',{}).get('attribute',{}) ?>
                 <?py attributes = attributes if isinstance(attributes, list) else [attributes] ?>
-                <?py for product_type in attributes: ?>
-                <option value="${product_type.get('@id')}">${product_type.get('name')}</option>
+                <?py for type_attr in attributes: ?>
+                <option value="${type_attr.get('@id')}">${type_attr.get('name')}</option>
                 <?py #endfor ?>
             </select>
         </div>
@@ -64,21 +65,21 @@
 
 <!--VISUEL PRODUCT-->
 <div id="visuelProd">
-	<div class="main-image">
-		<div class="easyzoom easyzoom--overlay">
-			<a href="${get_single_attribute(product_info, 'img')}" >
-				<img src="${get_single_attribute(product_info, 'img')}" alt="" width="523" height="523" class="custom" />
-			</a>
-		</div>
-	</div>
+    <div class="main-image">
+        <div class="easyzoom easyzoom--overlay">
+            <a href="${get_single_attribute(product_info, 'img')}" >
+                <img src="${get_single_attribute(product_info, 'img')}" alt="" width="523" height="523" class="custom" />
+            </a>
+        </div>
+    </div>
 
 <?py if isinstance(product_info.get('img'),list): ?>
-	<ul class="thumbnails">
-		<?py for img in product_info.get('img'): ?>
-		<li><a href="${img}"><img src="${img}" alt="product_info.get('name')" /></a></li>
-		</li>
-		<?py #endfor ?>
-	</ul>
+    <ul class="thumbnails">
+        <?py for img in product_info.get('img'): ?>
+        <li><a href="${img}"><img src="${img}" alt="product_info.get('name')" /></a></li>
+        </li>
+        <?py #endfor ?>
+    </ul>
 <?py #endif ?>
 </div>
 <!--//VISUEL PRODUCT-->
@@ -97,6 +98,7 @@
 </div>
 
 <script type="text/javascript">
+    $("#type_attribute_selector").val("");
 $(function(){
     $("#selectColoris li").click(function(){
         $(this).attr('class', 'selected').siblings().attr('class', '');
@@ -120,6 +122,39 @@ $(function(){
             api.isReady = false;
         }
     });
+
+    <?py if product_info.get('type',{}).get('attribute',{}): ?>
+    $("#type_attribute_selector").change(function(){
+        var type_attr_id = $(this).val();
+        var ori_price = null;
+        var cur = null;
+
+        <?py for attr in attributes: ?>
+        if (type_attr_id.toString() == "${attr.get('@id')}") {
+            <?py if 'price' not in attr: ?>
+                return
+            <?py else: ?>
+                ori_price = #{attr.get('price', {}).get('#text', 999999)};
+                ori_price = parseFloat(ori_price).toFixed(2);
+                cur = "#{attr.get('price', {}).get('@currency', '')}";
+            <?py #endif ?>
+        }
+        <?py #endfor ?>
+
+        if (ori_price && cur) {
+            $("#ori_price").text(ori_price + " " + cur);
+            <?py if product_info.get('discount'): ?>
+                var discounted_price;
+                <?py if display.get('discount_type', '') == 'fixed': ?>
+                    discounted_price = (ori_price - parseFloat(${display.get('discount')})).toFixed(2);
+                <?py elif display.get('discount_type', '') == 'ratio': ?>
+                    discounted_price = (ori_price * (100 - parseFloat(${display.get('discount')})) / 100).toFixed(2);
+                <?py #endif ?>
+                if (discounted_price) $("#discounted_price").text(discounted_price + " " + cur);
+            <?py #endif ?>
+        }
+    });
+    <?py #endif ?>
 });
 
 function addToBasket() {

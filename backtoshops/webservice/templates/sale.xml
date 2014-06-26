@@ -18,10 +18,14 @@
         <attribute id="{{ca.pk}}">
             <name>{{ca.name}}</name>
             {% with typeattributeweight=object|get_typeattributeweight:ca %}
+            {% if typeattributeweight %}
             <weight unit="{{object.product.weight_unit_id}}">{{typeattributeweight.type_attribute_weight}}</weight>
+            {% endif %}
             {% endwith %}
             {% with typeattributeprice=object|get_typeattributeprice:ca %}
+            {% if typeattributeprice %}
             <price currency="{{object.product.currency}}">{{typeattributeprice.type_attribute_price}}</price>
+            {% endif %}
             {% endwith %}
         </attribute>
         {% endfor %}

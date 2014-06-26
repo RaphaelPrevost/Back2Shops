@@ -932,7 +932,7 @@
         var discount_type = $("#{{ wizard.form.discount_type.auto_id }}").val();
         var selected_cur = $("#{{wizard.form.currency.auto_id}} option:selected").text();
         var discount_price = $("#{{ wizard.form.preview_discount_price_str.auto_id }}").val();
-        if (isNaN(discount_price)) discount_price = "{% trans "N/A" %}";
+        if (isNaN(discount_price) && !discount_price.toString().match("{% trans "Starting at" %}")) discount_price = "{% trans "N/A" %}";
         var base_price = $("#{{ wizard.form.preview_base_price.auto_id }}").val();
         if (isNaN(base_price)) base_price = "{% trans "N/A" %}";
 
