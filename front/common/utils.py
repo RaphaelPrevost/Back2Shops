@@ -38,6 +38,15 @@ def unicode2utf8(data):
         result = data
     return result
 
+def get_product_default_display_price(sale):
+    price = sale.get('price', {}).get('#text') or ''
+    if not price:
+        for type_attr in sale.get('type', {}).get('attribute'):
+            if 'price' in type_attr:
+                price = type_attr['price'].get('#text')
+                break
+    return price
+
 def get_brief_product(sale):
     id_sale = sale['@id']
     product_info = {
@@ -46,7 +55,7 @@ def get_brief_product(sale):
         'desc': sale.get('desc') or '',
         'img': sale.get('img') or '',
         'link': get_url_format(FRT_ROUTE_ROLE.PRDT_INFO) % id_sale,
-        'price': sale.get('price', {}).get('#text') or '',
+        'price': get_product_default_display_price(sale),
         'currency': sale.get('price', {}).get('@currency') or '',
         'variant': sale.get('variant') if (isinstance(sale.get('variant'), list)
                                            or sale.get('variant') is None)
