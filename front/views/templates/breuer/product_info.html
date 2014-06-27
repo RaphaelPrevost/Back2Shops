@@ -98,8 +98,85 @@
 </div>
 
 <script type="text/javascript">
-    $("#type_attribute_selector").val("");
 $(function(){
+    $("#type_attribute_selector").val("");
+    var discount_type = "${product_info.get('discount', {}).get('@type')}";
+    var discount_amount = ${product_info.get("discount", {}).get("#text", 0)};
+    var ori_price = parseFloat(${product_info.get("display", {}).get("ori_price", 99999999)});
+    var discounted_price = parseFloat(${product_info.get("display", {}).get("price", 99999999)});
+    var currency = "${product_info.get('price', {}).get('@currency')}";
+
+    var type_attr_prices = {};
+    var _price = null;
+    <?py if product_info.get('type',{}).get('attribute',{}): ?>
+        <?py for attr in attributes: ?>
+            _price = parseFloat(${attr.get("price", {}).get("#text", 0)});
+            if (_price) {
+                type_attr_prices[${attr.get("@id")}] = _price;
+            }
+        <?py #endfor ?>
+    <?py #endif ?>
+
+    var variants = {}
+    var p_type = null;
+    var p_amount = null;
+    <?py if product_info.get('variant'): ?>
+        <?py for variant in variants: ?>
+            p_type = "${variant.get("premium", {}).get('@type', '')}";
+            p_amount = ${variant.get("premium", {}).get("#text", 0)};
+            if (p_type && p_amount) {
+                variants[${variant.get('@id')}] = {"premium_amount": p_amount,
+                                                   "premium_type": p_type};
+            }
+        <?py #endfor ?>
+    <?py #endif ?>
+
+
+    function _calc_ori_price() {
+        var type_attr_id = $("#type_attribute_selector").val();
+        if (type_attr_id && type_attr_prices[type_attr_id]) {
+            ori_price = type_attr_prices[type_attr_id];
+        } else {
+            ori_price = parseFloat(${product_info.get("display", {}).get("ori_price", 99999999)});
+        }
+    }
+
+    function _calc_discounted_price() {
+        _calc_ori_price();
+        if (discount_type && discount_amount) {
+            if (discount_type == "fixed") {
+                discounted_price = (ori_price - parseFloat(discount_amount));
+            } else if (discount_type == "ratio") {
+                discounted_price = (ori_price * (100 - discount_amount) / 100);
+            }
+        } else {
+            discounted_price = ori_price;
+        }
+    }
+
+    function _calc_premium_price(variant_id) {
+        _calc_discounted_price();
+        variant_id = variant_id || $("#selectColoris li.selected:first").attr("value");
+        if (variant_id) {
+            var _price = variants[variant_id]["premium_amount"];
+            if (_price) {
+                var _type = variants[variant_id]["premium_type"];
+                if (_type == "fixed") {
+                    ori_price += _price;
+                    discounted_price += _price;
+                } else if (_type == "ratio") {
+                    ori_price *= (1+_price/100);
+                    discounted_price *= (1+_price/100);
+                }
+            }
+        }
+    }
+
+    function _display_prices() {
+        $("#ori_price").text(ori_price.toFixed(2) + " " + currency);
+        $("#discounted_price").text(discounted_price.toFixed(2) + " " + currency);
+    }
+
     $("#selectColoris li").click(function(){
         $(this).attr('class', 'selected').siblings().attr('class', '');
     });
@@ -112,6 +189,8 @@ $(function(){
             api.$zoom.remove();
             api.isReady = false;
         }
+        _calc_premium_price($(this).parents("li:first").attr("value"));
+        _display_prices();
     });
 
     $("#visuelProd .thumbnails li a").click(function(){
@@ -123,38 +202,10 @@ $(function(){
         }
     });
 
-    <?py if product_info.get('type',{}).get('attribute',{}): ?>
     $("#type_attribute_selector").change(function(){
-        var type_attr_id = $(this).val();
-        var ori_price = null;
-        var cur = null;
-
-        <?py for attr in attributes: ?>
-        if (type_attr_id.toString() == "${attr.get('@id')}") {
-            <?py if 'price' not in attr: ?>
-                return
-            <?py else: ?>
-                ori_price = #{attr.get('price', {}).get('#text', 999999)};
-                ori_price = parseFloat(ori_price).toFixed(2);
-                cur = "#{attr.get('price', {}).get('@currency', '')}";
-            <?py #endif ?>
-        }
-        <?py #endfor ?>
-
-        if (ori_price && cur) {
-            $("#ori_price").text(ori_price + " " + cur);
-            <?py if product_info.get('discount'): ?>
-                var discounted_price;
-                <?py if display.get('discount_type', '') == 'fixed': ?>
-                    discounted_price = (ori_price - parseFloat(${display.get('discount')})).toFixed(2);
-                <?py elif display.get('discount_type', '') == 'ratio': ?>
-                    discounted_price = (ori_price * (100 - parseFloat(${display.get('discount')})) / 100).toFixed(2);
-                <?py #endif ?>
-                if (discounted_price) $("#discounted_price").text(discounted_price + " " + cur);
-            <?py #endif ?>
-        }
+        _calc_premium_price();
+        _display_prices();
     });
-    <?py #endif ?>
 });
 
 function addToBasket() {
