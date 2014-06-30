@@ -74,6 +74,30 @@ class ProductInfoResource(BaseHtmlResource):
         product_info['display']['price'] = price
         product_info['display']['ori_price'] = ori_price
 
+        # type attributes
+        ## if it uses type attribute price, don't display the type attribute
+        ## which has no price.
+        type_attrs = product_info.get('type', {}).get('attribute')
+        if isinstance(type_attrs, dict):
+            type_attrs = [type_attrs]
+            product_info['type']['attribute'] = type_attrs
+        unified_price = product_info.get('price', {}).get('#text')
+        if not unified_price:
+            for type_attr in type_attrs:
+                if not 'price' in type_attr or not int(type_attr['price'].get('#text', 0)):
+                    product_info['type']['attribute'].remove(type_attr)
+
+        ## Don't display the type attribute which has no quantity.
+        stocks = product_info.get('available', {}).get('stocks', [])
+        if isinstance(stocks, dict):
+            stocks = [stocks]
+        for type_attr in type_attrs:
+            stock = sum([int(x.get('stock', {}).get('#text', 0))
+                        for x in stocks
+                        if x.get('@attribute') == type_attr.get('@id')])
+            if stock <= 0 and type_attr in product_info['type']['attribute']:
+                product_info['type']['attribute'].remove(type_attr)
+
         return {
             'product_info': product_info,
             'product_list': product_list,
