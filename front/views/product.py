@@ -4,6 +4,7 @@ from common.utils import get_brief_product_list
 from common.utils import get_category_from_sales
 from common.utils import get_product_default_display_price
 from views.base import BaseHtmlResource
+from B2SUtils.base_actor import as_list
 from B2SUtils.errors import ValidationError
 from B2SFrontUtils.constants import REMOTE_API_NAME
 
@@ -77,22 +78,18 @@ class ProductInfoResource(BaseHtmlResource):
         # type attributes
         ## if it uses type attribute price, don't display the type attribute
         ## which has no price.
-        type_attrs = product_info.get('type', {}).get('attribute')
-        if isinstance(type_attrs, dict):
-            type_attrs = [type_attrs]
-            product_info['type']['attribute'] = type_attrs
+        type_attrs = as_list(product_info.get('type', {}).get('attribute'))
+        product_info['type']['attribute'] = type_attrs
         unified_price = product_info.get('price', {}).get('#text')
         if not unified_price:
             for type_attr in type_attrs:
-                if not 'price' in type_attr or not int(type_attr['price'].get('#text', 0)):
+                if not 'price' in type_attr or not float(type_attr['price'].get('#text', 0)):
                     product_info['type']['attribute'].remove(type_attr)
 
         ## Don't display the type attribute which has no quantity.
-        stocks = product_info.get('available', {}).get('stocks', [])
-        if isinstance(stocks, dict):
-            stocks = [stocks]
+        stocks = as_list(product_info.get('available', {}).get('stocks'))
         for type_attr in type_attrs:
-            stock = sum([int(x.get('stock', {}).get('#text', 0))
+            stock = sum([sum(int(ss.get('#text', 0)) for ss in as_list(x.get('stock')))
                         for x in stocks
                         if x.get('@attribute') == type_attr.get('@id')])
             if stock <= 0 and type_attr in product_info['type']['attribute']:

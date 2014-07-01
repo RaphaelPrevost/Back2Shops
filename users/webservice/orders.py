@@ -4,16 +4,19 @@ import settings
 import urllib2
 import ujson
 
+from common.redis_utils import get_redis_cli
 from common.error import NotExistError
 from models.order import create_order
 from models.order import get_order_detail
 from models.order import get_orders_list
 from models.order import update_shipping_fee
+from models.order import user_accessable_order
 from models.actors.sale import CachedSale
 from models.actors.sale import get_sale_by_barcode
 from models.actors.shop import CachedShop
 from webservice.base import BaseJsonResource
 from B2SProtocol.constants import RESP_RESULT
+from B2SProtocol.constants import LOGIN_USER_BASKET_KEY
 from B2SCrypto.constant import SERVICES
 from B2SCrypto.utils import decrypt_json_resp
 from B2SCrypto.utils import gen_encrypt_json_context
@@ -25,6 +28,7 @@ from B2SRespUtils.generate import gen_json_resp
 
 class BaseOrderResource(BaseJsonResource):
     encrypt = True
+
     def on_post(self, req, resp, **kwargs):
         return gen_json_resp(resp,
                              {'res': RESP_RESULT.F,
@@ -51,10 +55,18 @@ class OrderResource(BaseJsonResource):
             self._requestValidCheck(conn, req)
             upc_shop = req.get_param('upc_shop')
             if upc_shop:
-                return self._posOrder(upc_shop, req, resp, conn)
+                id_order = self._posOrder(upc_shop, req, resp, conn)
             else:
-                return self._wwwOrder(req, resp, conn)
+                id_order = self._wwwOrder(req, resp, conn)
+
+            # clear basket
+            redis_cli = get_redis_cli()
+            basket_key = redis_cli.get(LOGIN_USER_BASKET_KEY % self.users_id)
+            redis_cli.delete(basket_key)
+
+            return id_order
         except Exception, e:
+            conn.rollback()
             logging.error('Create order for %s failed for error: %s',
                           req.query_string, e, exc_info=True)
             return 0
@@ -186,7 +198,7 @@ class OrderResource(BaseJsonResource):
         try:
             assert CachedShop(id_shop, upc_shop), id_shop or upc_shop
         except AssertionError, e:
-              raise NotExistError('ORDER_ERR_SHOP_%s_NOT_EXIST' % e)
+            raise NotExistError('ORDER_ERR_SHOP_%s_NOT_EXIST' % e)
 
     def _saleValidCheck(self, id_sale, id_variant, id_shop, quantity):
         sale = CachedSale(id_sale)
@@ -253,6 +265,18 @@ class OrderListResource(BaseOrderResource):
         orders = get_orders_list(conn, brand_id, shops_id)
         return orders
 
+class OrderList4FUserResource(BaseOrderResource):
+    encrypt = False
+    login_required = {'get': True, 'post': False}
+
+    def _on_get(self, req, resp, conn, **kwargs):
+        brand_id = req.get_param('brand_id', None)
+        if brand_id is None:
+            raise ValidationError('INVALID_REQUEST')
+
+        orders = get_orders_list(conn, brand_id, [], self.users_id)
+        return orders
+
 
 class OrderDetailResource(BaseOrderResource):
 
@@ -267,6 +291,20 @@ class OrderDetailResource(BaseOrderResource):
             shops_id = ujson.loads(urllib2.unquote(shops_id))
 
         order_detail = get_order_detail(conn, order_id, brand_id, shops_id)
+        return order_detail
+
+class OrderDetail4FUserResource(BaseOrderResource):
+    encrypt = False
+    login_required = {'get': True, 'post': False}
+
+    def _on_get(self, req, resp, conn, **kwargs):
+        order_id = req.get_param('id')
+        brand_id = req.get_param('brand_id', None)
+        if not order_id or brand_id is None \
+                or not user_accessable_order(conn, order_id, self.users_id):
+            raise ValidationError('INVALID_REQUEST')
+
+        order_detail = get_order_detail(conn, order_id, brand_id, None)
         return order_detail
 
 

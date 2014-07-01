@@ -23,6 +23,14 @@ from B2SUtils.errors import ValidationError
 from B2SUtils.common import set_cookie, get_cookie_value
 from B2SRespUtils.generate import gen_json_resp
 
+class UserVerifyResource(BaseJsonResource):
+    login_required = {'get': True, 'post': False}
+
+    def _on_get(self, req, resp, conn, **kwargs):
+        return {'res': RESP_RESULT.S,
+                'users_id': self.users_id}
+
+
 class UserLoginResource(BaseJsonResource):
 
     def on_get(self, req, resp, **kwargs):

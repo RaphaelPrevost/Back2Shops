@@ -46,7 +46,7 @@ class BasketResource(BaseHtmlResource):
         basket = []
         for item, quantity in basket_data.iteritems():
             item_info = ujson.loads(item)
-            id_sale = item_info['id_sale']
+            id_sale = str(item_info['id_sale'])
             if id_sale not in all_sales:
                 continue
 
@@ -74,7 +74,7 @@ class BasketResource(BaseHtmlResource):
         if attrlist and not isinstance(attrlist, list):
             attrlist = [attrlist]
         for attr in attrlist:
-            if attr['@id'] == attr_id:
+            if attr['@id'] == str(attr_id):
                 return attr
         return {}
 
@@ -101,7 +101,7 @@ class BasketResource(BaseHtmlResource):
             chosen_item = ujson.dumps(chosen_item)
 
         if cmd in ('add', 'update'):
-            basket_data[chosen_item] = quantity
+            basket_data[chosen_item] = int(quantity)
 
         elif cmd == 'del':
             if chosen_item in basket_data:

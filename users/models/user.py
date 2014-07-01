@@ -37,7 +37,7 @@ def get_user_phone_num(conn, user_id, id_phone=None):
                'phone_num_desc': ...},
                ...]
     """
-    where = {'users_id': user_id, 'valid': True}
+    where = {'users_id': user_id}
     if id_phone:
         where['id'] = id_phone
     columns = ['id', 'country_num', 'phone_num',
@@ -82,8 +82,7 @@ def get_user_address(conn, user_id, addr_id=None):
     columns = ['id', 'address', 'city', 'country_code', 'province_code',
                'postal_code']
 
-    where = {'users_id': user_id,
-             'valid': True}
+    where = {'users_id': user_id}
     if addr_id:
         where['id'] = addr_id
     results = select(conn,

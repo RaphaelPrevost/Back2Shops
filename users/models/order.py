@@ -178,7 +178,8 @@ def _valid_sale_brand(sale_id, brand_id):
     return sale and sale.brand and int(sale.brand.id) == int(brand_id)
 
 def _get_shipment_info_for_order_item(conn, item_id):
-    fields, columns = zip(*[('status', 'shipments.status'),
+    fields, columns = zip(*[('shipment_id', 'shipments.id'),
+                            ('status', 'shipments.status'),
                             ('shipping_fee', 'shipping_fee'),
                             ('shipping_list_quantity', 'quantity')])
     query_str = (
@@ -305,17 +306,22 @@ def _update_extra_info_for_order_item(conn, item_id, order_item):
          'invoice_info': _get_invoice_info_for_order_item(conn, item_id),
          })
 
-def get_orders_list(conn, brand_id, shops_id, filter_params=None):
+def get_orders_list(conn, brand_id, shops_id, users_id=None):
     fields, columns = zip(*(ORDER_FIELDS_COLUMNS +
                             ORDER_SHIPMENT_COLUMNS +
                             ORDER_ITEM_FIELDS_COLUMNS))
 
     filter_where = ""
-    if shops_id:
+    params = []
+    if users_id:
+        filter_where = "where orders.id_user=%s"
+        params.append(users_id)
+    elif shops_id:
         filter_where = ("where order_items.id_shop in (%s)"
-                 % ', '.join([str(shop_id) for shop_id in shops_id]))
+                 % ', '.join(['%s'] * len(shops_id)))
+        params += shops_id
 
-    query_str = '''
+    query_str = """
         SELECT %s
           FROM orders
      LEFT JOIN order_details
@@ -326,8 +332,7 @@ def get_orders_list(conn, brand_id, shops_id, filter_params=None):
             ON order_items.id = order_details.id_item
             %s
       ORDER BY confirmation_time, order_items.id
-    ''' % (', '.join(columns), filter_where)
-    params = filter_params or []
+    """ % (', '.join(columns), filter_where)
     results = query(conn, query_str, params=params)
 
     orders_dict = {}

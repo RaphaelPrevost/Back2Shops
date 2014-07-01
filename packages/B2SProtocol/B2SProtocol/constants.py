@@ -10,6 +10,15 @@ class CustomEnum(Enum):
             result[k] = v
         return result
 
+    @classmethod
+    def toReverseDict(self):
+        result = {}
+        for k, v in self.__dict__.iteritems():
+            if k.startswith('__'):
+                continue
+            result[v] = k
+        return result
+
 
 SUCCESS = 'SUCCESS'
 FAILURE = 'FAILURE'

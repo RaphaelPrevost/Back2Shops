@@ -9,6 +9,7 @@ import settings
 from common.constants import FRT_ROUTE_ROLE
 from common.redis_utils import get_redis_cli
 from common.template import render_template
+from B2SUtils.base_actor import as_list
 from B2SProtocol.constants import INVALIDATE_CACHE_LIST
 from B2SProtocol.constants import INVALIDATE_CACHE_OBJ
 
@@ -41,7 +42,7 @@ def unicode2utf8(data):
 def get_product_default_display_price(sale):
     price = sale.get('price', {}).get('#text') or ''
     if not price:
-        for type_attr in sale.get('type', {}).get('attribute'):
+        for type_attr in as_list(sale.get('type', {}).get('attribute')):
             if 'price' in type_attr:
                 price = type_attr['price'].get('#text')
                 break

@@ -44,6 +44,7 @@ class BaseShippingListResource(BaseXmlResource):
         try:
             self._order_check(conn)
         except UserError, e:
+            conn.rollback()
             logging.error("%s" % str(e), exc_info=True)
             return {"error": e.code}
 
@@ -227,6 +228,7 @@ class PubShippingListResource(BaseShippingListResource):
 
 class ShippingFeesResource(BaseResource):
     login_required = {'get': True, 'post': False}
+
     def gen_resp(self, resp, data):
         if isinstance(data, dict) and 'error' in data:
             return gen_xml_resp('error.xml', resp, **data)
@@ -260,6 +262,7 @@ class ShippingFeesResource(BaseResource):
                                             id_carrier,
                                             id_service).get()
         except UserError, e:
+            conn.rollback()
             logging.error("%s" % str(e))
             return {'error': e.code}
 
@@ -316,6 +319,7 @@ class ShippingConfResource(BaseJsonResource):
 
             return SUCCESS
         except UserError, e:
+            conn.rollback()
             logging.error("%s" % str(e), exc_info=True)
             return {FAILURE: e.code}
 

@@ -106,6 +106,7 @@ $(function() {
         // remove item
         var tr = $(this).parent().parent();
         tr.remove();
+        calc_sum();
 
         $.post('/basket', {
             'cmd': 'del',
