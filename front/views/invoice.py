@@ -8,6 +8,7 @@ from views.base import BaseHtmlResource
 
 class InvoiceResource(BaseHtmlResource):
     template = '_order_invoices.html'
+    show_products_menu = False
     login_required = {'get': True, 'post': False}
 
     def _on_get(self, req, resp, **kwargs):
