@@ -1,12 +1,12 @@
 <form id="formContainer" method="post">
     <div class="errwrapper">&nbsp;</div>
 </form>
-<a class="btnlog logout" href="javascript:save()">Créer mon compte</a>
+<a class="btnlog logout" href="javascript:save()">Sauver</a>
 
 <script type="text/javascript">
 var profile = #{user_profile};
 var profileErr = '${err}';
-var redirect_to = '${redirect_to}';
+var succ_redirect_to = '${succ_redirect_to}';
 var delayCallbacks = [];
 
 function getTemplate(name, item)
@@ -181,10 +181,11 @@ function save() {
             }
             if (data['res'] == 'FAILURE') {
                 $("#formContainer .errwrapper").text(data['err']);
-                location = '#';
+                if (data['redirect_to'] != undefined)
+                    location = data['redirect_to'];
             } else {
-                if (redirect_to)
-                    location = redirect_to;
+                if (succ_redirect_to)
+                    location = succ_redirect_to;
                 else
                     location = '#';
             }

@@ -75,9 +75,11 @@ class PaymentInitResource(BaseXmlResource, BaseInvoiceMixin):
             return {'payment_init': pm_init}
 
         except UserError, e:
+            conn.rollback()
             logging.error("pm_init_err: %s", e, exc_info=True)
             return {'error': e.code}
         except Exception, e:
+            conn.rollback()
             logging.error("pm_init_err: %s", e, exc_info=True)
             return {'error': "SERVER ERROR"}
 
@@ -148,9 +150,11 @@ class PaymentFormResource(BaseHtmlResource):
             logging.info("payment_form_response: %s", pm_form)
             return pm_form
         except UserError, e:
+            conn.rollback()
             logging.error("pm_form_err: %s", e, exc_info=True)
             return {'error': e.code}
         except Exception, e:
+            conn.rollback()
             logging.error("pm_form_err: %s", e, exc_info=True)
             return {'error': "SERVER ERROR"}
 
@@ -272,6 +276,7 @@ class PaypalProcessResource(BasePaypalHandlerResource):
             uri = '?'.join([url, query])
             self.redirect(uri)
         except UserError, e:
+            conn.rollback()
             logging.error("paypal_process_err: %s", e, exc_info=True)
             url = settings.FRONT_PAYMENT_FAILURE % {'id_trans': self.id_trans}
             query = urllib.urlencode({'error': e.code})

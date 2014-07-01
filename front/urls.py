@@ -12,7 +12,10 @@ from views.invoice import InvoiceResource
 from views.login import LoginAPIResource
 from views.order import OrderAddressResource
 from views.order import OrderAuthResource
+from views.order import OrderInfoResource
+from views.order import OrderListResource
 from views.order import OrderUserResource
+from views.order import ShippingAPIResource
 from views.payment import PaymentFormResource
 from views.payment import PaypalFailureResource
 from views.payment import PaypalSuccessResource
@@ -38,6 +41,8 @@ role_res_mapping = {
     FRT_ROUTE_ROLE.PRDT_INFO: ProductInfoResource,
     FRT_ROUTE_ROLE.TYPE_LIST: TypeListResource,
     FRT_ROUTE_ROLE.BASKET: BasketResource,
+    FRT_ROUTE_ROLE.ORDER_LIST: OrderListResource,
+    FRT_ROUTE_ROLE.ORDER_INFO: OrderInfoResource,
     FRT_ROUTE_ROLE.ORDER_AUTH: OrderAuthResource,
     FRT_ROUTE_ROLE.ORDER_USER: OrderUserResource,
     FRT_ROUTE_ROLE.ORDER_ADDR: OrderAddressResource,
@@ -53,6 +58,8 @@ role_default_urlpatterns = {
     FRT_ROUTE_ROLE.TYPE_LIST: r'/type/{id_type}',
     FRT_ROUTE_ROLE.PRDT_INFO: r'/products/{id_sale}',
     FRT_ROUTE_ROLE.BASKET: r'/basket',
+    FRT_ROUTE_ROLE.ORDER_LIST: r'/orders',
+    FRT_ROUTE_ROLE.ORDER_INFO: r'/orders/{id_order}',
     FRT_ROUTE_ROLE.ORDER_AUTH: r'/order_auth',
     FRT_ROUTE_ROLE.ORDER_USER: r'/order_user',
     FRT_ROUTE_ROLE.ORDER_ADDR: r'/order_addr',
@@ -64,6 +71,7 @@ fixed_urlpatterns = {
     r'/ajax_login': LoginAPIResource,
     r'/ajax_register': RegisterAPIResource,
     r'/ajax_user': UserAPIResource,
+    r'/ajax_shipping_conf': ShippingAPIResource,
 
     r'/paypal/{id_trans}/success': PaypalSuccessResource,
     r'/paypal/{id_trans}/failure': PaypalFailureResource,

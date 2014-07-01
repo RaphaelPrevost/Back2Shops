@@ -584,7 +584,7 @@ class ShipmentsHandler(object):
 
     def getShippingFee(self, id_carrier, id_service, weight, unit,
                        dest, id_orig_address):
-        logging.info('shipment_shipping_fee: id_carrier: %s, service: %s', (id_carrier, id_service))
+        logging.info('shipment_shipping_fee: id_carrier: %s, service: %s', id_carrier, id_service)
         xml_fee = remote_xml_shipping_fee(
             [(id_carrier, [id_service])],
             weight,
@@ -607,7 +607,7 @@ class ShipmentsHandler(object):
 
         for sale in sales:
             sale_weight = self.oneSaleItemWeight(sale)
-            quantity = sale.order_props['quantity']
+            quantity = int(sale.order_props['quantity'])
             weight += sale_weight * quantity
 
         return weight

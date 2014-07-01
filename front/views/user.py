@@ -13,19 +13,16 @@ class UserAuthResource(BaseHtmlResource):
     show_products_menu = False
 
     def _on_get(self, req, resp, **kwargs):
-        return {}
+        return {'succ_redirect_to': get_url_format(FRT_ROUTE_ROLE.USER_INFO)}
+
 
 class UserResource(BaseHtmlResource):
     template = "user_info.html"
     show_products_menu = False
+    login_required = {'get': True, 'post': False}
 
     def _on_get(self, req, resp, **kwargs):
-        data = self._get_user_info(req, resp)
-        if data.get('err').startswith('LOGIN_REQUIRED_ERR'):
-            self.redirect(get_url_format(FRT_ROUTE_ROLE.USER_AUTH))
-            return
-
-        return data
+        return self._get_user_info(req, resp)
 
     def _get_user_info(self, req, resp):
         remote_resp = data_access(REMOTE_API_NAME.GET_USERINFO,
@@ -38,12 +35,17 @@ class UserResource(BaseHtmlResource):
             user_profile = remote_resp
         return {'user_profile': user_profile,
                 'err': err,
-                'redirect_to': ''}
+                'succ_redirect_to': ''}
+
 
 class UserAPIResource(BaseJsonResource):
+    login_required = {'get': False, 'post': True}
+
     def _on_post(self, req, resp, **kwargs):
         remote_resp = data_access(REMOTE_API_NAME.SET_USERINFO,
                                   req, resp,
                                   action="modify",
                                   **req._params)
-        return remote_resp
+        resp_dict = {}
+        resp_dict.update(remote_resp)
+        return resp_dict

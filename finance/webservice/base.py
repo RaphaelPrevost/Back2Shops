@@ -57,7 +57,6 @@ class BaseResource(object):
             try:
                 method = getattr(self, '_on_' + method_name)
                 data = method(req, resp, conn, **kwargs)
-                conn.commit()
             except ValidationError, e:
                 logging.error('Validation Error: %s', (e,), exc_info=True)
                 data = {'res': RESP_RESULT.F,

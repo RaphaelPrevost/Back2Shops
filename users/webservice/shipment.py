@@ -127,6 +127,7 @@ class ShipmentResource(BaseJsonResource):
             return {'res': SUCCESS,
                     'id_new_shipment': id_shipment}
         except UserError, e:
+            conn.rollback()
             logging.error('SPM_CREATE_ERR_%s, order: %s',
                           str(e),
                           id_order,
@@ -135,6 +136,7 @@ class ShipmentResource(BaseJsonResource):
                     'err': e.desc}
 
         except AssertionError, e:
+            conn.rollback()
             logging.error("SPM_CREATE_ERR_MISS_%s, order:%s",
                           str(e),
                           id_order,
@@ -143,6 +145,7 @@ class ShipmentResource(BaseJsonResource):
                     'err': E_C.ERR_EREQ[1],}
 
         except Exception, e:
+            conn.rollback()
             logging.error("SERVER_ERR: %s, order:%s",
                           str(e),
                           id_order,
@@ -265,6 +268,7 @@ class ShipmentResource(BaseJsonResource):
             return {'res': SUCCESS,
                     'id_shipment': id_shipment}
         except UserError, e:
+            conn.rollback()
             logging.error('SPM_CREATE_ERR_%s, order: %s',
                           str(e),
                           id_shipment,
@@ -273,6 +277,7 @@ class ShipmentResource(BaseJsonResource):
                     'err': e.desc}
 
         except AssertionError, e:
+            conn.rollback()
             logging.error("SPM_CREATE_ERR_MISS_%s, order:%s",
                           str(e),
                           id_shipment,
@@ -281,6 +286,7 @@ class ShipmentResource(BaseJsonResource):
                     'err': E_C.ERR_EREQ[1],}
 
         except Exception, e:
+            conn.rollback()
             logging.error("SERVER_ERR: %s, order:%s",
                           str(e),
                           id_shipment,
@@ -306,6 +312,7 @@ class ShipmentResource(BaseJsonResource):
             return {'res': SUCCESS,
                     'id_shipment': id_shipment}
         except UserError, e:
+            conn.rollback()
             logging.error('SPM_CREATE_ERR_%s, order: %s',
                           str(e),
                           id_shipment,
@@ -313,6 +320,7 @@ class ShipmentResource(BaseJsonResource):
             return {'res': FAILURE,
                     'err': e.desc}
         except Exception, e:
+            conn.rollback()
             logging.error("SERVER_ERR: %s, order:%s",
                           str(e),
                           id_shipment,

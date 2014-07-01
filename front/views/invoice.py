@@ -8,6 +8,7 @@ from views.base import BaseHtmlResource
 
 class InvoiceResource(BaseHtmlResource):
     template = '_order_invoices.html'
+    login_required = {'get': True, 'post': False}
 
     def _on_get(self, req, resp, **kwargs):
         order_id = kwargs.get('id_order')

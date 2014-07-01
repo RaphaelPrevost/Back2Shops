@@ -20,19 +20,22 @@ def remote_call(usr_root_uri, api_name,
     try:
         url = usr_root_uri + USR_API_SETTINGS[api_name]['url']
         method = USR_API_SETTINGS[api_name]['method']
-        headers = generate_remote_req_headers(req)
+        headers = generate_remote_req_headers(req, resp)
         encrypt = re.search('/(private|protected)/', url)
 
         remote_resp = _request_remote_server(
             url, method, kwargs, headers,
             encrypt, pri_key_path, usr_pub_key_uri)
         if resp and 'set-cookie' in remote_resp.headers:
-            resp.set_header('set-cookie', remote_resp.headers['set-cookie'])
+            set_resp_cookie_header(resp, remote_resp.headers['set-cookie'])
         if encrypt:
             content = decrypt_json_resp(remote_resp, usr_pub_key_uri, pri_key_path)
         else:
             content = remote_resp.read()
-        return ujson.loads(content)
+        try:
+            return ujson.loads(content)
+        except:
+            return content
 
     except Exception, e:
         logging.error("Failed to get %s from Users Server %s",
@@ -40,11 +43,36 @@ def remote_call(usr_root_uri, api_name,
         return {'res': RESP_RESULT.F, 'err': 'SERVER_ERR'}
 
 
-def generate_remote_req_headers(req):
+def generate_remote_req_headers(req, resp):
     headers = req.headers.copy() if req else {}
     if 'content-length' in headers:
         headers.pop('content-length')
+
+    if resp and 'set-cookie' in resp._headers:
+        req_cookies = Cookie.SimpleCookie()
+        req_cookies.load(req.env.get('HTTP_COOKIE') or '')
+        resp_cookies = Cookie.SimpleCookie()
+        resp_cookies.load(resp._headers['set-cookie'])
+        req_cookies.update(resp_cookies)
+        headers['cookie'] = '; '.join(['%s="%s"' % (k, c.value)
+                                       for k, c in req_cookies.iteritems()])
     return headers
+
+def set_resp_cookie_header(resp, cookie_value):
+    if 'set-cookie' not in resp._headers:
+        resp.set_header('set-cookie', cookie_value)
+        return
+
+    resp_cookies = Cookie.SimpleCookie()
+    resp_cookies.load(resp._headers['set-cookie'])
+    new_cookies = Cookie.SimpleCookie()
+    new_cookies.load(cookie_value)
+    resp_cookies.update(new_cookies)
+
+    values = []
+    for c in resp_cookies.itervalues():
+        values.append(c.output().replace('Set-Cookie: ', ''))
+    resp.set_header('set-cookie', ' '.join(values))
 
 
 def _request_remote_server(uri, method, params, headers,

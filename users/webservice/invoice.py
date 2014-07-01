@@ -239,6 +239,8 @@ class InvoiceResource(BaseXmlResource, BaseInvoiceMixin):
                 resp.body = content
                 resp.content_type = "application/xml"
             except Exception, e:
+                if self.conn:
+                    self.conn.rollback()
                 return super(InvoiceResource, self).gen_resp(
                     resp, {'error': "Server error"})
             return resp
@@ -293,6 +295,7 @@ class BaseInvoiceGetResource(BaseJsonResource, BaseInvoiceMixin):
                     'order_status': order_status,
                     'content': content}
         except Exception, e:
+            conn.rollback()
             logging.error("get_invoice_server_err: %s", str(e), exc_info=True)
             return {'res': FAILURE,
                     'reason': str(e),
@@ -300,7 +303,8 @@ class BaseInvoiceGetResource(BaseJsonResource, BaseInvoiceMixin):
 
 
 class InvoiceGet4FUserResource(BaseInvoiceGetResource):
-    service = SERVICES.FRO
+    encrypt = False
+    login_required = {'get': True, 'post': False}
 
     def _on_get(self, req, resp, conn, **kwargs):
         try:
@@ -417,10 +421,12 @@ class InvoiceSendResource(BaseJsonResource, BaseInvoiceMixin):
             return {'res': SUCCESS,
                     'order_iv_status': order_iv_status}
         except ValidationError, e:
+            conn.rollback()
             logging.error("send_invoice_invalidate: %s", str(e), exc_info=True)
             return {'res': FAILURE,
                     'err': str(e)}
         except Exception, e:
+            conn.rollback()
             logging.error("send_invoice_server_err: %s", str(e), exc_info=True)
             return {'res': FAILURE,
                     'reason': str(e),

@@ -14,6 +14,8 @@ from B2SProtocol.constants import SALES_FOR_SHOP
 from B2SProtocol.constants import SALES_FOR_BRAND
 from B2SProtocol.constants import TYPES_FOR_BRAND
 
+class NoRedisData(Exception):
+    pass
 
 class BaseCacheProxy(object):
 
@@ -39,8 +41,9 @@ class BaseCacheProxy(object):
         try:
             resp_dict = self._get_from_redis(**kw)
         except Exception, e:
-            logging.error("Failed to get from Redis %s", e,
-                          exc_info=True)
+            if not isinstance(e, NoRedisData):
+                logging.error("Failed to get from Redis %s", e,
+                              exc_info=True)
             resp_dict = self._get_from_server(**kw)
 
         if resp_dict.get('res') == RESP_RESULT.F:
@@ -208,7 +211,7 @@ class TypesCacheProxy(BaseCacheProxy):
         brand_id = kw.get('seller')
         types = self.redis_cli.get(TYPES_FOR_BRAND % brand_id)
         if not types:
-            raise Exception('no typelist data in redis')
+            raise NoRedisData()
         return dict([(t["@id"], t) for t in ujson.loads(types)])
 
     def _need_save_local_cache(self, **kw):

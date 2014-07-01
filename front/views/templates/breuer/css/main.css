@@ -800,7 +800,7 @@ a { color: #1f244a; }
 #panier .float {
     display: block;
     float: left;
-    height: 240px;
+    height: 270px;
     width: 470px;
 }
 #panier .float.out {

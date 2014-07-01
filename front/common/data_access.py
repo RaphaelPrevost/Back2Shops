@@ -8,7 +8,9 @@ from B2SFrontUtils.constants import USR_API_SETTINGS
 
 
 def data_access(api_name, req=None, resp=None, **kwargs):
-    if 'seller' not in kwargs and 'brand' not in kwargs:
+    if 'seller' not in kwargs \
+            and 'brand' not in kwargs \
+            and 'brand_id' not in kwargs:
         kwargs['brand'] = settings.BRAND_ID
 
     resp_dict = {}

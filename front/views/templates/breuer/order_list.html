@@ -1,0 +1,39 @@
+<div>
+    <?py for order_info in order_list: ?>
+    <table cellpadding="0" cellspacing="0" border="0">
+        <thead>
+            <tr>
+                <th class="left">Order ID: ${order_info['order_id']}</th>
+                <th class="left">Status: ${order_info['status_name']}</th>
+                <th colspan="2"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?py shipments = order_info['shipments'] ?>
+            <?py for shipment_id, shipping_lists in shipments.iteritems(): ?>
+            <tr>
+                <?py url = order_info_url_format % order_info['order_id'] ?>
+                <td class="left"><a href="${url}">Shipment: ${shipment_id}</a></td>
+                <td class="left">Status: ${shipping_lists[0]['status_name']}</td>
+                <td colspan="2"></td>
+            </tr>
+            <?py for shipping_list in shipping_lists: ?>
+            <?py item = shipping_list['item'] ?>
+            <tr>
+                <td></td>
+                <td class="left"><img width="80px" src="${item.get('variant',{}).get('img') or get_single_attribute(item['item'], 'picture')}"/></td>
+                <td class="left">
+                    <h1>${item['item']['name']}</h1>
+                    <strong>
+                    <?py if item.get('variant'): ?><span>${item.get('variant', {}).get('name')}</span><?py #endif ?>
+                    <?py if item.get('price_type'): ?><span>${item.get('price_type', {}).get('name')}</span><?py #endif ?>
+                    </strong>
+                </td>
+                <td>Quantité: ${shipping_list['shipping_list_quantity']}</td>
+            </tr>
+            <?py #endfor ?>
+            <?py #endfor ?>
+        </tbody>
+    </table>
+    <?py #endfor ?>
+</div>

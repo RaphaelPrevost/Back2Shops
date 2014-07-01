@@ -8,6 +8,7 @@ from datetime import datetime
 
 import settings
 from common.constants import FRT_ROUTE_ROLE
+from common.constants import Redirection
 from common.data_access import data_access
 from common.utils import gen_html_resp
 from common.utils import get_url_format
@@ -18,6 +19,7 @@ from B2SUtils.errors import ValidationError
 
 
 class BaseResource(object):
+    login_required = {'get': False, 'post': False}
     request = None
     response = None
 
@@ -57,8 +59,13 @@ class BaseResource(object):
 
     def msg_handler(self, method_name, req, resp, **kwargs):
         try:
+            if self.login_required.get(method_name):
+                self.users_id = self._verify_user_online(req, resp)
             method = getattr(self, '_on_' + method_name)
             data = method(req, resp, **kwargs)
+        except Redirection, e:
+            data = self.handle_redirection(e)
+            if not data: return
         except ValidationError, e:
             logging.error('Validation Error: %s', (e,), exc_info=True)
             data = {'res': RESP_RESULT.F,
@@ -67,6 +74,24 @@ class BaseResource(object):
             logging.error('Server Error: %s', (e,), exc_info=True)
             data = {'res': RESP_RESULT.F,
                     'err': 'SERVER_ERR'}
+        return data
+
+    def _verify_user_online(self, req, resp):
+        remote_resp = data_access(REMOTE_API_NAME.ONLINE,
+                                  req, resp)
+        if remote_resp.get('res') == RESP_RESULT.F:
+            raise Redirection(self.get_auth_url(),
+                                err=remote_resp.get('err') or '')
+        else:
+            return remote_resp['users_id']
+
+    def get_auth_url(self):
+        return get_url_format(FRT_ROUTE_ROLE.USER_AUTH)
+
+    def handle_redirection(self, redirection):
+        data = {'res': RESP_RESULT.F,
+                'err': redirection.err,
+                'redirect_to': redirection.redirect_to}
         return data
 
     def handle_cookies(self, resp, data):
@@ -110,6 +135,9 @@ class BaseHtmlResource(BaseResource):
             resp.content_type = "text/html"
         return resp
 
+    def handle_redirection(self, redirection):
+        self.redirect(redirection.redirect_to)
+
     def get_single_attribute(self, data, key):
         resp = data.get(key, '')
         if(isinstance(resp, list)):
@@ -143,6 +171,8 @@ class BaseHtmlResource(BaseResource):
             'order_auth_url_format': get_url_format(FRT_ROUTE_ROLE.ORDER_AUTH),
             'order_user_url_format': get_url_format(FRT_ROUTE_ROLE.ORDER_USER),
             'order_addr_url_format': get_url_format(FRT_ROUTE_ROLE.ORDER_ADDR),
+            'order_info_url_format': get_url_format(FRT_ROUTE_ROLE.ORDER_INFO),
+            'order_list_url_format': get_url_format(FRT_ROUTE_ROLE.ORDER_LIST),
         })
 
 class BaseJsonResource(BaseResource):

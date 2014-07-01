@@ -136,6 +136,7 @@ class PaypalTransResource(BaseResource):
                              where={'id': id_trans})
             update_or_create_trans_paypal(conn, req._params)
         except Exception, e:
+            conn.rollback()
             logging.error('paypal_verified_err: %s', e, exc_info=True)
             resp.status = falcon.HTTP_500
         resp.status = falcon.HTTP_200

@@ -19,3 +19,7 @@
 
 == version 0.0.7 ==
 1. add order/payment api constants.
+
+== version 0.0.8 ==
+1. add order/shipment api constants
+2. fix the cookie header for api access
