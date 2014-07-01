@@ -1,5 +1,14 @@
 <div>
-    <a href="${order_list_url_format}">Back to My Orders</a><br />
+    <?py if order_info['need_select_carrier']: ?>
+    <ul>
+        <li class="li1 ok">Mon Panier</li>
+        <li class="li2 ok">Identification</li>
+        <li class="li3 ok">Adresse</li>
+        <li class="li4 on"><a href="#">Livraison</a></li>
+        <li class="li5">Paiement</li>
+    </ul>
+    <?py #endif ?>
+
     <div class="errwrapper">&nbsp;</div>
     <table cellpadding="0" cellspacing="0" border="0">
         <thead>
@@ -64,10 +73,25 @@
             </form>
         </tbody>
     </table>
+
     <?py if order_info['need_select_carrier']: ?>
     <a class="btnlog" href="javascript:save()">Sauver</a>
+    <?py else: ?>
+        <?py if invoice_info.get('err'): ?>
+        ${{_('CONTACT_CUSTOMER_SERVICE')}}
+        <?py else: ?>
+            <?py if not invoice_info.get('content'): ?>
+            ${{_('NO_INVOICES')}}
+            <?py #endif ?>
+            <?py for iv in invoice_info.get('content'): ?>
+            #{iv['html']}
+            <?py #endfor ?>
+        <?py #endif ?>
     <?py #endif ?>
+    <br/>
+    <a class="btnlog" href="${order_list_url_format}">Back to My Orders</a>
 </div>
+
 <script>
 function save() {
     if ($("#shipping").serializeArray().length == 0) {

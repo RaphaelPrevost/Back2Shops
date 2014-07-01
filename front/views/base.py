@@ -172,6 +172,7 @@ class BaseHtmlResource(BaseResource):
             'order_user_url_format': get_url_format(FRT_ROUTE_ROLE.ORDER_USER),
             'order_addr_url_format': get_url_format(FRT_ROUTE_ROLE.ORDER_ADDR),
             'order_info_url_format': get_url_format(FRT_ROUTE_ROLE.ORDER_INFO),
+            'order_invoice_url_format': get_url_format(FRT_ROUTE_ROLE.ORDER_INVOICES),
             'order_list_url_format': get_url_format(FRT_ROUTE_ROLE.ORDER_LIST),
         })
 

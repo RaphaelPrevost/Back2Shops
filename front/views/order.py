@@ -138,7 +138,12 @@ class OrderInfoResource(BaseHtmlResource):
             'shipments': shipment_list,
             'need_select_carrier': need_select_carrier,
         }
-        return {'order_info': data}
+        invoice = {}
+        if not need_select_carrier:
+            invoice = data_access(REMOTE_API_NAME.GET_INVOICES, req, resp,
+                                  order=id_order, brand=settings.BRAND_ID)
+        return {'order_info': data,
+                'invoice_info': invoice}
 
 
 class OrderAuthResource(UserAuthResource):
