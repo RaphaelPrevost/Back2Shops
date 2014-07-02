@@ -12,6 +12,7 @@ from common.constants import Redirection
 from common.data_access import data_access
 from common.utils import gen_html_resp
 from common.utils import get_url_format
+from B2SUtils.base_actor import as_list
 from B2SFrontUtils.constants import REMOTE_API_NAME
 from B2SProtocol.constants import RESP_RESULT
 from B2SRespUtils.generate import gen_json_resp
@@ -148,6 +149,7 @@ class BaseHtmlResource(BaseResource):
     def _add_common_data(self, resp_dict):
         resp_dict['get_single_attribute'] = self.get_single_attribute
         resp_dict['show_products_menu'] = self.show_products_menu
+        resp_dict['as_list'] = as_list
 
         if self.show_products_menu:
             # navigation menu
