@@ -183,6 +183,8 @@ function save() {
                 $("#formContainer .errwrapper").text(data['err']);
                 if (data['redirect_to'] != undefined)
                     location = data['redirect_to'];
+                else
+                    location = '#';
             } else {
                 if (succ_redirect_to)
                     location = succ_redirect_to;

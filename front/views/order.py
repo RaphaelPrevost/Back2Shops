@@ -226,7 +226,6 @@ class OrderAddressResource(BaseHtmlResource):
                 'id_weight_type': item_info.get('id_attr') or 0,
                 'id_price_type': item_info.get('id_price_type') or 0,
             })
-
         data = {
             'action': 'create',
             'telephone': req.get_param('id_phone') or '0',

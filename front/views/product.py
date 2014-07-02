@@ -75,25 +75,37 @@ class ProductInfoResource(BaseHtmlResource):
         product_info['display']['price'] = price
         product_info['display']['ori_price'] = ori_price
 
-        # type attributes
-        ## if it uses type attribute price, don't display the type attribute
+        ## if it uses type attribute price, disable the type attribute
         ## which has no price.
         type_attrs = as_list(product_info.get('type', {}).get('attribute'))
-        product_info['type']['attribute'] = type_attrs
+        if 'type' in product_info:
+            product_info['type']['attribute'] = type_attrs
         unified_price = product_info.get('price', {}).get('#text')
         if not unified_price:
             for type_attr in type_attrs:
                 if not 'price' in type_attr or not float(type_attr['price'].get('#text', 0)):
-                    product_info['type']['attribute'].remove(type_attr)
+                    type_attr['disabled'] = True
 
-        ## Don't display the type attribute which has no quantity.
+        ## Disable the type attribute which has no quantity.
         stocks = as_list(product_info.get('available', {}).get('stocks'))
+        if 'available' in product_info:
+            product_info['available']['stocks'] = stocks
+            for stock in stocks:
+                stock['stock'] = as_list(stock.get('stock'))
         for type_attr in type_attrs:
-            stock = sum([sum(int(ss.get('#text', 0)) for ss in as_list(x.get('stock')))
-                        for x in stocks
-                        if x.get('@attribute') == type_attr.get('@id')])
-            if stock <= 0 and type_attr in product_info['type']['attribute']:
-                product_info['type']['attribute'].remove(type_attr)
+            stock = sum([sum(int(ss.get('#text', 0)) for ss in x.get('stock'))
+                        for x in stocks if x.get('@attribute') == type_attr.get('@id')])
+            if stock <= 0:
+                type_attr['disabled'] = True
+
+        ## Disable the brand attribute which has no quantity.
+        variants = as_list(product_info.get('variant'))
+        product_info['variant'] = variants
+        for var in variants:
+            stock = sum([sum(int(ss.get('#text', 0)) for ss in x.get('stock'))
+                        for x in stocks if x.get('@variant') == var.get('@id')])
+            if stock <= 0:
+                var['disabled'] = True
 
         return {
             'product_info': product_info,
