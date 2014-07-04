@@ -3,14 +3,18 @@ import xmltodict
 import settings
 from common.constants import ADDR_TYPE
 from common.constants import FRT_ROUTE_ROLE
+from common.constants import CURR_USER_BASKET_COOKIE_NAME
 from common.data_access import data_access
 from common.utils import get_brief_product_list
 from common.utils import get_url_format
 from views.base import BaseHtmlResource
 from views.base import BaseJsonResource
-from views.basket import get_basket
+from views.basket import get_basket, clear_basket
 from views.user import UserResource, UserAuthResource
 from B2SUtils.base_actor import as_list
+from B2SUtils.common import get_cookie_value
+from B2SUtils.common import set_cookie
+from B2SUtils.errors import ValidationError
 from B2SProtocol.constants import RESP_RESULT
 from B2SProtocol.constants import ORDER_STATUS
 from B2SProtocol.constants import SHIPMENT_STATUS
@@ -154,6 +158,11 @@ class OrderAuthResource(UserAuthResource):
         data = super(OrderAuthResource, self)._on_get(req, resp, **kwargs)
         _add_product_list(req, resp, data)
         data['succ_redirect_to'] = get_url_format(FRT_ROUTE_ROLE.ORDER_ADDR)
+
+        basket_key, basket_data = get_basket(req, resp)
+        if basket_key and basket_data \
+                and basket_key != get_cookie_value(req, CURR_USER_BASKET_COOKIE_NAME):
+            set_cookie(resp, CURR_USER_BASKET_COOKIE_NAME, basket_key)
         return data
 
 
@@ -207,7 +216,20 @@ class OrderAddressResource(BaseHtmlResource):
         _add_product_list(req, resp, data)
         return data
 
+    def _validateInt(self, req, param_name):
+        try:
+            assert int(req.get_param(param_name)) > 0
+            return True
+        except:
+            return False
+
     def _on_post(self, req, resp, **kwargs):
+        if not self._validateInt(req, 'id_phone') \
+                or not self._validateInt(req, 'id_shipaddr') \
+                or not self._validateInt(req, 'id_billaddr'):
+            self.redirect(get_url_format(FRT_ROUTE_ROLE.ORDER_USER))
+            return
+
         all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
         orders = []
         basket_key, basket_data = get_basket(req, resp)
@@ -228,14 +250,15 @@ class OrderAddressResource(BaseHtmlResource):
             })
         data = {
             'action': 'create',
-            'telephone': req.get_param('id_phone') or '0',
-            'shipaddr': req.get_param('id_shipaddr') or '0',
-            'billaddr': req.get_param('id_billaddr') or '0',
+            'telephone': req.get_param('id_phone'),
+            'shipaddr': req.get_param('id_shipaddr'),
+            'billaddr': req.get_param('id_billaddr'),
             'wwwOrder': ujson.dumps(orders),
         }
         order_resp = data_access(REMOTE_API_NAME.CREATE_ORDER,
                                  req, resp, **data)
         if isinstance(order_resp, int) and order_resp > 0:
+            clear_basket(req, resp, basket_key, basket_data)
             order_id = order_resp
             self.redirect(get_url_format(FRT_ROUTE_ROLE.ORDER_INFO) % order_id)
         else:

@@ -109,7 +109,6 @@ class UserLoginResource(BaseJsonResource):
             if basket_key and basket_key != old_basket_key:
                 old_basket_data.update(basket_data)
                 redis_cli.set(old_basket_key, ujson.dumps(old_basket_data))
-                redis_cli.delete(basket_key)
             set_cookie(resp, USER_BASKET_COOKIE_NAME, old_basket_key)
         elif basket_key:
             redis_cli.set(LOGIN_USER_BASKET_KEY % users_id, basket_key)

@@ -1,6 +1,7 @@
 import settings
 import ujson
 from common.constants import FRT_ROUTE_ROLE
+from common.constants import CURR_USER_BASKET_COOKIE_NAME
 from common.data_access import data_access
 from common.redis_utils import get_redis_cli
 from common.utils import get_brief_product
@@ -16,19 +17,45 @@ from B2SUtils.common import set_cookie
 from B2SUtils.errors import ValidationError
 from B2SFrontUtils.constants import REMOTE_API_NAME
 
-def get_basket(req, resp):
-    basket_key = get_cookie_value(req, USER_BASKET_COOKIE_NAME)
+
+def get_basket(req, resp, cookie_name=None):
+    basket_key = None
     basket_data = None
-    if basket_key:
+    if cookie_name:
+        iternames = [cookie_name]
+    else:
+        iternames = [CURR_USER_BASKET_COOKIE_NAME, USER_BASKET_COOKIE_NAME]
+    for c_name in iternames:
+        basket_key = get_cookie_value(req, c_name)
         try:
-            basket_data = get_redis_cli().get(basket_key)
+            if basket_key:
+                basket_data = get_redis_cli().get(basket_key)
+                if basket_data: break
         except:
             pass
-    else:
+
+    if not basket_key:
         basket_key = USER_BASKET % generate_random_key()
         set_cookie(resp, USER_BASKET_COOKIE_NAME, basket_key)
     basket_data = ujson.loads(basket_data) if basket_data else {}
     return basket_key, basket_data
+
+def clear_basket(req, resp, basket_key, basket_data):
+    # called after the order placed successfully
+
+    redis_cli = get_redis_cli()
+    if basket_key == get_cookie_value(req, USER_BASKET_COOKIE_NAME):
+        redis_cli.set(basket_key, ujson.dumps({}))
+
+    elif basket_key == get_cookie_value(req, CURR_USER_BASKET_COOKIE_NAME):
+        redis_cli.delete(basket_key)
+
+        prev_basket_key, prev_basket_data = get_basket(req, resp, USER_BASKET_COOKIE_NAME)
+        [prev_basket_data.pop(item) for item in basket_data
+                                    if item in prev_basket_data]
+        redis_cli.set(prev_basket_key, ujson.dumps(prev_basket_data))
+
+    set_cookie(resp, CURR_USER_BASKET_COOKIE_NAME, "")
 
 
 class BasketResource(BaseHtmlResource):

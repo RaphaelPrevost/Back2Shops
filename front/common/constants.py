@@ -1,5 +1,6 @@
-from enum import Enum
 import urllib
+from enum import Enum
+from B2SProtocol.constants import USER_BASKET_COOKIE_NAME
 
 class CustomEnum(Enum):
     @classmethod
@@ -41,4 +42,7 @@ class Redirection:
         if self.err:
             redirect_to += "?%s" % urllib.urlencode({'err': self.err})
         return redirect_to
+
+
+CURR_USER_BASKET_COOKIE_NAME = "CURR_%s" % USER_BASKET_COOKIE_NAME
 

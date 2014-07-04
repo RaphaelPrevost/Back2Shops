@@ -58,12 +58,6 @@ class OrderResource(BaseJsonResource):
                 id_order = self._posOrder(upc_shop, req, resp, conn)
             else:
                 id_order = self._wwwOrder(req, resp, conn)
-
-            # clear basket
-            redis_cli = get_redis_cli()
-            basket_key = redis_cli.get(LOGIN_USER_BASKET_KEY % self.users_id)
-            redis_cli.delete(basket_key)
-
             return id_order
         except Exception, e:
             conn.rollback()
