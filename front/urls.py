@@ -9,7 +9,6 @@ from common.utils import send_reload_signal
 from views.basket import BasketResource
 from views.homepage import HomepageResource
 from views.invoice import InvoiceResource
-from views.login import LoginAPIResource
 from views.order import OrderAddressResource
 from views.order import OrderAuthResource
 from views.order import OrderInfoResource
@@ -23,7 +22,8 @@ from views.product import ProductInfoResource
 from views.product import ProductListResource
 from views.product import TypeListResource
 from views.redirect import GenericRedirectResource
-from views.register import RegisterAPIResource
+from views.user import LoginAPIResource
+from views.user import RegisterAPIResource
 from views.user import UserAPIResource
 from views.user import UserAuthResource
 from views.user import UserResource
