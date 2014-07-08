@@ -23,9 +23,13 @@ SHIPPING_CALCULATION = (
 
 STOY_WEIGHT = 'W'
 STOY_PRICE = 'P'
+STOY_COUNTRY = 'C'
+STOY_REGION = 'R'
 SHIPPING_TOTAL_ORDER_TYPE = (
     (STOY_WEIGHT, _('Weight')),
     (STOY_PRICE, _('Price')),
+    (STOY_COUNTRY, _('Country: France')),
+    (STOY_REGION, _('Region: Europe')),
 )
 
 
@@ -74,14 +78,17 @@ class CustomShippingRate(models.Model):
 
         t_type = dict(SHIPPING_TOTAL_ORDER_TYPE
                     ).get(self.total_order_type).lower()
-        t_unit = (self.total_order_type == STOY_PRICE and
-                  SHIPPING_CURRENCY or
-                  SHIPPING_WEIGHT_UNIT)
-        return ('%s: %s, %s between %s %s and %s %s'
-                % (self.shipping_rate, self.shipment_type, t_type,
-                   self.total_order_lower, t_unit,
-                   self.total_order_upper, t_unit))
-
+        if self.total_order_type in (STOY_PRICE, STOY_WEIGHT):
+            t_unit = (self.total_order_type == STOY_PRICE and
+                      SHIPPING_CURRENCY or
+                      SHIPPING_WEIGHT_UNIT)
+            return ('%s: %s, %s between %s %s and %s %s'
+                    % (self.shipping_rate, self.shipment_type, t_type,
+                       self.total_order_lower, t_unit,
+                       self.total_order_upper, t_unit))
+        else:
+            return ('%s: %s, %s'
+                    % (self.shipping_rate, self.shipment_type, t_type))
 
 class ServiceInShipping(models.Model):
     shipping = models.ForeignKey(Shipping)

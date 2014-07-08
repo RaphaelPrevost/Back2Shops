@@ -41,7 +41,7 @@
                 <tr>
                     <td class="left"></td>
                     <td class="left">Handling Fee:</td>
-                    <?py handling_fee = shipment['fees'].get('handling') or {} ?>
+                    <?py handling_fee = shipment.get('fees', {}).get('handling') or {} ?>
                     <td class="right">${handling_fee.get('#text')} ${handling_fee.get('@currency')}</td>
                     <td class="right"></td>
                 </tr>
@@ -49,24 +49,26 @@
                 <tr>
                     <td class="left"></td>
                     <td class="left">Shipping Fee:</td>
-                    <?py shipping_fee = shipment['fees'].get('shipping') or {} ?>
+                    <?py shipping_fee = shipment.get('fees', {}).get('shipping') or {} ?>
                     <td class="right">${shipping_fee.get('#text')} ${shipping_fee.get('@currency')}</td>
                     <td class="right"></td>
                 </tr>
                 <?py carriers = shipment['delivery']['carrier'] ?>
                 <?py for car in carriers: ?>
+                <?py if car['@id'] != '0': ?>
                 <?py for service in car['service']: ?>
                 <?py disabled = "disabled" if shipment['delivery'].get('@postage') else "" ?>
                 <?py selected = "checked" if shipment['delivery']['@postage'] == service['@id'] else "" ?>
                 <tr>
                     <td class="left"></td>
                     <td class="left">
-                        <input name="carrier_service_${shipment['@id']}" type="radio" value="${car['@id']}_${service['@id']}" ${disabled} ${selected}/> ${service['name']} - ${service['desc']}
+                        <input name="carrier_service_${shipment['@id']}" type="radio" value="${car['@id']}_${service['@id']}" ${disabled} ${selected}/> ${service['name']} - ${service['desc'] or ""}
                     </td>
                     <td class="right">${service.get('fee', {}).get('#text')} ${service.get('fee', {}).get('@currency')}</td>
                     <td class="right"></td>
                 </tr>
                 <?py #endfor ?>
+                <?py #endif ?>
                 <?py #endfor ?>
 
                 <?py #endfor ?>

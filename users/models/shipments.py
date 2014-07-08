@@ -386,7 +386,7 @@ class ShipmentsHandler(object):
         carrier_sales = []
         carrier_sales_group = []
         custom_sales = []
-        custom_sales_group= []
+        custom_sales_group = []
         invoice_sales = []
 
         for sale in sales:
@@ -417,7 +417,7 @@ class ShipmentsHandler(object):
             else:
                 logging.error('fake_shipping_setting??: sale - %s, '
                               'options - %s',
-                              (sale.id, sale.shipping_setting.options))
+                              sale.id, sale.shipping_setting.options)
 
         logging.info('shipment_sales_by_shipping:'
                       'free_shipping_sales: %s,'
@@ -494,7 +494,11 @@ class ShipmentsHandler(object):
 
         shipping_fee = None
         free_shipping_fee = None
-        if len(group_services) == 1:
+        if cal_method == SHIPPING_CALCULATION_METHODS.CUSTOM_SHIPPING_RATE:
+            weight = self.totalWeight(group_sales)
+            shipping_fee = self.customShippingFee(
+                            group_sales[0], service_carrier_map, weight)
+        elif len(group_services) == 1:
             weight = self.totalWeight(group_sales)
             unit = DEFAULT_WEIGHT_UNIT
             dest = self.getDestAddr()
@@ -507,11 +511,15 @@ class ShipmentsHandler(object):
                 dest,
                 id_orig_address)
 
-            if free_sales_group:
-                all_group_sales = []
-                all_group_sales.extend(group_sales)
-                all_group_sales.extend(free_sales_group)
-                weight = self.totalWeight(all_group_sales)
+        if shipping_fee and free_sales_group:
+            all_group_sales = []
+            all_group_sales.extend(group_sales)
+            all_group_sales.extend(free_sales_group)
+            weight = self.totalWeight(all_group_sales)
+            if cal_method == SHIPPING_CALCULATION_METHODS.CUSTOM_SHIPPING_RATE:
+                shipping_fee_with_free_sales = self.customShippingFee(
+                            all_group_sales[0], service_carrier_map, weight)
+            else:
                 shipping_fee_with_free_sales = self.getShippingFee(
                     service_carrier_map[group_services[0]],
                     group_services[0],
@@ -519,8 +527,8 @@ class ShipmentsHandler(object):
                     unit,
                     dest,
                     id_orig_address)
-                free_shipping_fee = (float(shipping_fee_with_free_sales) -
-                                  float(shipping_fee))
+            free_shipping_fee = (float(shipping_fee_with_free_sales) -
+                              float(shipping_fee))
 
         handling_fee = self.getMaxHandlingFee(group_sales)
         id_shipment = self._create_shipment(
@@ -549,7 +557,11 @@ class ShipmentsHandler(object):
         for sale in sales:
             service_carrier_map = sale.shipping_setting.supported_services
             shipping_fee = None
-            if len(service_carrier_map) == 1:
+            if cal_method == SHIPPING_CALCULATION_METHODS.CUSTOM_SHIPPING_RATE:
+                weight = self.oneSaleItemWeight(sale)
+                shipping_fee = self.customShippingFee(
+                                sale, service_carrier_map, weight)
+            elif len(service_carrier_map) == 1:
                 weight = self.oneSaleItemWeight(sale)
                 unit = DEFAULT_WEIGHT_UNIT
                 dest = self.getDestAddr()
@@ -582,18 +594,39 @@ class ShipmentsHandler(object):
                      if sale.shipping_setting.fees.handling.value.replace('.', '', 1).isdigit()]
         return handlings and max(handlings) or 0
 
-    def getShippingFee(self, id_carrier, id_service, weight, unit,
-                       dest, id_orig_address):
+    def _getShippingFeeInfo(self, id_carrier, id_service, weight, unit,
+                            dest, id_orig_address):
         logging.info('shipment_shipping_fee: id_carrier: %s, service: %s', id_carrier, id_service)
+        if not isinstance(id_service, list):
+            id_service = [id_service]
         xml_fee = remote_xml_shipping_fee(
-            [(id_carrier, [id_service])],
+            [(id_carrier, id_service)],
             weight,
             unit,
             dest,
             id_orig_address)
         dict_fee = xmltodict.parse(xml_fee)
-        shipping_fee = ActorShippingFees(dict_fee['carriers'])
+        return ActorShippingFees(dict_fee['carriers'])
+
+    def getShippingFee(self, id_carrier, id_service, weight, unit,
+                       dest, id_orig_address):
+        shipping_fee = self._getShippingFeeInfo(id_carrier, id_service,
+                                 weight, unit, dest, id_orig_address)
         return float(shipping_fee.carriers[0].services[0].fee.value)
+
+    def customShippingFee(self, sale, service_carrier_map, weight):
+        unit = DEFAULT_WEIGHT_UNIT
+        dest = self.getDestAddr()
+        id_orig_address = self._getShippingFeeOrigAddress(sale)
+        shipping_fee = self._getShippingFeeInfo(
+            '0',
+            service_carrier_map.keys(),
+            weight,
+            unit,
+            dest,
+            id_orig_address)
+        if len(shipping_fee.carriers[0].services) == 1:
+            return float(shipping_fee.carriers[0].services[0].fee.value)
 
     def oneSaleItemWeight(self, sale):
         sale_weight = float(sale.shipping_setting.weight.value)

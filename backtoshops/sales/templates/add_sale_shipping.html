@@ -212,9 +212,15 @@
     $("#{{custom_shipping_rate_form.total_order_type.auto_id}}").change(function(){
         var selected = $("#{{custom_shipping_rate_form.total_order_type.auto_id}} option:selected").val();
         if (selected == 'W') {
+            $('.between').show();
             $('.cst_total_order_type_unit').html("{{ shipping_weight_unit }}");
-        } else {
+        } else if (selected == 'P') {
+            $('.between').show();
             $('.cst_total_order_type_unit').html("{{ shipping_currency }}");
+        } else {
+            $('.between').hide();
+            $("#add_new_csr_form")[0].total_order_lower.value = 0;
+            $("#add_new_csr_form")[0].total_order_upper.value = 0;
         }
     });
 
