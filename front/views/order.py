@@ -117,14 +117,17 @@ class OrderInfoResource(BaseHtmlResource):
         shipment_list = []
         need_select_carrier = False
         for shipment in as_list(shipments['shipment']):
-            if not shipment['delivery'].get('@postage') \
-                    and int(shipment['@method']) != SCM.FREE_SHIPPING:
-                xml_resp = data_access(REMOTE_API_NAME.GET_SHIPPING_FEE,
-                                       req, resp, shipment=shipment['@id'])
+            method = int(shipment['@method'])
+            if method == SCM.CARRIER_SHIPPING_RATE:
+                if not shipment['delivery'].get('@postage'):
+                    xml_resp = data_access(REMOTE_API_NAME.GET_SHIPPING_FEE,
+                                           req, resp, shipment=shipment['@id'])
 
-                carriers = xmltodict.parse(xml_resp)['carriers']
-                shipment['delivery'].update({'carrier': carriers['carrier']})
-                need_select_carrier = True
+                    carriers = xmltodict.parse(xml_resp)['carriers']
+                    shipment['delivery'].update({'carrier': carriers['carrier']})
+                    need_select_carrier = True
+            else:
+                pass
 
             shipment['delivery'].update({'carrier':
                                          as_list(shipment['delivery'].get('carrier'))})

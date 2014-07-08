@@ -2,10 +2,12 @@ import base64
 import logging
 import json
 import math
+import ujson
 import settings
 from collections import defaultdict
 from datetime import date
 from datetime import datetime
+from incf.countryutils import transformations
 
 from django.contrib.auth import authenticate as _authenticate
 from django.core.exceptions import ObjectDoesNotExist
@@ -50,6 +52,7 @@ from shippings.models import CustomShippingRate
 from shippings.models import SC_CARRIER_SHIPPING_RATE
 from shippings.models import SC_CUSTOM_SHIPPING_RATE
 from shippings.models import SC_FLAT_RATE
+from shippings.models import STOY_PRICE, STOY_WEIGHT, STOY_COUNTRY, STOY_REGION
 from shippings.models import FlatRateInShipping
 from shippings.models import ServiceInShipping
 from shippings.models import Carrier, Service
@@ -727,7 +730,27 @@ class ShippingFeesView(BaseCryptoWebService, ListView):
                 fee = compute_fee(data)
                 setattr(service, 'shipping_fee', fee)
 
-        return [carrier_rules, custom_rules]
+        dest_addr = ujson.loads(dest)
+        matched_custom_rules = []
+        for custom_rule in custom_rules:
+            if custom_rule.total_order_type == STOY_PRICE:
+                pass #TODO
+            elif custom_rule.total_order_type == STOY_WEIGHT:
+                pass #TODO
+            elif custom_rule.total_order_type == STOY_COUNTRY:
+                if self._addr_in_france(dest_addr):
+                    matched_custom_rules.append(custom_rule)
+            elif custom_rule.total_order_type == STOY_REGION:
+                if self._addr_in_europe(dest_addr):
+                    matched_custom_rules.append(custom_rule)
+        return [carrier_rules, matched_custom_rules or custom_rules]
+
+    def _addr_in_france(self, dest_addr):
+        return dest_addr['country'] == 'FR'
+
+    def _addr_in_europe(self, dest_addr):
+        return not self._addr_in_france(dest_addr) \
+           and transformations.cca_to_ctn(dest_addr['country']) == 'Europe'
 
     def get_orig_address(self, id_address):
         addr = Address.objects.get(pk=id_address)
