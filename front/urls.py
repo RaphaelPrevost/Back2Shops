@@ -1,11 +1,10 @@
 import settings
 import re
-import gevent
 
 from B2SFrontUtils.constants import REMOTE_API_NAME
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
-from common.utils import send_reload_signal
+from views import homepage
 from views.basket import BasketResource
 from views.homepage import HomepageResource
 from views.invoice import InvoiceResource
@@ -88,6 +87,11 @@ fixed_urlpatterns = {
 
     # access theme assets
     r'/templates/{theme}/{file_type}/{name}': download.AssetItem,
+
+    # static html
+    r'/mention_legal': homepage.MentionLegalResource,
+    r'/cgv': homepage.CGVResource,
+    r'/commands_deliveries': homepage.CommandsAndDeliveriesResource,
 }
 
 
