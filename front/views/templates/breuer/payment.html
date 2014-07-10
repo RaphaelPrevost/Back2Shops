@@ -1,0 +1,48 @@
+<ul>
+    <li class="li1 ok"><a href="#">Mon Panier</a></li>
+    <li class="li2 ok">Identification</li>
+    <li class="li3 ok">Adresse</li>
+    <li class="li4 ok">Livraison</li>
+    <li class="li5 on">Paiement</li>
+</ul>
+    
+<?py if step == 'init': ?>
+<div>
+    <h1 id="titlePaiement">Choisissez votre mode de paiement</h1>
+    <form id="selectPaymentProc" method="post">
+        <?py if err: ?>
+        <div class="errwrapper">${err}</div>
+        <?py else: ?>
+
+        <?py for proc in processors: ?>
+        <div class="float out payment-proc">
+            <input type="radio" id="${proc['@id']}" name="processor" value="${proc['@id']}"/>
+            <?py img = "/templates/breuer/img/" + proc['img'] if proc.get('img') else "" ?>
+            <img src="${img}" alt="${proc['name']}"/>
+        </div>
+        <?py #endfor ?>
+        <input type="hidden" name="id_trans" value="${id_trans}">
+
+        <a href="javascript:confirmPaymentProc()" class="btn purchase">Valider</a>
+        <?py #endif ?>
+    </form>
+</div>
+<script>
+function confirmPaymentProc() {
+    if ($('.payment-proc input:radio:checked').length == 0) {
+        return;
+    }
+    var form = $("#selectPaymentProc")[0];
+    form.submit();
+}
+</script>
+
+
+<?py elif step == 'form': ?>
+<div>
+    <!--FORM PAIEMENT-->
+    #{form}
+    <!--//FORM PAIEMENT-->
+</div>
+
+<?py #endif ?>

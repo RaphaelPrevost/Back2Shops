@@ -51,6 +51,18 @@
 
 <script type="text/javascript">
 function checkout() {
-    $("#addrForm").submit();
+    $.post('/ajax_order',
+        $("#addrForm").serializeArray(),
+        function(data) {
+            if (data['set_cookies_js']) {
+                eval(data['set_cookies_js']);
+            }
+            if (data['res'] == 'FAILURE') {
+                $("#addrForm .errwrapper").text(data['err']);
+            } else {
+                location = data['redirect_to'];
+            }
+        }
+    )
 }
 </script>

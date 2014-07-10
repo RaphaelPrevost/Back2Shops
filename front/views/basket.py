@@ -92,6 +92,7 @@ class BasketResource(BaseHtmlResource):
         return {
             'basket': basket,
             'product_list': get_brief_product_list(all_sales),
+            'err': req.get_param('err') or '',
         }
 
     def _get_valid_attr(self, attrlist, attr_id):

@@ -31,9 +31,8 @@ SERVER_APIKEY_URI_MAP = {
 PRIVATE_KEY_PATH = 'static/keys/front_pri.key'
 PUB_KEY_PATH = 'static/keys/front_pub.key'
 
-USER_PM_FORM_URL = '%s/webservice/1.0/pub/payment/form' % USR_ROOT_URI
-
 PP_SUCCESS = "http://localhost:9500/paypal/%(id_trans)s/success"
 PP_FAILURE = "http://localhost:9500/paypal/%(id_trans)s/failure"
 
 BRAND_ID = "1000001"
+BRAND_NAME = "BREUER"

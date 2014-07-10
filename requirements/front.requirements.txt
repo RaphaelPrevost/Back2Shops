@@ -9,4 +9,4 @@ hiredis==0.1.1
 Tenjin==1.1.1
 B2SUtils==0.0.6
 B2SProtocol==0.0.12
-B2SFrontUtils==0.0.8
+B2SFrontUtils==0.0.9

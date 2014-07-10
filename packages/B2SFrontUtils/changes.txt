@@ -23,3 +23,6 @@
 == version 0.0.8 ==
 1. add order/shipment api constants
 2. fix the cookie header for api access
+
+== version 0.0.9 ==
+1. add invoices api constatns.

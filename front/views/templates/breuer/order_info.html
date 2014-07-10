@@ -1,5 +1,4 @@
 <div>
-    <?py if order_info['need_select_carrier']: ?>
     <ul>
         <li class="li1 ok">Mon Panier</li>
         <li class="li2 ok">Identification</li>
@@ -7,7 +6,8 @@
         <li class="li4 on"><a href="#">Livraison</a></li>
         <li class="li5">Paiement</li>
     </ul>
-    <?py #endif ?>
+
+    <a class="btn back" href="${order_list_url_format}">Back to My Orders</a><br/>
 
     <div class="errwrapper">&nbsp;</div>
     <table cellpadding="0" cellspacing="0" border="0">
@@ -20,6 +20,7 @@
         </thead>
         <tbody>
             <form id="shipping" method="post">
+                <input type="hidden" name="id_order" value="${order_info['order_id']}">
                 <?py shipments = order_info['shipments'] ?>
                 <?py for shipment in shipments: ?>
                 <tr>
@@ -75,28 +76,28 @@
             </form>
         </tbody>
     </table>
-
-    <?py if order_info['need_select_carrier']: ?>
-    <a class="btnlog" href="javascript:save()">Sauver</a>
-    <?py else: ?>
-        <?py if invoice_info.get('err'): ?>
-        ${{_('CONTACT_CUSTOMER_SERVICE')}}
-        <?py else: ?>
-            <?py if not invoice_info.get('content'): ?>
-            ${{_('NO_INVOICES')}}
-            <?py #endif ?>
-            <?py for iv in invoice_info.get('content'): ?>
-            #{iv['html']}
-            <?py #endfor ?>
-        <?py #endif ?>
+    <?py if step == 'select': ?>
+    <a class="btnlog" href="javascript:save()">Sauver</a><br/>
     <?py #endif ?>
-    <br/>
-    <a class="btnlog" href="${order_list_url_format}">Back to My Orders</a>
+
+    <?py if invoice_info.get('err'): ?>
+    ${{_('CONTACT_CUSTOMER_SERVICE')}}
+    <?py else: ?>
+        <?py if not invoice_info.get('content'): ?>
+        ${{_('NO_INVOICES')}}
+        <?py #endif ?>
+        <?py for iv in as_list(invoice_info.get('content')): ?>
+        #{iv['html']}
+        <?py #endfor ?>
+    <?py #endif ?>
+    <?py if step == 'payment': ?>
+    <a class="btnlog" href="${payment_url}">Payment</a><br/>
+    <?py #endif ?>
 </div>
 
 <script>
 function save() {
-    if ($("#shipping").serializeArray().length == 0) {
+    if ($("input:radio:checked").length == 0) {
         return;
     }
     $.post('/ajax_shipping_conf',
@@ -118,4 +119,3 @@ function save() {
     )
 }
 </script>
-

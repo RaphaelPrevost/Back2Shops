@@ -123,14 +123,14 @@ $(function(){
         <?py #endfor ?>
     <?py #endif ?>
 
-    var variants = {}
+    var variants = {};
     var p_type = null;
     var p_amount = null;
     <?py if product_info.get('variant'): ?>
         <?py for variant in as_list(product_info.get('variant')): ?>
             p_type = "${variant.get("premium", {}).get('@type', '')}";
             p_amount = ${variant.get("premium", {}).get("#text", 0)};
-            if (p_type && p_amount) {
+            if (p_type) {
                 variants[${variant.get('@id')}] = {"premium_amount": p_amount,
                                                    "premium_type": p_type};
             }

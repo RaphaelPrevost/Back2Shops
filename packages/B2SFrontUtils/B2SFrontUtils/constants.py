@@ -26,6 +26,7 @@ class REMOTE_API_NAME(CustomEnum):
     GET_SHIPPING_LIST = "GET_SHIPPING_LIST"
     GET_SHIPPING_FEE = "GET_SHIPPING_FEE"
     SET_SHIPPING_CONF = "SET_SHIPPING_CONF"
+    REQ_INVOICES = "REQ_INVOICES"
     GET_INVOICES = "GET_INVOICES"
     INIT_PAYMENT = "INIT_PAYMENT"
     PAYMENT_FORM = "PAYMENT_FORM"
@@ -102,6 +103,10 @@ USR_API_SETTINGS = {
     },
     REMOTE_API_NAME.PAYMENT_FORM: {
         'url': '/webservice/1.0/pub/payment/form',
+        'method': HTTP_METHOD.POST
+    },
+    REMOTE_API_NAME.REQ_INVOICES: {
+        'url': '/webservice/1.0/pub/invoice/request',
         'method': HTTP_METHOD.POST
     },
     REMOTE_API_NAME.GET_INVOICES: {
