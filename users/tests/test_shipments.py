@@ -336,8 +336,8 @@ class TestShipment(BaseShipmentTestCase):
             'id_weight_type': 0}
         item4_handling_fee = 20.0
 
-        custom1_fee = 5.0
-        custom2_fee = 6.0
+        custom1_fee = None
+        custom2_fee = None
 
         wwwOrder = [item1_with_custom1_custom2, item2_with_custom1_custom2,
                     item3_with_custom1, item4_with_custom2]

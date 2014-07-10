@@ -30,6 +30,7 @@ class FRT_ROUTE_ROLE(CustomEnum):
     ORDER_USER = "ORDER_USER"
     ORDER_ADDR = "ORDER_ADDR"
     ORDER_INVOICES = 'ORDER_INVOICES'
+    PAYMENT = "PAYMENT"
 
 class Redirection:
     def __init__(self, url, err):

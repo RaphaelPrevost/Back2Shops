@@ -8,7 +8,6 @@ SERVER_APIKEY_URI_MAP = {
     'USR': os.path.join(USR_ROOT_URI,
                         'webservice/1.0/pub/apikey.pem'),
 }
-USER_PM_FORM_URL = '%s/webservice/1.0/pub/payment/form' % USR_ROOT_URI
 
 FRONT_ROOT_URI = "http://92.222.30.5"
 PP_SUCCESS = "%s/paypal/%%(id_trans)s/success" % FRONT_ROOT_URI

@@ -1047,10 +1047,12 @@ class InvoiceView(BaseCryptoWebService, ListView):
                      from_address, to_address):
         shipping = {}
         if id_carrier and id_service:
-            carrier = Carrier.objects.get(pk=id_carrier)
             service = Service.objects.get(pk=id_service)
-            shipping['desc'] = ' - '.join([carrier.desc, service.desc])
             shipping['postage'] = service
+            shipping['desc'] = service.desc
+            if long(id_carrier):
+                carrier = Carrier.objects.get(pk=id_carrier)
+                shipping['desc'] = ' - '.join([carrier.desc, service.desc])
         fee = 0.0
         if handling_fee:
             shipping['handling_fee'] = handling_fee
@@ -1075,10 +1077,15 @@ class InvoiceView(BaseCryptoWebService, ListView):
         iv_num = self._get_settings('starting_invoice_number',
                                     id_brand,
                                     id_shop)
-        iv_num_obj, created = InvoiceNumber.objects.get_or_create(
-            shop=Shop.objects.get(pk=id_shop),
-            brand=Brand.objects.get(pk=id_brand),
-            defaults={"invoice_number": iv_num})
+        args = {
+            'brand': Brand.objects.get(pk=id_brand),
+            'defaults': {"invoice_number": iv_num},
+        }
+        if id_shop:
+            args.update({
+                'shop': Shop.objects.get(pk=id_shop),
+            })
+        iv_num_obj, created = InvoiceNumber.objects.get_or_create(**args)
 
         if not created:
             iv_num_obj.invoice_number = F('invoice_number') + 1

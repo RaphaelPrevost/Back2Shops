@@ -642,6 +642,12 @@ a { color: #1f244a; }
     margin-bottom: 80px;
     overflow: auto;
 }
+#panier #header{
+    height: 50px;
+}
+#panier #footer{
+    border: None;
+}
 #panier ul {
     background-color: #ADCBEE;
     height: 30px;
@@ -878,44 +884,26 @@ a { color: #1f244a; }
     margin: 0 0 0 20px;
     padding: 0 8px;
 }
-#titleLivre {
+#titlePaiement {
     background-color: #012247;
     color: #FFFFFF;
     font-size: 16px;
     font-weight: normal;
     padding: 7px 0 7px 15px;
 }
-#panier #fedex, #panier #chronopost {
+#panier .payment-proc {
     display: block;
     height: 75px;
-    margin-top: 40px;
+    margin: 40px 20px 60px 100px;
+    width: 300px;
 }
-#panier #fedex {
-    margin: 40px 200px 0 100px;
-    width: 210px;
-}
-#panier #chronopost {
-    margin-bottom: 60px;
-    width: 280px;
-}
-#fedex label, #chronopost label {
+#panier .payment-proc img {
     cursor: pointer;
     display: block;
     float: right;
     overflow: hidden;
-    text-indent: -1500px;
 }
-#fedex label {
-    background: url("../img/fedex.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
-    height: 71px;
-    width: 165px;
-}
-#chronopost label {
-    background: url("../img/chronopost.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
-    height: 73px;
-    width: 232px;
-}
-#fedex input, #chronopost input {
+#panier .payment-proc input {
     display: block;
     float: left;
     margin-top: 30px;

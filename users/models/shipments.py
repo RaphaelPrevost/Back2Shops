@@ -496,7 +496,8 @@ class ShipmentsHandler(object):
         free_shipping_fee = None
         if cal_method == SHIPPING_CALCULATION_METHODS.CUSTOM_SHIPPING_RATE:
             weight = self.totalWeight(group_sales)
-            shipping_fee = self.customShippingFee(
+            supported_services, shipping_fee = \
+                    self.customShippingServiceAndFee(
                             group_sales[0], service_carrier_map, weight)
         elif len(group_services) == 1:
             weight = self.totalWeight(group_sales)
@@ -517,7 +518,8 @@ class ShipmentsHandler(object):
             all_group_sales.extend(free_sales_group)
             weight = self.totalWeight(all_group_sales)
             if cal_method == SHIPPING_CALCULATION_METHODS.CUSTOM_SHIPPING_RATE:
-                shipping_fee_with_free_sales = self.customShippingFee(
+                supported_services, shipping_fee_with_free_sales = \
+                        self.customShippingServiceAndFee(
                             all_group_sales[0], service_carrier_map, weight)
             else:
                 shipping_fee_with_free_sales = self.getShippingFee(
@@ -559,7 +561,8 @@ class ShipmentsHandler(object):
             shipping_fee = None
             if cal_method == SHIPPING_CALCULATION_METHODS.CUSTOM_SHIPPING_RATE:
                 weight = self.oneSaleItemWeight(sale)
-                shipping_fee = self.customShippingFee(
+                service_carrier_map, shipping_fee = \
+                        self.customShippingServiceAndFee(
                                 sale, service_carrier_map, weight)
             elif len(service_carrier_map) == 1:
                 weight = self.oneSaleItemWeight(sale)
@@ -614,7 +617,7 @@ class ShipmentsHandler(object):
                                  weight, unit, dest, id_orig_address)
         return float(shipping_fee.carriers[0].services[0].fee.value)
 
-    def customShippingFee(self, sale, service_carrier_map, weight):
+    def customShippingServiceAndFee(self, sale, service_carrier_map, weight):
         unit = DEFAULT_WEIGHT_UNIT
         dest = self.getDestAddr()
         id_orig_address = self._getShippingFeeOrigAddress(sale)
@@ -626,7 +629,8 @@ class ShipmentsHandler(object):
             dest,
             id_orig_address)
         if len(shipping_fee.carriers[0].services) == 1:
-            return float(shipping_fee.carriers[0].services[0].fee.value)
+            return {shipping_fee.carriers[0].services[0].id: "0"}, \
+                   float(shipping_fee.carriers[0].services[0].fee.value)
 
     def oneSaleItemWeight(self, sale):
         sale_weight = float(sale.shipping_setting.weight.value)

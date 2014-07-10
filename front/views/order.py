@@ -10,6 +10,7 @@ from common.utils import get_url_format
 from views.base import BaseHtmlResource
 from views.base import BaseJsonResource
 from views.basket import get_basket, clear_basket
+from views.payment import get_payment_url
 from views.user import UserResource, UserAuthResource
 from B2SUtils.base_actor import as_list
 from B2SUtils.common import get_cookie_value
@@ -80,6 +81,24 @@ def _get_valid_attr(attrlist, attr_id):
             return attr
     return {}
 
+def _req_invoices(req, resp, id_order):
+    return data_access(REMOTE_API_NAME.REQ_INVOICES, req, resp, order=id_order)
+
+def _get_invoices(req, resp, id_order):
+    invoices = data_access(REMOTE_API_NAME.GET_INVOICES, req, resp,
+                          order=id_order, brand=settings.BRAND_ID)
+    id_invoices = _get_invoice_ids(invoices)
+    return invoices, id_invoices
+
+def _get_invoice_ids(invoices_resp):
+    err = invoices_resp.get('error') if isinstance(invoices_resp, dict) else ""
+    if err or 'content' not in invoices_resp:
+        id_invoices = []
+    else:
+        invoices = as_list(invoices_resp['content'])
+        id_invoices = [long(iv['id']) for iv in invoices_resp['content']]
+    return id_invoices
+
 
 class OrderListResource(BaseHtmlResource):
     template = "order_list.html"
@@ -145,12 +164,26 @@ class OrderInfoResource(BaseHtmlResource):
             'shipments': shipment_list,
             'need_select_carrier': need_select_carrier,
         }
-        invoice = {}
+
+        invoice_info = {}
+        payment_url = ""
         if not need_select_carrier:
-            invoice = data_access(REMOTE_API_NAME.GET_INVOICES, req, resp,
-                                  order=id_order, brand=settings.BRAND_ID)
-        return {'order_info': data,
-                'invoice_info': invoice}
+            invoice_info, id_invoices = _get_invoices(req, resp, id_order)
+            if id_invoices:
+                payment_url = get_payment_url(id_order, id_invoices)
+
+        if need_select_carrier:
+            step = "select"
+        elif payment_url:
+            step = "payment"
+        else:
+            step = "view"
+        return {
+            'step': step,
+            'order_info': data,
+            'invoice_info': invoice_info,
+            'payment_url': payment_url,
+        }
 
 
 class OrderAuthResource(UserAuthResource):
@@ -219,12 +252,9 @@ class OrderAddressResource(BaseHtmlResource):
         _add_product_list(req, resp, data)
         return data
 
-    def _validateInt(self, req, param_name):
-        try:
-            assert int(req.get_param(param_name)) > 0
-            return True
-        except:
-            return False
+
+class OrderAPIResource(BaseJsonResource):
+    login_required = {'get': False, 'post': True}
 
     def _on_post(self, req, resp, **kwargs):
         if not self._validateInt(req, 'id_phone') \
@@ -262,10 +292,26 @@ class OrderAddressResource(BaseHtmlResource):
                                  req, resp, **data)
         if isinstance(order_resp, int) and order_resp > 0:
             clear_basket(req, resp, basket_key, basket_data)
-            order_id = order_resp
-            self.redirect(get_url_format(FRT_ROUTE_ROLE.ORDER_INFO) % order_id)
+            id_order = order_resp
+            redirect_to = get_url_format(FRT_ROUTE_ROLE.ORDER_INFO) % id_order
+            try:
+                _req_invoices(req, resp, id_order)
+                invoice_info, id_invoices = _get_invoices(req, resp, id_order)
+                if settings.BRAND_NAME == "BREUER":
+                    redirect_to = get_payment_url(id_order, id_invoices)
+            except Exception, e:
+                pass
         else:
-            self.redirect(get_url_format(FRT_ROUTE_ROLE.BASKET))
+            redirect_to = "%s?err=%s" % (get_url_format(FRT_ROUTE_ROLE.BASKET),
+                                         'FAILED_PLACE_ORDER')
+        return {'redirect_to': redirect_to}
+
+    def _validateInt(self, req, param_name):
+        try:
+            assert int(req.get_param(param_name)) > 0
+            return True
+        except:
+            return False
 
 
 class ShippingAPIResource(BaseJsonResource):
@@ -285,5 +331,6 @@ class ShippingAPIResource(BaseJsonResource):
         for params in params_list:
             data_access(REMOTE_API_NAME.SET_SHIPPING_CONF,
                         req, resp, **params)
+            _req_invoices(req, resp, req.get_param('id_order'))
         return {}
 

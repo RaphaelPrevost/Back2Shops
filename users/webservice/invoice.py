@@ -225,11 +225,11 @@ class BaseInvoiceMixin:
                           exc_info=True)
             raise ServerError("Invoice xslt error")
 
+
 class InvoiceResource(BaseXmlResource, BaseInvoiceMixin):
     template = "invoices.xml"
     encrypt = False
     login_required = {'get': False, 'post': True}
-
 
     def gen_resp(self, resp, data):
         if data.get('content'):
@@ -253,7 +253,6 @@ class InvoiceResource(BaseXmlResource, BaseInvoiceMixin):
                                              self.users_id)
         return {'content': content}
 
-
 class BaseInvoiceGetResource(BaseJsonResource, BaseInvoiceMixin):
     encrypt = True
     login_required = {'get': False, 'post': False}
@@ -275,7 +274,7 @@ class BaseInvoiceGetResource(BaseJsonResource, BaseInvoiceMixin):
                 if id_shops:
                     if spm['id_shop'] not in id_shops:
                         continue
-                else:
+                elif spm['id_shop']:
                     cached_shop = CachedShop(id_shop=spm['id_shop'])
                     if int(cached_shop.shop.brand.id) != id_brand:
                         continue

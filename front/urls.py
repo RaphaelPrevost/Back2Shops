@@ -13,8 +13,9 @@ from views.order import OrderAuthResource
 from views.order import OrderInfoResource
 from views.order import OrderListResource
 from views.order import OrderUserResource
+from views.order import OrderAPIResource
 from views.order import ShippingAPIResource
-from views.payment import PaymentFormResource
+from views.payment import PaymentResource
 from views.payment import PaypalFailureResource
 from views.payment import PaypalSuccessResource
 from views.product import ProductInfoResource
@@ -46,6 +47,7 @@ role_res_mapping = {
     FRT_ROUTE_ROLE.ORDER_USER: OrderUserResource,
     FRT_ROUTE_ROLE.ORDER_ADDR: OrderAddressResource,
     FRT_ROUTE_ROLE.ORDER_INVOICES: InvoiceResource,
+    FRT_ROUTE_ROLE.PAYMENT: PaymentResource,
 }
 
 # default url of roles
@@ -63,6 +65,7 @@ role_default_urlpatterns = {
     FRT_ROUTE_ROLE.ORDER_USER: r'/order_user',
     FRT_ROUTE_ROLE.ORDER_ADDR: r'/order_addr',
     FRT_ROUTE_ROLE.ORDER_INVOICES: r'/invoices/{id_order}',
+    FRT_ROUTE_ROLE.PAYMENT: r'/payment',
 }
 
 # fixed urls which are not configurable in BO
@@ -70,15 +73,13 @@ fixed_urlpatterns = {
     r'/ajax_login': LoginAPIResource,
     r'/ajax_register': RegisterAPIResource,
     r'/ajax_user': UserAPIResource,
+    r'/ajax_order': OrderAPIResource,
     r'/ajax_shipping_conf': ShippingAPIResource,
 
     r'/paypal/{id_trans}/success': PaypalSuccessResource,
     r'/paypal/{id_trans}/failure': PaypalFailureResource,
     r'/webservice/1.0/pub/JSONAPI': AuxResource,
     r'/webservice/1.0/pub/apikey.pem': crypto.APIPubKey,
-
-    # TODO: Remove, here just for payment test
-    r'/payment/{id_trans}/form': PaymentFormResource,
 
     # static files
     r'/js/{name}': download.JsItem,

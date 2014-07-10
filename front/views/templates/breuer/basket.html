@@ -44,7 +44,7 @@
             </tr>
         </tbody>
     </table>
-    <a class="btn purchase" href="${order_addr_url_format}">Valider</a>
+    <a class="btn purchase" href="javascript:next()">Valider</a>
     <a class="btn back" href="javascript:history.go(-1)">Continuer mes achats</a>
 </div>
 
@@ -56,6 +56,10 @@
 </div>
 
 <script type="text/javascript">
+function next() {
+    if ($('tr #amount').length == 0) return;
+    location = "${order_addr_url_format}";
+}
 function calc_row(tr) {
     tr.find("#amount").text(tr.find("#price").text() * tr.find("#quantity").val());
 }
