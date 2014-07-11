@@ -70,8 +70,17 @@ class PaymentResource(BaseHtmlResource):
                 'form': form}
 
 
+class PaymentCancelResource(BaseHtmlResource):
+    template = "payment_cancel.html"
+    show_products_menu = False
+
+    def _on_get(self, req, resp, **kwargs):
+        return {'result': kwargs}
+
+
 class PaypalSuccessResource(BaseHtmlResource):
     template = "paypal_success.html"
+    show_products_menu = False
 
     def _on_get(self, req, resp, **kwargs):
         params = req._params
@@ -81,6 +90,7 @@ class PaypalSuccessResource(BaseHtmlResource):
 
 class PaypalFailureResource(BaseHtmlResource):
     template = "paypal_failure.html"
+    show_products_menu = False
 
     def _on_get(self, req, resp, **kwargs):
         params = req._params
