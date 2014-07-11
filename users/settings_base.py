@@ -86,7 +86,7 @@ FRONT_PAYMENT_FAILURE = "%s/paypal/%%(id_trans)s/failure" % FRONT_ROOT_URI
 PAYPAL_SERVER = "https://www.sandbox.paypal.com/cgi-bin/webscr"
 
 FIN_PAYPAL_TRANS = '%s/webservice/1.0/pub/paypal/trans/%%(id_trans)s' % FIN_ROOT_URI
-SELLER_EMAIL = 'test@infinite-code.com'
+SELLER_EMAIL = 'business@infinite-code.com'
 
 CURRENCY_EX_RATE = {
     'EUR': {'EUR': 1.0,
