@@ -339,7 +339,9 @@ def weight_convert(from_unit, weight):
     weight = float(weight)
     if from_unit == 'kg':
         return weight
-    if from_unit == 'oz':
+    elif from_unit == 'g':
+        return gram_to_kilogram(weight)
+    elif from_unit == 'oz':
         weight_in_gram = oz_to_gram(weight)
         return gram_to_kilogram(weight_in_gram)
     elif from_unit == 'lb':

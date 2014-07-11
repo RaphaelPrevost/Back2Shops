@@ -91,7 +91,7 @@ def _get_invoices(req, resp, id_order):
     return invoices, id_invoices
 
 def _get_invoice_ids(invoices_resp):
-    err = invoices_resp.get('error') if isinstance(invoices_resp, dict) else ""
+    err = (invoices_resp.get('error') or invoices_resp.get('err')) if isinstance(invoices_resp, dict) else ""
     if err or 'content' not in invoices_resp:
         id_invoices = []
     else:
