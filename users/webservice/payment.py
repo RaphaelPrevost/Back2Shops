@@ -9,7 +9,7 @@ import urllib2
 
 from datetime import datetime
 
-from webservice.base import BaseHtmlResource
+from webservice.base import BaseJsonResource
 from webservice.base import BaseXmlResource
 from webservice.base import BaseResource
 from common.constants import PAYPAL_VERIFIED
@@ -116,7 +116,7 @@ class PaymentInitResource(BaseXmlResource, BaseInvoiceMixin):
         return id_order, id_invoices, oi
 
 
-class PaymentFormResource(BaseHtmlResource):
+class PaymentFormResource(BaseJsonResource):
     # TODO: update post login_required to True,
     # currently make it to False to do test
     login_required = {'get': False, 'post': False}
@@ -148,7 +148,7 @@ class PaymentFormResource(BaseHtmlResource):
                                           id_processor,
                                           id_trans)
             logging.info("payment_form_response: %s", pm_form)
-            return pm_form
+            return {'form': pm_form}
         except UserError, e:
             conn.rollback()
             logging.error("pm_form_err: %s", e, exc_info=True)

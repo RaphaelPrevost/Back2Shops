@@ -52,6 +52,7 @@ class PaymentResource(BaseHtmlResource):
     def _on_post(self, req, resp, **kwargs):
         id_trans = req.get_param('id_trans')
         processor = req.get_param('processor')
+        form = None
         if processor == '1':
             trans = {'id_trans': id_trans}
             success_url = settings.PP_SUCCESS % trans
@@ -62,10 +63,11 @@ class PaymentResource(BaseHtmlResource):
                      'failure': failure_url}
             form_resp = data_access(REMOTE_API_NAME.PAYMENT_FORM, req, resp,
                                     **query)
-        else:
-            form_resp = '<div class="errwrapper">NOT_SUPPORTED</div>'
+            form = form_resp.get('form')
+        if not form:
+            form = '<div class="errwrapper">NOT_SUPPORTED</div>'
         return {'step': 'form',
-                'form': form_resp}
+                'form': form}
 
 
 class PaypalSuccessResource(BaseHtmlResource):
