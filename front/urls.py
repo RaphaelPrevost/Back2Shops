@@ -16,6 +16,7 @@ from views.order import OrderUserResource
 from views.order import OrderAPIResource
 from views.order import ShippingAPIResource
 from views.payment import PaymentResource
+from views.payment import PaymentCancelResource
 from views.payment import PaypalFailureResource
 from views.payment import PaypalSuccessResource
 from views.product import ProductInfoResource
@@ -76,6 +77,7 @@ fixed_urlpatterns = {
     r'/ajax_order': OrderAPIResource,
     r'/ajax_shipping_conf': ShippingAPIResource,
 
+    r'/payment/{id_trans}/cancel': PaymentCancelResource,
     r'/paypal/{id_trans}/success': PaypalSuccessResource,
     r'/paypal/{id_trans}/failure': PaypalFailureResource,
     r'/webservice/1.0/pub/JSONAPI': AuxResource,

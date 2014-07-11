@@ -18,7 +18,7 @@ SERVER_APIKEY_URI_MAP = {
 
 PAYMENT_GATEWAY = "%s/payment/%%(id_trans)s/gateway" % USR_ROOT_URI
 PAYMENT_RETURN = "%s/payment/%%(id_trans)s/process" % USR_ROOT_URI
-PAYMENT_CANCEL = "%s/payment/%%(id_trans)s/cancel.html" % FRONT_ROOT_URI
+PAYMENT_CANCEL = "%s/payment/%%(id_trans)s/cancel" % FRONT_ROOT_URI
 
 FRONT_PAYMENT_SUCCESS = "%s/paypal/%%(id_trans)s/success" % FRONT_ROOT_URI
 FRONT_PAYMENT_FAILURE = "%s/paypal/%%(id_trans)s/failure" % FRONT_ROOT_URI
