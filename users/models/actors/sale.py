@@ -202,7 +202,10 @@ class ActorSale(BaseActor):
     shipping_setting = None
 
     def __repr__(self):
-        return "ActorSale:" + '-'.join([self.id, self.name, self.desc])
+        return "ActorSale:%s" % '-'.join([unicode.encode(self.id, 'utf8'),
+                                        unicode.encode(self.name, 'utf8'),
+                                        unicode.encode(self.desc, 'utf8'),
+                                        ])
 
     @property
     def category(self):

@@ -17,3 +17,6 @@
 
 == version 0.0.6 ==
 1. add common function get_cookie, get_cookie_value, set_cookie
+
+== version 0.0.7 ==
+1. unquote GET request argument in function parse_form_params

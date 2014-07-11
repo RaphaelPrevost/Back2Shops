@@ -27,11 +27,12 @@ class PaymentResource(BaseHtmlResource):
 
     def _on_get(self, req, resp, **kwargs):
         id_order = req.get_param('id_order')
-        id_invoices = urllib.unquote(req.get_param('id_invoices'))
+        id_invoices = req.get_param('id_invoices')
         remote_resp = data_access(REMOTE_API_NAME.INIT_PAYMENT, req, resp,
                                order=id_order,
                                invoices=id_invoices)
-        err = remote_resp.get('error') if isinstance(remote_resp, dict) else ""
+        err = (remote_resp.get('error') or remote_resp.get('err')) \
+              if isinstance(remote_resp, dict) else ""
         if err:
             id_trans = ""
             processors = []
