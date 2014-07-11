@@ -15,4 +15,4 @@ SERVER_APIKEY_URI_MAP = {
 }
 
 # TODO: change to real paypal seller email
-SELLER_EMAIL = 'test@infinite-code.com'
+SELLER_EMAIL = 'business@infinite-code.com'
