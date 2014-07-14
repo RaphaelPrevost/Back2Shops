@@ -49,6 +49,13 @@
             var iv_id = $(this).attr('for_invoice');
             $('#iv_' + iv_id).toggle('slow');
         });
+        if ($('.see_invoice').length > 1) {
+            // minimized by default if more than one invoice
+            $('.see_invoice').each(function() {
+                var iv_id = $(this).attr('for_invoice');
+                $('#iv_' + iv_id).toggle();
+            });
+        }
 
         function init() {
             $('#invoices_loaded .invoice_html').each(function(){

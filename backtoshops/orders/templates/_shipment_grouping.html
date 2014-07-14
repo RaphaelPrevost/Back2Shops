@@ -90,6 +90,21 @@
             $('#packing_status_for_shipment_' + id_shipemnt).change();
             $('#shipping_carrier_for_shipment_' + id_shipemnt).change();
         });
+        if ($('.see_pk_list').length > 1) {
+            // minimized by default if more than one packing list
+            $('.see_pk_list').each(function() {
+                var id_shipemnt = $(this).attr('for_shipment');
+                var packing_form = $('#packing_form_' + id_shipemnt);
+                if (packing_form.is(":hidden")) {
+                    packing_form.toggle();
+                } else {
+                    packing_form.toggle();
+                }
+
+                $('#packing_status_for_shipment_' + id_shipemnt).change();
+                $('#shipping_carrier_for_shipment_' + id_shipemnt).change();
+            });
+        }
 
         $(".update_shipment").die().live('click', function(){
             var shipment_id = $(this).attr('for_shipment');

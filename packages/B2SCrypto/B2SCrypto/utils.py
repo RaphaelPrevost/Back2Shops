@@ -157,6 +157,8 @@ def aes_decrypt_content(en_content, en_random_key, pub_key, pri_key):
 
 RANDOM_KEY_SIZE = 32 # (*AES-256*)
 def gen_encrypt_json_context(context, api_key_uri, api_key_path):
+    if isinstance(context, unicode):
+        context = unicode.encode(context, 'utf8')
     random_key = os.urandom(RANDOM_KEY_SIZE)
     pub_key = get_key_from_remote(api_key_uri)
     pri_key = get_key_from_local(api_key_path)
