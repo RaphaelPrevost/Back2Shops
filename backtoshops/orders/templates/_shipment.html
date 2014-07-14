@@ -19,7 +19,7 @@
                       id="see_pk_list_for_{{ shipment.id }}">
                     {% trans "See Packing list" %} #{{ shipment.id }}
                 </span>
-    <span class="status">{% trans "Stauts" %}: {{ shipment.delivery.status_desc }}</span>
+    <span class="status">{% trans "Status" %}: {{ shipment.delivery.status_desc }}</span>
 </div>
 <form id="packing_form_{{ shipment.id }}" class="packing_form" method="post">
 <input type="hidden" name="id_shipment" value="{{ shipment.id }}" />
