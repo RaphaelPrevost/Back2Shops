@@ -1,16 +1,6 @@
 import urllib
-from enum import Enum
 from B2SProtocol.constants import USER_BASKET_COOKIE_NAME
-
-class CustomEnum(Enum):
-    @classmethod
-    def toDict(self):
-        result = {}
-        for k, v in self.__dict__.iteritems():
-            if k.startswith('__'):
-                continue
-            result[k] = v
-        return result
+from B2SProtocol.constants import CustomEnum
 
 class ADDR_TYPE(CustomEnum):
     Shipping = 0

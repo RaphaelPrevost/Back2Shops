@@ -1,14 +1,4 @@
-from enum import Enum
-
-class CustomEnum(Enum):
-    @classmethod
-    def toDict(self):
-        result = {}
-        for k, v in self.__dict__.iteritems():
-            if k.startswith('__'):
-                continue
-            result[k] = v
-        return result
+from B2SProtocol.constants import CustomEnum
 
 class FIELD_TYPE(CustomEnum):
     TEXT = "text"
@@ -25,6 +15,7 @@ class GENDER(CustomEnum):
 class ADDR_TYPE(CustomEnum):
     Shipping = 0
     Billing = 1
+    Both = 2
 
 class HASH_ALGORITHM(CustomEnum):
     WHIRLPOOL = 1

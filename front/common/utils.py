@@ -71,7 +71,10 @@ def get_brief_product_list(sales):
 
 
 def get_category_from_sales(sales):
-    category = (sales.itervalues().next()).get('category')
+    if len(sales) > 0:
+        category = (sales.itervalues().next()).get('category')
+    else:
+        category = {}
     category_info = {
         'id': category.get('@id', ''),
         'name': category.get('name', ''),

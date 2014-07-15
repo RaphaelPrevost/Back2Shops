@@ -48,7 +48,7 @@ class UserResource(BaseJsonResource):
         result = db_utils.select(conn, "locale",
                                 columns=("name", "name"))
         fields_dict['locale'] = field_utils.SelectFieldType("Locale",
-                    locale, dict(result))
+                    locale, result)
 
         # title
         fields_dict['title'] = field_utils.AjaxFieldType(
@@ -64,7 +64,9 @@ class UserResource(BaseJsonResource):
 
         # gender
         fields_dict['gender'] = field_utils.SelectFieldType("Gender",
-                    gender, GENDER.toDict())
+                    gender, [('Male', GENDER.Male),
+                             ('Female', GENDER.Female),
+                             ('Other', GENDER.Other)])
 
         # birthday
         fields_dict['birthday'] = field_utils.TextFieldType("Birthday",
@@ -86,15 +88,17 @@ class UserResource(BaseJsonResource):
                           numbers)
         countries = db_utils.join(conn, ("country_calling_code", "country"),
             on=[('country_calling_code.country_code', 'country.iso')],
-            columns=("printable_name", "country_code"))
+            columns=("printable_name", "country_code"),
+            order=("printable_name",))
         fields_dict['phone'] = field_utils.FieldSetType("Phone number",
             {'country_num': field_utils.SelectFieldType(
-                            "Calling code", "", dict(countries)),
+                            "Calling code", "", countries),
              'phone_num': field_utils.TextFieldType(
                             "Number", "", phone_num_reexp),
              'phone_num_desp': field_utils.TextFieldType("Description", "", "")
              },
-            numbers)
+            numbers,
+            ['country_num', 'phone_num', 'phone_num_desp'])
 
         # address
         columns = ('id', 'addr_type', 'address', 'city', 'postal_code',
@@ -103,11 +107,22 @@ class UserResource(BaseJsonResource):
                 "users_address", columns=columns,
                 where={'users_id': users_id,
                        'valid': True})
+        addr_type_options = [
+            ('Billing', ADDR_TYPE.Billing),
+            ('Shipping', ADDR_TYPE.Shipping),
+        ]
         if len(addresses) == 0:
-            addresses = [
-                dict([(c, c == 'id' and '0' or '') for c in columns]),
-                dict([(c, c == 'id' and '00' or '') for c in columns]),
+            init_values = [
+                {'id': '0', 'addr_type': ADDR_TYPE.Both},
+                {'id': '00', 'addr_type': ADDR_TYPE.Shipping},
             ]
+            addresses = [
+                dict([(c, init_values[0].get(c, "")) for c in columns]),
+                dict([(c, init_values[1].get(c, "")) for c in columns]),
+            ]
+            addr_type_options.append(
+                ('Billing and shipping', ADDR_TYPE.Both),
+            )
         else:
             addresses = map(lambda x: {'id': x[0],
                                        'addr_type': x[1],
@@ -120,7 +135,7 @@ class UserResource(BaseJsonResource):
                             addresses)
         fields_dict['address'] = field_utils.FieldSetType("Address",
             {'addr_type': field_utils.RadioFieldType(
-                        "Address type", "", ADDR_TYPE.toDict()),
+                        "Address type", "", addr_type_options),
              'address': field_utils.TextFieldType(
                         "Address", "", addr_reexp),
              'city': field_utils.TextFieldType(
@@ -135,7 +150,9 @@ class UserResource(BaseJsonResource):
                         "/webservice/1.0/pub/JSONAPI?get=provinces",
                         depends="country_code"),
              'address_desp': field_utils.TextFieldType("Description", "", "")},
-            addresses)
+            addresses,
+            ['addr_type', 'address', 'city', 'postal_code', 'country_code',
+             'province_code', 'address_desp'])
 
         for f in fields_dict:
             fields_dict[f] = fields_dict[f].toDict()
@@ -239,6 +256,10 @@ class UserResource(BaseJsonResource):
                     raise ValidationError('INVALID_POSTAL_CODE')
                 addr_dict[addr_id][c] = p
 
+            if int(addr_id) > 0 and \
+                    int(addr_dict[addr_id]['addr_type']) == ADDR_TYPE.Both:
+                raise ValidationError('INVALID_ADDR_TYPE')
+
             addr_changed = self._item_changed(conn, users_id, columns,
                           "users_address", addr_id, addr_dict[addr_id])
             if addr_changed:
@@ -248,7 +269,16 @@ class UserResource(BaseJsonResource):
                     conn, users_id, 'id_billaddr', 'users_address', addr_id)
             else:
                 addr_referenced = False
-            if (addr_id.isdigit() and int(addr_id) == 0 or
+
+            if (addr_id.isdigit() and int(addr_id) == 0 and
+                    int(addr_dict[addr_id]['addr_type']) == ADDR_TYPE.Both):
+                # insert two address records if add type is ADDR_TYPE.Both
+                for t in (ADDR_TYPE.Shipping, ADDR_TYPE.Billing):
+                    addr_dict[addr_id]['addr_type'] = t
+                    db_utils.insert(conn, "users_address",
+                                    values=addr_dict[addr_id])
+
+            elif (addr_id.isdigit() and int(addr_id) == 0 or
                     addr_changed and addr_referenced):
                 db_utils.insert(conn, "users_address",
                                 values=addr_dict[addr_id])
