@@ -2,6 +2,7 @@
     <div class="errwrapper">&nbsp;</div>
 </form>
 <a class="btnlog logout" href="javascript:save()">Sauver</a>
+<div id="tmp"></div>
 
 <script type="text/javascript">
 var profile = #{user_profile};
@@ -50,10 +51,10 @@ function getTemplate(name, item)
                 '<select id="' + name + '" name="' + name + '">';
             for (k in item.accept) {
                 tpl +=
-                '<option value="' + item.accept[k] + '"';
-                if (item.value == item.accept[k])
+                '<option value="' + item.accept[k][1] + '"';
+                if (item.value == item.accept[k][1])
                     tpl += ' selected="selected"';
-                tpl += '>' + k + '</option>';
+                tpl += '>' + item.accept[k][0] + '</option>';
             }
             tpl +=
                 '</select>' +
@@ -68,10 +69,10 @@ function getTemplate(name, item)
 
         if (typeof item.accept !== 'undefined' && item.accept) {
             for (k in item.accept) {
-                tpl += '<label for="' + name + '">' + k + '</label>' +
+                tpl += '<label for="' + name + '">' + item.accept[k][0] + '</label>' +
                        '<input type="radio" id="' + name + '" ' +
-                       'name="' + name + '" value="' + item.accept[k] + '" ';
-                if (item.value == item.accept[k])
+                       'name="' + name + '" value="' + item.accept[k][1] + '" ';
+                if (item.value == item.accept[k][1])
                     tpl += ' checked="checked"';
                 tpl += '/>';
             }
@@ -90,7 +91,8 @@ function getTemplate(name, item)
                 tpl += '<legend>' + item.name + '</legend>';
 
             for (j in item.fields) {
-                var field_item = item.fields[j];
+                var f_name = item.fields[j][0];
+                var field_item = item.fields[j][1];
                 field_item = JSON.parse(JSON.stringify(field_item));
                 /* correct id for the dependency */
                 if (typeof field_item.depends !== 'undefined') {
@@ -98,8 +100,8 @@ function getTemplate(name, item)
                         field_item.depends += '_' + item.values[i].id;
                 }
                 /* add the matching value */
-                field_item.value = item.values[i][j];
-                var ret = getTemplate(j + '_' + item.values[i].id, field_item);
+                field_item.value = item.values[i][f_name];
+                var ret = getTemplate(f_name + '_' + item.values[i].id, field_item);
                 tpl += ret.template;
                 result.callbacks = result.callbacks.concat(ret.callbacks);
             }
@@ -125,6 +127,11 @@ function getTemplate(name, item)
                                  if (d.type != 'ajax') {
                                      var t = getTemplate(name, d).template;
                                      $("#wrapper_" + name).html(t);
+                                     if (d.accept.length == 0) {
+                                        $("#wrapper_" + name).hide();
+                                     } else {
+                                        $("#wrapper_" + name).show();
+                                     }
                                  }
                              },
                            });
@@ -170,9 +177,36 @@ $(document).ready(function() {
 
     // loop for dependent elements after form init
     for(d in delayCallbacks) delayCallbacks[d]();
+
+
+    $("input[name='addr_type_0']").change(function() {
+        addr_type_changed($(this));
+    });
+    addr_type_changed($("input[name='addr_type_0'][checked]"));
 });
 
+function addr_type_changed(obj) {
+    if ($('form#formContainer #addr_type_00').length == 0)
+        $('#addr_type_00').parent().remove().insertAfter(obj.parent());
+
+    var _addr_type = obj.val();
+    if (_addr_type == '2') {
+        $('#addr_type_00').parent().hide();
+    } else {
+        $('#addr_type_00').parent().show();
+        if (_addr_type == '0') {
+            another_addr_type = '1'
+        } else {
+            another_addr_type = '0'
+        }
+        $("input[name='addr_type_00'][value='" + another_addr_type + "']").click();
+        $("input[name='addr_type_00'][value='2']").attr('disabled', true);
+    }
+}
+
 function save() {
+    $('form#formContainer #addr_type_00:hidden').parent().remove().appendTo('div#tmp');
+
     $.post('/ajax_user',
         $("#formContainer").serializeArray(),
         function(data) {
@@ -189,7 +223,7 @@ function save() {
                 if (succ_redirect_to)
                     location = succ_redirect_to;
                 else
-                    location = '#';
+                    location.reload();
             }
         }
     )

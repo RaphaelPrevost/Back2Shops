@@ -273,7 +273,7 @@ class SalesCacheProxy(CacheProxy):
                 pipe.delete(key)
         pipe.execute()
 
-    def parse_xml(self, xml, is_entire_result):
+    def parse_xml(self, xml, is_entire_result, **kw):
         logging.info('parse sales xml: %s, is_entire_result:%s',
                      xml, is_entire_result)
         data = xmltodict.parse(xml)
@@ -386,7 +386,7 @@ class ShopsCacheProxy(CacheProxy):
         pipe.delete(SHOP_WITH_BARCODE% id)
         pipe.execute()
 
-    def parse_xml(self, xml, is_entire_result):
+    def parse_xml(self, xml, is_entire_result, **kw):
         logging.info('parse shops xml: %s, is_entire_result:%s',
                      xml, is_entire_result)
         data = xmltodict.parse(xml)

@@ -124,7 +124,7 @@ $ svn co http://trac.lbga.fr/svn/backtoshops/
 * required for user login
   $ workon env
   $ cd /$(PROJECT_HOME)/users
-  $ ./scripts/gen_hmac_key.py
+  $ python ./scripts/gen_hmac_key.py
 
 
 == Start servers ==
@@ -148,11 +148,15 @@ $ svn co http://trac.lbga.fr/svn/backtoshops/
    $ cd $(PROJECT_HOME)/finance
    $ python fin_server.py
 
-4. front server
+4. assets server
+   $ workon env
+   $ cd $(PROJECT_HOME)/assets
+   $ python assets_server.py
+
+5. front server
    $ workon env
    $ cd $(PROJECT_HOME)/front
    $ python front_server.py
-
 
 == Admin server (backoffice) access ==
 1. url (change $(server-ip) to the ip which start admin server):

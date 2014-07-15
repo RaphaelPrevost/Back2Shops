@@ -37,7 +37,7 @@ class AuxResource(BaseJsonResource):
                                 columns=("title", "title"),
                                 where={'locale': dep_val})
         field = field_utils.SelectFieldType("Title",
-                                            cur_val, dict(result))
+                                            cur_val, result)
         return field.toDict()
 
     def handle_countries(self, req, resp, conn):
@@ -45,9 +45,10 @@ class AuxResource(BaseJsonResource):
         cur_val = req.get_param('val') or ''
 
         result = db_utils.select(conn, "country",
-                                columns=("printable_name", "iso"))
+                                columns=("printable_name", "iso"),
+                                order=("printable_name",))
         field = field_utils.SelectFieldType("Country",
-                                            cur_val, dict(result))
+                                            cur_val, result)
         return field.toDict()
 
     def handle_provinces(self, req, resp, conn):
@@ -57,12 +58,13 @@ class AuxResource(BaseJsonResource):
         if dep_val in settings.SUPPORTED_MAJOR_COUNTRIES:
             result = db_utils.select(conn, "province",
                                     columns=("name", "code"),
-                                    where={'country_code': dep_val})
+                                    where={'country_code': dep_val},
+                                    order=("name",))
         else:
             result = []
 
         field = field_utils.SelectFieldType("Province",
-                                            cur_val, dict(result))
+                                            cur_val, result)
         return field.toDict()
 
     def handle_sales(self, req, resp, conn):

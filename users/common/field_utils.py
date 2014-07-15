@@ -28,7 +28,7 @@ class SelectFieldType(TextFieldType):
     field_type = FIELD_TYPE.SELECT
 
     def __init__(self, name, value, accept_condition):
-        assert type(accept_condition) is dict
+        assert type(accept_condition) is list
         TextFieldType.__init__(self, name, value, accept_condition)
 
 class RadioFieldType(SelectFieldType):
@@ -59,19 +59,21 @@ class FieldSetType(FieldType):
     fileds_dict = None
     values = None
 
-    def __init__(self, name, fields_dict, values):
+    def __init__(self, name, fields_dict, values, ordered_field_names=None):
         FieldType.__init__(self, name)
         self.fields_dict = fields_dict
         self.values = values
+        self.ordered_field_names = ordered_field_names or self.fields_dict.keys()
 
     def toDict(self):
-        f_dict = self.fields_dict.copy()
-        for f in f_dict:
-            if type(f) is FieldType:
-                f_dict[f] = f_dict[f].ToDict()
+        ordered_fields = []
+        for f_name in self.ordered_field_names:
+            f = self.fields_dict[f_name]
+            ordered_fields.append((f_name, f.toDict())
+                                  if isinstance(f, FieldType) else f)
         return {"name": self.name,
                 "type": self.field_type,
-                "fields": f_dict,
-                "values": self.values
+                "fields": ordered_fields,
+                "values": self.values,
                 }
 
