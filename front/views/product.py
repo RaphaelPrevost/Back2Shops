@@ -1,12 +1,14 @@
 import settings
+import random
+
+from B2SFrontUtils.constants import REMOTE_API_NAME
+from B2SUtils.base_actor import as_list
+from B2SUtils.errors import ValidationError
 from common.data_access import data_access
 from common.utils import get_brief_product_list
 from common.utils import get_category_from_sales
 from common.utils import get_product_default_display_price
 from views.base import BaseHtmlResource
-from B2SUtils.base_actor import as_list
-from B2SUtils.errors import ValidationError
-from B2SFrontUtils.constants import REMOTE_API_NAME
 
 
 class TypeListResource(BaseHtmlResource):
@@ -31,8 +33,11 @@ class ProductListResource(BaseHtmlResource):
     def _on_get(self, req, resp, **kwargs):
         sales = data_access(REMOTE_API_NAME.GET_SALES,
                             req, resp, **req._params)
+        random_sales = {}
+        map(lambda k: random_sales.update({k: sales[k]}),
+            random.sample(sales, settings.NUM_OF_RANDOM_SALES))
         return {'category': dict(),
-                'product_list': get_brief_product_list(sales)}
+                'product_list': get_brief_product_list(random_sales)}
 
 
 class ProductInfoResource(BaseHtmlResource):

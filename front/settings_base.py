@@ -36,3 +36,5 @@ PP_FAILURE = "http://localhost:9500/paypal/%(id_trans)s/failure"
 
 BRAND_ID = "1000001"
 BRAND_NAME = "BREUER"
+
+NUM_OF_RANDOM_SALES = 4
