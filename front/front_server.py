@@ -1,7 +1,7 @@
 from gevent import monkey
 monkey.patch_all()
 
-import falcon
+import B2SFalcon as falcon
 import gevent
 from gevent.pywsgi import WSGIServer
 import signal

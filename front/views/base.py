@@ -1,3 +1,4 @@
+import settings
 import Cookie
 import copy
 import falcon
@@ -6,17 +7,17 @@ import re
 import time
 from datetime import datetime
 
-import settings
+from B2SFrontUtils.constants import REMOTE_API_NAME
+from B2SProtocol.constants import RESP_RESULT
+from B2SRespUtils.generate import gen_json_resp
+from B2SUtils.base_actor import as_list
+from B2SUtils.errors import ValidationError
 from common.constants import FRT_ROUTE_ROLE
 from common.constants import Redirection
 from common.data_access import data_access
 from common.utils import gen_html_resp
+from common.utils import get_mapping_name
 from common.utils import get_url_format
-from B2SUtils.base_actor import as_list
-from B2SFrontUtils.constants import REMOTE_API_NAME
-from B2SProtocol.constants import RESP_RESULT
-from B2SRespUtils.generate import gen_json_resp
-from B2SUtils.errors import ValidationError
 
 
 class BaseResource(object):
@@ -159,6 +160,9 @@ class BaseHtmlResource(BaseResource):
                 resp_dict['err'] = remote_resp.get('err')
             else:
                 resp_dict['menus'] = remote_resp
+                for v in resp_dict['menus'].itervalues():
+                    v['url_name'] = get_mapping_name(FRT_ROUTE_ROLE.TYPE_LIST,
+                                                     'type_name', v['name'])
 
         if 'err' not in resp_dict:
             resp_dict['err'] = ''
@@ -176,6 +180,7 @@ class BaseHtmlResource(BaseResource):
             'order_info_url_format': get_url_format(FRT_ROUTE_ROLE.ORDER_INFO),
             'order_invoice_url_format': get_url_format(FRT_ROUTE_ROLE.ORDER_INVOICES),
             'order_list_url_format': get_url_format(FRT_ROUTE_ROLE.ORDER_LIST),
+            'type_list_url_format': get_url_format(FRT_ROUTE_ROLE.TYPE_LIST),
         })
 
 class BaseJsonResource(BaseResource):

@@ -503,7 +503,7 @@ class RoutesCacheProxy(CacheProxy):
 
     def parse_xml(self, xml, is_entire_result, **kw):
         data = xmltodict.parse(xml)
-        version = data.get('@version')
+        version = data.get('routes').get('@version')
 
         try:
             self._refresh_redis(version, data, is_entire_result, **kw)

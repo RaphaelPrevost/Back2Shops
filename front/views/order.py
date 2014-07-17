@@ -293,7 +293,8 @@ class OrderAPIResource(BaseJsonResource):
         if isinstance(order_resp, int) and order_resp > 0:
             clear_basket(req, resp, basket_key, basket_data)
             id_order = order_resp
-            redirect_to = get_url_format(FRT_ROUTE_ROLE.ORDER_INFO) % id_order
+            redirect_to = get_url_format(FRT_ROUTE_ROLE.ORDER_INFO) % {
+                'id_order': id_order}
             try:
                 _req_invoices(req, resp, id_order)
                 invoice_info, id_invoices = _get_invoices(req, resp, id_order)

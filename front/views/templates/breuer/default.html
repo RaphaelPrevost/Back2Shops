@@ -48,7 +48,8 @@
             <strong>Printemps-été 2014</strong>
             <ul>
                 <?py for key in menus: ?>
-                <li><a href="/type/${key}">${menus[key]['name']}</a></li>
+                <?py url = type_list_url_format % {'id_type': menus[key]['@id'], 'type_name': menus[key]['url_name']} ?>
+                <li><a href="${url}">${menus[key]['name']}</a></li>
                 <?py #endfor ?>
             </ul>
         </nav>

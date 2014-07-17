@@ -5,8 +5,7 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
 from accounts.models import Brand
-from common.cache_invalidation import post_delete_handler
-from common.cache_invalidation import post_save_handler
+from common.cache_invalidation import send_cache_invalidation
 
 
 class Route(models.Model):
@@ -37,8 +36,12 @@ class RouteParam(models.Model):
 
 @receiver(post_save, sender=Route, dispatch_uid='routes.models.Route')
 def on_route_saved(sender, **kwargs):
-    post_save_handler('route', sender, **kwargs)
+    method = kwargs.get('created', False) and "POST" or "PUT"
+    instance = kwargs.get('instance')
+    send_cache_invalidation(method, 'route', instance.mother_brand_id)
 
 @receiver(post_delete, sender=Route, dispatch_uid='routes.models.Route')
 def on_route_deleted(sender, **kwargs):
-    post_delete_handler('route', sender, **kwargs)
+    method = "DELETE"
+    instance = kwargs.get('instance')
+    send_cache_invalidation(method, 'route', instance.mother_brand_id)

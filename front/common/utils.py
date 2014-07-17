@@ -1,17 +1,18 @@
+import settings
 import gevent
 import logging
 import os
-import re
 import signal
-import time
+import string
 import uuid
-import settings
+
+from B2SProtocol.constants import INVALIDATE_CACHE_LIST
+from B2SProtocol.constants import INVALIDATE_CACHE_OBJ
+from B2SUtils.base_actor import as_list
 from common.constants import FRT_ROUTE_ROLE
 from common.redis_utils import get_redis_cli
 from common.template import render_template
-from B2SUtils.base_actor import as_list
-from B2SProtocol.constants import INVALIDATE_CACHE_LIST
-from B2SProtocol.constants import INVALIDATE_CACHE_OBJ
+
 
 def gen_html_resp(template, resp, data, lang='en'):
     resp.body = render_template(template, data, lang=lang)
@@ -50,25 +51,31 @@ def get_product_default_display_price(sale):
 
 def get_brief_product(sale):
     id_sale = sale['@id']
+    _type = sale.get('type', {})
     product_info = {
         'id': id_sale,
         'name': sale.get('name') or '',
         'desc': sale.get('desc') or '',
         'img': sale.get('img') or '',
-        'link': get_url_format(FRT_ROUTE_ROLE.PRDT_INFO) % id_sale,
+        'link': get_url_format(FRT_ROUTE_ROLE.PRDT_INFO) % {
+            'id_type': _type.get('@id', 0),
+            'type_name': get_mapping_name(FRT_ROUTE_ROLE.PRDT_INFO,
+                                          'type_name',
+                                          _type.get('name', '')),
+            'id_sale': id_sale,
+            'sale_name': get_mapping_name(FRT_ROUTE_ROLE.PRDT_INFO,
+                                          'sale_name', sale.get('name', '')),
+        },
         'price': get_product_default_display_price(sale),
         'currency': sale.get('price', {}).get('@currency') or '',
-        'variant': sale.get('variant') if (isinstance(sale.get('variant'), list)
-                                           or sale.get('variant') is None)
-                   else [sale.get('variant')]
+        'variant': as_list(sale.get('variant')),
     }
     if not settings.PRODUCTION and not product_info['img']:
-        product_info['img'] = '/img/dollar-exemple.jpg'
+        product_info['img'] = '/img/dollar-example.jpg'
     return product_info
 
 def get_brief_product_list(sales):
     return [get_brief_product(s) for s in sales.itervalues()]
-
 
 def get_category_from_sales(sales):
     if len(sales) > 0:
@@ -83,10 +90,32 @@ def get_category_from_sales(sales):
     }
     return category_info
 
+def get_type_from_sales(sales):
+    _type = (sales.itervalues().next()).get('type')
+    type_info = {
+        'id': _type.get('@id', ''),
+        'name': _type.get('name', '')
+    }
+    return type_info
+
 def get_url_format(role):
     from urls import BrandRoutes
-    url_pattern = BrandRoutes().get_url_format(role)
-    return re.sub(r'%\(\w+\)s', '%s', url_pattern)
+    return BrandRoutes().get_url_format(role)
+
+def get_url_format_name(name):
+    str_list = name.split()
+    str_list = map(lambda _str: filter(
+        lambda c: c in string.ascii_letters or c in string.digits, _str),
+        str_list)
+    str_list = filter(lambda x: x, str_list) or ['default', ]
+    return '-'.join(str_list)
+
+def get_mapping_name(role, _type, name):
+    from urls import BrandRoutes
+    meta = BrandRoutes().get_meta_by_role(role)
+    return (meta.get(_type, None) or
+            _type in ROUTE_NAME_MAPPING and ROUTE_NAME_MAPPING[_type](name) or
+            name)
 
 def send_reload_signal():
     os.kill(os.getpid(), signal.SIGHUP)
@@ -109,3 +138,8 @@ def watching_invalidate_cache_list():
                 send_reload_signal()
             redis_down = False
 
+
+ROUTE_NAME_MAPPING = {
+    'type_name': get_url_format_name,
+    'sale_name': get_url_format_name,
+}
