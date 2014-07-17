@@ -12,7 +12,7 @@
             <?py shipments = order_info['shipments'] ?>
             <?py for shipment_id, shipping_lists in shipments.iteritems(): ?>
             <tr>
-                <?py url = order_info_url_format % order_info['order_id'] ?>
+                <?py url = order_info_url_format % {'id_order': order_info['order_id']} ?>
                 <td class="left"><a href="${url}">Shipment: ${shipment_id}</a></td>
                 <td class="left">Status: ${shipping_lists[0]['status_name']}</td>
                 <td colspan="2"></td>

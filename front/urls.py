@@ -2,6 +2,7 @@ import settings
 import re
 
 from B2SFrontUtils.constants import REMOTE_API_NAME
+from B2SUtils.base_actor import as_list
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
 from views import homepage
@@ -149,15 +150,11 @@ class BrandRoutes(object):
 
         if self.routes_dict:
             for route in self.routes_dict.itervalues():
-
                 kwargs = {}
-                if(route.get('meta', '')):
-                    kwargs = {
-                        'title': route['meta']['#text']
-                                 if route['meta']['@name'] == 'title' else '',
-                        'desc': route.get('content', ''),
-                    }
-
+                meta_dict = self._get_meta_by_route(route)
+                if meta_dict:
+                    kwargs = {'desc': route.get('content', ''),
+                              'title': meta_dict.get('title', '')}
                 url = self._format_url(route)
                 if route.get('redirect') and route['redirect'].get('@to'):
                     redirect_to, param_mapping = self._format_redirect_url(route)
@@ -194,12 +191,23 @@ class BrandRoutes(object):
     def _get_res(self, role):
         return role_res_mapping.get(role, HomepageResource)
 
+    def get_meta_by_role(self, role):
+        meta = {}
+        if self.role_mapping and role in self.role_mapping:
+            route = self.role_mapping.get(role).values()[0]
+            meta = self._get_meta_by_route(route)
+        return meta
+
+    def _get_meta_by_route(self, route):
+        meta = route.get('meta', None) and as_list(route['meta']) or None
+        return meta and dict(map(lambda x: [x['@name'], x['#text']], meta)) or {}
+
     def _format_url(self, route, param_format='{%s}'):
         url_pattern = route.get('url') or ''
         params = self._get_sorted_params(route)
-        for p in params:
-            url_pattern = param_pattern.sub(param_format % p['#text'],
-                                            url_pattern, count=1)
+        groups = param_pattern.findall(url_pattern)
+        for g, p in zip(groups, params):
+            url_pattern = url_pattern.replace(g, param_format % p['#text'], 1)
         return url_pattern
 
     def _get_sorted_params(self, route):
