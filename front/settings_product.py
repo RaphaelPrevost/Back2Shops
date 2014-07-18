@@ -3,6 +3,8 @@ from settings_local import *
 
 PRODUCTION = True
 
+TEMPLATE_PATH = ['views/templates/breuer', 'views/templates/dragondollar']
+
 USR_ROOT_URI = "http://92.222.30.2"
 SERVER_APIKEY_URI_MAP = {
     'USR': os.path.join(USR_ROOT_URI,

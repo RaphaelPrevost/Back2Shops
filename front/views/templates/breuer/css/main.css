@@ -292,6 +292,25 @@ a { color: #1f244a; }
 
 
 
+
+
+
+
+/*--------------------------------------------------------*/
+/*                     INDEX RACINE                       */
+/*--------------------------------------------------------*/
+#boxSlider { 
+	width: 970px;  
+	margin-bottom: 15px;
+}
+
+
+
+
+
+/*--------------------------------------------------------*/
+/*                      INDEX SHOP                        */
+/*--------------------------------------------------------*/
 #visuelHome {
 	float: right;
 	width: 785px; height: 498px;
@@ -322,6 +341,7 @@ a { color: #1f244a; }
 	transition: all 0.1s ease;
 }
 #visuelHome h1 a:hover { background-color: rgba(0,0,0,0.65); }
+
 
 
 
@@ -521,8 +541,9 @@ a { color: #1f244a; }
 
 #infosProd h1 {
 	display: block;
-	margin: 10px 0px 0px 12px;
+	margin: 20px 0px 0px 15px;
 	font-weight: normal; font-size: 20px;
+	line-height: 20px;
 	color: #010101;
 }
 #infosProd .descrpt {
@@ -568,12 +589,18 @@ a { color: #1f244a; }
 #infosProd ul li {
 	display: inline-block;
 	margin: 0px;
+	border: 2px solid #EAEAEA;
+}
+#infosProd ul li.selected {
+	display: inline-block;
+	margin: 0px;
+	border: 2px solid #bdbdbd;
 }
 #infosProd ul li a {
 	display: block;
 	width: 30px; height: 30px;
 }
-#infosProd ul li img {
+#infosProd ul li a img {
 	display: block;
 	width: 30px; height: 30px;
 }
@@ -588,7 +615,6 @@ a { color: #1f244a; }
 	text-decoration: underline;
 	background: url(../img/guide-taille.gif) no-repeat right 0;
 }
-#infosProd #selectShop,
 #infosProd #selectTaille {
 	display: block; clear: both;
 	width: 190px;
@@ -597,13 +623,10 @@ a { color: #1f244a; }
 	border: 1px solid #e5e5e5;
 	background: url(../img/select.gif) no-repeat right 0 #f7f7f7;	
 }
-#infosProd #selectShop:hover,
-#infosProd #selectShop:focus,
 #infosProd #selectTaille:hover,
 #infosProd #selectTaille:focus {
 	background: url(../img/select.gif) no-repeat right bottom #fff;	
 }
-#infosProd #selectShop select,
 #infosProd #selectTaille select { 
 	width: 210px;
 	padding: 4px 0 0 5px;
@@ -614,11 +637,9 @@ a { color: #1f244a; }
 	-webkit-appearance: none;
 	cursor: pointer;
 }
-#infosProd #selectShop select option,
 #infosProd #selectTaille select option {
 	padding: 3px 0 3px 10px;
 }
-#infosProd #selectShop select option:nth-child(2n).
 #infosProd #selectTaille select option:nth-child(2n) {
 	background-color: #EEF9FF;
 }
@@ -634,529 +655,573 @@ a { color: #1f244a; }
 }
 
 
-/*-----------------------------------*/
-/*		 	 BASKET/ORDER            */
-/*-----------------------------------*/
 
-#panier {
-    margin-bottom: 80px;
-    overflow: auto;
+
+
+
+
+
+
+
+/*-------------------------------*/
+/*	          PANIER		  	 */
+/*-------------------------------*/
+
+
+
+
+/*-Class ERREUR-*/
+.errwrapper {
+	margin: 12px 20px;
+	color: #5b2910;
+	background-color: #fff9d9;
 }
-#panier #header{
-    height: 50px;
+
+
+
+
+#panier { overflow: auto; margin-bottom: 80px; }
+
+#btnOrders { 
+	display: block; float: right;
+	padding: 5px 10px; color: #fff;
+	background-color: #ff879d; 
 }
-#panier #footer{
-    border: None;
+#btnOrders:hover { background-color: #ff6d87; }
+
+/*
+#panier h1 {
+	margin-top: 35px;
+	font-size: 18px;
+	font-weight: normal;
+	text-align: center;
 }
-#panier ul {
-    background-color: #ADCBEE;
-    height: 30px;
-    margin: 35px 0;
-    position: relative;
+*/
+
+#panier ul  { 
+	position: relative; 
+	height: 30px; margin: 35px 0;
+	background-color: #adcbee;
 }
 #panier ul li {
-    background: url("../img/sprite.png") no-repeat scroll right 0 #ADCBEE;
-    color: #FFFFFF;
-    font-size: 16px;
-    height: 30px;
-    line-height: 30px;
-    padding: 0 40px 0 27px;
-    position: absolute;
-}
-#panier ul li.on {
-    background-color: #75AAE6;
-    background-position: right -31px;
-}
-#panier ul li.ok {
-    background-color: #75AAE6;
-    background-position: right -181px;
-}
-#panier ul li.li1 {
-    z-index: 6;
-}
-#panier ul li.li2 {
-    left: 120px;
-    z-index: 5;
-}
-#panier ul li.li3 {
-    left: 250px;
-    z-index: 4;
-}
-#panier ul li.li4 {
-    left: 350px;
-    z-index: 3;
-}
-#panier ul li.li5 {
-    left: 450px;
-    z-index: 2;
-}
-#panier ul li a {
-    color: #FFFFFF;
-}
+	position: absolute;
+	height: 30px;
+	line-height: 30px;
+	padding: 0px 40px 0px 27px;
+	font-size: 16px;
+	color: #fff;
+	background: url(../img/sprite.png) no-repeat right 0 #adcbee; 
+} 
+#panier ul li.on { background-position: right -31px; background-color: #75aae6; }
+#panier ul li.ok { background-position: right -181px; background-color: #75aae6; }
+#panier ul li.li1 { z-index: 6; }
+#panier ul li.li2 { z-index: 5; left: 120px; }
+#panier ul li.li3 { z-index: 4; left: 250px; }
+#panier ul li.li4 { z-index: 3; left: 350px; }
+#panier ul li.li5 { z-index: 2; left: 450px; }
+#panier ul li a { color: #fff; }
+
+
+
+
+
+/*--------------------------*/
+/*         PANIER_A         */
+/*--------------------------*/
+
+
 #panier table {
-    background-color: #F7F7F7;
-    width: 100%;
+	width: 100%;
+	background-color: #f7f7f7;
 }
 #panier table th {
-    background-color: #012247;
-    color: #FFFFFF;
-    font-weight: normal;
-    padding: 7px 20px;
-    text-align: center;
+	padding: 7px 20px;
+	text-align: center;
+	font-weight: normal;
+	color: #fff;
+	background-color: #012247;
 }
 #panier table td {
-    border-bottom: 1px solid #DCE0E4;
-    border-top: 1px solid #FFFFFF;
-    font-size: 16px;
-    padding: 10px 20px;
-    text-align: center;
+	padding: 10px 20px;
+	text-align: center;
+	font-size: 16px;
+	border-top: 1px solid #fff;
+	border-bottom: 1px solid #dce0e4;
 }
-#panier table .left {
-    text-align: left;
-}
-#panier table .right {
-    text-align: right;
-}
+#panier table .left { text-align: left; }
+#panier table .right { text-align: right; }
 #panier table td h1, #panier table td strong {
-    font-size: 16px;
-    font-weight: normal;
+	font-size: 16px;
+	font-weight: normal;
 }
-#panier table td img {
-    border: 1px solid #DBDBDB;
-}
-#panier table td #nb_product {
-    border: 1px solid #E5E5E5;
-    font-size: 16px;
-    height: 25px;
-    line-height: 25px;
-    padding: 0 10px;
-    text-align: center;
-    width: 40px;
+#panier table td img{ border: 1px solid #dbdbdb; }
+#panier table td #nb_product{ 
+	padding: 0 10px;
+	height: 25px; width: 40px;
+	line-height: 25px; font-size: 16px;
+	text-align: center;
+	border: 1px solid #e5e5e5;
 }
 #panier table td #supprimer {
-    background: url("../img/sprite.png") no-repeat scroll 3px -144px #FFFFFF;
-    border-radius: 5px;
-    display: block;
-    height: 25px;
-    overflow: hidden;
-    text-indent: -1500px;
-    transition: all 0.2s ease 0s;
-    width: 25px;
+	display: block;
+	width: 25px; height: 25px;
+	overflow: hidden; text-indent: -1500px;
+	-o-border-radius: 5px;
+	-ms-border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	background: url(../img/sprite.png) no-repeat 3px -144px #fff;
+	-o-transition: all 0.2s ease;
+	-ms-transition: all 0.2s ease;
+	-moz-transition: all 0.2s ease;
+	-webkit-transition: all 0.2s ease;
+	transition: all 0.2s ease;
 }
-#panier table td #supprimer:hover {
-    background-color: #FFCFCF;
-}
-#panier table span {
-    padding: 0 2px;
-}
-#panier .log .errwrapper {
-    height: 1px;
-    line-height: 1px;
-}
+#panier table td #supprimer:hover { background-color: #FFCFCF; }
+
 #code {
-    border: 1px solid #E5E5E5;
-    font-size: 16px;
-    height: 25px;
-    line-height: 25px;
-    padding: 0 10px;
-    width: 150px;
+	padding: 0 10px;
+	height: 25px; width: 150px;
+	line-height: 25px;
+	font-size: 16px;
+	border: 1px solid #e5e5e5;
 }
 #btnOk {
-    background-color: #338AEB;
-    border: medium none;
-    color: #FFFFFF;
-    cursor: pointer;
-    display: inline-block;
-    font-family: arial;
-    font-size: 14px;
-    height: 25px;
-    line-height: 25px;
-    margin-left: 5px;
-    padding: 0 8px;
+	display: inline-block;
+	padding: 0 8px; margin-left: 5px;
+	height: 25px; line-height: 25px;
+	color: #fff; font-size: 14px;
+	font-family: arial;
+	border: none; cursor: pointer;
+	background-color: #338aeb;
 }
-.btn {
-    background-image: url("../img/sprite.png");
-    background-repeat: no-repeat;
-    color: #FFFFFF;
-    display: block;
-    font-family: arial;
-    height: 32px;
-    line-height: 32px;
-    padding: 0 15px;
+
+
+.btn { 
+	display: block;
+	height: 32px; line-height: 32px;
+	font-family: arial; color: #fff;
+	padding: 0 15px;
+	background-image: url(../img/sprite.png);
+	background-repeat: no-repeat;
 }
-.btn.purchase {
-    background-color: #338AEB;
-    background-position: 69px -70px;
-    clear: left;
-    float: right;
-    font-size: 16px;
-    padding-right: 30px;
-    transition: all 0.2s ease 0s;
+.btn.purchase { 
+	float: right; clear: left;
+	padding-right: 30px;
+	font-size: 16px; 
+	background-color: #338aeb; 
+	background-position: 69px -70px;
+	-o-transition: all 0.2s ease;
+	-ms-transition: all 0.2s ease;
+	-moz-transition: all 0.2s ease;
+	-webkit-transition: all 0.2s ease;
+	transition: all 0.2s ease;
 }
-.btn.purchase:hover {
-    background-color: #57A4FF;
+.btn.purchase:hover { background-color: #57A4FF; }
+.btn.back { 
+	float: left;
+	padding-left: 30px;
+	font-size: 14px; 
+	background-color: #75aae6;  
+	background-position: 6px -104px;  
 }
-.btn.back {
-    background-color: #75AAE6;
-    background-position: 6px -104px;
-    float: left;
-    font-size: 14px;
-    padding-left: 30px;
+
+
+
+
+/*-----------------------------------*/
+/*         PANIER_B & PANIER_C       */
+/*-----------------------------------*/
+#panier .float { display: block; float: left; width: 470px; /*height: 240px;*/ }
+#panier .float.out { margin-right: 20px; }
+#panier .log,
+#panier .adresse {
+	display: block; 
+	min-height: 190px;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #dce0e4;
+	background-color: #f7f7f7;
 }
-#panier .float {
-    display: block;
-    float: left;
-    height: 270px;
-    width: 470px;
-}
-#panier .float.out {
-    margin-right: 20px;
-}
-#panier .log, #panier .adresse {
-    background-color: #F7F7F7;
-    border-bottom: 1px solid #DCE0E4;
-    display: block;
-    height: 200px;
-    margin-bottom: 10px;
-}
-#panier .log h1, #panier .adresse h1 {
-    background-color: #012247;
-    color: #FFFFFF;
-    display: block;
-    font-size: 16px;
-    font-weight: normal;
-    margin-bottom: 25px;
-    margin-top: 0;
-    padding: 5px 0 5px 15px;
-    text-align: left;
-}
+#panier .log h1 ,
 #panier .adresse h1 {
-    margin-bottom: 15px;
+	display: block; padding: 5px 0 5px 15px;
+	margin-bottom: 15px; margin-top: 0;
+	text-align: left;
+	font-size: 16px; font-weight: normal;
+	color: #fff;
+	background-color: #012247;
 }
+#panier .adresse h1 { margin-bottom: 15px; }
 #panier .log input {
-    border: 1px solid #E5E5E5;
-    color: #161F48;
-    display: block;
-    font-size: 16px;
-    height: 30px;
-    line-height: 25px;
-    margin: 12px 20px;
-    padding: 0 12px;
-    width: 250px;
+	display: block;
+	margin: 12px 20px;
+	padding: 0px 12px;
+	width: 250px; height: 30px; 
+	line-height: 25px; font-size: 16px;
+	color: #161f48; border: 1px solid #e5e5e5;
 }
 #panier .btnlog {
-    background: url("../img/sprite.png") no-repeat scroll 137px -73px #338AEB;
-    color: #FFFFFF;
-    display: block;
-    float: left;
-    font-family: arial;
-    font-size: 14px;
-    height: 25px;
-    line-height: 25px;
-    padding: 0 30px 0 8px;
+	display: block; float: left;
+	height: 25px;
+	line-height: 25px;
+	color: #fff;
+	padding: 0 30px 0 8px;
+
+	font-family: arial;
+	font-size: 14px; 
+	
+	background: url(../img/sprite.png) no-repeat right -73px #338aeb; 
 }
 #panier .float.in .btnlog {
-    background: url("../img/sprite.png") no-repeat scroll 105px -73px #338AEB;
+	background: url(../img/sprite.png) no-repeat 105px -73px #338aeb; 
 }
-#forgotpass {
-    clear: both;
-    display: block;
-    float: none;
-    font-family: arial;
-    font-size: 11px;
-    padding-top: 6px;
-}
-#forgotpass:hover {
-    text-decoration: underline;
-}
+#forgotpass { display: block; float: none; clear: both; padding-top: 6px; font-family: arial; font-size: 11px; }
+#forgotpass:hover { text-decoration: underline; }
+
+
+ 
 #panier .adresse p {
-    color: #161F48;
-    display: block;
-    font-size: 14px;
-    line-height: 16px;
-    margin: 0 20px 12px;
+	display: block;
+	margin: 0px 20px 12px 20px;
+	line-height: 16px; font-size: 14px;
+	color: #161f48;
 }
 #panier .adresse .modifier {
-    background-color: #012247;
-    color: #FFFFFF;
-    display: block;
-    float: left;
-    margin: 0 0 0 20px;
-    padding: 0 8px;
+	display: block; float: left;
+	margin: 0 0 0 20px; padding: 0 8px;
+	color: #fff;
+	background-color: #012247;
 }
-#titlePaiement {
-    background-color: #012247;
-    color: #FFFFFF;
-    font-size: 16px;
-    font-weight: normal;
-    padding: 7px 0 7px 15px;
+
+
+
+
+
+/*-----------------------------------*/
+/*            PANIER_D               */
+/*-----------------------------------*/
+
+#titleLivre {
+	font-size: 16px;
+	font-weight: normal;
+	padding: 7px 0 7px 15px;
+	color: #fff;
+	background-color: #012247;
 }
-#panier .payment-proc {
-    display: block;
-    height: 75px;
-    margin: 40px 20px 60px 100px;
-    width: 300px;
+
+#panier #fedex,
+#panier #chronopost { display: block; height: 75px; margin-top: 40px; }
+
+#panier #fedex  { width: 210px; margin: 40px 200px 0 100px; }
+#panier #chronopost  { width: 280px; margin-bottom: 60px; }
+
+#fedex label,
+#chronopost label {
+	display: block; float: right;
+	overflow: hidden;
+	text-indent: -1500px;
+	cursor: pointer;
 }
-#panier .payment-proc img {
-    cursor: pointer;
-    display: block;
-    float: right;
-    overflow: hidden;
+
+
+
+#fedex label {
+	width: 165px;
+	height: 71px;
+	
+	background: url(../img/fedex.png) no-repeat 0 0; 
 }
-#panier .payment-proc input {
-    display: block;
-    float: left;
-    margin-top: 30px;
+#chronopost label {
+	width: 232px;
+	height: 73px;
+	
+	background: url(../img/chronopost.png) no-repeat 0 0; 
 }
+#fedex input,
+#chronopost input {
+	display: block;
+	float: left;
+	margin-top: 30px;
+}
+
+
+
+/*------------------------------------------------*/
 #wrap_cdv {
-    clear: both;
-    float: right;
-    font-family: arial;
-    font-size: 12px;
-    padding-top: 20px;
+	float: right;
+	clear: both;  
+	padding-top: 20px;
+	font-family: arial;
+	font-size: 12px;
 }
-#wrap_cdv a {
-    text-decoration: underline;
+#wrap_cdv a { text-decoration: underline; }
+/*------------------------------------------------*/
+
+
+
+
+
+/*-----------------------------------*/
+/*            PANIER_E               */
+/*-----------------------------------*/
+
+#titlePaiement {
+	font-size: 16px;
+	font-weight: normal;
+	padding: 7px 0 7px 15px;
+	color: #fff;
+	background-color: #012247;
 }
+
+
+
+#selectPaymentProc .float.out.payment-proc {
+    width: 301px;
+    margin: 20px 10px;
+    padding: 50px 20px;
+	background-color: #f2f2f2;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*------------FORM PAIEMENT------------*/
+ 
+
 #paiementForm {
-    background-color: #F7F7F7;
-    border-bottom: 1px solid #DCE0E4;
-    margin: 80px auto 0;
-    padding: 0 0 20px;
-    width: 430px;
+	width: 430px; margin: 80px auto 0 auto;
+	padding: 0 0 20px 0;
+	border-bottom: 1px solid #DCE0E4;
+	background-color: #F7F7F7;
 }
+
+ 
 #paiementForm h1 {
-    background-color: #012247;
-    color: #FFFFFF;
-    font-size: 16px;
-    font-weight: normal;
-    margin: 0 auto 20px;
-    padding: 7px 0 7px 15px;
-    width: 430px;
+	width: 430px; margin: 0 auto;
+	font-size: 16px;
+	font-weight: normal;
+	margin-bottom: 20px;
+	padding: 7px 0 7px 15px;
+	color: #fff;
+	background-color: #012247;
 }
 #paiementForm h1 span {
-    color: #FFFFFF;
-    display: block;
-    float: right;
-    font-weight: bold;
-    margin: 0 10px 0 0;
+	display: block;
+	float: right;
+	margin: 0 10px 0 0;
+	color: #fff;
+	font-weight: bold;
 }
+
 #paiementForm span, #paiementForm strong {
-    color: #006FA3;
-    display: block;
-    font-size: 16px;
-    font-weight: normal;
-    margin: 40px 0 35px -25px;
-    text-align: center;
+	display: block; margin: 40px 0 35px -25px;
+	text-align: center; color: #006fa3;
+	font-weight: normal; font-size: 16px;
 }
-#paiementForm strong {
-    margin: 45px 55px 25px -5px;
-}
-#paiementForm p {
-    height: 27px;
-    margin: 6px 7px 0 15px;
-}
+#paiementForm strong { margin: 45px 55px 25px -5px; }
+
+#paiementForm p { height: 27px; margin: 6px 7px 0px 15px; }
 #paiementForm p label {
-    color: #1F244A;
-    display: block;
-    float: left;
-    font-family: arial;
-    font-size: 13px;
-    height: 27px;
-    line-height: 27px;
-    margin-right: 10px;
-    width: 130px;
+	display: block; float: left;
+	width: 130px; height: 27px; line-height: 27px;
+	margin-right: 10px;
+	font-family: arial; font-size: 13px; 
+	color: #1F244A; 
 }
 #paiementForm p label a {
-    color: #1F244A;
-    font-family: verdana;
-    font-size: 13px;
-    line-height: 27px;
-    margin-right: 10px;
-    text-decoration: underline;
+	line-height: 27px; margin-right: 10px;
+	font-family: verdana; font-size: 13px; 
+	color: #1F244A; text-decoration: underline;
 }
 #paiementForm p input, #paiementForm p select {
-    border: 1px solid #CFCFCF;
-    color: #333333;
-    display: block;
-    float: left;
-    font-family: verdana;
-    font-size: 13px;
-    height: 25px;
-    padding-left: 5px;
-    width: 238px;
+	display: block; float: left;
+	width: 238px; height: 25px; padding-left: 5px;
+	border: 1px solid #CFCFCF; color: #333;
+	font-family: verdana; font-size: 13px; 
 }
-#paiementForm p input.middle {
-    width: 120px;
+
+
+
+
+
+
+
+#paiementForm p input.middle { width: 120px; }
+#paiementForm p input.small { width: 70px; }
+#paiementForm p input.numCard { width: 46px; margin-right: 11px; }
+#paiementForm p select { width: 85px; height: 27px; line-height: 27px; margin-right: 7px; }
+#paiementForm p select option { line-height: 19px; font-family: verdana; }
+#paiementForm p #xmonth { width: 152px; }
+ 
+
+#paiementForm input.erreur, #paiementForm select.erreur { background-color: #FFFAF4; border: 1px solid #F8C979; color: #D57F00; }
+#paiementForm em.erreur { display: block; margin: 3px 0 0 140px; color: #F49900; }
+
+
+#btnPaiement { 
+	display: block; float: none;
+	width: 100px; margin: 15px auto;
 }
-#paiementForm p input.small {
-    width: 70px;
-}
-#paiementForm p input.numCard {
-    margin-right: 11px;
-    width: 46px;
-}
-#paiementForm p select {
-    height: 27px;
-    line-height: 27px;
-    margin-right: 7px;
-    width: 85px;
-}
-#paiementForm p select option {
-    font-family: verdana;
-    line-height: 19px;
-}
-#paiementForm p #xmonth {
-    width: 152px;
-}
-#paiementForm input.erreur, #paiementForm select.erreur {
-    background-color: #FFFAF4;
-    border: 1px solid #F8C979;
-    color: #D57F00;
-}
-#paiementForm em.erreur {
-    color: #F49900;
-    display: block;
-    margin: 3px 0 0 140px;
-}
-#btnPaiement {
-    display: block;
-    float: none;
-    margin: 15px auto;
-    width: 100px;
-}
+
+
+
+/*-ENCART SECURITE-*/
 #paiementForm #securite {
-    background-color: #F9FEF7;
-    border: 1px solid #DCF1BD;
-    color: #6F6F6F;
-    font-family: arial;
-    font-size: 12px;
-    height: auto;
-    margin: 20px 55px 0 0;
-    padding: 1px 12px;
-    text-align: justify;
-    width: 450px;
+	width: 450px; height: auto;
+	padding: 1px 12px; margin: 20px 55px 0 0; text-align: justify;
+	color: #6f6f6f; font-family: arial; font-size: 12px;
+	border: 1px solid #dcf1bd; background-color: #f9fef7;
 }
-#paiementForm #securite img {
-    margin: 3px 5px 0 0;
+#paiementForm #securite img { margin: 3px 5px 0 0; }
+#paiementForm #securite span { 
+	display: block; height: 28px;
+	margin: 5px -12px -1px -12px;
+	background: url(../img/icocards.png) no-repeat 197px 3px #f2f8e9;
+	border: 1px solid #fff;
 }
-#paiementForm #securite span {
-    background: url("../img/icocards.png") no-repeat scroll 197px 3px #F2F8E9;
-    border: 1px solid #FFFFFF;
-    display: block;
-    height: 28px;
-    margin: 5px -12px -1px;
-}
+
+
+
+
 #wrap_cdv {
-    clear: both;
-    float: none;
-    font-family: arial;
-    font-size: 12px;
-    margin: 10px auto 0;
-    padding-top: 0;
-    width: 340px;
+	width: 340px;
+	margin: 10px auto 0 auto;
+	float: none; clear: both;
+	padding-top: 0px;
+	font-family: arial;
+	font-size: 12px;
 }
-#wrap_cdv a {
-    text-decoration: underline;
-}
-#wrap_cdv label {
-    color: #939393;
-}
+#wrap_cdv a { text-decoration: underline; }
+#wrap_cdv label { color: #939393; }
+
+
+
+/*-------------------------------------------------------*/
+
+
+
+
+
+
+/*-------------------------------------*/
+/*             FORM INFOS              */
+/*-------------------------------------*/
+
 #titleInfo {
-    background-color: #012247;
-    color: #FFFFFF;
-    display: block;
-    font-size: 14px;
-    font-weight: normal;
-    padding: 7px;
+	font-size: 14px;
+	display: block; padding: 7px;
+	font-weight: normal; color: #ffffff;
+	background-color: #012247;
 }
+
 #formContainer {
-    -moz-border-bottom-colors: none;
-    -moz-border-left-colors: none;
-    -moz-border-right-colors: none;
-    -moz-border-top-colors: none;
-    background-color: #F9F9F9;
-    border-color: -moz-use-text-color #E2E2E2 #E2E2E2;
-    border-image: none;
-    border-radius: 0 0 8px 8px;
-    border-right: 1px solid #E2E2E2;
-    border-style: none solid solid;
-    border-width: medium 1px 1px;
-    margin-bottom: 20px;
-    padding: 8px 15px 0;
+	margin-bottom: 20px;
+	padding: 8px 15px 0px 15px;
+	-o-border-radius: 0 0 8px 8px;
+	-ms-border-radius: 0 0 8px 8px;
+	-moz-border-radius: 0 0 8px 8px;
+	-webkit-border-radius: 0 0 8px 8px;
+	border-radius: 0 0 8px 8px;
+	border: 1px solid #E2E2E2;
+	border-top: none;
+	background-color: #F9F9F9;
 }
+
+#formContainer .errwrapper { margin: 20px 0; }
+
+
 #formContainer fieldset {
-    -moz-border-bottom-colors: none;
-    -moz-border-left-colors: none;
-    -moz-border-right-colors: none;
-    -moz-border-top-colors: none;
-    border-color: #E3E3E3 -moz-use-text-color -moz-use-text-color;
-    border-image: none;
-    border-right: medium none;
-    border-style: solid none none;
-    border-width: 1px medium medium;
-    box-shadow: 0 1px #FFFFFF inset;
-    margin: 30px 0;
-    padding: 6px 0 2px;
+	margin: 30px 0; padding: 6px 0px 2px 0px;
+	border: none;
+	border-top: 1px solid #E3E3E3;
+	-webkit-box-shadow: 0 1px #ffffff inset;
+	-moz-box-shadow: 0 1px #ffffff inset;
+	-ms-box-shadow: 0 1px #ffffff inset;
+	-o-box-shadow: 0 1px #ffffff inset;
+	box-shadow: 0 1px #ffffff inset;
 }
 #formContainer legend {
-    color: #012247;
-    font-size: 14px;
-    font-weight: bold;
-    margin: -7px 0 0;
+	margin: -7px 0 0 0px;
+	font-weight: bold;
+	color: #012247; font-size: 14px;
 }
+
+
 #formContainer input {
-    display: inline-block;
-    font-size: 14px;
-    margin: 5px 8px 0 0;
-    width: auto;
+	display: inline-block;
+	width: auto;
+	margin: 5px 8px 0 0;
+	font-size: 14px;
 }
 #formContainer label {
-    color: #3E5269;
-    display: inline-block;
-    font-size: 14px;
-    height: 18px;
-    line-height: 18px;
-    margin: 0 5px 3px 0;
-    padding-top: 3px;
-    width: auto;
+	display: inline-block;
+	width: auto; height: 18px;
+	padding-top: 3px;
+	line-height: 18px;
+	margin: 0 5px 3px 0;
+	font-size: 14px;
+	color: #3E5269; font-size: 14px;
 }
-#formContainer p {
-    margin: 15px 0;
-}
+
+#formContainer p { margin: 15px 0 ; }
 #formContainer p label {
-    color: #3E5269;
-    display: inline-block;
-    font-size: 14px;
-    height: 18px;
-    line-height: 18px;
-    margin: 0 5px 3px 0;
-    padding-top: 0;
-    width: 85px;
+	display: inline-block;
+	width: 85px; height: 18px;
+	padding-top: 0;
+	line-height: 18px;
+	margin: 0 5px 3px 0;
+	font-size: 14px;
+	color: #3E5269; font-size: 14px;
 }
 #formContainer p input {
-    background-color: #FFFFFF;
-    border: 1px solid #D9D9D9;
-    color: #000000;
-    display: inline-block;
-    font-size: 14px;
-    height: 25px;
-    line-height: 25px;
-    margin: 0 0 3px;
-    padding: 0 10px;
-    width: 220px;
+	display: inline-block;
+	width: 220px; height: 25px;
+	line-height: 25px;
+	margin: 0px 0px 3px 0px;
+	padding: 0 10px;
+	color: #000;
+	font-size: 14px;
+	border: 1px solid #D9D9D9;
+	background-color: #ffffff;
 }
 #formContainer p select {
-    background-color: #FFFFFF;
-    border: 1px solid #D9D9D9;
-    color: #000000;
-    display: inline-block;
-    height: 25px;
-    line-height: 24px;
-    margin: 0 0 3px;
-    padding: 0 0 0 7px;
-    width: 220px;
+	display: inline-block;
+	width: 220px; height: 25px;
+	line-height: 24px;
+	margin: 0px 0px 3px 0px;
+	padding: 0 0 0 7px;
+	color: #000;
+	border: 1px solid #D9D9D9;
+	background-color: #ffffff;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1211,6 +1276,16 @@ a { color: #1f244a; }
 }
 .contenuTxt dl dt { background: none; padding: 0; }
 .contenuTxt .retrait { display: block; margin: 20px 0 0 40px; }
+
+
+
+
+
+
+
+
+
+
 
 
 
