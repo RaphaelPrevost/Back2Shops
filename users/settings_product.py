@@ -13,6 +13,7 @@ SERVER_APIKEY_URI_MAP = {
     'USR': '%s/webservice/1.0/pub/apikey.pem' % USR_ROOT_URI,
     'ADM': '%s/webservice/1.0/pub/apikey.pem' % ADM_ROOT_URI,
     'FIN': '%s/webservice/1.0/pub/apikey.pem' % FIN_ROOT_URI,
+    'FRO': '%s/webservice/1.0/pub/apikey.pem' % FRONT_ROOT_URI,
 }
 
 
