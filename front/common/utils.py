@@ -117,6 +117,10 @@ def get_mapping_name(role, _type, name):
             _type in ROUTE_NAME_MAPPING and ROUTE_NAME_MAPPING[_type](name) or
             name)
 
+def is_routed_template(role):
+    from urls import BrandRoutes
+    return BrandRoutes().is_routed(role)
+
 def send_reload_signal():
     os.kill(os.getpid(), signal.SIGHUP)
 
