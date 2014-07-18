@@ -122,6 +122,7 @@ def is_routed_template(role):
     return BrandRoutes().is_routed(role)
 
 def send_reload_signal():
+    logging("Send reload signal...")
     os.kill(os.getpid(), signal.SIGHUP)
 
 def generate_random_key():
@@ -129,10 +130,13 @@ def generate_random_key():
 
 def watching_invalidate_cache_list():
     redis_down = False
+    redis_cli = get_redis_cli()
+    key = INVALIDATE_CACHE_LIST % settings.BRAND_ID
     while True:
         try:
-            cache = get_redis_cli().blpop(
-                INVALIDATE_CACHE_LIST % settings.BRAND_ID, 0)
+            cache = None
+            if redis_cli.exists(key):
+                cache = redis_cli.blpop(key, 0)
         except:
             logging.warn("Redis is down ???")
             redis_down = True
