@@ -180,7 +180,7 @@ class BrandRoutes(object):
         return urlpatterns
 
     def get_url_format(self, role):
-        if self.role_mapping and role in self.role_mapping:
+        if self.is_routed(role):
             route = self.role_mapping[role].values()[0]
             url_pattern = self._format_url(route, '%%(%s)s')
         else:
@@ -193,7 +193,7 @@ class BrandRoutes(object):
 
     def get_meta_by_role(self, role):
         meta = {}
-        if self.role_mapping and role in self.role_mapping:
+        if self.is_routed(role):
             route = self.role_mapping.get(role).values()[0]
             meta = self._get_meta_by_route(route)
         return meta
@@ -201,6 +201,9 @@ class BrandRoutes(object):
     def _get_meta_by_route(self, route):
         meta = route.get('meta', None) and as_list(route['meta']) or None
         return meta and dict(map(lambda x: [x['@name'], x['#text']], meta)) or {}
+
+    def is_routed(self, role):
+        return self.role_mapping and role in self.role_mapping
 
     def _format_url(self, route, param_format='{%s}'):
         url_pattern = route.get('url') or ''

@@ -12,33 +12,40 @@ from common.utils import get_mapping_name
 from common.utils import get_product_default_display_price
 from common.utils import get_type_from_sales
 from common.utils import get_url_format
+from common.utils import is_routed_template
 from views.base import BaseHtmlResource
 
 
 class TypeListResource(BaseHtmlResource):
     template = "product_list.html"
+    role = FRT_ROUTE_ROLE.TYPE_LIST
 
     def _on_get(self, req, resp, **kwargs):
+        is_routed = is_routed_template(self.role)
         type_id = kwargs.get('id_type')
         if not type_id:
             raise ValidationError('ERR_ID')
 
-        type_name = kwargs.get('type_name')
-        if not type_name:
-            raise ValidationError('ERR_NAME')
+        type_name = ''
+        if is_routed:
+            type_name = kwargs.get('type_name')
+            if not type_name:
+                raise ValidationError('ERR_NAME')
 
         req._params['type'] = type_id
         sales = data_access(REMOTE_API_NAME.GET_SALES,
                             req, resp, **req._params)
-        type_info = get_type_from_sales(sales)
-        mapping_type_name = get_mapping_name(FRT_ROUTE_ROLE.TYPE_LIST,
-                                             'type_name',
-                                             type_info['name'])
-        if mapping_type_name != type_name:
-            self.redirect(get_url_format(FRT_ROUTE_ROLE.TYPE_LIST) % {
-                'id_type': type_id, 'type_name': mapping_type_name
-            })
-            return
+
+        if is_routed:
+            type_info = get_type_from_sales(sales)
+            mapping_type_name = get_mapping_name(FRT_ROUTE_ROLE.TYPE_LIST,
+                                                 'type_name',
+                                                 type_info['name'])
+            if mapping_type_name != type_name:
+                self.redirect(get_url_format(FRT_ROUTE_ROLE.TYPE_LIST) % {
+                    'id_type': type_id, 'type_name': mapping_type_name
+                })
+                return
 
         return {'category': get_category_from_sales(sales),
                 'product_list': get_brief_product_list(sales)}
@@ -59,55 +66,56 @@ class ProductListResource(BaseHtmlResource):
 
 class ProductInfoResource(BaseHtmlResource):
     template = "product_info.html"
+    role = FRT_ROUTE_ROLE.PRDT_INFO
 
     def _on_get(self, req, resp, **kwargs):
+        is_routed = is_routed_template(self.role)
         sale_id = kwargs.get('id_sale')
         if not sale_id:
             raise ValidationError('ERR_ID')
 
-        sale_name = kwargs.get('sale_name')
-        if not sale_name:
-            raise ValidationError('ERR_Name')
-        
-        type_id = kwargs.get('id_type')
-        if not type_id:
-            raise ValidationError('ERR_ID')
+        sale_name = type_id = type_name = None
+        if is_routed:
+            sale_name = kwargs.get('sale_name')
+            if not sale_name:
+                raise ValidationError('ERR_Name')
 
-        type_name = kwargs.get('type_name')
-        if not type_name:
-            raise ValidationError('ERR_NAME')
+            type_id = kwargs.get('id_type')
+            if not type_id:
+                raise ValidationError('ERR_ID')
+
+            type_name = kwargs.get('type_name')
+            if not type_name:
+                raise ValidationError('ERR_NAME')
 
         # all sales
         all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
         if not all_sales or sale_id not in all_sales:
             raise ValidationError('ERR_ID')
+        product_info = all_sales[sale_id]
 
-        # type info
-        type_info = get_type_from_sales(all_sales)
-        mapping_type_name = get_mapping_name(FRT_ROUTE_ROLE.PRDT_INFO,
-                                             'type_name',
-                                             type_info['name'])
+        if is_routed:
+            type_info = get_type_from_sales(all_sales)
+            mapping_type_name = get_mapping_name(FRT_ROUTE_ROLE.PRDT_INFO,
+                                                 'type_name',
+                                                 type_info['name'])
+
+            mapping_sale_name = get_mapping_name(FRT_ROUTE_ROLE.PRDT_INFO,
+                                                 'sale_name',
+                                                 product_info.get('name', ''))
+
+            if mapping_type_name != type_name or mapping_sale_name != sale_name:
+                self.redirect(get_url_format(FRT_ROUTE_ROLE.PRDT_INFO) % {
+                    'id_type': type_id, 'type_name': mapping_type_name,
+                    'id_sale': sale_id, 'sale_name': mapping_sale_name,
+                })
+                return
 
         # product info
-        product_info = all_sales[sale_id]
-        mapping_sale_name = get_mapping_name(FRT_ROUTE_ROLE.PRDT_INFO,
-                                             'sale_name',
-                                             product_info.get('name', ''))
-
-        if mapping_type_name != type_name or mapping_sale_name != sale_name:
-            self.redirect(get_url_format(FRT_ROUTE_ROLE.PRDT_INFO) % {
-                'id_type': type_id, 'type_name': mapping_type_name,
-                'id_sale': sale_id, 'sale_name': mapping_sale_name,
-            })
-            return
-
         if not settings.PRODUCTION and not product_info.get('img'):
             product_info['img'] = '/img/dollar-example.jpg'
 
         product_info['variant'] = as_list(product_info.get('variant'))
-
-        # product list
-        product_list = get_brief_product_list(all_sales)
 
         # price
         product_info['display'] = dict()
@@ -163,5 +171,5 @@ class ProductInfoResource(BaseHtmlResource):
 
         return {
             'product_info': product_info,
-            'product_list': product_list,
+            'product_list': get_brief_product_list(all_sales),
         }
