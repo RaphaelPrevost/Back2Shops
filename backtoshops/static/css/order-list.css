@@ -165,7 +165,8 @@ fieldset { border: none 0; }
             }
             .content .prix span.status-pending-blue {
                 /* no img provided now, use gray temp */
-                background: url(../img/order-pending-gray.png) no-repeat 0 0;
+				/* Done ! */
+                background: url(../img/order-pending-blue.png) no-repeat 0 0;
             }
             .content .prix span.status-payment-gray {
                 background: url(../img/order-payment-gray.png) no-repeat 0 0;
@@ -185,10 +186,8 @@ fieldset { border: none 0; }
             }
             .content .prix span strong,
             .content .prix span em {
-                display: block;
-                float: right;
-                width: auto;
-            }
+                display: block; float: right; width: auto;
+			}
 
 /*Liens DETAIL*/
 .seeDetail {
