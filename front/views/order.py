@@ -16,7 +16,6 @@ from B2SUtils.base_actor import as_list
 from B2SUtils.common import get_cookie_value
 from B2SUtils.common import set_cookie
 from B2SUtils.errors import ValidationError
-from B2SProtocol.constants import RESP_RESULT
 from B2SProtocol.constants import ORDER_STATUS
 from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
@@ -272,7 +271,6 @@ class OrderAPIResource(BaseJsonResource):
             if id_sale not in all_sales:
                 continue
 
-            sale_info = all_sales[id_sale]
             orders.append({
                 'id_sale': item_info['id_sale'],
                 'id_shop': item_info.get('id_shop'),

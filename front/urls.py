@@ -9,15 +9,18 @@ from views import homepage
 from views.basket import BasketResource
 from views.homepage import HomepageResource
 from views.invoice import InvoiceResource
+from views.order import OrderAPIResource
 from views.order import OrderAddressResource
 from views.order import OrderAuthResource
 from views.order import OrderInfoResource
 from views.order import OrderListResource
 from views.order import OrderUserResource
-from views.order import OrderAPIResource
 from views.order import ShippingAPIResource
-from views.payment import PaymentResource
+from views.payment import PayboxCancelResource
+from views.payment import PayboxFailureResource
+from views.payment import PayboxSuccessResource
 from views.payment import PaymentCancelResource
+from views.payment import PaymentResource
 from views.payment import PaypalFailureResource
 from views.payment import PaypalSuccessResource
 from views.product import ProductInfoResource
@@ -81,6 +84,9 @@ fixed_urlpatterns = {
     r'/payment/{id_trans}/cancel': PaymentCancelResource,
     r'/paypal/{id_trans}/success': PaypalSuccessResource,
     r'/paypal/{id_trans}/failure': PaypalFailureResource,
+    r'/paybox/{id_trans}/success': PayboxSuccessResource,
+    r'/paybox/{id_trans}/failure': PayboxFailureResource,
+    r'/paybox/{id_trans}/cancel': PayboxCancelResource,
     r'/webservice/1.0/pub/JSONAPI': AuxResource,
     r'/webservice/1.0/pub/apikey.pem': crypto.APIPubKey,
 

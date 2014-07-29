@@ -1,5 +1,8 @@
-from common.template import ENV
+import hashlib
+import hmac
 import weasyprint
+
+from common.template import ENV
 
 def _temp_content(template, **data):
     temp = ENV.get_template(template)
@@ -41,3 +44,6 @@ def gen_500_html_resp(resp):
 def gen_500_pdf_resp(resp):
     content = _temp_content('500.html')
     return _pdf_resp(resp, content)
+
+def gen_hmac(key, msg, algorithm=hashlib.sha512):
+    return hmac.new(key, msg, algorithm).hexdigest()

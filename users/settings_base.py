@@ -74,14 +74,18 @@ MAIL_FROM_USER = 'xxx'
 MAIL_FROM_PASS = 'xxx'
 MAIL_POSTFIX = 'gmail.com'
 
+# Paypal
+PAYMENT_PAYPAL_GATEWAY = "%s/payment/paypal/%%(id_trans)s/gateway" % USR_ROOT_URI
+PAYMENT_PAYPAL_RETURN = "%s/payment/paypal/%%(id_trans)s/process" % USR_ROOT_URI
+PAYMENT_PAYPAL_CANCEL = "%s/payment/paypal/%%(id_trans)s/cancel" % FRONT_ROOT_URI
 
+# Paybox
+PAYMENT_PAYBOX_SUCCESS = "%s/payment/paybox/%%(id_trans)s/success" % FRONT_ROOT_URI
+PAYMENT_PAYBOX_FAILURE = "%s/payment/paybox/%%(id_trans)s/failure" % FRONT_ROOT_URI
+PAYMENT_PAYBOX_CANCEL = "%s/payment/paybox/%%(id_trans)s/cancel" % FRONT_ROOT_URI
+PAYMENT_PAYBOX_WAITING = "%s/payment/paybox/%%(id_trans)s/waiting" % FRONT_ROOT_URI
+PAYMENT_PAYBOX_GATEWAY = "%s/payment/paybox/%%(id_trans)s/gateway" % USR_ROOT_URI
 
-PAYMENT_GATEWAY = "%s/payment/%%(id_trans)s/gateway" % USR_ROOT_URI
-PAYMENT_RETURN = "%s/payment/%%(id_trans)s/process" % USR_ROOT_URI
-PAYMENT_CANCEL = "%s/payment/%%(id_trans)s/cancel" % FRONT_ROOT_URI
-
-FRONT_PAYMENT_SUCCESS = "%s/paypal/%%(id_trans)s/success" % FRONT_ROOT_URI
-FRONT_PAYMENT_FAILURE = "%s/paypal/%%(id_trans)s/failure" % FRONT_ROOT_URI
 
 PAYPAL_SERVER = "https://www.sandbox.paypal.com/cgi-bin/webscr"
 

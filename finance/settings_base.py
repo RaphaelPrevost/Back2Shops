@@ -33,3 +33,15 @@ CRYPTO_RESP_DEBUGING = False
 
 # need override in settings_local and settings_product
 SELLER_EMAIL = None
+
+B2S_TIMEZONE = 'Europe/Paris'
+
+### Paybox
+PAYBOX_REQUEST_URL = None
+PAYBOX_SITE = None
+PAYBOX_RANG = None
+PAYBOX_IDENTIFIANT = None
+
+PAYBOX_HASH_TYPE = 'SHA512'
+PAYBOX_HMAC_KEY = None
+

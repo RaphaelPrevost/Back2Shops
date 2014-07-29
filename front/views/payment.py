@@ -52,22 +52,39 @@ class PaymentResource(BaseHtmlResource):
     def _on_post(self, req, resp, **kwargs):
         id_trans = req.get_param('id_trans')
         processor = req.get_param('processor')
+        id_order = req.get_param('id_order')
+        invoices_obj = {}
         form = None
-        if processor == '1':
+        if processor in ['1', '4']:
             trans = {'id_trans': id_trans}
-            success_url = settings.PP_SUCCESS % trans
-            failure_url = settings.PP_FAILURE % trans
-            query = {'transaction': id_trans,
-                     'processor': processor,
-                     'success': success_url,
-                     'failure': failure_url}
+            query = {'transaction': id_trans}
+            invoices_obj = data_access(REMOTE_API_NAME.GET_INVOICES, req,
+                                       resp, order=id_order,
+                                       brand=settings.BRAND_ID)
+            if processor == '1':
+                query.update({
+                    'processor': processor,
+                    'success': settings.PP_SUCCESS % trans,
+                    'failure': settings.PP_FAILURE % trans,
+                })
+            if processor == '4':
+                query.update({
+                    'processor': processor,
+                    'success': settings.PB_SUCCESS % trans,
+                    'failure': settings.PB_ERROR % trans,
+                    'cancel': settings.PB_CANCEL % trans,
+                    'waiting': settings.PB_WAITING % trans,
+                })
             form_resp = data_access(REMOTE_API_NAME.PAYMENT_FORM, req, resp,
                                     **query)
             form = form_resp.get('form')
         if not form:
             form = '<div class="errwrapper">NOT_SUPPORTED</div>'
         return {'step': 'form',
-                'form': form}
+                'form': form,
+                'obj': invoices_obj,
+                'order_id': id_order,
+                'processor': processor}
 
 
 class PaymentCancelResource(BaseHtmlResource):
@@ -98,3 +115,31 @@ class PaypalFailureResource(BaseHtmlResource):
         return {'result': params}
 
 
+class PayboxSuccessResource(BaseHtmlResource):
+    template = "paybox_success.html"
+    show_products_menu = False
+
+    def _on_get(self, req, resp, **kwargs):
+        params = req._params
+        params.update({'id_trans': kwargs['id_trans']})
+        return {'result': params}
+
+
+class PayboxFailureResource(BaseHtmlResource):
+    template = "paybox_failure.html"
+    show_products_menu = False
+
+    def _on_get(self, req, resp, **kwargs):
+        params = req._params
+        params.update({'id_trans': kwargs['id_trans']})
+        return {'result': params}
+
+
+class PayboxCancelResource(BaseHtmlResource):
+    template = "paybox_failure.html"
+    show_products_menu = False
+
+    def _on_get(self, req, resp, **kwargs):
+        params = req._params
+        params.update({'id_trans': kwargs['id_trans']})
+        return {'result': params}

@@ -1,8 +1,7 @@
+import settings
 import unittest
 import ujson
 import xmltodict
-
-import settings
 
 from common.test_utils import is_backoffice_server_running
 from common.test_utils import is_finace_server_running
@@ -15,6 +14,9 @@ from B2SProtocol.constants import TRANS_STATUS
 SKIP_REASON = "Please run backoffice server before running this test"
 FIN_SKIP_REASON = "Please run finance server before running this test"
 FIN_RUNNING_SKIP_REASON = "Please stop finance server before running this test"
+
+FRONT_PAYMENT_SUCCESS = "%s/paypal/%%(id_trans)s/success" % settings.FRONT_ROOT_URI
+FRONT_PAYMENT_FAILURE = "%s/paypal/%%(id_trans)s/failure" % settings.FRONT_ROOT_URI
 
 class TestPayment(BaseShipmentTestCase):
     @unittest.skipUnless(is_finace_server_running(), FIN_SKIP_REASON)
@@ -189,8 +191,8 @@ class TestPayment(BaseShipmentTestCase):
 
     def _send_payment_form(self, id_trans):
         trans = {'id_trans': id_trans}
-        success_url = settings.FRONT_PAYMENT_SUCCESS % trans
-        failure_url = settings.FRONT_PAYMENT_FAILURE % trans
+        success_url = FRONT_PAYMENT_SUCCESS % trans
+        failure_url = FRONT_PAYMENT_FAILURE % trans
 
         resp = self.b._access("webservice/1.0/pub/payment/form",
                        {'transaction': id_trans,
@@ -206,11 +208,11 @@ class TestPayment(BaseShipmentTestCase):
                            )
 
         self.assert_(
-            settings.PAYMENT_RETURN % trans in resp)
+            settings.PAYMENT_PAYPAL_RETURN % trans in resp)
         self.assert_(
-            settings.PAYMENT_CANCEL % trans in resp)
+            settings.PAYMENT_PAYPAL_CANCEL % trans in resp)
         self.assert_(
-            settings.PAYMENT_GATEWAY % trans in resp)
+            settings.PAYMENT_PAYPAL_GATEWAY % trans in resp)
 
     def expect_invoices_due(self, id_order, exp_amount_due):
         sql = """SELECT sum(amount_due)
