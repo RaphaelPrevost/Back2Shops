@@ -6,18 +6,16 @@ import settings
 import ujson
 import urllib
 import urllib2
-
 from datetime import datetime
 
-from webservice.base import BaseJsonResource
-from webservice.base import BaseXmlResource
-from webservice.base import BaseResource
-from common.constants import PAYPAL_VERIFIED
+from B2SProtocol.constants import TRANS_PAYPAL_STATUS
+from B2SProtocol.constants import TRANS_STATUS
 from common.constants import INVOICE_STATUS
-from common.error import UserError
+from common.constants import PAYPAL_VERIFIED
 from common.error import ErrorCode
-from common.utils import remote_payment_init
+from common.error import UserError
 from common.utils import remote_payment_form
+from common.utils import remote_payment_init
 from models.invoice import get_invoice_by_id
 from models.invoice import get_invoice_by_order
 from models.invoice import get_iv_numbers
@@ -26,13 +24,14 @@ from models.invoice import update_invoice
 from models.transaction import create_trans
 from models.transaction import get_trans_by_id
 from models.transaction import update_trans
+from models.user import get_user_email
+from webservice.base import BaseJsonResource
+from webservice.base import BaseResource
+from webservice.base import BaseXmlResource
 from webservice.invoice import BaseInvoiceMixin
-from B2SProtocol.constants import TRANS_STATUS
-from B2SProtocol.constants import TRANS_PAYPAL_STATUS
 
 class PaymentInitResource(BaseXmlResource, BaseInvoiceMixin):
     login_required = {'get': False, 'post': True}
-
 
     def gen_resp(self, resp, data):
         payment_init = data.get('payment_init')
@@ -117,9 +116,7 @@ class PaymentInitResource(BaseXmlResource, BaseInvoiceMixin):
 
 
 class PaymentFormResource(BaseJsonResource):
-    # TODO: update post login_required to True,
-    # currently make it to False to do test
-    login_required = {'get': False, 'post': False}
+    login_required = {'get': False, 'post': True}
 
     def _on_post(self, req, resp, conn, **kwargs):
         try:
@@ -144,9 +141,9 @@ class PaymentFormResource(BaseJsonResource):
             where = {'id': id_trans}
             update_trans(conn, values, where)
 
-            pm_form = remote_payment_form(trans['cookie'],
-                                          id_processor,
-                                          id_trans)
+            pm_form = remote_payment_form(
+                trans['cookie'], id_processor, id_trans,
+                user_email=get_user_email(conn, self.users_id))
             logging.info("payment_form_response: %s", pm_form)
             return {'form': pm_form}
         except UserError, e:
@@ -313,3 +310,19 @@ class PaypalGatewayResource(BasePaypalHandlerResource):
         gevent.spawn(self.fin_paypal_trans_notify, trans)
 
         return confirm_r
+
+
+class BasePayboxHandlerResource(BaseResource):
+    id_trans = None
+
+    def _on_get(self, req, resp, conn, **kwargs):
+        self.id_trans = kwargs['id_trans']
+
+
+class PayboxGatewayResource(BasePayboxHandlerResource):
+    id_trans = None
+
+    def gen_resp(self, resp, data):
+        resp.status = falcon.HTTP_200
+
+

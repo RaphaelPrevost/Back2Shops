@@ -12,3 +12,4 @@ WeasyPrint==0.19.2
 B2SUtils==0.0.7
 B2SRespUtils==0.0.2
 B2SProtocol==0.0.12
+pytz==2014.4

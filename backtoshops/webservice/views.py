@@ -46,7 +46,7 @@ from sales.models import Sale
 from sales.models import ShopsInSale
 from sales.models import TypeAttributeWeight
 from sales.utils import get_sale_orig_price
-from sales.utils import get_sale_discount_price
+from sales.utils import get_sale_discounted_price
 from shippings.models import CustomShippingRateInShipping
 from shippings.models import CustomShippingRate
 from shippings.models import SC_CARRIER_SHIPPING_RATE
@@ -916,9 +916,9 @@ class InvoiceView(BaseCryptoWebService, ListView):
             sale = Sale.objects.get(pk=item['id_sale'])
             orig_price = get_sale_orig_price(sale, item['id_price_type'])
             qty = item['quantity']
-            discount_price = get_sale_discount_price(
+            discounted_price = get_sale_discounted_price(
                 sale, orig_price=orig_price)
-            price = discount_price * qty
+            price = discounted_price * qty
             items_taxes = self.get_tax(price,
                                        sale.product.category.id,
                                        from_address,
@@ -927,7 +927,7 @@ class InvoiceView(BaseCryptoWebService, ListView):
             item_info = {'desc': sale.product.description,
                          'qty': qty,
                          'price': {'original': orig_price,
-                                   'discount': discount_price},
+                                   'discounted': discounted_price},
                          'taxes': items_taxes}
 
             subtotal = price

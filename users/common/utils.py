@@ -1,6 +1,5 @@
 import logging
 import binascii
-import Cookie
 import datetime
 import hashlib
 import hmac
@@ -11,8 +10,6 @@ import re
 import ujson
 import urllib
 import settings
-
-from hashlib import sha1
 
 
 from common.constants import HASH_ALGORITHM
@@ -389,20 +386,28 @@ def remote_payment_init(id_order, id_user, amount, currency, iv_id,
         raise ServerError('remote_payment_init_err: %s' % str(e))
 
 
-def remote_payment_form(cookie, id_processor, id_trans):
+def remote_payment_form(cookie, id_processor, id_trans, **kwargs):
     uri = "webservice/1.0/private/payment/form"
-    url_gateway = settings.PAYMENT_GATEWAY % {'id_trans': id_trans}
-    url_return = settings.PAYMENT_RETURN % {'id_trans': id_trans}
-    url_cancel = settings.PAYMENT_CANCEL % {'id_trans': id_trans}
+    query = {'cookie': cookie, 'processor': id_processor, }
+    param = {'id_trans': id_trans}
 
-    remote_uri = os.path.join(settings.FIN_ROOT_URI, uri)
+    if id_processor == '1':
+        query.update({
+            'url_notify': settings.PAYMENT_PAYPAL_GATEWAY % param,
+            'url_return': settings.PAYMENT_PAYPAL_RETURN % param,
+            'url_cancel': settings.PAYMENT_PAYPAL_CANCEL % param,
 
-    query = {'cookie': cookie,
-             'processor': id_processor,
-             'url_notify': url_gateway,
-             'url_return': url_return,
-             'url_cancel': url_cancel,
-             }
+        })
+
+    if id_processor == '4':
+        query.update({
+            'url_success': settings.PAYMENT_PAYBOX_SUCCESS % param,
+            'url_failure': settings.PAYMENT_PAYBOX_FAILURE % param,
+            'url_cancel': settings.PAYMENT_PAYBOX_CANCEL % param,
+            'url_waiting': settings.PAYMENT_PAYBOX_WAITING % param,
+            'url_return': settings.PAYMENT_PAYBOX_GATEWAY % param,
+            'user_email': kwargs.get('user_email', ''),
+        })
 
     try:
         query = ujson.dumps(query)
@@ -412,7 +417,7 @@ def remote_payment_form(cookie, id_processor, id_trans):
             settings.PRIVATE_KEY_PATH)
 
         resp = get_from_remote(
-            remote_uri,
+            os.path.join(settings.FIN_ROOT_URI, uri),
             settings.SERVER_APIKEY_URI_MAP[SERVICES.FIN],
             settings.PRIVATE_KEY_PATH,
             data=en_query,

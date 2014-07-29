@@ -13,3 +13,7 @@ class CustomEnum(Enum):
 class RESP_RESULT(CustomEnum):
     S = "SUCCESS"
     F = "FAILURE"
+
+class CUR_CODE(CustomEnum):
+    EUR = 978
+    USD = 840

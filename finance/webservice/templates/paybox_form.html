@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Payment Form{% endblock %}
+
+{% block content %}
+    <form method="POST" action="{{ object.post_action }}">
+        {% for key in object.form_fields %}
+            <input type="hidden" name="{{ key }}" value="{{ object.form_data[key] }}">
+        {% endfor %}
+        <input type="submit" value="Send">
+    </form>
+{% endblock %}

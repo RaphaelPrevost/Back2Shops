@@ -40,6 +40,9 @@ function confirmPaymentProc() {
 
 <?py elif step == 'form': ?>
 <div>
+    <?py if processor in ['1', '4']: ?>
+    <?py include('_order_invoices.html') ?>
+    <?py #endif ?>
     <!--FORM PAIEMENT-->
     #{form}
     <!--//FORM PAIEMENT-->

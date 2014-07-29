@@ -122,7 +122,7 @@ def is_routed_template(role):
     return BrandRoutes().is_routed(role)
 
 def send_reload_signal():
-    logging("Send reload signal...")
+    logging.info("Send reload signal...")
     os.kill(os.getpid(), signal.SIGHUP)
 
 def generate_random_key():

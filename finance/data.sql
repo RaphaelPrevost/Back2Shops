@@ -7,6 +7,7 @@ COPY processor (id, name, img) FROM stdin;
 1	Paypal	\N
 2	VISA/Mastercard	\N
 3	VISA/Mastercard with 3DSecure	\N
+4	Paybox	\N
 \.
 
 

@@ -34,6 +34,11 @@ PUB_KEY_PATH = 'static/keys/front_pub.key'
 PP_SUCCESS = "http://localhost:9500/paypal/%(id_trans)s/success"
 PP_FAILURE = "http://localhost:9500/paypal/%(id_trans)s/failure"
 
+PB_SUCCESS = "http://localhost:9500/paybox/%(id_trans)s/success"
+PB_ERROR = "http://localhost:9500/paybox/%(id_trans)s/error"
+PB_CANCEL = "http://localhost:9500/paybox/%(id_trans)s/cancel"
+PB_WAITING = "http://localhost:9500/paybox/%(id_trans)s/waiting"
+
 BRAND_ID = "1000001"
 BRAND_NAME = "BREUER"
 
