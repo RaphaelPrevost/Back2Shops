@@ -1,3 +1,4 @@
+import binascii
 import hashlib
 import hmac
 import weasyprint
@@ -46,4 +47,4 @@ def gen_500_pdf_resp(resp):
     return _pdf_resp(resp, content)
 
 def gen_hmac(key, msg, algorithm=hashlib.sha512):
-    return hmac.new(key, msg, algorithm).hexdigest()
+    return hmac.new(binascii.unhexlify(key), msg, algorithm).hexdigest()

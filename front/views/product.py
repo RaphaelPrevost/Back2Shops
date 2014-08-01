@@ -8,9 +8,9 @@ from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
 from common.utils import get_brief_product_list
 from common.utils import get_category_from_sales
-from common.utils import get_mapping_name
+from common.utils import get_normalized_name
 from common.utils import get_product_default_display_price
-from common.utils import get_type_from_sales
+from common.utils import get_type_from_sale
 from common.utils import get_url_format
 from common.utils import is_routed_template
 from views.base import BaseHtmlResource
@@ -37,13 +37,16 @@ class TypeListResource(BaseHtmlResource):
                             req, resp, **req._params)
 
         if is_routed:
-            type_info = get_type_from_sales(sales)
-            mapping_type_name = get_mapping_name(FRT_ROUTE_ROLE.TYPE_LIST,
-                                                 'type_name',
-                                                 type_info['name'])
-            if mapping_type_name != type_name:
+            type_info = get_type_from_sale(sales and sales.values()[0] or {})
+            normalized_type_name = get_normalized_name(
+                FRT_ROUTE_ROLE.TYPE_LIST,
+                'type_name',
+                type_info['name'])
+            if type(normalized_type_name) == unicode:
+                normalized_type_name = normalized_type_name.encode('UTF-8')
+            if normalized_type_name != type_name:
                 self.redirect(get_url_format(FRT_ROUTE_ROLE.TYPE_LIST) % {
-                    'id_type': type_id, 'type_name': mapping_type_name
+                    'id_type': type_id, 'type_name': normalized_type_name
                 })
                 return
 
@@ -95,19 +98,24 @@ class ProductInfoResource(BaseHtmlResource):
         product_info = all_sales[sale_id]
 
         if is_routed:
-            type_info = get_type_from_sales(all_sales)
-            mapping_type_name = get_mapping_name(FRT_ROUTE_ROLE.PRDT_INFO,
-                                                 'type_name',
-                                                 type_info['name'])
-
-            mapping_sale_name = get_mapping_name(FRT_ROUTE_ROLE.PRDT_INFO,
-                                                 'sale_name',
-                                                 product_info.get('name', ''))
-
-            if mapping_type_name != type_name or mapping_sale_name != sale_name:
+            type_info = get_type_from_sale(product_info)
+            normalized_type_name = get_normalized_name(
+                FRT_ROUTE_ROLE.PRDT_INFO,
+                'type_name',
+                type_info['name'])
+            normalized_sale_name = get_normalized_name(
+                FRT_ROUTE_ROLE.PRDT_INFO,
+                'sale_name',
+                product_info.get('name', ''))
+            if type(normalized_type_name) == unicode:
+                normalized_type_name = normalized_type_name.encode('UTF-8')
+            if type(normalized_sale_name) == unicode:
+                normalized_sale_name = normalized_sale_name.encode('UTF-8')
+            if normalized_type_name != type_name or \
+                    normalized_sale_name != sale_name:
                 self.redirect(get_url_format(FRT_ROUTE_ROLE.PRDT_INFO) % {
-                    'id_type': type_id, 'type_name': mapping_type_name,
-                    'id_sale': sale_id, 'sale_name': mapping_sale_name,
+                    'id_type': type_id, 'type_name': normalized_type_name,
+                    'id_sale': sale_id, 'sale_name': normalized_sale_name,
                 })
                 return
 

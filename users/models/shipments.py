@@ -628,6 +628,11 @@ class ShipmentsHandler(object):
             unit,
             dest,
             id_orig_address)
+        logging.info('Get shipping fee info: %s, id_sale: %s, '
+                     'service_carrier_map: %s, '
+                     'shpping_fee.carriers[0].services: %s',
+                     shipping_fee, sale.id, service_carrier_map,
+                     shipping_fee.carriers[0].services)
         if len(shipping_fee.carriers[0].services) == 1:
             return {shipping_fee.carriers[0].services[0].id: "0"}, \
                    float(shipping_fee.carriers[0].services[0].fee.value)

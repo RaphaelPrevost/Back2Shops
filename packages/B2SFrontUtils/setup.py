@@ -15,5 +15,6 @@ setup(
         'enum==0.4.4',
         'ujson==1.33',
         'gevent==0.13.8',
+        'Unidecode==0.04.16',
         ],
      )

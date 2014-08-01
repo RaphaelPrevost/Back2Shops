@@ -16,7 +16,7 @@ from common.constants import FRT_ROUTE_ROLE
 from common.constants import Redirection
 from common.data_access import data_access
 from common.utils import gen_html_resp
-from common.utils import get_mapping_name
+from common.utils import get_normalized_name
 from common.utils import get_url_format
 
 
@@ -161,8 +161,8 @@ class BaseHtmlResource(BaseResource):
             else:
                 resp_dict['menus'] = remote_resp
                 for v in resp_dict['menus'].itervalues():
-                    v['url_name'] = get_mapping_name(FRT_ROUTE_ROLE.TYPE_LIST,
-                                                     'type_name', v['name'])
+                    v['url_name'] = get_normalized_name(
+                        FRT_ROUTE_ROLE.TYPE_LIST, 'type_name', v['name'])
 
         if 'err' not in resp_dict:
             resp_dict['err'] = ''
