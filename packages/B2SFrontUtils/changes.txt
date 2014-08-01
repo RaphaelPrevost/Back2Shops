@@ -25,4 +25,7 @@
 2. fix the cookie header for api access
 
 == version 0.0.9 ==
-1. add invoices api constatns.
+1. add invoices api constants.
+
+== version 0.0.10 ==
+1. add normalize name function for routed url.

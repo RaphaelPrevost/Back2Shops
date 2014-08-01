@@ -3,9 +3,9 @@ import gevent
 import logging
 import os
 import signal
-import string
 import uuid
 
+from B2SFrontUtils.utils import normalize_name
 from B2SProtocol.constants import INVALIDATE_CACHE_LIST
 from B2SProtocol.constants import INVALIDATE_CACHE_OBJ
 from B2SUtils.base_actor import as_list
@@ -59,12 +59,13 @@ def get_brief_product(sale):
         'img': sale.get('img') or '',
         'link': get_url_format(FRT_ROUTE_ROLE.PRDT_INFO) % {
             'id_type': _type.get('@id', 0),
-            'type_name': get_mapping_name(FRT_ROUTE_ROLE.PRDT_INFO,
-                                          'type_name',
-                                          _type.get('name', '')),
+            'type_name': get_normalized_name(FRT_ROUTE_ROLE.PRDT_INFO,
+                                             'type_name',
+                                             _type.get('name', '')),
             'id_sale': id_sale,
-            'sale_name': get_mapping_name(FRT_ROUTE_ROLE.PRDT_INFO,
-                                          'sale_name', sale.get('name', '')),
+            'sale_name': get_normalized_name(FRT_ROUTE_ROLE.PRDT_INFO,
+                                             'sale_name',
+                                             sale.get('name', '')),
         },
         'price': get_product_default_display_price(sale),
         'currency': sale.get('price', {}).get('@currency') or '',
@@ -90,8 +91,8 @@ def get_category_from_sales(sales):
     }
     return category_info
 
-def get_type_from_sales(sales):
-    _type = (sales.itervalues().next()).get('type')
+def get_type_from_sale(sale):
+    _type = sale.get('type', {})
     type_info = {
         'id': _type.get('@id', ''),
         'name': _type.get('name', '')
@@ -102,15 +103,7 @@ def get_url_format(role):
     from urls import BrandRoutes
     return BrandRoutes().get_url_format(role)
 
-def get_url_format_name(name):
-    str_list = name.split()
-    str_list = map(lambda _str: filter(
-        lambda c: c in string.ascii_letters or c in string.digits, _str),
-        str_list)
-    str_list = filter(lambda x: x, str_list) or ['default', ]
-    return '-'.join(str_list)
-
-def get_mapping_name(role, _type, name):
+def get_normalized_name(role, _type, name):
     from urls import BrandRoutes
     meta = BrandRoutes().get_meta_by_role(role)
     return (meta.get(_type, None) or
@@ -148,6 +141,6 @@ def watching_invalidate_cache_list():
 
 
 ROUTE_NAME_MAPPING = {
-    'type_name': get_url_format_name,
-    'sale_name': get_url_format_name,
+    'type_name': normalize_name,
+    'sale_name': normalize_name,
 }
