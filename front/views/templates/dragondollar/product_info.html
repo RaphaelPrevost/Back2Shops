@@ -92,8 +92,22 @@
 </div>
 <!--FIN CONTENEUR-->
 
+<script type="text/javascript" src="/js/flying.js"></script>
 <script type="text/javascript">
 function addToBasket() {
-    $("#addForm").submit();
+    $("#addForm .errwrapper").text('');
+    $.post('/ajax_basket',
+        $("#addForm").serializeArray(),
+        function(data) {
+            if (data['set_cookies_js']) {
+                eval(data['set_cookies_js']);
+            }
+            if (data['res'] == 'FAILURE') {
+                $("#addForm .errwrapper").text(data['err']);
+            } else {
+                flyToElement($('#bouton'), $('#panier'));
+            }
+        }
+    );
 }
 </script>

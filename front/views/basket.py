@@ -9,6 +9,7 @@ from common.utils import get_brief_product_list
 from common.utils import get_url_format
 from common.utils import generate_random_key
 from views.base import BaseHtmlResource
+from views.base import BaseJsonResource
 from B2SProtocol.constants import RESP_RESULT
 from B2SProtocol.constants import USER_BASKET
 from B2SProtocol.constants import USER_BASKET_COOKIE_NAME
@@ -57,6 +58,17 @@ def clear_basket(req, resp, basket_key, basket_data):
 
     set_cookie(resp, CURR_USER_BASKET_COOKIE_NAME, "")
 
+def _get_valid_attr(attrlist, attr_id):
+    if not attr_id or not attrlist:
+        return {}
+
+    if attrlist and not isinstance(attrlist, list):
+        attrlist = [attrlist]
+    for attr in attrlist:
+        if attr['@id'] == str(attr_id):
+            return attr
+    return {}
+
 
 class BasketResource(BaseHtmlResource):
     template = "basket.html"
@@ -81,10 +93,10 @@ class BasketResource(BaseHtmlResource):
             basket.append({
                 'item': item,
                 'quantity': quantity,
-                'variant': self._get_valid_attr(
+                'variant': _get_valid_attr(
                             sale_info.get('variant'),
                             item_info.get('id_variant')),
-                'type': self._get_valid_attr(
+                'type': _get_valid_attr(
                             sale_info.get('type', {}).get('attribute'),
                             item_info.get('id_attr')),
                 'product': get_brief_product(sale_info)
@@ -95,17 +107,8 @@ class BasketResource(BaseHtmlResource):
             'err': req.get_param('err') or '',
         }
 
-    def _get_valid_attr(self, attrlist, attr_id):
-        if not attr_id or not attrlist:
-            return {}
 
-        if attrlist and not isinstance(attrlist, list):
-            attrlist = [attrlist]
-        for attr in attrlist:
-            if attr['@id'] == str(attr_id):
-                return attr
-        return {}
-
+class BasketAPIResource(BaseJsonResource):
     def _on_post(self, req, resp, **kwargs):
         basket_key, basket_data = get_basket(req, resp)
 
@@ -115,7 +118,7 @@ class BasketResource(BaseHtmlResource):
         if not chosen_item:
             id_sale = req.get_param('id_sale')
             all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
-            attr = self._get_valid_attr(
+            attr = _get_valid_attr(
                             all_sales[id_sale].get('type', {}).get('attribute'),
                             req.get_param('id_attr'))
             chosen_item = {'id_sale': id_sale,
@@ -128,7 +131,13 @@ class BasketResource(BaseHtmlResource):
                            }
             chosen_item = ujson.dumps(chosen_item)
 
-        if cmd in ('add', 'update'):
+        if cmd == 'add':
+            if chosen_item in basket_data:
+                basket_data[chosen_item] += int(quantity)
+            else:
+                basket_data[chosen_item] = int(quantity)
+
+        elif cmd == 'update':
             basket_data[chosen_item] = int(quantity)
 
         elif cmd == 'del':
@@ -139,7 +148,4 @@ class BasketResource(BaseHtmlResource):
 
         basket_data.update(basket_data)
         get_redis_cli().set(basket_key, ujson.dumps(basket_data))
-
-        self.redirect(get_url_format(FRT_ROUTE_ROLE.BASKET))
-
-
+        return {}
