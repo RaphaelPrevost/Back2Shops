@@ -12,7 +12,7 @@
     <p>
     </p>
 
-    <form id="addForm" method="post" action="${basket_url_format}">
+    <form id="addForm">
         <input type="hidden" name="cmd" value="add" />
         <input type="hidden" name="id_sale" value="${product_info['@id']}" />
 
@@ -61,7 +61,10 @@
         </div>
         <?py #endif ?>
 
-        <a href="javascript:addToBasket()" id="btnBuy">Ajouter au panier</a>
+        <a href="javascript:addToBasket()" id="btnBuy">
+            Ajouter au panier <img src="/templates/breuer/img/cart.png"/>
+        </a>
+        <div class="errwrapper"></div>
 
     </form>
 </div>
@@ -103,6 +106,7 @@
 <?py #endfor ?>
 </div>
 
+<script type="text/javascript" src="/js/flying.js"></script>
 <script type="text/javascript">
 $(function(){
     $("#type_attribute_selector").val("");
@@ -219,14 +223,14 @@ function addToBasket() {
     if ($("#selectColoris li").length > 0) {
         var id_variant = $("#selectColoris li[class=selected]");
         if ($("#selectColoris li[class=selected]").length == 0) {
-            alert("Please choose coloris.");
+            $("#addForm .errwrapper").text('Please choose coloris.');
             return;
         }
         form.id_variant.value = id_variant.attr('value');
     }
 
     if ($('#selectTaille').length > 0 && form.id_attr.value == "") {
-        alert("Please choose taille.");
+        $("#addForm .errwrapper").text('Please choose taille.');
         return;
     }
 
@@ -243,7 +247,7 @@ function addToBasket() {
                     if (parseInt(ss['#text']) > 0) {
                         break
                     } else {
-                        alert("Sorry, no stock for your choice");
+                        $("#addForm .errwrapper").text('Sorry, no stock for your choice');
                         return;
                     }
                 }
@@ -251,6 +255,19 @@ function addToBasket() {
         }
     }
 
-    form.submit();
+    $("#addForm .errwrapper").text('');
+    $.post('/ajax_basket',
+        $("#addForm").serializeArray(),
+        function(data) {
+            if (data['set_cookies_js']) {
+                eval(data['set_cookies_js']);
+            }
+            if (data['res'] == 'FAILURE') {
+                $("#addForm .errwrapper").text(data['err']);
+            } else {
+                flyToElement($('#btnBuy img'), $('#panier'));
+            }
+        }
+    );
 }
 </script>

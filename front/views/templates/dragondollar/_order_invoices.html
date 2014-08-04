@@ -4,10 +4,10 @@
     <?py if obj.get('err'): ?>
         ${{_('CONTACT_CUSTOMER_SERVICE')}}
     <?py else: ?>
-        <?py if not obj['content']: ?>
+        <?py if not obj.get('content'): ?>
             ${{_('NO_INVOICES')}}
         <?py #endif ?>
-        <?py for iv in obj['content']: ?>
+        <?py for iv in as_list(obj.get('content')): ?>
         #{iv['html']}
         <?py #endfor ?>
     <?py #endif ?>

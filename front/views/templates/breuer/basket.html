@@ -100,7 +100,7 @@ $(function() {
         calc_row(tr);
         calc_sum();
 
-        $.post('/basket', {
+        $.post('/ajax_basket', {
             'cmd': 'update',
             'sale': tr.attr('data'),
             'quantity': $(this).val(),
@@ -112,7 +112,7 @@ $(function() {
         tr.remove();
         calc_sum();
 
-        $.post('/basket', {
+        $.post('/ajax_basket', {
             'cmd': 'del',
             'sale': tr.attr('data'),
         });

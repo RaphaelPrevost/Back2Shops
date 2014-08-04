@@ -130,6 +130,8 @@ def watching_invalidate_cache_list():
             cache = None
             if redis_cli.exists(key):
                 cache = redis_cli.blpop(key, 0)
+            else:
+                gevent.sleep(5)
         except:
             logging.warn("Redis is down ???")
             redis_down = True

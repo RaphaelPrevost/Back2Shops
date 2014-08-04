@@ -6,6 +6,7 @@ from B2SUtils.base_actor import as_list
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
 from views import homepage
+from views.basket import BasketAPIResource
 from views.basket import BasketResource
 from views.homepage import HomepageResource
 from views.invoice import InvoiceResource
@@ -78,6 +79,7 @@ fixed_urlpatterns = {
     r'/ajax_login': LoginAPIResource,
     r'/ajax_register': RegisterAPIResource,
     r'/ajax_user': UserAPIResource,
+    r'/ajax_basket': BasketAPIResource,
     r'/ajax_order': OrderAPIResource,
     r'/ajax_shipping_conf': ShippingAPIResource,
 
