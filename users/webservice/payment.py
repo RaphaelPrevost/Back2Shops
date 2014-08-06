@@ -2,6 +2,7 @@ import gevent
 import falcon
 import httplib
 import logging
+import re
 import settings
 import ujson
 import urllib
@@ -12,8 +13,10 @@ from B2SProtocol.constants import TRANS_PAYPAL_STATUS
 from B2SProtocol.constants import TRANS_STATUS
 from common.constants import INVOICE_STATUS
 from common.constants import PAYPAL_VERIFIED
+from common.constants import PAYMENT_TYPES
 from common.error import ErrorCode
 from common.error import UserError
+from common.utils import get_client_ip
 from common.utils import remote_payment_form
 from common.utils import remote_payment_init
 from models.invoice import get_invoice_by_id
@@ -170,10 +173,66 @@ class PaymentFormResource(BaseJsonResource):
             raise UserError(ErrorCode.PM_ERR_INVALID_REQ[0],
                             ErrorCode.PM_ERR_INVALID_REQ[1])
 
-class BasePaypalHandlerResource(BaseResource):
+class BasePaymentHandlerResource(BaseResource):
     id_trans = None
+    payment_type = None
+
+    def _valid_check(self, conn):
+        raise NotImplementedError
+
+    def _fin_handled_err_code(self):
+        raise NotImplementedError
+
+    def handle_completed(self, conn, trans):
+        """
+        1. Update invoice status to PAID and amount_paid value.
+        2. Update transaction status to PAID.
+        """
+        try:
+
+            id_invoices = ujson.loads(trans['id_invoices'])
+            for id_iv in id_invoices:
+                iv = get_invoice_by_id(conn, id_iv)
+                if iv is None:
+                    logging.error("critical_err: verified invoice "
+                                  "not exist: %s", id_iv, exc_info=True)
+                    continue
+                values = {'amount_paid': iv['amount_due'],
+                          'status': INVOICE_STATUS.INVOICE_PAID}
+                update_invoice(conn, id_iv, values, iv=iv)
+
+            update_trans(conn,
+                         values={'status': TRANS_STATUS.TRANS_PAID},
+                         where={'id': trans['id']})
+
+        except UserError, e:
+            logging.error("%s_verified_error: %s", self.payment_type, e,
+                          exc_info=True)
+            raise
+
+    def fin_trans_notify(self, trans, data):
+        cookie = ujson.loads(trans['cookie'])
+        fin_internal_trans = cookie['internal_trans']
+        url = settings.FIN_PAYMENT_NOTIFY_URL.get(self.payment_type) % {
+            'id_trans': fin_internal_trans
+        }
+        req = urllib2.Request(url, data=urllib.urlencode(data))
+        resp = urllib2.urlopen(req)
+        resp_code = resp.getcode()
+        if resp_code != httplib.OK:
+            logging.error('%s_trans_failure for %s got status: %s',
+                          self.payment_type, fin_internal_trans, resp_code)
+            raise UserError(*self._fin_handled_err_code())
+
+
+class BasePaypalHandlerResource(BasePaymentHandlerResource):
+    payment_type = PAYMENT_TYPES.PAYPAL
+
     def _on_post(self, req, resp, conn, **kwargs):
         self.id_trans = kwargs['id_trans']
+
+    def _fin_handled_err_code(self):
+        return ErrorCode.PP_FIN_HANDLED_ERR
 
     def _valid_check(self, conn):
         if self.request.get_param('receiver_email') != settings.SELLER_EMAIL:
@@ -204,47 +263,6 @@ class BasePaypalHandlerResource(BaseResource):
 
         return trans
 
-    def handle_completed(self, conn, trans):
-        """
-        1. Update invoice status to PAID and amount_paid value.
-        2. Update transaction status to PAID.
-        """
-        try:
-
-            id_invoices = ujson.loads(trans['id_invoices'])
-            for id_iv in id_invoices:
-                iv = get_invoice_by_id(conn, id_iv)
-                if iv is None:
-                    logging.error("critical_err: verified invoice "
-                                  "not exist: %s", id_iv, exc_info=True)
-                    continue
-                values = {'amount_paid': iv['amount_due'],
-                          'status': INVOICE_STATUS.INVOICE_PAID}
-                update_invoice(conn, id_iv, values, iv=iv)
-
-            update_trans(conn,
-                         values={'status': TRANS_STATUS.TRANS_PAID},
-                         where={'id': trans['id']})
-
-        except UserError, e:
-            logging.error("paypal_verified_error: %s", e, exc_info=True)
-            raise
-
-    def fin_paypal_trans_notify(self, trans):
-        cookie = ujson.loads(trans['cookie'])
-        fin_internal_trans = cookie['internal_trans']
-        url = settings.FIN_PAYPAL_TRANS % {'id_trans': fin_internal_trans}
-
-        req = urllib2.Request(url, data=self.request.query_string)
-        resp = urllib2.urlopen(req)
-        resp_code = resp.getcode()
-        if resp_code != httplib.OK:
-            logging.error('paypal_trans_failure for %s '
-                          'got status: %s',
-                          fin_internal_trans,
-                          resp_code)
-            raise UserError(ErrorCode.PP_FIN_HANDLED_ERR[0],
-                            ErrorCode.PP_FIN_HANDLED_ERR[1])
 
 class PaypalProcessResource(BasePaypalHandlerResource):
     def _on_post(self, req, resp, conn, **kwargs):
@@ -267,7 +285,7 @@ class PaypalProcessResource(BasePaypalHandlerResource):
             else:
                 url = trans['url_failure']
 
-            self.fin_paypal_trans_notify(trans)
+            self.fin_trans_notify(trans, self.request.query_string)
 
             query = urllib.urlencode(req._params)
             uri = '?'.join([url, query])
@@ -279,6 +297,7 @@ class PaypalProcessResource(BasePaypalHandlerResource):
             query = urllib.urlencode({'error': e.code})
             uri = '?'.join([url, query])
             self.redirect(uri)
+
 
 class PaypalGatewayResource(BasePaypalHandlerResource):
     id_trans = None
@@ -312,15 +331,100 @@ class PaypalGatewayResource(BasePaypalHandlerResource):
         return confirm_r
 
 
-class BasePayboxHandlerResource(BaseResource):
-    id_trans = None
+class BasePayboxHandlerResource(BasePaymentHandlerResource):
+    payment_type = PAYMENT_TYPES.PAYBOX
 
     def _on_get(self, req, resp, conn, **kwargs):
         self.id_trans = kwargs['id_trans']
 
+    def _fin_handled_err_code(self):
+        return ErrorCode.PB_FIN_HANDLED_ERR
+
+    def _valid_check(self, conn):
+        resp_code = self.request.get_param('RespCode')
+        amount = float(self.request.get_param('Amt')) / 100
+        order_id = self.request.get_param('Ref')
+        auth = self.request.get_param('Auth')
+
+        # for a rejected transaction, this parameter is not sent back.
+        if not auth:
+            logging.error('paybox_valid_err: rejected transaction for '
+                          'request %s',
+                          self.request.query_string,
+                          exc_info=True)
+            raise UserError(ErrorCode.PB_ERR_REJECTED_TRANS[0],
+                            ErrorCode.PB_ERR_REJECTED_TRANS[1])
+
+        # authorization number is alphanumeric.
+        if not re.match(r'^[a-zA-Z0-9]+$', auth):
+            logging.error('paybox_valid_err: wrong authorization number %s for'
+                          ' request %s',
+                          auth, self.request.query_string,
+                          exc_info=True)
+            raise UserError(ErrorCode.PB_ERR_WRONG_AUTH[0],
+                            ErrorCode.PB_ERR_WRONG_AUTH[1])
+
+        # TODO: check ip address
+        ip_addr = get_client_ip(self.request)
+        logging.info('Paybox IPN request address %s for request %s',
+                     ip_addr, self.request.query_string)
+
+        trans = get_trans_by_id(conn, self.id_trans)
+        if len(trans) == 0:
+            logging.error('paybox_valid_err: trans(%s) not exist %s',
+                          self.id_trans, self.request.query_string,
+                          exc_info=True)
+            raise UserError(ErrorCode.PB_ERR_NO_TRANS[0],
+                            ErrorCode.PB_ERR_NO_TRANS[1])
+
+        trans = trans[0]
+        amount_due = float(trans['amount_due'])
+        if amount_due != amount:
+            logging.error('paybox_valid_err: paybox amount %s is not same '
+                          'as expected amount due: %s for request: %s',
+                          amount, amount_due, self.request.query_string,
+                          exc_info=True)
+            raise UserError(ErrorCode.PB_ERR_WRONG_AMOUNT[0],
+                            ErrorCode.PB_ERR_WRONG_AMOUNT[1])
+
+        if int(order_id) != int(trans['id_order']):
+            logging.error('paybox_valid_err: order_id %s is not same as '
+                          'expected order_id %s for request: %s',
+                          order_id, trans['id_order'],
+                          self.request.query_string,
+                          exc_info=True)
+            raise UserError(ErrorCode.PB_ERR_WRONG_ORDER[0],
+                            ErrorCode.PB_ERR_WRONG_ORDER[1])
+        return trans
+
 
 class PayboxGatewayResource(BasePayboxHandlerResource):
     id_trans = None
+
+    def _on_get(self, req, resp, conn, **kwargs):
+        super(PayboxGatewayResource, self)._on_get(req, resp, conn, **kwargs)
+        self.confirm_ipn_msg(conn)
+
+    def confirm_ipn_msg(self, conn):
+        """
+         1. Post complete, unaltered message backto to Paybox.
+         2. Handle completed paybox transaction if get '00000' resp_code.
+         3. Notify finance server for paybox transaction.
+        """
+        trans = self._valid_check(conn)
+        resp_code = self.request.get_param('RespCode')
+        # TODO: put resp_code in B2SProtocol
+        if resp_code == '00000':
+            self.handle_completed(conn, trans)
+
+        data = self.request._params
+        data.update({
+            'user_id': ujson.loads(trans['cookie']).get('id_user'),
+            # TODO: add currency to users:transactions table
+            'currency': 'EUR',
+        })
+        gevent.spawn(self.fin_trans_notify, trans, data)
+        return resp_code
 
     def gen_resp(self, resp, data):
         resp.status = falcon.HTTP_200

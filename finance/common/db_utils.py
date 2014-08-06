@@ -6,25 +6,11 @@ from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import update
 from B2SUtils.db_utils import execute
 
-def update_or_create_trans(conn, table_name, data):
-    values = {
-        'id_internal_trans': data['id_trans'],
-        'txn_id': data['txn_id'],
-        'tax': data['tax'],
-        'payment_status': data['payment_status'],
-        'payer_id': data['payer_id'],
-        'receiver_id': data['receiver_id'],
-        'mc_fee': data['mc_fee'],
-        'mc_currency': data['mc_currency'],
-        'mc_gross': data['mc_gross'],
-        'update_time': datetime.datetime.now()
-    }
-
-
+def update_or_create_trans(conn, table_name, data, values, where, status):
     try:
         id_trans = update(conn,
                           table_name,
-                          where={'txn_id': data['txn_id']},
+                          where=where,
                           values=values,
                           returning='id')
         if len(id_trans) == 0:
@@ -36,7 +22,7 @@ def update_or_create_trans(conn, table_name, data):
 
         # append new content for log
         new_content = ('; ' +
-                       data['payment_status'] +
+                       status +
                        " : " +
                        ujson.dumps(data))
 
@@ -50,4 +36,3 @@ def update_or_create_trans(conn, table_name, data):
         raise
 
     return id_trans[0]
-

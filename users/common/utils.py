@@ -401,11 +401,11 @@ def remote_payment_form(cookie, id_processor, id_trans, **kwargs):
 
     if id_processor == '4':
         query.update({
-            'url_success': settings.PAYMENT_PAYBOX_SUCCESS % param,
-            'url_failure': settings.PAYMENT_PAYBOX_FAILURE % param,
-            'url_cancel': settings.PAYMENT_PAYBOX_CANCEL % param,
-            'url_waiting': settings.PAYMENT_PAYBOX_WAITING % param,
-            'url_return': settings.PAYMENT_PAYBOX_GATEWAY % param,
+            'url_success': urllib.urlencode(settings.PAYMENT_PAYBOX_SUCCESS % param),
+            'url_failure': urllib.urlencode(settings.PAYMENT_PAYBOX_FAILURE % param),
+            'url_cancel': urllib.urlencode(settings.PAYMENT_PAYBOX_CANCEL % param),
+            'url_waiting': urllib.urlencode(settings.PAYMENT_PAYBOX_WAITING % param),
+            'url_return': urllib.urlencode(settings.PAYMENT_PAYBOX_GATEWAY % param),
             'user_email': kwargs.get('user_email', ''),
         })
 
@@ -442,3 +442,10 @@ def currency_exchange(from_, to, amount):
         raise ServerError('currency_exchange_err')
 
     return float(amount) * settings.CURRENCY_EX_RATE[from_][to]
+
+def get_client_ip(request):
+    env = request.env
+    try:
+        return env['HTTP_X_FORWARDED_FOR'].split(',')[-1].strip()
+    except KeyError:
+        return env['REMOTE_ADDR']

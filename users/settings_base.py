@@ -1,6 +1,7 @@
 # users.backtoshops.com settings
 import os
 from common.constants import HASH_ALGORITHM
+from common.constants import PAYMENT_TYPES
 
 DEBUG = True
 SERVER_PORT = 8100 # for development only
@@ -88,6 +89,11 @@ PAYMENT_PAYBOX_GATEWAY = "%s/payment/paybox/%%(id_trans)s/gateway" % USR_ROOT_UR
 
 
 PAYPAL_SERVER = "https://www.sandbox.paypal.com/cgi-bin/webscr"
+
+FIN_PAYMENT_NOTIFY_URL = {
+    PAYMENT_TYPES.PAYPAL: '%s/webservice/1.0/pub/paypal/trans/%%(id_trans)s' % FIN_ROOT_URI,
+    PAYMENT_TYPES.PAYBOX: '%s/webservice/1.0/pub/paybox/trans/%%(id_trans)s' % FIN_ROOT_URI,
+}
 
 FIN_PAYPAL_TRANS = '%s/webservice/1.0/pub/paypal/trans/%%(id_trans)s' % FIN_ROOT_URI
 SELLER_EMAIL = 'business@infinite-code.com'

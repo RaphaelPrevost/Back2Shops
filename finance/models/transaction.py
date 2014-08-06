@@ -39,6 +39,7 @@ def create_trans(conn, id_order, id_user, id_invoices,
 
 
 def update_trans(conn, values, where=None):
+    values.update({'update_time': datetime.now()})
     r = update(conn,
                "transactions",
                values=values,
