@@ -123,7 +123,7 @@ class PaymentFormResource(BaseHtmlResource):
             'PBX_DEVISE': CUR_CODE.toDict().get(trans['currency'], ''),
             'PBX_CMD': trans['id_order'],
             'PBX_PORTEUR': query['user_email'],
-            'PBX_RETOUR': 'Mt:M;Ref:R;Auto:A;Erreur:E',
+            'PBX_RETOUR': 'Amt:M;Ref:R;Auth:A;RespCode:E;CardType:C;PBRef:S',
             'PBX_HASH': settings.PAYBOX_HASH_TYPE,
             'PBX_TIME': self._get_dt_with_timezone(trans['create_time']
                                                   ).isoformat(),
@@ -197,11 +197,11 @@ class PaypalTransResource(BaseResource):
                              values={'status': TRANS_STATUS.TRANS_PAID},
                              where={'id': id_trans})
             update_or_create_trans_paypal(conn, req._params)
+            resp.status = falcon.HTTP_200
         except Exception, e:
             conn.rollback()
             logging.error('paypal_verified_err: %s', e, exc_info=True)
             resp.status = falcon.HTTP_500
-        resp.status = falcon.HTTP_200
 
 
 class PayboxTransResource(BaseResource):
@@ -214,15 +214,17 @@ class PayboxTransResource(BaseResource):
             req._params.update(kwargs)
             id_trans = req.get_param('id_trans')
 
-            # TODO: check payment status
-            # payment_status = req.get_param('payment_status')
-            # if payment_status.lower() == TRANS_PAYPAL_STATUS.COMPLETED:
-            #     update_trans(conn,
-            #                  values={'status': TRANS_STATUS.TRANS_PAID},
-            #                  where={'id': id_trans})
+            # TODO: put resp code into constants
+            resp_code = req.get_param('RespCode')
+            if resp_code == '00000':
+                update_trans(conn,
+                             values={'status': TRANS_STATUS.TRANS_PAID},
+                             where={'id': id_trans})
+
             update_or_create_trans_paybox(conn, req._params)
+            resp.status = falcon.HTTP_200
         except Exception, e:
             conn.rollback()
             logging.error('paybox_verified_err: %s', e, exc_info=True)
             resp.status = falcon.HTTP_500
-        resp.status = falcon.HTTP_200
+

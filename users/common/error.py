@@ -137,3 +137,23 @@ class ErrorCode:
     PP_FIN_HANDLED_ERR = (
         183, 'Paypal failed to handled in finance server'
     )
+    # paybox errors
+    PB_ERR_WRONG_AUTH = (
+        190, 'Processed transaction has wrong authorization number'
+    )
+    PB_ERR_REJECTED_TRANS = (
+        191, 'Processed transaction is rejected'
+    )
+    PB_ERR_NO_TRANS = (
+        192, 'Processed transaction not exist'
+    )
+    PB_ERR_WRONG_AMOUNT = (
+        193, 'Processed amount is not as expected'
+    )
+    PB_ERR_WRONG_ORDER = (
+        194, 'Processed order is not as expected'
+    )
+    # Finance paybox verified error
+    PB_FIN_HANDLED_ERR = (
+        195, 'Paybox failed to handled in finance server'
+    )
