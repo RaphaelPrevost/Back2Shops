@@ -401,11 +401,11 @@ def remote_payment_form(cookie, id_processor, id_trans, **kwargs):
 
     if id_processor == '4':
         query.update({
-            'url_success': urllib.urlencode(settings.PAYMENT_PAYBOX_SUCCESS % param),
-            'url_failure': urllib.urlencode(settings.PAYMENT_PAYBOX_FAILURE % param),
-            'url_cancel': urllib.urlencode(settings.PAYMENT_PAYBOX_CANCEL % param),
-            'url_waiting': urllib.urlencode(settings.PAYMENT_PAYBOX_WAITING % param),
-            'url_return': urllib.urlencode(settings.PAYMENT_PAYBOX_GATEWAY % param),
+            'url_success': settings.PAYMENT_PAYBOX_SUCCESS % param,
+            'url_failure': settings.PAYMENT_PAYBOX_FAILURE % param,
+            'url_cancel': settings.PAYMENT_PAYBOX_CANCEL % param,
+            'url_waiting': settings.PAYMENT_PAYBOX_WAITING % param,
+            'url_return': settings.PAYMENT_PAYBOX_GATEWAY % param,
             'user_email': kwargs.get('user_email', ''),
         })
 
