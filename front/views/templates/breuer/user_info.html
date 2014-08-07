@@ -1,8 +1,13 @@
-<form id="formContainer" method="post">
-    <div class="errwrapper"></div>
-</form>
-<a class="btnlog logout" href="javascript:save()">Sauver</a>
-<div id="tmp"></div>
+<div id="panier" role="main">
+    <form id="formContainer" method="post">
+        <div class="errwrapper"></div>
+    </form>
+    <div id="btnline">
+        <a class="btn purchase" href="javascript:save()">Sauver</a>
+        <a class="btn back" href="javascript:history.go(-1)">Etape précédente</a>
+    </div>
+    <div id="tmp"></div>
+</div>
 
 <script type="text/javascript">
 var profile = #{user_profile};

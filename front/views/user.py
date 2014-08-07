@@ -1,7 +1,10 @@
+import settings
 import urllib
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
+from common.utils import get_order_table_info
 from common.utils import get_url_format
+from common.utils import get_user_contact_info
 from views.base import BaseHtmlResource
 from views.base import BaseJsonResource
 from B2SProtocol.constants import RESP_RESULT
@@ -44,7 +47,7 @@ class UserAuthResource(BaseHtmlResource):
     show_products_menu = False
 
     def _on_get(self, req, resp, **kwargs):
-        return {'succ_redirect_to': get_url_format(FRT_ROUTE_ROLE.USER_INFO)}
+        return {'succ_redirect_to': get_url_format(FRT_ROUTE_ROLE.MY_ACCOUNT)}
 
 
 class UserResource(BaseHtmlResource):
@@ -93,3 +96,37 @@ class UserAPIResource(BaseJsonResource):
         resp_dict = {}
         resp_dict.update(remote_resp)
         return resp_dict
+
+
+class MyAccountResource(BaseHtmlResource):
+    template = "my_account.html"
+    login_required = {'get': True, 'post': False}
+
+    def _on_get(self, req, resp, **kwargs):
+        orders = data_access(REMOTE_API_NAME.GET_ORDERS, req, resp,
+                             brand_id=settings.BRAND_ID)
+        all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
+        order_list = []
+        for order in orders:
+            for order_id, order_data in order.iteritems():
+                order_info = get_order_table_info(order_id, order_data, all_sales)
+                if order_info:
+                    order_list.append(order_info)
+        order_list.reverse()
+
+        user_info = data_access(REMOTE_API_NAME.GET_USERINFO, req, resp)
+        if not user_info['first_name'].get('value') \
+                or not user_info['last_name'].get('value'):
+            user_name = user_info['email']['value']
+        else:
+            user_name = '%s %s %s' % (
+                    user_info['title'].get('value') or '',
+                    user_info['first_name'].get('value') or '',
+                    user_info['last_name'].get('value') or '',
+                    )
+        data = {'user_name': user_name,
+                'user_info': user_info,
+                'order_list': order_list}
+        data.update(get_user_contact_info(user_info))
+        return data
+

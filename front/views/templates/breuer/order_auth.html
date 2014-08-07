@@ -1,50 +1,58 @@
-<ul>
-    <li class="li1 ok"><a href="#">Mon Panier</a></li>
-    <li class="li2 on">Identification</li>
-    <li class="li3">Adresse</li>
-    <li class="li4">Livraison</li>
-    <li class="li5">Paiement</li>
-</ul>
+<div id="panier" role="main">
+    <strong id="titlepanier">Votre Commande</strong>
+    <ul>
+        <li class="li1 ok"><a href="${basket_url_format}"><span>1 </span>Commande</a></li>
+        <li class="li2 on"><span>2 </span>Identification</li>
+        <li class="li3"><span>3 </span>Adresse de livraison</li>
+        <li class="li4"><span>4 </span>Validation</li>
+    </ul>
 
-<?py include('_auth.html') ?>
+    <h1 id="titleH1">Identification :</h1>
 
-<div class="listProd listFiche">
-<strong class="discover"><span>&Agrave; découvrir également</span></strong>
-<?py for p in product_list[:5]: ?>
-    <?py include('_product_list_item.html', p=p) ?>
-<?py #endfor ?>
+    <?py include('_auth.html') ?>
+    <div id="btnline">
+        <a class="btn purchase" href="javascript:confirm()">Valider</a>
+        <a class="btn back" href="javascript:history.go(-1)">Etape précédente</a>
+    </div>
+
+    <script>
+    function confirm() {
+        if ($('#registerForm input[name=email]').val().length > 0) {
+            register();
+        } else {
+            login();
+        }
+    }
+    function login() {
+        $.post('/ajax_login',
+            $("#loginForm").serializeArray(),
+            function(data) {
+                if (data['res'] == 'FAILURE') {
+                    $("#loginForm .errwrapper").text(data['err']);
+                } else {
+                    if (data['set_cookies_js']) {
+                        eval(data['set_cookies_js']);
+                    }
+                    location = "${succ_redirect_to}";
+                }
+            }
+        )
+    }
+
+    function register() {
+        $.post('/ajax_register',
+            $("#registerForm").serializeArray(),
+            function(data) {
+                if (data['res'] == 'FAILURE') {
+                    $("#registerForm .errwrapper").text(data['err']);
+                } else {
+                    if (data['set_cookies_js']) {
+                        eval(data['set_cookies_js']);
+                    }
+                    location = "${order_user_url_format}";
+                }
+            }
+        )
+    }
+    </script>
 </div>
-
-<script>
-function login() {
-    $.post('/ajax_login',
-        $("#loginForm").serializeArray(),
-        function(data) {
-            if (data['res'] == 'FAILURE') {
-                $("#loginForm .errwrapper").text(data['err']);
-            } else {
-                if (data['set_cookies_js']) {
-                    eval(data['set_cookies_js']);
-                }
-                location = "${succ_redirect_to}";
-            }
-        }
-    )
-}
-
-function register() {
-    $.post('/ajax_register',
-        $("#registerForm").serializeArray(),
-        function(data) {
-            if (data['res'] == 'FAILURE') {
-                $("#registerForm .errwrapper").text(data['err']);
-            } else {
-                if (data['set_cookies_js']) {
-                    eval(data['set_cookies_js']);
-                }
-                location = "${order_user_url_format}";
-            }
-        }
-    )
-}
-</script>

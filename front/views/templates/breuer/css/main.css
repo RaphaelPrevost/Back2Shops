@@ -568,7 +568,7 @@ a { color: #1f244a; }
 #infosProd .prix2 span { text-decoration: line-through; }
 #infosProd p {
 	font-size: 12px;
-	font-family: arial, verdana, Times New Roman, Times, serif;
+	font-family: Arial, Helvetica, sans-serif;
 	margin: 30px 15px 20px 12px; padding: 0 0 20px 0;
 	border-bottom: 1px dotted #dbdbdb;
 	color: #666666;
@@ -577,7 +577,7 @@ a { color: #1f244a; }
 #infosProd .coloris {
 	display: block;
 	font-size: 12px;
-	font-family: arial, verdana, Times New Roman, Times, serif;
+	font-family: Arial, Helvetica, sans-serif;
 	margin: 0px 0px 0px 12px;
 	color: #000;
 }
@@ -611,7 +611,7 @@ a { color: #1f244a; }
 #infosProd #guideBtn {
 	display: block; float: left;
 	margin: 15px 0 15px 15px; padding-right: 18px;
-	font-family: arial; font-size: 12px;
+	font-family: Arial, Helvetica, sans-serif; font-size: 12px;
 	text-decoration: underline;
 	background: url(../img/guide-taille.gif) no-repeat right 0;
 }
@@ -634,7 +634,7 @@ a { color: #1f244a; }
 #infosProd #selectTaille select { 
 	width: 210px;
 	padding: 4px 0 0 5px;
-	font-family: arial; font-size: 12px;
+	font-family: Arial, Helvetica, sans-serif; font-size: 12px;
 	font-style: italic; color: #000;
 	border: 0;
 	background: transparent;
@@ -656,16 +656,37 @@ a { color: #1f244a; }
 	margin: 40px auto 5px auto;
 	padding: 8px 0;
 	text-align: center;
-	font-family: arial; font-size: 16px; 
+	font-family: Arial, Helvetica, sans-serif; font-size: 16px; 
 	color: #fff; background-color: #338aeb;
 }
 
+/* added by dev */
+.errwrapper {
+	margin: 12px 20px;
+	color: #5b2910;
+	background-color: #fff9d9;
+}
+#btnOrders { 
+    display: block; float: right;
+    padding: 5px 10px; color: #fff;
+    background-color: #ff879d; 
+}
+#btnOrders:hover { background-color: #ff6d87; }
 
-
-
-
-
-
+#selectPaymentProc .payment-proc {
+    float: left;
+    width: 301px;
+    margin: 20px 10px;
+    padding: 50px 20px;
+    background-color: #f2f2f2;
+}
+#paymentForm input{
+    float: right;
+}
+#paymentForm #footer{
+    clear: both;
+    border-style: none;
+}
 
 
 
@@ -673,58 +694,63 @@ a { color: #1f244a; }
 /*	          PANIER		  	 */
 /*-------------------------------*/
 
-
-
-
-/*-Class ERREUR-*/
-.errwrapper {
-	margin: 12px 20px;
-	color: #5b2910;
-	background-color: #fff9d9;
-}
-
-
-
-
 #panier { overflow: auto; margin-bottom: 80px; }
 
-#btnOrders { 
-	display: block; float: right;
-	padding: 5px 10px; color: #fff;
-	background-color: #ff879d; 
-}
-#btnOrders:hover { background-color: #ff6d87; }
 
-/*
-#panier h1 {
-	margin-top: 35px;
-	font-size: 18px;
+/*-----TITRAILLE-----*/
+#panier #titlepanier { 
+	display: block;
+	margin: 35px 0 0px 0;
+	font-size: 25px;
 	font-weight: normal;
-	text-align: center;
+	color: #d18a00;
 }
-*/
+#panier #titleH1 {
+	margin: 35px 0 0 0;
+	padding: 7px 10px; 
+	font-size: 17px;
+	font-weight: normal;
+	font-family: Arial, Helvetica, sans-serif;
+	background-color: #ebf4ff;
+}
 
+#panier .txtinfo { 
+    height: 35px; line-height: 23px;
+	margin: 15px 0 0 3px; padding-left: 30px;
+	color: #75aeee; font-family: Arial, Helvetica, sans-serif; 
+	background: url(../img/sprite.png) no-repeat left -359px; 
+}
+
+
+
+
+/*-----MENU-----*/
 #panier ul  { 
 	position: relative; 
-	height: 30px; margin: 35px 0;
-	background-color: #adcbee;
+	height: 34px; margin-top: 25px;
+	background-color: #77b3f7;
 }
 #panier ul li {
 	position: absolute;
-	height: 30px;
-	line-height: 30px;
-	padding: 0px 40px 0px 27px;
-	font-size: 16px;
+	height: 34px;
+	line-height: 34px;
+	padding: 0px 40px 0px 20px;
+	font-family: georgia;
+	font-size: 14px;
 	color: #fff;
-	background: url(../img/sprite.png) no-repeat right 0 #adcbee; 
+	background: url(../img/sprite.png) no-repeat right -35px #77b3f7; 
 } 
-#panier ul li.on { background-position: right -31px; background-color: #75aae6; }
-#panier ul li.ok { background-position: right -181px; background-color: #75aae6; }
+#panier ul li span {
+	margin-right: 5px;
+	font-size: 18px;
+} 
+#panier ul li.on { background-position: right 0px; background-color: #008CE9; }
+#panier ul li.ok { background-position: right -181px; background-color: #008CE9; }
 #panier ul li.li1 { z-index: 6; }
-#panier ul li.li2 { z-index: 5; left: 120px; }
-#panier ul li.li3 { z-index: 4; left: 250px; }
-#panier ul li.li4 { z-index: 3; left: 350px; }
-#panier ul li.li5 { z-index: 2; left: 450px; }
+#panier ul li.li2 { z-index: 5; left: 136px; }
+#panier ul li.li3 { z-index: 4; left: 290px; }
+#panier ul li.li4 { z-index: 3; left: 481px; }
+/*#panier ul li.li5 { z-index: 2; left: 450px; }*/
 #panier ul li a { color: #fff; }
 
 
@@ -732,82 +758,143 @@ a { color: #1f244a; }
 
 
 /*--------------------------*/
-/*         PANIER_A         */
+/*          TABLE           */
 /*--------------------------*/
 
-
 #panier table {
-	width: 100%;
-	background-color: #f7f7f7;
+	width: 100%; 
+	margin-top: 14px;
+	border: 1px solid #dbdbdb;
+	font-family: Arial, Helvetica, sans-serif;
+	background-color: #f9f8f8;
 }
 #panier table th {
-	padding: 7px 20px;
+	padding: 14px 20px;
+	font-size: 11px;
 	text-align: center;
-	font-weight: normal;
-	color: #fff;
-	background-color: #012247;
+	color: #000;
+	border-bottom: 1px solid #ececec;
+	background-color: #f4fff2;
 }
+#panier table th.grise { color: #929991; }
+
 #panier table td {
 	padding: 10px 20px;
 	text-align: center;
-	font-size: 16px;
+	font-size: 14px;
 	border-top: 1px solid #fff;
-	border-bottom: 1px solid #dce0e4;
+	border-bottom: 1px solid #ececec;
 }
 #panier table .left { text-align: left; }
 #panier table .right { text-align: right; }
-#panier table td h1, #panier table td strong {
-	font-size: 16px;
-	font-weight: normal;
-}
-#panier table td img{ border: 1px solid #dbdbdb; }
-#panier table td #nb_product{ 
+#panier table .price { color: #737373; font-family: georgia; }
+#panier table .delete { width: 105px; }
+
+
+
+
+/*-----Product-----*/
+#panier .prod img { display: block; float: left; margin: 0 8px 0 0; border: 1px solid #dbdbdb; }
+#panier .prod .title, #panier .prod .type, #panier .prod .ref { display: block; font-weight: normal; }
+
+#panier .prod .title { font-size: 14px; font-family: georgia; }
+#panier .prod .type { font-size: 11px; font-family: Arial, Helvetica, sans-serif; color: #000; }
+#panier .prod .ref { font-size: 11px; font-family: Arial, Helvetica, sans-serif; color: #737373; }
+
+
+
+
+/*-----input-----*/
+
+#panier table td #quantity{ 
 	padding: 0 10px;
 	height: 25px; width: 40px;
-	line-height: 25px; font-size: 16px;
+	line-height: 25px; font-size: 14px;
+	font-family: georgia;
 	text-align: center;
-	border: 1px solid #e5e5e5;
+	border: 1px solid #bebebe;
 }
+
+/*-----delete-----*/
 #panier table td #supprimer {
 	display: block;
 	width: 25px; height: 25px;
+	margin: 0 auto;
 	overflow: hidden; text-indent: -1500px;
 	-o-border-radius: 5px;
 	-ms-border-radius: 5px;
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
-	background: url(../img/sprite.png) no-repeat 3px -144px #fff;
+	border: 1px solid #F9F8F8;
+	background: url(../img/sprite.png) no-repeat 3px -144px;
 	-o-transition: all 0.2s ease;
 	-ms-transition: all 0.2s ease;
 	-moz-transition: all 0.2s ease;
 	-webkit-transition: all 0.2s ease;
 	transition: all 0.2s ease;
 }
-#panier table td #supprimer:hover { background-color: #FFCFCF; }
+#panier table td #supprimer:hover { background-color: #fff; border: 1px solid #dbdbdb; }
 
+
+
+
+
+/*-----Totaux-----*/
+#panier .totalline { padding: 0; border-bottom: 1px solid #fff; background-color: #ebf4ff; }
+#panier .totalline div { float: left; margin: 10px 0 10px 20px; }
+#panier .totalline div span { 
+	display: block; margin-top: 5px;
+	font-size: 11px; line-height: 11px;
+	color: #757575; 
+}
+
+#panier .totalline label { margin-right: 5px; font-size: 12px; color: #000; vertical-align: bottom; }
 #code {
 	padding: 0 10px;
-	height: 25px; width: 150px;
-	line-height: 25px;
-	font-size: 16px;
-	border: 1px solid #e5e5e5;
+	height: 22px; width: 140px;
+	line-height: 22px;
+	font-size: 14px;
+	border: 1px solid #bebebe;
 }
 #btnOk {
 	display: inline-block;
-	padding: 0 8px; margin-left: 5px;
-	height: 25px; line-height: 25px;
-	color: #fff; font-size: 14px;
-	font-family: arial;
+	padding: 0 4px; margin-left: 5px;
+	height: 20px; line-height: 18px;
+	color: #fff; font-size: 12px;
+	font-family: Arial, Helvetica, sans-serif;
 	border: none; cursor: pointer;
 	background-color: #338aeb;
 }
 
 
+#panier .totalline strong { 
+	display: block; /*float: right;*/ text-align: right;
+	height: 60px; line-height: 60px;
+	text-transform: uppercase;
+	font-size: 12px;
+	color: #000;
+}
+#panier .totalline strong span { 
+	display: block; float: right;
+	width: 115px; height: 60px; line-height: 60px;
+	margin-left: 20px; padding: 0 0px;
+	text-align: center;
+	text-transform: none;
+	font-size: 14px;
+	color: #fff;
+	background-color: #61a8f7;
+}
+
+
+
+
+/*-----BOUTONS-----*/
+#btnline { float: none; clear: both; height: 32px; }
 .btn { 
 	display: block;
 	height: 32px; line-height: 32px;
-	font-family: arial; color: #fff;
+	font-family: Arial, Helvetica, sans-serif; color: #fff;
 	padding: 0 15px;
 	background-image: url(../img/sprite.png);
 	background-repeat: no-repeat;
@@ -828,297 +915,81 @@ a { color: #1f244a; }
 .btn.back { 
 	float: left;
 	padding-left: 30px;
-	font-size: 14px; 
-	background-color: #75aae6;  
-	background-position: 6px -104px;  
+	font-size: 14px;
+	color: #000;	
+	background-color: #f4fff2;  
+	background-position: 6px -252px;  
 }
 
 
 
 
-/*-----------------------------------*/
-/*         PANIER_B & PANIER_C       */
-/*-----------------------------------*/
-#panier .float { display: block; float: left; width: 470px; /*height: 240px;*/ }
-#panier .float.out { margin-right: 20px; }
-#panier .log,
-#panier .adresse {
-	display: block; 
-	min-height: 190px;
-	margin-bottom: 10px;
-	border-bottom: 1px solid #dce0e4;
-	background-color: #f7f7f7;
-}
-#panier .log h1 ,
-#panier .adresse h1 {
-	display: block; padding: 5px 0 5px 15px;
+/*----------------------------*/
+/*         LOG-ADRESSES       */
+/*----------------------------*/
+
+#panier .floater {
+	display: block;
+	width: 460px; min-height: 200px;
+	margin: 20px 0 20px 0;
+	font-family: Arial, Helvetica, sans-serif;
+	border: 1px solid #dbdbdb;
+	background-color: #f9f8f8;
+} 
+#panier .floater.left { float: left; }
+#panier .floater.right { float: right; }
+
+#panier .floater h1 {
+	display: block; padding: 10px 0 10px 20px;
 	margin-bottom: 15px; margin-top: 0;
 	text-align: left;
-	font-size: 16px; font-weight: normal;
-	color: #fff;
-	background-color: #012247;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px; font-weight: normal;
+	color: #000;
+	border-bottom: 1px solid #ececec;
+	background-color: #f4fff2;
 }
-#panier .adresse h1 { margin-bottom: 15px; }
-#panier .log input {
+#panier .floater input {
 	display: block;
 	margin: 12px 20px;
 	padding: 0px 12px;
 	width: 250px; height: 30px; 
-	line-height: 25px; font-size: 16px;
-	color: #161f48; border: 1px solid #e5e5e5;
-}
-#panier .btnlog {
-	display: block; float: left;
-	height: 25px;
-	line-height: 25px;
-	color: #fff;
-	padding: 0 30px 0 8px;
+	line-height: 25px; font-size: 12px;
+	color: #666666; border: 1px solid #e5e5e5;
+} 
 
-	font-family: arial;
-	font-size: 14px; 
-	
-	background: url(../img/sprite.png) no-repeat right -73px #338aeb; 
+#forgotpass { 
+	display: block; 
+	margin: -5px 20px 0 25px;
+	color: #666666;
+	font-size: 11px; 
 }
-#panier .float.in .btnlog {
-	background: url(../img/sprite.png) no-repeat 105px -73px #338aeb; 
-}
-#forgotpass { display: block; float: none; clear: both; padding-top: 6px; font-family: arial; font-size: 11px; }
 #forgotpass:hover { text-decoration: underline; }
 
 
- 
-#panier .adresse p {
+
+/*Adresses*/
+#panier .floater.adresse { position: relative; }
+#panier .floater.adresse p {
 	display: block;
-	margin: 0px 20px 12px 20px;
-	line-height: 16px; font-size: 14px;
+	margin: 25px 20px 12px 22px;
+	line-height: 17px; font-size: 13px;
 	color: #161f48;
 }
-#panier .adresse .modifier {
-	display: block; float: left;
-	margin: 0 0 0 20px; padding: 0 8px;
-	color: #fff;
-	background-color: #012247;
+#panier .floater.adresse .modifier {
+	display: block; position: absolute;
+	top: 7px; right: 8px;
+	height: 25px; line-height: 31px;
+	padding-right: 32px;
+	color: #161f48; font-size: 13px;
+	background: url(../img/sprite.png) no-repeat right -290px; 
 }
+#panier .floater.adresse .modifier:hover { text-decoration: underline; }
 
 
-
-
-
-/*-----------------------------------*/
-/*            PANIER_D               */
-/*-----------------------------------*/
-
-#titleLivre {
-	font-size: 16px;
-	font-weight: normal;
-	padding: 7px 0 7px 15px;
-	color: #fff;
-	background-color: #012247;
-}
-
-#panier #fedex,
-#panier #chronopost { display: block; height: 75px; margin-top: 40px; }
-
-#panier #fedex  { width: 210px; margin: 40px 200px 0 100px; }
-#panier #chronopost  { width: 280px; margin-bottom: 60px; }
-
-#fedex label,
-#chronopost label {
-	display: block; float: right;
-	overflow: hidden;
-	text-indent: -1500px;
-	cursor: pointer;
-}
-
-
-
-#fedex label {
-	width: 165px;
-	height: 71px;
-	
-	background: url(../img/fedex.png) no-repeat 0 0; 
-}
-#chronopost label {
-	width: 232px;
-	height: 73px;
-	
-	background: url(../img/chronopost.png) no-repeat 0 0; 
-}
-#fedex input,
-#chronopost input {
-	display: block;
-	float: left;
-	margin-top: 30px;
-}
-
-
-
-/*------------------------------------------------*/
-#wrap_cdv {
-	float: right;
-	clear: both;  
-	padding-top: 20px;
-	font-family: arial;
-	font-size: 12px;
-}
-#wrap_cdv a { text-decoration: underline; }
-/*------------------------------------------------*/
-
-
-
-
-
-/*-----------------------------------*/
-/*            PANIER_E               */
-/*-----------------------------------*/
-
-#titlePaiement {
-	font-size: 16px;
-	font-weight: normal;
-	padding: 7px 0 7px 15px;
-	color: #fff;
-	background-color: #012247;
-}
-
-
-
-#selectPaymentProc .float.out.payment-proc {
-    width: 301px;
-    margin: 20px 10px;
-    padding: 50px 20px;
-	background-color: #f2f2f2;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*------------FORM PAIEMENT------------*/
- 
-
-#paiementForm {
-	width: 430px; margin: 80px auto 0 auto;
-	padding: 0 0 20px 0;
-	border-bottom: 1px solid #DCE0E4;
-	background-color: #F7F7F7;
-}
 
  
-#paiementForm h1 {
-	width: 430px; margin: 0 auto;
-	font-size: 16px;
-	font-weight: normal;
-	margin-bottom: 20px;
-	padding: 7px 0 7px 15px;
-	color: #fff;
-	background-color: #012247;
-}
-#paiementForm h1 span {
-	display: block;
-	float: right;
-	margin: 0 10px 0 0;
-	color: #fff;
-	font-weight: bold;
-}
-
-#paiementForm span, #paiementForm strong {
-	display: block; margin: 40px 0 35px -25px;
-	text-align: center; color: #006fa3;
-	font-weight: normal; font-size: 16px;
-}
-#paiementForm strong { margin: 45px 55px 25px -5px; }
-
-#paiementForm p { height: 27px; margin: 6px 7px 0px 15px; }
-#paiementForm p label {
-	display: block; float: left;
-	width: 130px; height: 27px; line-height: 27px;
-	margin-right: 10px;
-	font-family: arial; font-size: 13px; 
-	color: #1F244A; 
-}
-#paiementForm p label a {
-	line-height: 27px; margin-right: 10px;
-	font-family: verdana; font-size: 13px; 
-	color: #1F244A; text-decoration: underline;
-}
-#paiementForm p input, #paiementForm p select {
-	display: block; float: left;
-	width: 238px; height: 25px; padding-left: 5px;
-	border: 1px solid #CFCFCF; color: #333;
-	font-family: verdana; font-size: 13px; 
-}
-
-
-
-
-
-
-
-#paiementForm p input.middle { width: 120px; }
-#paiementForm p input.small { width: 70px; }
-#paiementForm p input.numCard { width: 46px; margin-right: 11px; }
-#paiementForm p select { width: 85px; height: 27px; line-height: 27px; margin-right: 7px; }
-#paiementForm p select option { line-height: 19px; font-family: verdana; }
-#paiementForm p #xmonth { width: 152px; }
  
-
-#paiementForm input.erreur, #paiementForm select.erreur { background-color: #FFFAF4; border: 1px solid #F8C979; color: #D57F00; }
-#paiementForm em.erreur { display: block; margin: 3px 0 0 140px; color: #F49900; }
-
-
-#btnPaiement { 
-	display: block; float: none;
-	width: 100px; margin: 15px auto;
-}
-
-
-
-/*-ENCART SECURITE-*/
-#paiementForm #securite {
-	width: 450px; height: auto;
-	padding: 1px 12px; margin: 20px 55px 0 0; text-align: justify;
-	color: #6f6f6f; font-family: arial; font-size: 12px;
-	border: 1px solid #dcf1bd; background-color: #f9fef7;
-}
-#paiementForm #securite img { margin: 3px 5px 0 0; }
-#paiementForm #securite span { 
-	display: block; height: 28px;
-	margin: 5px -12px -1px -12px;
-	background: url(../img/icocards.png) no-repeat 197px 3px #f2f8e9;
-	border: 1px solid #fff;
-}
-
-
-
-
-#wrap_cdv {
-	width: 340px;
-	margin: 10px auto 0 auto;
-	float: none; clear: both;
-	padding-top: 0px;
-	font-family: arial;
-	font-size: 12px;
-}
-#wrap_cdv a { text-decoration: underline; }
-#wrap_cdv label { color: #939393; }
-
-
-
-/*-------------------------------------------------------*/
-
 
 
 
@@ -1136,64 +1007,75 @@ a { color: #1f244a; }
 }
 
 #formContainer {
-	margin-bottom: 20px;
-	padding: 8px 15px 0px 15px;
-	-o-border-radius: 0 0 8px 8px;
-	-ms-border-radius: 0 0 8px 8px;
-	-moz-border-radius: 0 0 8px 8px;
-	-webkit-border-radius: 0 0 8px 8px;
-	border-radius: 0 0 8px 8px;
-	border: 1px solid #E2E2E2;
-	border-top: none;
-	background-color: #F9F9F9;
+	overflow: auto;
+	padding-bottom: 20px;
+	font-family: Arial, Helvetica, sans-serif;
 }
-
-#formContainer .errwrapper { margin: 20px 0; }
 
 
 #formContainer fieldset {
-	margin: 30px 0; padding: 6px 0px 2px 0px;
-	border: none;
-	border-top: 1px solid #E3E3E3;
+	display: block; float: right;
+	margin-top: 30px; padding-bottom: 20px;
+	
+	width: 470px; min-height: 320px;
+	overflow: auto;
+	
+	border: 1px solid #dbdbdb;
+	background-color: #f9f8f8;
+	
 	-webkit-box-shadow: 0 1px #ffffff inset;
 	-moz-box-shadow: 0 1px #ffffff inset;
 	-ms-box-shadow: 0 1px #ffffff inset;
 	-o-box-shadow: 0 1px #ffffff inset;
 	box-shadow: 0 1px #ffffff inset;
 }
+#formContainer fieldset:nth-child(2n){ float: left; }
+#formContainer fieldset:nth-child(0n+4),
+#formContainer fieldset:nth-child(0n+5){ min-height: 415px; }
+
 #formContainer legend {
-	margin: -7px 0 0 0px;
+    width: 100%;
+	margin: 0 0 15px 0;
+	padding: 8px 15px;
 	font-weight: bold;
-	color: #012247; font-size: 14px;
+	color: #000; font-size: 14px;
+	font-weight: normal;
+    border: 1px solid #dbdbdb;
+	background-color: #f4fff2;
 }
+
+#formContainer fieldset:nth-child(0n+4) legend,
+#formContainer fieldset:nth-child(0n+5) legend{ margin: 0 0 26px 0; }
+
+#formContainer  fieldset:nth-child(0n+4) p label,
+#formContainer  fieldset:nth-child(0n+5) p label { width: 90px; }
+
+
+
 
 
 #formContainer input {
 	display: inline-block;
-	width: auto;
+	width: auto; 
 	margin: 5px 8px 0 0;
 	font-size: 14px;
 }
 #formContainer label {
 	display: inline-block;
 	width: auto; height: 18px;
-	padding-top: 3px;
+	padding: 3px 0 0 8px;
 	line-height: 18px;
-	margin: 0 5px 3px 0;
+	margin: 0 5px 3px 25px;
 	font-size: 14px;
 	color: #3E5269; font-size: 14px;
+	background: url(../img/sprite.png) no-repeat -3px -335px; 
 }
 
-#formContainer p { margin: 15px 0 ; }
+#formContainer p { margin: 10px 0px; }
 #formContainer p label {
-	display: inline-block;
-	width: 85px; height: 18px;
-	padding-top: 0;
-	line-height: 18px;
-	margin: 0 5px 3px 0;
-	font-size: 14px;
-	color: #3E5269; font-size: 14px;
-}
+	width: 150px; height: 18px;
+	padding: 0 0 0 8px;
+} 
 #formContainer p input {
 	display: inline-block;
 	width: 220px; height: 25px;
@@ -1211,9 +1093,247 @@ a { color: #1f244a; }
 	line-height: 24px;
 	margin: 0px 0px 3px 0px;
 	padding: 0 0 0 7px;
+	font-size: 14px;
 	color: #000;
 	border: 1px solid #D9D9D9;
 	background-color: #ffffff;
+}
+
+
+
+
+
+/*-- exceptions > inputs ---*/
+#formContainer p label[for=birthday] { background: none; }
+
+#formContainer p input#address_7, #formContainer p input#address_8 { margin-top: 10px; }
+
+#formContainer p input#address_7b, #formContainer p input#address_7c,
+#formContainer p input#address_8b, #formContainer p input#address_8c { margin-left: 120px; }
+
+#formContainer p input#address_7c,
+#formContainer p input#address_8c { margin-bottom: 20px; }
+
+
+
+
+
+
+
+
+
+/*-----------------------------------------------*/
+/*   		 	     FACTURE    		     	 */
+/*-----------------------------------------------*/
+
+
+
+.invoices {
+	margin: 50px 0 30px 0; padding: 50px 30px 30px 30px;
+	border: 1px solid #dbdbdb;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+
+
+
+
+
+/*-------------DATE-NUM-FACTURE--------------*/
+.invoices #header,
+#headBuild {
+	float: right; height: 100px;
+	margin: 0px 0 35px 0; 
+	padding: 30px 10px 10px 10px;
+	text-align: right; 
+	color: #000;
+	font-size: 12px;
+	font-weight: bold;
+}
+#invoiceNumber,
+#invoiceDate { display: block; }
+
+#date { margin-left: 5px; }
+
+
+
+
+
+/*-------------SELLER--------------*/
+#seller {
+	float: left;
+	margin: 0; 
+}
+
+#seller #sellerLogo {
+	display: block;  
+	height: 100px;
+	margin: 0 30px 35px 60px; 
+}
+#seller span{
+	display: block;
+	padding: 0 120px 0 20px;
+	background-color: #F2F8FF;
+}
+#seller #sellerName { padding-top: 15px; }
+#seller .province span { padding: 0;  }
+#seller .province .country { padding-bottom: 15px;  }
+ 
+
+
+
+/*-------------BUYER--------------*/
+#buyer { 
+	float: right;
+	width: 550px;
+	margin: 0 0 20px 0; 
+	padding: 10px 20px;
+	text-align: left; font-size: 16px;
+	border: 1px solid #dbdbdb;
+	background-color: #fefefe;
+}
+
+
+
+/*-------------TITLE--------------*/
+.invoices h1 { 
+	clear: both; padding: 50px 0 10px 0; 
+	border-bottom: 1px solid #dbdbdb;
+	font-size: 22px; font-weight: normal;
+}
+.invoices h2 { padding-top: 20px; font-size: 16px; font-weight: normal; }
+
+
+
+
+
+/*-------------TABLES--------------*/
+#panier .invoices table,
+#panier .invoices table tr,
+#panier .invoices table th,
+#panier .invoices table td {
+	/*text-align: left;*/
+	border-spacing: 0;
+}
+
+ 
+#panier .invoices table tr th:first-child,
+#panier .invoices table tr td:first-child { text-align: left; }
+
+
+
+
+
+#panier .invoices table .itemTotal td,
+#panier .invoices table .shippingTotal td {
+	border-bottom: 1px solid #fff;
+	background-color: #ebf4ff;
+}
+
+
+#panier .invoices table .discount { background-color: #f5faff; }
+#panier .invoices table .discount .desc {
+	text-align: left; font-size: 12px;
+	text-transform: uppercase; font-weight: bold;
+}
+#panier .invoices table .discount .amount {
+	text-align: center;
+	color: #fff; font-weight: bold;
+	background-color: #ACD2FB;
+}
+
+
+
+
+#panier .invoices table .itemTotal .desc,
+#panier .invoices table .shippingTotal .desc {
+	text-align: right; font-size: 12px;
+	text-transform: uppercase; font-weight: bold;
+}
+
+#panier .invoices table .itemTotal .subtotal,
+#panier .invoices table .shippingTotal .subtotal {
+	text-align: center;
+	color: #fff; font-weight: bold;
+	background-color: #61a8f7;
+}
+
+
+
+
+
+/*-------------TOTAUX--------------*/
+#invoiceNotes { margin-top: 40px; }
+
+#invoiceTotal { overflow: auto; }
+
+#invoiceTotal label,
+#invoiceTotal span { 
+	display: block; float: left; 
+	height: 40px; line-height: 40px;
+	margin-bottom: 5px;
+}
+
+#invoiceTotal label { 
+	clear: left; width: 735px;
+	padding-right: 25px;
+	text-align: right; font-size: 12px;
+	text-transform: uppercase; font-weight: bold;
+	
+	border: 1px solid #E7E7E7;
+	border-right: 1px solid #fff;
+	background-color: #ebf4ff;
+}
+
+
+#invoiceTotal span { 
+	width: 173px;  
+	text-align: center; color: #fff;
+	font-weight: bold;
+	border: 1px solid #9BBBE0;
+	border-left: 0;
+	background-color: #acd2fb;
+}
+
+
+
+#invoiceTotal label:last-child { 
+	clear: left; width: 795px;
+	padding-right: 25px;
+	text-align: right; font-size: 12px;
+	text-transform: uppercase; font-weight: bold;
+	background-color: #ebf4ff;
+}
+#invoiceTotal span:last-child { 
+	width: 173px;  
+	text-align: center; color: #fff;
+	background-color: #61A8F7;
+}
+
+
+
+
+/*-------------NUMEROS-FISCAUX--------------*/
+#invoiceLegal {
+	clear: both;
+	margin-top: 20px;
+	text-align: right;
+	font-size: 12px;
+}
+#invoiceLegal label,
+#invoiceLegal span { padding-left: 5px; }
+
+
+
+
+
+/*-------------MESSAGE-FOOTER--------------*/
+.invoices #footer,
+#footBuild {
+	margin: 30px 0 0 0; 
+	padding: 10px;
+	font-size: 12px; text-align: center;
+	background-color: #F7F7F7;
 }
 
 
@@ -1224,6 +1344,379 @@ a { color: #1f244a; }
 
 
 
+
+/*-----------------------------------------------*/
+/*  	   RECAP PAIEMENT - SMALL FACTURE     	 */
+/*-----------------------------------------------*/
+
+
+#panier .rappeladresse {
+	margin: 10px 0 0 5px;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px; color: #5e5e5e;
+	text-transform: uppercase; font-weight: bold;
+}
+#panier .rappeladresse strong {
+	font-size: 12px; color: #000;
+	text-transform: none;
+}
+
+#panier .txtinfo.recap {
+	margin-top: 5px; padding-left: 25px;
+	font-size: 12px; font-style: italic;
+	background: url(../img/sprite.png) no-repeat left -391px;  
+}
+
+
+
+
+/*-RE-ECRITURE-FACTURE-*/
+
+#smallinvoice .invoices {
+	margin-top: 0;
+	margin-bottom: 10px;
+	padding: 0;
+	border: 0;
+}
+
+#panier #smallinvoice .invoices table { margin-top: 4px; font-family: georgia; }
+
+#panier #smallinvoice .invoices table th,
+#panier #smallinvoice .invoices table .discount,
+#panier #smallinvoice .invoices table .itemTotal,
+#panier #smallinvoice .invoices table .shippingTotal { font-family: Arial, Helvetica, sans-serif; }
+
+
+#smallinvoice #invoiceTotal label { width: 795px; }
+
+
+#panier #smallinvoice .invoices #headBuild,
+#panier #smallinvoice .invoices #seller,
+#panier #smallinvoice .invoices #buyer,
+#panier #smallinvoice .invoices h1,
+#panier #smallinvoice .invoices #invoiceLegal,
+#panier #smallinvoice .invoices #footBuild { display: none; }
+
+
+
+/*-CHECKBOX-CGV-*/
+
+#infosCGV { 
+	margin-top: -10px;
+	margin-bottom: 20px;
+	padding: 0 15px; overflow: auto; 
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	background-color: #fffde3; 
+}
+#infosCGV .txtinfo { 
+	display: block; float: right; 
+	height: 23px; 
+	
+	color: #4994eb;
+}
+#infosCGV .txtcgvin { 
+	display: block; float: right; 
+	clear: right; 
+	margin-bottom: 15px; 
+}
+#infosCGV .txtcgvin label { margin-right: 5px; color: #639b0b; } 
+#infosCGV .txtcgvin label a { color: #639b0b; text-decoration: underline; } 
+
+
+#infosCGV .errwrapper { 
+	display: block; float: right; 
+	clear: right; 
+	margin-bottom: 10px;
+    padding: 2px 10px;
+    color: #7d2424;
+	background-color: rgba(255, 194, 136, 0.35);
+}
+
+
+
+
+
+
+/*---------------------------------------------------*/
+/*      	   RECAP PAIEMENT - TABLEAU          	 */
+/*---------------------------------------------------*/
+
+#panier table .sstotalline {
+	overflow: auto; padding: 0; 
+	border-bottom: 0;
+	background-color: #f5faff;
+}
+#panier table .sstotalline .infoChrono {  
+	display: block; 
+	padding: 0 0 0 20px;
+	height: 50px; line-height: 50px;
+	font-size: 12px;
+	color: #639b0b;
+}
+
+
+.infoChrono { 
+	display: block; float: left;
+	width: 550px; height: 60px;
+}
+
+.sstotalline p { display: block; float: right; }
+.sstotalline p span { 
+	display: block; float: left;
+	height: 25px; line-height: 25px;
+	padding: 0px 10px;
+	background-color: #f5faff; 
+} 
+
+.sstotalline p .labelTotal {  
+	width: 180px; 
+	clear: left; color: #666666;
+	text-align: right; font-size: 10px;
+    text-transform: uppercase;
+	background-color: #f5faff;  
+}
+.sstotalline p .priceTotal { 
+	width: 115px; 
+	font-size: 12px; text-align: center; 
+	color: #fff; background-color: #acd2fb;  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*-----------------------------------*/
+/*		 	 COMPTE-ACCUEIL			 */
+/*-----------------------------------*/
+
+#compte { margin-top: 30px; }
+#compte .left { display: block; float: left; width: 570px; }
+#compte .right { display: block; float: right; width: 380px; }
+
+
+
+
+.commande {
+	position: relative;
+	margin-bottom: 30px;
+	font-family: Arial, Helvetica, sans-serif;
+	border: 1px solid #dbdbdb;
+}
+
+.commande h2,
+.commande .numcommande,
+.commande .datecommande { display: block; margin: 0 20px; }
+
+
+.commande h2 { margin-top: 18px; font-size: 14px; text-transform: uppercase; color: #000; }
+.commande .numcommande { font-size: 11px; color: #737373; }
+.commande .datecommande { margin: 10px 20px; color: #338aeb; font-weight: bold; }
+
+.commande em { 
+	display: block; position: absolute; 
+	top: 0; right: 0;
+	padding: 10px 18px;
+	color: #dd9922; 
+	text-transform: uppercase;
+	font-size: 12px;
+	font-style: normal; font-weight: bold;
+	background-color: #fff8d9; 
+}
+
+.commande.encours em { color: #dd9922; background-color: #fff8d9; }
+.commande.livree em { color: #1d8900; background-color: #e4ffd9; }
+
+.commande .detailcommande { 
+	display: block; position: absolute; 
+	top: 65px; right: 4px;
+	padding: 0 20px 0 0;
+	color: #000; 
+	font-size: 11px;
+	background: url(../img/sprite.png) no-repeat right -420px; 
+}
+.commande .detailcommande:hover { text-decoration: underline; }
+
+
+#panier .commande .prod {
+	overflow: auto;
+	padding: 15px 20px;
+	font-family: Arial, Helvetica, sans-serif;
+	border-top: 1px solid #ebebeb;
+	border-bottom: 1px solid #ffffff;
+	background-color: #f9f8f8;
+}
+#panier .commande .prod img { width: 110px; }
+#panier .commande .prod .title { font-size: 16px; }
+#panier .commande .prod .ref { margin-top: 8px; } 
+#panier .commande .prod .price { display: block; margin-top: 25px; color: #000; font-size: 11px; }
+#panier .commande .prod .price span { color: #338aeb;}
+
+
+
+
+.linetotal {
+	overflow: auto;
+	padding: 0px 25px 0px 25px;
+	background-color: #ebf4ff;
+}
+.linetotal strong {
+	display: block; float: left; 
+	margin: 10px 0;
+	text-transform: uppercase;
+	font-weight: normal;
+	font-size: 12px;
+}
+.linetotal strong span {
+	padding: 0 5px;
+	text-transform: none; 
+	font-weight: bold;
+	color: #338aeb;
+	font-size: 14px;
+}
+
+.linetotal a { 
+	display: block; float: right; 
+	height: 34px; line-height: 34px;
+	text-align: right;
+	font-size: 12px;
+	color: #639b0b; 
+	margin-top: 5px;
+	padding: 0px 89px 0 0;
+	
+	background: url(../img/chronopost.png) no-repeat right 0; 
+}
+
+
+
+
+/*--BLOCK-INFOS--*/
+.blockinfo {
+	position: relative;
+	margin-bottom: 15px; padding: 15px 20px;
+	font-family: Arial, Helvetica, sans-serif;
+	border-top: 1px solid #d2d2d2;
+	background-color: #f9f8f8;
+}
+.blockinfo strong { 
+	text-transform: uppercase;
+	/*font-weight: normal;*/
+}
+.blockinfo p { 
+	margin-top: 15px;
+	font-size: 12px;
+	color: #000;
+}
+
+.blockinfo .modifier {
+	display: block; position: absolute;
+	top: 12px; right: 8px;
+	height: 25px; line-height: 31px;
+	padding-right: 32px;
+	color: #161f48; font-size: 13px;
+	background: url(../img/sprite.png) no-repeat right -290px; 
+}
+.blockinfo .modifier:hover { text-decoration: underline; }
+
+
+
+
+
+
+
+
+
+
+
+
+/*-------------------------------------------*/
+/*		 	 COMPTE-DETAIL-COMMANDE			 */
+/*-------------------------------------------*/
+
+
+
+.recapLivraison {
+	height: 40px; margin-bottom:-13px;
+	font-family: Arial, Helvetica, sans-serif;
+	background-color: #fff8d9;
+}
+.recapLivraison span {
+	display: inline-block;
+	height: 40px; line-height: 40px;
+}
+
+.suivi {
+    background: url(../img/chronopost.png) no-repeat scroll right 0 rgba(0, 0, 0, 0);
+    color: #639b0b;
+    display: block;
+    float: right;
+    font-size: 12px;
+    height: 34px;
+    line-height: 34px;
+    margin-top: 5px;
+    padding: 0 89px 0 0;
+    text-align: right;
+}
+
+
+#numCommande {
+	margin: 25px 0;
+	height: 52px; line-height: 52px;
+	border: 1px solid #dbdbdb;
+	color: #dd9922; text-transform: uppercase;
+	font-weight: bold;
+	font-family: Arial, Helvetica, sans-serif;
+	background-color: #fff8d9;
+}
+
+#numCommande h2 {
+	display: block; float: left;
+	height: 50px; line-height: 16px;
+	margin-right: 15px;
+    padding: 12px 60px 0 20px;
+	font-size: 13px;
+	text-transform: uppercase;
+	color: #000000;
+	background: url(../img/sprite.png) no-repeat right -450px #fff;
+}
+
+
+#numCommande h2 .ref {
+	display: block;
+	font-size: 11px;
+	color: #737373;
+	text-transform: none;
+}
+
+
+
+#totalcommande {
+	text-align: right;
+	height: 70px; line-height: 70px; margin-bottom:20px;
+	font-family: Arial, Helvetica, sans-serif;
+	text-transform: uppercase;
+	background-color: #fff8d9;
+}
+#totalcommande strong {
+	display: block; float: right;
+	margin: 0 10px;
+}
 
 
 
@@ -1337,6 +1830,11 @@ a { color: #1f244a; }
 #footer #footline a:hover { text-decoration: underline; }
 
 
+
+
+
+
+ 
 
 
 

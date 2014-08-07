@@ -1,68 +1,67 @@
-<ul>
-    <li class="li1 ok"><a href="#">Mon Panier</a></li>
-    <li class="li2 ok">Identification</li>
-    <li class="li3 on">Adresse</li>
-    <li class="li4">Livraison</li>
-    <li class="li5">Paiement</li>
-</ul>
+<div id="panier" role="main">
+    <strong id="titlepanier">Votre Commande</strong>
+    <ul>
+        <li class="li1 ok"><a href="${basket_url_format}"><span>1 </span>Commande</a></li>
+        <li class="li2 ok"><span>2 </span>Identification</li>
+        <li class="li3 on"><span>3 </span>Adresse de livraison</li>
+        <li class="li4"><span>4 </span>Validation</li>
+    </ul>
 
-<form id="addrForm" method="post">
-<div class="float out">
-    <div class="adresse">
-        <h1>Votre adresse de livraison</h1>
-        <p>
-            <?py if shipping_address: ?>
-            <input type="hidden" name="id_shipaddr" value="${shipping_address['id']}" />
-            ${shipping_address['address_desp']}<br />
-            ${shipping_address['address']}<br />
-            ${shipping_address['postal_code']} ${shipping_address['city']}<br />
-            ${shipping_address['country_code']}
-            <?py #endif ?>
-        </p>
-        <a href="${order_user_url_format}" class="modifier">> Modifier</a>
-    </div>
-</div>
+    <h1 id="titleH1">Adresses de Livraison et de Facturation :</h1>
+    <p class="txtinfo">Vérifiez votre adresse de facturation et choisissez votre lieu de livraison.</p>
 
-<div class="float in">
-    <div class="adresse">
-        <h1>Votre adresse de facturation</h1>
-        <p>
-            <?py if billing_address: ?>
-            <input type="hidden" name="id_billaddr" value="${billing_address['id']}" />
-            ${billing_address['address_desp']}<br />
-            ${billing_address['address']}<br />
-            ${billing_address['postal_code']} ${billing_address['city']}<br />
-            ${billing_address['country_code']}
-            <?py #endif ?>
-        </p>
-        <a href="${order_user_url_format}" class="modifier">> Modifier</a>
-    </div>
-    <input type="hidden" name="id_phone" value="${id_phone}" />
-    <a href="javascript:checkout()" class="btn purchase">Valider</a>
-</div>
-</form>
+    <form id="addrForm" method="post">
+        <div class="floater left adresse">
+            <h1>Votre adresse de Livraison</h1>
+            <p>
+                <?py if shipping_address: ?>
+                <input type="hidden" name="id_shipaddr" value="${shipping_address['id']}" />
+                ${shipping_address['address_desp']}<br />
+                ${shipping_address['address']}<br />
+                ${shipping_address['postal_code']} ${shipping_address['city']}<br />
+                ${shipping_address['country_code']}
+                <?py #endif ?>
+            </p>
+            <a href="${order_user_url_format}" class="modifier">Modifier</a>
+        </div>
 
-<div class="listProd listFiche">
-<strong class="discover"><span>&Agrave; découvrir également</span></strong>
-<?py for p in product_list[:5]: ?>
-    <?py include('_product_list_item.html', p=p) ?>
-<?py #endfor ?>
-</div>
+        <div class="floater right adresse">
+            <h1>Votre adresse de Facturation</h1>
+            <p>
+                <?py if billing_address: ?>
+                <input type="hidden" name="id_billaddr" value="${billing_address['id']}" />
+                ${billing_address['address_desp']}<br />
+                ${billing_address['address']}<br />
+                ${billing_address['postal_code']} ${billing_address['city']}<br />
+                ${billing_address['country_code']}
+                <?py #endif ?>
+            </p>
+            <a href="${order_user_url_format}" class="modifier">Modifier</a>
 
-<script type="text/javascript">
-function checkout() {
-    $.post('/ajax_order',
-        $("#addrForm").serializeArray(),
-        function(data) {
-            if (data['set_cookies_js']) {
-                eval(data['set_cookies_js']);
+        </div>
+
+        <input type="hidden" name="id_phone" value="${id_phone}" />
+        <div id="btnline">
+            <a class="btn purchase" href="javascript:checkout()">Valider</a>
+            <a class="btn back" href="javascript:history.go(-1)">Etape précédente</a>
+        </div>
+    </form>
+
+    <script type="text/javascript">
+    function checkout() {
+        $.post('/ajax_order',
+            $("#addrForm").serializeArray(),
+            function(data) {
+                if (data['set_cookies_js']) {
+                    eval(data['set_cookies_js']);
+                }
+                if (data['res'] == 'FAILURE') {
+                    $("#addrForm .errwrapper").text(data['err']);
+                } else {
+                    location = data['redirect_to'];
+                }
             }
-            if (data['res'] == 'FAILURE') {
-                $("#addrForm .errwrapper").text(data['err']);
-            } else {
-                location = data['redirect_to'];
-            }
-        }
-    )
-}
-</script>
+        )
+    }
+    </script>
+</div>

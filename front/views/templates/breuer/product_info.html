@@ -4,10 +4,10 @@
     <h1>${product_info.get('name')}</h1>
     <span class="descrpt">${product_info.get('desc')}</span>
     <?py display=product_info.get('display',{}) ?>
-    <span id="discounted_price" class="prix1">${display.get('price')} ${product_info.get('price',{}).get('@currency')}</span>
+    <span id="discounted_price" class="prix1">${format_amount(display.get('price'))} ${cur_symbol(product_info.get('price',{}).get('@currency'))}</span>
 
     <?py if product_info.get('discount'): ?>
-    <em class="prix2">au lieu de <span id="ori_price">${display.get('ori_price')} ${product_info.get('price', {}).get('@currency')}</span></em>
+    <em class="prix2">au lieu de <span id="ori_price">${format_amount(display.get('ori_price'))} ${cur_symbol(product_info.get('price', {}).get('@currency'))}</span></em>
     <?py #endif ?>
     <p>
     </p>
@@ -62,7 +62,7 @@
         <?py #endif ?>
 
         <a href="javascript:addToBasket()" id="btnBuy">
-            Ajouter au panier <img src="/templates/breuer/img/cart.png"/>
+            Ajouter au panier
         </a>
         <div class="errwrapper"></div>
 
@@ -114,7 +114,7 @@ $(function(){
     var discount_amount = ${product_info.get("discount", {}).get("#text", 0)};
     var ori_price = parseFloat(${product_info.get("display", {}).get("ori_price", 99999999)});
     var discounted_price = parseFloat(${product_info.get("display", {}).get("price", 99999999)});
-    var currency = "${product_info.get('price', {}).get('@currency')}";
+    var currency = "${cur_symbol(product_info.get('price', {}).get('@currency'))}";
 
     var type_attr_prices = {};
     var _price = null;
@@ -182,8 +182,8 @@ $(function(){
     }
 
     function _display_prices() {
-        $("#ori_price").text(ori_price.toFixed(2) + " " + currency);
-        $("#discounted_price").text(discounted_price.toFixed(2) + " " + currency);
+        $("#ori_price").text(formatAmount(ori_price) + " " + currency);
+        $("#discounted_price").text(formatAmount(discounted_price) + " " + currency);
     }
 
     $("#selectColoris li").click(function(){
@@ -265,7 +265,7 @@ function addToBasket() {
             if (data['res'] == 'FAILURE') {
                 $("#addForm .errwrapper").text(data['err']);
             } else {
-                flyToElement($('#btnBuy img'), $('#panier'));
+                flyToElement($('#visuelProd img'), $('#panier'));
             }
         }
     );

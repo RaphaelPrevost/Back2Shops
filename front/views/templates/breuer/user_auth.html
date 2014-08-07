@@ -1,6 +1,17 @@
-<?py include('_auth.html') ?>
-
+<div id="panier" role="main">
+    <?py include('_auth.html') ?>
+    <div id="btnline">
+        <a class="btn purchase" href="javascript:confirm()">Valider</a>
+    </div>
+</div>
 <script>
+function confirm() {
+    if ($('#registerForm input[name=email]').val().length > 0) {
+        register();
+    } else {
+        login();
+    }
+}
 function login() {
     $.post('/ajax_login',
         $("#loginForm").serializeArray(),
