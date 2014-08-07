@@ -1085,6 +1085,10 @@ class InvoiceView(BaseCryptoWebService, ListView):
             args.update({
                 'shop': Shop.objects.get(pk=id_shop),
             })
+        else:
+            args.update({
+                'shop': None,
+            })
         iv_num_obj, created = InvoiceNumber.objects.get_or_create(**args)
 
         if not created:
