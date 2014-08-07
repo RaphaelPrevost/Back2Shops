@@ -6,7 +6,11 @@ import xmltodict
 
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
+from common.utils import get_order_table_info
+from common.utils import get_shipping_info
 from common.utils import get_url_format
+from common.utils import get_user_contact_info
+from common.utils import get_valid_attr
 from views.base import BaseHtmlResource
 from B2SUtils.base_actor import as_list
 from B2SFrontUtils.constants import REMOTE_API_NAME
@@ -44,23 +48,20 @@ class PaymentResource(BaseHtmlResource):
             processors = as_list(payment.get('payment', {}).get('processor'))
             id_trans = payment.get('payment', {}).get('@transaction')
 
-        return {'step': 'init',
+        data = {'step': 'init',
                 'err': err,
                 'id_trans': id_trans,
                 'processors': processors}
+        return data
 
     def _on_post(self, req, resp, **kwargs):
         id_trans = req.get_param('id_trans')
         processor = req.get_param('processor')
         id_order = req.get_param('id_order')
-        invoices_obj = {}
         form = None
         if processor in ['1', '4']:
             trans = {'id_trans': id_trans}
             query = {'transaction': id_trans}
-            invoices_obj = data_access(REMOTE_API_NAME.GET_INVOICES, req,
-                                       resp, order=id_order,
-                                       brand=settings.BRAND_ID)
             if processor == '1':
                 query.update({
                     'processor': processor,
@@ -80,11 +81,23 @@ class PaymentResource(BaseHtmlResource):
             form = form_resp.get('form')
         if not form:
             form = '<div class="errwrapper">NOT_SUPPORTED</div>'
-        return {'step': 'form',
+
+        data = {'step': 'form',
                 'form': form,
-                'obj': invoices_obj,
                 'order_id': id_order,
                 'processor': processor}
+        user_info = data_access(REMOTE_API_NAME.GET_USERINFO,
+                                req, resp)
+        data.update(get_user_contact_info(user_info))
+        order_resp = data_access(REMOTE_API_NAME.GET_ORDER_DETAIL, req, resp,
+                                 id=id_order, brand_id=settings.BRAND_ID)
+        all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
+
+        order_data = get_order_table_info(id_order, order_resp, all_sales)
+        data.update(order_data)
+        shipping_info = get_shipping_info(req, resp, id_order)
+        data.update(shipping_info)
+        return data
 
 
 class PaymentCancelResource(BaseHtmlResource):

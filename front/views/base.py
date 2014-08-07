@@ -15,6 +15,8 @@ from B2SUtils.errors import ValidationError
 from common.constants import FRT_ROUTE_ROLE
 from common.constants import Redirection
 from common.data_access import data_access
+from common.utils import cur_symbol
+from common.utils import format_amount
 from common.utils import gen_html_resp
 from common.utils import get_normalized_name
 from common.utils import get_url_format
@@ -121,6 +123,11 @@ class BaseResource(object):
 
 class BaseHtmlResource(BaseResource):
     template = ""
+    tabs = [
+        {'name': 'E-shop', 'url': '/e-shop'},
+        {'name': 'Lookbook', 'url': '/lookbook'},
+    ]
+    cur_tab_index = -1
     show_products_menu = True
 
     def __init__(self, **kwargs):
@@ -148,9 +155,18 @@ class BaseHtmlResource(BaseResource):
         return resp
 
     def _add_common_data(self, resp_dict):
-        resp_dict['get_single_attribute'] = self.get_single_attribute
+        resp_dict['tabs'] = copy.deepcopy(self.tabs)
+        resp_dict['cur_tab_index'] = self.cur_tab_index
+        if self.cur_tab_index >= 0:
+            resp_dict['tabs'][self.cur_tab_index]['current'] = True
+        if self.cur_tab_index != 0:
+            self.show_products_menu = False
         resp_dict['show_products_menu'] = self.show_products_menu
+
         resp_dict['as_list'] = as_list
+        resp_dict['get_single_attribute'] = self.get_single_attribute
+        resp_dict['format_amount'] = format_amount
+        resp_dict['cur_symbol'] = cur_symbol
 
         if self.show_products_menu:
             # navigation menu
@@ -173,6 +189,7 @@ class BaseHtmlResource(BaseResource):
             'prodlist_url_format': get_url_format(FRT_ROUTE_ROLE.PRDT_LIST),
             'auth_url_format': get_url_format(FRT_ROUTE_ROLE.USER_AUTH),
             'user_url_format': get_url_format(FRT_ROUTE_ROLE.USER_INFO),
+            'my_account_url_format': get_url_format(FRT_ROUTE_ROLE.MY_ACCOUNT),
             'basket_url_format': get_url_format(FRT_ROUTE_ROLE.BASKET),
             'order_auth_url_format': get_url_format(FRT_ROUTE_ROLE.ORDER_AUTH),
             'order_user_url_format': get_url_format(FRT_ROUTE_ROLE.ORDER_USER),

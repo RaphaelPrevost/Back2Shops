@@ -18,6 +18,7 @@ from views.base import BaseHtmlResource
 
 class TypeListResource(BaseHtmlResource):
     template = "product_list.html"
+    cur_tab_index = 0
     role = FRT_ROUTE_ROLE.TYPE_LIST
 
     def _on_get(self, req, resp, **kwargs):
@@ -56,6 +57,7 @@ class TypeListResource(BaseHtmlResource):
 
 class ProductListResource(BaseHtmlResource):
     template = "product_list.html"
+    cur_tab_index = 0
 
     def _on_get(self, req, resp, **kwargs):
         sales = data_access(REMOTE_API_NAME.GET_SALES,
@@ -69,6 +71,7 @@ class ProductListResource(BaseHtmlResource):
 
 class ProductInfoResource(BaseHtmlResource):
     template = "product_info.html"
+    cur_tab_index = 0
     role = FRT_ROUTE_ROLE.PRDT_INFO
 
     def _on_get(self, req, resp, **kwargs):

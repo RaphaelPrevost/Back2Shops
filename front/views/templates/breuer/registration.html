@@ -1,19 +1,21 @@
-<form id="registerForm" name="registerForm" method="POST">
-    <div class="errwrapper"></div>
-    <div>
-        <input type="text" name="email" id="email" placeholder="${{_('EMAIL')}}" class="text ui-widget-content ui-corner-all">
-    </div>
-    <div>
-        <input type="password" name="password" id="password" placeholder="${{_('PASSWORD')}}" class="text ui-widget-content ui-corner-all">
-    </div>
-    <div>
-        <input type="password" name="password2" id="password2" placeholder="${{_('VERIFY_PASSWORD')}}" class="text ui-widget-content ui-corner-all">
-    </div>
-    <br/>
-    <div>
-        <a style="text-decoration:underline" href="javascript:toLogin();">Have account ? login here</a>
-    </div>
-</form>
+<div id="panier" role="main">
+    <form id="registerForm" name="registerForm" method="POST">
+        <div class="errwrapper"></div>
+        <div>
+            <input type="text" name="email" id="email" placeholder="${{_('EMAIL')}}" class="text ui-widget-content ui-corner-all">
+        </div>
+        <div>
+            <input type="password" name="password" id="password" placeholder="${{_('PASSWORD')}}" class="text ui-widget-content ui-corner-all">
+        </div>
+        <div>
+            <input type="password" name="password2" id="password2" placeholder="${{_('VERIFY_PASSWORD')}}" class="text ui-widget-content ui-corner-all">
+        </div>
+        <br/>
+        <div>
+            <a style="text-decoration:underline" href="javascript:toLogin();">Have account ? login here</a>
+        </div>
+    </form>
+</div>
 <script>
 function toLogin() {
     $("#dialog-register").dialog('close');

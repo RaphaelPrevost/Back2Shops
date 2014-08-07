@@ -13,7 +13,6 @@ def get_engine(force=False, **kwargs):
         return temp_engine
     temp_engine = tenjin.Engine(preprocess=True,
                                 path=settings.TEMPLATE_PATH,
-                                layout=settings.DEFAULT_TEMPLATE,
                                 **kwargs)
     return temp_engine
 

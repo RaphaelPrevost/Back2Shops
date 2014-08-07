@@ -45,7 +45,10 @@ class AssetItem(Item):
     def on_get(self, req, resp, **kwargs):
         theme = kwargs.get('theme')
         file_type = kwargs.get('file_type')
+        folder = kwargs.get('folder')
         name = kwargs.get('name')
+        if folder:
+            name = '%s/%s' % (folder, name)
 
         try:
             resp.content_type = self._get_media_type(file_type, name)

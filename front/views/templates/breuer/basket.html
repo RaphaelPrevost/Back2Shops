@@ -1,45 +1,54 @@
-<div>
+<div id="panier" role="main">
+    <strong id="titlepanier">Votre Commande</strong>
     <ul>
-        <li class="li1 on"><a href="#">Mon Panier</a></li>
-        <li class="li2">Identification</li>
-        <li class="li3">Adresse</li>
-        <li class="li4">Livraison</li>
-        <li class="li5">Paiement</li>
+        <li class="li1 on"><span>1 </span>Commande</li>
+        <li class="li2"><span>2 </span>Identification</li>
+        <li class="li3"><span>3 </span>Adresse de livraison</li>
+        <li class="li4"><span>4 </span>Validation</li>
     </ul>
+
+    <h1 id="titleH1">Votre Commande :</h1>
     <table cellpadding="0" cellspacing="0" border="0">
         <thead>
             <tr>
-                <th class="left">Produit</th>
-                <th class="left">Description</th>
-                <th>Prix unitaire</th>
+                <th class="left">Produit(s) commandé(s)</th>
+                <th>Prix Unitaire</th>
                 <th>Quantité</th>
-                <th></th> 
                 <th>Total</th>
+                <th class="grise delete">Annulation</th> 
             </tr>
         </thead>
         <tbody>
             <?py for item in basket: ?>
             <tr data="${item['item']}">
-                <td class="left"><img width="80px" src="${item['variant'].get('img') or get_single_attribute(item['product'], 'img')}"/></td>
                 <td class="left">
-                    <h1>${item['product']['name']}</h1>
-                    <strong>
-                    <?py if item['variant']: ?><span>${item['variant']['name']}</span><?py #endif ?>
-                    <?py if item['type']: ?><span>${item['type']['name']}</span><?py #endif ?>
-                    </strong>
+                    <div class="prod">
+                        <img width="60px" src="${item['variant'].get('img') or get_single_attribute(item['product'], 'img')}"/>
+                        <h3 class="title">${item['product']['name']}</h1>
+                        <strong class="type">
+                        <?py if item['type']: ?>Taille : ${item['type']['name']}<?py #endif ?>
+                        <?py if item['variant'] and item['type']: ?> - <?py #endif ?>
+                        <?py if item['variant']: ?>Coloris : ${item['variant']['name']}<?py #endif ?>
+                        </strong>
+                        <span class="ref">Ref : ${item['product']['id']}</span>
+                    </div>
                 </td>
-                <td><span id="price">${item['product']['price'] or item['type'].get('price', {}).get('#text')}</span><span id="currency">${item['product']['currency']}</span></td>
+                <td class="price"><span id="price">${format_amount(item['product']['price'] or item['type'].get('price', {}).get('#text'))}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span></td>
                 <td><input id="quantity" name="nb_product" type="text" value="${item['quantity']}" /></td>
+                <td class="price"><span id="amount"></span><span>${cur_symbol(item['product']['currency'])}</span></td>
                 <td><a href="javascript:void(0)" id="supprimer" title="Supprimer">x</a></td>
-                <td><span id="amount"></span><span>${item['product']['currency']}</span></td>
             </tr>
             <?py #endfor ?>
             <tr>
-                <td colspan="2" class="left"><label for="code">Code Avantage :</label> <input id="code" name="code" type="text" value="" /><input id="btnOk" type="submit" value="Ok" /></td>
-                <td colspan="4" class="right">
-                    <span>Total produits TTC: </span>
-                    <span id="sum_amount"></span>
-                    <span id="sum_amount_currency"></span>
+                <td colspan="5" class="totalline left">
+                    <div>
+                        <label for="code">Code Avantage </label> <input id="code" name="code" type="text" value="" /><input id="btnOk" type="submit" value="Ok" />
+                        <span>Texte explicatif du système avantage</span>
+                    </div>
+                    <strong>
+                        Total produits TTC
+                        <span id="sum_amount"></span>
+                    </strong>
                 </td>
             </tr>
         </tbody>
@@ -48,20 +57,13 @@
     <a class="btn back" href="javascript:history.go(-1)">Continuer mes achats</a>
 </div>
 
-<div class="listProd listFiche">
-<strong class="discover"><span>&Agrave; découvrir également</span></strong>
-<?py for p in product_list[:5]: ?>
-    <?py include('_product_list_item.html', p=p) ?>
-<?py #endfor ?>
-</div>
-
 <script type="text/javascript">
 function next() {
     if ($('tr #amount').length == 0) return;
     location = "${order_addr_url_format}";
 }
 function calc_row(tr) {
-    tr.find("#amount").text(tr.find("#price").text() * tr.find("#quantity").val());
+    tr.find("#amount").text(formatAmount(tr.find("#price").text() * tr.find("#quantity").val()));
 }
 function calc_sum() {
     var currency = "";
@@ -83,8 +85,7 @@ function calc_sum() {
     $('tr #amount').each(function(){
         sum += $(this).text() * 1;
     });
-    $('#sum_amount').text(sum);
-    $('#sum_amount_currency').text(currency);
+    $('#sum_amount').text(formatAmount(sum) + " " + currency);
     $('#sum_amount').show().siblings().show();
 }
 

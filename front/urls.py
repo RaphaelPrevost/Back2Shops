@@ -9,6 +9,8 @@ from views import homepage
 from views.basket import BasketAPIResource
 from views.basket import BasketResource
 from views.homepage import HomepageResource
+from views.homepage import EShopResource
+from views.homepage import LookbookResource
 from views.invoice import InvoiceResource
 from views.order import OrderAPIResource
 from views.order import OrderAddressResource
@@ -30,6 +32,7 @@ from views.product import ProductListResource
 from views.product import TypeListResource
 from views.redirect import GenericRedirectResource
 from views.user import LoginAPIResource
+from views.user import MyAccountResource
 from views.user import RegisterAPIResource
 from views.user import UserAPIResource
 from views.user import UserAuthResource
@@ -44,6 +47,7 @@ role_res_mapping = {
     FRT_ROUTE_ROLE.HOMEPAGE: HomepageResource,
     FRT_ROUTE_ROLE.USER_AUTH: UserAuthResource,
     FRT_ROUTE_ROLE.USER_INFO: UserResource,
+    FRT_ROUTE_ROLE.MY_ACCOUNT: MyAccountResource,
     FRT_ROUTE_ROLE.PRDT_LIST: ProductListResource,
     FRT_ROUTE_ROLE.PRDT_INFO: ProductInfoResource,
     FRT_ROUTE_ROLE.TYPE_LIST: TypeListResource,
@@ -62,6 +66,7 @@ role_default_urlpatterns = {
     FRT_ROUTE_ROLE.HOMEPAGE: r'/',
     FRT_ROUTE_ROLE.USER_AUTH: r'/auth',
     FRT_ROUTE_ROLE.USER_INFO: r'/user_info',
+    FRT_ROUTE_ROLE.MY_ACCOUNT: r'/my_account',
     FRT_ROUTE_ROLE.PRDT_LIST: r'/products',
     FRT_ROUTE_ROLE.TYPE_LIST: r'/type/{id_type}',
     FRT_ROUTE_ROLE.PRDT_INFO: r'/products/{id_sale}',
@@ -101,11 +106,14 @@ fixed_urlpatterns = {
 
     # access theme assets
     r'/templates/{theme}/{file_type}/{name}': download.AssetItem,
+    r'/templates/{theme}/{file_type}/{folder}/{name}': download.AssetItem,
 
     # static html
     r'/mention_legal': homepage.MentionLegalResource,
     r'/cgv': homepage.CGVResource,
     r'/commands_deliveries': homepage.CommandsAndDeliveriesResource,
+    r'/e-shop': homepage.EShopResource,
+    r'/lookbook': homepage.LookbookResource,
 }
 
 

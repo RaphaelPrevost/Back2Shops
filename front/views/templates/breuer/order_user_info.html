@@ -1,10 +1,11 @@
-<ul>
-    <li class="li1 ok"><a href="#">Mon Panier</a></li>
-    <li class="li2 on">Identification</li>
-    <li class="li3">Adresse</li>
-    <li class="li4">Livraison</li>
-    <li class="li5">Paiement</li>
-</ul>
- 
-<h1 id="titleInfo">Créez votre compte</h1>
-<?py include('user_info.html') ?>
+<div id="panier" role="main">
+    <ul>
+        <li class="li1 ok"><a href="${basket_url_format}"><span>1 </span>Commande</a></li>
+        <li class="li2 ok"><span>2 </span>Identification</li>
+        <li class="li3 on"><span>3 </span>Adresse de livraison</li>
+        <li class="li4"><span>4 </span>Validation</li>
+    </ul>
+     
+    <h1 id="titleH1">Informations pour l'usager</h1>
+    <?py include('user_info.html') ?>
+</div>
