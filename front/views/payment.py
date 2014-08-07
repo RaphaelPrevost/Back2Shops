@@ -47,6 +47,12 @@ class PaymentResource(BaseHtmlResource):
                 err = "Error Message: %s" % err
             processors = as_list(payment.get('payment', {}).get('processor'))
             id_trans = payment.get('payment', {}).get('@transaction')
+            if settings.BRAND_NAME == "BREUER":
+                #hardcode paybox for BREUER
+                return self._payment_form(req, resp,
+                                          id_trans=id_trans,
+                                          processor=4,
+                                          id_order=id_order)
 
         data = {'step': 'init',
                 'err': err,
@@ -55,9 +61,12 @@ class PaymentResource(BaseHtmlResource):
         return data
 
     def _on_post(self, req, resp, **kwargs):
-        id_trans = req.get_param('id_trans')
-        processor = req.get_param('processor')
-        id_order = req.get_param('id_order')
+        return self._payment_form(req, resp, **kwargs)
+
+    def _payment_form(self, req, resp, **kwargs):
+        id_trans = req.get_param('id_trans') or kwargs.get('id_trans')
+        processor = req.get_param('processor') or kwargs.get('processor')
+        id_order = req.get_param('id_order') or kwargs.get('id_order')
         form = None
         if processor in ['1', '4']:
             trans = {'id_trans': id_trans}
