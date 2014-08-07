@@ -143,3 +143,13 @@ class PayboxCancelResource(BaseHtmlResource):
         params = req._params
         params.update({'id_trans': kwargs['id_trans']})
         return {'result': params}
+
+
+class PayboxWaitingResource(BaseHtmlResource):
+    template = "paybox_failure.html"
+    show_products_menu = False
+
+    def _on_get(self, req, resp, **kwargs):
+        params = req._params
+        params.update({'id_trans': kwargs['id_trans']})
+        return {'result': params}
