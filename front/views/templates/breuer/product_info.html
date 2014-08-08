@@ -41,7 +41,7 @@
                 <option value="">Selectionner la taille</option>
                 <?py attributes = as_list(product_info.get('type',{}).get('attribute')) ?>
                 <?py for type_attr in attributes: ?>
-                    <?py if not type_attr.get('disabled', False) ?>
+                    <?py if not type_attr.get('disabled', False): ?>
                     <option value="${type_attr.get('@id')}">${type_attr.get('name')}</option>
                     <?py #endif ?>
                 <?py #endfor ?>
