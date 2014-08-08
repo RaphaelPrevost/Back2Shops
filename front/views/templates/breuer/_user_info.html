@@ -52,7 +52,6 @@ function getTemplate(name, item)
             var min_values = item.accept[0].split('-');
             var max_values = item.accept[1].split('-');
             var cur_value = item.value.split('-');
-            console.log(item.value);
 
             for (var j=0; j <= 2; j++) {
                 tpl += '<select class="' + name + '" name="' + name + j + '">';
