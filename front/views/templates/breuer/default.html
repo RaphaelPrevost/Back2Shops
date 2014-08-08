@@ -45,7 +45,10 @@
             <div id="logo"><a href="/">Breuer</a></div>
             <div id="linkHead">
                 <a href="#">Facebook</a> - <a href="#">Twitter</a><br />
-                <a id="panier" href="${basket_url_format}">Mon panier</a> - <a href="${my_account_url_format}">Mon compte</a>
+                <a id="panier" href="${basket_url_format}">Mon panier</a> - <a href="${my_account_url_format}">Mon compte</a><br />
+                <?py if users_id: ?>
+                <a href="javascript:logout()">Déconnexion</a><br />
+                <?py #endif ?>
             </div>
             <nav id="nav" role="navigation">
                 <ul>
@@ -55,6 +58,12 @@
                     <?py #endfor ?>
                 </ul>
             </nav>
+            <script>
+            function logout() {
+                document.cookie = "USER_AUTH=\"\"";
+                location = "${logout_url_format}";
+            }
+            </script>
         </header>
         <!--//HEADER-->
 

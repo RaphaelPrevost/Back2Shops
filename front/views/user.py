@@ -8,8 +8,10 @@ from common.utils import get_user_contact_info
 from views.base import BaseHtmlResource
 from views.base import BaseJsonResource
 from B2SProtocol.constants import RESP_RESULT
+from B2SProtocol.constants import USER_AUTH_COOKIE_NAME
 from B2SFrontUtils.constants import REMOTE_API_NAME
 from B2SUtils.errors import ValidationError
+from B2SUtils.common import set_cookie
 
 def login(req, resp):
     email = req.get_param('email')
@@ -50,6 +52,16 @@ class UserAuthResource(BaseHtmlResource):
         return {'succ_redirect_to': get_url_format(FRT_ROUTE_ROLE.MY_ACCOUNT)}
 
 
+class UserLogoutResource(BaseJsonResource):
+    def _on_get(self, req, resp, **kwargs):
+        set_cookie(resp, USER_AUTH_COOKIE_NAME, "")
+        redirect_to = get_url_format(FRT_ROUTE_ROLE.USER_AUTH)
+        if 'referer' in req.headers:
+            redirect_to = req.headers['referer']
+        self.redirect(redirect_to)
+        return
+
+
 class UserResource(BaseHtmlResource):
     template = "user_info.html"
     show_products_menu = False
@@ -75,7 +87,6 @@ class UserResource(BaseHtmlResource):
 class LoginAPIResource(BaseJsonResource):
     def _on_post(self, req, resp, **kwargs):
         return login(req, resp)
-
 
 class RegisterAPIResource(BaseJsonResource):
     def _on_post(self, req, resp, **kwargs):

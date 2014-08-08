@@ -573,12 +573,16 @@ function restart_servers() {
     killall -9 uwsgi
     source $CWD/env/bin/activate
 
+    sleep 1
     cd $CWD/users_src
     start_uwsgi 8100 server
+    sleep 1
     cd $CWD/finance_src
     start_uwsgi 9000 fin_server
+    sleep 1
     cd $CWD/assets_src
     start_uwsgi 9300 assets_server
+    sleep 1
     cd $CWD/front_src
     start_uwsgi 9500 front_server
 
