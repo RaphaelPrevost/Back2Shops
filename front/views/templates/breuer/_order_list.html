@@ -18,7 +18,7 @@
                 <?py item = shipping_list['item'] ?>
                 <!--LINE-PROD-->
                 <div class="prod">
-                    <img width="60px" src="${item['variant'].get('img') or get_single_attribute(item['product'], 'img')}"/>
+                    <img width="60px" src="${item['variant'].get('img') or item['picture']}"/>
                     <h3 class="title">${item['product']['name']}</h1>
                     <strong class="type">
                     <?py if item.get('type'): ?>Taille : ${item['type']['name']}<?py #endif ?>
@@ -26,7 +26,7 @@
                     <?py if item.get('variant'): ?>Coloris : ${item['variant']['name']}<?py #endif ?>
                     </strong>
                     <span class="ref">Ref : ${item['id_sale']}</span>
-                    <span class="price">Prix : <span>${format_amount(item['product']['price'] or item['type'].get('price', {}).get('#text'))} ${cur_symbol(item['product']['currency'])}</span> x <span>${item['quantity']}</span></span>
+                    <span class="price">Prix : <span>${format_amount(item['price'])} ${cur_symbol(item['product']['currency'])}</span> x <span>${item['quantity']}</span></span>
                 </div>
                 <!--//LINE-PROD-->  
             <?py #endfor ?>

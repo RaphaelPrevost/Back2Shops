@@ -69,7 +69,7 @@
                     <tr>
                         <td class="left">
                             <div class="prod">
-                                <img width="60px" src="${item['variant'].get('img') or get_single_attribute(item['product'], 'img')}"/>
+                                <img width="60px" src="${item['variant'].get('img') or item['picture']}"/>
                                 <h3 class="title">${item['product']['name']}</h1>
                                 <strong class="type">
                                 <?py if item.get('type'): ?>Taille : ${item['type']['name']}<?py #endif ?>
@@ -79,7 +79,7 @@
                                 <span class="ref">Ref : ${item['id_sale']}</span>
                             </div>
                         </td>
-                        <td class="price"><span id="price">${format_amount(item['product']['price'] or item['type'].get('price', {}).get('#text'))}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span></td>
+                        <td class="price"><span id="price">${format_amount(item['price'])}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span></td>
                         <td><input id="quantity" name="nb_product" type="text" value="${item['quantity']}" disabled/></td>
                         <td class="price"><span id="amount"></span><span>${cur_symbol(item['product']['currency'])}</span></td>
                         <td></td>

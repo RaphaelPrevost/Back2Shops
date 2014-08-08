@@ -312,6 +312,8 @@ def get_order_table_info(order_id, order_resp, all_sales):
                             sale_info.get('type', {}).get('attribute'),
                             item_info.get('id_price_type')),
                 'product': get_brief_product(sale_info),
+                'price': item_info['price'],
+                'picture': item_info['picture'],
             })
 
             for _shipment_info in item_info['shipment_info']:

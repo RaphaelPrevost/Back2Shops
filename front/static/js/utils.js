@@ -16,6 +16,10 @@ function curSymbol(cur) {
     return cur;
 }
 
+function redirectTo(url) {
+    location = url;
+}
+
 var message_catalog = {
     'Civility': 'Civilité',
     'First name': 'Prénom',
