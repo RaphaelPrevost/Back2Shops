@@ -16,7 +16,9 @@
         <?py for shipment_id, shipping_lists in shipments.iteritems(): ?>
             <?py shipment_detail = shipments_detail.get(str(shipment_id)) or {} ?>
             <div class="recapLivraison">
-                <span>Livraison n° ${shipment_id}</span> | <span>Date de livraison prévue : XXXX</span> <a class="suivi" href="#">Consultez le suivi de commande sur</a>
+                <span>Livraison n° ${shipment_id}</span>
+                <?py if shipping_lists[0]['shipping_msg']: ?> | <span>${shipping_lists[0]['shipping_msg']}</span><?py #endif ?>
+                <a class="suivi" href="#">Consultez le suivi de commande sur</a>
             </div>
 
             <table cellpadding="0" cellspacing="0" border="0">

@@ -15,3 +15,36 @@ function curSymbol(cur) {
         return '&euro;';
     return cur;
 }
+
+var message_catalog = {
+    'Civility': 'Civilité',
+    'First name': 'Prénom',
+    'Last name': 'Nom',
+    'Title': 'Civilité',
+    'Locale': 'Localisation',
+    'Gender': 'Genre',
+    'Birthday': 'Date de naissance',
+    'Email': 'Email',
+    'Phone number': 'Numéro de téléphone',
+    'Calling code': 'Indicatif téléphonique',
+    'Number': 'Numéro',
+    'Address': 'Addresse',
+    'Billing': 'De facturation',
+    'Shipping': 'De livraison',
+    'Both': 'Both',
+    'City': 'Ville',
+    'Postal code': 'Code postal',
+    'Country': 'Pays',
+    'Description': 'Intitulé',
+
+    'PENDING': "En attendant",
+    'AWAITING_PAYMENT': 'En attente de paiement',
+    'AWAITING_SHIPPING': "En attente d'expédition",
+    'COMPLATED': "Expédiée",
+};
+function _trans(label) {
+    var translated = message_catalog[label];
+    if (translated == undefined)
+        translated = label;
+    return translated
+}

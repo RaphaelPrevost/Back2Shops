@@ -181,6 +181,7 @@ def _get_shipment_info_for_order_item(conn, item_id):
     fields, columns = zip(*[('shipment_id', 'shipments.id'),
                             ('status', 'shipments.status'),
                             ('shipping_fee', 'shipping_fee'),
+                            ('shipping_date', 'shipping_date'),
                             ('shipping_list_quantity', 'quantity')])
     query_str = (
         "SELECT %s FROM shipping_list "

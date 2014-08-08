@@ -22,9 +22,7 @@
             <?py variants = as_list(product_info.get('variant'))?>
             <?py for variant in variants: ?>
             <li value="${variant.get('@id')}">
-                <?py if variant.get('disabled', False): ?>
-                <img src="${variant.get('thumb')}" alt="${variant.get('@id')}"/>
-                <?py else: ?>
+                <?py if not variant.get('disabled', False): ?>
                 <a href="javascript:void(0)" src="${variant.get('img') or get_single_attribute(product_info, 'img')}">
                     <img src="${variant.get('thumb')}" alt="${variant.get('@id')}"/>
                 </a>
@@ -43,8 +41,9 @@
                 <option value="">Selectionner la taille</option>
                 <?py attributes = as_list(product_info.get('type',{}).get('attribute')) ?>
                 <?py for type_attr in attributes: ?>
-                <?py status ="disabled" if type_attr.get('disabled', False) else "" ?>
-                <option value="${type_attr.get('@id')}" ${status}>${type_attr.get('name')}</option>
+                    <?py if not type_attr.get('disabled', False) ?>
+                    <option value="${type_attr.get('@id')}">${type_attr.get('name')}</option>
+                    <?py #endif ?>
                 <?py #endfor ?>
             </select>
         </div>

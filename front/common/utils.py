@@ -5,6 +5,7 @@ import gevent
 import logging
 import os
 import signal
+import time
 import ujson
 import uuid
 import xmltodict
@@ -23,8 +24,10 @@ from B2SUtils.common import get_cookie_value
 from B2SUtils.common import set_cookie
 from common.constants import ADDR_TYPE
 from common.constants import FRT_ROUTE_ROLE
+from common.constants import ORDER_STATUS_MSG
 from common.constants import CURR_USER_BASKET_COOKIE_NAME
 from common.redis_utils import get_redis_cli
+from common.m17n import trans_func
 from common.template import render_template
 
 
@@ -75,11 +78,17 @@ def format_amount(amount):
     except:
         return amount
 
-def format_date(date_str, from_format='%Y-%m-%d', to_format='%d %b %Y'):
+def format_date(date_str, days=0,
+                from_format='%Y-%m-%d', to_format='%d/%m/%Y'):
     try:
-        return datetime.datetime.strptime(date_str, from_format).strftime(to_format)
+        return (datetime.datetime.strptime(date_str, from_format)
+              + datetime.timedelta(days=days)).strftime(to_format)
     except:
         return date_str
+
+def format_epoch_time(seconds, format='%d/%m/%Y'):
+    return time.strftime(format, time.gmtime(seconds))
+
 
 def get_product_default_display_price(sale):
     price = sale.get('price', {}).get('#text') or ''
@@ -284,6 +293,8 @@ def get_order_table_info(order_id, order_resp, all_sales):
 
     order_items = []
     shipments = {}
+    order_status = int(order_resp['order_status'])
+    order_created = format_epoch_time(order_resp['confirmation_time'])
     for item in order_resp.get('order_items', []):
         for item_id, item_info in item.iteritems():
             id_sale = str(item_info['sale_id'])
@@ -312,18 +323,32 @@ def get_order_table_info(order_id, order_resp, all_sales):
                 shipping_list['item'] = order_items[-1]
                 shipping_list['status_name'] = SHIPMENT_STATUS.toReverseDict().get(
                                                int(shipping_list['status']))
+                shipping_list['shipping_msg'] = get_shipping_msg(order_status,
+                                order_created, shipping_list['shipping_date'])
                 if shipment_id not in shipments:
                     shipments[shipment_id] = []
                 shipments[shipment_id].append(shipping_list)
+
     data = {
         'order_id': order_id,
-        'status_name': ORDER_STATUS.toReverseDict().get(
-                       int(order_resp['order_status'])),
+        'order_created': order_created,
+        'status_name': trans_func()(ORDER_STATUS.toReverseDict().get(
+                                    order_status) or ''),
         'user_name': user_name,
         'shipments': shipments,
     }
     return data
 
+def get_shipping_msg(order_status, order_created, shipping_date):
+    shipping_msg = ORDER_STATUS_MSG.get(order_status) or ''
+    if shipping_msg:
+        if order_status == ORDER_STATUS.AWAITING_SHIPPING:
+            # TODO get shipping deadline days from BO
+            expected_shipping_date = format_date(order_created, 7, '%d/%m/%Y')
+            shipping_msg = shipping_msg % expected_shipping_date
+        elif order_status == ORDER_STATUS.COMPLETED:
+            shipping_msg = shipping_msg % format_epoch_time(shipping_date)
+    return shipping_msg
 
 def get_url_format(role):
     from urls import BrandRoutes

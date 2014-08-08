@@ -1,8 +1,9 @@
 import tenjin
+tenjin.set_template_encoding('utf-8')
 from tenjin.helpers import *
 
 import settings
-from common import m17n
+from common.m17n import trans_func
 
 global temp_engine
 temp_engine = None
@@ -17,6 +18,6 @@ def get_engine(force=False, **kwargs):
     return temp_engine
 
 def render_template(template, content, **kwargs):
-    content['_'] = m17n.create_m17n_func('en')
+    content['_'] = trans_func
     return get_engine(**kwargs).render(template, content)
 

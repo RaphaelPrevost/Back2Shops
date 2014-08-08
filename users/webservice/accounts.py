@@ -1,4 +1,5 @@
 import re
+import datetime
 
 import settings
 from common.constants import ADDR_TYPE
@@ -69,8 +70,20 @@ class UserResource(BaseJsonResource):
                              ('Other', GENDER.Other)])
 
         # birthday
-        fields_dict['birthday'] = field_utils.TextFieldType("Birthday",
-                    birthday and str(birthday.date()) or '', date_reexp)
+        fields_dict['birthday'] = field_utils.SelectFieldType("Birthday",
+                    birthday and str(birthday.date()) or '',
+                    ['%s-%s-%s' % (datetime.datetime.now().year - 100, 1, 1),
+                     '%s-%s-%s' % (datetime.datetime.now().year, 12, 31)])
+
+        # combine general fields
+        general_fields_order = ['first_name', 'last_name', 'locale', 'title',
+                                'gender', 'birthday', 'email']
+        general_fields_value = dict([
+            (f_name, fields_dict.get(f_name, {}).value)
+            for f_name in fields_dict])
+        all_fields_dict = {'general':
+                field_utils.FieldSetType("Civility",
+                    fields_dict, [general_fields_value], general_fields_order)}
 
         # phone number
         columns = ('id', 'country_num', 'phone_num', 'phone_num_desp')
@@ -90,7 +103,7 @@ class UserResource(BaseJsonResource):
             on=[('country_calling_code.country_code', 'country.iso')],
             columns=("printable_name", "country_code"),
             order=("printable_name",))
-        fields_dict['phone'] = field_utils.FieldSetType("Phone number",
+        all_fields_dict['phone'] = field_utils.FieldSetType("Phone number",
             {'country_num': field_utils.SelectFieldType(
                             "Calling code", "", countries),
              'phone_num': field_utils.TextFieldType(
@@ -133,7 +146,7 @@ class UserResource(BaseJsonResource):
                                        'province_code': x[6],
                                        'address_desp': x[7]},
                             addresses)
-        fields_dict['address'] = field_utils.FieldSetType("Address",
+        all_fields_dict['address'] = field_utils.FieldSetType("Address",
             {'addr_type': field_utils.RadioFieldType(
                         "Address type", "", addr_type_options),
              'address': field_utils.TextFieldType(
@@ -154,9 +167,10 @@ class UserResource(BaseJsonResource):
             ['addr_type', 'address', 'city', 'postal_code', 'country_code',
              'province_code', 'address_desp'])
 
-        for f in fields_dict:
-            fields_dict[f] = fields_dict[f].toDict()
-        return fields_dict
+        for f in all_fields_dict:
+            all_fields_dict[f] = all_fields_dict[f].toDict()
+
+        return all_fields_dict
 
     def _on_post(self, req, resp, conn, **kwargs):
         action = req.get_param('action')
