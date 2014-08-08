@@ -79,7 +79,7 @@ function getTemplate(name, item)
             }
             tpl += '</select>';
 
-            if (name == 'locale')
+            if (name == 'locale' || name == 'gender')
                 tpl = '<p style="display:none">' + tpl + '</p>';
             else
                 tpl = '<p>' + tpl + '</p>';
