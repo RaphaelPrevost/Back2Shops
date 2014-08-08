@@ -5,7 +5,7 @@ function formatAmount(s) {
 
   num = (num * 1).toFixed(2);
   var re = new RegExp().compile("(\\d)(\\d{3})(,|\\.|$)");  
-  while(re.test(num))  
+  while(re && re.test(num))  
     num = num.replace(re,"$1,$2$3");
   return num; 
 }

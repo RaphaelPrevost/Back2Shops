@@ -129,7 +129,6 @@
     function calc_sum(obj) {
         var currency = "";
         var diff_currency = false;
-        console.log(obj);
         obj.find('tr #currency').each(function(){
             if (currency == "") {
                 currency = $(this).text();
@@ -144,7 +143,6 @@
 
         var sum = 0;
         obj.find('tr #amount').each(function(){
-            console.log($(this).text());
             sum += $(this).text() * 1;
         });
         obj.find('#sum_amount').text(formatAmount(sum) + " " + currency);
