@@ -589,6 +589,18 @@ function restart_servers() {
     service nginx restart
 }
 
+function restart_front() {
+    killall -9 uwsgi
+    source $CWD/env/bin/activate
+
+    cd $CWD/front_src
+    PORT=9500
+    SERVER=front_server
+    ps aux | grep $PORT | grep $SERVER | grep -v grep | awk '{print $2}' | xargs kill -9 || echo "no uwsgi process to kill"
+    sleep 1
+    start_uwsgi $PORT $SERVER
+}
+
 function start_uwsgi() {
     uwsgi -s 127.0.0.1:$1 -w $2 -M -p4 --callable app -d uwsgi.log --gevent 100
 }
@@ -620,7 +632,10 @@ case $1 in
             deploy_front
             ;;
         restart)
-            restart_servers            
+            restart_servers
+            ;;
+        restart_front)
+            restart_front
             ;;
         testdata)
             deploy_test
