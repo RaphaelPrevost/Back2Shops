@@ -36,6 +36,7 @@ from views.user import MyAccountResource
 from views.user import RegisterAPIResource
 from views.user import UserAPIResource
 from views.user import UserAuthResource
+from views.user import UserLogoutResource
 from views.user import UserResource
 from webservice import crypto
 from webservice import download
@@ -46,6 +47,7 @@ from webservice.aux import AuxResource
 role_res_mapping = {
     FRT_ROUTE_ROLE.HOMEPAGE: HomepageResource,
     FRT_ROUTE_ROLE.USER_AUTH: UserAuthResource,
+    FRT_ROUTE_ROLE.USER_LOGOUT: UserLogoutResource,
     FRT_ROUTE_ROLE.USER_INFO: UserResource,
     FRT_ROUTE_ROLE.MY_ACCOUNT: MyAccountResource,
     FRT_ROUTE_ROLE.PRDT_LIST: ProductListResource,
@@ -65,6 +67,7 @@ role_res_mapping = {
 role_default_urlpatterns = {
     FRT_ROUTE_ROLE.HOMEPAGE: r'/',
     FRT_ROUTE_ROLE.USER_AUTH: r'/auth',
+    FRT_ROUTE_ROLE.USER_LOGOUT: r'/logout',
     FRT_ROUTE_ROLE.USER_INFO: r'/user_info',
     FRT_ROUTE_ROLE.MY_ACCOUNT: r'/my_account',
     FRT_ROUTE_ROLE.PRDT_LIST: r'/products',

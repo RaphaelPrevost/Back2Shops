@@ -63,8 +63,7 @@ class BaseResource(object):
 
     def msg_handler(self, method_name, req, resp, **kwargs):
         try:
-            if self.login_required.get(method_name):
-                self.users_id = self._verify_user_online(req, resp)
+            self._verify_user_online(req, resp, method_name)
             method = getattr(self, '_on_' + method_name)
             data = method(req, resp, **kwargs)
         except Redirection, e:
@@ -80,14 +79,16 @@ class BaseResource(object):
                     'err': 'SERVER_ERR'}
         return data
 
-    def _verify_user_online(self, req, resp):
+    def _verify_user_online(self, req, resp, method_name):
         remote_resp = data_access(REMOTE_API_NAME.ONLINE,
                                   req, resp)
         if remote_resp.get('res') == RESP_RESULT.F:
-            raise Redirection(self.get_auth_url(),
-                                err=remote_resp.get('err') or '')
+            self.users_id = None
+            if self.login_required.get(method_name):
+                raise Redirection(self.get_auth_url(),
+                                    err=remote_resp.get('err') or '')
         else:
-            return remote_resp['users_id']
+            self.users_id = remote_resp['users_id']
 
     def get_auth_url(self):
         return get_url_format(FRT_ROUTE_ROLE.USER_AUTH)
@@ -155,6 +156,7 @@ class BaseHtmlResource(BaseResource):
         return resp
 
     def _add_common_data(self, resp_dict):
+        resp_dict['users_id'] = self.users_id
         resp_dict['tabs'] = copy.deepcopy(self.tabs)
         resp_dict['cur_tab_index'] = self.cur_tab_index
         if self.cur_tab_index >= 0:
@@ -188,6 +190,7 @@ class BaseHtmlResource(BaseResource):
         resp_dict.update({
             'prodlist_url_format': get_url_format(FRT_ROUTE_ROLE.PRDT_LIST),
             'auth_url_format': get_url_format(FRT_ROUTE_ROLE.USER_AUTH),
+            'logout_url_format': get_url_format(FRT_ROUTE_ROLE.USER_LOGOUT),
             'user_url_format': get_url_format(FRT_ROUTE_ROLE.USER_INFO),
             'my_account_url_format': get_url_format(FRT_ROUTE_ROLE.MY_ACCOUNT),
             'basket_url_format': get_url_format(FRT_ROUTE_ROLE.BASKET),
