@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 ##
 ## message catalog to translate message
 ##
+import settings
 
 MESSAGE_CATALOG = {
     'en': {
@@ -30,6 +32,11 @@ MESSAGE_CATALOG = {
         'ORDER': 'Order',
         'CONTACT_CUSTOMER_SERVICE': 'Please contact customer service.',
         'NO_INVOICES': 'No invoices currently',
+
+        'PENDING': "En attendant",
+        'AWAITING_PAYMENT': 'En attente de paiement',
+        'AWAITING_SHIPPING': "En attente d'expédition",
+        'COMPLETED': "Expédiée",
     },
 }
 
@@ -39,3 +46,5 @@ def create_m17n_func(lang):
         raise ValueError("%s: unknown lang." % lang)
     return dct.get
 
+def trans_func():
+    return create_m17n_func(settings.DEFAULT_LANG)

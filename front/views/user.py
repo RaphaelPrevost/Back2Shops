@@ -89,6 +89,11 @@ class UserAPIResource(BaseJsonResource):
     login_required = {'get': False, 'post': True}
 
     def _on_post(self, req, resp, **kwargs):
+        if req.get_param('birthday0'):
+            req._params['birthday'] = '%s-%02d-%02d' % (
+                req.get_param('birthday0'), int(req.get_param('birthday1') or 1),
+                int(req.get_param('birthday2') or 1))
+
         remote_resp = data_access(REMOTE_API_NAME.SET_USERINFO,
                                   req, resp,
                                   action="modify",
@@ -115,17 +120,18 @@ class MyAccountResource(BaseHtmlResource):
         order_list.reverse()
 
         user_info = data_access(REMOTE_API_NAME.GET_USERINFO, req, resp)
-        if not user_info['first_name'].get('value') \
-                or not user_info['last_name'].get('value'):
-            user_name = user_info['email']['value']
+        general_user_values = user_info['general']['values'][0]
+        if not general_user_values.get('first_name') \
+                or not general_user_values.get('last_name'):
+            user_name = general_user_values.get('email')
         else:
             user_name = '%s %s %s' % (
-                    user_info['title'].get('value') or '',
-                    user_info['first_name'].get('value') or '',
-                    user_info['last_name'].get('value') or '',
+                    general_user_values.get('title') or '',
+                    general_user_values.get('first_name') or '',
+                    general_user_values.get('last_name') or '',
                     )
         data = {'user_name': user_name,
-                'user_info': user_info,
+                'user_info': general_user_values,
                 'order_list': order_list}
         data.update(get_user_contact_info(user_info))
         return data

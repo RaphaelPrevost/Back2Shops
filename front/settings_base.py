@@ -17,6 +17,8 @@ TEMPLATE_PATH = ['views/templates/breuer', 'views/templates/dragondollar']
 #TEMPLATE_PATH = ['views/templates/dragondollar']
 DEFAULT_TEMPLATE = 'default.html'
 
+DEFAULT_LANG = 'en'
+
 STATIC_FILES_PATH = 'static'
 
 LOG_CONFIG_FILE = 'logging.cfg'

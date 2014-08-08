@@ -18,10 +18,10 @@
                 <p>
                     ${user_name}
                     <br />
-                    <br />${user_info['birthday'].get('value')}
-                    <br />${user_info['email'].get('value')}
+                    <br />${user_info['birthday']}
+                    <br />${user_info['email']}
                 </p>
-                <a href="${order_user_url_format}" class="modifier">Modifier</a>
+                <a href="${user_url_format}" class="modifier">Modifier</a>
             </div>
             
             <div class="blockinfo">
@@ -35,7 +35,7 @@
                     ${billing_address['country_code']}
                     <?py #endif ?>
                 </p>
-                <a href="${order_user_url_format}" class="modifier">Modifier</a>
+                <a href="${user_url_format}" class="modifier">Modifier</a>
             </div>
             
             
@@ -50,7 +50,7 @@
                     ${shipping_address['country_code']}
                     <?py #endif ?>
                 </p>
-                <a href="${order_user_url_format}" class="modifier">Modifier</a>
+                <a href="${user_url_format}" class="modifier">Modifier</a>
             </div>  
         </div>
         <!--//COLONNE-RIGHT-->

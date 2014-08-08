@@ -115,8 +115,9 @@ class BaseTestCase(unittest.TestCase):
         if browser is None:
             browser = self.b
         resp = ujson.loads(browser.get_users_info())
-        self.assertTrue('email' in resp)
-        self.assertTrue(resp['email']['value'], email)
+        self.assertTrue('general' in resp)
+        self.assertTrue('email' in resp['general']['values'][0])
+        self.assertTrue(resp['general']['values'][0]['email'], email)
 
     def fail_auth_verification(self, err, browser=None):
         if browser is None:
