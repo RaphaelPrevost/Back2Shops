@@ -32,19 +32,19 @@ var message_catalog = {
     'Phone number': 'Numéro de téléphone',
     'Calling code': 'Indicatif téléphonique',
     'Number': 'Numéro',
-    'Address': 'Addresse',
+    'Address': 'Adresse',
     'Billing': 'De facturation',
     'Shipping': 'De livraison',
-    'Both': 'Both',
+    'Both': 'Les deux',
     'City': 'Ville',
     'Postal code': 'Code postal',
     'Country': 'Pays',
     'Description': 'Intitulé',
 
-    'PENDING': "En attendant",
+    'PENDING': "En attente de confirmation",
     'AWAITING_PAYMENT': 'En attente de paiement',
     'AWAITING_SHIPPING': "En attente d'expédition",
-    'COMPLATED': "Expédiée",
+    'COMPLETED': "Expédiée",
 };
 function _trans(label) {
     var translated = message_catalog[label];
