@@ -443,10 +443,12 @@ def get_order_items(conn, order_id):
 def get_order_detail(conn, order_id, brand_id, shops_id=None):
     fields, columns = zip(*(ORDER_FIELDS_COLUMNS +
                             ORDER_SHIPMENT_COLUMNS))
-    results = join(conn, ['orders, order_shipment_details'],
-                   where={'id': order_id},
-                   on=[('orders.id', 'order_shipment_details.id_order')],
-                   columns=columns)
+    query_str = ("SELECT %s "
+                   "FROM orders "
+              "LEFT JOIN order_shipment_details "
+                     "ON orders.id = order_shipment_details.id_order "
+                  "WHERE id_order = %%s") % ', '.join(columns)
+    results = query(conn, query_str, params=[order_id, ])
     if not results:
         return {}
     details = dict(zip(fields, results[0]))

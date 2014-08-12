@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Breuer - Votre commande</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta content="width=device-width" />
+    <link rel="icon" type="image/png" href="${base_url}/templates/breuer/img/favicon.png" />
+    <style type="text/css">
+    /* Fonts and Content */
+    body, td { font-family: 'Helvetica Neue', Arial, Helvetica, Geneva, sans-serif; font-size:14px; }
+    body { background-color: #ededed; margin: 0; padding: 0; -webkit-text-size-adjust:none; -ms-text-size-adjust:none; }
+    p { text-align: justify; }
+    h2{ font-family: "Times New Roman",Georgia,Serif; padding-top:32px; /* ne fonctionnera pas sous Outlook 2007+ */color:#c68f01; font-size:25px; font-weight: normal; }
+    h3{ padding-top:20px; /* ne fonctionnera pas sous Outlook 2007+ */color:#1f244a; font-size:18px; font-weight: normal;}
+    </style>
+</head>
+<body style="margin:0px; padding:0px; -webkit-text-size-adjust:none;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:rgb(42, 55, 78)" >
+        <tbody>
+            <tr>
+                <td align="center" bgcolor="#ededed">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                        <tbody>                            
+                            <tr>
+                                <td class="w640" width="640" height="10"></td>
+                            </tr>
+
+                            <tr>
+                                <td align="center" class="w640" width="640" height="20"><a style="color:#8B8D99; font-size:12px;" href="${base_url}/order/${order_id}/email"><span style="color:#8B8D99; font-size:12px;">Voir le contenu de ce mail en ligne</span></a> </td>
+                            </tr>
+                            <tr>
+                                <td class="w640" width="640" height="10"></td>
+                            </tr>
+                            <!-- entete -->
+                            <tr class="pagetoplogo">
+                                <td class="w640" width="640" bgcolor="#f9f8f8" valign="middle" >
+                                    <div class="pagetoplogo-content">
+                                        <img class="w580" style="font-family: times; text-decoration: none; display: block; color:#1f244a; font-size:40px; text-align: center;" src="${base_url}/templates/breuer/img/emailing/breuer.png" alt="BREUER" width="640" height="173"/>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- separateur horizontal -->
+                            <tr>
+                                <td class="w640" width="640" height="1" bgcolor="#161F48"></td>
+                            </tr>
+                             <!-- contenu -->
+                            <tr class="content">
+                                <td class="w640" width="640" bgcolor="#ffffff">
+                                    <table class="w640"  width="640" cellpadding="0" cellspacing="0" border="0">
+                                        <tbody>
+                                            <tr>
+                                                <td class="w30" width="30"></td>
+                                                <td class="w580" width="580">
+                                                    <!-- une zone de contenu -->
+                                                    <table class="w580" width="580" cellpadding="0" cellspacing="0" border="0">
+                                                        <tbody>                                                            
+                                                            <tr>
+                                                                <td class="w580" width="580">
+                                                                    <h2 style="color:#c68f01; font-size:25px; padding-top:20px; font-family: 'Times New Roman',Georgia,Serif; font-weight: normal;">Confirmation de votre commande</h2>
+                                                                    <div align="left" class="article-content">
+                                                                        <h3 style="color:#1f244a; font-size:18px; padding-top:10px; font-weight: normal;">Cher(e) ${user_name},</h3>
+                                                                        <p>
+                                                                            Nous vous remercions pour votre achat en ligne sur <a href="${base_url}" target="_blank">Breuer.fr</a>.
+                                                                        <br />
+                                                                            Nous vous confirmons que votre commande a bien &eacute;t&eacute; enregistr&eacute;e.
+                                                                            <br />
+                                                                        </p>
+                                                                    </div>                          
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="w580"  width="580">
+                                                                    <table class="w580" width="580" cellpadding="0" cellspacing="0" border="0">
+                                                                        <tbody>                                                            
+                                                                        <?py for shipment_id, shipping_lists in shipments.iteritems(): ?>
+                                                                            <?py for shipping_list in shipping_lists: ?>
+                                                                            <?py currency = cur_symbol(shipping_list['currency']) ?>
+                                                                                <?py item = shipping_list['item'] ?>
+                                                                                <tr>
+                                                                                    <td width="130"><img src="${item['picture']}" width="110" alt="Name Product" style="border-style: solid; border-width: 1px; border-color: #dbdbdb;" /></td>
+                                                                                    <td valign="middle">
+                                                                                        <a style="color: #c68f01;" href="${item.get('link') or ''}" target="_blank">
+                                                                                            <span style="color: #c68f01; font-size:17px; font-family: 'Times New Roman',Georgia,Serif;">${item['product_name']}</span>
+                                                                                        </a>
+                                                                                        <br /><br />
+                                                                                        <?py if item.get('variant_name'): ?>
+                                                                                        <span style="color: #1f244a; font-family: 'Times New Roman',Georgia,Serif;">${item['variant_name']}</span><br />
+                                                                                        <?py #endif ?>
+                                                                                        <?py if item.get('type_name'): ?>
+                                                                                        <span style="color: #1f244a; font-family: 'Times New Roman',Georgia,Serif;">Taille : ${item['type_name']['name']}</span><br />
+                                                                                        <?py #endif ?>
+                                                                                        <span style="color: #1f244a; font-family: 'Times New Roman',Georgia,Serif;">${format_amount(item['price'])} ${currency}</span><br />
+                                                                                    </td>
+                                                                                </tr>
+                                                                            <?py #endfor ?>
+                                                                        <?py #endfor ?>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="w580" width="580" height="30"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="w580" width="580">
+                                                                    <table class="w580" width="580" cellpadding="0" cellspacing="0" border="0">
+                                                                        <tbody>                                                            
+                                                                            <tr>
+                                                                                <td width="60"><img src="${base_url}/templates/breuer/img/emailing/telechargement.png" alt="Lien de t&eacute;l&eacute;chargement pour votre facture" /></td>
+                                                                                <td><a href="${base_url}${order_invoice_url}" target="_blank">T&eacute;l&eacute;chargez votre facture</a></td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="w580" width="580" height="20"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="w580" width="580" height="1" bgcolor="#c7c5c5"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="w580" width="580">
+                                                                    <div align="left" class="article-content">
+                                                                        <p>
+                                                                            <br />Le traitement de votre commande avant exp&eacute;dition peut n&eacute;cessiter jusqu'&agrave; deux jours ouvrables, auxquels il faut ajouter le d&eacute;lai de livraison. 
+                                                                            Le d&eacute;lai de livraison d&eacute;pendra de la disponibilit&eacute; de l’article choisi au moment de la soumission de la commande. 
+                                                                            Les commandes sont trait&eacute;es et livr&eacute;es du lundi au vendredi, sauf jours f&eacute;ri&eacute;s.
+                                                                            Tous les produits sur le site sont soumis &agrave; la disponibilit&eacute; au moment de la commande. 
+                                                                            <br />Nous vous informerons si votre commande n'a pas pue être trait&eacute;e du fait de l’indisponibilit&eacute; du produit.
+                                                                            Pour les commandes multiples, veuillez noter que les articles peuvent être exp&eacute;di&eacute;s et factur&eacute;s s&eacute;par&eacute;ment, toutefois, les frais de livraison vous seront factur&eacute;s une seule fois.
+                                                                        </p>
+                                                                        <p>
+                                                                            Vos informations de facturation seront v&eacute;rifi&eacute;es et votre carte de cr&eacute;dit sera d&eacute;bit&eacute;e au moment de l'exp&eacute;dition. 
+                                                                        </p>
+                                                                        <p>
+                                                                            Vous recevrez un courrier &eacute;lectronique de confirmation d&egrave;s que votre commande sera exp&eacute;di&eacute;e.
+                                                                        </p>
+                                                                        <p>
+                                                                            Cordialement, Breuer.<br />
+                                                                        </p>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="w580" width="580" height="1" bgcolor="#c7c5c5"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="w580" width="580">
+                                                                    <div align="left" class="article-content">
+                                                                        <p><br />
+                                                                            Si vous avez besoin d’aide suppl&eacute;mentaire, n’h&eacute;sitez pas &agrave; nous contacter &agrave; cette adresse : <a href="mailto:${service_email}">${service_email}</a>
+                                                                        </p>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <!-- fin zone -->                                                   
+                                                </td>
+                                                <td class="w30" width="30"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <!--  separateur horizontal de 15px de  haut-->
+                            <tr>
+                                <td class="w640" width="640" height="15" bgcolor="#ffffff"></td>
+                            </tr> 
+                            <!--  1px decoratif-->
+                            <tr>
+                                <td class="w640" width="640" height="1" bgcolor="#EAEAEA"></td>
+                            </tr> 
+                            <!-- pied de page -->
+                            <tr class="pagebottom">
+                                <td class="w640" width="640">
+                                    <table class="w640" width="640" cellpadding="0" cellspacing="0" border="0" bgcolor="#F9F8F8">
+                                        <tbody>
+                                            <tr>
+                                                <td class="w30" width="30"></td>
+                                                <td class="w580"  width="580" valign="top">
+                                                    <p style="color:#1f244a; text-align:center;"  align="center" class="pagebottom-content-left">
+                                                        <span style="color:#1f244a; font-size:11px;">&copy; 2014 BREUER</span> - 
+                                                        <a style="color:#1f244a; font-size:11px;" href="/mention_legal"><span style="color:#1f244a;">Mentions L&eacute;gales</span></a> - 
+                                                        <a style="color:#1f244a; font-size:11px;" href="/cgv"><span style="color:#1f244a;">CGV</span></a> - 
+                                                        <a style="color:#1f244a; font-size:11px;" href="/commands_deliveries"><span style="color:#1f244a;">Commandes et Livraisons</span></a>
+                                                    </p>
+                                                </td>
+                                                <td class="w30" width="30"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <!--  1px decoratif-->
+                            <tr>
+                                <td class="w640" width="640" height="1" bgcolor="#ffffff"></td>
+                            </tr>
+                            <tr>
+                                <td class="w640" width="640" height="60"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

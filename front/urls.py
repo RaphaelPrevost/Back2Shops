@@ -5,6 +5,7 @@ from B2SFrontUtils.constants import REMOTE_API_NAME
 from B2SUtils.base_actor import as_list
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
+from views import email
 from views import homepage
 from views.basket import BasketAPIResource
 from views.basket import BasketResource
@@ -117,6 +118,9 @@ fixed_urlpatterns = {
     r'/commands_deliveries': homepage.CommandsAndDeliveriesResource,
     r'/e-shop': homepage.EShopResource,
     r'/lookbook': homepage.LookbookResource,
+
+    r'/new_user_email': email.NewUserEmailResource,
+    r'/orders/{id_order}/email': email.OrderEmailResource,
 }
 
 

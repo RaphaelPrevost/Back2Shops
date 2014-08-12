@@ -1,9 +1,11 @@
+import gevent
 import ujson
 import xmltodict
 import settings
 from common.constants import FRT_ROUTE_ROLE
 from common.constants import CURR_USER_BASKET_COOKIE_NAME
 from common.data_access import data_access
+from common.email_utils import send_order_email
 from common.utils import format_date
 from common.utils import get_basket, clear_basket
 from common.utils import get_brief_product
@@ -15,6 +17,7 @@ from common.utils import get_valid_attr
 from common.utils import valid_int_param
 from views.base import BaseHtmlResource
 from views.base import BaseJsonResource
+from views.email import common_email_data
 from views.payment import get_payment_url
 from views.user import UserResource, UserAuthResource
 from B2SUtils.base_actor import as_list
@@ -22,6 +25,7 @@ from B2SUtils.common import get_cookie_value
 from B2SUtils.common import set_cookie
 from B2SUtils.errors import ValidationError
 from B2SFrontUtils.constants import REMOTE_API_NAME
+from B2SProtocol.constants import ORDER_STATUS
 
 def _req_invoices(req, resp, id_order):
     return data_access(REMOTE_API_NAME.REQ_INVOICES, req, resp, order=id_order)
@@ -84,7 +88,7 @@ class OrderInfoResource(BaseHtmlResource):
         shipping_info = get_shipping_info(req, resp, id_order)
         if not shipping_info['need_select_carrier']:
             invoice_info, id_invoices = _get_invoices(req, resp, id_order)
-            if id_invoices:
+            if id_invoices and order_data['order_status'] == ORDER_STATUS.AWAITING_PAYMENT:
                 payment_url = get_payment_url(id_order, id_invoices)
             else:
                 _req_invoices(req, resp, id_order)
@@ -159,8 +163,8 @@ class OrderAPIResource(BaseJsonResource):
         if not valid_int_param(req, 'id_phone') \
                 or not valid_int_param(req, 'id_shipaddr') \
                 or not valid_int_param(req, 'id_billaddr'):
-            self.redirect(get_url_format(FRT_ROUTE_ROLE.ORDER_USER))
-            return
+            redirect_to = get_url_format(FRT_ROUTE_ROLE.ORDER_USER)
+            return {'redirect_to': redirect_to}
 
         all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
         orders = []
@@ -200,10 +204,25 @@ class OrderAPIResource(BaseJsonResource):
                     redirect_to = get_payment_url(id_order, id_invoices)
             except Exception, e:
                 pass
+            self._send_email(id_order, req, resp)
+
         else:
             redirect_to = "%s?err=%s" % (get_url_format(FRT_ROUTE_ROLE.BASKET),
                                          'FAILED_PLACE_ORDER')
         return {'redirect_to': redirect_to}
+
+    def _send_email(self, id_order, req, resp):
+        user_resp = data_access(REMOTE_API_NAME.GET_USERINFO, req, resp)
+        if 'general' in user_resp:
+            general_values = user_resp['general']['values'][0]
+            email = general_values.get('email')
+
+            all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
+            order_resp = data_access(REMOTE_API_NAME.GET_ORDER_DETAIL, req, resp,
+                                     id=id_order, brand_id=settings.BRAND_ID)
+            order_data = get_order_table_info(id_order, order_resp, all_sales)
+            order_data.update(common_email_data)
+            gevent.spawn(send_order_email, email, order_data)
 
 
 class ShippingAPIResource(BaseJsonResource):

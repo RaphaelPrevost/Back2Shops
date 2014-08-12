@@ -165,11 +165,6 @@ class BaseHtmlResource(BaseResource):
             self.show_products_menu = False
         resp_dict['show_products_menu'] = self.show_products_menu
 
-        resp_dict['as_list'] = as_list
-        resp_dict['get_single_attribute'] = self.get_single_attribute
-        resp_dict['format_amount'] = format_amount
-        resp_dict['cur_symbol'] = cur_symbol
-
         if self.show_products_menu:
             # navigation menu
             remote_resp = data_access(REMOTE_API_NAME.GET_TYPES,
@@ -189,6 +184,10 @@ class BaseHtmlResource(BaseResource):
         resp_dict['title'] = self.title
         resp_dict['desc'] = self.desc
 
+        resp_dict['as_list'] = as_list
+        resp_dict['get_single_attribute'] = self.get_single_attribute
+        resp_dict['format_amount'] = format_amount
+        resp_dict['cur_symbol'] = cur_symbol
         resp_dict.update({
             'prodlist_url_format': get_url_format(FRT_ROUTE_ROLE.PRDT_LIST),
             'auth_url_format': get_url_format(FRT_ROUTE_ROLE.USER_AUTH),

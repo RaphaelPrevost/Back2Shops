@@ -33,10 +33,13 @@ MESSAGE_CATALOG = {
         'CONTACT_CUSTOMER_SERVICE': 'Please contact customer service.',
         'NO_INVOICES': 'No invoices currently',
 
-        'PENDING': "En attendant",
+        'PENDING': "En attente de confirmation",
         'AWAITING_PAYMENT': 'En attente de paiement',
         'AWAITING_SHIPPING': "En attente d'expédition",
         'COMPLETED': "Expédiée",
+
+        'NEW_USER_EMAIL_SUBJECT': "Votre compte BREUER à bien été créé",
+        'ORDER_EMAIL_SUBJECT': "Confirmation de votre commande",
     },
 }
 
@@ -46,5 +49,5 @@ def create_m17n_func(lang):
         raise ValueError("%s: unknown lang." % lang)
     return dct.get
 
-def trans_func():
-    return create_m17n_func(settings.DEFAULT_LANG)
+def trans_func(label):
+    return create_m17n_func(settings.DEFAULT_LANG)(label)

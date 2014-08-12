@@ -32,13 +32,20 @@ from common.m17n import trans_func
 from common.template import render_template
 
 
-def gen_html_resp(template, resp, data, lang='en'):
-    resp.body = render_template(template, data,
-                                lang=lang,
-                                layout=settings.DEFAULT_TEMPLATE,
-                                )
+def gen_html_resp(template, resp, data,
+                  lang='en', layout=settings.DEFAULT_TEMPLATE):
+    resp.body = gen_html_body(template, data,
+                              lang=lang,
+                              layout=layout)
     resp.content_type = "text/html"
     return resp
+
+def gen_html_body(template, data,
+                  lang='en', layout=settings.DEFAULT_TEMPLATE):
+    return render_template(template, data,
+                           lang=lang,
+                           layout=layout,
+                          )
 
 def unicode2utf8(data):
     """Convert unicode string's into utf-8 encoding
@@ -255,6 +262,7 @@ def get_basket_table_info(req, resp, basket_data):
             continue
 
         sale_info = all_sales[id_sale]
+        _type = sale_info.get('type', {})
         one = {
             'item': item,
             'quantity': quantity,
@@ -264,7 +272,17 @@ def get_basket_table_info(req, resp, basket_data):
             'type': get_valid_attr(
                         sale_info.get('type', {}).get('attribute'),
                         item_info.get('id_attr')),
-            'product': get_brief_product(sale_info)
+            'product': get_brief_product(sale_info),
+            'link': get_url_format(FRT_ROUTE_ROLE.PRDT_INFO) % {
+                'id_type': _type.get('@id', 0),
+                'type_name': get_normalized_name(FRT_ROUTE_ROLE.PRDT_INFO,
+                                                 'type_name',
+                                                 _type.get('name', '')),
+                'id_sale': id_sale,
+                'sale_name': get_normalized_name(FRT_ROUTE_ROLE.PRDT_INFO,
+                                                 'sale_name',
+                                                 sale_info.get('name', '')),
+            },
         }
         price = one['type'].get('price', {}).get('#text') \
              or one['product']['price']
@@ -318,7 +336,7 @@ def get_shipping_info(req, resp, order_id):
     }
     return data
 
-def get_order_table_info(order_id, order_resp):
+def get_order_table_info(order_id, order_resp, all_sales=None):
     user_name = '%s %s %s' % (
             order_resp['user_info']['title'],
             order_resp['user_info']['first_name'],
@@ -344,7 +362,7 @@ def get_order_table_info(order_id, order_resp):
                 variant_name = ''
             else:
                 product_name, variant_name = item_info['name'].rsplit('-', 1)
-            order_items.append({
+            one = {
                 'id_sale': id_sale,
                 'quantity': item_info['quantity'],
                 'product_name': product_name,
@@ -352,7 +370,22 @@ def get_order_table_info(order_id, order_resp):
                 'type_name': item_info.get('type_name') or '',
                 'price': item_info['price'],
                 'picture': item_info['picture'],
-            })
+            }
+            if all_sales and id_sale in all_sales:
+                sale_info = all_sales[id_sale]
+                _type = sale_info.get('type', {})
+                one['link'] = get_url_format(FRT_ROUTE_ROLE.PRDT_INFO) % {
+                    'id_type': _type.get('@id', 0),
+                    'type_name': get_normalized_name(FRT_ROUTE_ROLE.PRDT_INFO,
+                                                     'type_name',
+                                                     _type.get('name', '')),
+                    'id_sale': id_sale,
+                    'sale_name': get_normalized_name(FRT_ROUTE_ROLE.PRDT_INFO,
+                                                     'sale_name',
+                                                     sale_info.get('name', '')),
+                }
+            order_items.append(one)
+
             invoice_info = dict([(s['shipment_id'], s)
                                  for s in item_info['invoice_info']])
             for _shipment_info in item_info['shipment_info']:
@@ -377,11 +410,14 @@ def get_order_table_info(order_id, order_resp):
     data = {
         'order_id': order_id,
         'order_created': order_created,
-        'status_name': trans_func()(ORDER_STATUS.toReverseDict().get(
+        'order_status': order_status,
+        'status_name': trans_func(ORDER_STATUS.toReverseDict().get(
                                     order_status) or ''),
         'user_name': user_name,
         'dest_addr': dest_addr,
         'shipments': shipments,
+        'order_invoice_url': get_url_format(FRT_ROUTE_ROLE.ORDER_INFO)
+                             % {'id_order': order_id},
     }
     return data
 
