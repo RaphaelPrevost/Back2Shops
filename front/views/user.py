@@ -1,12 +1,15 @@
 import settings
+import gevent
 import urllib
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
+from common.email_utils import send_new_user_email
 from common.utils import get_order_table_info
 from common.utils import get_url_format
 from common.utils import get_user_contact_info
 from views.base import BaseHtmlResource
 from views.base import BaseJsonResource
+from views.email import common_email_data
 from B2SProtocol.constants import RESP_RESULT
 from B2SProtocol.constants import USER_AUTH_COOKIE_NAME
 from B2SFrontUtils.constants import REMOTE_API_NAME
@@ -79,9 +82,12 @@ class UserResource(BaseHtmlResource):
             err = remote_resp.get('err')
         else:
             user_profile = remote_resp
+
+        first_time = not user_profile['general']['values'][0].get('first_name')
         return {'user_profile': user_profile,
                 'err': err,
-                'succ_redirect_to': ''}
+                'succ_redirect_to': '',
+                'first_time': first_time}
 
 
 class LoginAPIResource(BaseJsonResource):
@@ -111,6 +117,11 @@ class UserAPIResource(BaseJsonResource):
                                   **req._params)
         resp_dict = {}
         resp_dict.update(remote_resp)
+
+        if req.get_param('first_time') == 'True':
+            email_data = {'name': req.get_param('first_name')}
+            email_data.update(common_email_data)
+            gevent.spawn(send_new_user_email, req.get_param('email'), email_data)
         return resp_dict
 
 

@@ -1,10 +1,12 @@
 # frontend settings
 import os
+from platform import node
 
 PRODUCTION = False
 RUNNING_TEST = False
 
 SERVER_PORT = 9500
+FRONT_ROOT_URI = 'http://%s:%s' % (node(), SERVER_PORT)
 
 CENTRAL_REDIS = {
     'HOST': 'localhost',
@@ -45,3 +47,11 @@ BRAND_ID = "1000001"
 BRAND_NAME = "BREUER"
 
 NUM_OF_RANDOM_SALES = 4
+
+SERVICE_EMAIL = 'serviceclients@breuer.fr'
+
+SEND_EMAILS = False
+MAIL_HOST = 'smtp.gmail.com:587'
+MAIL_FROM_USER = 'xxx'
+MAIL_FROM_PASS = 'xxx'
+MAIL_POSTFIX = 'gmail.com'
