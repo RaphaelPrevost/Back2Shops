@@ -73,7 +73,10 @@
             <ul>
                 <?py for key in menus: ?>
                 <?py url = type_list_url_format % {'id_type': menus[key]['@id'], 'type_name': menus[key]['url_name']} ?>
-                <li><a href="${url}">${menus[key]['name']}</a></li>
+                <?py _clazz = 'on' if cur_type_id == menus[key]['@id'] else '' ?>
+                <li class="${_clazz}">
+                    <a href="${url}">${menus[key]['name']}</a>
+                </li>
                 <?py #endfor ?>
             </ul>
         </nav>

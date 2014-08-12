@@ -181,6 +181,8 @@ class BaseHtmlResource(BaseResource):
                 for v in resp_dict['menus'].itervalues():
                     v['url_name'] = get_normalized_name(
                         FRT_ROUTE_ROLE.TYPE_LIST, 'type_name', v['name'])
+            if 'cur_type_id' not in resp_dict:
+                resp_dict['cur_type_id'] = -1
 
         if 'err' not in resp_dict:
             resp_dict['err'] = ''

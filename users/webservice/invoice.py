@@ -93,7 +93,9 @@ class BaseInvoiceMixin:
                               invoice_actor.total.value,
                               invoice_actor.currency,
                               invoice_xml,
-                              invoice_actor.number)
+                              invoice_actor.number,
+                              due_within=invoice_actor.payment.period,
+                              shipping_within=invoice_actor.shipping.period)
 
     def parse_invoices_content(self, xml):
         content = xml[len(HEADER):].strip()

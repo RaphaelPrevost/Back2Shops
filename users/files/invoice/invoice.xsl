@@ -22,6 +22,7 @@
   <xsl:variable name="lang.taxRate">Tax</xsl:variable>
   <xsl:variable name="lang.amount">Amount</xsl:variable>
   <xsl:variable name="lang.discount">Discount</xsl:variable>
+  <xsl:variable name="lang.premium">Premium</xsl:variable>
   <xsl:variable name="lang.subtotal">Subtotal</xsl:variable>
   <xsl:variable name="lang.shippingDesc">Service</xsl:variable>
   <xsl:variable name="lang.handling">Handling</xsl:variable>
@@ -48,6 +49,7 @@
   <xsl:variable name="lang.taxRate">Taxe</xsl:variable>
   <xsl:variable name="lang.amount">Montant</xsl:variable>
   <xsl:variable name="lang.discount">Réduction</xsl:variable>
+  <xsl:variable name="lang.premium">Premium</xsl:variable>
   <xsl:variable name="lang.subtotal">Sous-total</xsl:variable>
   <xsl:variable name="lang.shippingDesc">Service</xsl:variable>
   <xsl:variable name="lang.handling">Frais d'emballage</xsl:variable>
@@ -75,6 +77,7 @@
   <xsl:variable name="lang.taxRate">税率</xsl:variable>
   <xsl:variable name="lang.amount">金额</xsl:variable>
   <xsl:variable name="lang.discount">折扣</xsl:variable>
+  <xsl:variable name="lang.premium">保险</xsl:variable>
   <xsl:variable name="lang.subtotal">小计</xsl:variable>
   <xsl:variable name="lang.shippingDesc">服务</xsl:variable>
   <xsl:variable name="lang.handling">处理费</xsl:variable>
@@ -235,6 +238,17 @@
             <td class="taxRate" />
             <td class="amount">
                 <xsl:value-of select="price - price/@original" />
+            </td>
+        </tr>
+        </xsl:if>
+        <xsl:if test="premium">
+        <tr class="premium row">
+            <td colspan="3" class="desc">
+                <xsl:value-of select="$lang.premium" />
+            </td>
+            <td class="taxRate" />
+            <td class="amount">
+                <xsl:value-of select="premium" />
             </td>
         </tr>
         </xsl:if>

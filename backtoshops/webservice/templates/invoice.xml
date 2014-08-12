@@ -38,6 +38,7 @@
                     <desc>{{ item.desc }}</desc>
                     <price original="{{ item.price.original }}">{{ item.price.discounted }}</price>
                     <qty>{{ item.qty }}</qty>
+                    <premium>{{ item.premium }}</premium>
                     {% for tax in item.taxes %}
                         <tax name="{{ tax.name }}" amount="{{ tax.amount }}">{{ tax.tax }}</tax>
                     {% endfor %}
@@ -47,6 +48,9 @@
 
             <!-- shipping fees -->
             <shipping>
+                {% if object.shipping.period %}
+                    <period>{{ object.shipping.period }}</period>
+                {% endif %}
                 {% if object.shipping.desc %}
                     <desc>{{ object.shipping.desc }}</desc>
                 {% endif %}

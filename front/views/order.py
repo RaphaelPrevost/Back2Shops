@@ -7,7 +7,6 @@ from common.data_access import data_access
 from common.utils import format_date
 from common.utils import get_basket, clear_basket
 from common.utils import get_brief_product
-from common.utils import get_brief_product_list
 from common.utils import get_order_table_info
 from common.utils import get_shipping_info
 from common.utils import get_url_format
@@ -56,13 +55,12 @@ class OrderListResource(BaseHtmlResource):
         order_list = []
         for order in orders:
             for order_id, order_data in order.iteritems():
-                order_info = get_order_table_info(order_id, order_data, all_sales)
+                order_info = get_order_table_info(order_id, order_data)
                 if order_info:
                     order_list.append(order_info)
         order_list.reverse()
         data = {'user_name': order_list[0]['user_name'] if order_list else '',
-                'order_list': order_list,
-                'product_list': get_brief_product_list(all_sales)}
+                'order_list': order_list}
         return data
 
 
@@ -79,7 +77,7 @@ class OrderInfoResource(BaseHtmlResource):
         all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
         order_resp = data_access(REMOTE_API_NAME.GET_ORDER_DETAIL, req, resp,
                                  id=id_order, brand_id=settings.BRAND_ID)
-        order_data = get_order_table_info(id_order, order_resp, all_sales)
+        order_data = get_order_table_info(id_order, order_resp)
 
         invoice_info = {}
         payment_url = ""
@@ -88,6 +86,12 @@ class OrderInfoResource(BaseHtmlResource):
             invoice_info, id_invoices = _get_invoices(req, resp, id_order)
             if id_invoices:
                 payment_url = get_payment_url(id_order, id_invoices)
+            else:
+                _req_invoices(req, resp, id_order)
+                invoice_info, id_invoices = _get_invoices(req, resp, id_order)
+                if id_invoices:
+                    payment_url = get_payment_url(id_order, id_invoices)
+
         if shipping_info['need_select_carrier']:
             step = "select"
         elif payment_url:

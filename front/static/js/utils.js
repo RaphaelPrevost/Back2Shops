@@ -4,9 +4,9 @@ function formatAmount(s) {
   if(!/^(\+|-)?\d+(\.\d+)?$/.test(num)){return 0;}  
 
   num = (num * 1).toFixed(2);
-  var re = new RegExp().compile("(\\d)(\\d{3})(,|\\.|$)");  
-  while(re && re.test(num))  
-    num = num.replace(re,"$1,$2$3");
+  //var re = new RegExp().compile("(\\d)(\\d{3})(,|\\.|$)");  
+  //while(re && re.test(num))  
+  //  num = num.replace(re,"$1,$2$3");
   return num; 
 }
 

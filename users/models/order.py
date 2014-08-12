@@ -6,6 +6,7 @@ from common.constants import INVOICE_STATUS
 from B2SProtocol.constants import ORDER_STATUS
 from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SUtils.db_utils import insert
+from B2SUtils.db_utils import join
 from B2SUtils.db_utils import query
 from B2SUtils.db_utils import select
 from B2SUtils.db_utils import update
@@ -59,13 +60,15 @@ def _create_order_item(conn, sale, id_variant, upc_shop=None,
         'name': sale.whole_name(id_variant),
         'description': sale.desc,
     }
-    main_picture = sale.get_main_picture()
+    main_picture = sale.get_main_picture(id_variant)
     if main_picture:
         item_value['picture'] = main_picture
     if barcode:
         item_value['barcode'] = barcode
     if id_weight_type is not None:
         item_value['id_weight_type'] = id_weight_type
+        if id_weight_type:
+            item_value['type_name'] = sale.get_weight_attr(id_weight_type).name
     if id_price_type is not None:
         item_value['id_price_type'] = id_price_type
 
@@ -180,9 +183,11 @@ def _valid_sale_brand(sale_id, brand_id):
 def _get_shipment_info_for_order_item(conn, item_id):
     fields, columns = zip(*[('shipment_id', 'shipments.id'),
                             ('status', 'shipments.status'),
+                            ('handling_fee', 'handling_fee'),
                             ('shipping_fee', 'shipping_fee'),
                             ('shipping_date', 'shipping_date'),
-                            ('shipping_list_quantity', 'quantity')])
+                            ('shipping_list_quantity', 'quantity'),
+                         ])
     query_str = (
         "SELECT %s FROM shipping_list "
      "LEFT JOIN shipments "
@@ -197,8 +202,24 @@ def _get_shipment_info_for_order_item(conn, item_id):
     return [dict(zip(fields, r)) for r in results]
 
 def _get_invoice_info_for_order_item(conn, item_id):
-    # not implemented yet.
-    return {}
+    fields, columns = zip(*[('shipment_id', 'shipments.id'),
+                            ('total_amount', 'amount_due'),
+                            ('currency', 'currency'),
+                            ('due_within', 'due_within'),
+                            ('shipping_within', 'shipping_within'),
+                         ])
+    query_str = (
+        "SELECT %s FROM shipping_list "
+     "LEFT JOIN shipments "
+            "ON shipments.id = shipping_list.id_shipment "
+     "LEFT JOIN invoices "
+            "ON shipments.id = invoices.id_shipment "
+         "WHERE id_item = %%s "
+      "ORDER BY shipping_list.id_shipment, shipping_list.id_item")\
+                % ', '.join(columns)
+
+    results = query(conn, query_str, params=[item_id, ])
+    return [dict(zip(fields, r)) for r in results]
 
 def _get_order_shipments_status(conn, id_order):
     query_str = ("SELECT status "
@@ -420,8 +441,12 @@ def get_order_items(conn, order_id):
     return order_items
 
 def get_order_detail(conn, order_id, brand_id, shops_id=None):
-    fields, columns = zip(*ORDER_FIELDS_COLUMNS)
-    results = select(conn, 'orders', where={'id': order_id}, columns=columns)
+    fields, columns = zip(*(ORDER_FIELDS_COLUMNS +
+                            ORDER_SHIPMENT_COLUMNS))
+    results = join(conn, ['orders, order_shipment_details'],
+                   where={'id': order_id},
+                   on=[('orders.id', 'order_shipment_details.id_order')],
+                   columns=columns)
     if not results:
         return {}
     details = dict(zip(fields, results[0]))
@@ -445,6 +470,8 @@ def get_order_detail(conn, order_id, brand_id, shops_id=None):
     details.update(order_items)
     details.update({
         'first_sale_id': order_items['order_items'][0].values()[0]['sale_id'],
+        'shipping_dest': get_user_dest_addr(conn, details['user_id'],
+                                            details['id_shipaddr']),
         'order_status': _get_order_status(conn, order_id)})
     return details
 

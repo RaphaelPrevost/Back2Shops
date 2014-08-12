@@ -87,7 +87,9 @@ class ActorShipping(BaseActor):
     attrs_map = {'desc': 'desc',
                  'postage': 'postage',
                  'handling': 'handling',
-                 'subtotal': 'subtotal'}
+                 'subtotal': 'subtotal',
+                 'premium': 'premium',
+                 'period': 'period'}
 
     @property
     def tax(self):

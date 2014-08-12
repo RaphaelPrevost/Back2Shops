@@ -121,11 +121,10 @@ class MyAccountResource(BaseHtmlResource):
     def _on_get(self, req, resp, **kwargs):
         orders = data_access(REMOTE_API_NAME.GET_ORDERS, req, resp,
                              brand_id=settings.BRAND_ID)
-        all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
         order_list = []
         for order in orders:
             for order_id, order_data in order.iteritems():
-                order_info = get_order_table_info(order_id, order_data, all_sales)
+                order_info = get_order_table_info(order_id, order_data)
                 if order_info:
                     order_list.append(order_info)
         order_list.reverse()

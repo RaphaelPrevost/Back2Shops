@@ -5,6 +5,8 @@
         <h2>Commande effectuée le ${order_info['order_created']}</h2>
         <span class="numcommande">N° de commande : ${order_info['order_id']}</span>
 
+        <?py total = 0 ?>
+        <?py currency = '' ?>
         <?py shipments = order_info['shipments'] ?>
         <?py for shipment_id, shipping_lists in shipments.iteritems(): ?>
             <?py if shipping_lists[0]['shipping_msg']: ?>
@@ -14,27 +16,29 @@
             <?py url = order_info_url_format % {'id_order': order_info['order_id']} ?>
             <a class="detailcommande" href="${url}">Détail des commandes</a>
 
+            <?py total += shipping_lists[0].get('total_amount') or 0 ?>
+            <?py currency = cur_symbol(shipping_lists[0]['currency']) ?>
             <?py for shipping_list in shipping_lists: ?>
                 <?py item = shipping_list['item'] ?>
                 <!--LINE-PROD-->
                 <div class="prod">
-                    <img width="60px" src="${item['variant'].get('img') or item['picture']}"/>
-                    <h3 class="title">${item['product']['name']}</h1>
+                    <img width="60px" src="${item['picture']}"/>
+                    <h3 class="title">${item['product_name']}</h1>
                     <strong class="type">
-                    <?py if item.get('type'): ?>Taille : ${item['type']['name']}<?py #endif ?>
-                    <?py if item.get('variant') and item.get('type'): ?> - <?py #endif ?>
-                    <?py if item.get('variant'): ?>Coloris : ${item['variant']['name']}<?py #endif ?>
+                    <?py if item.get('type_name'): ?>Taille : ${item['type_name']}<?py #endif ?>
+                    <?py if item.get('variant_name') and item.get('type_name'): ?> - <?py #endif ?>
+                    <?py if item.get('variant_name'): ?>Coloris : ${item['variant_name']}<?py #endif ?>
                     </strong>
                     <span class="ref">Ref : ${item['id_sale']}</span>
-                    <span class="price">Prix : <span>${format_amount(item['price'])} ${cur_symbol(item['product']['currency'])}</span> x <span>${item['quantity']}</span></span>
+                    <span class="price">Prix : <span id="amount">${format_amount(item['price'])} ${currency}</span> x <span id="quantity">${item['quantity']}</span></span>
                 </div>
                 <!--//LINE-PROD-->  
-            <?py #endfor ?>
+             <?py #endfor ?>
         <?py #endfor ?>
 
         <!--LINE-TOTAL-->
         <div class="linetotal">
-            <strong>Total :<span id="total_amount"></span></strong>
+            <strong>Total : <span id="total_amount">${format_amount(total)}</span> ${currency}</strong>
             <a href="#">Consultez le suivi de commande sur</a>
         </div>
         <!--//LINE-TOTAL-->

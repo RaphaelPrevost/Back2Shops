@@ -66,4 +66,6 @@ ALTER TABLE shipments ADD COLUMN shipping_carrier bigint;
 ALTER TABLE shipments ADD COLUMN update_time timestamp without time zone NOT NULL DEFAULT now();
 ALTER TABLE shipments RENAME COLUMN timestamp to create_time;
 
+ALTER TABLE order_items ADD COLUMN type_name character varying(50);
+ALTER TABLE invoices ADD COLUMN shipping_within BIGINT;
 COMMIT;
