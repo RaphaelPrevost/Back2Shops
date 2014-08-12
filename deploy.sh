@@ -555,6 +555,7 @@ EOF
         echo "(i) Nginx Server OK"
     fi
 
+    sleep 1
     service nginx restart
 }
 
@@ -586,7 +587,8 @@ function restart_servers() {
     cd $CWD/front_src
     start_uwsgi 9500 front_server
 
-    service nginx restart
+    sleep 1
+    #service nginx restart
 }
 
 function start_uwsgi() {

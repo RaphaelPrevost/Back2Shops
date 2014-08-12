@@ -47,6 +47,7 @@ from sales.models import ShopsInSale
 from sales.models import TypeAttributeWeight
 from sales.utils import get_sale_orig_price
 from sales.utils import get_sale_discounted_price
+from sales.utils import get_sale_premium
 from shippings.models import CustomShippingRateInShipping
 from shippings.models import CustomShippingRate
 from shippings.models import SC_CARRIER_SHIPPING_RATE
@@ -844,6 +845,7 @@ class InvoiceView(BaseCryptoWebService, ListView):
             service,
             from_address,
             to_address)
+        shipping.update(self.get_shipping_period(id_brand, id_shop))
 
         gross = items_gross + shipping_gross
         tax = items_tax + shipping_tax
@@ -918,7 +920,9 @@ class InvoiceView(BaseCryptoWebService, ListView):
             qty = item['quantity']
             discounted_price = get_sale_discounted_price(
                 sale, orig_price=orig_price)
-            price = discounted_price * qty
+            premium = get_sale_premium(discounted_price, item.get('id_variant'))
+
+            price = (discounted_price + premium) * qty
             items_taxes = self.get_tax(price,
                                        sale.product.category.id,
                                        from_address,
@@ -927,7 +931,9 @@ class InvoiceView(BaseCryptoWebService, ListView):
             item_info = {'desc': sale.product.description,
                          'qty': qty,
                          'price': {'original': orig_price,
-                                   'discounted': discounted_price},
+                                   'discounted': discounted_price,
+                                   },
+                         'premium': premium,
                          'taxes': items_taxes}
 
             subtotal = price
@@ -1073,6 +1079,11 @@ class InvoiceView(BaseCryptoWebService, ListView):
         shipping['subtotal'] = subtotal
         return shipping, fee, total_tax
 
+    def get_shipping_period(self, id_brand, id_shop):
+        return {'period': self._get_settings("default_shipment_period",
+                                             id_brand,
+                                             id_shop)}
+
     def invoice_number(self, id_brand, id_shop):
         iv_num = self._get_settings('starting_invoice_number',
                                     id_brand,
@@ -1112,9 +1123,11 @@ class InvoiceView(BaseCryptoWebService, ListView):
         return get_default_setting(key, user, shop)
 
     def get_payment(self, id_brand, id_shop):
-        payment = {'period': self._get_settings("default_payment_period",
+        payment = {
+            'period': self._get_settings("default_payment_period",
                                                 id_brand,
-                                                id_shop),}
+                                                id_shop),
+        }
 
         # TODO: penalty, instructions info
 

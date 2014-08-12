@@ -33,8 +33,8 @@
                         <span class="ref">Ref : ${item['product']['id']}</span>
                     </div>
                 </td>
-                <td class="price"><span id="price">${format_amount(item['product']['price'] or item['type'].get('price', {}).get('#text'))}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span></td>
-                <td><input id="quantity" name="nb_product" type="text" value="${item['quantity']}" /></td>
+                <td class="price"><span id="price">${format_amount(item['price'])}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span></td>
+                <td><input id="quantity" name="nb_product" type="text" maxlength="9" value="${item['quantity']}" /></td>
                 <td class="price"><span id="amount"></span><span>${cur_symbol(item['product']['currency'])}</span></td>
                 <td><a href="javascript:void(0)" id="supprimer" title="Supprimer">x</a></td>
             </tr>

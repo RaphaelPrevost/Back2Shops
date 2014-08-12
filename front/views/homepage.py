@@ -1,6 +1,5 @@
 from B2SFrontUtils.constants import REMOTE_API_NAME
 from common.data_access import data_access
-from common.utils import get_brief_product_list
 from views.base import BaseHtmlResource
 
 class HomepageResource(BaseHtmlResource):

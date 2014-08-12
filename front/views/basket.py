@@ -6,7 +6,6 @@ from common.redis_utils import get_redis_cli
 from common.utils import get_basket
 from common.utils import get_basket_table_info
 from common.utils import get_brief_product
-from common.utils import get_brief_product_list
 from common.utils import get_url_format
 from common.utils import generate_random_key
 from common.utils import get_valid_attr
@@ -22,6 +21,8 @@ class BasketResource(BaseHtmlResource):
 
     def _on_get(self, req, resp, **kwargs):
         _, basket_data = get_basket(req, resp)
+        sales = data_access(REMOTE_API_NAME.GET_SALES,
+                            req, resp, **req._params)
         return {
             'basket': get_basket_table_info(req, resp, basket_data),
             'err': req.get_param('err') or '',

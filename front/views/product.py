@@ -1,15 +1,16 @@
 import settings
-import random
 
 from B2SFrontUtils.constants import REMOTE_API_NAME
 from B2SUtils.base_actor import as_list
 from B2SUtils.errors import ValidationError
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
+from common.utils import get_discounted_price
 from common.utils import get_brief_product_list
 from common.utils import get_category_from_sales
 from common.utils import get_normalized_name
 from common.utils import get_product_default_display_price
+from common.utils import get_random_products
 from common.utils import get_type_from_sale
 from common.utils import get_url_format
 from common.utils import is_routed_template
@@ -51,7 +52,8 @@ class TypeListResource(BaseHtmlResource):
                 })
                 return
 
-        return {'category': get_category_from_sales(sales),
+        return {'cur_type_id': type_id,
+                'category': get_category_from_sales(sales),
                 'product_list': get_brief_product_list(sales)}
 
 
@@ -62,11 +64,8 @@ class ProductListResource(BaseHtmlResource):
     def _on_get(self, req, resp, **kwargs):
         sales = data_access(REMOTE_API_NAME.GET_SALES,
                             req, resp, **req._params)
-        random_sales = {}
-        map(lambda k: random_sales.update({k: sales[k]}),
-            random.sample(sales, settings.NUM_OF_RANDOM_SALES))
         return {'category': dict(),
-                'product_list': get_brief_product_list(random_sales)}
+                'product_list': get_random_products(sales)}
 
 
 class ProductInfoResource(BaseHtmlResource):
@@ -133,15 +132,10 @@ class ProductInfoResource(BaseHtmlResource):
         price = ori_price = get_product_default_display_price(product_info)
 
         if price and product_info.get('discount'):
-            discount_type = product_info.get('discount', {}).get('@type')
-            discount_price = product_info.get('discount', {}).get('#text')
+            price, discount_type, discount_price = \
+                    get_discounted_price(price, product_info)
             product_info['display']['discount_type'] = discount_type
             product_info['display']['discount'] = discount_price
-            if discount_type == 'fixed':
-                price = float(ori_price) - float(discount_price)
-            elif discount_type == 'ratio':
-                price = float(ori_price) * (100 - float(discount_price)) / 100
-
         product_info['display']['price'] = price
         product_info['display']['ori_price'] = ori_price
 
@@ -181,6 +175,7 @@ class ProductInfoResource(BaseHtmlResource):
                 var['disabled'] = True
 
         return {
+            'cur_type_id': type_id,
             'product_info': product_info,
-            'product_list': get_brief_product_list(all_sales),
+            'product_list': get_random_products(all_sales),
         }

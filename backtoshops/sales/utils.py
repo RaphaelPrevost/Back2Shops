@@ -1,3 +1,4 @@
+from attributes.models import BrandAttribute
 from sales.models import TypeAttributePrice
 
 def get_sale_orig_price(sale, type_attribute_id):
@@ -22,5 +23,14 @@ def get_sale_discounted_price(sale,
     else:
         return orig_price
 
-
+def get_sale_premium(price, id_variant):
+    premium = 0
+    if id_variant:
+        variant = BrandAttribute.objects.get(pk=id_variant)
+        if variant.premium_type and variant.premium_amount:
+            if variant.premium_type == 'fixed':
+                premium = variant.premium_amount
+            elif variant.premium_type == 'percentage':
+                premium = price * variant.premium_amount/100
+    return premium
 

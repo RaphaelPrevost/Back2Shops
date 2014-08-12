@@ -4,6 +4,7 @@ import datetime
 import gevent
 import logging
 import os
+import random
 import signal
 import time
 import ujson
@@ -99,6 +100,18 @@ def get_product_default_display_price(sale):
                 break
     return price
 
+def get_discounted_price(price, product_info):
+    price = float(price)
+    if price and product_info.get('discount'):
+        discount_type = product_info.get('discount', {}).get('@type')
+        discount_price = product_info.get('discount', {}).get('#text')
+        if discount_type == 'fixed':
+            price = price - float(discount_price)
+        elif discount_type == 'ratio':
+            price = price * (100 - float(discount_price)) / 100
+        return price, discount_type, discount_price
+    return price, None, None
+
 def get_brief_product(sale):
     id_sale = sale['@id']
     _type = sale.get('type', {})
@@ -127,6 +140,14 @@ def get_brief_product(sale):
 
 def get_brief_product_list(sales):
     return [get_brief_product(s) for s in sales.itervalues()]
+
+def get_random_products(sales, count=settings.NUM_OF_RANDOM_SALES):
+    random_sales = {}
+    if len(sales) < count:
+        count = len(sales)
+    map(lambda k: random_sales.update({k: sales[k]}),
+        random.sample(sales, count))
+    return get_brief_product_list(random_sales)
 
 def get_category_from_sales(sales):
     if len(sales) > 0:
@@ -234,7 +255,7 @@ def get_basket_table_info(req, resp, basket_data):
             continue
 
         sale_info = all_sales[id_sale]
-        basket.append({
+        one = {
             'item': item,
             'quantity': quantity,
             'variant': get_valid_attr(
@@ -244,7 +265,20 @@ def get_basket_table_info(req, resp, basket_data):
                         sale_info.get('type', {}).get('attribute'),
                         item_info.get('id_attr')),
             'product': get_brief_product(sale_info)
-        })
+        }
+        price = one['type'].get('price', {}).get('#text') \
+             or one['product']['price']
+        price, _, _ = get_discounted_price(price, sale_info)
+        if one['variant']:
+            p_type = one['variant'].get("premium", {}).get("@type", 0)
+            p_amount = float(one['variant'].get("premium", {}).get("#text", 0))
+            if p_type:
+                if p_type == 'fixed':
+                    price += p_amount
+                elif p_type == 'ratio':
+                    price *= (1 + p_amount/100)
+        one['price'] = price
+        basket.append(one)
     return basket
 
 
@@ -284,13 +318,19 @@ def get_shipping_info(req, resp, order_id):
     }
     return data
 
-def get_order_table_info(order_id, order_resp, all_sales):
+def get_order_table_info(order_id, order_resp):
     user_name = '%s %s %s' % (
             order_resp['user_info']['title'],
             order_resp['user_info']['first_name'],
             order_resp['user_info']['last_name'],
             )
-
+    dest_addr = ' '.join([
+            order_resp['shipping_dest']['address'],
+            order_resp['shipping_dest']['postalcode'],
+            order_resp['shipping_dest']['city'],
+            order_resp['shipping_dest']['province'],
+            order_resp['shipping_dest']['country'],
+    ])
     order_items = []
     shipments = {}
     order_status = int(order_resp['order_status'])
@@ -298,35 +338,38 @@ def get_order_table_info(order_id, order_resp, all_sales):
     for item in order_resp.get('order_items', []):
         for item_id, item_info in item.iteritems():
             id_sale = str(item_info['sale_id'])
-            if id_sale not in all_sales:
-                continue
 
-            sale_info = all_sales[id_sale]
+            if item_info['id_variant'] == 0:
+                product_name = item_info['name']
+                variant_name = ''
+            else:
+                product_name, variant_name = item_info['name'].rsplit('-', 1)
             order_items.append({
                 'id_sale': id_sale,
                 'quantity': item_info['quantity'],
-                'variant': get_valid_attr(
-                            sale_info.get('variant'),
-                            item_info.get('id_variant')),
-                'type': get_valid_attr(
-                            sale_info.get('type', {}).get('attribute'),
-                            item_info.get('id_price_type')),
-                'product': get_brief_product(sale_info),
+                'product_name': product_name,
+                'variant_name': variant_name,
+                'type_name': item_info.get('type_name') or '',
                 'price': item_info['price'],
                 'picture': item_info['picture'],
             })
-
+            invoice_info = dict([(s['shipment_id'], s)
+                                 for s in item_info['invoice_info']])
             for _shipment_info in item_info['shipment_info']:
                 shipment_id = _shipment_info.get('shipment_id')
                 if not shipment_id:
                     # sth. wrong when create order
                     continue
                 shipping_list = _shipment_info.copy()
+                shipping_list.update(invoice_info.get(shipment_id))
                 shipping_list['item'] = order_items[-1]
                 shipping_list['status_name'] = SHIPMENT_STATUS.toReverseDict().get(
                                                int(shipping_list['status']))
+                shipping_list['due_within'] = shipping_list['due_within'] or 1
+                shipping_list['shipping_within'] = shipping_list['shipping_within'] or 7
                 shipping_list['shipping_msg'] = get_shipping_msg(order_status,
-                                order_created, shipping_list['shipping_date'])
+                                order_created, shipping_list['shipping_date'],
+                                shipping_list['shipping_within'])
                 if shipment_id not in shipments:
                     shipments[shipment_id] = []
                 shipments[shipment_id].append(shipping_list)
@@ -337,16 +380,18 @@ def get_order_table_info(order_id, order_resp, all_sales):
         'status_name': trans_func()(ORDER_STATUS.toReverseDict().get(
                                     order_status) or ''),
         'user_name': user_name,
+        'dest_addr': dest_addr,
         'shipments': shipments,
     }
     return data
 
-def get_shipping_msg(order_status, order_created, shipping_date):
+def get_shipping_msg(order_status, order_created,
+                     shipping_date, shipping_period):
     shipping_msg = ORDER_STATUS_MSG.get(order_status) or ''
     if shipping_msg:
         if order_status == ORDER_STATUS.AWAITING_SHIPPING:
-            # TODO get shipping deadline days from BO
-            expected_shipping_date = format_date(order_created, 7, '%d/%m/%Y')
+            expected_shipping_date = format_date(order_created,
+                                shipping_period, '%d/%m/%Y')
             shipping_msg = shipping_msg % expected_shipping_date
         elif order_status == ORDER_STATUS.COMPLETED:
             shipping_msg = shipping_msg % format_epoch_time(shipping_date)

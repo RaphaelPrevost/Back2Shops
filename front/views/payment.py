@@ -7,9 +7,7 @@ import xmltodict
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
 from common.utils import get_order_table_info
-from common.utils import get_shipping_info
 from common.utils import get_url_format
-from common.utils import get_user_contact_info
 from common.utils import get_valid_attr
 from views.base import BaseHtmlResource
 from B2SUtils.base_actor import as_list
@@ -51,7 +49,7 @@ class PaymentResource(BaseHtmlResource):
                 #hardcode paybox for BREUER
                 return self._payment_form(req, resp,
                                           id_trans=id_trans,
-                                          processor=4,
+                                          processor='4',
                                           id_order=id_order)
 
         data = {'step': 'init',
@@ -97,15 +95,11 @@ class PaymentResource(BaseHtmlResource):
                 'processor': processor}
         user_info = data_access(REMOTE_API_NAME.GET_USERINFO,
                                 req, resp)
-        data.update(get_user_contact_info(user_info))
         order_resp = data_access(REMOTE_API_NAME.GET_ORDER_DETAIL, req, resp,
                                  id=id_order, brand_id=settings.BRAND_ID)
-        all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
 
-        order_data = get_order_table_info(id_order, order_resp, all_sales)
+        order_data = get_order_table_info(id_order, order_resp)
         data.update(order_data)
-        shipping_info = get_shipping_info(req, resp, id_order)
-        data.update(shipping_info)
         return data
 
 
