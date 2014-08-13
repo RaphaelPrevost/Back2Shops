@@ -87,7 +87,8 @@ class UserResource(BaseHtmlResource):
         return {'user_profile': user_profile,
                 'err': err,
                 'succ_redirect_to': '',
-                'first_time': first_time}
+                'first_time': first_time,
+                'id_order': req.get_param('id_order') or ''}
 
 
 class LoginAPIResource(BaseJsonResource):

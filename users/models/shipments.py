@@ -4,23 +4,24 @@ import xmltodict
 from collections import defaultdict
 from datetime import datetime
 
+from B2SProtocol.constants import FREE_SHIPPING_CARRIER
+from B2SProtocol.constants import SHIPMENT_STATUS
+from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS
+from B2SUtils.db_utils import delete
+from B2SUtils.db_utils import execute
+from B2SUtils.db_utils import insert
+from B2SUtils.db_utils import query
+from B2SUtils.db_utils import update
 from common.constants import INVOICE_STATUS
 from common.utils import get_from_sale_server
 from common.utils import remote_xml_shipping_fee
 from common.utils import remote_xml_shipping_services
 from common.utils import weight_convert
-
-from B2SProtocol.constants import FREE_SHIPPING_CARRIER
-from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS
-from B2SProtocol.constants import SHIPMENT_STATUS
-from B2SUtils.db_utils import execute
-from B2SUtils.db_utils import insert
-from B2SUtils.db_utils import query
-from B2SUtils.db_utils import update
 from models.actors.sale import CachedSale
-from models.actors.shop import CachedShop
-from models.actors.shipping_fees import ActorShippingFees
 from models.actors.shipping import ActorShipping
+from models.actors.shipping_fees import ActorShippingFees
+from models.actors.shop import CachedShop
+from models.invoice import delete_invoices
 from models.user import get_user_dest_addr
 
 DEFAULT_WEIGHT_UNIT = 'kg'
@@ -161,6 +162,18 @@ class BaseShipments:
 
         self.handleInternetSales(internet_sales)
         self.handleLocalSales(local_sales)
+
+    def update(self, shipment_ids):
+        where = {'id_shipment__in': tuple(shipment_ids)}
+        delete(self.conn, 'free_shipping_fee', where=where)
+        delete(self.conn, 'shipment_status', where=where)
+        delete(self.conn, 'shipping_fee', where=where)
+        delete(self.conn, 'shipping_list', where=where)
+        delete(self.conn, 'shipping_supported_services', where=where)
+        delete_invoices(self.conn, where)
+        delete(self.conn, 'shipments', where={'id__in': tuple(shipment_ids)})
+        logging.info('delete shipment %s for order modify', shipment_ids)
+        self.create()
 
     def handleInternetSales(self, sales):
         pass

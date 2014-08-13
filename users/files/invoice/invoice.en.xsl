@@ -9,8 +9,6 @@
 
   <xsl:output method="xml" indent="yes" encoding="UTF-8"/>
 
-  <!-- English locale -->
-  <!--
   <xsl:variable name="lang.invoiceNumber">Invoice &#8470;</xsl:variable>
   <xsl:variable name="lang.invoiceIssued">Issued on</xsl:variable>
   <xsl:variable name="lang.dateFormat">MMMM d, yyyy</xsl:variable>
@@ -22,7 +20,7 @@
   <xsl:variable name="lang.taxRate">Tax</xsl:variable>
   <xsl:variable name="lang.amount">Amount</xsl:variable>
   <xsl:variable name="lang.discount">Discount</xsl:variable>
-  <xsl:variable name="lang.premium">Premium</xsl:variable>
+  <xsl:variable name="lang.premium">Premium</xsl:variable> 
   <xsl:variable name="lang.subtotal">Subtotal</xsl:variable>
   <xsl:variable name="lang.shippingDesc">Service</xsl:variable>
   <xsl:variable name="lang.handling">Handling</xsl:variable>
@@ -34,59 +32,6 @@
   </xsl:variable>
   <xsl:variable name="lang.taxNumber">VAT Registration Number</xsl:variable>
   <xsl:variable name="lang.thanks">Thank you for your business!</xsl:variable>
-  -->
-
-  <!-- French locale -->
-  <!--
-  <xsl:variable name="lang.invoiceNumber">Facture &#8470;</xsl:variable>
-  <xsl:variable name="lang.invoiceIssued">Éditée le</xsl:variable>
-  <xsl:variable name="lang.dateFormat">d MMMM yyyy</xsl:variable>
-  <xsl:variable name="lang.invoice">Facture</xsl:variable>
-  <xsl:variable name="lang.invoiceDetails">Détail</xsl:variable>
-  <xsl:variable name="lang.description">Description</xsl:variable>
-  <xsl:variable name="lang.quantity">Quantité</xsl:variable>
-  <xsl:variable name="lang.unitPrice">Prix Unitaire</xsl:variable>
-  <xsl:variable name="lang.taxRate">Taxe</xsl:variable>
-  <xsl:variable name="lang.amount">Montant</xsl:variable>
-  <xsl:variable name="lang.discount">Réduction</xsl:variable>
-  <xsl:variable name="lang.premium">Premium</xsl:variable>
-  <xsl:variable name="lang.subtotal">Sous-total</xsl:variable>
-  <xsl:variable name="lang.shippingDesc">Service</xsl:variable>
-  <xsl:variable name="lang.handling">Frais d'emballage</xsl:variable>
-  <xsl:variable name="lang.shippingHandling">
-      Frais de port et d'emballage
-  </xsl:variable>
-  <xsl:variable name="lang.taxAmount">Taxe</xsl:variable>
-  <xsl:variable name="lang.total">Total</xsl:variable>
-  <xsl:variable name="lang.businessNumber">SIRET</xsl:variable>
-  <xsl:variable name="lang.taxNumber">
-      Numéro de TVA intracommunautaire
-  </xsl:variable>
-  <xsl:variable name="lang.thanks"></xsl:variable>
-  -->
-
-  <!-- Chinese locale -->
-  <xsl:variable name="lang.invoiceNumber">发票编号</xsl:variable>
-  <xsl:variable name="lang.invoiceIssued">日期</xsl:variable>
-  <xsl:variable name="lang.dateFormat">yyyy年M月d日</xsl:variable>
-  <xsl:variable name="lang.invoice">商业发票</xsl:variable>
-  <xsl:variable name="lang.invoiceDetails">票单</xsl:variable>
-  <xsl:variable name="lang.description">品名</xsl:variable>
-  <xsl:variable name="lang.quantity">数量</xsl:variable>
-  <xsl:variable name="lang.unitPrice">单价</xsl:variable>
-  <xsl:variable name="lang.taxRate">税率</xsl:variable>
-  <xsl:variable name="lang.amount">金额</xsl:variable>
-  <xsl:variable name="lang.discount">折扣</xsl:variable>
-  <xsl:variable name="lang.premium">保险</xsl:variable>
-  <xsl:variable name="lang.subtotal">小计</xsl:variable>
-  <xsl:variable name="lang.shippingDesc">服务</xsl:variable>
-  <xsl:variable name="lang.handling">处理费</xsl:variable>
-  <xsl:variable name="lang.shippingHandling">运费与处理费</xsl:variable>
-  <xsl:variable name="lang.taxAmount">税费</xsl:variable>
-  <xsl:variable name="lang.total">总计</xsl:variable>
-  <xsl:variable name="lang.businessNumber">商业登记号码</xsl:variable>
-  <xsl:variable name="lang.taxNumber">纳税登记号码</xsl:variable>
-  <xsl:variable name="lang.thanks">欢迎您的光临！感谢您的惠顾与支持！</xsl:variable>
 
   <xsl:template match="/invoices">
   <html>

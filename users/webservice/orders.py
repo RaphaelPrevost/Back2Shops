@@ -1,29 +1,32 @@
 import logging
 import gevent
 import settings
-import urllib2
 import ujson
+import urllib2
 
-from common.redis_utils import get_redis_cli
-from common.error import NotExistError
-from models.order import create_order
-from models.order import get_order_detail
-from models.order import get_orders_list
-from models.order import update_shipping_fee
-from models.order import user_accessable_order
-from models.actors.sale import CachedSale
-from models.actors.sale import get_sale_by_barcode
-from models.actors.shop import CachedShop
-from webservice.base import BaseJsonResource
-from B2SProtocol.constants import RESP_RESULT
-from B2SProtocol.constants import LOGIN_USER_BASKET_KEY
 from B2SCrypto.constant import SERVICES
 from B2SCrypto.utils import decrypt_json_resp
 from B2SCrypto.utils import gen_encrypt_json_context
+from B2SProtocol.constants import ORDER_STATUS
+from B2SProtocol.constants import RESP_RESULT
+from B2SRespUtils.generate import gen_json_resp
 from B2SUtils import db_utils
 from B2SUtils.db_utils import select
 from B2SUtils.errors import ValidationError
-from B2SRespUtils.generate import gen_json_resp
+from common.error import NotExistError
+from models.actors.sale import CachedSale
+from models.actors.sale import get_sale_by_barcode
+from models.actors.shop import CachedShop
+from models.order import create_order
+from models.order import get_order
+from models.order import get_order_detail
+from models.order import get_order_items
+from models.order import get_order_status
+from models.order import get_orders_list
+from models.order import modify_order
+from models.order import update_shipping_fee
+from models.order import user_accessable_order
+from webservice.base import BaseJsonResource
 
 
 class BaseOrderResource(BaseJsonResource):
@@ -37,7 +40,7 @@ class BaseOrderResource(BaseJsonResource):
 
 class OrderResource(BaseJsonResource):
     login_required = {'get': False, 'post': True}
-    post_action_func_map = {'create': 'order_create'}
+    post_action_func_map = {'create': 'order_create', 'modify': 'order_modify'}
     users_id = None
 
     def _on_post(self, req, resp, conn, **kwargs):
@@ -49,6 +52,54 @@ class OrderResource(BaseJsonResource):
         func = getattr(self, self.post_action_func_map[action], None)
         assert hasattr(func, '__call__')
         return func(req, resp, conn)
+
+    def order_modify(self, req, resp, conn):
+        ## check params
+        try:
+            assert req.get_param('id_order')
+            assert req.get_param('telephone')
+            assert req.get_param('shipaddr'), 'shipaddr'
+            assert req.get_param('billaddr'), 'billaddr'
+            self._addressValidCheck(conn, req.get_param('shipaddr'))
+            self._addressValidCheck(conn, req.get_param('billaddr'))
+            self._telephoneValidCheck(conn, req.get_param('telephone'))
+        except AssertionError, e:
+            logging.error('Invalid Order request: %s', req.query_string)
+            raise ValidationError('ORDER_ERR_MISSED_PARAM_%s' % e)
+
+        shipaddr = req.get_param('shipaddr')
+        billaddr = req.get_param('billaddr')
+        telephone = req.get_param('telephone')
+        id_order = req.get_param('id_order')
+
+        ## Can't modify order which status > AWAITING_PAYMENT
+        order_status = get_order_status(conn, id_order)
+        if int(order_status) > ORDER_STATUS.AWAITING_PAYMENT:
+            logging.warn('The order %s can not be modified because its status '
+                         'is %s', id_order, order_satus)
+            return 0
+
+        ## return id_order directly if no changes.
+        order = get_order(conn, id_order)
+        if int(order['id_shipaddr']) == int(shipaddr) and \
+                int(order['id_billaddr']) == int(billaddr) and \
+                int(order['id_phone']) == int(telephone):
+            return int(id_order)
+
+        order_items = get_order_items(conn, id_order)
+        items = []
+        for item in order_items:
+            items.append({
+                'id_order_item': item['item_id'],
+                'id_shop': item['shop_id'],
+                'id_sale': item['sale_id'],
+                'id_variant': item['id_variant'],
+                'quantity': item['quantity'],
+                'id_weight_type': item['id_weight_type'],
+                'id_price_type': item['id_price_type']
+            })
+        return modify_order(conn, self.users_id, id_order, telephone, items,
+                            shipaddr, billaddr)
 
     def order_create(self, req, resp, conn):
         try:

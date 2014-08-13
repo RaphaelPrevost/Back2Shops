@@ -1,9 +1,18 @@
+import settings
 import gevent
 import ujson
 import xmltodict
-import settings
-from common.constants import FRT_ROUTE_ROLE
+
+from B2SFrontUtils.constants import REMOTE_API_NAME
+from B2SProtocol.constants import ORDER_STATUS
+from B2SProtocol.constants import SHIPMENT_STATUS
+from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
+from B2SUtils.base_actor import as_list
+from B2SUtils.common import get_cookie_value
+from B2SUtils.common import set_cookie
+from B2SUtils.errors import ValidationError
 from common.constants import CURR_USER_BASKET_COOKIE_NAME
+from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
 from common.email_utils import send_order_email
 from common.utils import format_date
@@ -20,12 +29,7 @@ from views.base import BaseJsonResource
 from views.email import common_email_data
 from views.payment import get_payment_url
 from views.user import UserResource, UserAuthResource
-from B2SUtils.base_actor import as_list
-from B2SUtils.common import get_cookie_value
-from B2SUtils.common import set_cookie
-from B2SUtils.errors import ValidationError
-from B2SFrontUtils.constants import REMOTE_API_NAME
-from B2SProtocol.constants import ORDER_STATUS
+
 
 def _req_invoices(req, resp, id_order):
     return data_access(REMOTE_API_NAME.REQ_INVOICES, req, resp, order=id_order)
@@ -138,6 +142,7 @@ class OrderUserResource(UserResource):
     def _on_get(self, req, resp, **kwargs):
         data = super(OrderUserResource, self)._on_get(req, resp, **kwargs)
         data['succ_redirect_to'] = get_url_format(FRT_ROUTE_ROLE.ORDER_ADDR)
+        data['id_order'] = req.get_param('id_order') or ''
         return data
 
 
@@ -152,8 +157,9 @@ class OrderAddressResource(BaseHtmlResource):
     def _on_get(self, req, resp, **kwargs):
         user_info = data_access(REMOTE_API_NAME.GET_USERINFO,
                                 req, resp)
-        return get_user_contact_info(user_info)
-
+        data = get_user_contact_info(user_info)
+        data['id_order'] = req.get_param('id_order') or ''
+        return data
 
 
 class OrderAPIResource(BaseJsonResource):
@@ -166,34 +172,47 @@ class OrderAPIResource(BaseJsonResource):
             redirect_to = get_url_format(FRT_ROUTE_ROLE.ORDER_USER)
             return {'redirect_to': redirect_to}
 
-        all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
-        orders = []
-        basket_key, basket_data = get_basket(req, resp)
-        for item, quantity in basket_data.iteritems():
-            item_info = ujson.loads(item)
-            id_sale = item_info['id_sale']
-            if id_sale not in all_sales:
-                continue
+        if req.get_param_as_int('id_order'):
+            basket_key = None
+            basket_data = None
+            data = {
+                'action': 'modify',
+                'id_order': req.get_param_as_int('id_order'),
+                'telephone': req.get_param('id_phone'),
+                'shipaddr': req.get_param('id_shipaddr'),
+                'billaddr': req.get_param('id_billaddr'),
+                }
+        else:
+            all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
+            orders = []
+            basket_key, basket_data = get_basket(req, resp)
+            for item, quantity in basket_data.iteritems():
+                item_info = ujson.loads(item)
+                id_sale = item_info['id_sale']
+                if id_sale not in all_sales:
+                    continue
 
-            orders.append({
-                'id_sale': item_info['id_sale'],
-                'id_shop': item_info.get('id_shop'),
-                'quantity': quantity,
-                'id_variant': item_info.get('id_variant') or 0,
-                'id_weight_type': item_info.get('id_attr') or 0,
-                'id_price_type': item_info.get('id_price_type') or 0,
-            })
-        data = {
-            'action': 'create',
-            'telephone': req.get_param('id_phone'),
-            'shipaddr': req.get_param('id_shipaddr'),
-            'billaddr': req.get_param('id_billaddr'),
-            'wwwOrder': ujson.dumps(orders),
-        }
+                orders.append({
+                    'id_sale': item_info['id_sale'],
+                    'id_shop': item_info.get('id_shop'),
+                    'quantity': quantity,
+                    'id_variant': item_info.get('id_variant') or 0,
+                    'id_weight_type': item_info.get('id_attr') or 0,
+                    'id_price_type': item_info.get('id_price_type') or 0,
+                })
+            data = {
+                'action': 'create',
+                'telephone': req.get_param('id_phone'),
+                'shipaddr': req.get_param('id_shipaddr'),
+                'billaddr': req.get_param('id_billaddr'),
+                'wwwOrder': ujson.dumps(orders),
+            }
+
         order_resp = data_access(REMOTE_API_NAME.CREATE_ORDER,
                                  req, resp, **data)
         if isinstance(order_resp, int) and order_resp > 0:
-            clear_basket(req, resp, basket_key, basket_data)
+            if basket_key and basket_data:
+                clear_basket(req, resp, basket_key, basket_data)
             id_order = order_resp
             redirect_to = get_url_format(FRT_ROUTE_ROLE.ORDER_INFO) % {
                 'id_order': id_order}

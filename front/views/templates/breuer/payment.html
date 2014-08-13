@@ -23,10 +23,11 @@
             </div>
             <?py #endfor ?>
             <input type="hidden" name="id_trans" value="${id_trans}">
+            <input type="hidden" name="id_order" id="id_order" value="${id_order}">
 
             <div id="btnline">
                 <a class="btn purchase" href="javascript:confirmPaymentProc()">Valider</a>
-                <a class="btn back" href="javascript:history.go(-1)">Etape précédente</a>
+                <a class="btn back" href="javascript:backToOrderAddress()">Etape précédente</a>
             </div>
             <?py #endif ?>
         </form>
@@ -38,6 +39,9 @@
         }
         var form = $("#selectPaymentProc")[0];
         form.submit();
+    }
+    function backToOrderAddress() {
+        $('#selectPaymentProc').prop({action: '/order_addr', method: 'get'}).submit();
     }
     </script>
 

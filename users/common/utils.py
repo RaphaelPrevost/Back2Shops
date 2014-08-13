@@ -1,3 +1,4 @@
+import settings
 import logging
 import binascii
 import datetime
@@ -5,11 +6,10 @@ import hashlib
 import hmac
 import os
 import random
-import string
 import re
+import string
 import ujson
 import urllib
-import settings
 
 
 from common.constants import HASH_ALGORITHM
@@ -449,3 +449,25 @@ def get_client_ip(request):
         return env['HTTP_X_FORWARDED_FOR'].split(',')[-1].strip()
     except KeyError:
         return env['REMOTE_ADDR']
+
+def _parse_accept_language(accept_language):
+    # accept_languages like 'zh-cn,zh;q=0.8,en;q=0.5,en-us;q=0.3'
+    languages = accept_language.split(",")
+    locale_q_pairs = []
+
+    for language in languages:
+        lang = language.split(";")
+        if lang[0] == language:
+            # no q => q = 1
+            locale_q_pairs.append((language.strip(), "1"))
+        else:
+            locale_q_pairs.append((lang[0].strip(), lang[1].split("=")[1]))
+    return locale_q_pairs
+
+def detect_locale(accept_language):
+    locale_q_pairs = _parse_accept_language(accept_language)
+    for locale, q in locale_q_pairs:
+        locale = locale.split('-')[0].lower()
+        if locale in settings.LOCALE_LANGUAGES:
+            return locale
+    return settings.DEFAULT_LANGUAGE

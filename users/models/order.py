@@ -1,8 +1,6 @@
 import logging
-import urllib2
 import ujson
 
-from common.constants import INVOICE_STATUS
 from B2SProtocol.constants import ORDER_STATUS
 from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SUtils.db_utils import insert
@@ -10,14 +8,16 @@ from B2SUtils.db_utils import join
 from B2SUtils.db_utils import query
 from B2SUtils.db_utils import select
 from B2SUtils.db_utils import update
+from common.constants import INVOICE_STATUS
 from models.actors.sale import CachedSale
 from models.actors.shop import get_shop_id
-from models.invoice import order_iv_sent_status
 from models.invoice import iv_to_sent_qty
-from models.shipments import wwwOrderShipments
+from models.invoice import order_iv_sent_status
+from models.shipments import get_shipments_by_order
 from models.shipments import posOrderShipments
-from models.user import get_user_profile
+from models.shipments import wwwOrderShipments
 from models.user import get_user_dest_addr
+from models.user import get_user_profile
 from models.user import get_user_sel_phone_num
 
 
@@ -42,6 +42,17 @@ def _create_order_shipment_detail(conn, id_order,
     logging.info('order_shipment_details item created:'
                  'values: %s' % values)
 
+def _modify_order_shipment_detail(conn, id_order,
+                                  id_shipaddr, id_billaddr,
+                                  id_phone):
+
+    values = {'id_shipaddr': id_shipaddr,
+              'id_billaddr': id_billaddr,
+              'id_phone': id_phone,
+              }
+    update(conn, 'order_shipment_details', values=values, where={'id_order': id_order})
+    logging.info('order_shipment_details for order %s modified values: %s',
+                 id_order, values)
 
 def _create_order_item(conn, sale, id_variant, upc_shop=None,
                        barcode=None, id_shop=None,
@@ -124,6 +135,17 @@ def create_order(conn, users_id, telephone_id, order_items,
 
     return order_id
 
+def modify_order(conn, users_id, order_id, telephone_id, order_items,
+                 shipaddr, billaddr):
+    _modify_order_shipment_detail(conn, order_id, shipaddr, billaddr, telephone_id)
+    shipments = get_shipments_by_order(conn, order_id)
+    shipment_ids = [s['id'] for s in shipments]
+    wwwOrderShipments(conn,
+                      order_id,
+                      order_items,
+                      shipaddr,
+                      users_id).update(shipment_ids)
+    return int(order_id)
 
 def update_shipping_fee(conn, id_shipment, id_postage, shipping_fee):
     try:
@@ -253,7 +275,7 @@ def _all_order_items_packed(conn, id_order):
 
     return item_qtt == grouped_qtt and item_qtt == packed_qtt
 
-def _get_order_status(conn, order_id):
+def get_order_status(conn, order_id):
     """
     There is 4 status.
     Pending order is the initial status.
@@ -387,7 +409,7 @@ def get_orders_list(conn, brand_id, shops_id, users_id=None):
             sorted_order_ids.append(order_id)
 
     for order_id, order in orders_dict.iteritems():
-        order['order_status'] = _get_order_status(conn, order_id)
+        order['order_status'] = get_order_status(conn, order_id)
         if order['order_status'] > ORDER_STATUS.AWAITING_PAYMENT:
             order['paid_time_info'] = _get_paid_time_list(
                 conn, order['order_status'], order_id)
@@ -474,7 +496,7 @@ def get_order_detail(conn, order_id, brand_id, shops_id=None):
         'first_sale_id': order_items['order_items'][0].values()[0]['sale_id'],
         'shipping_dest': get_user_dest_addr(conn, details['user_id'],
                                             details['id_shipaddr']),
-        'order_status': _get_order_status(conn, order_id)})
+        'order_status': get_order_status(conn, order_id)})
     return details
 
 def user_accessable_order(conn, id_order, id_user):

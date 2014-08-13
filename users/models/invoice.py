@@ -4,8 +4,10 @@ from common.utils import currency_exchange
 from datetime import datetime
 from B2SProtocol.constants import ORDER_IV_SENT_STATUS
 from B2SProtocol.constants import SHIPMENT_STATUS
+from B2SUtils.db_utils import delete
 from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import query
+from B2SUtils.db_utils import select_dict
 from B2SUtils.db_utils import update
 
 from common.constants import INVOICE_STATUS
@@ -232,3 +234,13 @@ def update_invoice(conn, id_iv, values, iv=None):
 
     logging.info("invoice_%s updated: %s", id_iv, values)
     return r and r[0] or None
+
+def delete_invoices(conn, where):
+    invoices = select_dict(conn, 'invoices', 'id', where=where)
+    deleted_invoice_ids = []
+    for id, invoice in invoices.iteritems():
+        delete(conn, 'invoice_status', where={'id_invoice': id})
+        invoice_id = delete(conn, 'invoices', where={'id': id}, returning='id')
+        deleted_invoice_ids.append(invoice_id)
+        logging.info('invoice %s deleted for %s', invoice_id, where)
+    return deleted_invoice_ids

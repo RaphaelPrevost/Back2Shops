@@ -11,8 +11,10 @@
 <script type="text/javascript">
 var profile = #{user_profile};
 var profileErr = '${err}';
-var succ_redirect_to = '${succ_redirect_to}';
 var delayCallbacks = [];
+var id_order = '${id_order}';
+var succ_redirect_to = id_order ? '${succ_redirect_to}?id_order=${id_order}': '${succ_redirect_to}';
+
 
 function getTemplate(name, item)
 {

@@ -11,7 +11,7 @@ from webservice.base import BaseJsonResource
 from models.actors.shipping_fees import ActorShippingFees
 from models.order import get_order
 from models.order import get_order_items
-from models.order import _get_order_status
+from models.order import get_order_status
 from models.order import user_accessable_order
 from models.actors.sale import CachedSale
 from models.actors.shipping import ActorCarriers
@@ -49,7 +49,7 @@ class BaseShippingListResource(BaseXmlResource):
             return {"error": e.code}
 
         id_order = req._params.get('id_order')
-        order_status = _get_order_status(conn, id_order)
+        order_status = get_order_status(conn, id_order)
         order_create_date = self._get_order_create_date(conn, id_order)
 
         shipment_list = get_shipments_by_order(conn, id_order)

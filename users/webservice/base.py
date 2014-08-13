@@ -7,6 +7,7 @@ import settings
 from datetime import datetime
 
 from common.utils import cookie_verify
+from common.utils import detect_locale
 from B2SProtocol.constants import RESP_RESULT
 from B2SRespUtils.generate import gen_html_resp
 from B2SRespUtils.generate import gen_json_resp
@@ -61,6 +62,8 @@ class BaseResource(object):
                 if self.login_required.get(method_name):
                     self.users_id = cookie_verify(conn, req, resp)
                     kwargs['users_id'] = self.users_id
+                self.language = detect_locale(
+                    req.headers.get('accept-language', ''))
                 method = getattr(self, '_on_' + method_name)
                 data = method(req, resp, conn, **kwargs)
             except ValidationError, e:

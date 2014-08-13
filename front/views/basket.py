@@ -1,18 +1,20 @@
-import settings
 import ujson
-from common.constants import FRT_ROUTE_ROLE
+
+from B2SFrontUtils.constants import REMOTE_API_NAME
+from B2SProtocol.constants import USER_BASKET
+from B2SProtocol.constants import USER_BASKET_COOKIE_NAME
+from B2SUtils.common import get_cookie_value
+from B2SUtils.common import set_cookie
+from B2SUtils.errors import ValidationError
 from common.data_access import data_access
 from common.redis_utils import get_redis_cli
+from common.utils import generate_random_key
 from common.utils import get_basket
 from common.utils import get_basket_table_info
 from common.utils import get_brief_product
-from common.utils import get_url_format
-from common.utils import generate_random_key
 from common.utils import get_valid_attr
 from views.base import BaseHtmlResource
 from views.base import BaseJsonResource
-from B2SUtils.errors import ValidationError
-from B2SFrontUtils.constants import REMOTE_API_NAME
 
 
 class BasketResource(BaseHtmlResource):
