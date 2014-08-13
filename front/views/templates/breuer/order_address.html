@@ -22,7 +22,13 @@
                 ${shipping_address['country_code']}
                 <?py #endif ?>
             </p>
-            <a href="${order_user_url_format}" class="modifier">Modifier</a>
+            <a
+                <?py if id_order: ?>
+                href="${order_user_url_format}?id_order=${id_order}"
+                <?py else: ?>
+                href="${order_user_url_format}"
+                <?py #endif ?>
+                    class="modifier">Modifier</a>
         </div>
 
         <div class="floater right adresse">
@@ -36,11 +42,18 @@
                 ${billing_address['country_code']}
                 <?py #endif ?>
             </p>
-            <a href="${order_user_url_format}" class="modifier">Modifier</a>
+            <a
+                <?py if id_order: ?>
+                href="${order_user_url_format}?id_order=${id_order}"
+                <?py else: ?>
+                href="${order_user_url_format}"
+                <?py #endif ?>
+                class="modifier">Modifier</a>
 
         </div>
 
         <input type="hidden" name="id_phone" value="${id_phone}" />
+        <input type="hidden" name="id_order" value="${id_order}" />
         <div id="btnline">
             <a class="btn purchase" href="javascript:checkout()">Valider</a>
             <a class="btn back" href="javascript:history.go(-1)">Etape précédente</a>

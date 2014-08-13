@@ -24,8 +24,8 @@ from views.payment import PayboxCancelResource
 from views.payment import PayboxFailureResource
 from views.payment import PayboxSuccessResource
 from views.payment import PayboxWaitingResource
-from views.payment import PaymentCancelResource
 from views.payment import PaymentResource
+from views.payment import PaypalCancelResource
 from views.payment import PaypalFailureResource
 from views.payment import PaypalSuccessResource
 from views.product import ProductInfoResource
@@ -93,7 +93,7 @@ fixed_urlpatterns = {
     r'/ajax_order': OrderAPIResource,
     r'/ajax_shipping_conf': ShippingAPIResource,
 
-    r'/payment/{id_trans}/cancel': PaymentCancelResource,
+    r'/paypal/{id_trans}/cancel': PaypalCancelResource,
     r'/paypal/{id_trans}/success': PaypalSuccessResource,
     r'/paypal/{id_trans}/failure': PaypalFailureResource,
     r'/paybox/{id_trans}/success': PayboxSuccessResource,

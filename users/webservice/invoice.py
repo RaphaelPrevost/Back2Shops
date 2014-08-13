@@ -6,6 +6,10 @@ import settings
 from StringIO import StringIO
 from lxml import etree
 
+from B2SProtocol.constants import FAILURE
+from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
+from B2SProtocol.constants import SUCCESS
+from B2SUtils.errors import ValidationError
 from common.email_utils import send_html_email
 from common.error import ServerError
 from common.utils import remote_xml_invoice
@@ -16,7 +20,7 @@ from models.invoice import get_invoice_by_order
 from models.invoice import get_invoices_by_shipments
 from models.invoice import iv_to_sent_qty
 from models.invoice import order_iv_sent_status
-from models.order import _get_order_status
+from models.order import get_order_status
 from models.order import get_order
 from models.shipments import get_shipments_by_id
 from models.shipments import get_shipments_by_order
@@ -26,14 +30,8 @@ from models.shipments import get_supported_services
 from models.user import get_user_dest_addr
 from models.user import get_user_email
 from models.user import get_user_profile
-
 from webservice.base import BaseJsonResource
 from webservice.base import BaseXmlResource
-
-from B2SCrypto.constant import SERVICES
-from B2SUtils.errors import ValidationError
-from B2SProtocol.constants import FAILURE, SUCCESS
-from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
 
 
 HEADER = """<?xml version="1.0" standalone="no"?>"""
@@ -216,7 +214,7 @@ class BaseInvoiceMixin:
     def invoice_xslt(self, content):
         try:
             xml_input = etree.fromstring(content)
-            xslt_root = etree.parse(settings.INVOICE_XSLT_PATH)
+            xslt_root = etree.parse(settings.INVOICE_XSLT_PATH % self.language)
             transform = etree.XSLT(xslt_root)
             return str(transform(xml_input))
         except Exception, e:
@@ -288,7 +286,7 @@ class BaseInvoiceGetResource(BaseJsonResource, BaseInvoiceMixin):
 
             order_iv_status = order_iv_sent_status(conn, id_order, id_brand,
                                                    id_shops)
-            order_status = _get_order_status(conn, id_order)
+            order_status = get_order_status(conn, id_order)
             to_sent_qty = iv_to_sent_qty(conn, id_order, id_brand, id_shops)
             return {'res': SUCCESS,
                     'iv_sent_status': order_iv_status,

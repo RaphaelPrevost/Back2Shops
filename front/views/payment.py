@@ -1,17 +1,17 @@
 import settings
+import logging
 import ujson
 import urllib
-import urllib2
 import xmltodict
 
+from B2SFrontUtils.constants import REMOTE_API_NAME
+from B2SUtils.base_actor import as_list
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
 from common.utils import get_order_table_info
 from common.utils import get_url_format
 from common.utils import get_valid_attr
 from views.base import BaseHtmlResource
-from B2SUtils.base_actor import as_list
-from B2SFrontUtils.constants import REMOTE_API_NAME
 
 def get_payment_url(id_order, id_invoices):
     url = get_url_format(FRT_ROUTE_ROLE.PAYMENT)
@@ -55,7 +55,8 @@ class PaymentResource(BaseHtmlResource):
         data = {'step': 'init',
                 'err': err,
                 'id_trans': id_trans,
-                'processors': processors}
+                'processors': processors,
+                'id_order': id_order}
         return data
 
     def _on_post(self, req, resp, **kwargs):
@@ -104,11 +105,10 @@ class PaymentResource(BaseHtmlResource):
 
 
 class PaymentCancelResource(BaseHtmlResource):
-    template = "payment_cancel.html"
     show_products_menu = False
 
     def _on_get(self, req, resp, **kwargs):
-        return {'result': kwargs}
+        return self.redirect(get_url_format(FRT_ROUTE_ROLE.ORDER_LIST))
 
 
 class PaypalSuccessResource(BaseHtmlResource):
@@ -131,6 +131,10 @@ class PaypalFailureResource(BaseHtmlResource):
         return {'result': params}
 
 
+class PaypalCancelResource(PaymentCancelResource):
+    pass
+
+
 class PayboxSuccessResource(BaseHtmlResource):
     template = "paybox_success.html"
     show_products_menu = False
@@ -151,14 +155,8 @@ class PayboxFailureResource(BaseHtmlResource):
         return {'result': params}
 
 
-class PayboxCancelResource(BaseHtmlResource):
-    template = "paybox_failure.html"
-    show_products_menu = False
-
-    def _on_get(self, req, resp, **kwargs):
-        params = req._params
-        params.update({'id_trans': kwargs['id_trans']})
-        return {'result': params}
+class PayboxCancelResource(PaymentCancelResource):
+    pass
 
 
 class PayboxWaitingResource(BaseHtmlResource):

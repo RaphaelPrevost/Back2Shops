@@ -64,7 +64,7 @@ CRYPTO_RESP_DEBUGING = True
 PRODUCTION = False
 
 INVOICE_VALIDATE_PATH = 'files/invoice/invoice.dtd'
-INVOICE_XSLT_PATH = 'files/invoice/invoice.xsl'
+INVOICE_XSLT_PATH = 'files/invoice/invoice.%s.xsl'
 SALES_VALIDATE_PATH = 'files/sales/sales.dtd'
 SALEINFO_VALIDATE_PATH = 'files/sales/sale_info.dtd'
 SHOPS_VALIDATE_PATH = 'files/shops/shops.dtd'
@@ -78,7 +78,7 @@ MAIL_POSTFIX = 'gmail.com'
 # Paypal
 PAYMENT_PAYPAL_GATEWAY = "%s/payment/paypal/%%(id_trans)s/gateway" % USR_ROOT_URI
 PAYMENT_PAYPAL_RETURN = "%s/payment/paypal/%%(id_trans)s/process" % USR_ROOT_URI
-PAYMENT_PAYPAL_CANCEL = "%s/payment/%%(id_trans)s/cancel" % FRONT_ROOT_URI
+PAYMENT_PAYPAL_CANCEL = "%s/paypal/%%(id_trans)s/cancel" % FRONT_ROOT_URI
 
 # Paybox
 PAYMENT_PAYBOX_SUCCESS = "%s/paybox/%%(id_trans)s/success" % FRONT_ROOT_URI
@@ -105,3 +105,6 @@ CURRENCY_EX_RATE = {
     'USD': {'USD': 1.0,
             'EUR': 0.72332}
 }
+
+LOCALE_LANGUAGES = ['zh', 'en', 'fr']
+DEFAULT_LANGUAGE = 'en'
