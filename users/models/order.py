@@ -135,6 +135,11 @@ def create_order(conn, users_id, telephone_id, order_items,
 
     return order_id
 
+def delete_order(conn, order_id):
+    update(conn, 'orders',
+           values={'valid': False},
+           where={'id': order_id})
+
 def modify_order(conn, users_id, order_id, telephone_id, order_items,
                  shipaddr, billaddr):
     _modify_order_shipment_detail(conn, order_id, shipaddr, billaddr, telephone_id)
@@ -175,6 +180,7 @@ def update_shipping_fee(conn, id_shipment, id_postage, shipping_fee):
 ORDER_FIELDS_COLUMNS = [('order_id', 'orders.id'),
                         ('user_id', 'id_user'),
                         ('confirmation_time', 'confirmation_time'),
+                        ('valid', 'valid'),
                         ]
 ORDER_SHIPMENT_COLUMNS = [('id_shipaddr', 'id_shipaddr'),
                          ('id_phone', 'id_phone'),
@@ -355,13 +361,13 @@ def get_orders_list(conn, brand_id, shops_id, users_id=None):
                             ORDER_SHIPMENT_COLUMNS +
                             ORDER_ITEM_FIELDS_COLUMNS))
 
-    filter_where = ""
+    filter_where = "where orders.valid "
     params = []
     if users_id:
-        filter_where = "where orders.id_user=%s"
+        filter_where += " and orders.id_user=%s"
         params.append(users_id)
     elif shops_id:
-        filter_where = ("where order_items.id_shop in (%s)"
+        filter_where += (" and order_items.id_shop in (%s)"
                  % ', '.join(['%s'] * len(shops_id)))
         params += shops_id
 

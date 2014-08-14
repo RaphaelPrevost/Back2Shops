@@ -25,8 +25,8 @@
             <buyer>
                 <name>{{ object.buyer.name }}</name>
                 <address>
-                    <addr>{{ object.buyer.address.addr }}</addr>
-                    <zip>{{ object.buyer.address.zip }}</zip>
+                    <addr>{{ object.buyer.address.address }} {{ object.buyer.address.address2 }}</addr>
+                    <zip>{{ object.buyer.address.postalcode }}</zip>
                     <city>{{ object.buyer.address.city }}</city>
                     <province>{{ object.buyer.address.province}}</province>
                     <country>{{ object.buyer.address.country }}</country>

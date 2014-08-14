@@ -6,4 +6,4 @@ gevent==1.0.1
 M2Crypto==0.21.1.B2S
 B2SCrypto==0.0.4
 B2SUtils==0.0.7
-B2SProtocol==0.0.12
+B2SProtocol==0.0.13

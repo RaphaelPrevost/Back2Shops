@@ -13,6 +13,7 @@ import xmltodict
 
 from B2SFrontUtils.constants import REMOTE_API_NAME
 from B2SFrontUtils.utils import normalize_name
+from B2SProtocol.constants import EURO_UNION_COUNTRIES
 from B2SProtocol.constants import INVALIDATE_CACHE_LIST
 from B2SProtocol.constants import INVALIDATE_CACHE_OBJ
 from B2SProtocol.constants import ORDER_STATUS
@@ -97,6 +98,10 @@ def format_date(date_str, days=0,
 def format_epoch_time(seconds, format='%d/%m/%Y'):
     return time.strftime(format, time.gmtime(seconds))
 
+def allowed_countries():
+    if settings.BRAND_NAME == 'BREUER':
+        return EURO_UNION_COUNTRIES
+    return []
 
 def get_product_default_display_price(sale):
     price = sale.get('price', {}).get('#text') or ''

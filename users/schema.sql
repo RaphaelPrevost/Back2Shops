@@ -73,7 +73,8 @@ CREATE TABLE users_address (
     id serial PRIMARY KEY,
     users_id integer NOT NULL,
     addr_type smallint NOT NULL,
-    address character varying(128) NOT NULL,
+    address character varying(512) NOT NULL,
+    address2 character varying(512) NOT NULL,
     city character varying(64) NOT NULL,
     postal_code character varying(25),
     country_code character varying(2) NOT NULL REFERENCES country(iso),
@@ -85,7 +86,8 @@ CREATE TABLE users_address (
 CREATE TABLE orders (
     id serial PRIMARY KEY,
     id_user integer NOT NULL,
-    confirmation_time timestamp without time zone DEFAULT now() NOT NULL
+    confirmation_time timestamp without time zone DEFAULT now() NOT NULL,
+    valid boolean DEFAULT true
 );
 
 CREATE TABLE order_items (
@@ -97,6 +99,7 @@ CREATE TABLE order_items (
     id_price_type BIGINT,
     price double precision NOT NULL,
     name character varying(150) NOT NULL,
+    type_name character varying(50),
     picture character varying(200),
     description character varying(128),
     copy_time timestamp without time zone DEFAULT now() NOT NULL,
@@ -181,6 +184,7 @@ CREATE TABLE invoices (
     amount_due double precision NOT NULL,
     amount_paid double precision DEFAULT 0.0 NOT NULL,
     due_within BIGINT,
+    shipping_within BIGINT,
     currency character varying(3) REFERENCES currency(code),
     invoice_file character varying(100),
     invoice_xml text,

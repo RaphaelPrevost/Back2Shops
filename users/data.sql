@@ -251,8 +251,36 @@ INSERT INTO country VALUES ('ZW', 'ZIMBABWE', 'Zimbabwe', 'ZWE', 716);
 --
 
 INSERT INTO country_calling_code VALUES ('CN', '86');
-INSERT INTO country_calling_code VALUES ('FR', '33');
 INSERT INTO country_calling_code VALUES ('US', '1');
+-- euro union countries
+INSERT INTO country_calling_code VALUES ('AT', '43');
+INSERT INTO country_calling_code VALUES ('BE', '32');
+INSERT INTO country_calling_code VALUES ('BG', '359');
+INSERT INTO country_calling_code VALUES ('HR', '385');
+INSERT INTO country_calling_code VALUES ('CY', '357');
+INSERT INTO country_calling_code VALUES ('CZ', '420');
+INSERT INTO country_calling_code VALUES ('DK', '45');
+INSERT INTO country_calling_code VALUES ('EE', '372');
+INSERT INTO country_calling_code VALUES ('FI', '358');
+INSERT INTO country_calling_code VALUES ('FR', '33');
+INSERT INTO country_calling_code VALUES ('DE', '49');
+INSERT INTO country_calling_code VALUES ('GR', '30');
+INSERT INTO country_calling_code VALUES ('HU', '36');
+INSERT INTO country_calling_code VALUES ('IE', '353');
+INSERT INTO country_calling_code VALUES ('IT', '39');
+INSERT INTO country_calling_code VALUES ('LV', '371');
+INSERT INTO country_calling_code VALUES ('LT', '370');
+INSERT INTO country_calling_code VALUES ('LU', '352');
+INSERT INTO country_calling_code VALUES ('MT', '356');
+INSERT INTO country_calling_code VALUES ('NL', '31');
+INSERT INTO country_calling_code VALUES ('PL', '48');
+INSERT INTO country_calling_code VALUES ('PT', '351');
+INSERT INTO country_calling_code VALUES ('RO', '40');
+INSERT INTO country_calling_code VALUES ('SK', '421');
+INSERT INTO country_calling_code VALUES ('SI', '386');
+INSERT INTO country_calling_code VALUES ('ES', '34');
+INSERT INTO country_calling_code VALUES ('SE', '46');
+INSERT INTO country_calling_code VALUES ('GB', '44');
 
 
 --

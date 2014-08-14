@@ -6,6 +6,7 @@ from fouillis.views import shop_manager_upper_required
 from orders.views import CreateShippingView
 from orders.views import EditShippingView
 from orders.views import ListOrdersView
+from orders.views import OrderDelete
 from orders.views import OrderDetails
 from orders.views import OrderPacking
 from orders.views import ShippingFee
@@ -29,6 +30,9 @@ urlpatterns = patterns(settings.get_site_prefix()+'orders',
     url(r'/details/(?:(?P<order_id>\d+)/)?$',
         OrderDetails.as_view(),
         name='order_details'),
+    url(r'/delete/(?P<order_id>\d+)$',
+        operator_upper_required(OrderDelete.as_view(), login_url="bo_login"),
+        name='order_delete'),
     url(r'/packing/(?:(?P<order_id>\d+)/)?$',
         operator_upper_required(OrderPacking.as_view(), login_url="bo_login"),
         name='order_packing_list'),

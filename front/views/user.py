@@ -4,6 +4,7 @@ import urllib
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
 from common.email_utils import send_new_user_email
+from common.utils import allowed_countries
 from common.utils import get_order_table_info
 from common.utils import get_url_format
 from common.utils import get_user_contact_info
@@ -80,10 +81,16 @@ class UserResource(BaseHtmlResource):
         user_profile = {}
         if remote_resp.get('res') == RESP_RESULT.F:
             err = remote_resp.get('err')
+            first_time = False
         else:
             user_profile = remote_resp
-
-        first_time = not user_profile['general']['values'][0].get('first_name')
+            first_time = not user_profile['general']['values'][0].get('first_name')
+            white_countries = allowed_countries()
+            if white_countries:
+                for f_name, f in user_profile['phone']['fields']:
+                    if f_name == 'country_num':
+                        f['accept'] = filter(lambda x:x[1]
+                                             in white_countries, f['accept'])
         return {'user_profile': user_profile,
                 'err': err,
                 'succ_redirect_to': '',
@@ -107,10 +114,20 @@ class UserAPIResource(BaseJsonResource):
     login_required = {'get': False, 'post': True}
 
     def _on_post(self, req, resp, **kwargs):
+        # combine birthday fields
         if req.get_param('birthday0'):
             req._params['birthday'] = '%s-%02d-%02d' % (
                 req.get_param('birthday0'), int(req.get_param('birthday1') or 1),
                 int(req.get_param('birthday2') or 1))
+
+        # check country
+        white_countries = allowed_countries()
+        if white_countries:
+            for p in req._params:
+                if p.startswith('country_code_') \
+                        or p.startswith('country_num_'):
+                    if req.get_param(p) not in white_countries:
+                        raise ValidationError('ERR_EU_COUNTRY')
 
         remote_resp = data_access(REMOTE_API_NAME.SET_USERINFO,
                                   req, resp,
@@ -123,6 +140,7 @@ class UserAPIResource(BaseJsonResource):
             email_data = {'name': req.get_param('first_name')}
             email_data.update(common_email_data)
             gevent.spawn(send_new_user_email, req.get_param('email'), email_data)
+
         return resp_dict
 
 
@@ -131,6 +149,18 @@ class MyAccountResource(BaseHtmlResource):
     login_required = {'get': True, 'post': False}
 
     def _on_get(self, req, resp, **kwargs):
+        user_info = data_access(REMOTE_API_NAME.GET_USERINFO, req, resp)
+        general_user_values = user_info['general']['values'][0]
+        if not general_user_values.get('first_name') \
+                or not general_user_values.get('last_name'):
+            user_name = general_user_values['email']
+        else:
+            user_name = '%s %s %s' % (
+                    general_user_values.get('title') or '',
+                    general_user_values.get('first_name') or '',
+                    general_user_values.get('last_name') or '',
+                    )
+
         orders = data_access(REMOTE_API_NAME.GET_ORDERS, req, resp,
                              brand_id=settings.BRAND_ID)
         order_list = []
@@ -141,17 +171,6 @@ class MyAccountResource(BaseHtmlResource):
                     order_list.append(order_info)
         order_list.reverse()
 
-        user_info = data_access(REMOTE_API_NAME.GET_USERINFO, req, resp)
-        general_user_values = user_info['general']['values'][0]
-        if not general_user_values.get('first_name') \
-                or not general_user_values.get('last_name'):
-            user_name = general_user_values.get('email')
-        else:
-            user_name = '%s %s %s' % (
-                    general_user_values.get('title') or '',
-                    general_user_values.get('first_name') or '',
-                    general_user_values.get('last_name') or '',
-                    )
         data = {'user_name': user_name,
                 'user_info': general_user_values,
                 'order_list': order_list}
