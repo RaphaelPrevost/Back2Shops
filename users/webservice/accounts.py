@@ -115,7 +115,7 @@ class UserResource(BaseJsonResource):
 
         # address
         columns = ('id', 'addr_type', 'address', 'city', 'postal_code',
-                   'country_code', 'province_code', 'address_desp')
+                   'country_code', 'province_code', 'address_desp', 'address2')
         addresses = db_utils.select(conn,
                 "users_address", columns=columns,
                 where={'users_id': users_id,
@@ -144,13 +144,17 @@ class UserResource(BaseJsonResource):
                                        'postal_code': x[4],
                                        'country_code': x[5],
                                        'province_code': x[6],
-                                       'address_desp': x[7]},
+                                       'address_desp': x[7],
+                                       'address2': x[8],
+                            },
                             addresses)
         all_fields_dict['address'] = field_utils.FieldSetType("Address",
             {'addr_type': field_utils.RadioFieldType(
                         "Address type", "", addr_type_options),
              'address': field_utils.TextFieldType(
                         "Address", "", addr_reexp),
+             'address2': field_utils.TextFieldType(
+                        "", "", ""),
              'city': field_utils.TextFieldType(
                         "City", "", city_reexp),
              'postal_code': field_utils.TextFieldType(
@@ -164,7 +168,8 @@ class UserResource(BaseJsonResource):
                         depends="country_code"),
              'address_desp': field_utils.TextFieldType("Description", "", "")},
             addresses,
-            ['addr_type', 'address', 'city', 'postal_code', 'country_code',
+            ['addr_type', 'address', 'address2',
+             'city', 'postal_code', 'country_code',
              'province_code', 'address_desp'])
 
         for f in all_fields_dict:
@@ -254,7 +259,8 @@ class UserResource(BaseJsonResource):
             if p.startswith('country_code_'):
                 addr_dict[p.replace('country_code_', '')] = {}
         columns = ('addr_type', 'address', 'city', 'postal_code',
-                   'country_code', 'province_code', 'address_desp')
+                   'country_code', 'province_code', 'address_desp',
+                   'address2')
         for addr_id in addr_dict:
             addr_dict[addr_id]['users_id'] = users_id
             for c in columns:

@@ -237,3 +237,18 @@ def send_delete_shipment(id_shipment):
                       'error: %s',
                       {'id_shipment': id_shipment}, e, exc_info=True)
         raise UsersServerError
+
+def remote_delete_order(id_order):
+    try:
+        url = '%s?id=%s' % (settings.ORDER_DELETE, id_order)
+        rst = get_from_remote(
+            url,
+            settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+            settings.PRIVATE_KEY_PATH,
+            headers={'Content-Type': 'application/json'})
+        return rst
+    except Exception, e:
+        logging.error('Failed to delete order %s,'
+                      'error: %s',
+                      {'id_order': id_order}, e, exc_info=True)
+        raise UsersServerError

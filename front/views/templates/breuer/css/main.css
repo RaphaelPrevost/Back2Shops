@@ -1024,10 +1024,8 @@ a { color: #1f244a; }
 	box-shadow: 0 1px #ffffff inset;
 }
 #formContainer fieldset:nth-child(2n){ float: right; }
-/*
-#formContainer fieldset:nth-child(0n+4),
-#formContainer fieldset:nth-child(0n+5){ min-height: 415px; }
-*/
+#formContainer fieldset:nth-child(0n+6),
+#formContainer fieldset:nth-child(0n+5){ min-height: 355px; }
 
 #formContainer legend {
     width: 100%;
@@ -1040,11 +1038,11 @@ a { color: #1f244a; }
 	background-color: #f4fff2;
 }
 
-#formContainer fieldset:nth-child(0n+4) legend,
+#formContainer fieldset:nth-child(0n+6) legend,
 #formContainer fieldset:nth-child(0n+5) legend{ margin: 0 0 26px 0; }
 
 /*
-#formContainer  fieldset:nth-child(0n+4) p label,
+#formContainer  fieldset:nth-child(0n+6) p label,
 #formContainer  fieldset:nth-child(0n+5) p label { width: 90px; }
 */
 
@@ -1113,6 +1111,7 @@ a { color: #1f244a; }
 
 /*-- exceptions > inputs ---*/
 #formContainer p label[for=birthday] { background: none; }
+#formContainer p label[for^=address2] { background: none; }
 
 #formContainer p input#address_7, #formContainer p input#address_8 { margin-top: 10px; }
 

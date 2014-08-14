@@ -68,4 +68,9 @@ ALTER TABLE shipments RENAME COLUMN timestamp to create_time;
 
 ALTER TABLE order_items ADD COLUMN type_name character varying(50);
 ALTER TABLE invoices ADD COLUMN shipping_within BIGINT;
+
+ALTER TABLE users_address ALTER COLUMN address type character varying(512);
+ALTER TABLE users_address ADD COLUMN address2 character varying(512) DEFAULT '';
+
+ALTER TABLE orders ADD COLUMN valid boolean DEFAULT true;
 COMMIT;

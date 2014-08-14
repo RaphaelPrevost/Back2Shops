@@ -302,6 +302,7 @@ ORDER_SHIPPING_LIST = '%s/webservice/1.0/protected/shipping/list' % USR_SERVER
 ORDER_SHIPMENT = '%s/webservice/1.0/protected/shipment' % USR_SERVER
 ORDER_INVOICES = '%s/webservice/1.0/private/invoice/get' % USR_SERVER
 ORDER_SEND_INVOICES = '%s/webservice/1.0/private/invoice/send' % USR_SERVER
+ORDER_DELETE = '%s/webservice/1.0/private/order/delete' % USR_SERVER
 
 # config to see decrypt content for response,
 # only used for debugging

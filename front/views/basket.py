@@ -36,7 +36,10 @@ class BasketAPIResource(BaseJsonResource):
         basket_key, basket_data = get_basket(req, resp)
 
         cmd = req.get_param('cmd')
-        quantity = req.get_param('quantity') or 1
+        quantity = req.get_param('quantity') or '1'
+        if not isinstance(quantity, str) or not quantity.isdigit():
+            raise ValidationError('ERR_QUANTITY')
+
         chosen_item = req.get_param('sale')
         if not chosen_item:
             id_sale = req.get_param('id_sale')

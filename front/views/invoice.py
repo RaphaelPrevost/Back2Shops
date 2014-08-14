@@ -7,8 +7,9 @@ from views.base import BaseHtmlResource
 
 
 class InvoiceResource(BaseHtmlResource):
-    template = '_order_invoices.html'
-    show_products_menu = False
+    template = 'order_invoices.html'
+    base_template = None
+
     login_required = {'get': True, 'post': False}
 
     def _on_get(self, req, resp, **kwargs):
@@ -19,3 +20,4 @@ class InvoiceResource(BaseHtmlResource):
         remote_resp = data_access(REMOTE_API_NAME.GET_INVOICES, req, resp,
                                   order=order_id, brand=settings.BRAND_ID)
         return {'obj': remote_resp, 'order_id': order_id}
+

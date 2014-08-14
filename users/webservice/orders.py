@@ -18,6 +18,7 @@ from models.actors.sale import CachedSale
 from models.actors.sale import get_sale_by_barcode
 from models.actors.shop import CachedShop
 from models.order import create_order
+from models.order import delete_order
 from models.order import get_order
 from models.order import get_order_detail
 from models.order import get_order_items
@@ -354,11 +355,11 @@ class OrderDetail4FUserResource(BaseOrderResource):
 
 
 class OrderDeleteResource(BaseOrderResource):
-    # A stub function for now, needs to implemented later
-    def on_get(self, req, resp, **kwargs):
-        return gen_json_resp(resp,
-                             {'res': RESP_RESULT.F,
-                             'err': 'INVALID_REQUEST'})
+    def _on_get(self, req, resp, conn, **kwargs):
+        order_id = req.get_param('id')
+        if order_id:
+            delete_order(conn, order_id)
+        return {'res': RESP_RESULT.S}
 
 
 class OrderStatusResource(BaseOrderResource):

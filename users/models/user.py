@@ -14,7 +14,8 @@ def get_user_address(conn, user_id):
     user_address_dict = {'address': {}}
 
     columns = ['users_address.id', 'addr_type', 'address', 'city',
-               'postal_code', 'country_code', 'province_code', 'address_desp']
+               'postal_code', 'country_code', 'province_code', 'address_desp',
+               'address2']
     results = join(conn, ['users, users_address'],
                    where={'users.id': user_id, 'valid': True},
                    columns=columns)
@@ -73,6 +74,7 @@ def get_user_address(conn, user_id, addr_id=None):
     @param addr_id: id of users_address
     @return: [{'id': ...,
                'address': ...,
+               'address2': ...,
                'city': ...,
                'country_code': ...,
                'province_code': ...,
@@ -80,7 +82,7 @@ def get_user_address(conn, user_id, addr_id=None):
                ...]
     """
     columns = ['id', 'address', 'city', 'country_code', 'province_code',
-               'postal_code']
+               'postal_code', 'address2']
 
     where = {'users_id': user_id}
     if addr_id:
@@ -99,6 +101,7 @@ def get_user_dest_addr(conn, id_user, id_addr=None):
     @param user_id: user's id.
     @param addr_id: id of users_address
     @return: {'address': ...,
+              'address2': ...,
               'city': ...,
               'country': ...,
               'province': ...,
@@ -110,6 +113,7 @@ def get_user_dest_addr(conn, id_user, id_addr=None):
                         E_C.UR_NO_ADDR[1] % (id_user, id_addr))
     user_address = user_address[0]
     address = {'address': user_address['address'],
+               'address2': user_address.get('address2', ''),
                'city': user_address['city'],
                'country': user_address['country_code'],
                'province': user_address['province_code'],

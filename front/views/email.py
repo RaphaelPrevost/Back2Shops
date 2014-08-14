@@ -17,15 +17,7 @@ common_email_data = {
 }
 
 class BaseEmailResource(BaseHtmlResource):
-    def gen_resp(self, resp, data):
-        if isinstance(data, dict):
-            self._add_common_data(data)
-            resp = gen_html_resp(self.template, resp, data,
-                                 lang='en', layout=None)
-        else:
-            resp.body = data
-            resp.content_type = "text/html"
-        return resp
+    base_template = None
 
     def _add_common_data(self, resp_dict):
         resp_dict.update(common_email_data)

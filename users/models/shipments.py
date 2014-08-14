@@ -507,12 +507,7 @@ class ShipmentsHandler(object):
 
         shipping_fee = None
         free_shipping_fee = None
-        if cal_method == SHIPPING_CALCULATION_METHODS.CUSTOM_SHIPPING_RATE:
-            weight = self.totalWeight(group_sales)
-            supported_services, shipping_fee = \
-                    self.customShippingServiceAndFee(
-                            group_sales[0], service_carrier_map, weight)
-        elif len(group_services) == 1:
+        if len(group_services) == 1:
             weight = self.totalWeight(group_sales)
             unit = DEFAULT_WEIGHT_UNIT
             dest = self.getDestAddr()
@@ -524,6 +519,11 @@ class ShipmentsHandler(object):
                 unit,
                 dest,
                 id_orig_address)
+        elif cal_method == SHIPPING_CALCULATION_METHODS.CUSTOM_SHIPPING_RATE:
+            weight = self.totalWeight(group_sales)
+            supported_services, shipping_fee = \
+                    self.customShippingServiceAndFee(
+                            group_sales[0], service_carrier_map, weight)
 
         if shipping_fee and free_sales_group:
             all_group_sales = []
@@ -572,12 +572,7 @@ class ShipmentsHandler(object):
         for sale in sales:
             service_carrier_map = sale.shipping_setting.supported_services
             shipping_fee = None
-            if cal_method == SHIPPING_CALCULATION_METHODS.CUSTOM_SHIPPING_RATE:
-                weight = self.oneSaleItemWeight(sale)
-                service_carrier_map, shipping_fee = \
-                        self.customShippingServiceAndFee(
-                                sale, service_carrier_map, weight)
-            elif len(service_carrier_map) == 1:
+            if len(service_carrier_map) == 1:
                 weight = self.oneSaleItemWeight(sale)
                 unit = DEFAULT_WEIGHT_UNIT
                 dest = self.getDestAddr()
@@ -589,6 +584,11 @@ class ShipmentsHandler(object):
                     unit,
                     dest,
                     id_orig_address)
+            elif cal_method == SHIPPING_CALCULATION_METHODS.CUSTOM_SHIPPING_RATE:
+                weight = self.oneSaleItemWeight(sale)
+                service_carrier_map, shipping_fee = \
+                        self.customShippingServiceAndFee(
+                                sale, service_carrier_map, weight)
 
             handling_fee = self.getMaxHandlingFee([sale])
             id_order_item = sale.order_props['id_order_item']
@@ -649,6 +649,7 @@ class ShipmentsHandler(object):
         if len(shipping_fee.carriers[0].services) == 1:
             return {shipping_fee.carriers[0].services[0].id: "0"}, \
                    float(shipping_fee.carriers[0].services[0].fee.value)
+        return service_carrier_map, None
 
     def oneSaleItemWeight(self, sale):
         sale_weight = float(sale.shipping_setting.weight.value)

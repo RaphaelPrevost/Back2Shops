@@ -39,3 +39,6 @@
 
 == version 0.0.12 ==
 1. Add CustomEnum.toReverseDict()
+
+== version 0.0.13 ==
+1. Add constants EURO_UNION_COUNTRIES

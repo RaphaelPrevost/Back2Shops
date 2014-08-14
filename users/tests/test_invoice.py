@@ -26,7 +26,7 @@ class TestInvoice(BaseOrderTestCase):
             'id_weight_type': 1000003}
 
         # conf data in backtoshops
-        type_attr_price = 3
+        type_attr_price = 3 * (1 + 0.02) # + premium
         weight = 2
         shipping_fee = 2.0 * weight * qty
         handling_fee = 6.0
@@ -67,7 +67,7 @@ class TestInvoice(BaseOrderTestCase):
             'id_weight_type': 1000003}
 
         # conf data in backoffice
-        type_attr_price = 3
+        type_attr_price = 3 * (1 + 0.02) # + premium
         weight = 2
         shipping_fee = 2.0 * weight * qty
         handling_fee = 6.0
@@ -109,7 +109,7 @@ class TestInvoice(BaseOrderTestCase):
             'id_weight_type': 1000003}
 
         # conf data in backoffice
-        type_attr_price = 3
+        type_attr_price = 3 * (1 + 0.02) # + premium
         weight = 2
         shipping_fee = 2.0 * weight * qty
         handling_fee = 6.0
@@ -147,8 +147,8 @@ class TestInvoice(BaseOrderTestCase):
             amount_due = amount_due[0][0]
             self.assertAlmostEqual(float(amount_due),
                              float(exp_amount_due),
-                             msg="amount_due %s is not same with expected: %s"
-                             % (amount_due, exp_amount_due))
+                             msg="order(%s) amount_due %s is not same with expected: %s"
+                             % (id_order, amount_due, exp_amount_due))
 
     def _shipping_conf(self, id_shipment=None):
         id_carrier = 1

@@ -869,7 +869,7 @@ class InvoiceView(BaseCryptoWebService, ListView):
     def brand_seller(self, id_brand):
         brand = Brand.objects.get(pk=id_brand)
         return {'name': brand.name,
-                'img': brand.logo,
+                'img': brand.logo.url if brand.logo else '',
                 'business': brand.business_reg_num,
                 'tax': brand.tax_reg_num,
                 #'personal': ?xxx,
@@ -884,7 +884,7 @@ class InvoiceView(BaseCryptoWebService, ListView):
     def shop_seller(self, id_shop):
         shop = Shop.objects.get(pk=id_shop)
         return {'name': shop.name,
-                'img': shop.image,
+                'img': shop.image.url if shop.image else '',
                 'business': shop.business_reg_num,
                 'tax': shop.tax_reg_num,
                 #'personal': ?xxx,

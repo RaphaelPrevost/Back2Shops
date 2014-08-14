@@ -124,6 +124,7 @@ class BaseResource(object):
 
 class BaseHtmlResource(BaseResource):
     template = ""
+    base_template = settings.DEFAULT_TEMPLATE
     tabs = [
         {'name': 'E-shop', 'url': '/e-shop'},
         {'name': 'Lookbook', 'url': '/lookbook'},
@@ -139,7 +140,8 @@ class BaseHtmlResource(BaseResource):
     def gen_resp(self, resp, data):
         if isinstance(data, dict):
             self._add_common_data(data)
-            resp = gen_html_resp(self.template, resp, data, lang='en')
+            resp = gen_html_resp(self.template, resp, data,
+                                 lang='en', layout=self.base_template)
         else:
             resp.body = data
             resp.content_type = "text/html"

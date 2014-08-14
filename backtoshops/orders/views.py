@@ -27,6 +27,7 @@ from common.utils import get_valid_sort_fields
 from common.utils import Sorter
 from common.orders import get_order_detail
 from common.orders import get_order_packing_list
+from common.orders import remote_delete_order
 from common.orders import remote_invoices
 from common.orders import remote_send_invoices
 from common.orders import get_order_list
@@ -43,6 +44,7 @@ from shops.models import Shop
 from B2SProtocol.constants import CUSTOM_SHIPPING_CARRIER
 from B2SProtocol.constants import FREE_SHIPPING_CARRIER
 from B2SProtocol.constants import ORDER_STATUS
+from B2SProtocol.constants import RESP_RESULT
 from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
 
@@ -960,3 +962,16 @@ class SendInvoices(OperatorUpperLoginRequiredMixin, View):
 
         resp = remote_send_invoices(id_order, id_brand, shops_id)
         return HttpResponse(resp, mimetype="application/json")
+
+class OrderDelete(OperatorUpperLoginRequiredMixin, View):
+    template_name = ""
+
+    def post(self, request, *args, **kwargs):
+        id_order = kwargs.get('order_id')
+        remote_resp = ujson.loads(remote_delete_order(id_order))
+        resp = {}
+        if remote_resp.get('res') != RESP_RESULT.F:
+            resp['success'] = 'true'
+        return HttpResponse(ujson.dumps(resp),
+                            mimetype="application/json")
+
