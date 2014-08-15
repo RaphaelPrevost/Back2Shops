@@ -956,7 +956,7 @@ class SendInvoices(OperatorUpperLoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         req_u_profile = request.user.get_profile()
-        id_order = request.POST.get('id_order');
+        id_order = request.POST.get('id_order')
         id_brand = req_u_profile.work_for.id
         shops_id = _get_req_user_shops(request.user)
 
@@ -967,11 +967,24 @@ class OrderDelete(OperatorUpperLoginRequiredMixin, View):
     template_name = ""
 
     def post(self, request, *args, **kwargs):
+        if request.user.is_superuser:
+            return HttpResponse(ujson.dumps({}),
+                                mimetype="application/json")
+
+        req_u_profile = request.user.get_profile()
+        if req_u_profile.role == USERS_ROLE.OPERATOR:
+            return HttpResponse(ujson.dumps({}),
+                                mimetype="application/json")
+
         id_order = kwargs.get('order_id')
-        remote_resp = ujson.loads(remote_delete_order(id_order))
-        resp = {}
+        id_brand = req_u_profile.work_for.id
+        shops_id = _get_req_user_shops(request.user)
+
+        resp_dict = {}
+        remote_resp = ujson.loads(
+                remote_delete_order(id_order, id_brand, shops_id))
         if remote_resp.get('res') != RESP_RESULT.F:
-            resp['success'] = 'true'
-        return HttpResponse(ujson.dumps(resp),
+            resp_dict['success'] = 'true'
+        return HttpResponse(ujson.dumps(resp_dict),
                             mimetype="application/json")
 

@@ -238,13 +238,22 @@ def send_delete_shipment(id_shipment):
                       {'id_shipment': id_shipment}, e, exc_info=True)
         raise UsersServerError
 
-def remote_delete_order(id_order):
+def remote_delete_order(id_order, id_brand, id_shops):
     try:
-        url = '%s?id=%s' % (settings.ORDER_DELETE, id_order)
+        if isinstance(id_shops, list):
+            id_shops = ujson.dumps(id_shops)
+
+        data = {'order': id_order,
+                'brand': id_brand,
+                'shops': id_shops}
+        data = gen_encrypt_json_context(ujson.dumps(data),
+                    settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+                    settings.PRIVATE_KEY_PATH)
         rst = get_from_remote(
-            url,
+            settings.ORDER_DELETE,
             settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
             settings.PRIVATE_KEY_PATH,
+            data=data,
             headers={'Content-Type': 'application/json'})
         return rst
     except Exception, e:
