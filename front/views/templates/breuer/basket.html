@@ -19,6 +19,7 @@
             </tr>
         </thead>
         <tbody>
+            <div class="errwrapper"></div>
             <?py for item in basket: ?>
             <tr data="${item['item']}">
                 <td class="left">
@@ -36,7 +37,7 @@
                     </div>
                 </td>
                 <td class="price"><span id="price">${format_amount(item['price'])}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span></td>
-                <td><input id="quantity" name="nb_product" type="text" maxlength="9" value="${item['quantity']}" /></td>
+                <td><input id="quantity" name="nb_product" type="text" maxlength="4" value="${item['quantity']}" /></td>
                 <td class="price"><span id="amount"></span><span>${cur_symbol(item['product']['currency'])}</span></td>
                 <td><a href="javascript:void(0)" id="supprimer" title="Supprimer">x</a></td>
             </tr>
@@ -62,10 +63,28 @@
 <script type="text/javascript">
 function next() {
     if ($('tr #amount').length == 0) return;
-    location = "${order_addr_url_format}";
+
+    $.get('/ajax_basket',
+        function(data) {
+            if (data['res'] == 'FAILURE') {
+                $(".errwrapper").text(data['err']);
+            } else {
+                if (data['set_cookies_js']) {
+                    eval(data['set_cookies_js']);
+                }
+                location = "${order_addr_url_format}";
+            }
+        }
+    );
 }
 function calc_row(tr) {
-    tr.find("#amount").text(formatAmount(tr.find("#price").text() * tr.find("#quantity").val()));
+    var count = tr.find("#quantity").val();
+    if (count > 0) {
+    } else {
+        count = 1;
+        tr.find("#quantity").val(count);
+    }
+    tr.find("#amount").text(formatAmount(tr.find("#price").text() * count));
 }
 function calc_sum() {
     var currency = "";

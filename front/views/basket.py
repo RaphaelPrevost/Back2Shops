@@ -32,6 +32,17 @@ class BasketResource(BaseHtmlResource):
 
 
 class BasketAPIResource(BaseJsonResource):
+
+    def _on_get(self, req, resp, **kwargs):
+        basket_key, basket_data = get_basket(req, resp)
+        for quantity in basket_data.itervalues():
+            try:
+                if int(quantity) <= 0:
+                    raise ValidationError('ERR_QUANTITY')
+            except:
+                raise ValidationError('ERR_QUANTITY')
+        return {}
+
     def _on_post(self, req, resp, **kwargs):
         basket_key, basket_data = get_basket(req, resp)
 
@@ -39,6 +50,7 @@ class BasketAPIResource(BaseJsonResource):
         quantity = req.get_param('quantity') or '1'
         if not isinstance(quantity, str) or not quantity.isdigit():
             raise ValidationError('ERR_QUANTITY')
+        quantity = int(quantity)
 
         chosen_item = req.get_param('sale')
         if not chosen_item:
@@ -59,12 +71,12 @@ class BasketAPIResource(BaseJsonResource):
 
         if cmd == 'add':
             if chosen_item in basket_data:
-                basket_data[chosen_item] += int(quantity)
+                basket_data[chosen_item] += quantity
             else:
-                basket_data[chosen_item] = int(quantity)
+                basket_data[chosen_item] = quantity
 
         elif cmd == 'update':
-            basket_data[chosen_item] = int(quantity)
+            basket_data[chosen_item] = quantity
 
         elif cmd == 'del':
             if chosen_item in basket_data:

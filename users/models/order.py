@@ -135,10 +135,34 @@ def create_order(conn, users_id, telephone_id, order_items,
 
     return order_id
 
-def delete_order(conn, order_id):
-    update(conn, 'orders',
-           values={'valid': False},
-           where={'id': order_id})
+def delete_order(conn, order_id, brand_id, shops_id):
+    fields, columns = zip(*(ORDER_ITEM_FIELDS_COLUMNS))
+    query_str = """
+        SELECT %s
+          FROM orders
+     LEFT JOIN order_details
+            ON order_details.id_order = orders.id
+     LEFT JOIN order_items
+            ON order_items.id = order_details.id_item
+         WHERE orders.id = %%s
+      ORDER BY confirmation_time, order_items.id
+    """ % (', '.join(columns))
+    results = query(conn, query_str, params=[order_id])
+
+    allowed = True
+    for result in results:
+        order_item = dict(zip(fields, result))
+        if not _valid_sale_brand(order_item['sale_id'], brand_id) \
+                or order_item['shop_id'] not in shops_id:
+            allowed = False
+            break
+
+    if allowed:
+        update(conn, 'orders',
+               values={'valid': False},
+               where={'id': order_id})
+    return allowed
+
 
 def modify_order(conn, users_id, order_id, telephone_id, order_items,
                  shipaddr, billaddr):

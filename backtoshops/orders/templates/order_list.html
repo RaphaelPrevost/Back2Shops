@@ -82,7 +82,7 @@
                         {% endthumbnail %}
                     </a>
                     <div class="address_area">
-                        <em>{{ order.shipping_dest.address|default:"No shipment address for order? " }} </em>
+                        <em>{{ order.shipping_dest.address|default:"No shipment address for order? " }}  {{ order.shipping_dest.address2 }}</em>
                         <span class="phone_city">
                             <span class="phone_num">{{ order.contact_phone.phone_num|default:"No shipment phone? " }} </span>
                             <span class="city">({{ order.shipping_dest.city }})</span>

@@ -354,12 +354,21 @@ class OrderDetail4FUserResource(BaseOrderResource):
         return order_detail
 
 
-class OrderDeleteResource(BaseOrderResource):
-    def _on_get(self, req, resp, conn, **kwargs):
-        order_id = req.get_param('id')
-        if order_id:
-            delete_order(conn, order_id)
-        return {'res': RESP_RESULT.S}
+class OrderDeleteResource(BaseJsonResource):
+    encrypt = True
+
+    def _on_post(self, req, resp, conn, **kwargs):
+        data = decrypt_json_resp(req.stream,
+                                 settings.SERVER_APIKEY_URI_MAP[SERVICES.ADM],
+                                 settings.PRIVATE_KEY_PATH)
+        data = ujson.loads(data)
+        order_id = data.get('order')
+        brand_id = data.get('brand')
+        shops_id = data.get('shops')
+        shops_id = [int(id_shop) for id_shop in ujson.loads(shops_id)]
+
+        success = delete_order(conn, order_id, brand_id, shops_id)
+        return {'res': RESP_RESULT.S if success else RESP_RESULT.F}
 
 
 class OrderStatusResource(BaseOrderResource):
