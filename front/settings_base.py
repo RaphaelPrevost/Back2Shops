@@ -6,7 +6,7 @@ PRODUCTION = False
 RUNNING_TEST = False
 
 SERVER_PORT = 9500
-FRONT_ROOT_URI = 'http://%s:%s' % (node(), SERVER_PORT)
+FRONT_ROOT_URI = 'http://%s:%s' % (node().split('.')[0], SERVER_PORT)
 
 CENTRAL_REDIS = {
     'HOST': 'localhost',

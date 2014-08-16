@@ -7,21 +7,26 @@ from email.Utils import formatdate
 
 from common.m17n import trans_func
 from common.utils import gen_html_body
+from common.utils import run_command
 
 def send_email(to, subject, content):
     if not settings.SEND_EMAILS:
         return
 
     sender = settings.SERVICE_EMAIL
+    message = _get_message(sender, to, subject, content)
     try:
         s = smtplib.SMTP()
         s.connect(settings.MAIL_HOST)
         s.starttls()
         s.login(settings.MAIL_FROM_USER, settings.MAIL_FROM_PASS)
-        s.sendmail(sender, to, _get_message(sender, to, subject, content))
+        s.sendmail(sender, to, message)
         s.quit()
         return True
     except Exception, e:
+        status, _ = run_command('sendmail %s' % to, input=message)
+        if status == 0: return True
+
         logging.error("Failed to send email to: %s "
                       "with content: %s "
                       "for error: %s",

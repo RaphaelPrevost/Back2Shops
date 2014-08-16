@@ -16,7 +16,7 @@
           libxml2-dev libxslt1-dev
 
 4. front server:
-   sudo apt-get install python2.7-dev python-pip git
+   sudo apt-get install python2.7-dev python-pip git sendmail sendmail-cf
 
 5. assets server:
    sudo apt-get install python2.7-dev python-pip git

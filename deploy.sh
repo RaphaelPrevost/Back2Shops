@@ -40,7 +40,7 @@ FIN_DEPS=(python2.7-dev libpq-dev python-pip git python-lxml \
           libcairo2 libpango1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info \
           libxml2-dev libxslt1-dev)
 AST_DEPS=(python2.7-dev python-pip git)
-FRT_DEPS=(python2.7-dev python-pip git)
+FRT_DEPS=(python2.7-dev python-pip git sendmail sendmail-cf)
 DPKG=$(dpkg -l)
 
 INITDB=${INITDB:-""}

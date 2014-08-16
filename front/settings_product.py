@@ -19,3 +19,5 @@ PB_CANCEL = "%s/paybox/%%(id_trans)s/cancel" % FRONT_ROOT_URI
 PB_WAITING = "%s/paybox/%%(id_trans)s/waiting" % FRONT_ROOT_URI
 
 BRAND_ID = "1"
+
+SEND_EMAILS = True
