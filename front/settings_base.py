@@ -19,7 +19,7 @@ TEMPLATE_PATH = ['views/templates/breuer', 'views/templates/dragondollar']
 #TEMPLATE_PATH = ['views/templates/dragondollar']
 DEFAULT_TEMPLATE = 'default.html'
 
-DEFAULT_LANG = 'en'
+DEFAULT_LANG = 'fr'
 
 STATIC_FILES_PATH = 'static'
 

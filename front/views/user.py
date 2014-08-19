@@ -4,6 +4,7 @@ import urllib
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
 from common.email_utils import send_new_user_email
+from common.m17n import trans_func
 from common.utils import allowed_countries
 from common.utils import get_order_table_info
 from common.utils import get_url_format
@@ -85,12 +86,23 @@ class UserResource(BaseHtmlResource):
         else:
             user_profile = remote_resp
             first_time = not user_profile['general']['values'][0].get('first_name')
+
+            # translate name
+            for fs_name, fs in user_profile.iteritems():
+                if 'name' in fs:
+                    fs['name'] = trans_func(fs['name'])
+                if 'fields' in fs:
+                    for f_name, f in fs['fields']:
+                        f['name'] = trans_func(f['name'])
+
+            # filter country list
             white_countries = allowed_countries()
             if white_countries:
                 for f_name, f in user_profile['phone']['fields']:
                     if f_name == 'country_num':
                         f['accept'] = filter(lambda x:x[1]
                                              in white_countries, f['accept'])
+
         return {'user_profile': user_profile,
                 'err': err,
                 'succ_redirect_to': '',
@@ -136,10 +148,14 @@ class UserAPIResource(BaseJsonResource):
         resp_dict = {}
         resp_dict.update(remote_resp)
 
-        if req.get_param('first_time') == 'True':
-            email_data = {'name': req.get_param('first_name')}
-            email_data.update(common_email_data)
-            gevent.spawn(send_new_user_email, req.get_param('email'), email_data)
+        if resp_dict.get('res') == RESP_RESULT.F:
+            resp_dict['err'] = trans_func(resp_dict['err'])
+        else:
+            if req.get_param('first_time') == 'True':
+                # send email
+                email_data = {'name': req.get_param('first_name')}
+                email_data.update(common_email_data)
+                gevent.spawn(send_new_user_email, req.get_param('email'), email_data)
 
         return resp_dict
 
