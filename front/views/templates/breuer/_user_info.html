@@ -97,7 +97,7 @@ function getTemplate(name, item)
             for (k in item.accept) {
                 tpl += '<label for="' + name + '">' + utf8_decode(item.accept[k][0]) + '</label>' +
                        '<input type="radio" id="' + name + '" ' +
-                       'name="' + name + '" value="' + utf8_decode(item.accept[k][1]) + '" ';
+                       'name="' + name + '" value="' + item.accept[k][1] + '" ';
                 if (item.value == item.accept[k][1])
                     tpl += ' checked="checked"';
                 tpl += '/>';
