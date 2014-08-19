@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import urllib
 from B2SProtocol.constants import USER_BASKET_COOKIE_NAME
 from B2SProtocol.constants import CustomEnum
@@ -41,7 +40,3 @@ class Redirection:
 
 CURR_USER_BASKET_COOKIE_NAME = "CURR_%s" % USER_BASKET_COOKIE_NAME
 
-ORDER_STATUS_MSG = {
-    ORDER_STATUS.AWAITING_SHIPPING: 'Envoi prévu avant le : %s',
-    ORDER_STATUS.COMPLETED: 'Expédiée le : %s',
-}

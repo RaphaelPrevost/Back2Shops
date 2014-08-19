@@ -15,6 +15,7 @@ from B2SUtils.errors import ValidationError
 from common.constants import FRT_ROUTE_ROLE
 from common.constants import Redirection
 from common.data_access import data_access
+from common.m17n import trans_func
 from common.utils import cur_symbol
 from common.utils import format_amount
 from common.utils import gen_html_resp
@@ -138,14 +139,19 @@ class BaseHtmlResource(BaseResource):
         self.desc = kwargs.get('desc') or ''
 
     def gen_resp(self, resp, data):
-        if isinstance(data, dict):
-            self._add_common_data(data)
-            resp = gen_html_resp(self.template, resp, data,
-                                 lang='en', layout=self.base_template)
-        else:
-            resp.body = data
-            resp.content_type = "text/html"
-        return resp
+        try:
+            if isinstance(data, dict):
+                self._add_common_data(data)
+                resp = gen_html_resp(self.template, resp, data,
+                                     lang='en', layout=self.base_template)
+            else:
+                resp.body = data
+                resp.content_type = "text/html"
+            return resp
+        except Exception, e:
+            logging.error('Got error when rendering template(%s): %s',
+                          self.template, e, exc_info=True)
+            self.redirect('/error')
 
     def handle_redirection(self, redirection):
         self.redirect(redirection.redirect_to)
@@ -183,6 +189,7 @@ class BaseHtmlResource(BaseResource):
 
         if 'err' not in resp_dict:
             resp_dict['err'] = ''
+        resp_dict['err'] = trans_func(resp_dict['err'])
         resp_dict['title'] = self.title
         resp_dict['desc'] = self.desc
 

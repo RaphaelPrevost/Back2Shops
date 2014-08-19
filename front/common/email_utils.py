@@ -51,7 +51,8 @@ def _get_message(_from, _to, _sub, _content):
     return message.as_string()
 
 def send_new_user_email(to_addr, data):
-    subject = trans_func('NEW_USER_EMAIL_SUBJECT')
+    subject = trans_func('NEW_USER_EMAIL_SUBJECT') \
+              % {'brand': settings.BRAND_NAME}
     content = gen_html_body('new_user_email.html', data, layout=None)
     send_email(to_addr, subject, content)
 

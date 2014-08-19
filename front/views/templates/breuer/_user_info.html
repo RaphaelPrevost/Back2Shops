@@ -26,9 +26,9 @@ function getTemplate(name, item)
         var tpl = '';
 
         tpl += '<p>' +
-                   '<label for="' + name + '">' + _trans(item.name) + '</label>' +
+                   '<label for="' + name + '">' + utf8_decode(item.name) + '</label>' +
                    '<input type="text" id="' + name + '" ' +
-                   'name="' + name + '" value="' + item.value +'" />' +
+                   'name="' + name + '" value="' + utf8_decode(item.value) +'" />' +
                '</p>';
 
         if (typeof item.accept !== 'undefined' && item.accept) {
@@ -37,7 +37,7 @@ function getTemplate(name, item)
                     var reg = new RegExp(item.accept);
                     if (! reg.test(this.value)) {
                         /* XXX allow customisation of the input error handling */
-                        $("#formContainer .errwrapper").text('Bad value for ' + _trans(item.name)+ ': ' + this.value);
+                        $("#formContainer .errwrapper").text('Bad value for ' + utf8_decode(item.name)+ ': ' + this.value);
                     } else {
                         $("#formContainer .errwrapper").text('');
                     }
@@ -51,7 +51,7 @@ function getTemplate(name, item)
         var tpl = '';
 
         if (name == 'birthday') {
-            tpl = '<label for="' + name + '">' + _trans(item.name) + '</label>';
+            tpl = '<label for="' + name + '">' + utf8_decode(item.name) + '</label>';
             var min_values = item.accept[0].split('-');
             var max_values = item.accept[1].split('-');
             var cur_value = item.value.split('-');
@@ -70,14 +70,14 @@ function getTemplate(name, item)
             tpl = '<p>' + tpl + '</p>';
 
         } else if (typeof item.accept !== 'undefined' && item.accept) {
-            tpl = '<label for="' + name + '">' + _trans(item.name) + '</label>' +
+            tpl = '<label for="' + name + '">' + utf8_decode(item.name) + '</label>' +
                   '<select id="' + name + '" name="' + name + '">';
             for (k in item.accept) {
                 tpl +=
                 '<option value="' + item.accept[k][1] + '"';
                 if (item.value == item.accept[k][1])
                     tpl += ' selected="selected"';
-                tpl += '>' + item.accept[k][0] + '</option>';
+                tpl += '>' + utf8_decode(item.accept[k][0]) + '</option>';
             }
             tpl += '</select>';
 
@@ -95,9 +95,9 @@ function getTemplate(name, item)
 
         if (typeof item.accept !== 'undefined' && item.accept) {
             for (k in item.accept) {
-                tpl += '<label for="' + name + '">' + _trans(item.accept[k][0]) + '</label>' +
+                tpl += '<label for="' + name + '">' + utf8_decode(item.accept[k][0]) + '</label>' +
                        '<input type="radio" id="' + name + '" ' +
-                       'name="' + name + '" value="' + item.accept[k][1] + '" ';
+                       'name="' + name + '" value="' + utf8_decode(item.accept[k][1]) + '" ';
                 if (item.value == item.accept[k][1])
                     tpl += ' checked="checked"';
                 tpl += '/>';
@@ -114,7 +114,7 @@ function getTemplate(name, item)
             tpl += '<fieldset>';
 
             if (typeof item.name !== 'undefined')
-                tpl += '<legend>' + _trans(item.name) + '</legend>';
+                tpl += '<legend>' + utf8_decode(item.name) + '</legend>';
 
             for (j in item.fields) {
                 var f_name = item.fields[j][0];

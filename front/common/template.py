@@ -14,6 +14,7 @@ def get_engine(force=False, **kwargs):
     key = urllib.urlencode(kwargs)
     if temp_engines.get(key) and not force:
         return temp_engines[key]
+
     engine = tenjin.Engine(preprocess=True,
                            path=settings.TEMPLATE_PATH,
                            **kwargs)

@@ -27,10 +27,9 @@ from B2SUtils.common import get_cookie_value
 from B2SUtils.common import set_cookie
 from common.constants import ADDR_TYPE
 from common.constants import FRT_ROUTE_ROLE
-from common.constants import ORDER_STATUS_MSG
 from common.constants import CURR_USER_BASKET_COOKIE_NAME
-from common.redis_utils import get_redis_cli
 from common.m17n import trans_func
+from common.redis_utils import get_redis_cli
 from common.template import render_template
 
 
@@ -440,14 +439,14 @@ def get_order_table_info(order_id, order_resp, all_sales=None):
 
 def get_shipping_msg(order_status, order_created,
                      shipping_date, shipping_period):
-    shipping_msg = ORDER_STATUS_MSG.get(order_status) or ''
-    if shipping_msg:
-        if order_status == ORDER_STATUS.AWAITING_SHIPPING:
-            expected_shipping_date = format_date(order_created,
-                                shipping_period, '%d/%m/%Y')
-            shipping_msg = shipping_msg % expected_shipping_date
-        elif order_status == ORDER_STATUS.COMPLETED:
-            shipping_msg = shipping_msg % format_epoch_time(shipping_date)
+    if order_status == ORDER_STATUS.AWAITING_SHIPPING:
+        expected_shipping_date = format_date(order_created,
+                            shipping_period, '%d/%m/%Y')
+        shipping_msg = trans_func('OFF_SCHEDULE_BY') % {'date': expected_shipping_date}
+    elif order_status == ORDER_STATUS.COMPLETED:
+        shipping_msg = trans_func('SHIPPED_AT') % {'date': format_epoch_time(shipping_date)}
+    else:
+        shipping_msg = ''
     return shipping_msg
 
 def get_url_format(role):

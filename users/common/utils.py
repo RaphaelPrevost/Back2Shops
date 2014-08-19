@@ -24,7 +24,7 @@ from B2SUtils import db_utils
 from B2SProtocol.constants import USER_AUTH_COOKIE_NAME
 
 phone_num_reexp = r'^[0-9]+$'
-postal_code_reexp = r'^\w+$'
+postal_code_reexp = r'^.+$'
 addr_reexp = r'^.+$'
 city_reexp = r'^.+$'
 # yyyy-mm-dd
