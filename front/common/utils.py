@@ -87,6 +87,16 @@ def valid_int_param(req, param_name):
     except:
         return False
 
+def valid_int(value, non_zero=True):
+    try:
+        if non_zero:
+            assert int(value) > 0
+        else:
+            assert int(value) >= 0
+        return True
+    except:
+        return False
+
 def cur_symbol(cur_code):
     return {
         'EUR': '€',

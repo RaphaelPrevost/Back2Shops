@@ -14,9 +14,11 @@ CENTRAL_REDIS = {
     'TEST_PORT': 6279
 }
 
+BRAND_ID = "1000001"
+BRAND_NAME = "BREUER"
 
-TEMPLATE_PATH = ['views/templates/breuer', 'views/templates/dragondollar']
-#TEMPLATE_PATH = ['views/templates/dragondollar']
+TEMPLATE_PATH = ['views/templates/breuer']
+#TEMPLATE_PATH = ['views/templates/dragondollar', 'views/templates/breuer']
 DEFAULT_TEMPLATE = 'default.html'
 
 DEFAULT_LANG = 'fr'
@@ -43,9 +45,6 @@ PB_ERROR = "http://localhost:9500/paybox/%(id_trans)s/error"
 PB_CANCEL = "http://localhost:9500/paybox/%(id_trans)s/cancel"
 PB_WAITING = "http://localhost:9500/paybox/%(id_trans)s/waiting"
 
-BRAND_ID = "1000001"
-BRAND_NAME = "BREUER"
-
 NUM_OF_RANDOM_SALES = 4
 
 SERVICE_EMAIL = 'serviceclients@breuer.fr'
@@ -55,3 +54,6 @@ MAIL_HOST = 'smtp.gmail.com:587'
 MAIL_FROM_USER = 'xxx'
 MAIL_FROM_PASS = 'xxx'
 MAIL_POSTFIX = 'gmail.com'
+
+ORDERS_COUNT_IN_MY_ACCOUNT = 5
+ORDERS_COUNT_PER_PAGE = 10

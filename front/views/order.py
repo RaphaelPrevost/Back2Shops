@@ -23,6 +23,7 @@ from common.utils import get_shipping_info
 from common.utils import get_url_format
 from common.utils import get_user_contact_info
 from common.utils import get_valid_attr
+from common.utils import valid_int
 from common.utils import valid_int_param
 from views.base import BaseHtmlResource
 from views.base import BaseJsonResource
@@ -57,8 +58,15 @@ class OrderListResource(BaseHtmlResource):
     login_required = {'get': True, 'post': False}
 
     def _on_get(self, req, resp, **kwargs):
+        page = req.get_param('page') or 0
+        if not valid_int(page, False):
+            page = 0
+
+        limit = settings.ORDERS_COUNT_PER_PAGE
         orders = data_access(REMOTE_API_NAME.GET_ORDERS, req, resp,
-                             brand_id=settings.BRAND_ID)
+                             brand_id=settings.BRAND_ID,
+                             limit=limit,
+                             page=page)
         all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
         order_list = []
         for order in orders:
@@ -66,9 +74,20 @@ class OrderListResource(BaseHtmlResource):
                 order_info = get_order_table_info(order_id, order_data)
                 if order_info:
                     order_list.append(order_info)
-        order_list.reverse()
+
+        prev_page_url = next_page_url = ""
+        if int(page) > 0:
+            prev_page_url = "%s?page=%s" % (
+                get_url_format(FRT_ROUTE_ROLE.ORDER_LIST), int(page) - 1)
+        if len(order_list) > limit:
+            next_page_url = "%s?page=%s" % (
+                get_url_format(FRT_ROUTE_ROLE.ORDER_LIST), int(page) + 1)
+
         data = {'user_name': order_list[0]['user_name'] if order_list else '',
-                'order_list': order_list}
+                'order_list': order_list[:limit],
+                'prev_page_url': prev_page_url,
+                'next_page_url': next_page_url,
+                }
         return data
 
 

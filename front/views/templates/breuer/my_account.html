@@ -7,6 +7,9 @@
         <!--COLONNE-LEFT-->
         <div class="left">
             <?py include('_order_list.html') ?>
+            <?py if len(order_list) > 0: ?>
+            <a class="link middle" href="${order_list_url_format}">See All Orders</a>
+            <?py #endif ?>
         </div>
         <!--//COLONNE-LEFT-->
         

@@ -1,9 +1,20 @@
 <div id="panier" role="main">
     <div class="errwrapper"></div>
     <strong id="titlepanier">Votre Compte Breuer</strong>
+    <?py if user_name: ?>
     <h1 id="titleH1">${user_name}, voici la liste de vos commandes :</h1>
+    <?py #endif ?>
 
     <div id="compte">
         <?py include('_order_list.html') ?>
+    </div>
+
+    <div id="btnline">
+    <?py if prev_page_url: ?>
+        <a class="link left" href="${prev_page_url}">Précédente</a>
+    <?py #endif ?>
+    <?py if next_page_url: ?>
+        <a class="link right" href="${next_page_url}">Suivante</a>
+    <?py #endif ?>
     </div>
 </div>

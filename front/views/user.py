@@ -177,19 +177,20 @@ class MyAccountResource(BaseHtmlResource):
                     general_user_values.get('last_name') or '',
                     )
 
+        limit = settings.ORDERS_COUNT_IN_MY_ACCOUNT
         orders = data_access(REMOTE_API_NAME.GET_ORDERS, req, resp,
-                             brand_id=settings.BRAND_ID)
+                             brand_id=settings.BRAND_ID,
+                             limit=limit)
         order_list = []
         for order in orders:
             for order_id, order_data in order.iteritems():
                 order_info = get_order_table_info(order_id, order_data)
                 if order_info:
                     order_list.append(order_info)
-        order_list.reverse()
 
         data = {'user_name': user_name,
                 'user_info': general_user_values,
-                'order_list': order_list}
+                'order_list': order_list[:limit]}
         data.update(get_user_contact_info(user_info))
         return data
 
