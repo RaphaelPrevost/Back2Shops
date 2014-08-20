@@ -60,6 +60,7 @@ MESSAGE_CATALOG = {
         'INVALID_CITY': 'Invalid city.',
         'INVALID_POSTAL_CODE': 'Invalid postal code.',
         'FAILED_PLACE_ORDER': 'Failed to place your order.',
+        'ERR_QUANTITY': 'Invalid quantity.',
 
         # user info form
         'Civility': 'Civility',
@@ -77,6 +78,8 @@ MESSAGE_CATALOG = {
         'Billing': 'Billing',
         'Shipping': 'Shipping',
         'Both': 'Both',
+        'Address type': 'Address type',
+        'State or Province': 'State or Province',
         'City': 'City',
         'Postal code': 'Postal code',
         'Country': 'Country',

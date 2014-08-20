@@ -72,6 +72,8 @@ def _create_order_item(conn, sale, id_variant, upc_shop=None,
         'description': sale.desc,
     }
     main_picture = sale.get_main_picture(id_variant)
+    if not main_picture:
+        main_picture = sale.get_main_picture()
     if main_picture:
         item_value['picture'] = main_picture
     if barcode:

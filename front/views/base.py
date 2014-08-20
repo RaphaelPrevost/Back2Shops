@@ -215,4 +215,7 @@ class BaseHtmlResource(BaseResource):
 
 class BaseJsonResource(BaseResource):
     def gen_resp(self, resp, data):
+        if isinstance(data, dict) and 'err' in data:
+            data['err'] = trans_func(data['err'])
         return gen_json_resp(resp, data)
+

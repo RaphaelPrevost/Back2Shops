@@ -14,6 +14,7 @@ common_email_data = {
     'service_email': settings.SERVICE_EMAIL,
     'format_amount': format_amount,
     'cur_symbol': cur_symbol,
+    'set_cookies_js': '',
 }
 
 class BaseEmailResource(BaseHtmlResource):
