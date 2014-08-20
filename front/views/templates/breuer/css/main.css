@@ -681,7 +681,24 @@ a { color: #1f244a; }
     clear: both;
     border-style: none;
 }
-
+a.link {
+	font-size: 13px;
+    text-align: center;
+	text-transform: uppercase;
+    text-decoration: underline;
+}
+a.middle {
+    position: relative;
+    left: 40%;
+}
+a.left {
+    float: left;
+	padding: 0 10px 0 10px; 
+}
+a.right {
+    float: right;
+	padding: 0 10px 0 10px; 
+}
 
 
 /*-------------------------------*/

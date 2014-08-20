@@ -320,7 +320,15 @@ class OrderList4FUserResource(BaseOrderResource):
         if brand_id is None:
             raise ValidationError('INVALID_REQUEST')
 
-        orders = get_orders_list(conn, brand_id, [], self.users_id)
+        limit = req.get_param('limit')
+        page = req.get_param('page') or '0'
+        if not limit or not limit.isdigit() or not page or not page.isdigit():
+            raise ValidationError('INVALID_REQUEST')
+
+        offset = int(page) * int(limit)
+        limit = int(limit) + 1
+        orders = get_orders_list(conn, brand_id, [],
+                                 self.users_id, limit, offset)
         return orders
 
 

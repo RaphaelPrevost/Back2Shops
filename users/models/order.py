@@ -380,7 +380,8 @@ def _update_extra_info_for_order_item(conn, item_id, order_item):
          'invoice_info': _get_invoice_info_for_order_item(conn, item_id),
          })
 
-def get_orders_list(conn, brand_id, shops_id, users_id=None):
+def get_orders_list(conn, brand_id, shops_id,
+                    users_id=None, limit=None, offset=None):
     fields, columns = zip(*(ORDER_FIELDS_COLUMNS +
                             ORDER_SHIPMENT_COLUMNS +
                             ORDER_ITEM_FIELDS_COLUMNS))
@@ -395,6 +396,18 @@ def get_orders_list(conn, brand_id, shops_id, users_id=None):
                  % ', '.join(['%s'] * len(shops_id)))
         params += shops_id
 
+    order_by = "ORDER BY confirmation_time, order_items.id"
+    if users_id:
+        order_by = "ORDER BY confirmation_time desc, orders.id desc"
+
+    limit_offset = ""
+    if limit:
+        limit_offset += " limit %s "
+        params.append(limit)
+    if offset:
+        limit_offset += " offset %s"
+        params.append(offset)
+
     query_str = """
         SELECT %s
           FROM orders
@@ -405,8 +418,9 @@ def get_orders_list(conn, brand_id, shops_id, users_id=None):
      LEFT JOIN order_items
             ON order_items.id = order_details.id_item
             %s
-      ORDER BY confirmation_time, order_items.id
-    """ % (', '.join(columns), filter_where)
+            %s
+            %s
+    """ % (', '.join(columns), filter_where, order_by, limit_offset)
     results = query(conn, query_str, params=params)
 
     orders_dict = {}
