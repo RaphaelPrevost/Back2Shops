@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 from routes.models import HtmlMeta, Route, RouteParam
 
 
@@ -27,7 +28,7 @@ class RouteForm(forms.ModelForm):
     required_css_class = 'required'
     page_type = forms.CharField()
     page_role = forms.CharField()
-    title = forms.CharField()
+    title = forms.CharField(required=False, label=_("HTML Title"))
     url_format = forms.CharField(widget=forms.TextInput(attrs={'autocomplete': 'off'}))
 
     class Meta:

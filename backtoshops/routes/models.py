@@ -13,7 +13,7 @@ class Route(models.Model):
 
     page_type = models.CharField(verbose_name=_("Page Type"), max_length=100)
     page_role = models.CharField(verbose_name=_("Page Role"), max_length=100)
-    title = models.CharField(verbose_name=_("Title"), max_length=100, null=True, blank=True)
+    title = models.CharField(verbose_name=_("HTML Title"), max_length=100, null=True, blank=True)
 
     url_format = models.CharField(verbose_name=_("URL"), max_length=100)
     redirects_to = models.ForeignKey("self", verbose_name=_("Redirect To"), null=True, blank=True)
