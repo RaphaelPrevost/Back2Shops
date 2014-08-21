@@ -4,13 +4,21 @@
 <!--[if IE 9]> <html class="no-js ie9" lang="fr"> <![endif]-->
 <!--[if gt IE 9]> <!--><html class="no-js" lang="fr"> <!--<![endif]-->
 <head>
-        <meta charset="UTF-8">
-        <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
-        <title>Breuer</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <!--[if lt IE 9]>
-        <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
+    <title>${route_args.get('title') or 'Breuer'}</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?py for n, v in route_args.get('meta', {}).iteritems(): ?>
+        <meta name="${n}" content="${v}">
+    <?py #endfor ?>
+    <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <script type="text/javascript">
+        #{set_cookies_js}
+    </script>
 
     <link rel="icon" type="image/png" href="/templates/breuer/img/favicon.png" />
     <link rel="stylesheet" type="text/css" media="screen" href="/css/jquery-ui-1.10.4.css" />
@@ -21,9 +29,6 @@
     <script type="text/javascript" src="/js/jquery-1.10.2.js"></script>
     <script type="text/javascript" src="/js/jquery-ui-1.10.4.js"></script>
     <script type="text/javascript" src="/js/utils.js"></script>
-    <script type="text/javascript">
-        #{set_cookies_js}
-    </script>
 
     <!-- FlexSlider -->
     <script defer type="text/javascript" src="/templates/breuer/js/jquery.flexslider-min.js"></script>

@@ -135,8 +135,7 @@ class BaseHtmlResource(BaseResource):
 
     def __init__(self, **kwargs):
         super(BaseHtmlResource, self).__init__(**kwargs)
-        self.title = kwargs.get('title') or ''
-        self.desc = kwargs.get('desc') or ''
+        self.route_args = kwargs
 
     def gen_resp(self, resp, data):
         try:
@@ -151,16 +150,18 @@ class BaseHtmlResource(BaseResource):
         except Exception, e:
             logging.error('Got error when rendering template(%s): %s',
                           self.template, e, exc_info=True)
-            self.redirect('/error')
+            if self.request.path == '/error':
+                raise
+            else:
+                self.redirect('/error')
 
     def handle_redirection(self, redirection):
         self.redirect(redirection.redirect_to)
 
     def get_single_attribute(self, data, key):
         resp = data.get(key, '')
-        if(isinstance(resp, list)):
+        if isinstance(resp, list):
             resp = resp[0]
-
         return resp
 
     def _add_common_data(self, resp_dict):
@@ -190,8 +191,7 @@ class BaseHtmlResource(BaseResource):
         if 'err' not in resp_dict:
             resp_dict['err'] = ''
         resp_dict['err'] = trans_func(resp_dict['err'])
-        resp_dict['title'] = self.title
-        resp_dict['desc'] = self.desc
+        resp_dict['route_args'] = self.route_args
 
         resp_dict['as_list'] = as_list
         resp_dict['get_single_attribute'] = self.get_single_attribute

@@ -53,6 +53,7 @@ MESSAGE_CATALOG = {
         'SERVER_ERR': 'Server error.',
         'ERR_EMAIL': 'Invalid email.',
         'ERR_PASSWORD': 'Invalid password.',
+        'ERR_LOGIN': 'Invalid email or password.',
         'INVALID_FIRST_NAME': 'Invalid first name.',
         'INVALID_LAST_NAME': 'Invalid last name.',
         'INVALID_PHONE_NUMBER': 'Invalid phone number.',
