@@ -177,11 +177,11 @@ class BrandRoutes(object):
 
         if self.routes_dict:
             for route in self.routes_dict.itervalues():
-                kwargs = {}
                 meta_dict = self._get_meta_by_route(route)
-                if meta_dict:
-                    kwargs = {'desc': route.get('content', ''),
-                              'title': meta_dict.get('title', '')}
+                kwargs = {'title': route.get('title', ''),
+                          'content': route.get('content', ''),
+                          'meta': meta_dict,
+                          }
                 url = self._format_url(route)
                 if route.get('redirect') and route['redirect'].get('@to'):
                     redirect_to, param_mapping = self._format_redirect_url(route)

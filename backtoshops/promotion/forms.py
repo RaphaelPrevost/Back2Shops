@@ -54,7 +54,7 @@ class CustomSalesCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
             # 0 is for internet sales.
             shops = ','.join(attr_shops)
             output.append(format_html(
-                '<li product_type={0} shops={1}><label{2}>{3} {4}</label></li>',
+                u'<li product_type={0} shops={1}><label{2}>{3} {4}</label></li>',
                 attr_type, shops, label_for, rendered_cb, option_label))
         output.append('</ul>')
         return mark_safe('\n'.join(output))

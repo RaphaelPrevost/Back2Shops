@@ -27,6 +27,7 @@ class RouteForm(forms.ModelForm):
     required_css_class = 'required'
     page_type = forms.CharField()
     page_role = forms.CharField()
+    title = forms.CharField()
     url_format = forms.CharField(widget=forms.TextInput(attrs={'autocomplete': 'off'}))
 
     class Meta:

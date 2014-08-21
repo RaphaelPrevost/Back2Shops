@@ -58,6 +58,12 @@
                 {{ form.page_role }}
             </div>
 
+            {{ form.title.errors }}
+            <div class="formrow">
+                <label for="{{form.title.auto_id}}" >{% trans form.title.label %}</label>
+                {{ form.title }}
+            </div>
+
             <div>{{ meta_form.management_form }}</div>
             <div class="formrow">
                 <label>{% trans "Html Meta" %}</label>
