@@ -474,14 +474,14 @@ def is_routed_template(role):
     from urls import BrandRoutes
     return BrandRoutes().is_routed(role)
 
-def send_reload_signal():
+def send_reload_signal(pid):
     logging.info("Send reload signal...")
-    os.kill(os.getpid(), signal.SIGHUP)
+    os.kill(pid, signal.SIGHUP)
 
 def generate_random_key():
     return uuid.uuid4()
 
-def watching_invalidate_cache_list():
+def watching_invalidate_cache_list(pid):
     redis_down = False
     redis_cli = get_redis_cli()
     key = INVALIDATE_CACHE_LIST % settings.BRAND_ID
@@ -498,7 +498,7 @@ def watching_invalidate_cache_list():
             gevent.sleep(5)
         else:
             if redis_down or cache and cache[1] == INVALIDATE_CACHE_OBJ.ROUTES:
-                send_reload_signal()
+                send_reload_signal(pid)
             redis_down = False
 
 

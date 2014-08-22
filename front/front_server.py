@@ -4,6 +4,7 @@ monkey.patch_all()
 import B2SFalcon as falcon
 import gevent
 from gevent.pywsgi import WSGIServer
+import os
 import signal
 
 import settings
@@ -29,9 +30,10 @@ def get_app(reload_=False):
     return app
 
 app = get_app()
+pid = os.getpid()
 if not settings.PRODUCTION:
-    gevent.spawn(send_reload_signal)
-gevent.spawn(watching_invalidate_cache_list)
+    gevent.spawn(send_reload_signal, pid)
+gevent.spawn(watching_invalidate_cache_list, pid)
 gevent.spawn(data_access, REMOTE_API_NAME.GET_SALES)
 
 def load_app(server, app=None):
