@@ -29,3 +29,6 @@
 
 == version 0.0.10 ==
 1. add normalize name function for routed url.
+
+== version 0.0.11 ==
+1. add get_thumbnail_url function for local thumbnails.

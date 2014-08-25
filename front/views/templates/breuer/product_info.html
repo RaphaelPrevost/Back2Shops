@@ -24,7 +24,7 @@
             <li value="${variant.get('@id')}">
                 <?py if not variant.get('disabled', False): ?>
                 <a href="javascript:void(0)" src="${variant.get('img') or get_single_attribute(product_info, 'img')}">
-                    <img src="${variant.get('thumb')}" alt="${variant.get('@id')}"/>
+                    <img src="${get_thumbnail(variant.get('thumb'), 30)}" alt="${variant.get('@id')}"/>
                 </a>
                 <?py #endif ?>
              </li>
@@ -81,14 +81,13 @@
         </div>
     </div>
 
-<?py if isinstance(product_info.get('img'),list): ?>
     <ul class="thumbnails">
-        <?py for img in product_info.get('img'): ?>
-        <li><a href="${img}"><img src="${img}" alt="product_info.get('name')" /></a></li>
+        <?py for index, img in enumerate(as_list(product_info.get('img'))): ?>
+        <?py _clazz = 'on' if index == 0 else '' ?>
+        <li class="${_clazz}"><a href="${img}"><img src="${get_thumbnail(img, 80)}" alt="product_info.get('name')" /></a></li>
         </li>
         <?py #endfor ?>
     </ul>
-<?py #endif ?>
 </div>
 <!--//VISUEL PRODUCT-->
 
@@ -198,6 +197,7 @@ $(function(){
     });
 
     $("#visuelProd .thumbnails li a").click(function(){
+        $(this).parent().attr('class', 'on').siblings().attr('class', '');
         var img = $(this).attr('href');
         api.$link.attr("href", img);
         if (api.$zoom) {
@@ -260,7 +260,10 @@ function addToBasket() {
             if (data['res'] == 'FAILURE') {
                 $("#addForm .errwrapper").text(data['err']);
             } else {
-                flyToElement($('#visuelProd img'), $('#panier'));
+                var flyer = $('#visuelProd .thumbnails li.on img');
+                if (flyer.length == 0)
+                    flyer = $('#visuelProd .thumbnails img').first();
+                flyToElement(flyer, $('#panier'));
             }
         }
     );

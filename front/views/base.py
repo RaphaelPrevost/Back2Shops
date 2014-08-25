@@ -20,6 +20,7 @@ from common.utils import cur_symbol
 from common.utils import format_amount
 from common.utils import gen_html_resp
 from common.utils import get_normalized_name
+from common.utils import get_thumbnail
 from common.utils import get_url_format
 
 
@@ -197,6 +198,7 @@ class BaseHtmlResource(BaseResource):
         resp_dict['get_single_attribute'] = self.get_single_attribute
         resp_dict['format_amount'] = format_amount
         resp_dict['cur_symbol'] = cur_symbol
+        resp_dict['get_thumbnail'] = get_thumbnail
         resp_dict.update({
             'prodlist_url_format': get_url_format(FRT_ROUTE_ROLE.PRDT_LIST),
             'auth_url_format': get_url_format(FRT_ROUTE_ROLE.USER_AUTH),

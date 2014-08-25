@@ -5,6 +5,7 @@ from common.utils import cur_symbol
 from common.utils import format_amount
 from common.utils import gen_html_resp
 from common.utils import get_order_table_info
+from common.utils import get_thumbnail
 from common.utils import get_url_format
 from views.base import BaseHtmlResource
 from B2SFrontUtils.constants import REMOTE_API_NAME
@@ -14,6 +15,7 @@ common_email_data = {
     'service_email': settings.SERVICE_EMAIL,
     'format_amount': format_amount,
     'cur_symbol': cur_symbol,
+    'get_thumbnail': get_thumbnail,
     'set_cookies_js': '',
 }
 

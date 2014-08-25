@@ -106,8 +106,11 @@ fixed_urlpatterns = {
 
     # static files
     r'/js/{name}': download.JsItem,
+    r'/js/{subpath}/{name}': download.JsItem,
     r'/css/{name}': download.CssItem,
+    r'/css/{subpath}/{name}': download.CssItem,
     r'/img/{name}': download.ImgItem,
+    r'/img/{subpath}/{name}': download.ImgItem,
 
     # access theme assets
     r'/templates/{theme}/{file_type}/{name}': download.AssetItem,
