@@ -6,8 +6,11 @@ import settings
 class Item(object):
     storage_path = settings.STATIC_FILES_PATH + '/'
 
-    def on_get(self, req, resp, name):
-        path = os.path.join(self.storage_path, name)
+    def on_get(self, req, resp, name, subpath=None):
+        if subpath:
+            path = os.path.join(self.storage_path, subpath, name)
+        else:
+            path = os.path.join(self.storage_path, name)
         try:
             resp.stream = open(path, 'rb')
             resp.stream_len = os.path.getsize(path)

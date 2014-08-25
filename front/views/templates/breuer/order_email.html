@@ -80,7 +80,7 @@
                                                                             <?py currency = cur_symbol(shipping_list['currency']) ?>
                                                                                 <?py item = shipping_list['item'] ?>
                                                                                 <tr>
-                                                                                    <td width="130"><img src="${item['picture']}" width="110" alt="Name Product" style="border-style: solid; border-width: 1px; border-color: #dbdbdb;" /></td>
+                                                                                    <td width="130"><img src="${get_thumbnail(item['picture'], 185)}" width="110" alt="Name Product" style="border-style: solid; border-width: 1px; border-color: #dbdbdb;" /></td>
                                                                                     <td valign="middle">
                                                                                         <a style="color: #c68f01;" href="${item.get('link') or ''}" target="_blank">
                                                                                             <span style="color: #c68f01; font-size:17px; font-family: 'Times New Roman',Georgia,Serif;">${item['product_name']}</span>

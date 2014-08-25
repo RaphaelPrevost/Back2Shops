@@ -13,6 +13,7 @@ import uuid
 import xmltodict
 
 from B2SFrontUtils.constants import REMOTE_API_NAME
+from B2SFrontUtils.utils import get_thumbnail_url
 from B2SFrontUtils.utils import normalize_name
 from B2SProtocol.constants import EURO_UNION_COUNTRIES
 from B2SProtocol.constants import INVALIDATE_CACHE_LIST
@@ -506,3 +507,13 @@ ROUTE_NAME_MAPPING = {
     'type_name': normalize_name,
     'sale_name': normalize_name,
 }
+
+def get_thumbnail(img_url, width, height=None):
+    if not img_url: return ""
+    if not height: height = width
+    size = width, height
+
+    return get_thumbnail_url(img_url, size,
+                      settings.FRONT_ROOT_URI,
+                      settings.STATIC_FILES_PATH)
+

@@ -72,7 +72,7 @@
                     <tr>
                         <td class="left">
                             <div class="prod">
-                                <img width="60px" src="${item['picture']}"/>
+                                <img width="60px" src="${get_thumbnail(item['picture'], 80)}"/>
                                 <h3 class="title">${item['product_name']}</h1>
                                 <strong class="type">
                                 <?py if item.get('type_name'): ?>Taille : ${item['type_name']}<?py #endif ?>

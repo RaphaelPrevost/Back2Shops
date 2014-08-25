@@ -25,7 +25,7 @@
                 <td class="left">
                     <div class="prod">
                         <a href="${item.get('link')}">
-                            <img width="60px" src="${item['variant'].get('img') or get_single_attribute(item['product'], 'img')}"/>
+                            <img width="60px" src="${get_thumbnail(item['variant'].get('img') or get_single_attribute(item['product'], 'img'), 80)}"/>
                             <h3 class="title">${item['product']['name']}</h1>
                             <strong class="type">
                             <?py if item['type']: ?>Taille : ${item['type']['name']}<?py #endif ?>

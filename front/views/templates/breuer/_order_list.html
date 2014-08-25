@@ -22,7 +22,7 @@
                 <?py item = shipping_list['item'] ?>
                 <!--LINE-PROD-->
                 <div class="prod">
-                    <img width="60px" src="${item['picture']}"/>
+                    <img src="${get_thumbnail(item['picture'], 185)}"/>
                     <h3 class="title">${item['product_name']}</h1>
                     <strong class="type">
                     <?py if item.get('type_name'): ?>Taille : ${item['type_name']}<?py #endif ?>

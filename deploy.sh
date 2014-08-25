@@ -503,6 +503,15 @@ function make_front_src_dir() {
         chown -R backtoshops.www-data $CWD/front_src
         chmod -R 2750 $CWD/front_src
     fi
+
+    if [ ! -d $CWD/front_files ]; then
+        mkdir $CWD/front_files
+        chown -R backtoshops.www-data $CWD/front_files
+        chmod -R 2770 $CWD/front_files
+    fi
+    cp -r $CWD/front/static/css $CWD/front_files/
+    cp -r $CWD/front/static/js $CWD/front_files/
+    cp -r $CWD/front/static/img $CWD/front_files/
 }
 
 function setup_front() {
@@ -524,15 +533,15 @@ server {
     listen    $FRT_ADDR;
     server_name    $FRT_DOMAIN;
     location /img/ {
-        alias /home/backtoshops/front_src/static/img/;
+        alias /home/backtoshops/front_files/img/;
         autoindex off;
     }
     location /js/ {
-        alias /home/backtoshops/front_src/static/js/;
+        alias /home/backtoshops/front_files/js/;
         autoindex off;
     }
     location /css/ {
-        alias /home/backtoshops/front_src/static/css/;
+        alias /home/backtoshops/front_files/css/;
         autoindex off;
     }
     location /templates/ {
