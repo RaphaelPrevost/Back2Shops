@@ -118,7 +118,8 @@ class UserResource(BaseJsonResource):
 
         # address
         columns = ('id', 'addr_type', 'address', 'city', 'postal_code',
-                   'country_code', 'province_code', 'address_desp', 'address2')
+                   'country_code', 'province_code', 'address_desp', 'address2',
+                   'full_name')
         addresses = db_utils.select(conn,
                 "users_address", columns=columns,
                 where={'users_id': users_id,
@@ -149,6 +150,7 @@ class UserResource(BaseJsonResource):
                                        'province_code': x[6],
                                        'address_desp': x[7],
                                        'address2': x[8],
+                                       'full_name': x[9],
                             },
                             addresses)
         all_fields_dict['address'] = field_utils.FieldSetType("Address",
@@ -169,11 +171,13 @@ class UserResource(BaseJsonResource):
                         "State or Province", "",
                         "/webservice/1.0/pub/JSONAPI?get=provinces",
                         depends="country_code"),
-             'address_desp': field_utils.TextFieldType("Description", "", "")},
+             'address_desp': field_utils.TextFieldType("Description", "", ""),
+             'full_name': field_utils.TextFieldType("Full name", "", ""),
+             },
             addresses,
             ['addr_type', 'address', 'address2',
              'city', 'postal_code', 'country_code',
-             'province_code', 'address_desp'])
+             'province_code', 'address_desp', 'full_name'])
 
         for f in all_fields_dict:
             all_fields_dict[f] = all_fields_dict[f].toDict()
@@ -265,7 +269,7 @@ class UserResource(BaseJsonResource):
                 addr_dict[p.replace('country_code_', '')] = {}
         columns = ('addr_type', 'address', 'city', 'postal_code',
                    'country_code', 'province_code', 'address_desp',
-                   'address2')
+                   'address2', 'full_name')
         for addr_id in addr_dict:
             addr_dict[addr_id]['users_id'] = users_id
             for c in columns:

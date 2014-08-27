@@ -16,6 +16,7 @@
             <p>
                 <?py if shipping_address: ?>
                 <input type="hidden" name="id_shipaddr" value="${shipping_address['id']}" />
+                ${shipping_address['full_name']}<br />
                 ${shipping_address['address_desp']}<br />
                 ${shipping_address['address']}<br />
                 ${shipping_address.get('address2', '')}<br />
@@ -37,6 +38,7 @@
             <p>
                 <?py if billing_address: ?>
                 <input type="hidden" name="id_billaddr" value="${billing_address['id']}" />
+                <br/>
                 ${billing_address['address_desp']}<br />
                 ${billing_address['address']}<br />
                 ${billing_address.get('address2', '')}<br />
