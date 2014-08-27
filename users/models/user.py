@@ -15,7 +15,7 @@ def get_user_address(conn, user_id):
 
     columns = ['users_address.id', 'addr_type', 'address', 'city',
                'postal_code', 'country_code', 'province_code', 'address_desp',
-               'address2']
+               'address2', 'full_name']
     results = join(conn, ['users, users_address'],
                    where={'users.id': user_id, 'valid': True},
                    columns=columns)
@@ -78,11 +78,12 @@ def get_user_address(conn, user_id, addr_id=None):
                'city': ...,
                'country_code': ...,
                'province_code': ...,
-               'postal_code': ...},
+               'postal_code': ...,
+               'full_name': ...},
                ...]
     """
     columns = ['id', 'address', 'city', 'country_code', 'province_code',
-               'postal_code', 'address2']
+               'postal_code', 'address2', 'full_name']
 
     where = {'users_id': user_id}
     if addr_id:
@@ -117,7 +118,8 @@ def get_user_dest_addr(conn, id_user, id_addr=None):
                'city': user_address['city'],
                'country': user_address['country_code'],
                'province': user_address['province_code'],
-               'postalcode': user_address['postal_code']}
+               'postalcode': user_address['postal_code'],
+               'full_name': user_address['full_name']}
     return address
 
 def get_user_email(conn, id_user):

@@ -81,6 +81,7 @@ CREATE TABLE users_address (
     country_code character varying(2) NOT NULL REFERENCES country(iso),
     province_code character varying(2),
     address_desp character varying(128),
+    full_name character varying(128),
     valid boolean DEFAULT true NOT NULL
 );
 

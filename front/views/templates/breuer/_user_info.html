@@ -218,6 +218,12 @@ $(document).ready(function() {
         addr_type_changed($(this));
     });
     addr_type_changed($("input[name='addr_type_0'][checked]"));
+
+    $("input[id^='addr_type']").change(function(){
+        var addr_type = $("input#" + $(this).prop("id")+":checked").val();
+        $(this).siblings("p:has(input[id^='full_name'])").toggle(addr_type == 0 || addr_type == 2);
+    });
+    $("input[id^='addr_type']").change();
 });
 
 function addr_type_changed(obj) {
