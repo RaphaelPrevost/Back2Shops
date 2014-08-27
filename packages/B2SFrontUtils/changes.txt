@@ -32,3 +32,6 @@
 
 == version 0.0.11 ==
 1. add get_thumbnail_url function for local thumbnails.
+
+== version 0.0.12 ==
+1. add geolocation

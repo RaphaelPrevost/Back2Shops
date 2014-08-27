@@ -1,9 +1,6 @@
-import settings
-from common.cache import routes_cache_proxy
-from common.utils import get_client_ip
-from webservice.base import BaseJsonResource
 from B2SCrypto.constant import SERVICES
-from B2SCrypto.utils import gen_encrypt_json_context
+from common.cache import routes_cache_proxy
+from webservice.base import BaseJsonResource
 
 class RoutesResource(BaseJsonResource):
     encrypt = True

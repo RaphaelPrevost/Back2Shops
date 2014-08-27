@@ -73,4 +73,6 @@ ALTER TABLE users_address ALTER COLUMN address type character varying(512);
 ALTER TABLE users_address ADD COLUMN address2 character varying(512) DEFAULT '';
 
 ALTER TABLE orders ADD COLUMN valid boolean DEFAULT true;
+
+ALTER TABLE province ADD COLUMN geoip_name character varying(128);
 COMMIT;

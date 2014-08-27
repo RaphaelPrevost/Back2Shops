@@ -5,7 +5,7 @@ import urllib
 def parse_form_params(req, resp, params):
     if req.method == 'GET':
         for p in req._params:
-            req._params[p] = urllib.unquote(req._params[p])
+            req._params[p] = urllib.unquote_plus(req._params[p])
         return
     if req.content_type and 'x-www-form-urlencoded' not in req.content_type:
         return

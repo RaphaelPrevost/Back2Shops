@@ -77,7 +77,7 @@ function getTemplate(name, item)
                 '<option value="' + item.accept[k][1] + '"';
                 if (item.value == item.accept[k][1])
                     tpl += ' selected="selected"';
-                tpl += '>' + utf8_decode(item.accept[k][0]) + '</option>';
+                tpl += '>' + (item.name == 'Province' ? item.accept[k][0] : utf8_decode(item.accept[k][0])) + '</option>';
             }
             tpl += '</select>';
 

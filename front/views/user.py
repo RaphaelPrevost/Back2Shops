@@ -1,22 +1,26 @@
 import settings
 import gevent
 import urllib
+
+from B2SFrontUtils.constants import REMOTE_API_NAME
+from B2SFrontUtils.geolocation import get_location_by_ip
+from B2SProtocol.constants import RESP_RESULT
+from B2SProtocol.constants import USER_AUTH_COOKIE_NAME
+from B2SUtils.common import set_cookie
+from B2SUtils.errors import ValidationError
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
 from common.email_utils import send_new_user_email
 from common.m17n import trans_func
 from common.utils import allowed_countries
+from common.utils import get_client_ip
 from common.utils import get_order_table_info
 from common.utils import get_url_format
 from common.utils import get_user_contact_info
 from views.base import BaseHtmlResource
 from views.base import BaseJsonResource
 from views.email import common_email_data
-from B2SProtocol.constants import RESP_RESULT
-from B2SProtocol.constants import USER_AUTH_COOKIE_NAME
-from B2SFrontUtils.constants import REMOTE_API_NAME
-from B2SUtils.errors import ValidationError
-from B2SUtils.common import set_cookie
+
 
 def login(req, resp):
     email = req.get_param('email')
@@ -102,6 +106,26 @@ class UserResource(BaseHtmlResource):
                     if f_name == 'country_num':
                         f['accept'] = filter(lambda x:x[1]
                                              in white_countries, f['accept'])
+
+            # give geolocation country/province if no address values.
+            if not all(int(addr['id']) for addr in user_profile['address']['values']):
+                geolocation = get_location_by_ip(get_client_ip(req))
+
+                for address in user_profile['address']['values']:
+                    if not int(address['id']):
+                        country_code = geolocation['country']['iso_code']
+                        province_name = geolocation['subdivision']['name']
+
+                        if country_code and province_name:
+                            remote_resp = data_access(REMOTE_API_NAME.AUX,
+                                                      req, resp,
+                                                      get='province_code',
+                                                      ccode=country_code,
+                                                      pname=province_name)
+                            address['country_code'] = country_code
+                            if remote_resp and isinstance(remote_resp, str) \
+                                    and RESP_RESULT.F not in remote_resp:
+                                address['province_code'] = remote_resp
 
         return {'user_profile': user_profile,
                 'err': err,
