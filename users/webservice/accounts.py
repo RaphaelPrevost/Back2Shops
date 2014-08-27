@@ -1,20 +1,23 @@
-import re
-import datetime
-
 import settings
-from common.constants import ADDR_TYPE
-from common.constants import GENDER
-from common import field_utils
-from common.utils import cookie_verify
-from common.utils import addr_reexp, city_reexp
-from common.utils import date_reexp, email_reexp
-from common.utils import postal_code_reexp, phone_num_reexp
-from common.utils import encrypt_password
-from common.utils import is_valid_email
-from webservice.base import BaseJsonResource
+import datetime
+import re
+
 from B2SProtocol.constants import RESP_RESULT
 from B2SUtils import db_utils
 from B2SUtils.errors import ValidationError
+from common import field_utils
+from common.constants import ADDR_TYPE
+from common.constants import GENDER
+from common.utils import addr_reexp
+from common.utils import city_reexp
+from common.utils import cookie_verify
+from common.utils import date_reexp
+from common.utils import email_reexp
+from common.utils import encrypt_password
+from common.utils import is_valid_email
+from common.utils import phone_num_reexp
+from common.utils import postal_code_reexp
+from webservice.base import BaseJsonResource
 
 
 class UserResource(BaseJsonResource):

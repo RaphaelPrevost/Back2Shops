@@ -103,10 +103,6 @@ def make_auth_cookie(expiry, csrf_token, auth_token, users_id):
             'users_id': users_id}
     return '&'.join(['%s=%s' % (k, v) for k, v in data.iteritems()])
 
-def get_client_ip(req):
-    ip_adds = req.get_header('x-forwarded-for') or ''
-    return ip_adds.split(',')[0].strip()
-
 def get_hashed_headers(req):
     headers = ";".join([
             #req.get_header('Accept') or '',

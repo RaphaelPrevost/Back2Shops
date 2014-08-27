@@ -502,6 +502,13 @@ def watching_invalidate_cache_list(pid):
                 send_reload_signal(pid)
             redis_down = False
 
+def get_client_ip(request):
+    env = request.env
+    try:
+        return env['HTTP_X_FORWARDED_FOR'].split(',')[-1].strip()
+    except KeyError:
+        return env['REMOTE_ADDR']
+
 
 ROUTE_NAME_MAPPING = {
     'type_name': normalize_name,

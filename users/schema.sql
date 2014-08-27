@@ -35,6 +35,7 @@ CREATE TABLE province (
     code character varying(8) NOT NULL,
     name character varying(128) NOT NULL,
     country_code character varying(2) NOT NULL REFERENCES country(iso),
+    geoip_name character varying(128),
     CONSTRAINT province_pkey PRIMARY KEY (code, country_code)
 );
 
