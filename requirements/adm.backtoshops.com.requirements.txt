@@ -14,6 +14,6 @@ B2SCrypto==0.0.4
 B2SProtocol==0.0.13
 enum==0.4.4
 ujson==1.33
-B2SUtils==0.0.8
+B2SUtils==0.0.9
 xmltodict==0.7.0
 incf.countryutils==1.0

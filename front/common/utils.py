@@ -6,7 +6,6 @@ import logging
 import os
 import random
 import signal
-import subprocess
 import time
 import ujson
 import uuid
@@ -69,17 +68,6 @@ def unicode2utf8(data):
     else:
         result = data
     return result
-
-def run_command(cmd, input=None):
-    """
-    Returns a pair (return_code, output)
-    Return (return_code, output) of executing cmd in a shell.
-    """
-    stdin = subprocess.PIPE if input else None
-    p = subprocess.Popen('{ ' + cmd + '; } 2>&1',
-                         shell=True, stdin=stdin, stdout=subprocess.PIPE)
-    text, _ = p.communicate(input)
-    return p.returncode, text.rstrip('\n')
 
 def valid_int_param(req, param_name):
     try:

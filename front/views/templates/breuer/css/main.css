@@ -997,7 +997,25 @@ a.right {
 }
 #panier .floater.adresse .modifier:hover { text-decoration: underline; }
 
-
+#panier .floater.center {
+    float: none;
+    margin-left: auto;
+    margin-right: auto;
+    width: 500px;
+}
+#panier .floater.center :first-child {
+    margin-bottom: 30px;
+}
+#panier .floater.center input {
+    margin: 15px auto 15px auto;
+    width: 280px;
+}
+#panier .floater.center .btn {
+    background-position: 79px -70px;
+    float: none;
+    margin: 30px auto;
+    width: 110px;
+}
 
  
  

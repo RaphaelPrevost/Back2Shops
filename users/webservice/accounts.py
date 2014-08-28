@@ -1,19 +1,28 @@
 import settings
 import datetime
 import re
+import gevent
+import urllib
+import uuid
 
 from B2SProtocol.constants import RESP_RESULT
 from B2SUtils import db_utils
 from B2SUtils.errors import ValidationError
+from B2SRespUtils.generate import _temp_content as render_content
 from common import field_utils
 from common.constants import ADDR_TYPE
 from common.constants import GENDER
+from common.constants import HASH_ALGORITHM
+from common.constants import RESET_PASSWORD_REDIS_KEY
 from common.utils import addr_reexp
 from common.utils import city_reexp
+from common.redis_utils import get_redis_cli
+from common.email_utils import send_html_email
 from common.utils import cookie_verify
 from common.utils import date_reexp
 from common.utils import email_reexp
 from common.utils import encrypt_password
+from common.utils import hashfn
 from common.utils import is_valid_email
 from common.utils import phone_num_reexp
 from common.utils import postal_code_reexp
@@ -22,8 +31,11 @@ from webservice.base import BaseJsonResource
 
 class UserResource(BaseJsonResource):
     login_required = {'get': True, 'post': False}
-    post_action_func_map = {'create': 'create_account',
-                            'modify': 'update_account'}
+    post_action_func_map = {
+        'create': 'create_account',
+        'modify': 'update_account',
+        'passwd': 'forgot_pwd',
+    }
 
     def _on_get(self, req, resp, conn, **kwargs):
         users_id = kwargs.get("users_id", None)
@@ -191,6 +203,7 @@ class UserResource(BaseJsonResource):
         func = getattr(self, self.post_action_func_map[action], None)
         assert hasattr(func, '__call__')
         return func(req, resp, conn)
+
 
     def update_account(self, req, resp, conn):
         users_id = cookie_verify(conn, req, resp)
@@ -363,6 +376,7 @@ class UserResource(BaseJsonResource):
                             where={'id': int(check_id)})
         return referenced
 
+
     def create_account(self, req, resp, conn):
         email = self.get_email(req, conn)
         password = self.get_password(req)
@@ -402,4 +416,55 @@ class UserResource(BaseJsonResource):
         values = {"email": email}
         values.update(result)
         return db_utils.insert(conn, "users", values=values)
+
+
+    def forgot_pwd(self, req, resp, conn):
+        if req.get_param('key'):
+            return self.reset_pwd(req, resp, conn)
+        else:
+            return self.reset_pwd_request(req, resp, conn)
+
+    def reset_pwd_request(self, req, resp, conn):
+        email = req.get_param('email')
+        if email:
+            email = email.lower()
+            result = db_utils.select(conn, "users",
+                                    columns=("id",),
+                                    where={'email': email},
+                                    limit=1)
+            if result and len(result) == 1:
+                random_key = hashfn(HASH_ALGORITHM.SHA256, str(uuid.uuid4()))
+                get_redis_cli().setex(RESET_PASSWORD_REDIS_KEY % random_key,
+                                      email,
+                                      settings.RESET_PASSWORD_REQUEST_EXPIRES)
+
+                reset_link = '%s?%s' % (settings.FRONT_RESET_PASSWORD_URL,
+                    urllib.urlencode({'email': email,
+                                      'key': random_key}))
+                email_content = render_content('reset_pwd_email.html',
+                                               reset_link=reset_link)
+                gevent.spawn(send_html_email,
+                             email,
+                             settings.RESET_PASSWORD_EMAIL_SUBJECT,
+                             email_content)
+
+        return {'res': RESP_RESULT.S}
+
+    def reset_pwd(self, req, resp, conn):
+        email = req.get_param('email')
+        key = req.get_param('key') or ''
+        redis_key = RESET_PASSWORD_REDIS_KEY % key
+        if not key or not email \
+                or get_redis_cli().get(redis_key) != email.lower():
+            raise ValidationError('INVALID_REQUEST')
+
+        new_pwd = self.get_password(req)
+        self._update_password(conn, email.lower(), new_pwd)
+        get_redis_cli().delete(redis_key)
+        return {'res': RESP_RESULT.S}
+
+    def _update_password(self, conn, email, raw_password):
+        _, result = encrypt_password(raw_password)
+        db_utils.update(conn, "users", values=result,
+                        where={'email': email})
 

@@ -91,6 +91,11 @@ class BaseResource(object):
                                     err=remote_resp.get('err') or '')
         else:
             self.users_id = remote_resp['users_id']
+            # no cache for logged-in users
+            resp.set_header('progma', 'no-cache')
+            resp.set_header('cache-control', 'private, no-store, max-age=0, '
+                       'no-cache, must-revalidate, post-check=0, pre-check=0')
+            resp.set_header('expires', '0')
 
     def get_auth_url(self):
         return get_url_format(FRT_ROUTE_ROLE.USER_AUTH)
@@ -203,6 +208,7 @@ class BaseHtmlResource(BaseResource):
             'prodlist_url_format': get_url_format(FRT_ROUTE_ROLE.PRDT_LIST),
             'auth_url_format': get_url_format(FRT_ROUTE_ROLE.USER_AUTH),
             'logout_url_format': get_url_format(FRT_ROUTE_ROLE.USER_LOGOUT),
+            'reset_pwd_req_url_format': get_url_format(FRT_ROUTE_ROLE.RESET_PWD_REQ),
             'user_url_format': get_url_format(FRT_ROUTE_ROLE.USER_INFO),
             'my_account_url_format': get_url_format(FRT_ROUTE_ROLE.MY_ACCOUNT),
             'basket_url_format': get_url_format(FRT_ROUTE_ROLE.BASKET),

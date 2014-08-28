@@ -40,7 +40,7 @@ HMAC_KEY_FILE_PATH = 'hmac.pem'
 ADM_ROOT_URI = "http://localhost:8000"
 USR_ROOT_URI = "http://localhost:8100"
 FIN_ROOT_URI = "http://localhost:9000"
-FRONT_ROOT_URI = "http://localhost:9500" # for testing only
+FRONT_ROOT_URI = "http://localhost:9500"
 
 SALES_SERVER_API_URL = "%s/webservice/1.0/%%(api)s" % ADM_ROOT_URI
 
@@ -49,6 +49,10 @@ SERVER_APIKEY_URI_MAP = {
     'FIN': os.path.join(FIN_ROOT_URI, 'webservice/1.0/pub/apikey.pem'),
     'FRO': os.path.join(FRONT_ROOT_URI, 'webservice/1.0/pub/apikey.pem'),
 }
+
+FRONT_RESET_PASSWORD_URL = "%s/reset_password" % FRONT_ROOT_URI
+RESET_PASSWORD_EMAIL_SUBJECT = "RESET YOUR PASSWORD"
+RESET_PASSWORD_REQUEST_EXPIRES = 3600
 
 
 PRIVATE_KEY_PATH = 'static/keys/usr_pri.key'
@@ -70,10 +74,10 @@ SALEINFO_VALIDATE_PATH = 'files/sales/sale_info.dtd'
 SHOPS_VALIDATE_PATH = 'files/shops/shops.dtd'
 SHOPINFO_VALIDATE_PATH = 'files/shops/shop_info.dtd'
 
+SERVICE_EMAIL = 'serviceclients@breuer.fr'
 MAIL_HOST = 'smtp.gmail.com:587'
 MAIL_FROM_USER = 'xxx'
 MAIL_FROM_PASS = 'xxx'
-MAIL_POSTFIX = 'gmail.com'
 
 # Paypal
 PAYMENT_PAYPAL_GATEWAY = "%s/payment/paypal/%%(id_trans)s/gateway" % USR_ROOT_URI
@@ -108,3 +112,4 @@ CURRENCY_EX_RATE = {
 
 LOCALE_LANGUAGES = ['zh', 'en', 'fr']
 DEFAULT_LANGUAGE = 'en'
+

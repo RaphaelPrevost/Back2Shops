@@ -47,13 +47,11 @@ PB_WAITING = "http://localhost:9500/paybox/%(id_trans)s/waiting"
 
 NUM_OF_RANDOM_SALES = 4
 
-SERVICE_EMAIL = 'serviceclients@breuer.fr'
-
 SEND_EMAILS = False
+SERVICE_EMAIL = 'serviceclients@breuer.fr'
 MAIL_HOST = 'smtp.gmail.com:587'
 MAIL_FROM_USER = 'xxx'
 MAIL_FROM_PASS = 'xxx'
-MAIL_POSTFIX = 'gmail.com'
 
 ORDERS_COUNT_IN_MY_ACCOUNT = 5
 ORDERS_COUNT_PER_PAGE = 10
