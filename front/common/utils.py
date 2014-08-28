@@ -364,11 +364,7 @@ def get_shipping_info(req, resp, order_id):
     return data
 
 def get_order_table_info(order_id, order_resp, all_sales=None):
-    user_name = '%s %s %s' % (
-            order_resp['user_info']['title'],
-            order_resp['user_info']['first_name'],
-            order_resp['user_info']['last_name'],
-            )
+    user_name = order_resp['shipping_dest']['full_name']
     dest_addr = ' '.join([
             order_resp['shipping_dest']['address'],
             order_resp['shipping_dest']['postalcode'],

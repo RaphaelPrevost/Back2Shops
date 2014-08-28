@@ -904,7 +904,7 @@ class InvoiceView(BaseCryptoWebService, ListView):
     def get_buyer(self, customer_name, dest):
         dest = json.loads(dest)
 
-        return {'name': customer_name,
+        return {'name': dest['full_name'] or customer_name,
                 'address': dest}
 
     def get_items(self, content, from_address, to_address):
