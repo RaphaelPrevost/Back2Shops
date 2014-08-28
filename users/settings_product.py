@@ -5,9 +5,10 @@ PRODUCTION = True
 ADM_ROOT_URI = "http://37.187.48.33"
 USR_ROOT_URI = "http://92.222.30.2"
 FIN_ROOT_URI = "http://92.222.30.3"
-FRONT_ROOT_URI = "http://92.222.30.5" # for testing only
+FRONT_ROOT_URI = "http://92.222.30.5"
 
 SALES_SERVER_API_URL = "%s/webservice/1.0/%%(api)s" % ADM_ROOT_URI
+FRONT_RESET_PASSWORD_URL = "%s/reset_password" % FRONT_ROOT_URI
 
 SERVER_APIKEY_URI_MAP = {
     'USR': '%s/webservice/1.0/pub/apikey.pem' % USR_ROOT_URI,

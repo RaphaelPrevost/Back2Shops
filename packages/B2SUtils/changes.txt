@@ -23,3 +23,6 @@
 
 == version 0.0.8 ==
 1. using unquote_plus instead of unquote in function parse_form_params
+
+== version 0.0.9 ==
+1. add email_utils.py

@@ -48,9 +48,12 @@ MESSAGE_CATALOG = {
         'NEW_USER_EMAIL_SUBJECT': "Your account was created %(brand)s",
         'ORDER_EMAIL_SUBJECT': "Confirmation of your order",
 
+        'RESET_PWD_EMAIL_SEND': "The reset password email has been sent to %(email)s",
+
         # error message
         'INTERNAL_SERVER_ERROR': "Sorry, our server met problems. Please try later.",
         'SERVER_ERR': 'Server error.',
+        'INVALID_REQUEST': 'Invalid request.',
         'ERR_EMAIL': 'Invalid email.',
         'ERR_PASSWORD': 'Invalid password.',
         'ERR_LOGIN': 'Invalid email or password.',

@@ -33,6 +33,8 @@ from views.product import ProductInfoResource
 from views.product import ProductListResource
 from views.product import TypeListResource
 from views.redirect import GenericRedirectResource
+from views.reset_password import ResetPwdResource
+from views.reset_password import ResetPwdRequestResource
 from views.user import LoginAPIResource
 from views.user import MyAccountResource
 from views.user import RegisterAPIResource
@@ -52,6 +54,8 @@ role_res_mapping = {
     FRT_ROUTE_ROLE.USER_LOGOUT: UserLogoutResource,
     FRT_ROUTE_ROLE.USER_INFO: UserResource,
     FRT_ROUTE_ROLE.MY_ACCOUNT: MyAccountResource,
+    FRT_ROUTE_ROLE.RESET_PWD_REQ: ResetPwdRequestResource,
+    FRT_ROUTE_ROLE.RESET_PWD: ResetPwdResource,
     FRT_ROUTE_ROLE.PRDT_LIST: ProductListResource,
     FRT_ROUTE_ROLE.PRDT_INFO: ProductInfoResource,
     FRT_ROUTE_ROLE.TYPE_LIST: TypeListResource,
@@ -72,6 +76,8 @@ role_default_urlpatterns = {
     FRT_ROUTE_ROLE.USER_LOGOUT: r'/logout',
     FRT_ROUTE_ROLE.USER_INFO: r'/user_info',
     FRT_ROUTE_ROLE.MY_ACCOUNT: r'/my_account',
+    FRT_ROUTE_ROLE.RESET_PWD_REQ: r'/forgot_password',
+    FRT_ROUTE_ROLE.RESET_PWD: r'/reset_password',
     FRT_ROUTE_ROLE.PRDT_LIST: r'/products',
     FRT_ROUTE_ROLE.TYPE_LIST: r'/type/{id_type}',
     FRT_ROUTE_ROLE.PRDT_INFO: r'/products/{id_sale}',

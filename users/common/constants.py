@@ -53,3 +53,6 @@ PAYPAL_INVALID = 'INVALID'
 class PAYMENT_TYPES(CustomEnum):
     PAYPAL = 'Paypal'
     PAYBOX = 'Paybox'
+
+
+RESET_PASSWORD_REDIS_KEY = 'RESET_PWD:%s'
