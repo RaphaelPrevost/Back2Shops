@@ -493,6 +493,19 @@ function deploy_assets() {
 
 ########## front related functions ##########
 
+function setup_geoip_database() {
+    if [ ! -d $CWD/env/data ]; then
+        mkdir $CWD/env/data
+    fi
+    echo "(-) Downloading geoip free database..."
+    cd $CWD/env/data
+    wget http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz
+    gzip -d GeoLite2-City.mmdb.gz
+    wget http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.mmdb.gz
+    gzip -d GeoLite2-Country.mmdb.gz
+    echo "(-) Setup geoip free database for front server is done."
+}
+
 function make_front_src_dir() {
     # remove old sourcecode
     [ -d $CWD/front -a -d $CWD/front_src ] && rm -rf $CWD/front_src
@@ -571,6 +584,7 @@ EOF
 function deploy_front() {
     sanity_checks $FRT_REQUIREMENT "${FRT_DEPS[*]}"
     create_python_env $FRT_REQUIREMENT
+    setup_geoip_database
     make_front_src_dir
     setup_front
     echo "(i) Deploy front server finished"
