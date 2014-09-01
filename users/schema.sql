@@ -103,7 +103,7 @@ CREATE TABLE order_items (
     name character varying(150) NOT NULL,
     type_name character varying(50),
     picture character varying(200),
-    description character varying(128),
+    description text,
     copy_time timestamp without time zone DEFAULT now() NOT NULL,
     barcode character varying(50)
 );

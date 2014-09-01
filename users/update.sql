@@ -76,4 +76,6 @@ ALTER TABLE orders ADD COLUMN valid boolean DEFAULT true;
 
 ALTER TABLE province ADD COLUMN geoip_name character varying(128);
 ALTER TABLE users_address ADD COLUMN full_name character varying(128) DEFAULT '';
+
+ALTER TABLE order_items ALTER COLUMN description type text;
 COMMIT;

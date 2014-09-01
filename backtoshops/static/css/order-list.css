@@ -578,3 +578,7 @@ span.deadline {
 }
 .out:hover{ background-position: 0 -16px; }
 /* forms end */
+
+.order_tab {
+    cursor: pointer;
+}

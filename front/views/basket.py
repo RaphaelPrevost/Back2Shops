@@ -1,17 +1,12 @@
+import logging
 import ujson
 
 from B2SFrontUtils.constants import REMOTE_API_NAME
-from B2SProtocol.constants import USER_BASKET
-from B2SProtocol.constants import USER_BASKET_COOKIE_NAME
-from B2SUtils.common import get_cookie_value
-from B2SUtils.common import set_cookie
 from B2SUtils.errors import ValidationError
 from common.data_access import data_access
 from common.redis_utils import get_redis_cli
-from common.utils import generate_random_key
 from common.utils import get_basket
 from common.utils import get_basket_table_info
-from common.utils import get_brief_product
 from common.utils import get_valid_attr
 from views.base import BaseHtmlResource
 from views.base import BaseJsonResource
@@ -56,9 +51,13 @@ class BasketAPIResource(BaseJsonResource):
         if not chosen_item:
             id_sale = req.get_param('id_sale')
             all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
+            if id_sale not in all_sales:
+                logging.error('Wrong request id_sale %s for basket, cmd: %s',
+                              id_sale, cmd)
+                return {}
             attr = get_valid_attr(
-                            all_sales[id_sale].get('type', {}).get('attribute'),
-                            req.get_param('id_attr'))
+                all_sales[id_sale].get('type', {}).get('attribute'),
+                req.get_param('id_attr'))
             chosen_item = {'id_sale': id_sale,
                            'id_shop': req.get_param('id_shop') or 0,
                            'id_variant': req.get_param('id_variant'),
