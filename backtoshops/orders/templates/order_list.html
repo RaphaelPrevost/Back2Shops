@@ -46,7 +46,7 @@
         <fieldset>
             <p id="order-status-tabs">
             {% for tab in status_tabs %}
-                <span status_code="{{ tab.status }}" {% if tab.status == status %}class="selected"{% endif %}>{{ tab.name }}</span>
+                <span status_code="{{ tab.status }}" class="order_tab{% if tab.status == status %} selected{% endif %}">{{ tab.name }}</span>
             {% endfor %}
                 <input type="hidden" id="{{ form.status.auto_id }}" name="{{ form.status.html_name }}" value="{{ status }}" />
             </p>

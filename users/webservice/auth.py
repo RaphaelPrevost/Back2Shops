@@ -1,27 +1,25 @@
-import binascii
-import os
+import settings
 import ujson
 from datetime import datetime, timedelta
 
-import settings
+from B2SProtocol.constants import LOGIN_USER_BASKET_KEY
+from B2SProtocol.constants import RESP_RESULT
+from B2SProtocol.constants import USER_AUTH_COOKIE_NAME
+from B2SProtocol.constants import USER_BASKET_COOKIE_NAME
+from B2SRespUtils.generate import gen_json_resp
+from B2SUtils import db_utils
+from B2SUtils.common import set_cookie, get_cookie_value
+from B2SUtils.errors import ValidationError
 from common.redis_utils import get_redis_cli
 from common.utils import encrypt_password
-from common.utils import get_authenticator
 from common.utils import gen_cookie_expiry
-from common.utils import get_client_ip
 from common.utils import gen_csrf_token
+from common.utils import get_authenticator
+from common.utils import get_client_ip
 from common.utils import get_hashed_headers
 from common.utils import get_preimage
 from common.utils import make_auth_cookie
 from webservice.base import BaseJsonResource
-from B2SProtocol.constants import RESP_RESULT
-from B2SProtocol.constants import LOGIN_USER_BASKET_KEY
-from B2SProtocol.constants import USER_AUTH_COOKIE_NAME
-from B2SProtocol.constants import USER_BASKET_COOKIE_NAME
-from B2SUtils import db_utils
-from B2SUtils.errors import ValidationError
-from B2SUtils.common import set_cookie, get_cookie_value
-from B2SRespUtils.generate import gen_json_resp
 
 class UserVerifyResource(BaseJsonResource):
     login_required = {'get': True, 'post': False}
