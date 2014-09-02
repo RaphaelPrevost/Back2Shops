@@ -284,6 +284,10 @@ class ProductForm(forms.Form):
         label=_("Product name"),
         max_length=50,
         show_hidden_initial=True)
+    short_description = forms.CharField(
+        label=_("Short Description"),
+        required=False,
+        max_length=240)
     description = forms.CharField(
         label=_("Description"),
         widget=forms.Textarea())

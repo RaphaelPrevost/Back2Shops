@@ -558,6 +558,7 @@ def edit_sale(request, *args, **kwargs):
         'pictures': pictures,
         'type_attribute_prices': type_attribute_prices,
         'type_attribute_weights': type_attribute_weights,
+        'short_description': sale.product.short_description,
     }
 
     initial_stocks = []
@@ -731,6 +732,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         product.discount = product_data['discount']
         product.discount_type = \
             product.discount and product_data['discount_type'] or None
+        product.short_description = product_data['short_description']
         product.save()
 
         brand_attributes = product_form.brand_attributes
