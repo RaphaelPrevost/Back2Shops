@@ -118,6 +118,10 @@
                             </em>
                         </span>
                     </div>
+                    {% if sale.product.short_description %}
+                    <div class="clear"></div>
+                    <div class="short-desc"> <em>{{ sale.product.short_description }}</em> </div>
+                    {% endif %}
                 </div>
                 <div class="clear"></div>
                 <!--Liens DETAIL-->

@@ -68,6 +68,7 @@ class Product(models.Model):
     valid_from = models.DateField()
     valid_to = models.DateField(null=True)
     #brand_attributes = models.ManyToManyField("attributes.BrandAttribute", through="attributes.BrandAttributePreview")
+    short_description = models.CharField(max_length=240, blank=True, null=True)
 
     def __unicode__(self):
         return self.name

@@ -170,6 +170,10 @@
                 font-family: arial;
                 font-size: 12px;
             }
+    .content .short-desc {
+        background-color: #E0E0E0;
+        padding-left: 8px;
+    }
 
 /*Liens DETAIL*/
 .seeDetail {

@@ -47,6 +47,11 @@
             <label for="{{ wizard.form.name.auto_id }}">{% trans wizard.form.name.label %}</label>
             {{ wizard.form.name }}
         </div>
+        {{ wizard.form.short_description.errors }}
+        <div class="marge formrow">
+            <label for="{{ wizard.form.short_description.auto_id }}">{% trans wizard.form.short_description.label %}</label>
+            {{ wizard.form.short_description }}
+        </div>
         {{ wizard.form.description.errors }}
         <div class="marge formrow">
             <label for="{{ wizard.form.description.auto_id }}">{% trans wizard.form.description.label %}</label>
