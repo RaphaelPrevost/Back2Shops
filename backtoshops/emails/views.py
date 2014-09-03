@@ -59,10 +59,7 @@ class BaseView(AdminLoginRequiredMixin):
     def get_form_kwargs(self):
         kwargs = super(BaseView, self).get_form_kwargs()
 
-        initial = {'html_head':
-            '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>\n'
-            '<meta content="width=device-width"/>'
-        }
+        initial = {}
         if getattr(self, 'object', None):
             images = []
             for _img in EmailTemplateImage.objects.filter(email_id=self.object.pk):

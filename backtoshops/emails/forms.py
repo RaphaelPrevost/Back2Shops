@@ -9,16 +9,18 @@ class EmailTemplateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EmailTemplateForm, self).__init__(*args, **kwargs)
 
-        initial = kwargs.get('initial') or {}
         self.fields['html_head'] = forms.CharField(
                 widget=forms.Textarea(),
                 required=False,
-                initial=initial.get('html_head', ''))
+                initial=
+            '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>\n'
+            '<meta content="width=device-width"/>')
         self.fields['html_body'] = forms.CharField(
                 widget=forms.Textarea(),
                 required=False)
 
         formset = formset_factory(EmailTemplateImageForm, extra=0, can_delete=True)
+        initial = kwargs.get('initial') or {}
         if initial:
             self.images = formset(data=kwargs.get('data'),
                                   initial=initial.get('images', None),
