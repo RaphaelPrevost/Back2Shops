@@ -56,7 +56,7 @@
 
     #main_form .formrow label { width: 165px; }
     #main_form .formrow select { width: 283px; }
-    #main_form .formrow textarea,
+    #main_form .formrow textarea {width: 440px;}
     #main_form .formrow input { width: 271px; }
     #main_form .formrow .inputXS { width: 40px; }
     #main_form .formrow .inputS { width: 70px; }
@@ -234,7 +234,7 @@
 
 
 /*------------------- Liste Boutique -------------------*/
-#listeShop {
+#listTpl {
     max-height: 600px;
     overflow: auto;
     margin-bottom: 10px;
@@ -242,19 +242,19 @@
 
 
 /*--Table--*/
-#listeShop table { margin: 20px; }
-#listeShop table tr {
+#listTpl table { margin: 20px; }
+#listTpl table tr {
     height: 28px;
     line-height: 28px;
     background-color: #F7F7F7;
 }
-#listeShop table tr.new { background: url(../img/back_flag.png) repeat-x 0 -1px; }
-#listeShop table tr.noshop td { text-align: center; font-weight: bold; }
+#listTpl table tr.new { background: url(../img/back_flag.png) repeat-x 0 -1px; }
+#listTpl table tr.empty td { text-align: center; font-weight: bold; }
 
 
-#listeShop table tr th { background-color: #fff; }
-#listeShop table tr td,
-#listeShop table tr th {
+#listTpl table tr th { background-color: #fff; }
+#listTpl table tr td,
+#listTpl table tr th {
     text-align: left;
     padding: 0 5px;
     font-size: 11px;
@@ -262,13 +262,13 @@
 }
 
 
-#listeShop table tr th.nom { width: 180px; }
-#listeShop table tr th.ville { width: 100px; }
-#listeShop table tr th.action { width: 68px; text-align: right; }
-#listeShop table tr th.action a { margin-right: 0; padding-right: 0; }
+#listTpl table tr th.nom { width: 180px; }
+#listTpl table tr th.preview { width: 100px; }
+#listTpl table tr th.action { width: 68px; text-align: right; }
+#listTpl table tr th.action a { margin-right: 0; padding-right: 0; }
 
 
-#listeShop table tr th a {
+#listTpl table tr th a {
     display: block;
     height: 25px;
     line-height: 25px;
@@ -276,10 +276,10 @@
     padding: 0 15px 0 0;
     font-size: 11px;
 }
-    #listeShop table tr th.on a { background: url(../img/trie_on-off.gif) no-repeat 45px 1px; }
-    #listeShop table tr th.off a { background: url(../img/trie_on-off.gif) no-repeat 45px -24px; }
+    #listTpl table tr th.on a { background: url(../img/trie_on-off.gif) no-repeat 45px 1px; }
+    #listTpl table tr th.off a { background: url(../img/trie_on-off.gif) no-repeat 45px -24px; }
 
-#listeShop table tr td a {
+#listTpl table tr td a {
     display: block;
     width: 118px;
     height: 28px;
@@ -288,9 +288,9 @@
     font-size: 11px;
     font-weight: bold;
 }
-    #listeShop table tr td a:hover { text-decoration: underline; }
+    #listTpl table tr td a:hover { text-decoration: underline; }
 
-#listeShop table tr td .out{
+#listTpl table tr td .out{
     display: block;
     float: left;
     width: 16px;
@@ -298,9 +298,9 @@
     overflow: hidden; text-indent: -1500px;
     background: url(../img/out.gif) no-repeat 0 0;
 }
-    #listeShop table tr td .out:hover{ background-position: 0 -16px; }
+    #listTpl table tr td .out:hover{ background-position: 0 -16px; }
 
-#listeShop table tr td .modif {
+#listTpl table tr td .modif {
     display: block;
     float: left;
     width: 16px;
@@ -309,13 +309,17 @@
     margin:  0 5px 0 20px;
     background: url(../img/modif.gif) no-repeat 0 0;
 }
-    #listeShop table tr td .modif:hover{ background-position: 0 -16px; }
+#listTpl table tr td .modif:hover{ background-position: 0 -16px; }
+
+#main_form .formrow span { height: 50px}
+#main_form .formrow span input { width: 30px}
 
 
 
 /*--BTN--*/
 #content_Right .btn.ajouter { float: right; }
 
+.btn.preview {padding: 0 10px 0 10px;}
 
 
 /*------------------------*/
@@ -324,7 +328,8 @@
 
 .pag_nav {
     height: 30px;
-    margin: 10px 20px;
+    margin-left: 10px;
+    margin-right: 10px;
     background-color: #F2F9FF;
     border: 1px solid #E1E6EA;
 }
@@ -352,9 +357,7 @@
     text-align: center; line-height: 18px;
     margin: 5px 3px 0 0;
     background-color: #8AAECB;
-    color: #fff; font-weight: bold;  
+    color: #444; font-weight: bold;  
 } 
 .pagination:hover, .pagination:focus { background-color: #B1CEE7; } 
-
-
 

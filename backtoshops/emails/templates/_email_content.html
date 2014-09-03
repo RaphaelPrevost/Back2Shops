@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
+<head>
+    {% load i18n %}
+    {% load aloha_editor %} 
+    {% include "aloha_editor/css.html" %}
+    {% include "aloha_editor_js.html" %}
+    <script type="text/javascript">
+    Aloha.ready(function() {
+        Aloha.jQuery('.aloha_editable').aloha();
+    });
+    function preview() {
+        var obj_id = "{{form.html_body.auto_id}}-emails_EmailTemplate-{{pk}}-{{form.html_body.name}}";
+        if ($('#' + obj_id + ':hidden').length == 0) return;
+
+        if ($('#src-' + obj_id).length > 0) {
+            var content = $('#src-' + obj_id).hide().val();
+            $('#' + obj_id).html(content).show();
+        }
+    }
+    function source() {
+        var obj_id = "{{form.html_body.auto_id}}-emails_EmailTemplate-{{pk}}-{{form.html_body.name}}";
+        if ($('#' + obj_id + ':hidden').length > 0) return;
+
+        var content = Aloha.getEditableById(obj_id).getContents();
+        $('#' + obj_id).hide();
+        if ($('#src-' + obj_id).length == 0) {
+            $("<textarea id='src-" + obj_id + "' rows='40' cols='100'>" + content + "</textarea>").appendTo($('body'));
+        } else {
+            $('#src-' + obj_id).val(content).show();
+        }
+    }
+    function save(){
+        var obj_id = "{{form.html_body.auto_id}}-emails_EmailTemplate-{{pk}}-{{form.html_body.name}}";
+        var content = "";
+        if ($('#' + obj_id + ':hidden').length == 0) {
+            content = Aloha.getEditableById(obj_id).getContents();
+        } else {
+            content = $('#src-' + obj_id).val();
+        }
+
+        var request = jQuery.ajax({
+            url: "{% url 'aloha_editor_save_editable' %}",
+            type: "POST",
+            data: {
+                editable_content : content,
+                editable_reference : obj_id,
+            },
+            dataType: "html"
+        });
+        request.done(function(result) {
+            var result = jQuery.parseJSON(result)
+            if (result.success == true) {
+                alert("{% trans "Save successfully." %}");
+            }
+        });
+        request.error(function(jqXHR, textStatus) {
+            alert( "Request failed: " + textStatus );
+        });
+    }
+    </script>
+    {{form.html_head.value|safe}}
+</head>
+<body>
+    <div style="margin: 10px">
+        <a href="javascript:preview();" style="margin:10px">{% trans "Preview" %}</><a>
+        <a href="javascript:source();" style="margin:10px">{% trans "Source Code" %}</><a>
+        <a href="javascript:save();" style="margin:10px">{% trans "Save" %}</><a>
+    </div>
+
+    <div id="{{form.html_body.auto_id}}-emails_EmailTemplate-{{pk}}-{{form.html_body.name}}" class="aloha_editable">{{form.html_body.value|safe }}</div>
+</body>
+</html>

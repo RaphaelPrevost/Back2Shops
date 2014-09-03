@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load is_admin_upper %}
+
+{% block title %}
+{% if pk %}
+{% trans "Edit Email Template" %}
+{% else %}
+{% trans "Add Email Template" %}
+{% endif %}
+{% endblock %}
+
+{% block head %}
+<script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/fileupload/jquery.iframe-transport.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/fileupload/jquery.fileupload.js"></script>
+<link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/email_template.css" />
+{% endblock %}
+
+{% block navigation %}
+{% include "_quick_nav.html" %}
+{% endblock %}
+
+{% block content %}
+<div id="content_Left">
+    {{ form.errors }}
+    <!--FORM-->
+    <form id="main_form" method="post" enctype="multipart/form-data">{% csrf_token %}
+	    <h3>{% trans "Email Template" %}</h3>
+        <fieldset>
+            {{ form.name.errors }}
+            <div class="formrow">
+                <label for="{{form.name.auto_id}}" >{% trans form.name.label %}</label>
+                {{form.name}}
+            </div>
+            {{ form.subject.errors }}
+            <div class="formrow">
+                <label for="{{form.subject.auto_id}}" >{% trans form.subject.label %}</label>
+                {{form.subject}}
+            </div>
+            {{ form.html_head.errors }}
+            <div class="formrow">
+                <label for="{{form.html_head.auto_id}}" >{% trans form.html_head.label %}</label>
+                {{form.html_head}}
+            </div>
+            {{ form.html_body.errors }}
+            <div class="formrow">
+                <label for="{{form.html_body.auto_id}}" >{% trans form.html_body.label %}</label>
+                {{form.html_body}}
+            </div>
+            <div class="formrow">
+                {{ form.images.management_form }}
+                <label for="visuel">{% trans "Images" %}</label>
+                <input id="pp_upload" type="file" name="files[]" multiple>
+            </div>
+            <div class="formrow">
+                <div id="email_images_msg" style="color:red;display:none">The chosen ones will be removed.</div>
+                <div id="email_images" class="visuelProd">
+                    <ul id="pp_queue"></ul>
+                    <p id="existing_pp">
+                        {% for pp in form.images %}
+                        <span id="{{ pp.prefix }}-row" class="product_picture_form visuelProd">
+                            {{ pp.pk }}
+                            {{ pp.url }}
+                            {{ pp.thumb_url }}
+                            <input type="checkbox" name="{{ pp.DELETE.html_name }}" id="{{ pp.DELETE.auto_id }}" {% if pp.DELETE.value == "on" %}checked="checked"{% endif %}>
+                            <a id="{{ pp.prefix }}-link" href="{{ pp.url.value }}"><img id="{{ pp.prefix }}-img" src="{{ pp.thumb_url.value }}"/></a>
+                        </span>
+                        {% endfor %}
+                    </p>
+                </div>
+            </div>
+	    </fieldset>
+        <!--BOUTONS-->
+        {% if pk %}
+        <button type="button" class="btn preview" onclick="javascript:preview();">{% trans "Preview" %}</button>
+        {% endif %}
+        <input class="btn valider" type="submit" value='{% trans "Save" %}'/>
+        <button type="reset" class="btn annuler">{% trans "Cancel" %}</button>
+    </form>
+    <span id="image_template_form" style="display: none;">
+        <span id="{{ form.images.empty_form.prefix }}-row" class="product_picture_form visuelProd">
+            {{ form.images.empty_form.pk }}
+            {{ form.images.empty_form.thumb_url }}
+            {{ form.images.empty_form.url }}
+            <a id="{{ form.images.empty_form.prefix }}-link"><img id="{{ form.images.empty_form.prefix }}-img"/></a>
+        </span>
+    </span>
+</div>
+
+<div id="content_Right">
+	<h4 class="titleRight">{% trans "Email Templates List" %}</h4>
+	<div class="boxRight" id="listTpl">
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <th class="nom"><a href="#">{% trans "Name" %}</a></th>
+                <th class="preview"><a href="#"></a></th>
+                <th class="action"><a href="#">{% trans "Actions" %}</a></th>
+            </tr>
+
+            {% for tpl in templates.object_list %}
+            <tr id="template_{{tpl.pk}}">
+                <td><a href="{% url 'edit_template' tpl.pk %}">{{ tpl.name }}</a></td>
+                <td><a class="preview" href="{% url 'preview_template' tpl.pk %}">{% trans "preview" %}</a></td>
+                <td>
+                <a class="modif" href="{% url 'edit_template' tpl.pk %}">{% trans "Edit" %}</a>
+                {%if request.user|is_admin_upper %}<a class="out delete_tpl" href="{% url 'delete_template' tpl.pk %}">{% trans "Delete" %}</a>{%endif%}
+                </td>
+            </tr>
+            {% empty %}
+            <tr class="empty">
+                <td colspan="3">{% trans "List is empty."%}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% if templates.paginator.num_pages > 1%}
+        <div class="pag_nav">
+            <form id="page_size_form" method="GET">
+                <input type="hidden" name="page" id="current_page" value="" />
+                <span class="page_info">
+                    {% blocktrans with number=templates.number num_pages=templates.paginator.num_pages %}
+                    Page <input type="text" value="{{ number }}" id="page_num"> of {{ num_pages }} pages.
+                    {% endblocktrans %}
+                </span>
+                <span class="page_size">
+                    <select id="page_size" name="page_size">
+                    {% for page_size in choice_page_size %}
+                        <option value="{{ page_size }}" {% if current_page_size == page_size %}selected="selected"{% endif %}>{{ page_size }}</option>
+                    {% endfor %}
+                    </select>
+                </span>
+                <div>
+                    <a href="1" class="pagination">|<</a>
+                    <a href="{{ prev_10 }}" class="pagination"><</a>
+                    {% for page_num in page_nav %}
+                    <a href="{{ page_num }}" class="pagination">{{ page_num }}</a>
+                    {% endfor %}
+                    <a href="{{ next_10 }}" class="pagination">></a>
+                    <a href="{{ templates.paginator.num_pages }}" class="pagination">>|</a>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+	</div>
+    <!--//Liste-Attribute-->
+    <a class="btn ajouter" href="{% url 'new_template' %}">{% trans "Add a new Template" %}</a>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+    $("a.delete_tpl").click(function() {
+        if(confirm('{% trans "Are your sure you want to delete this template ?" %}')) {
+            $.post(this.href, function(data){
+                $("#template_"+data.pk).remove();
+                if(data.pk == "{% firstof pk "0" %}") {
+                    location.replace("{% url 'new_template' %}");
+                }
+            });
+        }
+        return false;
+    });
+    $("a.preview").click(function() {
+        open(this.href, "_blank");
+        return false;
+    });
+    function preview() {
+        open("{% url 'preview_template' pk %}", "_blank");
+    }
+
+    $("#email_images input:checkbox").click(function() {
+        if ($("#email_images input:checkbox").length > 0)
+            $("#email_images_msg").show();
+        else
+            $("#email_images_msg").hide();
+    });
+
+    //set page size
+    $("#page_size").change(function(event){
+        $("#page_size_form").submit();
+    });
+    //page nav
+    $(".pagination").click(function(event){
+        $("#current_page").val($(this).attr('href'));
+        $("#page_size_form").submit();
+        event.preventDefault();
+    });
+    //go specific page by input
+    $("#page_num").keypress(function(event){
+        if(event.which == 13){ //'enter' key
+            var page_num = $(this).val();
+            if(!isNaN(page_num)&&parseInt(page_num)==page_num) {
+                $("#current_page").val(page_num);
+                $("#page_size_form").submit();
+                event.preventDefault();
+            }
+            else
+                alert("{% trans "Please enter a valid page number." %}");
+        }
+    });
+
+    var sale_img_upload_max_size = {{ sale_img_upload_max_size }};
+    var sale_img_upload_max_size_err = "{% trans "File exceeds maximum allowed size of 1MB" %}";
+    function _validate_max_file_size(file) {
+        if (file.size > sale_img_upload_max_size) {
+            alert(sale_img_upload_max_size_err);
+            return false;
+        }
+        return true;
+    }
+    $("#pp_upload").fileupload({
+        dataType: 'json',
+        url: "{% url 'upload_email_image' %}",
+        dropZone: $("#email_images"),
+        namespace: 'email_images',
+        add: function(e, data) {
+            if (_validate_max_file_size(data.files[0])) {
+                $.each(data.files, function(key, file) {
+                    var id = file.name.replace(/\W+/g, '-');
+                    var to_append = '<li id="pp_'+id+'">'+file.name+' <b></b></li>';
+                    $("#pp_queue").append(to_append);
+                });
+                data.submit();
+            }
+        },
+        progress: function(e, data) {
+            $.each(data.files, function(key, file) {
+                var id = file.name.replace(/\W+/g, '-');
+                var percentage = parseInt(data.loaded/data.total*100, 10);
+                $("#pp_"+id+" b").html(percentage+"%");
+            });
+        },
+        done: function(e, data) {
+            if (data.result.status == 'ok') {
+                addImage(data.result);
+            } else if (data.result.status == 'max_limit_error'){
+                alert(sale_img_upload_max_size_err);
+            } else {
+                alert("{% trans "Error happened when uploading, please try later, or contact system admin." %}");
+            }
+            $.each(data.files, function(key, file) {
+                var id = file.name.replace(/\W+/g, '-');
+                $("#pp_"+id).remove();
+            });
+        },
+        fail: function(e, data) {
+            alert("{% trans "Error happened when uploading, please try later, or contact system admin." %}");
+        }
+    });
+    function addImage(result) {
+        var nb_of_forms = $("#{{ form.images.management_form.TOTAL_FORMS.auto_id }}").val();
+        var form = $("#image_template_form").html();
+        form = form.replace(/__prefix__/g, nb_of_forms.toString()); // counting start from 0, so just use nb_of_forms here
+        var picture_pk = "#{{ form.images.empty_form.pk.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
+        var thumb_url = "#{{ form.images.empty_form.thumb_url.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
+        var url = "#{{ form.images.empty_form.url.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
+        var sort_order = "#{{ form.images.empty_form.sort_order.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
+        var link = "#{{ form.images.empty_form.prefix }}-link".replace(/__prefix__/g, nb_of_forms.toString());
+        var img = "#{{ form.images.empty_form.prefix }}-img".replace(/__prefix__/g, nb_of_forms.toString());
+        $("#existing_pp").append(form);
+        $(picture_pk).val(result.pk);
+        $(thumb_url).val(result.thumb_url);
+        $(url).val(result.url);
+        $(sort_order).val($("#existing_pp").find("span.product_picture_form").length);
+        $(link).attr('href', result.url);
+        $(img).attr('src', result.thumb_url);
+
+        nb_of_forms++;
+        $("#{{ form.images.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
+
+    }
+</script>
+{% endblock %}
