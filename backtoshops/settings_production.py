@@ -119,6 +119,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'aloha_editor.middleware.AlohaEditorMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
@@ -147,6 +148,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 INSTALLED_APPS = (
+    'aloha_editor',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -173,6 +175,7 @@ INSTALLED_APPS = (
     get_site_prefix()+'brandsettings',
     get_site_prefix()+'brandings',
     get_site_prefix()+'countries',
+    get_site_prefix()+'emails',
     get_site_prefix()+'orders',
     get_site_prefix()+'taxes',
     get_site_prefix()+'promotion',

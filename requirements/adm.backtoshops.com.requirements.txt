@@ -17,3 +17,4 @@ ujson==1.33
 B2SUtils==0.0.9
 xmltodict==0.7.0
 incf.countryutils==1.0
+django-aloha-editor==1.0
