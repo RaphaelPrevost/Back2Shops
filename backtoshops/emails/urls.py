@@ -16,7 +16,7 @@ urlpatterns = patterns(settings.get_site_prefix() + 'emails',
        admin_required(EditTemplateView.as_view()), name="edit_template"),
    url(r'/(?P<pk>\d+)/edit/(?P<page>\d+)$',
        admin_required(EditTemplateView.as_view()), name="edit_template"),
-   url(r'/(?P<pk>\d+)/preview$',
+   url(r'/preview$',
        admin_required(PreviewTemplateContentView.as_view()), name="preview_template"),
 
    url(r'/(?P<pk>\d+)/delete$',

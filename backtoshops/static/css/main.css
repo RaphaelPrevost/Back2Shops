@@ -293,6 +293,10 @@ label {
         margin: 70px 15px 0 0;
     }
 
+    #content_Bottom {
+        margin: 10px 20px 0 30px;
+    }
+
 
 /*--------- TITRES PAGES, Title ---------*/
 #title { height: 27px; margin-bottom: 5px; }

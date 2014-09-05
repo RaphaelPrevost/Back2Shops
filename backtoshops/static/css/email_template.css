@@ -56,7 +56,7 @@
 
     #main_form .formrow label { width: 165px; }
     #main_form .formrow select { width: 283px; }
-    #main_form .formrow textarea {width: 440px;}
+    #main_form .formrow textarea {width: 446px;}
     #main_form .formrow input { width: 271px; }
     #main_form .formrow .inputXS { width: 40px; }
     #main_form .formrow .inputS { width: 70px; }
@@ -111,7 +111,7 @@
         background: url(../../../documentations/back-office_BTS_06_24/img/icon.png) no-repeat -10px -252px;
     }
 
-    #main_form .btn { float: right; margin: 5px 0 0 5px; }
+    #main_form .btn { float: right; margin: 5px 0 5px 5px; }
 
     #add_taw_form {
         width: 283px;
@@ -262,9 +262,8 @@
 }
 
 
-#listTpl table tr th.nom { width: 180px; }
-#listTpl table tr th.preview { width: 100px; }
-#listTpl table tr th.action { width: 68px; text-align: right; }
+#listTpl table tr th.nom { width: 280px; }
+#listTpl table tr th.action { width: 58px; text-align: right; }
 #listTpl table tr th.action a { margin-right: 0; padding-right: 0; }
 
 
@@ -317,9 +316,7 @@
 
 
 /*--BTN--*/
-#content_Right .btn.ajouter { float: right; }
-
-.btn.preview {padding: 0 10px 0 10px;}
+#content_Right .btn.ajouter { float: right; float: right; margin-bottom: 5px; }
 
 
 /*------------------------*/
