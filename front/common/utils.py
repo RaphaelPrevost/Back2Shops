@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import settings
+import cgi
 import datetime
 import gevent
 import logging
@@ -511,4 +512,20 @@ def get_thumbnail(img_url, width, height=None):
     return get_thumbnail_url(img_url, size,
                       settings.FRONT_ROOT_URI,
                       settings.STATIC_FILES_PATH)
+
+html_escape_table = {
+    "&": "&amp;",
+    '"': "&quot;",
+    "'": "&apos;",
+    ">": "&gt;",
+    "<": "&lt;",
+}
+
+def html_escape(text):
+    return "".join(html_escape_table.get(c, c) for c in text)
+
+def html_escape_params(req, resp, params):
+    for p in req._params:
+        req._params[p] = html_escape(req._params[p])
+        print req._params[p]
 

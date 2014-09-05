@@ -65,7 +65,7 @@
             </nav>
             <script>
             function logout() {
-                document.cookie = "USER_AUTH=\"\"";
+                document.cookie = "USER_AUTH=\"\";path=\"/\"";
                 location = "${logout_url_format}";
             }
             </script>

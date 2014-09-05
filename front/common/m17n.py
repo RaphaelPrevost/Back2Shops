@@ -53,6 +53,7 @@ MESSAGE_CATALOG = {
         # error message
         'INTERNAL_SERVER_ERROR': "Sorry, our server met problems. Please try later.",
         'SERVER_ERR': 'Server error.',
+        'DB_ERR': 'Server error.',
         'INVALID_REQUEST': 'Invalid request.',
         'ERR_EMAIL': 'Invalid email.',
         'ERR_PASSWORD': 'Invalid password.',
