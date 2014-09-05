@@ -34,6 +34,7 @@
     <!-- basic information -->
     <name>{{ object.product.name }}</name>
     <desc>{{ object.product.description }}</desc>
+    <short_desc>{{ object.product.short_description }}</short_desc>
     {% for pic in object.product.pictures.all|dictsort:"id"|dictsort:"sort_order" %}
         <img>{{ pic.picture.url }}</img>
     {% endfor %}

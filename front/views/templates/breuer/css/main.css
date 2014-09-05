@@ -249,13 +249,29 @@ a { color: #1f244a; }
 	border-bottom: 1px solid #A7ACCD;
 }
 #linkHead {
-	position: absolute;
-	top: 115px; right: 0px;
-	text-align: right;
-	font-size: 11px; line-height: 16px;
-	text-transform: uppercase;
+    font-family: verdana;
+    font-size: 10px;
+    line-height: 16px;
+    position: absolute;
+    right: 0;
+    text-align: right;
+    text-transform: uppercase;
+    top: 115px;
 }
-#linkHead a:hover { text-decoration: underline; }
+#linkHead a:hover {
+    text-decoration: underline;
+}
+#linkHead #deco {
+    background: url("../img/deconnection.png") no-repeat scroll right 3px #338aeb;
+    color: #ffffff;
+    display: inline-block;
+    margin-top: 3px;
+    padding: 2px 20px 2px 5px;
+}
+#linkHead #deco:hover {
+    background-color: #046eeb;
+    text-decoration: none;
+}
 
 
 #logo {

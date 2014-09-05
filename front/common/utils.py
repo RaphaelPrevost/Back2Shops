@@ -137,10 +137,14 @@ def get_discounted_price(price, product_info):
 def get_brief_product(sale):
     id_sale = sale['@id']
     _type = sale.get('type', {})
+    short_desc = sale.get('short_desc') or ''
+    if short_desc == 'None':
+        short_desc = ''
     product_info = {
         'id': id_sale,
         'name': sale.get('name') or '',
         'desc': sale.get('desc') or '',
+        'short_desc': short_desc,
         'img': sale.get('img') or '',
         'link': get_url_format(FRT_ROUTE_ROLE.PRDT_INFO) % {
             'id_type': _type.get('@id', 0),

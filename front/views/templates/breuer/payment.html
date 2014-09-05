@@ -122,7 +122,11 @@
             <p class="errwrapper">Vous devez accepter les conditions générale de vente pour valider votre commande</p>
         </div>
 
-        <div id="paymentForm">#{form}</div>
+        <div id="btnline">
+            <a id="paymentBtn" href="javascript:void(0)" class="btn purchase">Valider</a>
+            <a class="btn back" href="javascript:history.go(-1)">Etape précédente</a>
+            <div id="paymentForm" style="display:none">#{form}</div>
+        </div>
     </div>
 
     <script type="text/javascript">
@@ -161,9 +165,9 @@
 
     function checkCGV() {
         if ($('#cgvin:checked').length == 0)
-            $('#paymentForm').hide();
+            $('#paymentBtn').hide();
         else
-            $('#paymentForm').show();
+            $('#paymentBtn').show();
     }
 
     $(function() {
@@ -177,6 +181,10 @@
         });
         $('table').each(function() {
             calc_sum($(this));
+        });
+
+        $('#paymentBtn').click(function() {
+            $('#paymentForm form').submit();
         });
     });
     </script>

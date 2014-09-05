@@ -12,6 +12,7 @@
 <!-- common markup -->
 <!ELEMENT name (#PCDATA) >
 <!ELEMENT desc (#PCDATA) >
+<!ELEMENT short_desc (#PCDATA) >
 <!ELEMENT img (#PCDATA) >
 
 <!-- address common format -->
@@ -27,7 +28,7 @@
 <!ELEMENT id (#PCDATA) >
 <!ATTLIST id type (business | tax | personal) "business" >
 
-<!ELEMENT sale (category, type, name, desc, img*, brand, weight?, price?, discount?, variant*, shop*, available) >
+<!ELEMENT sale (category, type, name, desc, short_desc, img*, brand, weight?, price?, discount?, variant*, shop*, available) >
 <!ATTLIST sale id CDATA #REQUIRED >
 
 <!ELEMENT category (name, thumb, img) >

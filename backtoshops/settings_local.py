@@ -267,7 +267,10 @@ CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
         #'LOCATION': '/var/tmp/django_cache',
-    }
+    },
+    'rosetta': {
+        'BACKEND': 'rosetta.storage.CacheRosettaStorage',
+    },
 }
 
 # debug-toolbar setting:
