@@ -213,9 +213,9 @@ class UserResource(BaseJsonResource):
                         where={'id': users_id})
 
         # users_profile columns
-        if not req.get_param('first_name'):
+        if not req.get_param('first_name') or len(req.get_param('first_name')) > 64:
             raise ValidationError('INVALID_FIRST_NAME')
-        if not req.get_param('last_name'):
+        if not req.get_param('last_name') or len(req.get_param('last_name')) > 64:
             raise ValidationError('INVALID_LAST_NAME')
         if not req.get_param('gender') \
                 or req.get_param('gender') not in GENDER.toDict().values():

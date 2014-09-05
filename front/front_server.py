@@ -9,6 +9,7 @@ import signal
 
 import settings
 from common.data_access import data_access
+from common.utils import html_escape_params
 from common.utils import send_reload_signal
 from common.utils import watching_invalidate_cache_list
 from urls import BrandRoutes
@@ -21,7 +22,7 @@ setupLogging(settings.LOG_CONFIG_FILE)
 
 def get_app(reload_=False):
     # falcon.API instances are callable WSGI apps
-    app = falcon.API(before=[parse_form_params])
+    app = falcon.API(before=[parse_form_params, html_escape_params])
 
     # Resources are represented by long-lived class instances
     routes = BrandRoutes()
