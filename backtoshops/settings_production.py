@@ -48,10 +48,11 @@ LANGUAGE_CODE = 'en-us'
 
 ugettext = lambda s: s
 LANGUAGES = (
-    ('en', ugettext('English')),
-    ('fr', ugettext('French')),
-    ('zh', ugettext('Chinese')),
+    ('en-us', ugettext('English')),
+    ('fr-FR', ugettext('French')),
+    ('zh-CN', ugettext('Chinese')),
 )
+LANGUAGES_2 = tuple([(lang[:2], text) for lang, text in LANGUAGES])
 SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not
@@ -113,9 +114,9 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -244,7 +245,12 @@ CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
         'LOCATION': '127.0.0.1:11211',
-    }
+    },
+    'rosetta': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+        'KEY_PREFIX': 'ROSETTA_',
+    },
 }
 
 # debug-toolbar setting:

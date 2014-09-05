@@ -11,7 +11,7 @@ class UserProfile(models.Model):
     user = models.ForeignKey(User, unique=True)
     work_for = models.ForeignKey("Brand", related_name="employee")
     shops = models.ManyToManyField('shops.Shop', verbose_name=_('shops'), null=True, blank=True)
-    language = models.CharField(max_length=2, verbose_name=_('language'), choices=settings.LANGUAGES)
+    language = models.CharField(max_length=2, verbose_name=_('language'), choices=settings.LANGUAGES_2)
     role = models.IntegerField()
     allow_internet_operate = models.BooleanField(default=False)
 

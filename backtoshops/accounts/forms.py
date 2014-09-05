@@ -99,7 +99,8 @@ class BaseOperatorForm(forms.ModelForm):
     required_css_class = 'required'
     username = forms.CharField(label=_("Username"))
     email = forms.EmailField(label=_("E-mail"))
-    language = forms.ChoiceField(label=_("language"), choices=settings.LANGUAGES)
+    language = forms.ChoiceField(label=_("language"),
+                                 choices=settings.LANGUAGES_2)
     
     class Meta:
         model = UserProfile
