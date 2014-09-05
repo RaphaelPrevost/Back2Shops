@@ -10,13 +10,13 @@ class EmailTemplateForm(forms.ModelForm):
         super(EmailTemplateForm, self).__init__(*args, **kwargs)
 
         self.fields['html_head'] = forms.CharField(
-                widget=forms.Textarea(),
+                widget=forms.Textarea(attrs={'rows': '20'}),
                 required=False,
                 initial=
             '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>\n'
             '<meta content="width=device-width"/>')
         self.fields['html_body'] = forms.CharField(
-                widget=forms.Textarea(),
+                widget=forms.HiddenInput(),
                 required=False)
 
         formset = formset_factory(EmailTemplateImageForm, extra=0, can_delete=True)

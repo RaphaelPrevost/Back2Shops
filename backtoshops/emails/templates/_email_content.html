@@ -5,13 +5,39 @@
     {% load aloha_editor %} 
     {% include "aloha_editor/css.html" %}
     {% include "aloha_editor_js.html" %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.1.6.2.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/fileupload/jquery.iframe-transport.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/fileupload/jquery.fileupload.js"></script>
+
     <script type="text/javascript">
+    var obj_id = "{{form.html_body.auto_id}}";
     Aloha.ready(function() {
-        Aloha.jQuery('.aloha_editable').aloha();
+        var html_head = $("#{{form.html_head.auto_id}}", parent.document.body);
+        $(html_head.val()).appendTo($('head'));
+
+        var html_body = $("#" + obj_id, parent.document.body);
+        var editable_obj = $('<div id="' + obj_id + '" class="aloha_editable"></div>');
+        editable_obj.html(html_body.val()).appendTo($('body'));
+        editable_obj.aloha();
+
+        Aloha.Sidebar.right.addPanel({
+            id: 'images',
+            title: "{% trans "Choose Image" %}",
+            content: '<div id="choose_image_panel"></div>',
+            expanded: true,
+        }).activate();
+        $('#choose_image_section').show().appendTo($('#choose_image_panel'));
+
+        Aloha.bind('aloha-image-selected', function() {
+            Aloha.Sidebar.right.open();
+        });
     });
+    function isPreviewMode() {
+        return $('#' + obj_id + ':hidden').length == 0;
+    }
     function preview() {
-        var obj_id = "{{form.html_body.auto_id}}-emails_EmailTemplate-{{pk}}-{{form.html_body.name}}";
-        if ($('#' + obj_id + ':hidden').length == 0) return;
+        if (isPreviewMode()) return;
 
         if ($('#src-' + obj_id).length > 0) {
             var content = $('#src-' + obj_id).hide().val();
@@ -19,55 +45,173 @@
         }
     }
     function source() {
-        var obj_id = "{{form.html_body.auto_id}}-emails_EmailTemplate-{{pk}}-{{form.html_body.name}}";
-        if ($('#' + obj_id + ':hidden').length > 0) return;
+        if (!isPreviewMode()) return;
 
         var content = Aloha.getEditableById(obj_id).getContents();
         $('#' + obj_id).hide();
         if ($('#src-' + obj_id).length == 0) {
-            $("<textarea id='src-" + obj_id + "' rows='40' cols='100'>" + content + "</textarea>").appendTo($('body'));
+            $("<textarea id='src-" + obj_id + "' rows='30' cols='100'>" + content + "</textarea>").appendTo($('body'));
         } else {
             $('#src-' + obj_id).val(content).show();
         }
     }
-    function save(){
-        var obj_id = "{{form.html_body.auto_id}}-emails_EmailTemplate-{{pk}}-{{form.html_body.name}}";
+    function getEditableContent(){
         var content = "";
-        if ($('#' + obj_id + ':hidden').length == 0) {
+        if (isPreviewMode()) {
             content = Aloha.getEditableById(obj_id).getContents();
         } else {
             content = $('#src-' + obj_id).val();
         }
-
-        var request = jQuery.ajax({
-            url: "{% url 'aloha_editor_save_editable' %}",
-            type: "POST",
-            data: {
-                editable_content : content,
-                editable_reference : obj_id,
-            },
-            dataType: "html"
-        });
-        request.done(function(result) {
-            var result = jQuery.parseJSON(result)
-            if (result.success == true) {
-                alert("{% trans "Save successfully." %}");
-            }
-        });
-        request.error(function(jqXHR, textStatus) {
-            alert( "Request failed: " + textStatus );
-        });
+        return content;
     }
     </script>
-    {{form.html_head.value|safe}}
 </head>
 <body>
     <div style="margin: 10px">
+        <label for="{{form.html_body.auto_id}}" >{% trans form.html_body.label %}</label>
         <a href="javascript:preview();" style="margin:10px">{% trans "Preview" %}</><a>
         <a href="javascript:source();" style="margin:10px">{% trans "Source Code" %}</><a>
-        <a href="javascript:save();" style="margin:10px">{% trans "Save" %}</><a>
     </div>
-
-    <div id="{{form.html_body.auto_id}}-emails_EmailTemplate-{{pk}}-{{form.html_body.name}}" class="aloha_editable">{{form.html_body.value|safe }}</div>
+    <div id="choose_image_section" style="display:none;">
+        <form id="choose_image_form" method="post" enctype="multipart/form-data">{% csrf_token %}
+            <div>
+                {{ form.images.management_form }}
+                <label>{% trans "Upload new image" %}</label>
+                <input id="pp_upload" type="file" name="files[]" multiple>
+            </div>
+            <div>
+                <div id="email_images">
+                    <ul id="pp_queue"></ul>
+                    <p id="existing_pp">
+                        {% for pp in form.images %}
+                        <span id="{{ pp.prefix }}-row">
+                            {{ pp.pk }}
+                            {{ pp.url }}
+                            {{ pp.thumb_url }}
+                            <a id="{{ pp.prefix }}-link" class="img-link" href="{{ pp.url.value }}"><img id="{{ pp.prefix }}-img" src="{{ pp.thumb_url.value }}"/></a>
+                        </span>
+                        {% endfor %}
+                    </p>
+                </div>
+            </div>
+        </form>
+    </div>
+    <span id="image_template_form" style="display: none;">
+        <span id="{{ form.images.empty_form.prefix }}-row">
+            {{ form.images.empty_form.pk }}
+            {{ form.images.empty_form.thumb_url }}
+            {{ form.images.empty_form.url }}
+            <a id="{{ form.images.empty_form.prefix }}-link" class="img-link"><img id="{{ form.images.empty_form.prefix }}-img"/></a>
+        </span>
+    </span>
 </body>
 </html>
+
+<script type="text/javascript">
+$(function(){
+    $(".img-link").click(function(event) {
+        event.preventDefault();
+
+        var link = $(this).attr('href');
+        copyImgLink(link);
+    });
+    function copyImgLink(link) {
+        if (isPreviewMode()) {
+            $('#aloha-attribute-field-imageSource').focus().val(link).trigger('keyup');
+        } else {
+            insertText($('#src-' + obj_id)[0], link);
+        }
+    }
+    function insertText(obj, str) {
+        if (document.selection) {
+            obj.focus();
+            var sel = document.selection.createRange();
+            sel.text = str;
+        } else if (typeof obj.selectionStart === 'number' && typeof obj.selectionEnd === 'number') {
+            var startPos = obj.selectionStart,
+                endPos = obj.selectionEnd,
+                cursorPos = startPos,
+                tmpStr = obj.value;
+            obj.value = tmpStr.substring(0, startPos) + str + tmpStr.substring(endPos, tmpStr.length);
+            cursorPos += str.length;
+            obj.selectionStart = obj.selectionEnd = cursorPos;
+        } else {
+            obj.value += str;
+        }
+    }
+
+    var img_upload_max_size_err = "{% trans "File exceeds maximum allowed size of 1MB" %}";
+    function _validate_max_file_size(file) {
+        if (file.size > 1024 * 1024) {
+            alert(img_upload_max_size_err);
+            return false;
+        }
+        return true;
+    }
+    $("#pp_upload").fileupload({
+        dataType: 'json',
+        url: "{% url 'upload_email_image' %}",
+        dropZone: $("#email_images"),
+        namespace: 'email_images',
+        add: function(e, data) {
+            if (_validate_max_file_size(data.files[0])) {
+                $.each(data.files, function(key, file) {
+                    var id = file.name.replace(/\W+/g, '-');
+                    var to_append = '<li id="pp_'+id+'">'+file.name+' <b></b></li>';
+                    $("#pp_queue").append(to_append);
+                });
+                data.submit();
+            }
+        },
+        progress: function(e, data) {
+            $.each(data.files, function(key, file) {
+                var id = file.name.replace(/\W+/g, '-');
+                var percentage = parseInt(data.loaded/data.total*100, 10);
+                $("#pp_"+id+" b").html(percentage+"%");
+            });
+        },
+        done: function(e, data) {
+            if (data.result.status == 'ok') {
+                addImage(data.result);
+            } else if (data.result.status == 'max_limit_error'){
+                alert(img_upload_max_size_err);
+            } else {
+                alert("{% trans "Error happened when uploading, please try later, or contact system admin." %}");
+            }
+            $.each(data.files, function(key, file) {
+                var id = file.name.replace(/\W+/g, '-');
+                $("#pp_"+id).remove();
+            });
+        },
+        fail: function(e, data) {
+            alert("{% trans "Error happened when uploading, please try later, or contact system admin." %}");
+        }
+    });
+    function addImage(result) {
+        var nb_of_forms = $("#{{ form.images.management_form.TOTAL_FORMS.auto_id }}").val();
+        var form = $("#image_template_form").html();
+        form = form.replace(/__prefix__/g, nb_of_forms.toString()); // counting start from 0, so just use nb_of_forms here
+        var picture_pk = "#{{ form.images.empty_form.pk.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
+        var thumb_url = "#{{ form.images.empty_form.thumb_url.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
+        var url = "#{{ form.images.empty_form.url.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
+        var sort_order = "#{{ form.images.empty_form.sort_order.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
+        var link = "#{{ form.images.empty_form.prefix }}-link".replace(/__prefix__/g, nb_of_forms.toString());
+        var img = "#{{ form.images.empty_form.prefix }}-img".replace(/__prefix__/g, nb_of_forms.toString());
+        $("#existing_pp").append(form);
+        $(picture_pk).val(result.pk);
+        $(thumb_url).val(result.thumb_url);
+        $(url).val(result.url);
+        $(sort_order).val($("#existing_pp").find("span.product_picture_form").length);
+        $(link).attr('href', result.url);
+        $(img).attr('src', result.thumb_url);
+
+        nb_of_forms++;
+        $("#{{ form.images.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
+
+        $(link).click(function(event) {
+            event.preventDefault();
+            copyImgLink(result.url);
+        });
+    }
+});
+</script>

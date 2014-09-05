@@ -21,8 +21,10 @@ class BaseView(AdminLoginRequiredMixin):
         templates = EmailTemplate.objects.all()
 
         try:
-            p_size = int(self.request.GET.get('page_size', settings.get_page_size(self.request)))
-            p_size = p_size if p_size in settings.CHOICE_PAGE_SIZE else settings.DEFAULT_PAGE_SIZE
+            p_size = int(self.request.GET.get('page_size',
+                         settings.get_page_size(self.request)))
+            p_size = p_size if p_size in settings.CHOICE_PAGE_SIZE \
+                            else settings.DEFAULT_PAGE_SIZE
             self.request.session['page_size'] = p_size
         except:
             pass
@@ -55,22 +57,6 @@ class BaseView(AdminLoginRequiredMixin):
 
     def get_success_url(self):
         return reverse("new_template")
-
-    def get_form_kwargs(self):
-        kwargs = super(BaseView, self).get_form_kwargs()
-
-        initial = {}
-        if getattr(self, 'object', None):
-            images = []
-            for _img in EmailTemplateImage.objects.filter(email_id=self.object.pk):
-                images.append({
-                    'pk': _img.pk,
-                    'url': _img.image.url,
-                    'thumb_url': get_thumbnail(_img.image, '40x43').url,
-                })
-            initial.update({'images': images})
-        kwargs.update({'initial': initial})
-        return kwargs
 
 
 class NewTemplateView(BaseView, CreateView):
@@ -118,12 +104,25 @@ class EditTemplateView(BaseView, UpdateView):
         return reverse('edit_template', args=[pk])
 
 
-class PreviewTemplateContentView(BaseView, UpdateView):
+class PreviewTemplateContentView(CreateView):
+    model = EmailTemplate
+    form_class = EmailTemplateForm
     template_name = "_email_content.html"
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super(PreviewTemplateContentView, self).get(request, *args, **kwargs)
+    def get_form_kwargs(self):
+        kwargs = super(CreateView, self).get_form_kwargs()
+
+        initial = {}
+        images = []
+        for _img in EmailTemplateImage.objects.all():
+            images.append({
+                'pk': _img.pk,
+                'url': _img.image.url,
+                'thumb_url': get_thumbnail(_img.image, '40x43').url,
+            })
+        initial.update({'images': images})
+        kwargs.update({'initial': initial})
+        return kwargs
 
 
 class DeleteTemplateView(BaseView, DeleteView):
