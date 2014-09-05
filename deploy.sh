@@ -32,7 +32,7 @@ FRT_REQUIREMENT=$CWD/requirements/front.requirements.txt
 
 ADM_DEPS=(libapache2-mod-wsgi python2.7-dev libpq-dev python-pip git \
           libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev \
-          liblcms1-dev libwebp-dev gettext libevent-dev swig)
+          liblcms1-dev libwebp-dev gettext libevent-dev swig memcached)
 USR_DEPS=(python2.7-dev libpq-dev python-pip git python-lxml \
           libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev \
           liblcms1-dev libwebp-dev libevent-dev swig redis-server)

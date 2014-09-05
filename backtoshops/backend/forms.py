@@ -83,7 +83,7 @@ class BaseUserForm(forms.ModelForm):
     role = forms.IntegerField(widget=forms.HiddenInput(), required=False)
     language = forms.ChoiceField(
         label=_("language"),
-        choices=[(k, _(v)) for k, v in settings.LANGUAGES])
+        choices=[(k, _(v)) for k, v in settings.LANGUAGES_2])
 #    is_superuser = forms.BooleanField(label=_("Super admin"), required=False)
 
     class Meta:
@@ -239,7 +239,7 @@ class SASettingsForm(forms.Form):
     required_css_class = 'required'
     
     default_language = forms.ChoiceField(
-        choices=[(k, _(v)) for k, v in settings.LANGUAGES],
+        choices=[(k, _(v)) for k, v in settings.LANGUAGES_2],
         label=_('Default language'))
     default_currency = forms.ChoiceField(
         choices=[(s, s) for s in
