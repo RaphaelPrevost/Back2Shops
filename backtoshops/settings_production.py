@@ -192,7 +192,9 @@ INSTALLED_APPS = (
     'multiwidgetlayout',
 )
 
-AUTH_PROFILE_MODULE='accounts.UserProfile'
+LOGIN_URL = '/login/'
+LOGOUT_URL = '/logout/'
+AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
