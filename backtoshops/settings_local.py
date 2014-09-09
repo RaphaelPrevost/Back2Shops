@@ -216,7 +216,9 @@ INSTALLED_APPS = (
     'multiwidgetlayout',
 )
 
-AUTH_PROFILE_MODULE='accounts.UserProfile'
+LOGIN_URL = '/login/'
+LOGOUT_URL = '/logout/'
+AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -319,3 +321,4 @@ ORDER_DELETE = '%s/webservice/1.0/private/order/delete' % USR_SERVER
 CRYPTO_RESP_DEBUGING = True
 
 SALE_IMG_UPLOAD_MAX_SIZE = 1024 * 1024  # Bytes, 1M
+
