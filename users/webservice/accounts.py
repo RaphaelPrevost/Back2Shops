@@ -46,6 +46,7 @@ class UserResource(BaseJsonResource):
                  left join users_profile
                     on (users.id=users_profile.users_id)
                  where users.id=%s limit 1"""
+        _this_year = datetime.datetime.now().year
         users_profile = db_utils.query(conn, sql, (users_id,))[0]
         email = users_profile[0]
         locale = users_profile[1] or 'en-US'
@@ -53,7 +54,7 @@ class UserResource(BaseJsonResource):
         first_name = users_profile[3] or ''
         last_name = users_profile[4] or ''
         gender = users_profile[5] or ''
-        birthday = users_profile[6] or ''
+        birthday = users_profile[6] or datetime.datetime(_this_year - 18, 1, 1)
 
         fields_dict = {}
         # email
@@ -87,8 +88,8 @@ class UserResource(BaseJsonResource):
         # birthday
         fields_dict['birthday'] = field_utils.SelectFieldType("Birthday",
                     birthday and str(birthday.date()) or '',
-                    ['%s-%s-%s' % (datetime.datetime.now().year - 100, 1, 1),
-                     '%s-%s-%s' % (datetime.datetime.now().year, 12, 31)])
+                    ['%s-%s-%s' % (_this_year - 100, 1, 1),
+                     '%s-%s-%s' % (_this_year, 12, 31)])
 
         # combine general fields
         general_fields_order = ['first_name', 'last_name', 'locale', 'title',

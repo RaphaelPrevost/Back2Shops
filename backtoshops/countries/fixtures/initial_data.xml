@@ -1776,6 +1776,142 @@
         <field type="CharField" name="name">Yukon</field>
         <field type="CharField" name="abbrev">YT</field>
     </object>
+    <object pk="1" model="countries.cnprovince">
+        <field type="CharField" name="name">Anhui Sheng</field>
+        <field type="CharField" name="abbrev">AH</field>
+    </object>
+    <object pk="2" model="countries.cnprovince">
+        <field type="CharField" name="name">Beijing Shi</field>
+        <field type="CharField" name="abbrev">BJ</field>
+    </object>
+    <object pk="3" model="countries.cnprovince">
+        <field type="CharField" name="name">Chongqing Shi</field>
+        <field type="CharField" name="abbrev">CQ</field>
+    </object>
+    <object pk="4" model="countries.cnprovince">
+        <field type="CharField" name="name">Fujian Sheng</field>
+        <field type="CharField" name="abbrev">FJ</field>
+    </object>
+    <object pk="5" model="countries.cnprovince">
+        <field type="CharField" name="name">Guangdong Sheng</field>
+        <field type="CharField" name="abbrev">GD</field>
+    </object>
+    <object pk="6" model="countries.cnprovince">
+        <field type="CharField" name="name">Gansu Sheng</field>
+        <field type="CharField" name="abbrev">GS</field>
+    </object>
+    <object pk="7" model="countries.cnprovince">
+        <field type="CharField" name="name">Guangxi Zhuangzu Zizhiqu</field>
+        <field type="CharField" name="abbrev">GX</field>
+    </object>
+    <object pk="8" model="countries.cnprovince">
+        <field type="CharField" name="name">Guizhou Sheng</field>
+        <field type="CharField" name="abbrev">GZ</field>
+    </object>
+    <object pk="9" model="countries.cnprovince">
+        <field type="CharField" name="name">Henan Sheng</field>
+        <field type="CharField" name="abbrev">HA</field>
+    </object>
+    <object pk="10" model="countries.cnprovince">
+        <field type="CharField" name="name">Hubei Sheng</field>
+        <field type="CharField" name="abbrev">HB</field>
+    </object>
+    <object pk="11" model="countries.cnprovince">
+        <field type="CharField" name="name">Hebei Sheng</field>
+        <field type="CharField" name="abbrev">HE</field>
+    </object>
+    <object pk="12" model="countries.cnprovince">
+        <field type="CharField" name="name">Hainan Sheng</field>
+        <field type="CharField" name="abbrev">HI</field>
+    </object>
+    <object pk="13" model="countries.cnprovince">
+        <field type="CharField" name="name">Hong Kong</field>
+        <field type="CharField" name="abbrev">HK</field>
+    </object>
+    <object pk="14" model="countries.cnprovince">
+        <field type="CharField" name="name">Heilongjiang Sheng</field>
+        <field type="CharField" name="abbrev">HL</field>
+    </object>
+    <object pk="15" model="countries.cnprovince">
+        <field type="CharField" name="name">Hunan Sheng</field>
+        <field type="CharField" name="abbrev">HN</field>
+    </object>
+    <object pk="16" model="countries.cnprovince">
+        <field type="CharField" name="name">Jilin Sheng</field>
+        <field type="CharField" name="abbrev">JL</field>
+    </object>
+    <object pk="17" model="countries.cnprovince">
+        <field type="CharField" name="name">Jiangsu Sheng</field>
+        <field type="CharField" name="abbrev">JS</field>
+    </object>
+    <object pk="18" model="countries.cnprovince">
+        <field type="CharField" name="name">Jiangxi Sheng</field>
+        <field type="CharField" name="abbrev">JX</field>
+    </object>
+    <object pk="19" model="countries.cnprovince">
+        <field type="CharField" name="name">Liaoning Sheng</field>
+        <field type="CharField" name="abbrev">LN</field>
+    </object>
+    <object pk="20" model="countries.cnprovince">
+        <field type="CharField" name="name">Macau</field>
+        <field type="CharField" name="abbrev">MC</field>
+    </object>
+    <object pk="21" model="countries.cnprovince">
+        <field type="CharField" name="name">Inner Mongolia</field>
+        <field type="CharField" name="abbrev">NM</field>
+    </object>
+    <object pk="22" model="countries.cnprovince">
+        <field type="CharField" name="name">Ningxia Huizu Zizhiqu</field>
+        <field type="CharField" name="abbrev">NX</field>
+    </object>
+    <object pk="23" model="countries.cnprovince">
+        <field type="CharField" name="name">Qinghai Sheng</field>
+        <field type="CharField" name="abbrev">QH</field>
+    </object>
+    <object pk="24" model="countries.cnprovince">
+        <field type="CharField" name="name">Sichuan Sheng</field>
+        <field type="CharField" name="abbrev">SC</field>
+    </object>
+    <object pk="25" model="countries.cnprovince">
+        <field type="CharField" name="name">Shangdong Sheng</field>
+        <field type="CharField" name="abbrev">SD</field>
+    </object>
+    <object pk="26" model="countries.cnprovince">
+        <field type="CharField" name="name">Shanghai Shi</field>
+        <field type="CharField" name="abbrev">SH</field>
+    </object>
+    <object pk="27" model="countries.cnprovince">
+        <field type="CharField" name="name">Shaanxi</field>
+        <field type="CharField" name="abbrev">SN</field>
+    </object>
+    <object pk="28" model="countries.cnprovince">
+        <field type="CharField" name="name">Shanxi Sheng</field>
+        <field type="CharField" name="abbrev">SX</field>
+    </object>
+    <object pk="29" model="countries.cnprovince">
+        <field type="CharField" name="name">Tianjin Shi</field>
+        <field type="CharField" name="abbrev">TJ</field>
+    </object>
+    <object pk="30" model="countries.cnprovince">
+        <field type="CharField" name="name">Taiwan</field>
+        <field type="CharField" name="abbrev">TW</field>
+    </object>
+    <object pk="31" model="countries.cnprovince">
+        <field type="CharField" name="name">Xinjiang Uygur Zizhiqu</field>
+        <field type="CharField" name="abbrev">XJ</field>
+    </object>
+    <object pk="32" model="countries.cnprovince">
+        <field type="CharField" name="name">Tibet Autonomous Region</field>
+        <field type="CharField" name="abbrev">XZ</field>
+    </object>
+    <object pk="33" model="countries.cnprovince">
+        <field type="CharField" name="name">Yunnan Sheng</field>
+        <field type="CharField" name="abbrev">YN</field>
+    </object>
+    <object pk="34" model="countries.cnprovince">
+        <field type="CharField" name="name">Zhejiang Sheng</field>
+        <field type="CharField" name="abbrev">ZJ</field>
+    </object>
     <object pk="1" model="countries.countryxcurrency">
         <field to="countries.country" name="country" rel="ManyToOneRel">AF</field>
         <field type="CharField" name="currency">AFN</field>

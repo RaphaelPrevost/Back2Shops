@@ -85,6 +85,25 @@ class CaProvince(models.Model):
     def __unicode__(self):
         return self.name
 
+class CnProvince(models.Model):
+    """
+    Provinces and territories of China.
+    """
+    name = models.CharField(max_length=50)
+    abbrev = models.CharField(max_length=2)
+
+    class Meta:
+        db_table = 'cn_province'
+        verbose_name = _('CN Provinces and Territories')
+        verbose_name_plural = _('CN Provinces and Territories')
+        ordering = ('name',)
+
+    class Admin:
+        list_display = ('name', 'abbrev',)
+
+    def __unicode__(self):
+        return self.name
+
 class CountryXCurrency(models.Model):
     """
     Country & Currency Mapping Table
