@@ -1,6 +1,7 @@
 import json
 from django.http import HttpResponse
 from countries.models import CaProvince
+from countries.models import CnProvince
 from countries.models import CountryXCurrency
 from countries.models import UsState
 from sales.models import ProductCurrency
@@ -9,6 +10,7 @@ from sales.models import ProductCurrency
 COUNTRY_STATE_MODEL_MAP = {
     'US': UsState,
     'CA': CaProvince,
+    'CN': CnProvince,
 }
 
 

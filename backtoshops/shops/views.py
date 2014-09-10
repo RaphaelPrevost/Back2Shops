@@ -103,7 +103,7 @@ class CreateShopView(BaseShopView, CreateView):
                               login_url="/")(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse('edit_shop',args=[self.object.id])
+        return reverse('edit_shop', args=[self.object.id])
 
 
 class EditShopView(BaseShopView, UpdateView):

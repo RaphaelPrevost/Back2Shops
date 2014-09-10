@@ -58,7 +58,7 @@ function getTemplate(name, item)
 
             for (var j=0; j <= 2; j++) {
                 tpl += '<select class="' + name + '" name="' + name + j + '">';
-                for (var i=min_values[j]; i <= max_values[j]; i++) {
+                for (var i=max_values[j]; i >= min_values[j]; i--) {
                     tpl += '<option value="' + i + '"';
                     if (i == cur_value[j])
                         tpl += ' selected="selected"';
