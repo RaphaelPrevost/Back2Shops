@@ -1,8 +1,13 @@
 <info type="type" version="1.0" >
-<type pk="{{ object.pk }}">
+<type id="{{ object.pk }}">
 	<name>{{ object.name }}</name>
+    <category id="{{ object.category.pk }}">
+        <name>{{ object.category.name }}</name>
+        <thumb>{% if object.category.thumbnail %}{{ object.category.thumbnail.url }}{% endif %}</thumb>
+        <img>{% if object.category.picture %}{{ object.category.picture.url }}{% endif %}</img>
+    </category>
 	{% for attribute in object.common_attributes.all %}
-	<attribute pk="{{ attribute.pk }}">
+	<attribute id="{{ attribute.pk }}">
 		<name>{{ attribute.name }}</name>
 	</attribute>
 	{% endfor %}

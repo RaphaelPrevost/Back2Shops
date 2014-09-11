@@ -527,5 +527,4 @@ def html_escape(text):
 def html_escape_params(req, resp, params):
     for p in req._params:
         req._params[p] = html_escape(req._params[p])
-        print req._params[p]
 
