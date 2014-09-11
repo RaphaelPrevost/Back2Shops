@@ -12,7 +12,10 @@ from B2SProtocol.constants import SALES_FOR_TYPE
 from B2SProtocol.constants import SALES_FOR_CATEGORY
 from B2SProtocol.constants import SALES_FOR_SHOP
 from B2SProtocol.constants import SALES_FOR_BRAND
+from B2SProtocol.constants import SHOP
+from B2SProtocol.constants import TYPE
 from B2SProtocol.constants import TYPES_FOR_BRAND
+from B2SUtils.base_actor import as_list
 
 class NoRedisData(Exception):
     pass
@@ -194,9 +197,62 @@ class SalesCacheProxy(BaseCacheProxy):
                 return False
         return True
 
+    def _get_from_redis(self, obj_id=None, **kw):
+        if obj_id:
+            obj_ids = [obj_id]
+        else:
+            obj_ids = self._filter_obj_ids(**kw)
+
+        resp_dict = {}
+        types = {}
+        shops = {}
+        for _id in obj_ids:
+            obj = self.redis_cli.get(self.obj_redis_key % _id)
+            if obj:
+                resp_dict[_id] = ujson.loads(obj)
+
+                type_id = resp_dict[_id].get('type', {}).get('@id')
+                if type_id and type_id not in types:
+                    types[type_id] = ujson.loads(self.redis_cli.get(TYPE % type_id))
+
+                shop_list = as_list(resp_dict[_id].get('shop'))
+                for s in shop_list:
+                    shop_id = s.get('@id')
+                    if shop_id and shop_id not in shops:
+                        shops[shop_id] = ujson.loads(self.redis_cli.get(SHOP % shop_id))
+
+        for sale in resp_dict.itervalues():
+            # update shop and brand info
+            new_shops = []
+            brand = None
+            for s in as_list(sale.get('shop')):
+                shop_id = s.get('@id')
+                if shop_id and shops[shop_id]:
+                    shop_info = copy.deepcopy(shops[shop_id])
+                    brand = shop_info.pop('brand')
+                    new_shops.append(shop_info)
+                else:
+                    new_shops.append(s)
+            sale['shop'] = new_shops
+            if brand:
+                sale['brand'] = brand
+
+            type_id = sale.get('type', {}).get('@id')
+            category_id = sale.get('category', {}).get('@id')
+            if type_id and types[type_id]:
+                # update type name
+                sale['type']['name'] = types[type_id].get('name', '')
+                # update category info
+                if category_id and category_id == types[type_id].get('category', {}).get('@id'):
+                    sale['category'] = types[type_id].get('category', {})
+
+        return resp_dict
+
 
 class TypesCacheProxy(BaseCacheProxy):
     api_name = REMOTE_API_NAME.GET_TYPES
+    obj_redis_key = TYPE
+    list_redis_key = TYPES_FOR_BRAND
     local_cache_file = "static/cache/%s.json" % api_name
 
     _instance = None
@@ -207,12 +263,12 @@ class TypesCacheProxy(BaseCacheProxy):
                                   cls).__new__(cls, *args, **kwargs)
         return cls._instance
 
-    def _get_from_redis(self, **kw):
+    def _filter_obj_ids(self, **kw):
         brand_id = kw.get('seller')
-        types = self.redis_cli.get(TYPES_FOR_BRAND % brand_id)
-        if not types:
+        obj_ids = self.redis_cli.lrange(self.list_redis_key % brand_id, 0, -1)
+        if not obj_ids:
             raise NoRedisData()
-        return dict([(t["@id"], t) for t in ujson.loads(types)])
+        return obj_ids
 
     def _need_save_local_cache(self, **kw):
         return kw.get('seller') and len(kw) == 1

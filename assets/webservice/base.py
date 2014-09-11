@@ -27,14 +27,14 @@ class BaseResource(object):
         params = req._params
         logging.info('Got %s requet at %s UTC, %s with params %s'
                      % (req.method, datetime.utcnow(),
-                        req.uri, params))
+                        req.path, params))
 
         data = self.msg_handler(method_name, req, resp, **kwargs)
         self.gen_resp(resp, data)
 
         end_time = time.time() * 1000
         logging.info('Response %s Request: %s params: %s, in %s ms'
-                     % (req.method, req.uri, params,
+                     % (req.method, req.path, params,
                         end_time - start_time))
 
     def msg_handler(self, method_name, req, resp, **kwargs):

@@ -2,6 +2,11 @@
 	{% for type in object_list %}
     <type id="{{ type.pk }}">
         <name>{{ type.name }}</name>
+        <category id="{{ type.category.pk }}">
+            <name>{{ type.category.name }}</name>
+            <thumb>{% if type.category.thumbnail %}{{ type.category.thumbnail.url }}{% endif %}</thumb>
+            <img>{% if type.category.picture %}{{ type.category.picture.url }}{% endif %}</img>
+        </category>
         <!-- list of common attributes for this product type -->
         {% for ca in type.common_attributes.all %}
         <attribute name="{{ ca.name }}" />

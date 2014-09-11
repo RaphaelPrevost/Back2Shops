@@ -52,7 +52,7 @@ class NotExistError(Exception):
 class NoRedisData(Exception):
     pass
 
-class CacheProxy:
+class CacheProxy(object):
     list_api = None
     obj_api = None
     obj_key = None
@@ -425,27 +425,32 @@ class ShopsCacheProxy(CacheProxy):
 
 class TypesCacheProxy(CacheProxy):
     list_api = "pub/types/list?%s"
+    obj_api = "pub/types/info/%s"
     obj_key = TYPE
 
     @property
     def query_options(self):
         return ('seller')
 
-    def refresh(self, obj_id=None):
-        pass
-
     def del_obj(self, obj_id):
         pass
 
-    def _get_from_server(self, obj_id=None, **kw):
-        return CacheProxy._get_from_server(self, **kw)
+    def _rem_attrs_for_obj(self, id):
+        pass
 
     def _get_from_redis(self, **kw):
         brand_id = kw.get('seller')
-        types = get_redis_cli().get(TYPES_FOR_BRAND % brand_id)
-        if not types:
+        types_id = get_redis_cli().lrange(TYPES_FOR_BRAND % brand_id, 0, -1)
+        if not types_id:
             raise NoRedisData()
-        return dict([(t["@id"], t) for t in ujson.loads(types)])
+
+        types = {}
+        for t_id in types_id:
+            _type = get_redis_cli().get(TYPE % t_id)
+            if _type:
+                types[t_id] = ujson.loads(_type)
+
+        return types
 
     def parse_xml(self, xml, is_entire_result, **kw):
         logging.info('parse shops xml: %s, is_entire_result:%s',
@@ -468,9 +473,17 @@ class TypesCacheProxy(CacheProxy):
 
         brand_id = kw.get('seller')
         if brand_id:
-            get_redis_cli().setex(TYPES_FOR_BRAND % brand_id,
-                                  ujson.dumps(types),
-                                  settings.DEFAULT_REDIS_CACHE_TTL)
+            pipe = get_redis_cli().pipeline()
+            for _type in types:
+                pipe.rpush(TYPES_FOR_BRAND % brand_id, _type['@id'])
+            pipe.expire(TYPES_FOR_BRAND % brand_id, settings.DEFAULT_REDIS_CACHE_TTL)
+            pipe.execute()
+        self._save_objs_to_redis(types)
+
+class CatesCacheProxy(TypesCacheProxy):
+    def refresh(self, obj_id=None):
+        # refresh all types and categories
+        super(CatesCacheProxy, self).refresh()
 
 
 class RoutesCacheProxy(CacheProxy):
@@ -567,4 +580,5 @@ sales_cache_proxy = SalesCacheProxy()
 shops_cache_proxy = ShopsCacheProxy()
 find_cache_proxy = SalesFindProxy()
 types_cache_proxy = TypesCacheProxy()
+cates_cache_proxy = CatesCacheProxy()
 routes_cache_proxy = RoutesCacheProxy()

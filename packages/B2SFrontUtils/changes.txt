@@ -35,3 +35,6 @@
 
 == version 0.0.12 ==
 1. add geolocation
+
+== version 0.0.13 ==
+1. fix the cache proxy for sale typelist

@@ -2,11 +2,13 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from sorl.thumbnail import ImageField
 from django.db.models.signals import post_delete
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from accounts.models import Brand
 from common.assets_utils import AssetsStorage
 from common.cache_invalidation import post_delete_handler
+from common.cache_invalidation import post_save_handler
 from shippings.models import Shipping
 from shops.models import Shop
 
@@ -165,6 +167,14 @@ def on_sale_deleted(sender, **kwargs):
     post_delete_handler('sale', sender, **kwargs)
     from promotion.utils import drop_sale_promotion_handler
     drop_sale_promotion_handler(kwargs.get('instance'))
+
+@receiver(post_save, sender=ProductType, dispatch_uid='sales.models.ProductType')
+def on_type_saved(sender, **kwargs):
+    post_save_handler('type', sender, **kwargs)
+
+@receiver(post_save, sender=ProductCategory, dispatch_uid='sales.models.ProductCategory')
+def on_category_saved(sender, **kwargs):
+    post_save_handler('cate', sender, **kwargs)
 
 class ShippingInSale(models.Model):
     sale = models.OneToOneField(Sale)
