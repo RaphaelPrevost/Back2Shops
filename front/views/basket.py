@@ -8,6 +8,7 @@ from common.redis_utils import get_redis_cli
 from common.utils import get_basket
 from common.utils import get_basket_table_info
 from common.utils import get_valid_attr
+from common.utils import unescape_string
 from views.base import BaseHtmlResource
 from views.base import BaseJsonResource
 
@@ -67,6 +68,8 @@ class BasketAPIResource(BaseJsonResource):
                                             if 'price' in attr else 0,
                            }
             chosen_item = ujson.dumps(chosen_item)
+        else:
+            chosen_item = unescape_string(chosen_item)
 
         if cmd == 'add':
             if chosen_item in basket_data:
