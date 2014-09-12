@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import settings
-import cgi
+import HTMLParser
 import datetime
 import gevent
 import logging
@@ -528,3 +528,6 @@ def html_escape_params(req, resp, params):
     for p in req._params:
         req._params[p] = html_escape(req._params[p])
 
+def unescape_string(s):
+    h = HTMLParser.HTMLParser()
+    return h.unescape(s)
