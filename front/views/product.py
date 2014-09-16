@@ -15,6 +15,7 @@ from common.utils import get_random_products
 from common.utils import get_type_from_sale
 from common.utils import get_url_format
 from common.utils import is_routed_template
+from common.utils import user_in_same_region
 from views.base import BaseHtmlResource
 
 
@@ -185,8 +186,12 @@ class ProductInfoResource(BaseHtmlResource):
             if addr and addr.get("#text"):
                 country_code = addr["#text"]
                 province_code = addr.get("@province")
-                category_tax = get_category_taxrate(req, resp,
-                                   country_code, province_code, _cate_id)
+                if user_in_same_region(req, resp, self.users_id,
+                                       country_code, province_code):
+                    category_tax = 0
+                else:
+                    category_tax = get_category_taxrate(req, resp,
+                                       country_code, province_code, _cate_id)
                 taxes_rate[_id] = category_tax
 
         return {

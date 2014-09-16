@@ -22,7 +22,8 @@ class BasketResource(BaseHtmlResource):
         sales = data_access(REMOTE_API_NAME.GET_SALES,
                             req, resp, **req._params)
         return {
-            'basket': get_basket_table_info(req, resp, basket_data),
+            'basket': get_basket_table_info(req, resp, basket_data,
+                                            self.users_id),
             'err': req.get_param('err') or '',
         }
 
