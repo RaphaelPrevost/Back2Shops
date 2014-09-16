@@ -1,3 +1,4 @@
+import ujson
 from B2SUtils.base_actor import as_list
 from B2SUtils.base_actor import BaseActor
 
@@ -78,10 +79,17 @@ class ActorItem(BaseActor):
         if detail:
             return ActorDetail(data=detail)
 
+    @property
+    def tax(self):
+        taxes = as_list(self.data.get('tax'))
+        return [ActorTax(data=item) for item in taxes]
+
+
 class ActorTax(BaseActor):
     attrs_map = {'name': '@name',
                  'amount': '@amount',
-                 'value': '@text'}
+                 'value': '@text',
+                 'show': '@show'}
 
 class ActorShipping(BaseActor):
     attrs_map = {'desc': 'desc',
@@ -125,6 +133,11 @@ class ActorInvoice(BaseActor):
     def items(self):
         items = as_list(self.data.get('item'))
         return [ActorItem(data=item) for item in items]
+
+    @property
+    def items_json(self):
+        items = as_list(self.data.get('item'))
+        return ujson.dumps(items)
 
     @property
     def shipping(self):

@@ -222,6 +222,7 @@
     </xsl:template>
 
     <xsl:template match="tax">
+        <xsl:if test="@show='True'">
         <tr class="tax row">
             <td colspan="3" class="desc"><xsl:value-of select="@name" /></td>
             <td class="taxRate">
@@ -229,6 +230,7 @@
             </td>
             <td class="amount"><xsl:value-of select="@amount" /></td>
         </tr>
+        </xsl:if>
     </xsl:template>
 
     <xsl:template match="shipping">

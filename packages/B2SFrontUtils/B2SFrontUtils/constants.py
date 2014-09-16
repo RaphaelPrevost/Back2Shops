@@ -30,6 +30,7 @@ class REMOTE_API_NAME(CustomEnum):
     GET_INVOICES = "GET_INVOICES"
     INIT_PAYMENT = "INIT_PAYMENT"
     PAYMENT_FORM = "PAYMENT_FORM"
+    GET_TAXES = "GET_TAXES"
 
 class HTTP_METHOD(CustomEnum):
     GET = "GET"
@@ -111,6 +112,10 @@ USR_API_SETTINGS = {
     },
     REMOTE_API_NAME.GET_INVOICES: {
         'url': '/webservice/1.0/pub/invoice/get',
+        'method': HTTP_METHOD.GET
+    },
+    REMOTE_API_NAME.GET_TAXES: {
+        'url': '/webservice/1.0/private/taxes/list',
         'method': HTTP_METHOD.GET
     },
 }

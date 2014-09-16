@@ -19,6 +19,7 @@ def create_invoice(conn, id_order, id_shipment, amount_due,
                    shipping_within=None,
                    amount_paid=None,
                    invoice_file=None,
+                   invoice_items=None,
                    status=INVOICE_STATUS.INVOICE_OPEN):
     values = {
         'id_order': id_order,
@@ -37,6 +38,8 @@ def create_invoice(conn, id_order, id_shipment, amount_due,
         values['due_within'] = due_within
     if shipping_within:
         values['shipping_within'] = shipping_within
+    if invoice_items:
+        values['invoice_items'] = invoice_items
 
     if invoice_file:
         values['invoice_file'] = invoice_file

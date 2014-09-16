@@ -4,6 +4,10 @@
 	{% for object in object_list %}
 <tax id="{{ object.pk }}">
     <name>{{ object.name }}</name>
+    <country>{{ object.region_id }}</country>
+    {% if object.province %}
+    <province>{{ object.province }}</province>
+    {% endif %}
     {% if object.applies_to_id or object.apply_after %}
         <apply {% if object.applies_to_id %}to="{{ object.applies_to_id }}"{% endif %} {% if object.apply_after %}after="{{ object.apply_after }}"{% endif %}/>
     {% endif %}

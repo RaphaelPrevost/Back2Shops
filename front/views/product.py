@@ -5,6 +5,7 @@ from B2SUtils.base_actor import as_list
 from B2SUtils.errors import ValidationError
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
+from common.utils import get_category_taxrate
 from common.utils import get_discounted_price
 from common.utils import get_brief_product_list
 from common.utils import get_category_from_sales
@@ -109,9 +110,9 @@ class ProductInfoResource(BaseHtmlResource):
                 FRT_ROUTE_ROLE.PRDT_INFO,
                 'sale_name',
                 product_info.get('name', ''))
-            if type(normalized_type_name) == unicode:
+            if type(normalized_type_name) is unicode:
                 normalized_type_name = normalized_type_name.encode('UTF-8')
-            if type(normalized_sale_name) == unicode:
+            if type(normalized_sale_name) is unicode:
                 normalized_sale_name = normalized_sale_name.encode('UTF-8')
             if normalized_type_name != type_name or \
                     normalized_sale_name != sale_name:
@@ -174,8 +175,23 @@ class ProductInfoResource(BaseHtmlResource):
             if stock <= 0:
                 var['disabled'] = True
 
+        taxes_rate = {}
+        _cate_id = product_info.get('category', {}).get('@id', 0)
+        shops = dict([(node['@id'], node)
+                      for node in as_list(product_info.get('shop'))])
+        shops.update({"0": product_info.get('brand', {})})
+        for _id, node in shops.iteritems():
+            addr = node.get('address', {}).get('country')
+            if addr and addr.get("#text"):
+                country_code = addr["#text"]
+                province_code = addr.get("@province")
+                category_tax = get_category_taxrate(req, resp,
+                                   country_code, province_code, _cate_id)
+                taxes_rate[_id] = category_tax
+
         return {
             'cur_type_id': type_id,
             'product_info': product_info,
             'product_list': get_random_products(all_sales),
+            'taxes_rate': taxes_rate,
         }

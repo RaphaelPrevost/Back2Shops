@@ -190,6 +190,7 @@ CREATE TABLE invoices (
     currency character varying(3) REFERENCES currency(code),
     invoice_file character varying(100),
     invoice_xml text,
+    invoice_items text,
     invoice_number BIGINT NOT NULL,
     status SMALLINT DEFAULT 1 NOT NULL
 );

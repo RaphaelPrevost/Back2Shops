@@ -34,13 +34,13 @@
             </buyer>
             <!-- items -->
             {% for item in object.items %}
-                <item>
+                <item id="{{ item.id_item}}">
                     <desc>{{ item.desc }}</desc>
                     <price original="{{ item.price.original }}">{{ item.price.discounted }}</price>
                     <qty>{{ item.qty }}</qty>
                     <premium>{{ item.premium }}</premium>
                     {% for tax in item.taxes %}
-                        <tax name="{{ tax.name }}" amount="{{ tax.amount }}">{{ tax.tax }}</tax>
+                        <tax name="{{ tax.name }}" amount="{{ tax.amount }}" show="{{ tax.showOnFO }}">{{ tax.tax }}</tax>
                     {% endfor %}
                     <subtotal>{{ item.subtotal }}</subtotal>
                 </item>
@@ -61,7 +61,7 @@
                     <handling>{{ object.shipping.handling_fee }}</handling>
                 {% endif %}
                 {% for tax in object.shipping.taxes %}
-                    <tax name="{{ tax.name }}" amount="{{ tax.amount }}">{{ tax.tax }}</tax>
+                    <tax name="{{ tax.name }}" amount="{{ tax.amount }}" show="{{ tax.showOnFO }}">{{ tax.tax }}</tax>
                 {% endfor %}
                 <subtotal>{{ object.shipping.subtotal }}</subtotal>
             </shipping>

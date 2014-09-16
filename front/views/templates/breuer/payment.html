@@ -62,7 +62,7 @@
                         <th>Prix Unitaire</th>
                         <th>Quantité</th>
                         <th>Total</th>
-                        <th></th> 
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -82,7 +82,10 @@
                                 <span class="ref">Ref : ${item['id_sale']}</span>
                             </div>
                         </td>
-                        <td class="price"><span id="price">${format_amount(item['price'])}</span><span id="currency">${currency}</span></td>
+                        <td class="price">
+                            <span id="price" value="${item['price']}">${format_amount(item['price'])}</span><span id="currency">${currency}</span>
+                            <?py if shipping_list['tax']: ?>(After tax:<span>${format_amount(item['price'] + shipping_list['tax'], 4)}</span><span>${currency}</span>)<?py #endif ?>
+                        </td>
                         <td><input id="quantity" name="nb_product" type="text" value="${item['quantity']}" disabled/></td>
                         <td class="price"><span id="amount"></span><span>${currency}</span></td>
                         <td></td>
@@ -95,12 +98,12 @@
                             <p>
                                 <span class="labelTotal">Total produits ttc</span>
                                 <span class="priceTotal" id="sum_amount"></span>
-                                <span class="labelTotal">Taxe</span>
-                                <span class="priceTotal" id="tax">0 ${currency}</span>
                                 <span class="labelTotal">Frais de manutention</span>
                                 <span class="priceTotal">${format_amount(shipping_lists[0]['handling_fee'])} ${currency}</span>
                                 <span class="labelTotal">Frais de livraison</span>
                                 <span class="priceTotal">${format_amount(shipping_lists[0]['shipping_fee'])} ${currency}</span>
+                                <span class="labelTotal">Taxe</span>
+                                <span class="priceTotal" id="tax">0 ${currency}</span>
                             </p>
                         </td>
                     </tr>
@@ -108,7 +111,7 @@
                         <td colspan="5" class="totalline left">
                             <strong>
                                 Total produits TTC 
-                                <span id="total_amount">${format_amount(shipping_lists[0].get('total_amount') or 0)} ${currency}</span>
+                                <span id="total_amount">${format_amount(shipping_lists[0].get('total_amount') or 0, 4)} ${currency}</span>
                             </strong>
                         </td>
                     </tr>
@@ -131,7 +134,7 @@
 
     <script type="text/javascript">
     function calc_row(tr) {
-        tr.find("#amount").text(formatAmount(tr.find("#price").text() * tr.find("#quantity").val()));
+        tr.find("#amount").text(formatAmount(tr.find("#price").attr('value') * tr.find("#quantity").val()));
     }
     function calc_sum(obj) {
         var currency = "";
@@ -159,8 +162,8 @@
             total += $(this).text().split(' ')[0] * 1;
         });
         var tax = obj.find('#total_amount').text().split(' ')[0] * 1 - total;
-        if (tax > 0)
-            obj.find('#tax').text(formatAmount(tax) + " " + currency);
+        if (tax >= 0)
+            obj.find('#tax').text(formatAmount(tax, 4) + " " + currency);
     }
 
     function checkCGV() {

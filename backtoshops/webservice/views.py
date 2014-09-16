@@ -464,19 +464,22 @@ class TaxesListView(BaseCryptoWebService, ListView):
         fromProvince = self.request.GET.get('fromProvince', None)
         toCountry = self.request.GET.get('toCountry', None)
         toProvince = self.request.GET.get('toProvince', None)
+        showOnFO = self.request.GET.get('showOnFO', None)
 
-        if fromCountry is None or toCountry is None:
+        if fromCountry is None and toCountry is None:
             return []
 
-        queryset = Rate.objects.filter(
-            region_id=fromCountry
-        ).filter(
-            shipping_to_region_id=toCountry
-        )
+        queryset = Rate.objects.filter(enabled=True)
+        if fromCountry:
+            queryset = queryset.filter(region_id=fromCountry)
+        if toCountry:
+            queryset = queryset.filter(shipping_to_region_id=toCountry)
         if fromProvince:
             queryset = queryset.filter(province=fromProvince)
         if toProvince:
-            queryset = queryset.filter(province=toProvince)
+            queryset = queryset.filter(shipping_to_province=toProvince)
+        if showOnFO and showOnFO == 'true':
+            queryset = queryset.filter(display_on_front=True)
 
         return queryset
 
@@ -927,8 +930,8 @@ class InvoiceView(BaseCryptoWebService, ListView):
                                        sale.product.category.id,
                                        from_address,
                                        to_address)
-
-            item_info = {'desc': sale.product.description,
+            item_info = {'id_item': item['id_item'],
+                         'desc': sale.product.description,
                          'qty': qty,
                          'price': {'original': orig_price,
                                    'discounted': discounted_price,
@@ -940,6 +943,7 @@ class InvoiceView(BaseCryptoWebService, ListView):
             for tax in items_taxes:
                 subtotal += tax['tax']
                 total_tax += tax['tax']
+
             item_info['subtotal'] = subtotal
             item_list.append(item_info)
             gross += price
@@ -1042,6 +1046,8 @@ class InvoiceView(BaseCryptoWebService, ListView):
                 amount = pre_tax['amount'] + pre_tax['tax']
             tax['amount'] = amount
             tax['tax'] = float(amount) * rate.rate / 100.0
+            tax['showOnFO'] = (rate.shipping_to_region_id is None
+                               and rate.display_on_front is True)
             taxes[rate.id] = tax
             taxes_list.append(tax)
 

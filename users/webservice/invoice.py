@@ -93,7 +93,9 @@ class BaseInvoiceMixin:
                               invoice_xml,
                               invoice_actor.number,
                               due_within=invoice_actor.payment.period,
-                              shipping_within=invoice_actor.shipping.period)
+                              shipping_within=invoice_actor.shipping.period,
+                              invoice_items=invoice_actor.items_json,
+                              )
 
     def parse_invoices_content(self, xml):
         content = xml[len(HEADER):].strip()
@@ -190,7 +192,8 @@ class BaseInvoiceMixin:
 
         content = []
         for shipping in shipping_list:
-            content.append({"id_sale": shipping["id_sale"],
+            content.append({"id_item": shipping["id_item"],
+                            "id_sale": shipping["id_sale"],
                             "id_variant": shipping["id_variant"],
                             "quantity": shipping["quantity"],
                             "id_price_type": shipping["id_price_type"]})
@@ -218,7 +221,7 @@ class BaseInvoiceMixin:
             transform = etree.XSLT(xslt_root)
             return str(transform(xml_input))
         except Exception, e:
-            logging.error("invoce_xslt_err with content: %s, "
+            logging.error("invoice_xslt_err with content: %s, "
                           "error: %s",
                           content,
                           str(e),

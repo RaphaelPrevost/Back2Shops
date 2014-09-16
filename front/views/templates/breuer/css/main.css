@@ -583,6 +583,14 @@ a { color: #1f244a; }
 	color: #000;
 }
 #infosProd .prix2 span { text-decoration: line-through; }
+#infosProd .prix3 {
+	display: block;
+	font-size: 14px;
+	margin: 0px 0px 12px 12px;
+	line-height: 10px;
+    font-style: normal;
+	color: #000;
+}
 #infosProd p {
 	font-size: 12px;
 	font-family: Arial, Helvetica, sans-serif;

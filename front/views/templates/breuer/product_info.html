@@ -5,6 +5,7 @@
     <span class="descrpt">${product_info.get('desc')}</span>
     <?py display=product_info.get('display',{}) ?>
     <span id="discounted_price" class="prix1">${format_amount(display.get('price'))} ${cur_symbol(product_info.get('price',{}).get('@currency'))}</span>
+    <span id="price_after_tax" class="prix3" style="display:none">(After tax: <span></span>)</span>
 
     <?py if product_info.get('discount'): ?>
     <em class="prix2">au lieu de <span id="ori_price">${format_amount(display.get('ori_price'))} ${cur_symbol(product_info.get('price', {}).get('@currency'))}</span></em>
@@ -109,6 +110,8 @@ $(function(){
     var ori_price = parseFloat(${product_info.get("display", {}).get("ori_price", 99999999)});
     var discounted_price = parseFloat(${product_info.get("display", {}).get("price", 99999999)});
     var currency = "${cur_symbol(product_info.get('price', {}).get('@currency'))}";
+    var rates = #{taxes_rate};
+    _display_price_after_tax();
 
     var type_attr_prices = {};
     var _price = null;
@@ -178,6 +181,21 @@ $(function(){
     function _display_prices() {
         $("#ori_price").text(formatAmount(ori_price) + " " + currency);
         $("#discounted_price").text(formatAmount(discounted_price) + " " + currency);
+        _display_price_after_tax();
+    }
+
+    function _display_price_after_tax() {
+        var form = $("#addForm")[0];
+        var rate = 0;
+        if (form.id_shop == undefined)
+            rate = rates['0'];
+        else
+            rate = rates[form.id_shop.value];
+        rate = parseFloat(rate);
+        if (rate > 0) {
+            $("#price_after_tax").show();
+            $("#price_after_tax span").text(formatAmount(discounted_price + discounted_price * rate / 100, 4) + " " + currency);
+        }
     }
 
     $("#selectColoris li").click(function(){
