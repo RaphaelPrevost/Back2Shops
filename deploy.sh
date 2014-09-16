@@ -154,6 +154,8 @@ function setup_adm_db() {
 }
 
 function make_adm_html_dir() {
+    # copy locale directory back
+    [ -d $CWD/backtoshops -a -d $CWD/public_html/locale ] && cp -r $CWD/public_html/locale $CWD/backtoshops/
     # remove old sourcecode
     [ -d $CWD/backtoshops -a -d $CWD/public_html ] && rm -rf $CWD/public_html
 
@@ -164,6 +166,7 @@ function make_adm_html_dir() {
         # allow writing in the upload directories
         mkdir -p $CWD/public_html/media/cache
         chmod -R 2770 $CWD/public_html/media/
+        chmod -R 2770 $CWD/public_html/locale/
     fi
 }
 
@@ -257,6 +260,10 @@ function sync_adm() {
     ( cd $CWD/public_html
       ./manage.py syncdb
       ./manage.py migrate
+
+      ./manage.py makemessages --locale=fr_FR
+      ./manage.py makemessages --locale=zh_CN
+      ./manage.py compilemessages --locale=fr_FR
       ./manage.py compilemessages --locale=zh_CN
     )
 }
