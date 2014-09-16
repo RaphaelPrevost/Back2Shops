@@ -13,6 +13,7 @@ import uuid
 import xmltodict
 
 from B2SFrontUtils.constants import REMOTE_API_NAME
+from B2SFrontUtils.geolocation import get_location_by_ip
 from B2SFrontUtils.utils import get_thumbnail_url
 from B2SFrontUtils.utils import normalize_name
 from B2SProtocol.constants import EURO_UNION_COUNTRIES
@@ -287,6 +288,22 @@ def get_valid_attr(attrlist, attr_id):
             return attr
     return {}
 
+def user_in_same_region(req, resp, users_id,
+                from_country_code, from_province_code):
+    from common.data_access import data_access
+    if users_id:
+        user_info_resp = data_access(REMOTE_API_NAME.GET_USERINFO, req, resp)
+        addr = get_user_contact_info(user_info_resp).get('shipping_address', {})
+        country_code = addr.get('country_code')
+        province_code = addr.get('province_code')
+    else:
+        geolocation = get_location_by_ip(get_client_ip(req))
+        country_code = geolocation['country']['iso_code']
+        province_code = None
+    return from_country_code and from_country_code == country_code \
+        and (not from_province_code or from_province_code == province_code)
+
+
 def get_category_taxrate(req, resp, country_code, province_code, category_id):
     from common.data_access import data_access
     taxes = data_access(REMOTE_API_NAME.GET_TAXES, req, resp,
@@ -307,7 +324,7 @@ def get_category_taxrate(req, resp, country_code, province_code, category_id):
             break
     return rate
 
-def get_basket_table_info(req, resp, basket_data):
+def get_basket_table_info(req, resp, basket_data, users_id):
     # basket_data dict:
     # - key is json string
     #   {"id_sale": **, "id_shop": **, "id_attr": **, "id_variant": **, "id_price_type": **}
@@ -328,7 +345,6 @@ def get_basket_table_info(req, resp, basket_data):
 
         sale_info = all_sales[id_sale]
         _type = sale_info.get('type', {})
-        _cate_id = sale_info.get('category', {}).get('@id', 0)
         one = {
             'item': item,
             'quantity': quantity,
@@ -363,7 +379,7 @@ def get_basket_table_info(req, resp, basket_data):
                     price *= (1 + p_amount/100)
         one['price'] = price
 
-        if id_shop:
+        if int(id_shop):
             for shop in as_list(sale_info.get('shop')):
                 if shop['@id'] != id_shop:
                     continue
@@ -377,8 +393,13 @@ def get_basket_table_info(req, resp, basket_data):
             if addr and addr.get("#text"):
                 country_code = addr["#text"]
                 province_code = addr.get("@province")
-        taxrate = get_category_taxrate(req, resp,
-                            country_code, province_code, _cate_id)
+        _cate_id = sale_info.get('category', {}).get('@id', 0)
+        if user_in_same_region(req, resp, users_id,
+                               country_code, province_code):
+            taxrate = 0
+        else:
+            taxrate = get_category_taxrate(req, resp,
+                                country_code, province_code, _cate_id)
         one['tax'] = price * taxrate / 100
         basket.append(one)
     return basket
