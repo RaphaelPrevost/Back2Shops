@@ -35,6 +35,7 @@
 <!ELEMENT buyer (name, address) >
 
 <!-- items -->
+<!ATTLIST item id CDATA #REQUIRED >
 <!ELEMENT item (desc, price, qty, premium, tax*, subtotal, detail?) >
 <!ELEMENT desc (#PCDATA) >
 <!ELEMENT price (#PCDATA) >
@@ -43,7 +44,8 @@
 <!ELEMENT premium (#PCDATA) >
 <!ELEMENT tax (#PCDATA) >
 <!ATTLIST tax name CDATA #REQUIRED
-              amount CDATA #REQUIRED>
+              amount CDATA #REQUIRED
+              show CDATA #REQUIRED>
 <!ELEMENT subtotal (#PCDATA) >
 <!ELEMENT detail (subitem+) >
 <!ELEMENT subitem (desc, qty) >

@@ -38,3 +38,6 @@
 
 == version 0.0.13 ==
 1. fix the cache proxy for sale typelist
+
+== version 0.0.14 ==
+1. fix the cache proxy for taxes list

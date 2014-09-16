@@ -36,12 +36,28 @@
                         </a>
                     </div>
                 </td>
-                <td class="price"><span id="price">${format_amount(item['price'])}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span></td>
+                <td class="price">
+                    <span id="price" value="${item['price']}" >${format_amount(item['price'])}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span>
+                    <?py if item['tax']: ?>
+                    (After tax: <span id="price_after_tax">${format_amount(item['price'] + item['tax'], 4)}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span>)
+                    <span class="tax" style="display:none" value="${item['tax']}"></span>
+                    <?py #endif ?>
+                </td>
                 <td><input id="quantity" name="nb_product" type="text" maxlength="4" value="${item['quantity']}" /></td>
                 <td class="price"><span id="amount"></span><span>${cur_symbol(item['product']['currency'])}</span></td>
                 <td><a href="javascript:void(0)" id="supprimer" title="Supprimer">x</a></td>
             </tr>
             <?py #endfor ?>
+            <tr>
+                <td colspan="5" class="sstotalline left">
+                    <p>
+                        <span class="labelTotal">Total produits ttc</span>
+                        <span class="priceTotal" id="sum_amount"></span>
+                        <span class="labelTotal">Taxe</span>
+                        <span class="priceTotal" id="tax"></span>
+                    </p>
+                </td>
+            </tr>
             <tr>
                 <td colspan="5" class="totalline left">
                     <div>
@@ -50,7 +66,7 @@
                     </div>
                     <strong>
                         Total produits TTC
-                        <span id="sum_amount"></span>
+                        <span id="total_amount"></span>
                     </strong>
                 </td>
             </tr>
@@ -84,7 +100,8 @@ function calc_row(tr) {
         count = 1;
         tr.find("#quantity").val(count);
     }
-    tr.find("#amount").text(formatAmount(tr.find("#price").text() * count));
+    tr.find("#amount").text(formatAmount(tr.find("#price").attr("value") * count));
+    tr.find(".tax").text(tr.find(".tax").attr("value") * count);
 }
 function calc_sum() {
     var currency = "";
@@ -108,6 +125,14 @@ function calc_sum() {
     });
     $('#sum_amount').text(formatAmount(sum) + " " + currency);
     $('#sum_amount').show().siblings().show();
+
+    var tax_sum = 0;
+    $('tr .tax').each(function(){
+        tax_sum += $(this).text() * 1;
+    });
+    $('#tax').text(formatAmount(tax_sum, 4) + " " + currency);
+
+    $('#total_amount').text(formatAmount(sum + tax_sum) + " " + currency);
 }
 
 $(function() {

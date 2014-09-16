@@ -26,6 +26,8 @@ from B2SProtocol.constants import SALES_ALL
 from B2SProtocol.constants import TYPE
 from B2SProtocol.constants import TYPES_VERSION
 from B2SProtocol.constants import TYPES_FOR_BRAND
+from B2SProtocol.constants import TAXES_VERSION
+from B2SProtocol.constants import TAXES_FOR_FO
 from B2SProtocol.constants import SHOP
 from B2SProtocol.constants import SHOPS_FOR_BRAND
 from B2SProtocol.constants import SHOPS_FOR_CITY
@@ -453,7 +455,7 @@ class TypesCacheProxy(CacheProxy):
         return types
 
     def parse_xml(self, xml, is_entire_result, **kw):
-        logging.info('parse shops xml: %s, is_entire_result:%s',
+        logging.info('parse types xml: %s, is_entire_result:%s',
                      xml, is_entire_result)
         data = xmltodict.parse(xml)
         data = data.get('types', data.get('info'))
@@ -484,6 +486,45 @@ class CatesCacheProxy(TypesCacheProxy):
     def refresh(self, obj_id=None):
         # refresh all types and categories
         super(CatesCacheProxy, self).refresh()
+
+
+class TaxesCacheProxy(CacheProxy):
+    list_api = "private/taxes/get?%s"
+    need_decrypt = True
+
+    def refresh(self, obj_id=None):
+        super(TaxesCacheProxy, self).refresh()
+
+    def del_obj(self, obj_id):
+        self.refresh()
+
+    def _get_from_redis(self, **kw):
+        taxes = get_redis_cli().get(TAXES_FOR_FO)
+        if not taxes:
+            raise NoRedisData()
+        return dict([(t["@id"], t) for t in ujson.loads(taxes)])
+
+    def _get_query_str(self, **kw):
+        return 'showOnFO=true&toCountry='
+
+    def parse_xml(self, xml, is_entire_result, **kw):
+        logging.info('parse taxes xml: %s, is_entire_result:%s',
+                     xml, is_entire_result)
+        data = xmltodict.parse(xml)
+        data = data.get('taxes', {})
+        version = data['@version']
+        taxes = as_list(data.get('tax', None))
+
+        try:
+            self._refresh_redis(version, taxes, is_entire_result, **kw)
+        except (RedisError, ConnectionError), e:
+            logging.error('Redis Error: %s', (e,), exc_info=True)
+
+        return dict([(t['@id'], t) for t in taxes])
+
+    def _refresh_redis(self, version, taxes, is_entire_result, **kw):
+        self._set_to_redis(TAXES_VERSION, version)
+        get_redis_cli().set(TAXES_FOR_FO, ujson.dumps(taxes))
 
 
 class RoutesCacheProxy(CacheProxy):
@@ -576,9 +617,10 @@ class SalesFindProxy:
         sales = sales_cache_proxy.parse_xml(xml, False)
         return sales.keys()
 
-sales_cache_proxy = SalesCacheProxy()
-shops_cache_proxy = ShopsCacheProxy()
+sale_cache_proxy = SalesCacheProxy()
+shop_cache_proxy = ShopsCacheProxy()
 find_cache_proxy = SalesFindProxy()
-types_cache_proxy = TypesCacheProxy()
-cates_cache_proxy = CatesCacheProxy()
-routes_cache_proxy = RoutesCacheProxy()
+type_cache_proxy = TypesCacheProxy()
+cate_cache_proxy = CatesCacheProxy()
+tax_cache_proxy = TaxesCacheProxy()
+route_cache_proxy = RoutesCacheProxy()

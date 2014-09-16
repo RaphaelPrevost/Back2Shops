@@ -29,6 +29,7 @@ from webservice.shipping import ShippingConfResource
 from webservice.shipping import ShippingFeesResource
 from webservice.shipping import ShippingListResource
 from webservice.shops import ShopsResource
+from webservice.taxes import TaxesResource
 from webservice.types import TypesResource
 
 
@@ -56,6 +57,7 @@ urlpatterns = {
     '/webservice/protected/shipping/fee': ShippingFeeResource,
 
     '/webservice/1.0/private/routes/list': RoutesResource,
+    '/webservice/1.0/private/taxes/list': TaxesResource,
     '/webservice/1.0/private/order/orders': OrderListResource,
     '/webservice/1.0/private/order/detail': OrderDetailResource,
     '/webservice/1.0/private/order/delete': OrderDeleteResource,

@@ -261,6 +261,7 @@ def _get_invoice_info_for_order_item(conn, item_id):
                             ('currency', 'currency'),
                             ('due_within', 'due_within'),
                             ('shipping_within', 'shipping_within'),
+                            ('invoice_item', 'invoice_items'),
                          ])
     query_str = (
         "SELECT %s FROM shipping_list "
@@ -273,7 +274,15 @@ def _get_invoice_info_for_order_item(conn, item_id):
                 % ', '.join(columns)
 
     results = query(conn, query_str, params=[item_id, ])
-    return [dict(zip(fields, r)) for r in results]
+    results = [dict(zip(fields, r)) for r in results]
+    for r in results:
+        if r['invoice_item']:
+            items_dict = dict([(i['@id'], i)
+                               for i in ujson.loads(r['invoice_item'])])
+            r['invoice_item'] = ujson.dumps(items_dict.get(str(item_id)) or {})
+        else:
+            r['invoice_item'] = ujson.dumps({})
+    return results
 
 def _get_order_shipments_status(conn, id_order):
     query_str = ("SELECT status "

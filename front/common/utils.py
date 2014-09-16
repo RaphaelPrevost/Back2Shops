@@ -92,9 +92,30 @@ def cur_symbol(cur_code):
         'EUR': '€',
     }.get(cur_code, cur_code)
 
-def format_amount(amount):
+def toRound(val, decimal_digits=2):
     try:
-        return '%.2f' % float(amount)
+        # hacky to add a small number for the float exactness issue in python.
+        if val < 0:
+            return round(float(val)-0.0000001, decimal_digits)
+        else:
+            return round(float(val)+0.0000001, decimal_digits)
+    except:
+        logging.error("something wrong with this money value: " + str(val))
+        raise
+
+def format_amount(amount, decimal_digits=2):
+    try:
+        result = ('%%.%sf' % decimal_digits) % toRound(amount, decimal_digits)
+        if decimal_digits > 2:
+            count = decimal_digits - 2
+            while count > 0:
+                if result[-1] == '0':
+                    result = result[:-1]
+                    count -= 1
+                    continue
+                else:
+                    break
+        return result
     except:
         return amount
 
@@ -266,6 +287,26 @@ def get_valid_attr(attrlist, attr_id):
             return attr
     return {}
 
+def get_category_taxrate(req, resp, country_code, province_code, category_id):
+    from common.data_access import data_access
+    taxes = data_access(REMOTE_API_NAME.GET_TAXES, req, resp,
+                        fromCountry=country_code,
+                        fromProvince=province_code)
+    rate = 0
+    for t in taxes.itervalues():
+        category_conds = [cond for cond in as_list(t.get('apply'))
+                          if cond.get('@to')]
+        if category_conds:
+            for cond in category_conds:
+                if cond['@to'] == category_id:
+                    rate = float(t['rate'])
+                    break
+            if rate > 0: break
+        else:
+            rate = float(t['rate'])
+            break
+    return rate
+
 def get_basket_table_info(req, resp, basket_data):
     # basket_data dict:
     # - key is json string
@@ -276,13 +317,18 @@ def get_basket_table_info(req, resp, basket_data):
     all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
     basket = []
     for item, quantity in basket_data.iteritems():
-        item_info = ujson.loads(item)
+        try:
+            item_info = ujson.loads(item)
+        except:
+            continue
         id_sale = str(item_info['id_sale'])
+        id_shop = str(item_info['id_shop'])
         if id_sale not in all_sales:
             continue
 
         sale_info = all_sales[id_sale]
         _type = sale_info.get('type', {})
+        _cate_id = sale_info.get('category', {}).get('@id', 0)
         one = {
             'item': item,
             'quantity': quantity,
@@ -316,6 +362,24 @@ def get_basket_table_info(req, resp, basket_data):
                 elif p_type == 'ratio':
                     price *= (1 + p_amount/100)
         one['price'] = price
+
+        if id_shop:
+            for shop in as_list(sale_info.get('shop')):
+                if shop['@id'] != id_shop:
+                    continue
+                addr = shop.get('address', {}).get('country')
+                if addr and addr.get("#text"):
+                    country_code = addr["#text"]
+                    province_code = addr.get("@province")
+                break
+        else:
+            addr = sale_info.get('brand', {}).get('address', {}).get('country')
+            if addr and addr.get("#text"):
+                country_code = addr["#text"]
+                province_code = addr.get("@province")
+        taxrate = get_category_taxrate(req, resp,
+                            country_code, province_code, _cate_id)
+        one['tax'] = price * taxrate / 100
         basket.append(one)
     return basket
 
@@ -402,15 +466,26 @@ def get_order_table_info(order_id, order_resp, all_sales=None):
                 }
             order_items.append(one)
 
-            invoice_info = dict([(s['shipment_id'], s)
-                                 for s in item_info['invoice_info']])
+            item_invoice_info = {}
+            for iv in item_info['invoice_info']:
+                iv_item_info = ujson.loads(iv['invoice_item'])
+                if iv_item_info:
+                    taxes = as_list(iv_item_info.get('tax', {}))
+                    iv['tax'] = sum([float(t['#text']) for t in taxes
+                                     if t['@show'] == 'True'])
+                    iv['tax'] = iv['tax'] / int(iv_item_info['qty'])
+                else:
+                    iv['tax'] = 0
+                item_invoice_info[iv['shipment_id']] = iv
+
             for _shipment_info in item_info['shipment_info']:
                 shipment_id = _shipment_info.get('shipment_id')
                 if not shipment_id:
                     # sth. wrong when create order
                     continue
                 shipping_list = _shipment_info.copy()
-                shipping_list.update(invoice_info.get(shipment_id))
+                shipping_list.update(item_invoice_info.get(shipment_id))
+
                 shipping_list['item'] = order_items[-1]
                 shipping_list['status_name'] = SHIPMENT_STATUS.toReverseDict().get(
                                                int(shipping_list['status']))

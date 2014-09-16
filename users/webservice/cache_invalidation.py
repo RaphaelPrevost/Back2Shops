@@ -38,7 +38,7 @@ class InvalidationResource(BaseJsonResource):
 
 
 def refresh_cache(method, obj_name, obj_id):
-    proxy = getattr(cache, '%ss_cache_proxy' % obj_name, None)
+    proxy = getattr(cache, '%s_cache_proxy' % obj_name, None)
     if proxy is None:
         logging.error("No cache_proxy object for %s" % obj_name)
         return

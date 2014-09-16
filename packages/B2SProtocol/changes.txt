@@ -42,3 +42,6 @@
 
 == version 0.0.13 ==
 1. Add constants EURO_UNION_COUNTRIES
+
+== version 0.0.14 ==
+1. Add constants for taxes redis key

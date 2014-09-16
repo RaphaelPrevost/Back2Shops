@@ -13,6 +13,7 @@ from B2SProtocol.constants import SALES_FOR_CATEGORY
 from B2SProtocol.constants import SALES_FOR_SHOP
 from B2SProtocol.constants import SALES_FOR_BRAND
 from B2SProtocol.constants import SHOP
+from B2SProtocol.constants import TAXES_FOR_FO
 from B2SProtocol.constants import TYPE
 from B2SProtocol.constants import TYPES_FOR_BRAND
 from B2SUtils.base_actor import as_list
@@ -276,9 +277,45 @@ class TypesCacheProxy(BaseCacheProxy):
     def _match_obj(self, obj, **valid_kwargs):
         return True
 
+class TaxesCacheProxy(BaseCacheProxy):
+    api_name = REMOTE_API_NAME.GET_TAXES
+    list_redis_key = TAXES_FOR_FO
+    local_cache_file = "static/cache/%s.json" % api_name
+
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(TaxesCacheProxy,
+                                  cls).__new__(cls, *args, **kwargs)
+        return cls._instance
+
+    def get(self, **kw):
+        resp_dict = super(TaxesCacheProxy, self).get(**kw)
+        country = kw.get('fromCountry')
+        province = kw.get('fromProvince')
+        resp_dict = dict([(k, v) for k, v in resp_dict.iteritems()
+                     if v['country'] == country
+                        and ('province' not in v
+                             or province and v['province'] == province)])
+        return resp_dict
+
+    def _get_from_redis(self, obj_id=None, **kw):
+        taxes = self.redis_cli.get(TAXES_FOR_FO)
+        if not taxes:
+            raise NoRedisData()
+        return dict([(t["@id"], t) for t in ujson.loads(taxes)])
+
+    def _need_save_local_cache(self, **kw):
+        return False
+
+    def _match_obj(self, obj, **valid_kwargs):
+        return False
+
 
 cache_proxy = {
     RoutesCacheProxy.api_name: RoutesCacheProxy,
     SalesCacheProxy.api_name: SalesCacheProxy,
     TypesCacheProxy.api_name: TypesCacheProxy,
+    TaxesCacheProxy.api_name: TaxesCacheProxy,
 }

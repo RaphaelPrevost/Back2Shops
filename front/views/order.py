@@ -206,7 +206,10 @@ class OrderAPIResource(BaseJsonResource):
             orders = []
             basket_key, basket_data = get_basket(req, resp)
             for item, quantity in basket_data.iteritems():
-                item_info = ujson.loads(item)
+                try:
+                    item_info = ujson.loads(item)
+                except:
+                    continue
                 id_sale = item_info['id_sale']
                 if id_sale not in all_sales:
                     continue

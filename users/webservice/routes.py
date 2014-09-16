@@ -1,5 +1,5 @@
 from B2SCrypto.constant import SERVICES
-from common.cache import routes_cache_proxy
+from common.cache import route_cache_proxy
 from webservice.base import BaseJsonResource
 
 class RoutesResource(BaseJsonResource):
@@ -8,6 +8,6 @@ class RoutesResource(BaseJsonResource):
 
     def _on_get(self, req, resp, conn, **kwargs):
         brand = req.get_param('brand')
-        resp_dict = routes_cache_proxy.get(brand=brand)
+        resp_dict = route_cache_proxy.get(brand=brand)
         return resp_dict
 
