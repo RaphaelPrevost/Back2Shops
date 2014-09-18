@@ -2,7 +2,11 @@
 <div id="infosProd">
     <strong id="breuer">Breuer</strong>
     <h1>${product_info.get('name')}</h1>
-    <span class="descrpt">${product_info.get('desc')}</span>
+    <span class="descrpt">
+        <?py for _line in product_info.get('desc'): ?>
+            ${_line} <br/>
+        <?py #endfor ?>
+    </span>
     <?py display=product_info.get('display',{}) ?>
     <span id="discounted_price" class="prix1">${format_amount(display.get('price'))} ${cur_symbol(product_info.get('price',{}).get('@currency'))}</span>
     <span id="price_after_tax" class="prix3" style="display:none">(After tax: <span></span>)</span>
