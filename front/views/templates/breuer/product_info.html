@@ -10,8 +10,6 @@
     <?py if product_info.get('discount'): ?>
     <em class="prix2">au lieu de <span id="ori_price">${format_amount(display.get('ori_price'))} ${cur_symbol(product_info.get('price', {}).get('@currency'))}</span></em>
     <?py #endif ?>
-    <p>
-    </p>
 
     <form id="addForm">
         <input type="hidden" name="cmd" value="add" />
@@ -35,8 +33,6 @@
         <?py #endif ?>
 
         <?py if product_info.get('type',{}).get('attribute'): ?>
-        <a id="guideBtn" href="#">Guide des tailles</a>
-
         <div id="selectTaille">
             <select name="id_attr" id="type_attribute_selector">
                 <option value="">Selectionner la taille</option>

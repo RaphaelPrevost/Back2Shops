@@ -140,6 +140,7 @@ class BaseHtmlResource(BaseResource):
     tabs = [
         {'name': 'E-shop', 'url': '/e-shop'},
         {'name': 'Lookbook', 'url': '/lookbook'},
+        {'name': 'La saga', 'url': '/la-saga'},
     ]
     cur_tab_index = -1
     show_products_menu = True

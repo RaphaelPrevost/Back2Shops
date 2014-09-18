@@ -158,7 +158,7 @@ def get_product_default_display_price(sale, type_attr=None):
                 break
     if not discount_price:
         discount_price = ori_price
-    return ori_price, discount_price
+    return float(ori_price), float(discount_price)
 
 def cal_price_with_premium(variant, price):
     price = float(price)
@@ -375,7 +375,7 @@ def get_category_tax_info(req, resp,
     show_final_price = False
     for t in taxes.itervalues():
         rate = float(t['rate'])
-        show_final_price = t['display_on_front'] == 'True'
+        show_final_price = t.get('display_on_front') == 'True'
         break
     return {'rate': rate, 'show_final_price': show_final_price}
 

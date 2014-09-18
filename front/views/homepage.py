@@ -19,15 +19,15 @@ class LookbookResource(BaseHtmlResource):
     template = 'lookbook.html'
     cur_tab_index = 1
 
+class LaSagaResource(BaseHtmlResource):
+    template = 'lasaga.html'
+    cur_tab_index = 2
 
 class MentionLegalResource(BaseHtmlResource):
     template = 'mention_legal.html'
-    show_products_menu = False
 
 class CGVResource(BaseHtmlResource):
     template = 'cgv.html'
-    show_products_menu = False
 
 class CommandsAndDeliveriesResource(BaseHtmlResource):
     template = 'commands_deliveries.html'
-    show_products_menu = False
