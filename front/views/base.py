@@ -22,6 +22,7 @@ from common.utils import gen_html_resp
 from common.utils import get_normalized_name
 from common.utils import get_thumbnail
 from common.utils import get_url_format
+from common.utils import zero
 
 
 class BaseResource(object):
@@ -206,6 +207,7 @@ class BaseHtmlResource(BaseResource):
         resp_dict['as_list'] = as_list
         resp_dict['get_single_attribute'] = self.get_single_attribute
         resp_dict['format_amount'] = format_amount
+        resp_dict['zero'] = zero
         resp_dict['cur_symbol'] = cur_symbol
         resp_dict['get_thumbnail'] = get_thumbnail
         resp_dict.update({

@@ -40,7 +40,7 @@
                     <qty>{{ item.qty }}</qty>
                     <premium>{{ item.premium }}</premium>
                     {% for tax in item.taxes %}
-                        <tax name="{{ tax.name }}" amount="{{ tax.amount }}" show="{{ tax.showOnFO }}">{{ tax.tax }}</tax>
+                        <tax name="{{ tax.name }}" amount="{{ tax.amount }}" to_worldwide="{{ tax.to_worldwide }}" show="{{ tax.show }}">{{ tax.tax }}</tax>
                     {% endfor %}
                     <subtotal>{{ item.subtotal }}</subtotal>
                 </item>
@@ -61,7 +61,7 @@
                     <handling>{{ object.shipping.handling_fee }}</handling>
                 {% endif %}
                 {% for tax in object.shipping.taxes %}
-                    <tax name="{{ tax.name }}" amount="{{ tax.amount }}" show="{{ tax.showOnFO }}">{{ tax.tax }}</tax>
+                    <tax name="{{ tax.name }}" amount="{{ tax.amount }}" to_worldwide="{{ tax.to_worldwide }}" show="{{ tax.show }}">{{ tax.tax }}</tax>
                 {% endfor %}
                 <subtotal>{{ object.shipping.subtotal }}</subtotal>
             </shipping>

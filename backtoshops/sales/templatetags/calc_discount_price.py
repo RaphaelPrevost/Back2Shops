@@ -18,3 +18,14 @@ def calc_discount_price(discount_type, discount, base_price):
                      'discount_type: %s, discount: %s, base_price: %s, '
                      'error: %s', discount_type, discount, base_price, e)
     return None
+
+@register.simple_tag
+def calc_price_after_tax(price, tax_rate):
+    tmp = price + float(price * tax_rate / 100.0)
+    return round(tmp * 100 + ((tmp * 1000 % 10 > 4) and 1 or 0)) / 100
+
+@register.simple_tag
+def calc_discount_price_after_tax(discount_type, discount, base_price, tax_rate):
+    price = calc_discount_price(discount_type, discount, base_price)
+    return calc_price_after_tax(price, tax_rate)
+

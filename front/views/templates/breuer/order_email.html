@@ -92,7 +92,12 @@
                                                                                         <?py if item.get('type_name'): ?>
                                                                                         <span style="color: #1f244a; font-family: 'Times New Roman',Georgia,Serif;">Taille : ${item['type_name']['name']}</span><br />
                                                                                         <?py #endif ?>
-                                                                                        <span style="color: #1f244a; font-family: 'Times New Roman',Georgia,Serif;">${format_amount(item['price'])} ${currency}</span><br />
+                                                                                        <?py if shipping_list['show_final_price']: ?>
+                                                                                        <span style="color: #1f244a; font-family: 'Times New Roman',Georgia,Serif;">${format_amount(item['price'] + shipping_list['tax_per_item'])} ${currency}</span><br />
+                                                                                        <?py else: ?>
+                                                                                        <span style="color: #1f244a; font-family: 'Times New Roman',Georgia,Serif;">${format_amount(item['price'])} ${currency}</span>
+                                                                                        (After tax: <span style="color: #1f244a; font-family: 'Times New Roman',Georgia,Serif;">${format_amount(item['price'] + shipping_list['tax_per_item'], 4)} ${currency}</span>)<br />
+                                                                                        <?py #endif ?>
                                                                                     </td>
                                                                                 </tr>
                                                                             <?py #endfor ?>

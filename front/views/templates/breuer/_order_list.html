@@ -30,7 +30,11 @@
                     <?py if item.get('variant_name'): ?>Coloris : ${item['variant_name']}<?py #endif ?>
                     </strong>
                     <span class="ref">Ref : ${item['id_sale']}</span>
-                    <span class="price">Prix : <span id="amount">${format_amount(item['price'])} ${currency}</span> x <span id="quantity">${item['quantity']}</span></span>
+                    <?py if shipping_list.get('show_final_price'): ?>
+                    <span class="price">Prix : <span>${format_amount(item['price'] + shipping_list['tax_per_item'])} ${currency}</span> x <span id="quantity">${item['quantity']}</span></span>
+                    <?py else: ?>
+                    <span class="price">Prix : <span>${format_amount(item['price'])} ${currency}</span> x <span id="quantity">${item['quantity']}</span></span>
+                    <?py #endif ?>
                 </div>
                 <!--//LINE-PROD-->  
              <?py #endfor ?>

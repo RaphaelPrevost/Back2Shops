@@ -505,7 +505,7 @@ class TaxesCacheProxy(CacheProxy):
         return dict([(t["@id"], t) for t in ujson.loads(taxes)])
 
     def _get_query_str(self, **kw):
-        return 'showOnFO=true&toCountry='
+        return ''
 
     def parse_xml(self, xml, is_entire_result, **kw):
         logging.info('parse taxes xml: %s, is_entire_result:%s',

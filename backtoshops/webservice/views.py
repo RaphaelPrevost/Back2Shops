@@ -162,7 +162,6 @@ class SalesInfoView(BaseWebservice, DetailView):
     template_name = "sales_info.xml"
     model = Sale
 
-
 class ShopsInfoView(BaseWebservice, DetailView):
     template_name = "shops_info.xml"
     model = Shop
@@ -464,10 +463,6 @@ class TaxesListView(BaseCryptoWebService, ListView):
         fromProvince = self.request.GET.get('fromProvince', None)
         toCountry = self.request.GET.get('toCountry', None)
         toProvince = self.request.GET.get('toProvince', None)
-        showOnFO = self.request.GET.get('showOnFO', None)
-
-        if fromCountry is None and toCountry is None:
-            return []
 
         queryset = Rate.objects.filter(enabled=True)
         if fromCountry:
@@ -478,8 +473,6 @@ class TaxesListView(BaseCryptoWebService, ListView):
             queryset = queryset.filter(province=fromProvince)
         if toProvince:
             queryset = queryset.filter(shipping_to_province=toProvince)
-        if showOnFO and showOnFO == 'true':
-            queryset = queryset.filter(display_on_front=True)
 
         return queryset
 
@@ -987,6 +980,14 @@ class InvoiceView(BaseCryptoWebService, ListView):
                 query &
                 (
                     (Q(region_id=f_ctry) &
+                     Q(province='') &
+                     Q(shipping_to_region_id=None) &
+                     Q(shipping_to_province='')) |
+                    (Q(region_id=f_ctry) &
+                     Q(province=f_prov) &
+                     Q(shipping_to_region_id=None) &
+                     Q(shipping_to_province="")) |
+                    (Q(region_id=f_ctry) &
                      Q(province="") &
                      Q(shipping_to_region_id=t_ctry) &
                      Q(shipping_to_province="")) |
@@ -1010,6 +1011,14 @@ class InvoiceView(BaseCryptoWebService, ListView):
                 query &
                 (
                     (Q(region_id=f_ctry) &
+                     Q(province='') &
+                     Q(shipping_to_region_id=None) &
+                     Q(shipping_to_province='')) |
+                    (Q(region_id=f_ctry) &
+                     Q(province=f_prov) &
+                     Q(shipping_to_region_id=None) &
+                     Q(shipping_to_province="")) |
+                    (Q(region_id=f_ctry) &
                      Q(province="") &
                      Q(shipping_to_region_id=t_ctry) &
                      Q(shipping_to_province="")) |
@@ -1024,14 +1033,11 @@ class InvoiceView(BaseCryptoWebService, ListView):
         # shipping tax condition:
         #      taxable = True & applies_to = everything
         # sale's tax condition:
-        #      taxable = False &
         #      (applies_to = everything or sale's category type)
         if shipping_tax:
             query = query & Q(taxable=True) & Q(applies_to_id=None)
         else:
             query = (query &
-                     (Q(taxable=False) |
-                      Q(taxable=None)) &
                      (Q(applies_to_id=None) |
                       Q(applies_to_id=pro_category)))
 
@@ -1046,8 +1052,8 @@ class InvoiceView(BaseCryptoWebService, ListView):
                 amount = pre_tax['amount'] + pre_tax['tax']
             tax['amount'] = amount
             tax['tax'] = float(amount) * rate.rate / 100.0
-            tax['showOnFO'] = (rate.shipping_to_region_id is None
-                               and rate.display_on_front is True)
+            tax['to_worldwide'] = rate.shipping_to_region_id is None
+            tax['show'] = rate.display_on_front is True
             taxes[rate.id] = tax
             taxes_list.append(tax)
 

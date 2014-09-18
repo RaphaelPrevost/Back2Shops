@@ -2,6 +2,7 @@
 {% load l10n %}
 {% load get_typeattributeweight %}
 {% load get_typeattributeprice %}
+{% load get_discount_price %}
 
 <sale id="{{ object.pk }}">
     <!-- item category -->
@@ -25,6 +26,9 @@
             {% with typeattributeprice=object|get_typeattributeprice:ca %}
             {% if typeattributeprice %}
             <price currency="{{object.product.currency}}">{{typeattributeprice.type_attribute_price}}</price>
+            {% if object.product.discount %}
+            <discount_price>{% get_discount_price object.product.discount_type object.product.discount typeattributeprice.type_attribute_price %}</discount_price>
+            {% endif %}
             {% endif %}
             {% endwith %}
         </attribute>
@@ -68,6 +72,7 @@
     <!-- discount (type: "ratio" or "fixed" ) if it has -->
     {% if object.product.discount %}
     <discount type="{% if object.product.discount_type == 'percentage' %}ratio{% else %}fixed{% endif %}">{{ object.product.discount|floatformat }}</discount>
+    <discount_price>{% get_discount_price object.product.discount_type object.product.discount object.product.normal_price %}</discount_price>
     {% endif %}
 
     <!-- if there is some variants for this product, list them here -->

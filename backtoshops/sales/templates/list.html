@@ -117,6 +117,27 @@
                             &euro;
                             </em>
                         </span>
+                        <span>{% trans "After tax price:" %} <em{% if not sale.product.normal_price %} class="type-attr-prices"{% endif %}>
+                            {% if sale.product.normal_price %}
+                                {% if sale.product.discount %}
+                                    {% calc_discount_price_after_tax sale.product.discount_type sale.product.discount sale.product.normal_price sale.product.tax_rate %}
+                                {% else %}
+                                    {% calc_price_after_tax sale.product.normal_price sale.product.tax_rate %}
+                                {% endif %}
+                            {% else %}
+                                {% if sale.product.discount %}
+                                    {% calc_discount_price_after_tax sale.product.discount_type sale.product.discount sale.min_type_attribute_price sale.product.tax_rate %}
+                                    {% trans "to" %}
+                                    {% calc_discount_price_after_tax sale.product.discount_type sale.product.discount sale.max_type_attribute_price sale.product.tax_rate %}
+                                {% else %}
+                                    {% calc_price_after_tax sale.min_type_attribute_price sale.product.tax_rate %}
+                                    {% trans "to" %}
+                                    {% calc_price_after_tax sale.max_type_attribute_price sale.product.tax_rate %}
+                                {% endif %}
+                            {% endif %}
+                            &euro;
+                            </em>
+                        </span>
                     </div>
                     {% if sale.product.short_description %}
                     <div class="clear"></div>

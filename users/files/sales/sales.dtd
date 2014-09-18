@@ -28,7 +28,7 @@
 <!ELEMENT id (#PCDATA) >
 <!ATTLIST id type (business | tax | personal) "business" >
 
-<!ELEMENT sale (category, type, name, desc, short_desc, img*, brand, weight?, price?, discount?, variant*, shop*, available) >
+<!ELEMENT sale (category, type, name, desc, short_desc, img*, brand, weight?, price?, discount?, discount_price?, variant*, shop*, available) >
 <!ATTLIST sale id CDATA #REQUIRED >
 
 <!ELEMENT category (name, thumb, img) >
@@ -36,7 +36,7 @@
 
 <!ELEMENT type (name, attribute*) >
 <!ATTLIST type id CDATA #REQUIRED >
-<!ELEMENT attribute (name, weight?, price?) >
+<!ELEMENT attribute (name, weight?, price?, discount_price?) >
 <!ATTLIST attribute id CDATA #REQUIRED >
 
 <!ELEMENT brand (name, img, address?, id*) >
@@ -51,6 +51,7 @@
 
 <!ELEMENT discount (#PCDATA) >
 <!ATTLIST discount type (ratio | fixed) "ratio" >
+<!ELEMENT discount_price (#PCDATA) >
 
 <!ELEMENT variant (name, thumb, img, premium) >
 <!ATTLIST variant id CDATA #REQUIRED >

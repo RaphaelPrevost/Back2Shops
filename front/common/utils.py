@@ -93,6 +93,12 @@ def cur_symbol(cur_code):
         'EUR': '€',
     }.get(cur_code, cur_code)
 
+def zero(amount):
+    try:
+        return not amount or float(amount) == 0
+    except:
+        return False
+
 def toRound(val, decimal_digits=2):
     try:
         # hacky to add a small number for the float exactness issue in python.
@@ -136,28 +142,57 @@ def allowed_countries():
         return EURO_UNION_COUNTRIES
     return []
 
-def get_product_default_display_price(sale):
-    price = sale.get('price', {}).get('#text') or ''
-    if not price:
+
+def get_product_default_display_price(sale, type_attr=None):
+    ori_price = sale.get('price', {}).get('#text') or ''
+    discount_price = sale.get('discount_price')
+    if type_attr:
+        if 'price' in type_attr:
+            ori_price = type_attr['price'].get('#text')
+            discount_price = type_attr.get('discount_price')
+    else:
         for type_attr in as_list(sale.get('type', {}).get('attribute')):
             if 'price' in type_attr:
-                price = type_attr['price'].get('#text')
+                ori_price = type_attr['price'].get('#text')
+                discount_price = type_attr.get('discount_price')
                 break
+    if not discount_price:
+        discount_price = ori_price
+    return ori_price, discount_price
+
+def cal_price_with_premium(variant, price):
+    price = float(price)
+    if variant:
+        p_type = variant.get("premium", {}).get("@type", 0)
+        p_amount = float(variant.get("premium", {}).get("#text", 0))
+        if p_type:
+            if p_type == 'fixed':
+                price += p_amount
+            elif p_type == 'ratio':
+                price *= (1 + p_amount/100)
     return price
 
-def get_discounted_price(price, product_info):
-    price = float(price)
-    if price and product_info.get('discount'):
-        discount_type = product_info.get('discount', {}).get('@type')
-        discount_price = product_info.get('discount', {}).get('#text')
-        if discount_type == 'fixed':
-            price = price - float(discount_price)
-        elif discount_type == 'ratio':
-            price = price * (100 - float(discount_price)) / 100
-        return price, discount_type, discount_price
-    return price, None, None
+def _get_brand_addr(sale_info):
+    country_code = province_code = None
+    addr = sale_info.get('brand', {}).get('address', {}).get('country')
+    if addr and addr.get("#text"):
+        country_code = addr["#text"]
+        province_code = addr.get("@province")
+    return country_code, province_code
 
-def get_brief_product(sale):
+def _get_shop_addr(sale_info, id_shop=None):
+    country_code = province_code = None
+    for shop in as_list(sale_info.get('shop')):
+        if id_shop and shop['@id'] != str(id_shop):
+            continue
+        addr = shop.get('address', {}).get('country')
+        if addr and addr.get("#text"):
+            country_code = addr["#text"]
+            province_code = addr.get("@province")
+        break
+    return country_code, province_code
+
+def get_brief_product(sale, req, resp, calc_price=True):
     id_sale = sale['@id']
     _type = sale.get('type', {})
     short_desc = sale.get('short_desc') or ''
@@ -179,24 +214,44 @@ def get_brief_product(sale):
                                              'sale_name',
                                              sale.get('name', '')),
         },
-        'price': get_product_default_display_price(sale),
         'currency': sale.get('price', {}).get('@currency') or '',
         'variant': as_list(sale.get('variant')),
     }
+
+    if calc_price:
+        price = get_product_default_display_price(sale)[1]
+        for v in product_info['variant']:
+            price = cal_price_with_premium(v, price)
+            break
+
+        country_code, province_code = _get_shop_addr(sale)
+        if not country_code:
+            country_code, province_code = _get_brand_addr(sale)
+        _cate_id = sale.get('category', {}).get('@id', 0)
+        #TODO: call user_country_province() to get user location ??
+        user_country_code, user_province_code = None, None
+        tax_info = get_category_tax_info(req, resp,
+                country_code, province_code,
+                user_country_code, user_province_code,
+                _cate_id)
+        product_info['price'] = price
+        product_info['tax'] = price * tax_info['rate'] / 100
+        product_info['show_final_price'] = tax_info['show_final_price']
+
     if not settings.PRODUCTION and not product_info['img']:
         product_info['img'] = '/img/dollar-example.jpg'
     return product_info
 
-def get_brief_product_list(sales):
-    return [get_brief_product(s) for s in sales.itervalues()]
+def get_brief_product_list(sales, req, resp):
+    return [get_brief_product(s, req, resp) for s in sales.itervalues()]
 
-def get_random_products(sales, count=settings.NUM_OF_RANDOM_SALES):
+def get_random_products(sales, req, resp, count=settings.NUM_OF_RANDOM_SALES):
     random_sales = {}
     if len(sales) < count:
         count = len(sales)
     map(lambda k: random_sales.update({k: sales[k]}),
         random.sample(sales, count))
-    return get_brief_product_list(random_sales)
+    return get_brief_product_list(random_sales, req, resp)
 
 def get_category_from_sales(sales):
     if len(sales) > 0:
@@ -288,41 +343,41 @@ def get_valid_attr(attrlist, attr_id):
             return attr
     return {}
 
-def user_in_same_region(req, resp, users_id,
-                from_country_code, from_province_code):
-    from common.data_access import data_access
-    if users_id:
-        user_info_resp = data_access(REMOTE_API_NAME.GET_USERINFO, req, resp)
-        addr = get_user_contact_info(user_info_resp).get('shipping_address', {})
-        country_code = addr.get('country_code')
-        province_code = addr.get('province_code')
-    else:
-        geolocation = get_location_by_ip(get_client_ip(req))
-        country_code = geolocation['country']['iso_code']
-        province_code = None
-    return from_country_code and from_country_code == country_code \
-        and (not from_province_code or from_province_code == province_code)
+def user_country_province(req, resp, users_id):
+    # only calculate worldwide taxes which is independent
+    # of user location
+    return None, None
+#    from common.data_access import data_access
+#    if users_id:
+#        user_info_resp = data_access(REMOTE_API_NAME.GET_USERINFO, req, resp)
+#        addr = get_user_contact_info(user_info_resp).get('shipping_address', {})
+#        country_code = addr.get('country_code')
+#        province_code = addr.get('province_code')
+#    else:
+#        geolocation = get_location_by_ip(get_client_ip(req))
+#        country_code = geolocation['country']['iso_code']
+#        province_code = ''
+#    return country_code, province_code
 
 
-def get_category_taxrate(req, resp, country_code, province_code, category_id):
+def get_category_tax_info(req, resp,
+                     from_country_code, from_province_code,
+                     to_country_code, to_province_code,
+                     category_id):
     from common.data_access import data_access
     taxes = data_access(REMOTE_API_NAME.GET_TAXES, req, resp,
-                        fromCountry=country_code,
-                        fromProvince=province_code)
+                        fromCountry=from_country_code,
+                        fromProvince=from_province_code,
+                        toCountry=to_country_code,
+                        toProvince=to_province_code,
+                        category=category_id)
     rate = 0
+    show_final_price = False
     for t in taxes.itervalues():
-        category_conds = [cond for cond in as_list(t.get('apply'))
-                          if cond.get('@to')]
-        if category_conds:
-            for cond in category_conds:
-                if cond['@to'] == category_id:
-                    rate = float(t['rate'])
-                    break
-            if rate > 0: break
-        else:
-            rate = float(t['rate'])
-            break
-    return rate
+        rate = float(t['rate'])
+        show_final_price = t['display_on_front'] == 'True'
+        break
+    return {'rate': rate, 'show_final_price': show_final_price}
 
 def get_basket_table_info(req, resp, basket_data, users_id):
     # basket_data dict:
@@ -332,6 +387,8 @@ def get_basket_table_info(req, resp, basket_data, users_id):
 
     from common.data_access import data_access
     all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
+    user_country_code, user_province_code = \
+            user_country_province(req, resp, users_id)
     basket = []
     for item, quantity in basket_data.iteritems():
         try:
@@ -354,7 +411,7 @@ def get_basket_table_info(req, resp, basket_data, users_id):
             'type': get_valid_attr(
                         sale_info.get('type', {}).get('attribute'),
                         item_info.get('id_attr')),
-            'product': get_brief_product(sale_info),
+            'product': get_brief_product(sale_info, req, resp, False),
             'link': get_url_format(FRT_ROUTE_ROLE.PRDT_INFO) % {
                 'id_type': _type.get('@id', 0),
                 'type_name': get_normalized_name(FRT_ROUTE_ROLE.PRDT_INFO,
@@ -366,44 +423,25 @@ def get_basket_table_info(req, resp, basket_data, users_id):
                                                  sale_info.get('name', '')),
             },
         }
-        price = one['type'].get('price', {}).get('#text') \
-             or one['product']['price']
-        price, _, _ = get_discounted_price(price, sale_info)
+        price = get_product_default_display_price(sale_info, one['type'])[1]
         if one['variant']:
-            p_type = one['variant'].get("premium", {}).get("@type", 0)
-            p_amount = float(one['variant'].get("premium", {}).get("#text", 0))
-            if p_type:
-                if p_type == 'fixed':
-                    price += p_amount
-                elif p_type == 'ratio':
-                    price *= (1 + p_amount/100)
+            price = cal_price_with_premium(one['variant'], price)
         one['price'] = price
 
         if int(id_shop):
-            for shop in as_list(sale_info.get('shop')):
-                if shop['@id'] != id_shop:
-                    continue
-                addr = shop.get('address', {}).get('country')
-                if addr and addr.get("#text"):
-                    country_code = addr["#text"]
-                    province_code = addr.get("@province")
-                break
+            country_code, province_code = _get_shop_addr(sale_info, id_shop)
         else:
-            addr = sale_info.get('brand', {}).get('address', {}).get('country')
-            if addr and addr.get("#text"):
-                country_code = addr["#text"]
-                province_code = addr.get("@province")
+            country_code, province_code = _get_brand_addr(sale_info)
         _cate_id = sale_info.get('category', {}).get('@id', 0)
-        if user_in_same_region(req, resp, users_id,
-                               country_code, province_code):
-            taxrate = 0
-        else:
-            taxrate = get_category_taxrate(req, resp,
-                                country_code, province_code, _cate_id)
-        one['tax'] = price * taxrate / 100
+        tax_info = get_category_tax_info(req, resp,
+                country_code, province_code,
+                user_country_code, user_province_code,
+                _cate_id)
+        one['tax'] = price * tax_info['rate'] / 100
+        one['show_final_price'] = tax_info['show_final_price']
+
         basket.append(one)
     return basket
-
 
 def get_shipping_info(req, resp, order_id):
     from common.data_access import data_access
@@ -493,10 +531,15 @@ def get_order_table_info(order_id, order_resp, all_sales=None):
                 if iv_item_info:
                     taxes = as_list(iv_item_info.get('tax', {}))
                     iv['tax'] = sum([float(t['#text']) for t in taxes
-                                     if t['@show'] == 'True'])
-                    iv['tax'] = iv['tax'] / int(iv_item_info['qty'])
+                                     if t.get('@to_worldwide') == 'True'
+                                        or t.get('@show') == 'True'])
+                    iv['tax_per_item'] = iv['tax'] / int(iv_item_info['qty'])
+                    iv['show_final_price'] = len(
+                        [t for t in taxes if t.get('@show') == 'True']) > 0
                 else:
                     iv['tax'] = 0
+                    iv['tax_per_item'] = 0
+                    iv['show_final_price'] = False
                 item_invoice_info[iv['shipment_id']] = iv
 
             for _shipment_info in item_info['shipment_info']:

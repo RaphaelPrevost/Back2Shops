@@ -45,6 +45,7 @@
 <!ELEMENT tax (#PCDATA) >
 <!ATTLIST tax name CDATA #REQUIRED
               amount CDATA #REQUIRED
+              to_worldwide CDATA #REQUIRED
               show CDATA #REQUIRED>
 <!ELEMENT subtotal (#PCDATA) >
 <!ELEMENT detail (subitem+) >
