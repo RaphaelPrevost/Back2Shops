@@ -480,7 +480,13 @@ def get_shipping_info(req, resp, order_id):
     return data
 
 def get_order_table_info(order_id, order_resp, all_sales=None):
-    user_name = order_resp['shipping_dest']['full_name']
+    user_profile = order_resp['user_info']
+    user_name = '%s %s %s' % (
+                    user_profile.get('title') or '',
+                    user_profile.get('first_name') or '',
+                    user_profile.get('last_name') or '',
+                )
+    dest_user_name = order_resp['shipping_dest']['full_name'] or user_name
     dest_addr = ' '.join([
             order_resp['shipping_dest']['address'],
             order_resp['shipping_dest']['postalcode'],
@@ -569,6 +575,7 @@ def get_order_table_info(order_id, order_resp, all_sales=None):
         'status_name': trans_func(ORDER_STATUS.toReverseDict().get(
                                     order_status) or ''),
         'user_name': user_name,
+        'dest_user_name': dest_user_name,
         'dest_addr': dest_addr,
         'shipments': shipments,
         'order_invoice_url': get_url_format(FRT_ROUTE_ROLE.ORDER_INFO)
