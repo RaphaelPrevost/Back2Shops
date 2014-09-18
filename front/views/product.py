@@ -99,6 +99,7 @@ class ProductInfoResource(BaseHtmlResource):
         if not all_sales or sale_id not in all_sales:
             raise ValidationError('ERR_ID')
         product_info = all_sales[sale_id]
+        product_info['desc'] = product_info.get('desc', '').split('\n')
 
         if is_routed:
             type_info = get_type_from_sale(product_info)
