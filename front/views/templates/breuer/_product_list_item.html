@@ -5,13 +5,17 @@
 		</span>
 		<h2 class="name">${p.get('name')}</h2>
         <strong class="modele">${p.get('short_desc')}</strong>
-        <span class="prix">Prix : ${p.get('price')} ${p.get('currency')}</span>
+        <?py if p['show_final_price']: ?>
+        <span class="prix">Prix : ${format_amount(p.get('price') + p.get('tax'))} ${p.get('currency')}</span>
+        <?py else: ?>
+        <span class="prix">Prix : ${format_amount(p.get('price'))} ${p.get('currency')}</span>
+        <?py #endif ?>
 	</a>
 
 	<?py if p.get('variant'): ?>
 	<ul class="thumbnails">
 		<?py for variant in p.get('variant'): ?>
-		<li><a href="${get_thumbnail(variant.get('img') or get_single_attribute(p, 'img'), 185)}"><img src="${get_thumbnail(variant.get('thumb'), 30)}" alt="${variant.get('@id')}"></a>
+		<li><a href="${get_thumbnail(variant.get('img') or get_single_attribute(p, 'img'), 185)}"><img src="${get_thumbnail(variant.get('thumb'), 30)}"></a>
 		</li>
 		<?py #endfor ?>
 	</ul>

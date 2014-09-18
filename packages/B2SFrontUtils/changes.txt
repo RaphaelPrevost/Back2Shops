@@ -41,3 +41,6 @@
 
 == version 0.0.14 ==
 1. fix the cache proxy for taxes list
+
+== version 0.0.15 ==
+1. add more arguments to filter taxes in TaxesCacheProxy

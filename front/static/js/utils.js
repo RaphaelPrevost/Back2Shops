@@ -1,16 +1,29 @@
 function formatAmount(s, decimal_digits) {  
-  s += "";
-  var num = s.replace(/,/g,'');
-  if(!/^(\+|-)?\d+(\.\d+)?$/.test(num)){return 0;}  
+    s += "";
+    var num = s.replace(/,/g,'');
+    if(!/^(\+|-)?\d+(\.\d+)?$/.test(num)){return 0;}  
 
-  if (decimal_digits == undefined)
-    decimal_digits = 2
+    if (decimal_digits == undefined)
+        decimal_digits = 2
 
-  num = (num * 1).toFixed(decimal_digits);
-  //var re = new RegExp().compile("(\\d)(\\d{3})(,|\\.|$)");  
-  //while(re && re.test(num))  
-  //  num = num.replace(re,"$1,$2$3");
-  return num; 
+    num = (num * 1).toFixed(decimal_digits);
+    //var re = new RegExp().compile("(\\d)(\\d{3})(,|\\.|$)");  
+    //while(re && re.test(num))  
+    //    num = num.replace(re,"$1,$2$3");
+
+    if (decimal_digits > 2) { 
+        count = decimal_digits - 2;
+        while (count > 0) {
+            if (num[num.length-1] == '0') {
+                num = num.substring(0, num.length-1);
+                count--;
+                continue;
+            } else {
+                break;
+            }
+        }
+    }
+    return num; 
 }
 
 function curSymbol(cur) {

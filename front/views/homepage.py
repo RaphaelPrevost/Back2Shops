@@ -9,7 +9,7 @@ class HomepageResource(BaseHtmlResource):
     def _on_get(self, req, resp, **kwargs):
         sales = data_access(REMOTE_API_NAME.GET_SALES,
                             req, resp, **req._params)
-        return {'product_list': get_brief_product_list(sales)}
+        return {'product_list': get_brief_product_list(sales, req, resp)}
 
 class EShopResource(BaseHtmlResource):
     template = 'eshop.html'

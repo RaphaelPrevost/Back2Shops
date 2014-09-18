@@ -5,8 +5,7 @@ from B2SUtils.base_actor import as_list
 from B2SUtils.errors import ValidationError
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
-from common.utils import get_category_taxrate
-from common.utils import get_discounted_price
+from common.utils import get_category_tax_info
 from common.utils import get_brief_product_list
 from common.utils import get_category_from_sales
 from common.utils import get_normalized_name
@@ -15,7 +14,7 @@ from common.utils import get_random_products
 from common.utils import get_type_from_sale
 from common.utils import get_url_format
 from common.utils import is_routed_template
-from common.utils import user_in_same_region
+from common.utils import user_country_province
 from views.base import BaseHtmlResource
 
 
@@ -56,7 +55,7 @@ class TypeListResource(BaseHtmlResource):
 
         return {'cur_type_id': type_id,
                 'category': get_category_from_sales(sales),
-                'product_list': get_brief_product_list(sales)}
+                'product_list': get_brief_product_list(sales, req, resp)}
 
 
 class ProductListResource(BaseHtmlResource):
@@ -67,7 +66,7 @@ class ProductListResource(BaseHtmlResource):
         sales = data_access(REMOTE_API_NAME.GET_SALES,
                             req, resp, **req._params)
         return {'category': dict(),
-                'product_list': get_random_products(sales)}
+                'product_list': get_random_products(sales, req, resp)}
 
 
 class ProductInfoResource(BaseHtmlResource):
@@ -131,13 +130,7 @@ class ProductInfoResource(BaseHtmlResource):
 
         # price
         product_info['display'] = dict()
-        price = ori_price = get_product_default_display_price(product_info)
-
-        if price and product_info.get('discount'):
-            price, discount_type, discount_price = \
-                    get_discounted_price(price, product_info)
-            product_info['display']['discount_type'] = discount_type
-            product_info['display']['discount'] = discount_price
+        ori_price, price = get_product_default_display_price(product_info)
         product_info['display']['price'] = price
         product_info['display']['ori_price'] = ori_price
 
@@ -181,22 +174,26 @@ class ProductInfoResource(BaseHtmlResource):
         shops = dict([(node['@id'], node)
                       for node in as_list(product_info.get('shop'))])
         shops.update({"0": product_info.get('brand', {})})
+        show_final_price = False
         for _id, node in shops.iteritems():
             addr = node.get('address', {}).get('country')
             if addr and addr.get("#text"):
                 country_code = addr["#text"]
                 province_code = addr.get("@province")
-                if user_in_same_region(req, resp, self.users_id,
-                                       country_code, province_code):
-                    category_tax = 0
-                else:
-                    category_tax = get_category_taxrate(req, resp,
-                                       country_code, province_code, _cate_id)
-                taxes_rate[_id] = category_tax
+                user_country_code, user_province_code = \
+                        user_country_province(req, resp, self.users_id)
+                category_tax_info = get_category_tax_info(
+                        req, resp,
+                        country_code, province_code,
+                        user_country_code, user_province_code,
+                        _cate_id)
+                taxes_rate[_id] = category_tax_info['rate']
+                show_final_price = category_tax_info['show_final_price']
 
         return {
             'cur_type_id': type_id,
             'product_info': product_info,
-            'product_list': get_random_products(all_sales),
+            'product_list': get_random_products(all_sales, req, resp),
             'taxes_rate': taxes_rate,
+            'show_final_price': show_final_price,
         }

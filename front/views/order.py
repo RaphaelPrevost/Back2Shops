@@ -17,7 +17,6 @@ from common.data_access import data_access
 from common.email_utils import send_order_email
 from common.utils import format_date
 from common.utils import get_basket, clear_basket
-from common.utils import get_brief_product
 from common.utils import get_order_table_info
 from common.utils import get_shipping_info
 from common.utils import get_url_format

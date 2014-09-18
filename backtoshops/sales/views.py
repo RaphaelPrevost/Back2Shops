@@ -72,6 +72,7 @@ from shippings.models import Shipping
 from shops.models import DefaultShipping
 from shops.models import Shop
 from stocks.models import ProductStock
+from taxes.models import Rate
 
 def get_sale_currency(request, shop_data):
     target_market = shop_data['target_market']
@@ -210,6 +211,29 @@ class ListSalesView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin
                 sale.product.discount_price = base_price - sale.product.discount
             else:
                 sale.product.discount_price = base_price
+
+            if sale.shops.count() > 0:
+                country_code = sale.shops.all()[0].address.country_id
+                province_code = sale.shops.all()[0].address.province_code
+            else:
+                country_code = sale.mother_brand.address.country_id
+                province_code = sale.mother_brand.address.province_code
+            category_id = Product.objects.get(sale=sale).category_id
+            taxes = Rate.objects.filter(
+                Q(enabled=True) &
+                Q(region_id=country_code) &
+                Q(shipping_to_region_id=None) &
+                Q(shipping_to_province='') &
+                (Q(applies_to_id=None) | Q(applies_to_id=category_id))
+            )
+            if province_code:
+                taxes = taxes.filter(Q(province="") | Q(province=province_code))
+            else:
+                taxes = taxes.filter(Q(province=""))
+            if taxes.count() > 0:
+                sale.product.tax_rate = taxes.all()[0].rate
+            else:
+                sale.product.tax_rate = 0
 
             if sale.product.pictures.count() > 0:
                 sale.cover = sale.product.pictures.order_by('sort_order', 'id')[0]

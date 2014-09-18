@@ -291,13 +291,32 @@ class TaxesCacheProxy(BaseCacheProxy):
         return cls._instance
 
     def get(self, **kw):
-        resp_dict = super(TaxesCacheProxy, self).get(**kw)
-        country = kw.get('fromCountry')
-        province = kw.get('fromProvince')
-        resp_dict = dict([(k, v) for k, v in resp_dict.iteritems()
-                     if v['country'] == country
+        taxes = super(TaxesCacheProxy, self).get(**kw)
+        from_country = kw.get('fromCountry')
+        from_province = kw.get('fromProvince')
+        to_country = kw.get('toCountry')
+        to_province = kw.get('toProvince')
+        category = kw.get('category')
+        taxes = dict([(k, v) for k, v in taxes.iteritems()
+                     if v['country'] == from_country
                         and ('province' not in v
-                             or province and v['province'] == province)])
+                             or from_province and v['province'] == from_province)
+                        and (v['shipping']['@country'] == 'None'
+                             or v['shipping']['@country'] == to_country)
+                        and ('@province' not in v['shipping']
+                             or to_province and v['shipping']['province'] == to_province)
+                     ])
+        resp_dict = {}
+        for k, v in taxes.iteritems():
+            category_conds = [cond for cond in as_list(v.get('apply'))
+                              if cond.get('@to')]
+            if category_conds:
+                for cond in category_conds:
+                    if cond['@to'] == category:
+                        resp_dict[k] = v
+                        break
+            else:
+                resp_dict[k] = v
         return resp_dict
 
     def _get_from_redis(self, obj_id=None, **kw):

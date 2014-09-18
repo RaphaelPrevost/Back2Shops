@@ -25,7 +25,7 @@
             <li value="${variant.get('@id')}">
                 <?py if not variant.get('disabled', False): ?>
                 <a href="javascript:void(0)" src="${variant.get('img') or get_single_attribute(product_info, 'img')}">
-                    <img src="${get_thumbnail(variant.get('thumb'), 30)}" alt="${variant.get('@id')}"/>
+                    <img src="${get_thumbnail(variant.get('thumb'), 30)}"/>
                 </a>
                 <?py #endif ?>
              </li>
@@ -105,21 +105,25 @@
 <script type="text/javascript">
 $(function(){
     $("#type_attribute_selector").val("");
-    var discount_type = "${product_info.get('discount', {}).get('@type')}";
-    var discount_amount = ${product_info.get("discount", {}).get("#text", 0)};
+    var discount = ${product_info.get("discount", {}).get("#text", 0)};
     var ori_price = parseFloat(${product_info.get("display", {}).get("ori_price", 99999999)});
     var discounted_price = parseFloat(${product_info.get("display", {}).get("price", 99999999)});
     var currency = "${cur_symbol(product_info.get('price', {}).get('@currency'))}";
+    var show_final_price = "${show_final_price}";
     var rates = #{taxes_rate};
-    _display_price_after_tax();
 
     var type_attr_prices = {};
+    var type_attr_discount_prices = {};
     var _price = null;
     <?py if product_info.get('type',{}).get('attribute'): ?>
         <?py for attr in as_list(product_info.get('type',{}).get('attribute')): ?>
             _price = parseFloat(${attr.get("price", {}).get("#text", 0)});
+            _discount_price = parseFloat(${attr.get("discount_price", {}).get("#text", 0)});
             if (_price) {
                 type_attr_prices[${attr.get("@id")}] = _price;
+            }
+            if (_discount_price) {
+                type_attr_discount_prices[${attr.get("@id")}] = _discount_price;
             }
         <?py #endfor ?>
     <?py #endif ?>
@@ -149,11 +153,12 @@ $(function(){
 
     function _calc_discounted_price() {
         _calc_ori_price();
-        if (discount_type && discount_amount) {
-            if (discount_type == "fixed") {
-                discounted_price = (ori_price - parseFloat(discount_amount));
-            } else if (discount_type == "ratio") {
-                discounted_price = (ori_price * (100 - discount_amount) / 100);
+        if (discount) {
+            var type_attr_id = $("#type_attribute_selector").val();
+            if (type_attr_id && type_attr_discount_prices[type_attr_id]) {
+                discounted_price = type_attr_discount_prices[type_attr_id];
+            } else {
+                discounted_price = parseFloat(${product_info.get("display", {}).get("price", 99999999)});
             }
         } else {
             discounted_price = ori_price;
@@ -162,7 +167,8 @@ $(function(){
 
     function _calc_premium_price(variant_id) {
         _calc_discounted_price();
-        variant_id = variant_id || $("#selectColoris li.selected:first").attr("value");
+        variant_id = variant_id || $("#selectColoris li.selected:first").attr("value")
+                     || $("#selectColoris li:first").attr("value");
         if (variant_id) {
             var _price = variants[variant_id]["premium_amount"];
             if (_price) {
@@ -192,11 +198,19 @@ $(function(){
         else
             rate = rates[form.id_shop.value];
         rate = parseFloat(rate);
-        if (rate > 0) {
-            $("#price_after_tax").show();
-            $("#price_after_tax span").text(formatAmount(discounted_price + discounted_price * rate / 100, 4) + " " + currency);
+        if (show_final_price== 'True') {
+            $("#ori_price ").text(formatAmount(ori_price + ori_price * rate / 100) + " " + currency);
+            $("#discounted_price").text(formatAmount(discounted_price + discounted_price * rate / 100) + " " + currency);
+        } else {
+            if (rate > 0) {
+                $("#price_after_tax").show();
+                $("#price_after_tax span").text(formatAmount(discounted_price + discounted_price * rate / 100, 4) + " " + currency);
+            }
         }
     }
+
+    _calc_premium_price();
+    _display_prices();
 
     $("#selectColoris li").click(function(){
         $(this).attr('class', 'selected').siblings().attr('class', '');
