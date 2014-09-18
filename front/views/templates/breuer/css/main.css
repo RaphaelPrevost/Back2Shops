@@ -249,29 +249,26 @@ a { color: #1f244a; }
 	border-bottom: 1px solid #A7ACCD;
 }
 #linkHead {
-    font-family: verdana;
-    font-size: 10px;
-    line-height: 16px;
-    position: absolute;
-    right: 0;
-    text-align: right;
-    text-transform: uppercase;
-    top: 115px;
+	position: absolute;
+	top: 115px; right: 0px;
+	text-align: right;
+	font-family: verdana;
+	font-size: 10px; line-height: 16px;
+	text-transform: uppercase;
 }
-#linkHead a:hover {
-    text-decoration: underline;
+#linkHead a:hover { text-decoration: underline; }
+
+#linkHead #deco { 
+	display: inline-block;
+	margin-top: 3px; padding: 2px 20px 2px 5px;
+	color: #ffffff;
+	background: url(../img/deconnection.png) no-repeat right 3px #338aeb;
 }
-#linkHead #deco {
-    background: url("../img/deconnection.png") no-repeat scroll right 3px #338aeb;
-    color: #ffffff;
-    display: inline-block;
-    margin-top: 3px;
-    padding: 2px 20px 2px 5px;
-}
-#linkHead #deco:hover {
-    background-color: #046eeb;
-    text-decoration: none;
-}
+#linkHead #deco:hover { text-decoration: none; background-color: #046EEB; }
+
+
+
+
 
 
 #logo {
@@ -388,8 +385,8 @@ a { color: #1f244a; }
 	font-size: 15px;
 	border-bottom: 1px solid #e2e5ec;
 }
-#nav_prod ul li.on { background-color: #edefff; }
 #nav_prod ul li:hover { background-color: #edefff; }
+#nav_prod ul li.on { background-color: #edefff; }
 
 
 
@@ -558,27 +555,29 @@ a { color: #1f244a; }
 
 #infosProd h1 {
 	display: block;
-	margin: 20px 0px 0px 15px;
+	margin: 15px 0px 0px 15px;
 	font-weight: normal; font-size: 20px;
 	line-height: 20px;
 	color: #010101;
 }
 #infosProd .descrpt {
 	display: block;
-	margin: 0px 0px 10px 12px;
-	line-height: 12px; font-size: 14px;
+	margin: 20px 0px 10px 12px;
+	font-family: arial; font-size: 14px;
+	line-height: 17px;
 	color: #888;
 }
+
 #infosProd .prix1 {
 	display: block;
 	font-size: 22px;
-	margin: 50px 0px 0px 12px;
+	margin: 40px 0px 20px 12px;
 	color: #000;
 }
 #infosProd .prix2 {
 	display: block;
 	font-size: 14px;
-	margin: 0px 0px 0px 12px;
+	margin: 0px 0px 20px 12px;
 	line-height: 10px; font-style: normal;
 	color: #000;
 }
@@ -607,8 +606,8 @@ a { color: #1f244a; }
 	color: #000;
 }
 #infosProd ul {
-	margin: 10px 15px 10px 12px;
-	padding-bottom: 15px;
+	margin: 2px 15px 20px 12px;
+	padding-bottom: 1px;
 	border-bottom: 1px dotted #dbdbdb;
 }
 #infosProd ul li {
@@ -631,6 +630,18 @@ a { color: #1f244a; }
 }
 
 
+#infosProd ul.descrProd { margin: 5px 15px 7px 2px; padding-bottom: 10px; }
+#infosProd ul.descrProd li { 
+	font-size: 12px;
+	font-family: Arial, Helvetica, sans-serif;
+	margin: 0px 15px 0px 12px; padding: 0 0 0 12px;
+	color: #666666;
+	border: none;
+	background: url(../img/square-blue.gif) no-repeat 0 7px;
+}
+
+
+
 
 
 #infosProd #guideBtn {
@@ -644,7 +655,7 @@ a { color: #1f244a; }
 #infosProd #selectTaille {
 	display: block; clear: both;
 	width: 190px;
-	margin: 15px 0 15px 15px;
+	margin: 10px 0 13px 15px;
 	overflow: hidden;
 	border: 1px solid #e5e5e5;
 	background: url(../img/select.gif) no-repeat right 0 #f7f7f7;	
@@ -677,8 +688,8 @@ a { color: #1f244a; }
 
 
 #infosProd #btnBuy {
-	display: block; width: 210px;
-	margin: 40px auto 5px auto;
+	display: block; width: 220px;
+	margin: 40px auto 15px auto;
 	padding: 8px 0;
 	text-align: center;
 	font-family: Arial, Helvetica, sans-serif; font-size: 16px; 
@@ -725,6 +736,12 @@ a.right {
 }
 
 
+
+
+
+
+
+
 /*-------------------------------*/
 /*	          PANIER		  	 */
 /*-------------------------------*/
@@ -763,7 +780,7 @@ a.right {
 #panier ul  { 
 	position: relative; 
 	height: 34px; margin-top: 25px;
-	background-color: #77b3f7;
+	background-color: #6170A1;
 }
 #panier ul li {
 	position: absolute;
@@ -773,14 +790,14 @@ a.right {
 	font-family: georgia;
 	font-size: 14px;
 	color: #fff;
-	background: url(../img/sprite.png) no-repeat right -35px #77b3f7; 
+	background: url(../img/sprite.png) no-repeat right -35px #6170A1; 
 } 
 #panier ul li span {
 	margin-right: 5px;
 	font-size: 18px;
 } 
-#panier ul li.on { background-position: right 0px; background-color: #008CE9; }
-#panier ul li.ok { background-position: right -181px; background-color: #008CE9; }
+#panier ul li.on { background-position: right 0px; background-color: #0A1A46; }
+#panier ul li.ok { background-position: right -181px; background-color: #0A1A46; }
 #panier ul li.li1 { z-index: 6; }
 #panier ul li.li2 { z-index: 5; left: 136px; }
 #panier ul li.li3 { z-index: 4; left: 290px; }
@@ -847,7 +864,9 @@ a.right {
 	line-height: 25px; font-size: 14px;
 	font-family: georgia;
 	text-align: center;
+	color: #1f244a;
 	border: 1px solid #bebebe;
+	background-color: #ffffff;
 }
 
 /*-----delete-----*/
@@ -938,7 +957,7 @@ a.right {
 	float: right; clear: left;
 	padding-right: 30px;
 	font-size: 16px; 
-	background-color: #338aeb; 
+	background-color: #002147; 
 	background-position: 69px -70px;
 	-o-transition: all 0.2s ease;
 	-ms-transition: all 0.2s ease;
@@ -946,7 +965,7 @@ a.right {
 	-webkit-transition: all 0.2s ease;
 	transition: all 0.2s ease;
 }
-.btn.purchase:hover { background-color: #57A4FF; }
+.btn.purchase:hover { background-color: #00326C; }
 .btn.back { 
 	float: left;
 	padding-left: 30px;
@@ -1041,8 +1060,12 @@ a.right {
     width: 110px;
 }
 
+
  
- 
+/* Mot de passe oublié */
+#panier .floater.center { width: 500px; float: none; margin-right: auto; margin-left: auto; }
+#panier .floater.center  input { margin: 30px auto; width: 280px; } 
+#panier .floater.center .btn { width: 110px; margin: 30px auto; float: none; background-position: 79px -70px; }
 
 
 
@@ -1154,6 +1177,7 @@ a.right {
 	background-color: #ffffff;
 }
 
+/* added by dev */
 #formContainer p select.birthday:nth-child(2){
 	width: 100px;
 }
@@ -1163,7 +1187,6 @@ a.right {
 #formContainer p select.birthday:nth-child(4){
 	width: 60px;
 }
-
 
 
 
@@ -1521,6 +1544,7 @@ a.right {
 	font-size: 12px;
 	color: #639b0b;
 }
+#panier table .sstotalline .infoChrono img { vertical-align: inherit; }
 
 
 .infoChrono { 
@@ -1721,11 +1745,15 @@ a.right {
 .recapLivraison {
 	height: 40px; margin-bottom:-13px;
 	font-family: Arial, Helvetica, sans-serif;
-	background-color: #fff8d9;
+	padding: 0 20px;
+	background-color: #EBF4FF;
+	
 }
 .recapLivraison span {
 	display: inline-block;
+	font-size: 12px;
 	height: 40px; line-height: 40px;
+	color: #338aeb;
 }
 
 .suivi {
@@ -1776,16 +1804,40 @@ a.right {
 #totalcommande {
 	text-align: right;
 	height: 70px; line-height: 70px; margin-bottom:20px;
+	font-size: 12px;
 	font-family: Arial, Helvetica, sans-serif;
 	text-transform: uppercase;
-	background-color: #fff8d9;
+	color: #000;
+	background-color: #fffff2;
 }
 #totalcommande strong {
 	display: block; float: right;
-	margin: 0 10px;
+	padding: 0 25px; margin: 0 0 0 20px;
+	font-size: 14px;
+	color: #dd9922;
+	background-color: #fff8d9;
 }
 
 
+
+
+#congrat { 
+	text-align: center;
+	font-size: 18px; font-weight: normal;
+	margin: 30px 0;
+	padding: 35px;
+	color: #639b0b; 
+	background-color: #F4FFF2; 
+}
+
+#congrat a { color: #d18a00; }
+#congrat a:hover { text-decoration: underline; }
+
+
+#congrat.rejected { 
+	color: #dd330b; 
+	background-color: #FFF4F2; 
+}
 
 
 
@@ -1850,6 +1902,40 @@ a.right {
 
 
 
+
+
+
+
+
+
+/*-----------------------------------*/
+/*		 	   LA SAGA  			 */
+/*-----------------------------------*/
+
+#saga h1 {
+    background-color: #f5f5f5;
+    border: 1px solid #fff;
+    color: #151b5b;
+    font-weight: normal;
+    padding: 15px 0;
+    text-align: center;
+} 
+#saga ul li { height: 400px; 
+background: #ffffff; /* Old browsers */
+background: -moz-linear-gradient(top,  #ffffff 0%, #f4f4f4 95%, #ededed 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(95%,#f4f4f4), color-stop(100%,#ededed)); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top,  #ffffff 0%,#f4f4f4 95%,#ededed 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top,  #ffffff 0%,#f4f4f4 95%,#ededed 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top,  #ffffff 0%,#f4f4f4 95%,#ededed 100%); /* IE10+ */
+background: linear-gradient(to bottom,  #ffffff 0%,#f4f4f4 95%,#ededed 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+}
+#saga ul li img { float: left; margin: 0px 50px 20px 50px; }
+#saga ul li:nth-child(even) img { float: right; }
+
+#saga ul li h2 { font-size: 60px; font-weight: normal; color: #161f48; margin: 60px 60px 0 60px; }
+#saga ul li strong { display: block; font-size: 30px; font-weight: normal; color: #161f48; margin: 0 60px; }
+#saga ul li p { font-size: 16px; color: #323232; margin: 0 60px; }
 
 
 

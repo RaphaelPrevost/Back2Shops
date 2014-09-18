@@ -128,6 +128,7 @@ fixed_urlpatterns = {
     r'/commands_deliveries': homepage.CommandsAndDeliveriesResource,
     r'/e-shop': homepage.EShopResource,
     r'/lookbook': homepage.LookbookResource,
+    r'/la-saga': homepage.LaSagaResource,
     r'/error': error.GeneralErrorResource,
 
     r'/new_user_email': email.NewUserEmailResource,
