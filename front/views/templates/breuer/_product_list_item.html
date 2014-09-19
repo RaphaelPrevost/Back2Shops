@@ -6,9 +6,9 @@
 		<h2 class="name">${p.get('name')}</h2>
         <strong class="modele">${p.get('short_desc')}</strong>
         <?py if p['show_final_price']: ?>
-        <span class="prix">Prix : ${format_amount(p.get('price') + p.get('tax'))} ${p.get('currency')}</span>
+        <span class="prix">Prix : ${format_amount(p.get('price') + p.get('tax'))} ${cur_symbol(p.get('currency'))}</span>
         <?py else: ?>
-        <span class="prix">Prix : ${format_amount(p.get('price'))} ${p.get('currency')}</span>
+        <span class="prix">Prix : ${format_amount(p.get('price'))} ${cur_symbol(p.get('currency'))}</span>
         <?py #endif ?>
 	</a>
 
