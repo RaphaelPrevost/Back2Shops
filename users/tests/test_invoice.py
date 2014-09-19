@@ -115,12 +115,11 @@ class TestInvoice(BaseOrderTestCase):
         handling_fee = 6.0
         tax1 = 1/100.0
         tax2 = 0.5/100.0
-        tax3 = 1/100.0
+        tax3 = 1/100.0 # taxable
         expect_amount = (type_attr_price*qty +
                          handling_fee +
                          shipping_fee +
-                         type_attr_price*qty * tax1 +
-                         type_attr_price*qty * tax2 +
+                         type_attr_price*qty * (tax1 + tax2 + tax3) +
                          (handling_fee + shipping_fee) * tax3)
 
         wwwOrder = [item]

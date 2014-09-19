@@ -92,7 +92,7 @@ class TestPayment(BaseShipmentTestCase):
         # US AL to US AL shipping fee: 1%
         tax1 = 0.01
         tax2 = 0.005
-        tax3 = 0.01
+        tax3 = 0.01 # taxable
 
         wwwOrder = [item1_in_shop5, item2_in_shop6]
 
@@ -103,18 +103,15 @@ class TestPayment(BaseShipmentTestCase):
         self._shipmentsCountCheck(id_order, 3)
 
         iv1_due = (item1_price +
-                   item1_price * tax1 +
-                   item1_price * tax2 +
+                   item1_price * (tax1 + tax2 + tax3) +
                    (item1_handling_fee + item1_shipping_fee * 1) +
                    (item1_handling_fee + item1_shipping_fee * 1) * tax3)
         iv2_due = (item1_price +
-                   item1_price * tax1 +
-                   item1_price * tax2 +
+                   item1_price * (tax1 + tax2 + tax3) +
                    (item1_handling_fee + item1_shipping_fee * 1) +
                    (item1_handling_fee + item1_shipping_fee * 1) * tax3)
         iv3_due = (item2_price * item2_quantity +
-                   item2_price * item2_quantity * tax1 +
-                   item2_price * item2_quantity * tax2 +
+                   item2_price * item2_quantity * (tax1 + tax2 + tax3) +
                    (item2_handling_fee + item2_shipping_fee * item2_quantity) +
                    (item2_handling_fee + item2_shipping_fee * item2_quantity) * tax3)
 
