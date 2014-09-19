@@ -979,11 +979,13 @@ class InvoiceView(BaseCryptoWebService, ListView):
             query = (
                 query &
                 (
-                    (Q(region_id=f_ctry) &
+                    (Q(display_on_front=True) &
+                     Q(region_id=f_ctry) &
                      Q(province='') &
                      Q(shipping_to_region_id=None) &
                      Q(shipping_to_province='')) |
-                    (Q(region_id=f_ctry) &
+                    (Q(display_on_front=True) &
+                     Q(region_id=f_ctry) &
                      Q(province=f_prov) &
                      Q(shipping_to_region_id=None) &
                      Q(shipping_to_province="")) |
@@ -1010,11 +1012,13 @@ class InvoiceView(BaseCryptoWebService, ListView):
             query = (
                 query &
                 (
-                    (Q(region_id=f_ctry) &
+                    (Q(display_on_front=True) &
+                     Q(region_id=f_ctry) &
                      Q(province='') &
                      Q(shipping_to_region_id=None) &
                      Q(shipping_to_province='')) |
-                    (Q(region_id=f_ctry) &
+                    (Q(display_on_front=True) &
+                     Q(region_id=f_ctry) &
                      Q(province=f_prov) &
                      Q(shipping_to_region_id=None) &
                      Q(shipping_to_province="")) |
