@@ -21,3 +21,14 @@
         <a id="forgotpass" href="${reset_pwd_req_url_format}">Mot de passe oublié ?</a>
     </form>
 </div>
+
+<script>
+$(function(){
+    $("#loginForm").keydown(function(e){
+        if (e.keyCode == 13) login();
+    });
+    $("#registerForm").keydown(function(e){
+        if (e.keyCode == 13) register();
+    });
+});
+</script>
