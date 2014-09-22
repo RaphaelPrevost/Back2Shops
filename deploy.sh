@@ -5,6 +5,10 @@
 # svn co http://trac.lbga.fr/svn/backtoshops/
 # cd /home/backtoshops
 #
+# deploy_settings.sh are ready:
+# e.g. copy breuer_settings.sh to deploy_settings.sh
+#   or copy testing_settings.sh to deploy_settings.sh
+#
 # possible errors related to the DB:
 # Peer/Ident authentication failed: check pg_hba.conf,
 # local connections should be trusted (or password)
@@ -12,17 +16,6 @@
 set -ex
 
 CWD=$(pwd)
-ADM_DOMAIN=${ADM_DOMAIN:-sales.backtoshops.com}
-USR_DOMAIN=${USR_DOMAIN:-usr.backtoshops.com}
-FIN_DOMAIN=${FIN_DOMAIN:-finance.backtoshops.com}
-AST_DOMAIN=${AST_DOMAIN:-assets.backtoshops.com}
-FRT_DOMAIN=${FRT_DOMAIN:-front.backtoshops.com}
-
-ADM_ADDR='37.187.48.33:80'
-USR_ADDR='92.222.30.2:80'
-FIN_ADDR='92.222.30.3:80'
-AST_ADDR='92.222.30.4:80'
-FRT_ADDR='92.222.30.5:80'
 
 ADM_REQUIREMENT=$CWD/requirements/adm.backtoshops.com.requirements.txt
 USR_REQUIREMENT=$CWD/requirements/usr.backtoshops.com.requirements.txt
@@ -47,8 +40,21 @@ INITDB=${INITDB:-""}
 RESETDB=${RESETDB:-"$INITDB"}
 INST=""
 
+if [ -a deploy_settings.sh ]; then
+    source ./deploy_settings.sh
+else
+    source ./breuer_settings.sh
+fi
 
 ########## common functions ##########
+
+function edit_product_settings() {
+    sed -i -e "s|37.187.48.33|$ADM_ADDR|g" $1
+    sed -i -e "s|92.222.30.2|$USR_ADDR|g" $1
+    sed -i -e "s|92.222.30.3|$FIN_ADDR|g" $1
+    sed -i -e "s|92.222.30.4|$AST_ADDR|g" $1
+    sed -i -e "s|92.222.30.5|$FRT_ADDR|g" $1
+}
 
 function usage() {
     echo "Usage: $0 option"
@@ -240,6 +246,7 @@ EOF
     fi
 
     # edit the settings and urls
+    edit_product_settings $CWD/public_html/settings_production.py
     sed -i -e "s|/var/www/backtoshops/backtoshops/|$CWD/public_html|g" \
     $CWD/public_html/settings_production.py
     sed -i -e "s|'logs/error.log'|'../logs/error.log'|g" \
@@ -289,6 +296,7 @@ function make_usr_src_dir() {
     if [ -d $CWD/users -a ! -d $CWD/users_src ]; then
         cp -r $CWD/users $CWD/users_src
         cp $CWD/users/settings_product.py $CWD/users_src/settings.py
+        edit_product_settings $CWD/users_src/settings.py
         chown -R backtoshops.www-data $CWD/users_src
         chmod -R 2750 $CWD/users_src
     fi
@@ -362,6 +370,7 @@ function make_finance_src_dir() {
     if [ -d $CWD/finance -a ! -d $CWD/finance_src ]; then
         cp -r $CWD/finance $CWD/finance_src
         cp $CWD/finance/settings_product.py $CWD/finance_src/settings.py
+        edit_product_settings $CWD/finance_src/settings.py
         chown -R backtoshops.www-data $CWD/finance_src
         chmod -R 2750 $CWD/finance_src
     fi
@@ -424,6 +433,7 @@ function make_assets_src_dir() {
     if [ -d $CWD/assets -a ! -d $CWD/assets_src ]; then
         cp -r $CWD/assets $CWD/assets_src
         cp $CWD/assets/settings_product.py $CWD/assets_src/settings.py
+        edit_product_settings $CWD/assets_src/settings.py
         chown -R backtoshops.www-data $CWD/assets_src
         chmod -R 2750 $CWD/assets_src
     fi
@@ -520,6 +530,7 @@ function make_front_src_dir() {
     if [ -d $CWD/front -a ! -d $CWD/front_src ]; then
         cp -r $CWD/front $CWD/front_src
         cp $CWD/front/settings_product.py $CWD/front_src/settings.py
+        edit_product_settings $CWD/front_src/settings.py
         chown -R backtoshops.www-data $CWD/front_src
         chmod -R 2750 $CWD/front_src
     fi
