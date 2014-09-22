@@ -104,15 +104,15 @@
                                 {% endif %}
                             </span>
                             <span>{% trans "Discount:" %} <strong>
-                                {{ sale.product.discount|floatformat }}
+                                {{ sale.product.discount|floatformat:-2 }}
                                 {% if sale.product.discount_type == "percentage" %}%{% else %}&euro;{% endif %}
                             </strong></span>
                         {% endif %}
                         <span>{% trans "Item price:" %} <em{% if not sale.product.normal_price %} class="type-attr-prices"{% endif %}>
                             {% if sale.product.normal_price %}
-                                {{ sale.product.normal_price|floatformat }}
+                                {{ sale.product.normal_price|floatformat:-2 }}
                             {% else %}
-                                {{ sale.min_type_attribute_price|floatformat }} {% trans "to" %} {{ sale.max_type_attribute_price|floatformat }}
+                                {{ sale.min_type_attribute_price|floatformat:-2 }} {% trans "to" %} {{ sale.max_type_attribute_price|floatformat:-2 }}
                             {% endif %}
                             &euro;
                             </em>

@@ -62,16 +62,16 @@
     <!-- weight unit -->
     <weight unit="{{object.product.weight_unit_id}}">
         {% if object.product.standard_weight %}
-            {{ object.product.standard_weight|floatformat }}
+            {{ object.product.standard_weight|floatformat:-2 }}
         {% endif %}
     </weight>
 
     <!-- default price -->
-    <price currency="{{object.product.currency}}">{{ object.product.normal_price|floatformat }}</price>
+    <price currency="{{object.product.currency}}">{{ object.product.normal_price|floatformat:-2 }}</price>
 
     <!-- discount (type: "ratio" or "fixed" ) if it has -->
     {% if object.product.discount %}
-    <discount type="{% if object.product.discount_type == 'percentage' %}ratio{% else %}fixed{% endif %}">{{ object.product.discount|floatformat }}</discount>
+    <discount type="{% if object.product.discount_type == 'percentage' %}ratio{% else %}fixed{% endif %}">{{ object.product.discount|floatformat:-2 }}</discount>
     <discount_price>{% get_discount_price object.product.discount_type object.product.discount object.product.normal_price %}</discount_price>
     {% endif %}
 
