@@ -23,17 +23,17 @@ FIN_REQUIREMENT=$CWD/requirements/finance.backtoshops.com.requirements.txt
 AST_REQUIREMENT=$CWD/requirements/assets.backtoshops.com.requirements.txt
 FRT_REQUIREMENT=$CWD/requirements/front.requirements.txt
 
-ADM_DEPS=(libapache2-mod-wsgi python2.7-dev libpq-dev python-pip git \
+ADM_DEPS=(psmisc libapache2-mod-wsgi python2.7-dev libpq-dev python-pip git \
           libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev \
           liblcms1-dev libwebp-dev gettext libevent-dev swig memcached)
-USR_DEPS=(python2.7-dev libpq-dev python-pip git python-lxml \
+USR_DEPS=(psmisc nginx python2.7-dev libpq-dev python-pip git python-lxml \
           libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev \
           liblcms1-dev libwebp-dev libevent-dev swig redis-server)
-FIN_DEPS=(python2.7-dev libpq-dev python-pip git python-lxml \
+FIN_DEPS=(psmisc nginx python2.7-dev libpq-dev python-pip git python-lxml \
           libcairo2 libpango1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info \
           libxml2-dev libxslt1-dev)
-AST_DEPS=(python2.7-dev python-pip git)
-FRT_DEPS=(python2.7-dev python-pip git sendmail sendmail-cf)
+AST_DEPS=(psmisc nginx python2.7-dev python-pip git)
+FRT_DEPS=(psmisc nginx python2.7-dev python-pip git sendmail sendmail-cf)
 DPKG=$(dpkg -l)
 
 INITDB=${INITDB:-""}
@@ -612,7 +612,7 @@ function deploy_front() {
 function restart_servers() {
     service apache2 restart
 
-    killall -9 uwsgi
+    killall -9 uwsgi || echo "no uwsgi process to kill"
     source $CWD/env/bin/activate
 
     sleep 1
