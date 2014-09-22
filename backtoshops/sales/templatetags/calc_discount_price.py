@@ -1,6 +1,5 @@
 import logging
 from django import template
-from django.template.defaultfilters import floatformat
 
 register = template.Library()
 
@@ -11,7 +10,7 @@ def calc_discount_price(discount_type, discount, base_price):
         base_price = float(base_price)
         if discount_type == "percentage":
             tmp = base_price - (base_price * (discount / 100))
-            return round(tmp * 100 + ((tmp * 1000 % 10 > 4) and 1 or 0)) / 100
+            return round(int(tmp * 100) + ((tmp * 1000 % 10 > 4) and 1 or 0)) / 100
         else:
             return base_price - discount
     except Exception, e:
@@ -22,9 +21,8 @@ def calc_discount_price(discount_type, discount, base_price):
 
 @register.simple_tag
 def calc_price_after_tax(price, tax_rate):
-    price = float(floatformat(price))
     tmp = price + float(price * tax_rate / 100.0)
-    return round(tmp * 100 + ((tmp * 1000 % 10 > 4) and 1 or 0)) / 100
+    return round(int(tmp * 100) + ((tmp * 1000 % 10 > 4) and 1 or 0)) / 100
 
 @register.simple_tag
 def calc_discount_price_after_tax(discount_type, discount, base_price, tax_rate):
