@@ -17,6 +17,7 @@ from common.utils import get_client_ip
 from common.utils import get_order_table_info
 from common.utils import get_url_format
 from common.utils import get_user_contact_info
+from common.utils import unicode2utf8
 from views.base import BaseHtmlResource
 from views.base import BaseJsonResource
 from views.email import common_email_data
@@ -122,10 +123,10 @@ class UserResource(BaseHtmlResource):
                                                       get='province_code',
                                                       ccode=country_code,
                                                       pname=province_name)
-                            address['country_code'] = country_code
+                            address['country_code'] = unicode2utf8(country_code)
                             if remote_resp and isinstance(remote_resp, str) \
                                     and RESP_RESULT.F not in remote_resp:
-                                address['province_code'] = remote_resp
+                                address['province_code'] = unicode2utf8(remote_resp)
 
         return {'user_profile': user_profile,
                 'err': err,
