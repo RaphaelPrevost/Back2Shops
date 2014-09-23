@@ -59,7 +59,9 @@ class ListOrdersForm(forms.Form):
         if status > ORDER_STATUS.AWAITING_PAYMENT:
             choices = self.ORDER_BY_ITEMS + self.ORDER_BY_ITEMS_AFTER_PAYMENT
             self.fields['order_by1'] = forms.ChoiceField(
-                                       required=False, choices=choices)
+                                       required=False, choices=choices,
+                                       initial=kwargs.get('order_by1'))
             self.fields['order_by2'] = forms.ChoiceField(
-                                       required=False, choices=choices)
+                                       required=False, choices=choices,
+                                       initial=kwargs.get('order_by2'))
 

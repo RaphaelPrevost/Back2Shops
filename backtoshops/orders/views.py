@@ -207,7 +207,7 @@ class ListOrdersView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
             return ""
 
 
-    def set_orders_list(self, request):
+    def set_orders_list(self, request, params):
         orders = []
         if request.user.is_superuser:
             brand_id = 0
@@ -234,7 +234,7 @@ class ListOrdersView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
                     self._get_order_thumbnail(order['first_sale_id'])
                 orders_by_status[order['order_status']].append({order_id: order})
 
-        status = self.request.POST.get('status')
+        status = params.get('status')
         if status and status.isdigit() and int(status) in orders_by_status:
             status = int(status)
         else:
@@ -291,14 +291,17 @@ class ListOrdersView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
         self.page_nav = self.page.paginator.page_range[self.range_start:self.range_start+settings.PAGE_NAV_SIZE]
 
     def get(self, request, orders_type=None):
-        self.set_orders_list(request)
-        self.form = ListOrdersForm(self.status)
-        self._sort(request)
+        self.set_orders_list(request, request.GET)
+        self.form = ListOrdersForm(self.status, request.GET)
+        if self.form.is_valid():
+            order_by1 = self.form.cleaned_data['order_by1']
+            order_by2 = self.form.cleaned_data['order_by2']
+            self._sort(request, order_by1, order_by2)
         self.make_page()
         return self.render_to_response(self.__dict__)
 
     def post(self, request, orders_type=None):
-        self.set_orders_list(request)
+        self.set_orders_list(request, request.POST)
         self.form = ListOrdersForm(self.status, request.POST)
         if self.form.is_valid():
             order_by1 = self.form.cleaned_data['order_by1']
