@@ -31,7 +31,7 @@
                 {% endif %}&euro;
             </strong><em id="preview-{{ wizard.form.preview_base_price.auto_id }}">
                 {% if context %}
-                    {{ context.preview_base_price.value|floatformat }}
+                    {{ context.preview_base_price.value|floatformat:-2 }}
                 {% else %}
                     {% trans "N/A" %}
                 {% endif %}&euro;
@@ -64,7 +64,7 @@
             -
             <span id="preview-{{ wizard.form.discount.auto_id }}">
             {% if context %}
-                {{ context.discount.value|floatformat }}
+                {{ context.discount.value|floatformat:-2 }}
                 {% if context.discount_type.value == "percentage" %}
                     %
                 {% else %}
