@@ -225,7 +225,7 @@
         <tr class="tax row">
             <td colspan="3" class="desc"><xsl:value-of select="@name" /></td>
             <td class="taxRate">
-                <xsl:value-of select="self::node()" /><xsl:text>%</xsl:text>
+                <xsl:value-of select="self::node() div @amount * 100" /><xsl:text>%</xsl:text>
             </td>
             <td class="amount"><xsl:value-of select="@amount" /></td>
         </tr>
