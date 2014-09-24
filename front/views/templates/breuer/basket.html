@@ -38,11 +38,11 @@
                 </td>
                 <td class="price">
                 <?py if item['show_final_price']: ?>
-                    <span id="price_after_tax">${format_amount(item['price']+ item['tax'], 4)}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span>
+                    <span id="price_after_tax" value="${item['price']+ item['tax']}">${format_amount(item['price']+ item['tax'])}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span>
                 <?py else: ?>
-                    <span id="price">${format_amount(item['price'])}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span>
+                    <span id="price" value="${item['price']}">${format_amount(item['price'])}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span>
                     <?py if item['tax']: ?>
-                    (After tax: <span id="price_after_tax">${format_amount(item['price'] + item['tax'], 4)}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span>)
+                    (After tax: <span id="price_after_tax" value="${item['price'] + item['tax']}">${format_amount(item['price'] + item['tax'])}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span>)
                     <span class="tax" style="display:none" value="${item['tax']}"></span>
                     <?py #endif ?>
                 <?py #endif ?>
@@ -95,9 +95,9 @@ function calc_row(tr) {
         tr.find("#quantity").val(count);
     }
     if (tr.find("#price_after_tax").length > 0)
-        tr.find("#amount").text(formatAmount(tr.find("#price_after_tax").text() * count, 4));
+        tr.find("#amount").text(formatAmount(tr.find("#price_after_tax").attr("value") * count));
     else
-        tr.find("#amount").text(formatAmount(tr.find("#price").text() * count));
+        tr.find("#amount").text(formatAmount(tr.find("#price").attr("value") * count));
     tr.find(".tax").text(tr.find(".tax").attr("value") * count);
 }
 function calc_sum() {
