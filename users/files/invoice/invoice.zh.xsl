@@ -87,21 +87,21 @@
               <label for="subtotal">
                  <xsl:value-of select="$lang.subtotal" />
               </label>
-              <span id="subtotal"><xsl:value-of select="total/@gross" /></span>
+              <span id="subtotal"><xsl:value-of select="round(total/@gross*100) div 100.0" /></span>
               <label for="shippingHandling">
                  <xsl:value-of select="$lang.shippingHandling" />
               </label>
               <span id="shippingHandling">
-                  <xsl:value-of select="shipping/postage + shipping/handling" />
+                  <xsl:value-of select="round(shipping/postage*100) div 100.0 + round(shipping/handling*100) div 100.0" />
               </span>
               <label for="tax">
                   <xsl:value-of select="$lang.taxAmount" />
               </label>
-              <span id="tax"><xsl:value-of select="total/@tax" /></span>
+              <span id="tax"><xsl:value-of select="round(total/@tax*100) div 100.0" /></span>
               <label for="total">
                   <xsl:value-of select="$lang.total" />
               </label>
-              <span id="totalAmount"><xsl:value-of select="total" /></span>
+              <span id="totalAmount"><xsl:value-of select="round(total*100) div 100.0" /></span>
           </div>
           <xsl:if test="seller/id">
           <div id="invoiceLegal">
@@ -180,7 +180,7 @@
             </td>
             <td class="taxRate" />
             <td class="amount">
-                <xsl:value-of select="price - price/@original" />
+                <xsl:value-of select="price - round(price/@original*100) div 100.0" />
             </td>
         </tr>
         </xsl:if>
@@ -191,7 +191,7 @@
             </td>
             <td class="taxRate" />
             <td class="amount">
-                <xsl:value-of select="premium" />
+                <xsl:value-of select="round(premium*100) div 100.0" />
             </td>
         </tr>
         </xsl:if>
@@ -200,7 +200,7 @@
             <td colspan="4" class="desc">
                 <xsl:value-of select="$lang.subtotal" />
             </td>
-            <td class="subtotal"><xsl:value-of select="subtotal" /></td>
+            <td class="subtotal"><xsl:value-of select="round(subtotal*100) div 100.0" /></td>
         </tr>
     </xsl:template>
 
@@ -225,9 +225,9 @@
         <tr class="tax row">
             <td colspan="3" class="desc"><xsl:value-of select="@name" /></td>
             <td class="taxRate">
-                <xsl:value-of select="self::node() div @amount * 100" /><xsl:text>%</xsl:text>
+                <xsl:value-of select="round(self::node() div @amount * 10000) div 100.0" /><xsl:text>%</xsl:text>
             </td>
-            <td class="amount"><xsl:value-of select="@amount" /></td>
+            <td class="amount"><xsl:value-of select="round(@amount*100) div 100.0" /></td>
         </tr>
     </xsl:template>
 
