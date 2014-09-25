@@ -297,6 +297,8 @@ class ListOrdersView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
             order_by1 = self.form.cleaned_data['order_by1']
             order_by2 = self.form.cleaned_data['order_by2']
             self._sort(request, order_by1, order_by2)
+        else:
+            self._sort(request)
         self.make_page()
         return self.render_to_response(self.__dict__)
 

@@ -3,6 +3,7 @@ import ujson
 
 from B2SProtocol.constants import ORDER_STATUS
 from B2SProtocol.constants import SHIPMENT_STATUS
+from B2SUtils.common import to_round
 from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import join
 from B2SUtils.db_utils import query
@@ -180,6 +181,7 @@ def modify_order(conn, users_id, order_id, telephone_id, order_items,
 
 def update_shipping_fee(conn, id_shipment, id_postage, shipping_fee):
     try:
+        shipping_fee = to_round(shipping_fee)
         update(conn, 'shipping_supported_services',
                values={'id_postage': id_postage},
                where={'id_shipment': id_shipment})

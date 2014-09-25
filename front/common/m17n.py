@@ -89,6 +89,7 @@ MESSAGE_CATALOG = {
         'Postal code': 'Postal code',
         'Country': 'Country',
         'Description': 'Description',
+        'Full name': 'Recipient',
     },
 
     'fr': {
@@ -123,6 +124,7 @@ MESSAGE_CATALOG = {
         'Postal code': 'Code postal',
         'Country': 'Pays',
         'Description': 'Intitulé',
+        'Full name': 'Destinataire',
     },
 }
 

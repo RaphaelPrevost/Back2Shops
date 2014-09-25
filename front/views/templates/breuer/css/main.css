@@ -1195,6 +1195,8 @@ a.right {
 #formContainer p label[for=birthday] { background: none; }
 #formContainer p label[for^=address2] { background: none; }
 #formContainer p label[for^=full_name] { background: none; }
+#formContainer p label[for^=phone_num_desp] { background: none; }
+#formContainer p label[for^=address_desp] { background: none; }
 
 #formContainer p input#address_7, #formContainer p input#address_8 { margin-top: 10px; }
 

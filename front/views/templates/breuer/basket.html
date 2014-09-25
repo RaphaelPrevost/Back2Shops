@@ -95,9 +95,9 @@ function calc_row(tr) {
         tr.find("#quantity").val(count);
     }
     if (tr.find("#price_after_tax").length > 0)
-        tr.find("#amount").text(formatAmount(tr.find("#price_after_tax").attr("value") * count));
+        tr.find("#amount").text(formatAmount(tr.find("#price_after_tax").text() * count));
     else
-        tr.find("#amount").text(formatAmount(tr.find("#price").attr("value") * count));
+        tr.find("#amount").text(formatAmount(tr.find("#price").text() * count));
     tr.find(".tax").text(tr.find(".tax").attr("value") * count);
 }
 function calc_sum() {

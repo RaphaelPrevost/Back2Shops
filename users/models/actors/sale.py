@@ -8,6 +8,7 @@ from B2SProtocol.constants import BARCODE_VARIANT_ID
 from B2SProtocol.constants import BARCODE_SALE_ID
 from B2SUtils.base_actor import as_list
 from B2SUtils.base_actor import BaseActor
+from B2SUtils.common import to_round
 
 
 class ActorSaleCategory(BaseActor):
@@ -315,7 +316,7 @@ class ActorSale(BaseActor):
             v = self.get_variant(id_variant)
             premium = __diff_price(price, v.premium)
             price = price + premium
-        return price
+        return to_round(price)
 
     def whole_name(self, id_variant=0):
         name = self.name
