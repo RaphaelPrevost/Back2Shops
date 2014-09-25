@@ -153,6 +153,8 @@ function getTemplate(name, item)
                              'dataType': 'json',
                              'success': function(d) {
                                  if (d.type != 'ajax') {
+                                     if (d.name)
+                                        d.name = utf8_encode(d.name);
                                      var t = getTemplate(name, d).template;
                                      $("#wrapper_" + name).html(t);
                                      if (d.accept.length == 0) {
@@ -176,6 +178,8 @@ function getTemplate(name, item)
                          'dataType': 'json',
                          'success': function(d) {
                              if (d.type != 'ajax') {
+                                 if (d.name)
+                                    d.name = utf8_encode(d.name);
                                  var t = getTemplate(name, d).template;
                                  $("#ajax_" + name).html(t);
                              }
