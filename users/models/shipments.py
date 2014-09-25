@@ -7,6 +7,7 @@ from datetime import datetime
 from B2SProtocol.constants import FREE_SHIPPING_CARRIER
 from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS
+from B2SUtils.common import to_round
 from B2SUtils.db_utils import delete
 from B2SUtils.db_utils import execute
 from B2SUtils.db_utils import insert
@@ -97,8 +98,8 @@ def _add_shipping_fee(conn, id_shipment,
                        shipping_fee):
     values = {
         "id_shipment": id_shipment,
-        'handling_fee': handling_fee,
-        'shipping_fee': shipping_fee}
+        'handling_fee': to_round(handling_fee),
+        'shipping_fee': to_round(shipping_fee)}
     id = insert(conn,
                 'shipping_fee',
                 values=values,
@@ -108,6 +109,10 @@ def _add_shipping_fee(conn, id_shipment,
 
 def update_shipping_fee(conn, id_shipment, values):
     where = {'id_shipment': id_shipment}
+    if 'handling_fee' in values:
+        values['handling_fee'] = to_round(values['handling_fee'])
+    if 'shipping_fee' in values:
+        values['shipping_fee'] = to_round(values['shipping_fee'])
     r = update(conn,
                "shipping_fee",
                values=values,

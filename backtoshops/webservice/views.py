@@ -21,6 +21,7 @@ from django.views.decorators.csrf import csrf_exempt
 from B2SCrypto.utils import decrypt_json_resp
 from B2SCrypto.utils import gen_encrypt_json_context
 from B2SCrypto.constant import SERVICES
+from B2SUtils.common import to_round
 
 from accounts.models import UserProfile
 from address.models import Address
@@ -918,11 +919,14 @@ class InvoiceView(BaseCryptoWebService, ListView):
                 sale, orig_price=orig_price)
             premium = get_sale_premium(discounted_price, item.get('id_variant'))
 
-            price = (discounted_price + premium) * qty
+            price = to_round(discounted_price + premium)
             items_taxes = self.get_tax(price,
                                        sale.product.category.id,
                                        from_address,
                                        to_address)
+            for tax in items_taxes:
+                tax['tax'] = tax['tax'] * qty
+                tax['amount'] = tax['amount'] * qty
             item_info = {'id_item': item['id_item'],
                          'desc': sale.product.description,
                          'qty': qty,
@@ -932,14 +936,14 @@ class InvoiceView(BaseCryptoWebService, ListView):
                          'premium': premium,
                          'taxes': items_taxes}
 
-            subtotal = price
+            subtotal = price * qty
             for tax in items_taxes:
                 subtotal += tax['tax']
                 total_tax += tax['tax']
 
             item_info['subtotal'] = subtotal
             item_list.append(item_info)
-            gross += price
+            gross += price * qty
             currency = sale.product.currency.code
         return item_list, gross, total_tax, currency
 
@@ -1055,7 +1059,7 @@ class InvoiceView(BaseCryptoWebService, ListView):
                 pre_tax = taxes[rate.apply_after]
                 amount = pre_tax['amount'] + pre_tax['tax']
             tax['amount'] = amount
-            tax['tax'] = float(amount) * rate.rate / 100.0
+            tax['tax'] = to_round(amount * (1 + rate.rate / 100.0)) - amount
             tax['to_worldwide'] = rate.shipping_to_region_id is None
             tax['show'] = rate.display_on_front is True
             taxes[rate.id] = tax

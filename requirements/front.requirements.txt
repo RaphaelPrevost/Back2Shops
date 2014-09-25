@@ -7,7 +7,7 @@ gevent==1.0.1
 redis==2.8.0
 hiredis==0.1.1
 Tenjin==1.1.1
-B2SUtils==0.0.9
+B2SUtils==0.0.10
 B2SProtocol==0.0.14
 B2SFrontUtils==0.0.15
 M2Crypto==0.21.1.B2S

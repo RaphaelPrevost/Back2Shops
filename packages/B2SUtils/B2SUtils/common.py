@@ -1,5 +1,6 @@
 import cgi
 import Cookie
+import logging
 import urllib
 
 def parse_form_params(req, resp, params):
@@ -61,3 +62,15 @@ def get_cookie_value(req, cookie_name):
     if cookies and cookie_name in cookies:
         return cookies[cookie_name].value
 
+def to_round(val, decimal_digits=2):
+    if val is None:
+        return val
+    try:
+        # hacky to add a small number for the float exactness issue in python.
+        if val < 0:
+            return round(float(val)-0.0000001, decimal_digits)
+        else:
+            return round(float(val)+0.0000001, decimal_digits)
+    except:
+        logging.error("something wrong with this money value: " + str(val))
+    return val

@@ -99,6 +99,8 @@ class UserResource(BaseHtmlResource):
                 if 'fields' in fs:
                     for f_name, f in fs['fields']:
                         f['name'] = trans_func(f['name'])
+                        if f['type'] == 'radio':
+                            f['accept'] = [[trans_func(n), v] for n, v in f['accept']]
 
             # filter country list
             white_countries = allowed_countries()
@@ -130,7 +132,7 @@ class UserResource(BaseHtmlResource):
 
         return {'user_profile': user_profile,
                 'err': err,
-                'succ_redirect_to': '',
+                'succ_redirect_to': get_url_format(FRT_ROUTE_ROLE.MY_ACCOUNT),
                 'first_time': first_time,
                 'id_order': req.get_param('id_order') or ''}
 

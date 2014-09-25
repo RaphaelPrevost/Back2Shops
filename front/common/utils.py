@@ -27,6 +27,7 @@ from B2SProtocol.constants import USER_BASKET_COOKIE_NAME
 from B2SUtils.base_actor import as_list
 from B2SUtils.common import get_cookie_value
 from B2SUtils.common import set_cookie
+from B2SUtils.common import to_round
 from common.constants import ADDR_TYPE
 from common.constants import FRT_ROUTE_ROLE
 from common.constants import CURR_USER_BASKET_COOKIE_NAME
@@ -99,20 +100,9 @@ def zero(amount):
     except:
         return False
 
-def toRound(val, decimal_digits=2):
-    try:
-        # hacky to add a small number for the float exactness issue in python.
-        if val < 0:
-            return round(float(val)-0.0000001, decimal_digits)
-        else:
-            return round(float(val)+0.0000001, decimal_digits)
-    except:
-        logging.error("something wrong with this money value: " + str(val))
-        raise
-
 def format_amount(amount, decimal_digits=2):
     try:
-        result = ('%%.%sf' % decimal_digits) % toRound(amount, decimal_digits)
+        result = ('%%.%sf' % decimal_digits) % to_round(amount, decimal_digits)
         if decimal_digits > 2:
             count = decimal_digits - 2
             while count > 0:

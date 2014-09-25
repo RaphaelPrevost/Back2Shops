@@ -26,3 +26,6 @@
 
 == version 0.0.9 ==
 1. add email_utils.py
+
+== version 0.0.10 ==
+1. add common function to_round()

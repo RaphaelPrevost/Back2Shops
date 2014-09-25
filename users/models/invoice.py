@@ -4,6 +4,7 @@ from common.utils import currency_exchange
 from datetime import datetime
 from B2SProtocol.constants import ORDER_IV_SENT_STATUS
 from B2SProtocol.constants import SHIPMENT_STATUS
+from B2SUtils.common import to_round
 from B2SUtils.db_utils import delete
 from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import query
@@ -26,8 +27,8 @@ def create_invoice(conn, id_order, id_shipment, amount_due,
         'id_shipment': id_shipment,
         'creation_time': datetime.now(),
         'update_time': datetime.now(),
-        'amount_due': amount_due,
-        'amount_paid': amount_paid or 0,
+        'amount_due': to_round(amount_due),
+        'amount_paid': to_round(amount_paid or 0),
         'currency': currency,
         'invoice_xml': invoice_xml,
         'invoice_number': invoice_number,
