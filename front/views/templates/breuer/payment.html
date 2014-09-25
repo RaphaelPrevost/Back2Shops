@@ -102,17 +102,16 @@
 
                     <tr>
                         <td colspan="5" class="sstotalline left">
-                            <em class="infoChrono">Votre commande sera livrée sous ${shipping_lists[0]['shipping_within']} jours via <img src="/templates/breuer/img/chronopost.png" width="80px" alt="Chronopost" /></em>
                             <p>
-                                <span class="labelTotal">Total produits ttc</span>
+                                <span class="labelTotal">Total produits TTC</span>
                                 <span class="priceTotal" id="sum_amount"></span>
                                 <?py if not zero(shipping_lists[0]['handling_fee']): ?>
-                                <span class="labelTotal">Frais de manutention</span>
+                                <span class="labelTotal">Frais d'emballage</span>
                                 <span class="priceTotal">${format_amount(shipping_lists[0]['handling_fee'])} ${currency}</span>
                                 <?py #endif ?>
-                                <span class="labelTotal">Frais de livraison</span>
+                                <span class="labelTotal">Frais de port</span>
                                 <span class="priceTotal">${format_amount(shipping_lists[0]['shipping_fee'])} ${currency}</span>
-                                <span class="labelTotal tax">Taxe</span>
+                                <span class="labelTotal tax">TVA</span>
                                 <span class="priceTotal tax" id="tax">0 ${currency}</span>
                             </p>
                         </td>
@@ -130,7 +129,7 @@
         <?py #endfor ?>
         <div id="infosCGV">
             <p class="txtinfo">En validant vous serez dirigé vers l’interface de paiement afin de régler votre commande</p>
-            <p class="txtcgvin"><label for="cgvin">J'accepte les <a href="/cgv" target="_blank">conditions générale de vente</a></label><input type="checkbox" name="cgvin" id="cgvin" checked/></p>
+            <p class="txtcgvin"><label for="cgvin">J'accepte les <a href="/cgv" target="_blank">conditions générale de vente</a></label><input type="checkbox" name="cgvin" id="cgvin" /></p>
 
             <p class="errwrapper">Vous devez accepter les conditions générale de vente pour valider votre commande</p>
         </div>
