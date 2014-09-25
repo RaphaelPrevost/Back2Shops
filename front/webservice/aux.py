@@ -1,5 +1,6 @@
 from webservice.base import BaseJsonResource
 from common.data_access import data_access
+from common.m17n import trans_func
 from common.utils import allowed_countries
 from B2SFrontUtils.constants import REMOTE_API_NAME
 from B2SProtocol.constants import RESP_RESULT
@@ -16,4 +17,6 @@ class AuxResource(BaseJsonResource):
             accept = remote_resp['accept']
             remote_resp['accept'] = filter(lambda x: x[1]
                                            in white_countries, accept)
+        if 'name' in remote_resp:
+            remote_resp['name'] = trans_func(remote_resp['name'])
         return remote_resp
