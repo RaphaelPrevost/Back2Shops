@@ -60,7 +60,7 @@ def get_user_sel_phone_num(conn, id_user, id_phone=None):
 def get_user_profile(conn, user_id):
     user_profile = {}
     columns = ['locale', 'title', 'first_name', 'last_name', 'gender',
-               'birthday']
+               'birthday', 'users_id']
     results = select(conn, 'users_profile', where={'users_id': user_id},
                      columns=columns)
     if results:

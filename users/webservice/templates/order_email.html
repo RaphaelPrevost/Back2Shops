@@ -4,7 +4,7 @@
     <title>Breuer - Votre commande</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta content="width=device-width" />
-    <link rel="icon" type="image/png" href="${base_url}/templates/breuer/img/favicon.png" />
+    <link rel="icon" type="image/png" href="{{base_url}}/templates/breuer/img/favicon.png" />
     <style type="text/css">
     /* Fonts and Content */
     body, td { font-family: 'Helvetica Neue', Arial, Helvetica, Geneva, sans-serif; font-size:14px; }
@@ -13,9 +13,6 @@
     h2{ font-family: "Times New Roman",Georgia,Serif; padding-top:32px; /* ne fonctionnera pas sous Outlook 2007+ */color:#c68f01; font-size:25px; font-weight: normal; }
     h3{ padding-top:20px; /* ne fonctionnera pas sous Outlook 2007+ */color:#1f244a; font-size:18px; font-weight: normal;}
     </style>
-    <script type="text/javascript">
-        #{set_cookies_js}
-    </script>
 </head>
 <body style="margin:0px; padding:0px; -webkit-text-size-adjust:none;">
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:rgb(42, 55, 78)" >
@@ -29,7 +26,7 @@
                             </tr>
 
                             <tr>
-                                <td align="center" class="w640" width="640" height="20"><a style="color:#8B8D99; font-size:12px;" href="${base_url}/orders/${order_id}/email"><span style="color:#8B8D99; font-size:12px;">Voir le contenu de ce mail en ligne</span></a> </td>
+                                <td align="center" class="w640" width="640" height="20"><a style="color:#8B8D99; font-size:12px;" href="{{base_url}}/orders/{{order_id}}/email"><span style="color:#8B8D99; font-size:12px;">Voir le contenu de ce mail en ligne</span></a> </td>
                             </tr>
                             <tr>
                                 <td class="w640" width="640" height="10"></td>
@@ -38,7 +35,7 @@
                             <tr class="pagetoplogo">
                                 <td class="w640" width="640" bgcolor="#f9f8f8" valign="middle" >
                                     <div class="pagetoplogo-content">
-                                        <img class="w580" style="font-family: times; text-decoration: none; display: block; color:#1f244a; font-size:40px; text-align: center;" src="${base_url}/templates/breuer/img/emailing/breuer.png" alt="BREUER" width="640" height="173"/>
+                                        <img class="w580" style="font-family: times; text-decoration: none; display: block; color:#1f244a; font-size:40px; text-align: center;" src="{{base_url}}/templates/breuer/img/emailing/breuer.png" alt="BREUER" width="640" height="173"/>
                                     </div>
                                 </td>
                             </tr>
@@ -61,9 +58,9 @@
                                                                 <td class="w580" width="580">
                                                                     <h2 style="color:#c68f01; font-size:25px; padding-top:20px; font-family: 'Times New Roman',Georgia,Serif; font-weight: normal;">Confirmation de votre commande</h2>
                                                                     <div align="left" class="article-content">
-                                                                        <h3 style="color:#1f244a; font-size:18px; padding-top:10px; font-weight: normal;">Cher(e) ${first_name},</h3>
+                                                                        <h3 style="color:#1f244a; font-size:18px; padding-top:10px; font-weight: normal;">Cher(e) {{first_name}},</h3>
                                                                         <p>
-                                                                            Nous vous remercions pour votre achat en ligne sur <a href="${base_url}" target="_blank">Breuer.fr</a>.
+                                                                            Nous vous remercions pour votre achat en ligne sur <a href="{{base_url}}" target="_blank">Breuer.fr</a>.
                                                                         <br />
                                                                             Nous vous confirmons que votre commande a bien &eacute;t&eacute; enregistr&eacute;e.
                                                                             <br />
@@ -75,33 +72,27 @@
                                                                 <td class="w580"  width="580">
                                                                     <table class="w580" width="580" cellpadding="0" cellspacing="0" border="0">
                                                                         <tbody>                                                            
-                                                                        <?py for shipment_id, shipping_lists in shipments.iteritems(): ?>
-                                                                            <?py for shipping_list in shipping_lists: ?>
-                                                                            <?py currency = cur_symbol(shipping_list['currency']) ?>
-                                                                                <?py item = shipping_list['item'] ?>
+                                                                            {% for shipping_list in shipping_lists %}
                                                                                 <tr>
-                                                                                    <td width="130"><img src="${get_thumbnail(item['picture'], 185)}" width="110" alt="Name Product" style="border-style: solid; border-width: 1px; border-color: #dbdbdb;" /></td>
+                                                                                    <td width="130"><img src="{{shipping_list.item.picture}}" width="110" alt="Name Product" style="border-style: solid; border-width: 1px; border-color: #dbdbdb;" /></td>
                                                                                     <td valign="middle">
-                                                                                        <a style="color: #c68f01;" href="${item.get('link') or ''}" target="_blank">
-                                                                                            <span style="color: #c68f01; font-size:17px; font-family: 'Times New Roman',Georgia,Serif;">${item['product_name']}</span>
-                                                                                        </a>
+                                                                                        <span style="color: #c68f01; font-size:17px; font-family: 'Times New Roman',Georgia,Serif;">{{shipping_list.item.product_name}}</span>
                                                                                         <br /><br />
-                                                                                        <?py if item.get('variant_name'): ?>
-                                                                                        <span style="color: #1f244a; font-family: 'Times New Roman',Georgia,Serif;">${item['variant_name']}</span><br />
-                                                                                        <?py #endif ?>
-                                                                                        <?py if item.get('type_name'): ?>
-                                                                                        <span style="color: #1f244a; font-family: 'Times New Roman',Georgia,Serif;">Taille : ${item['type_name']}</span><br />
-                                                                                        <?py #endif ?>
-                                                                                        <?py if shipping_list['show_final_price']: ?>
-                                                                                        <span style="color: #1f244a; font-family: 'Times New Roman',Georgia,Serif;">${format_amount(item['price'] + shipping_list['tax_per_item'])} ${currency}</span><br />
-                                                                                        <?py else: ?>
-                                                                                        <span style="color: #1f244a; font-family: 'Times New Roman',Georgia,Serif;">${format_amount(item['price'])} ${currency}</span>
-                                                                                        (After tax: <span style="color: #1f244a; font-family: 'Times New Roman',Georgia,Serif;">${format_amount(item['price'] + shipping_list['tax_per_item'])} ${currency}</span>)<br />
-                                                                                        <?py #endif ?>
+                                                                                        {% if shipping_list.item.variant_name %}
+                                                                                        <span style="color: #1f244a; font-family: 'Times New Roman',Georgia,Serif;">{{shipping_list.item.variant_name}}</span><br />
+                                                                                        {% endif %}
+                                                                                        {% if shipping_list.item.type_name %}
+                                                                                        <span style="color: #1f244a; font-family: 'Times New Roman',Georgia,Serif;">Taille : {{shipping_list.item.type_name}}</span><br />
+                                                                                        {% endif %}
+                                                                                        {% if shipping_list.show_final_price %}
+                                                                                        <span style="color: #1f244a; font-family: 'Times New Roman',Georgia,Serif;">{{shipping_list.item.price + shipping_list.tax_per_item}} {{shipping_list.currency}}</span><br />
+                                                                                        {% else %}
+                                                                                        <span style="color: #1f244a; font-family: 'Times New Roman',Georgia,Serif;">{{shipping_list.item.price}} {{shipping_list.currency}}</span>
+                                                                                        (After tax: <span style="color: #1f244a; font-family: 'Times New Roman',Georgia,Serif;">{{shipping_list.item.price + shipping_list.tax_per_item}} {{shipping_list.currency}}</span>)<br />
+                                                                                        {% endif %}
                                                                                     </td>
                                                                                 </tr>
-                                                                            <?py #endfor ?>
-                                                                        <?py #endfor ?>
+                                                                            {% endfor %}
                                                                         </tbody>
                                                                     </table>
                                                                 </td>
@@ -114,8 +105,8 @@
                                                                     <table class="w580" width="580" cellpadding="0" cellspacing="0" border="0">
                                                                         <tbody>                                                            
                                                                             <tr>
-                                                                                <td width="60"><img src="${base_url}/templates/breuer/img/emailing/telechargement.png" alt="Lien de t&eacute;l&eacute;chargement pour votre facture" /></td>
-                                                                                <td><a href="${base_url}${order_invoice_url}" target="_blank">T&eacute;l&eacute;chargez votre facture</a></td>
+                                                                                <td width="60"><img src="{{base_url}}/templates/breuer/img/emailing/telechargement.png" alt="Lien de t&eacute;l&eacute;chargement pour votre facture" /></td>
+                                                                                <td><a href="{{order_invoice_url}}" target="_blank">T&eacute;l&eacute;chargez votre facture</a></td>
                                                                             </tr>
                                                                         </tbody>
                                                                     </table>
@@ -157,7 +148,7 @@
                                                                 <td class="w580" width="580">
                                                                     <div align="left" class="article-content">
                                                                         <p><br />
-                                                                            Si vous avez besoin d’aide suppl&eacute;mentaire, n’h&eacute;sitez pas &agrave; nous contacter &agrave; cette adresse : <a href="mailto:${service_email}">${service_email}</a>
+                                                                            Si vous avez besoin d’aide suppl&eacute;mentaire, n’h&eacute;sitez pas &agrave; nous contacter &agrave; cette adresse : <a href="mailto:serviceclients@breuer.fr">serviceclients@breuer.fr</a>
                                                                         </p>
                                                                     </div>
                                                                 </td>
@@ -190,9 +181,9 @@
                                                 <td class="w580"  width="580" valign="top">
                                                     <p style="color:#1f244a; text-align:center;"  align="center" class="pagebottom-content-left">
                                                         <span style="color:#1f244a; font-size:11px;">&copy; 2014 BREUER</span> - 
-                                                        <a style="color:#1f244a; font-size:11px;" href="/mention_legal"><span style="color:#1f244a;">Mentions L&eacute;gales</span></a> - 
-                                                        <a style="color:#1f244a; font-size:11px;" href="/cgv"><span style="color:#1f244a;">CGV</span></a> - 
-                                                        <a style="color:#1f244a; font-size:11px;" href="/commands_deliveries"><span style="color:#1f244a;">Commandes et Livraisons</span></a>
+                                                        <a style="color:#1f244a; font-size:11px;" href="{{base_url}}/mention_legal"><span style="color:#1f244a;">Mentions L&eacute;gales</span></a> - 
+                                                        <a style="color:#1f244a; font-size:11px;" href="{{base_url}}/cgv"><span style="color:#1f244a;">CGV</span></a> - 
+                                                        <a style="color:#1f244a; font-size:11px;" href="{{base_url}}/commands_deliveries"><span style="color:#1f244a;">Commandes et Livraisons</span></a>
                                                     </p>
                                                 </td>
                                                 <td class="w30" width="30"></td>

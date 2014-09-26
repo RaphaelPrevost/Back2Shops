@@ -566,6 +566,7 @@ def get_order_table_info(order_id, order_resp, all_sales=None):
                                     order_status) or ''),
         'user_name': user_name,
         'dest_user_name': dest_user_name,
+        'first_name': user_profile.get('first_name') or '',
         'dest_addr': dest_addr,
         'shipments': shipments,
         'order_invoice_url': get_url_format(FRT_ROUTE_ROLE.ORDER_INFO)
