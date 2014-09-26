@@ -97,6 +97,7 @@ CREATE TABLE order_items (
     id_sale BIGINT NOT NULL,
     id_shop BIGINT,
     id_variant BIGINT,
+    id_type BIGINT,
     id_weight_type BIGINT,
     id_price_type BIGINT,
     price double precision NOT NULL,

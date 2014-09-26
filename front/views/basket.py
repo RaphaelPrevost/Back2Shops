@@ -63,7 +63,8 @@ class BasketAPIResource(BaseJsonResource):
             chosen_item = {'id_sale': id_sale,
                            'id_shop': req.get_param('id_shop') or 0,
                            'id_variant': req.get_param('id_variant'),
-                           'id_attr': req.get_param('id_attr')
+                           'id_attr': req.get_param('id_attr'),
+                           'id_weight_type': req.get_param('id_attr')
                                       if 'weight' in attr else 0,
                            'id_price_type': req.get_param('id_attr')
                                             if 'price' in attr else 0,
