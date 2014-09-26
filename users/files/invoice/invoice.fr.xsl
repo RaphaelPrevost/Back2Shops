@@ -155,7 +155,14 @@
 
     <xsl:template match="/invoices/invoice/item">
         <tr class="row">
-            <td class="desc"><xsl:value-of select="desc" /></td>
+            <td class="desc">
+                <xsl:if test="name">
+                    <xsl:value-of select="name" />
+                </xsl:if>
+                <xsl:if test="not(name)">
+                    <xsl:value-of select="desc" />
+                </xsl:if>
+            </td>
             <td class="qty"><xsl:value-of select="qty" /></td>
             <xsl:if test="price/@original">
             <td class="unitPrice">
