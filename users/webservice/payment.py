@@ -14,6 +14,7 @@ from B2SProtocol.constants import TRANS_STATUS
 from common.constants import INVOICE_STATUS
 from common.constants import PAYPAL_VERIFIED
 from common.constants import PAYMENT_TYPES
+from common.email_utils import send_order_email
 from common.error import ErrorCode
 from common.error import UserError
 from common.utils import get_client_ip
@@ -209,6 +210,12 @@ class BasePaymentHandlerResource(BaseResource):
             logging.error("%s_verified_error: %s", self.payment_type, e,
                           exc_info=True)
             raise
+
+        try:
+            send_order_email(conn, trans['id_order'])
+        except Exception, e:
+            logging.error("Failed to send order email: %s", e, exc_info=True)
+
 
     def fin_trans_notify(self, trans, data):
         cookie = ujson.loads(trans['cookie'])

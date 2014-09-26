@@ -26,6 +26,7 @@ from common.utils import hashfn
 from common.utils import is_valid_email
 from common.utils import phone_num_reexp
 from common.utils import postal_code_reexp
+from common.utils import to_unicode
 from webservice.base import BaseJsonResource
 
 
@@ -439,22 +440,26 @@ class UserResource(BaseJsonResource):
                      where users.email=%s limit 1"""
             result = db_utils.query(conn, sql, (email,))
             if result and len(result) == 1:
-                result = result[0]
+                user_name = result[0][1]
                 random_key = hashfn(HASH_ALGORITHM.SHA256, str(uuid.uuid4()))
                 get_redis_cli().setex(RESET_PASSWORD_REDIS_KEY % random_key,
                                       email,
                                       settings.RESET_PASSWORD_REQUEST_EXPIRES)
 
                 reset_link_args = urllib.urlencode(
-                    {'user_name': result[1],
+                    {'user_name': user_name,
                      'email': email,
                      'key': random_key})
                 reset_link = '%s?%s' % (settings.FRONT_RESET_PASSWORD_URL,
                                         reset_link_args)
+                data = {
+                    'base_url': settings.FRONT_ROOT_URI,
+                    'user_name': user_name,
+                    'reset_link': reset_link,
+                    'reset_link_args': reset_link_args,
+                }
                 email_content = render_content('reset_pwd_email.html',
-                                               base_url=settings.FRONT_ROOT_URI,
-                                               reset_link=reset_link,
-                                               reset_link_args=reset_link_args)
+                                               **to_unicode(data))
                 gevent.spawn(send_html_email,
                              email,
                              settings.RESET_PASSWORD_EMAIL_SUBJECT,

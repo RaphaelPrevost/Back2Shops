@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import settings
 import logging
 import binascii
@@ -467,3 +468,26 @@ def detect_locale(accept_language):
         if locale in settings.LOCALE_LANGUAGES:
             return locale
     return settings.DEFAULT_LANGUAGE
+
+def cur_symbol(cur_code):
+    return {
+        'EUR': '€',
+    }.get(cur_code, cur_code)
+
+def to_unicode(data):
+    if isinstance(data, dict):
+        result = {}
+        for key, value in data.items():
+            key = to_unicode(key)
+            value = to_unicode(value)
+            result[key] = value
+    elif isinstance(data, list):
+        result = []
+        for value in data:
+            value = to_unicode(value)
+            result.append(value)
+    elif isinstance(data, basestring):
+        result = unicode(data, 'utf-8')
+    else:
+        result = data
+    return result

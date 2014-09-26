@@ -14,7 +14,6 @@ from B2SUtils.errors import ValidationError
 from common.constants import CURR_USER_BASKET_COOKIE_NAME
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
-from common.email_utils import send_order_email
 from common.utils import format_date
 from common.utils import get_basket, clear_basket
 from common.utils import get_order_table_info
@@ -26,7 +25,6 @@ from common.utils import valid_int
 from common.utils import valid_int_param
 from views.base import BaseHtmlResource
 from views.base import BaseJsonResource
-from views.email import common_email_data
 from views.payment import get_payment_url
 from views.user import UserResource, UserAuthResource
 
@@ -244,25 +242,11 @@ class OrderAPIResource(BaseJsonResource):
                     redirect_to = get_payment_url(id_order, id_invoices)
             except Exception, e:
                 pass
-            self._send_email(id_order, req, resp)
 
         else:
             redirect_to = "%s?err=%s" % (get_url_format(FRT_ROUTE_ROLE.BASKET),
                                          'FAILED_PLACE_ORDER')
         return {'redirect_to': redirect_to}
-
-    def _send_email(self, id_order, req, resp):
-        user_resp = data_access(REMOTE_API_NAME.GET_USERINFO, req, resp)
-        if 'general' in user_resp:
-            general_values = user_resp['general']['values'][0]
-            email = general_values.get('email')
-
-            all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
-            order_resp = data_access(REMOTE_API_NAME.GET_ORDER_DETAIL, req, resp,
-                                     id=id_order, brand_id=settings.BRAND_ID)
-            order_data = get_order_table_info(id_order, order_resp, all_sales)
-            order_data.update(common_email_data)
-            gevent.spawn(send_order_email, email, order_data)
 
 
 class ShippingAPIResource(BaseJsonResource):

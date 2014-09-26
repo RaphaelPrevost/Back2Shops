@@ -47,3 +47,4 @@ CURRENCY_EX_RATE = {
 # TODO: uncommon this after go live
 #PAYPAL_SERVER = "https://www.paypal.com/cgi-bin/webscr"
 
+SEND_EMAILS = True

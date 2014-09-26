@@ -51,9 +51,11 @@ SERVER_APIKEY_URI_MAP = {
 }
 
 FRONT_RESET_PASSWORD_URL = "%s/reset_password" % FRONT_ROOT_URI
-RESET_PASSWORD_EMAIL_SUBJECT = "RESET YOUR PASSWORD"
+RESET_PASSWORD_EMAIL_SUBJECT = "Demande de nouveau mot de passe"
 RESET_PASSWORD_REQUEST_EXPIRES = 3600
 
+FRONT_ORDER_INVOICE_URL = "%s/orders/%%(id_order)s" % FRONT_ROOT_URI
+ORDER_EMAIL_SUBJECT = "Confirmation de votre commande"
 
 PRIVATE_KEY_PATH = 'static/keys/usr_pri.key'
 PUB_KEY_PATH = 'static/keys/usr_pub.key'
@@ -74,6 +76,7 @@ SALEINFO_VALIDATE_PATH = 'files/sales/sale_info.dtd'
 SHOPS_VALIDATE_PATH = 'files/shops/shops.dtd'
 SHOPINFO_VALIDATE_PATH = 'files/shops/shop_info.dtd'
 
+SEND_EMAILS = False
 SERVICE_EMAIL = 'serviceclients@breuer.fr'
 MAIL_HOST = 'smtp.gmail.com:587'
 MAIL_FROM_USER = 'xxx'
