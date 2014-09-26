@@ -133,6 +133,7 @@ fixed_urlpatterns = {
 
     r'/new_user_email': email.NewUserEmailResource,
     r'/orders/{id_order}/email': email.OrderEmailResource,
+    r'/reset_password_email': email.ResetPwdEmailResource,
 }
 
 
