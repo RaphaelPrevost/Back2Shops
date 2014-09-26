@@ -80,4 +80,6 @@ ALTER TABLE users_address ADD COLUMN full_name character varying(128) DEFAULT ''
 ALTER TABLE order_items ALTER COLUMN description type text;
 
 ALTER TABLE invoices ADD COLUMN invoice_items text;
+
+ALTER TABLE order_items ADD COLUMN id_type bigint;
 COMMIT;

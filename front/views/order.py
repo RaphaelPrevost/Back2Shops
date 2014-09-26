@@ -216,7 +216,8 @@ class OrderAPIResource(BaseJsonResource):
                     'id_shop': item_info.get('id_shop'),
                     'quantity': quantity,
                     'id_variant': item_info.get('id_variant') or 0,
-                    'id_weight_type': item_info.get('id_attr') or 0,
+                    'id_type': item_info.get('id_attr') or 0,
+                    'id_weight_type': item_info.get('id_weight_type') or 0,
                     'id_price_type': item_info.get('id_price_type') or 0,
                 })
             data = {

@@ -57,6 +57,7 @@ def _modify_order_shipment_detail(conn, id_order,
 
 def _create_order_item(conn, sale, id_variant, upc_shop=None,
                        barcode=None, id_shop=None,
+                       id_type=None,
                        id_weight_type=None,
                        id_price_type=None):
     if upc_shop:
@@ -79,13 +80,13 @@ def _create_order_item(conn, sale, id_variant, upc_shop=None,
         item_value['picture'] = main_picture
     if barcode:
         item_value['barcode'] = barcode
+    if id_type is not None:
+        item_value['id_type'] = id_type
+        item_value['type_name'] = sale.get_weight_attr(id_type).name
     if id_weight_type is not None:
         item_value['id_weight_type'] = id_weight_type
-        if id_weight_type:
-            item_value['type_name'] = sale.get_weight_attr(id_weight_type).name
     if id_price_type is not None:
         item_value['id_price_type'] = id_price_type
-
     item_id = insert(conn, 'order_items',
                      values=item_value, returning='id')
     logging.info('order_item create: item id: %s, values: %s',
@@ -114,6 +115,7 @@ def create_order(conn, users_id, telephone_id, order_items,
                                      upc_shop=upc_shop,
                                      barcode=order.get('barcode', None),
                                      id_shop=order['id_shop'],
+                                     id_type=order.get('id_type', None),
                                      id_price_type=order.get('id_price_type', None),
                                      id_weight_type=order.get('id_weight_type', None))
         # populate id_order_item into order params, it will be
@@ -226,6 +228,8 @@ ORDER_ITEM_FIELDS_COLUMNS = [('item_id', 'order_items.id'),
                              ('barcode', 'barcode'),
                              ('id_weight_type', 'id_weight_type'),
                              ('id_price_type', 'id_price_type'),
+                             ('id_type', 'id_type'),
+                             ('type_name', 'type_name'),
                              ]
 
 
