@@ -82,7 +82,8 @@ def _create_order_item(conn, sale, id_variant, upc_shop=None,
         item_value['barcode'] = barcode
     if id_type is not None:
         item_value['id_type'] = id_type
-        item_value['type_name'] = sale.get_weight_attr(id_type).name
+        if id_type:
+            item_value['type_name'] = sale.get_weight_attr(id_type).name
     if id_weight_type is not None:
         item_value['id_weight_type'] = id_weight_type
     if id_price_type is not None:

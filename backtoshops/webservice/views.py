@@ -928,6 +928,7 @@ class InvoiceView(BaseCryptoWebService, ListView):
                 tax['tax'] = tax['tax'] * qty
                 tax['amount'] = tax['amount'] * qty
             item_info = {'id_item': item['id_item'],
+                         'name': sale.product.name,
                          'desc': sale.product.description,
                          'qty': qty,
                          'price': {'original': orig_price,

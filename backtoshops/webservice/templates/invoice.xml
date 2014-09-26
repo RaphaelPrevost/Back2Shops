@@ -35,6 +35,7 @@
             <!-- items -->
             {% for item in object.items %}
                 <item id="{{ item.id_item}}">
+                    <name>{{ item.name }}</name>
                     <desc>{{ item.desc }}</desc>
                     <price original="{{ item.price.original }}">{{ item.price.discounted }}</price>
                     <qty>{{ item.qty }}</qty>
