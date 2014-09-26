@@ -1,4 +1,5 @@
 import settings
+import urllib
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
 from common.utils import cur_symbol
@@ -65,4 +66,14 @@ class OrderEmailResource(BaseEmailResource):
                 'order_invoice_url': '',
             }
         return order_data
+
+class ResetPwdEmailResource(BaseEmailResource):
+    template = 'reset_password_email.html'
+
+    def _on_get(self, req, resp, **kwargs):
+        args = urllib.urlencode(req._params)
+        return {'user_name': req.get_param('user_name') or '',
+                'reset_link': '%s/reset_password?%s'
+                              % (settings.FRONT_ROOT_URI, args),
+                'reset_link_args': args}
 

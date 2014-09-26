@@ -433,17 +433,28 @@ class UserResource(BaseJsonResource):
                                     columns=("id",),
                                     where={'email': email},
                                     limit=1)
+            sql = """select users.id, first_name from users
+                     left join users_profile
+                        on (users.id=users_profile.users_id)
+                     where users.email=%s limit 1"""
+            result = db_utils.query(conn, sql, (email,))
             if result and len(result) == 1:
+                result = result[0]
                 random_key = hashfn(HASH_ALGORITHM.SHA256, str(uuid.uuid4()))
                 get_redis_cli().setex(RESET_PASSWORD_REDIS_KEY % random_key,
                                       email,
                                       settings.RESET_PASSWORD_REQUEST_EXPIRES)
 
+                reset_link_args = urllib.urlencode(
+                    {'user_name': result[1],
+                     'email': email,
+                     'key': random_key})
                 reset_link = '%s?%s' % (settings.FRONT_RESET_PASSWORD_URL,
-                    urllib.urlencode({'email': email,
-                                      'key': random_key}))
+                                        reset_link_args)
                 email_content = render_content('reset_pwd_email.html',
-                                               reset_link=reset_link)
+                                               base_url=settings.FRONT_ROOT_URI,
+                                               reset_link=reset_link,
+                                               reset_link_args=reset_link_args)
                 gevent.spawn(send_html_email,
                              email,
                              settings.RESET_PASSWORD_EMAIL_SUBJECT,
