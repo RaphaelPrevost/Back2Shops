@@ -162,6 +162,9 @@
                 <xsl:if test="not(name)">
                     <xsl:value-of select="desc" />
                 </xsl:if>
+                <xsl:if test="type_name">
+                    (<xsl:value-of select="type_name" />)
+                </xsl:if>
             </td>
             <td class="qty"><xsl:value-of select="qty" /></td>
             <xsl:if test="price/@original">
@@ -232,7 +235,12 @@
         <tr class="tax row">
             <td colspan="3" class="desc"><xsl:value-of select="@name" /></td>
             <td class="taxRate">
-                <xsl:value-of select="round(self::node() div @amount * 10000) div 100.0" /><xsl:text>%</xsl:text>
+                <xsl:if test="@rate">
+                    <xsl:value-of select="@rate" /><xsl:text>%</xsl:text>
+                </xsl:if>
+                <xsl:if test="not(@rate)">
+                    <xsl:value-of select="round(self::node() div @amount * 10000) div 100.0" /><xsl:text>%</xsl:text>
+                </xsl:if>
             </td>
             <td class="amount"><xsl:value-of select="round(@amount*100) div 100.0" /></td>
         </tr>

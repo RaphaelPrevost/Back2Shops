@@ -36,7 +36,8 @@
 
 <!-- items -->
 <!ATTLIST item id CDATA #REQUIRED >
-<!ELEMENT item (name?, desc, price, qty, premium, tax*, subtotal, detail?) >
+<!ELEMENT item (name?, type_name, desc, price, qty, premium, tax*, subtotal, detail?) >
+<!ELEMENT type_name (#PCDATA) >
 <!ELEMENT desc (#PCDATA) >
 <!ELEMENT price (#PCDATA) >
 <!ATTLIST price original CDATA #IMPLIED >
@@ -45,6 +46,7 @@
 <!ELEMENT tax (#PCDATA) >
 <!ATTLIST tax name CDATA #REQUIRED
               amount CDATA #REQUIRED
+              rate CDATA #REQUIRED
               to_worldwide CDATA #REQUIRED
               show CDATA #REQUIRED>
 <!ELEMENT subtotal (#PCDATA) >
