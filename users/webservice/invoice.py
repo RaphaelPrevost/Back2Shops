@@ -196,7 +196,11 @@ class BaseInvoiceMixin:
                             "id_sale": shipping["id_sale"],
                             "id_variant": shipping["id_variant"],
                             "quantity": shipping["quantity"],
-                            "id_price_type": shipping["id_price_type"]})
+                            "id_price_type": shipping["id_price_type"],
+                            "id_type": shipping["id_type"],
+                            "name": shipping["name"] or '',
+                            "type_name": shipping["type_name"] or '',
+                            })
 
         return ujson.dumps(content)
 

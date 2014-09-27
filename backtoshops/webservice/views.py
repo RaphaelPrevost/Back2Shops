@@ -928,7 +928,8 @@ class InvoiceView(BaseCryptoWebService, ListView):
                 tax['tax'] = tax['tax'] * qty
                 tax['amount'] = tax['amount'] * qty
             item_info = {'id_item': item['id_item'],
-                         'name': sale.product.name,
+                         'name': item['name'],
+                         'type_name': item['type_name'],
                          'desc': sale.product.description,
                          'qty': qty,
                          'price': {'original': orig_price,
@@ -1060,6 +1061,7 @@ class InvoiceView(BaseCryptoWebService, ListView):
                 pre_tax = taxes[rate.apply_after]
                 amount = pre_tax['amount'] + pre_tax['tax']
             tax['amount'] = amount
+            tax['rate'] = rate.rate
             tax['tax'] = to_round(amount * (1 + rate.rate / 100.0)) - amount
             tax['to_worldwide'] = rate.shipping_to_region_id is None
             tax['show'] = rate.display_on_front is True

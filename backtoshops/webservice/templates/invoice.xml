@@ -36,12 +36,13 @@
             {% for item in object.items %}
                 <item id="{{ item.id_item}}">
                     <name>{{ item.name }}</name>
+                    <type_name>{{ item.type_name }}</type_name>
                     <desc>{{ item.desc }}</desc>
                     <price original="{{ item.price.original }}">{{ item.price.discounted }}</price>
                     <qty>{{ item.qty }}</qty>
                     <premium>{{ item.premium }}</premium>
                     {% for tax in item.taxes %}
-                        <tax name="{{ tax.name }}" amount="{{ tax.amount }}" to_worldwide="{{ tax.to_worldwide }}" show="{{ tax.show }}">{{ tax.tax }}</tax>
+                        <tax name="{{ tax.name }}" amount="{{ tax.amount }}" rate="{{ tax.rate }}" to_worldwide="{{ tax.to_worldwide }}" show="{{ tax.show }}">{{ tax.tax }}</tax>
                     {% endfor %}
                     <subtotal>{{ item.subtotal }}</subtotal>
                 </item>
@@ -62,7 +63,7 @@
                     <handling>{{ object.shipping.handling_fee }}</handling>
                 {% endif %}
                 {% for tax in object.shipping.taxes %}
-                    <tax name="{{ tax.name }}" amount="{{ tax.amount }}" to_worldwide="{{ tax.to_worldwide }}" show="{{ tax.show }}">{{ tax.tax }}</tax>
+                    <tax name="{{ tax.name }}" amount="{{ tax.amount }}" rate="{{ tax.rate }}" to_worldwide="{{ tax.to_worldwide }}" show="{{ tax.show }}">{{ tax.tax }}</tax>
                 {% endfor %}
                 <subtotal>{{ object.shipping.subtotal }}</subtotal>
             </shipping>

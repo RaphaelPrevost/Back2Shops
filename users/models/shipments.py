@@ -891,7 +891,11 @@ SHIPPING_ITEM_FIELDS = [
     ('id_shop', 'oi.id_shop'),
     ('id_variant', 'oi.id_variant'),
     ('id_weight_type', 'oi.id_weight_type'),
-    ('id_price_type', 'oi.id_price_type')]
+    ('id_price_type', 'oi.id_price_type'),
+    ('id_type', 'oi.id_type'),
+    ('name', 'oi.name'),
+    ('type_name', 'oi.type_name'),
+    ]
 
 def get_shipping_list(conn, id_shipment):
     query_str = ("SELECT %s "
