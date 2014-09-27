@@ -162,7 +162,7 @@
                 <xsl:if test="not(name)">
                     <xsl:value-of select="desc" />
                 </xsl:if>
-                <xsl:if test="type_name">
+                <xsl:if test="type_name and type_name!=''">
                     (<xsl:value-of select="type_name" />)
                 </xsl:if>
             </td>
