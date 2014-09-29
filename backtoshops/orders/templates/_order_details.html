@@ -13,6 +13,7 @@
             <table cellpadding="0" cellspacing="0">
                 <thead>
                     <tr>
+                        <th>{% trans "External reference" %}</th>
                         <th class="col1">{% trans "Name" %}</th>
                         <th>{% trans "Price" %}</th>
                         <th>{% trans "Quantity" %}</th>
@@ -21,7 +22,11 @@
                 </thead>
                 {% for item_id, oitem in oitems.items %}
                     <tr>
-                        <td class="col1">{{ oitem.name }}</td>
+                        <td>{{ oitem.external_id }}</td>
+                        <td class="col1">
+                            {{ oitem.name }}
+                            {% if oitem.type_name and oitem.type_name != '' %} ({{ oitem.type_name }}) {% endif %}
+                        </td>
                         <td>{{ oitem.price }}</td>
                         <td>{{ oitem.quantity }}</td>
                         <td>{{ oitem.barcode }}</td>

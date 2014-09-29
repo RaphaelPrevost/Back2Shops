@@ -22,6 +22,7 @@ from common.constants import USERS_ROLE
 from common.error import UsersServerError
 from common.error import InvalidRequestError
 from common.fees import compute_fee
+from common.utils import format_epoch_time
 from common.utils import get_default_setting
 from common.utils import get_valid_sort_fields
 from common.utils import Sorter
@@ -382,6 +383,7 @@ class OrderDetails(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin)
                 "Sorry, the system meets some issues, our engineers have been "
                 "notified, please check back later.")
         self.order = order_details
+        self.order['confirmation_time'] = format_epoch_time(self.order['confirmation_time'])
         return self.render_to_response(self.__dict__)
 
 class BaseOrderPacking(OperatorUpperLoginRequiredMixin, View):
