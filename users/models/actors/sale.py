@@ -166,6 +166,11 @@ class ActorShop(BaseActor):
             if reg.type == 'tax':
                 return reg
 
+class ActorExternalRef(BaseActor):
+    attrs_map = {'variant': '@variant',
+                 'attribute': '@attribute',
+                 'external_id': '#text'}
+
 class ActorStock(BaseActor):
     attrs_map = {'shop': '@shop',
                  'available': '@available'}
@@ -256,6 +261,11 @@ class ActorSale(BaseActor):
         return [ActorShop(data=item) for item in shop_list]
 
     @property
+    def externals(self):
+        external_list = as_list(self.data.get('external', None))
+        return [ActorExternalRef(data=item) for item in external_list]
+
+    @property
     def available(self):
         return ActorSaleAvailable(data=self.data.get('available'))
 
@@ -324,6 +334,13 @@ class ActorSale(BaseActor):
             v = self.get_variant(id_variant)
             name = '-'.join([name, v.name])
         return name
+
+    def get_external_id(self, id_variant, id_type):
+        for ext in self.externals:
+            if (id_variant and id_variant == ext.variant or not ext.variant) \
+                    and (id_type and id_type == ext.attribute or not ext.attribute):
+                return ext.external_id
+        return ''
 
     def get_stocks_with_upc(self):
         stocks = []

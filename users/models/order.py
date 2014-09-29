@@ -73,6 +73,7 @@ def _create_order_item(conn, sale, id_variant, upc_shop=None,
         'name': sale.whole_name(id_variant),
         'description': sale.desc,
     }
+    external_id = sale.get_external_id(id_variant, id_type)
     main_picture = sale.get_main_picture(id_variant)
     if not main_picture:
         main_picture = sale.get_main_picture()
@@ -88,6 +89,8 @@ def _create_order_item(conn, sale, id_variant, upc_shop=None,
         item_value['id_weight_type'] = id_weight_type
     if id_price_type is not None:
         item_value['id_price_type'] = id_price_type
+    if external_id is not None:
+        item_value['external_id'] = external_id
     item_id = insert(conn, 'order_items',
                      values=item_value, returning='id')
     logging.info('order_item create: item id: %s, values: %s',
@@ -231,6 +234,7 @@ ORDER_ITEM_FIELDS_COLUMNS = [('item_id', 'order_items.id'),
                              ('id_price_type', 'id_price_type'),
                              ('id_type', 'id_type'),
                              ('type_name', 'type_name'),
+                             ('external_id', 'order_items.external_id'),
                              ]
 
 

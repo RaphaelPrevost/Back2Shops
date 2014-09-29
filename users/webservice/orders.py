@@ -134,7 +134,7 @@ class OrderResource(BaseJsonResource):
         upc_shop = req.get_param('upc_shop')
         telephone = req.get_param('telephone')
         order_id = create_order(conn, self.users_id, telephone,
-                                order_items,  upc_shop=upc_shop)
+                                order_items, upc_shop=upc_shop)
         return order_id
 
 

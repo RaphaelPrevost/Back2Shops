@@ -28,7 +28,7 @@
 <!ELEMENT id (#PCDATA) >
 <!ATTLIST id type (business | tax | personal) "business" >
 
-<!ELEMENT sale (category, type, name, desc, short_desc, img*, brand, weight?, price?, discount?, discount_price?, variant*, shop*, available) >
+<!ELEMENT sale (category, type, name, desc, short_desc, img*, brand, weight?, price?, discount?, discount_price?, variant*, shop*, external*, available) >
 <!ATTLIST sale id CDATA #REQUIRED >
 
 <!ELEMENT category (name, thumb, img) >
@@ -67,6 +67,10 @@
 <!ATTLIST location lat CDATA #REQUIRED >
 <!ATTLIST location long CDATA #REQUIRED >
 <!ELEMENT hours (#PCDATA) >
+
+<!ELEMENT external (#PCDATA)>
+<!ATTLIST external variant CDATA #REQUIRED >
+<!ATTLIST external attribute CDATA #REQUIRED >
 
 <!ELEMENT available (stocks*) >
 <!ATTLIST available from CDATA #REQUIRED >

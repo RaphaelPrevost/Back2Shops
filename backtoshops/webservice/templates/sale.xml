@@ -112,6 +112,10 @@
     {% endfor %}
     <!-- end of shops list -->
 
+    {% for exr in object.externalrefs.all %}
+        <external variant="{{ exr.brand_attribute.pk }}" attribute="{{ exr.common_attribute.pk }}">{{ exr.external_id }}</external>
+    {% endfor %}
+
     <available from="{{ object.product.valid_from|date:"c" }}"
             {% if object.product.valid_to %}
                to="{{ object.product.valid_to|date:"c" }}"
