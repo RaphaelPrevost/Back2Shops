@@ -17,6 +17,14 @@
             </div>
         </div>
 
+        {{ wizard.form.externalrefs.management_form }}
+        {{ wizard.form.externalrefs.non_field_errors }}
+        <div id="externalrefs_form">
+            <div id="externalref_accordion" class="accordion">
+                {% include "_stock_externalref.html" %}
+            </div>
+        </div>
+
         {{ wizard.form.stocks.management_form }}
         {{ wizard.form.stocks.non_field_errors }}
         {% if global_stock %}
@@ -84,8 +92,18 @@
 
                 var barcodes = $("input[id*='-upc']");
                 for (var i=0; i<barcodes.length; i++) {
-                    var delete_input_id = "#"+$(barcodes[i]).attr('id').replace('-upd', '-DELETE');
+                    var delete_input_id = "#"+$(barcodes[i]).attr('id').replace('-upc', '-DELETE');
                     if ($(barcodes[i]).val()) {
+                        $(delete_input_id).removeAttr('checked');
+                    } else {
+                        $(delete_input_id).attr('checked', 'checked');
+                    }
+                }
+
+                var ext_ids = $("input[id*='-external_id']");
+                for (var i=0; i<ext_ids.length; i++) {
+                    var delete_input_id = "#"+$(ext_ids[i]).attr('id').replace('-external_id', '-DELETE');
+                    if ($(ext_ids[i]).val()) {
                         $(delete_input_id).removeAttr('checked');
                     } else {
                         $(delete_input_id).attr('checked', 'checked');
@@ -102,6 +120,7 @@
                 }
             });
             $("#barcode_accordion").accordion({ header: ".shopTitle" });
+            $("#externalref_accordion").accordion({ header: ".shopTitle" });
             $("#accordion").accordion({ header: ".shopTitle" });
             $("#accordion2").accordion({ header: ".shopTitle" });
         });

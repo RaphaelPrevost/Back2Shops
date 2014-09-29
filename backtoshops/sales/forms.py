@@ -17,6 +17,7 @@ from common.constants import TARGET_MARKET_TYPES
 from common.constants import USERS_ROLE
 from common.utils import get_currency
 from sales.models import DISCOUNT_TYPE
+from sales.models import ExternalRef
 from sales.models import GENDERS
 from sales.models import Product
 from sales.models import ProductBrand
@@ -413,6 +414,12 @@ class BarcodeForm(forms.Form):
 
 BarcodeFormset = formset_factory(BarcodeForm, can_delete=True, extra=0)
 
+class ExternalRefForm(forms.Form):
+    brand_attribute = forms.IntegerField(required=False)
+    common_attribute = forms.IntegerField(required=False)
+    external_id = forms.CharField(label=_("External Ref"), required=False)
+
+ExternalRefFormset = formset_factory(ExternalRefForm, can_delete=True, extra=0)
 
 class StockForm(forms.Form):
     brand_attribute = forms.IntegerField(required=False)
@@ -448,12 +455,19 @@ class StockStepForm(forms.Form):
         else:
             self.barcodes = BarcodeFormset(data=data, prefix="barcodes")
 
+        if initial.get('externalrefs_initials', None):
+            self.externalrefs = ExternalRefFormset(data=data, prefix="externalrefs",
+                                initial=initial.get('externalrefs_initials', None))
+        else:
+            self.externalrefs = ExternalRefFormset(data=data, prefix="externalrefs")
+
     def clean(self):
         if self.stocks.errors:
             for form in self.stocks.forms:
                 if form.errors:
                     raise forms.ValidationError(form.errors)
         self._clean_barcodes()
+        self._clean_externalrefs()
         return super(StockStepForm, self).clean()
 
     def _clean_barcodes(self):
@@ -490,6 +504,40 @@ class StockStepForm(forms.Form):
             # barcodes are now optional for global sales, so empty upcs are OK.
             if not (shops == [] and set(upcs) == set([''])):
                 raise forms.ValidationError(_("You cannot use two same product barcodes."))
+
+    def _clean_externalrefs(self):
+        shops = []
+        for stock in self.stocks:
+            if stock.cleaned_data['shop']:
+                shops.append(stock.cleaned_data['shop'])
+
+        # In one shop, cannot have 2 same external id for two sale items.
+        exids = []
+        for externalref in self.externalrefs:
+            externalref.full_clean()
+            new_exid = externalref.cleaned_data['external_id']
+            old_exid = externalref.initial.get('external_id')
+            exids.append(new_exid)
+            if old_exid and old_exid == new_exid:
+                continue
+            refs_with_same_exid = ExternalRef.objects.filter(external_id=new_exid)
+            for ref in refs_with_same_exid:
+                pro = Product.objects.get(sale=ref.sale)
+                if pro.valid_to and pro.valid_to < date.today():
+                    continue
+                shops = ref.sale.shops.all()
+                # check: 1. the same external_id is in global shop when current sale in global shop.
+                #        2. the same external_id is in same shop.
+                shops_id = [s.id for s in shops]
+                if len(shops_id) == 0 and len(shops) == 0:
+                    raise forms.ValidationError(_("external refs %s already used in global market." % new_exid))
+                elif len(set(shops_id).intersection(set(shops))):
+                    raise forms.ValidationError(_("external refs %s already used in your shop." % new_exid))
+
+        if len(exids) > len(set(exids)):
+            # optional for global sales, so empty are OK.
+            if not (shops == [] and set(exids) == set([''])):
+                raise forms.ValidationError(_("You cannot use two same external refs."))
 
 class TargetForm(forms.Form):
     gender = forms.ChoiceField(choices=GENDERS, label=_("Target gender"))

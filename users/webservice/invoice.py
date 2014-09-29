@@ -200,6 +200,7 @@ class BaseInvoiceMixin:
                             "id_type": shipping["id_type"],
                             "name": shipping["name"] or '',
                             "type_name": shipping["type_name"] or '',
+                            "external_id": shipping["external_id"] or '',
                             })
 
         return ujson.dumps(content)

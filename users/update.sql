@@ -82,4 +82,5 @@ ALTER TABLE order_items ALTER COLUMN description type text;
 ALTER TABLE invoices ADD COLUMN invoice_items text;
 
 ALTER TABLE order_items ADD COLUMN id_type bigint;
+ALTER TABLE order_items ADD COLUMN external_id character varying(50);
 COMMIT;

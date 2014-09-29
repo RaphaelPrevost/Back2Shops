@@ -50,6 +50,7 @@ from sales.forms import ShippingForm
 from sales.forms import ShopForm
 from sales.forms import StockStepForm
 from sales.forms import TargetForm
+from sales.models import ExternalRef
 from sales.models import Product
 from sales.models import ProductBrand
 from sales.models import ProductCurrency
@@ -176,7 +177,8 @@ class ListSalesView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin
             self.sales = self.sales.filter(
                 Q(product__name__icontains=contains) |
                 Q(product__description__icontains=contains) |
-                Q(barcodes__upc__contains=contains)
+                Q(barcodes__upc__contains=contains) |
+                Q(externalrefs__external_id__contains=contains)
             ).distinct()
 
         if sales_type == "old":
@@ -602,9 +604,18 @@ def edit_sale(request, *args, **kwargs):
             'upc': i.upc
         })
 
+    initial_externalrefs = []
+    for i in ExternalRef.objects.filter(sale=sale):
+        initial_externalrefs.append({
+            'brand_attribute': i.brand_attribute.pk if i.brand_attribute else None,
+            'common_attribute': i.common_attribute.pk if i.common_attribute else None,
+            'external_id': i.external_id,
+        })
+
     initial_stocks_step = {
         'stocks_initials': initial_stocks,
-        'barcodes_initials': initial_barcodes
+        'barcodes_initials': initial_barcodes,
+        'externalrefs_initials': initial_externalrefs,
     }
 
     initial_target = {
@@ -667,6 +678,7 @@ class StocksInfos(object):
     def __init__(self):
         self.__dict__['stocks_expired'] = False
         self.__dict__['barcodes_expired'] = False
+        self.__dict__['externalrefs_expired'] = False
         self.__dict__['shops'] = None
         self.__dict__['product_type'] = None
         self.__dict__['brand_attributes'] = None
@@ -674,21 +686,24 @@ class StocksInfos(object):
         self.__dict__['barcodes'] = None
         self.__dict__['last_stocks_initials'] = None
         self.__dict__['last_barcodes_initials'] = None
+        self.__dict__['last_externalrefs_initials'] = None
 
     def __setattr__(self, key, value):
-        if key != 'stocks' and key != 'barcodes':
-            if self.__dict__.get(key, None) != None:
+        if key not in ('stocks', 'barcodes', 'externalrefs'):
+            if self.__dict__.get(key, None) is not None:
                 if self.__dict__[key] != value:
                     if key in ['shops', 'product_type', 'brand_attributes']:
                         self.__dict__['stocks_expired'] = True
                     if key in ['product_type', 'brand_attributes']:
                         self.__dict__['barcodes_expired'] = True
+                        self.__dict__['externalrefs_expired'] = True
             else:
                 if value:
                     if key in ['shops', 'product_type', 'brand_attributes']:
                         self.__dict__['stocks_expired'] = True
                     if key in ['product_type', 'brand_attributes']:
                         self.__dict__['barcodes_expired'] = True
+                        self.__dict__['externalrefs_expired'] = True
         self.__dict__[key] = value
 
 class SaleWizardNew(NamedUrlSessionWizardView):
@@ -846,6 +861,17 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                     )
                 barcode.upc = i.cleaned_data['upc']
                 barcode.save()
+
+        for i in stock_form.externalrefs:
+            if i.is_valid() and i.cleaned_data and i.cleaned_data['external_id']:
+                ba_pk = i.cleaned_data['brand_attribute']
+                ca_pk = i.cleaned_data['common_attribute']
+                externalref, created = ExternalRef.objects.get_or_create(sale=sale,
+                    common_attribute=CommonAttribute.objects.get(pk=ca_pk) if ca_pk else None,
+                    brand_attribute=BrandAttribute.objects.get(pk=ba_pk) if ba_pk else None,
+                    )
+                externalref.external_id = i.cleaned_data['external_id']
+                externalref.save()
 
 
         shipping_data = shipping_form.cleaned_data
@@ -1045,7 +1071,11 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             #self.stocks_infos.stocks_expired = True
             self.stocks_infos.barcodes = form.barcodes.cleaned_data
             #self.stocks_infos.barcodes_expired = True
-        if self.stocks_infos.stocks_expired or self.stocks_infos.barcodes_expired:
+            self.stocks_infos.externalrefs = form.externalrefs.cleaned_data
+            #self.stocks_infos.externalrefs_expired = True
+        if self.stocks_infos.stocks_expired \
+                or self.stocks_infos.barcodes_expired \
+                or self.stocks_infos.externalrefs_expired:
             self.storage.set_step_data(self.STEP_STOCKS, None)
             self.storage.set_step_files(self.STEP_STOCKS, None)
         return super(SaleWizardNew, self).process_step(form)
@@ -1220,6 +1250,21 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                                 return i['upc']
         return None
 
+    def _get_external_id(self, ba, ca):
+        if self.edit_mode:
+            for i in self.initial_dict.get(self.STEP_STOCKS).get('externalrefs_initials', None):
+                if i['brand_attribute'] == ba:
+                    if i['common_attribute'] == ca:
+                        return i['external_id']
+        else:
+            if self.stocks_infos.externalrefs:
+                for i in self.stocks_infos.externalrefs:
+                    if i:
+                        if i['brand_attribute'] == ba:
+                            if i['common_attribute'] == ca:
+                                return i['external_id']
+        return None
+
     def _get_stock_initial(self, ba, ca, sh, st):
         return {
             'brand_attribute': ba,
@@ -1342,6 +1387,41 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             toret.update({'barcodes_initials': initials})
             # else:
             #     toret.update(self.stocks_infos.last_barcodes_initials)
+
+            # Initializes the initials for externalrefs form
+            initials = []
+            if self.brand_attributes:
+                for ba in self.brand_attributes:
+                    if self.common_attributes:
+                        for ca in self.common_attributes:
+                            initials.append({
+                                'brand_attribute': ba.pk,
+                                'common_attribute': ca.pk,
+                                'external_id': self._get_external_id(ba.pk, ca.pk),
+                            })
+                    else:
+                        initials.append({
+                            'brand_attribute': ba.pk,
+                            'common_attribute': None,
+                            'external_id': self._get_external_id(ba.pk, None),
+                            })
+            else:
+                if self.common_attributes:
+                    for ca in self.common_attributes:
+                        initials.append({
+                            'brand_attribute': None,
+                            'common_attribute': ca.pk,
+                            'external_id': self._get_external_id(None, ca.pk),
+                        })
+                else:
+                    initials.append({
+                        'brand_attribute': None,
+                        'common_attribute': None,
+                        'external_id': self._get_external_id(None, None),
+                        })
+            self.stocks_infos.externalrefs_expired = False
+            self.stocks_infos.last_externalrefs_initials = {'externalrefs_initials': initials}
+            toret.update({'externalrefs_initials': initials})
             return toret
         if step == self.STEP_SHIPPING:
             product_obj = self.get_form(self.STEP_PRODUCT,

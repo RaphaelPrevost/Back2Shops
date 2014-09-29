@@ -46,6 +46,7 @@ from sales.models import STOCK_TYPE_GLOBAL
 from sales.models import Sale
 from sales.models import ShopsInSale
 from sales.models import TypeAttributeWeight
+from sales.utils import get_sale_external_id
 from sales.utils import get_sale_orig_price
 from sales.utils import get_sale_discounted_price
 from sales.utils import get_sale_premium
@@ -927,7 +928,12 @@ class InvoiceView(BaseCryptoWebService, ListView):
             for tax in items_taxes:
                 tax['tax'] = tax['tax'] * qty
                 tax['amount'] = tax['amount'] * qty
+
+            external_id = get_sale_external_id(item['id_sale'],
+                                               item.get('id_variant'),
+                                               item.get('id_type'))
             item_info = {'id_item': item['id_item'],
+                         'external_id': external_id,
                          'name': item['name'],
                          'type_name': item['type_name'],
                          'desc': sale.product.description,

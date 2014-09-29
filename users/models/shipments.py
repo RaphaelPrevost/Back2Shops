@@ -895,6 +895,7 @@ SHIPPING_ITEM_FIELDS = [
     ('id_type', 'oi.id_type'),
     ('name', 'oi.name'),
     ('type_name', 'oi.type_name'),
+    ('external_id', 'oi.external_id'),
     ]
 
 def get_shipping_list(conn, id_shipment):

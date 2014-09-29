@@ -1,4 +1,5 @@
 from attributes.models import BrandAttribute
+from sales.models import ExternalRef
 from sales.models import TypeAttributePrice
 
 def get_sale_orig_price(sale, type_attribute_id):
@@ -33,4 +34,13 @@ def get_sale_premium(price, id_variant):
             elif variant.premium_type == 'percentage':
                 premium = price * variant.premium_amount/100
     return premium
+
+def get_sale_external_id(id_sale, id_variant, id_type):
+    try:
+        obj = ExternalRef.objects.get(sale_id=id_sale,
+                               common_attribute_id=(id_type or None),
+                               brand_attribute_id=(id_variant or None))
+        return obj.external_id or ''
+    except ExternalRef.DoesNotExist:
+        return ''
 

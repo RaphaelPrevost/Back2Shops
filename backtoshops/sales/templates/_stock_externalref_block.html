@@ -1,0 +1,15 @@
+{% load getform %}
+{% load multiply %}
+{% for c in common_attributes %}
+    {% with formindex=b_index|multiply:common_attributes.count|add:forloop.counter0|add:1 %}
+        {% with curform=wizard.form.externalrefs|getform:formindex cname=c.name%}
+            {% include "_stock_externalref_input.html" %}
+        {% endwith %}
+    {% endwith %}
+{% empty %}
+    {% with formindex=b_index|add:1 %}
+        {% with curform=wizard.form.externalrefs|getform:formindex cname=sale_title %}
+            {% include "_stock_externalref_input.html" %}
+        {% endwith %}
+    {% endwith %}
+{% endfor %}
