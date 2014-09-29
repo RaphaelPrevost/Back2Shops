@@ -35,6 +35,7 @@
             <!-- items -->
             {% for item in object.items %}
                 <item id="{{ item.id_item}}">
+                    <external_id>{{ item.external_id }}</external_id>
                     <name>{{ item.name }}</name>
                     <type_name>{{ item.type_name }}</type_name>
                     <desc>{{ item.desc }}</desc>

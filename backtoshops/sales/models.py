@@ -191,3 +191,11 @@ class WeightUnit(models.Model):
     def __unicode__(self):
         return self.key
 
+
+class ExternalRef(models.Model):
+    from attributes.models import BrandAttribute, CommonAttribute
+    external_id = models.CharField(max_length=50)
+    sale = models.ForeignKey(Sale, related_name="externalrefs", on_delete=models.CASCADE)
+    brand_attribute = models.ForeignKey(BrandAttribute, null=True, blank=True)
+    common_attribute = models.ForeignKey(CommonAttribute, null=True, blank=True)
+
