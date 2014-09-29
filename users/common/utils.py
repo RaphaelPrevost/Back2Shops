@@ -105,10 +105,14 @@ def make_auth_cookie(expiry, csrf_token, auth_token, users_id):
     return '&'.join(['%s=%s' % (k, v) for k, v in data.iteritems()])
 
 def get_hashed_headers(req):
+    ## chrome supports "sdch" and will add it to accept-encoding when needed
+    accept_encoding = req.get_header('Accept-Encoding') or ''
+    accept_encoding = ','.join([one for one in accept_encoding.split(',')
+                                    if one != 'sdch'])
     headers = ";".join([
             #req.get_header('Accept') or '',
             req.get_header('Accept-Language') or '',
-            req.get_header('Accept-Encoding') or '',
+            accept_encoding,
             req.get_header('Accept-Charset') or '',
             req.get_header('User-Agent') or '',
             req.get_header('DNT') or ''])
