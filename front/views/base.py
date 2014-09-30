@@ -198,8 +198,8 @@ class BaseHtmlResource(BaseResource):
                     v['url_name'] = get_normalized_name(
                         FRT_ROUTE_ROLE.TYPE_LIST, 'type_name', v['name'])
                 resp_dict['menus'].sort(cmp=
-                    lambda x, y: cmp(int(x.get('sort_order')) or 0,
-                                     int(y.get('sort_order')) or 0))
+                    lambda x, y: cmp(int(x.get('sort_order') or 0),
+                                     int(y.get('sort_order') or 0)))
             if 'cur_type_id' not in resp_dict:
                 resp_dict['cur_type_id'] = -1
 
