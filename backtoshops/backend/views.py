@@ -10,6 +10,7 @@ from django.forms.models import inlineformset_factory
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.views.generic.base import View
 from django.views.generic.edit import CreateView
 from django.views.generic.edit import DeleteView
 from django.views.generic.edit import UpdateView
@@ -334,10 +335,14 @@ class BaseAttributeView(SARequiredMixin):
     formset = inlineformset_factory(ProductType, CommonAttribute,
                                     form=SACommonAttributeForm, extra=0)
 
+    def get_queryset(self):
+        qs = super(BaseAttributeView, self).get_queryset()
+        return qs.order_by('sort_order')
+
     def get_context_data(self, **kwargs):
-        kwargs.update({"formset": self.formset,})
-        return super(BaseAttributeView,self).get_context_data(**kwargs)
-    
+        kwargs.update({"formset": self.formset})
+        return super(BaseAttributeView, self).get_context_data(**kwargs)
+
 class CreateAttributeView(BaseAttributeView, CreateView):
     def get_success_url(self):
         return reverse('sa_edit_attribute', args=[self.object.id])
@@ -385,6 +390,17 @@ class DeleteAttributeView(BaseAttributeView, DeleteView):
         self.object.delete()
         if self.object.products.all():
             content.update({'reprieve': True, 'name': self.object.name})
+        return HttpResponse(content=json.dumps(content),
+                            mimetype="application/json")
+
+class UpdateAttributeOrderView(SARequiredMixin, View):
+    def post(self, *args, **kwargs):
+        sorted_attrs = json.loads(self.request.POST.get('sorted', '{}'))
+        for attr in sorted_attrs:
+            obj = ProductType.objects.get(pk=attr.replace('attribute_', ''))
+            obj.sort_order = sorted_attrs[attr]
+            obj.save()
+        content = {'success': True}
         return HttpResponse(content=json.dumps(content),
                             mimetype="application/json")
 
