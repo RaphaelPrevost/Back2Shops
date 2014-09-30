@@ -1,6 +1,7 @@
 <info type="type" version="1.0" >
 <type id="{{ object.pk }}">
 	<name>{{ object.name }}</name>
+    <sort_order>{% if object.sort_order %}{{ object.sort_order}}{% endif %}</sort_order>
     <category id="{{ object.category.pk }}">
         <name>{{ object.category.name }}</name>
         <thumb>{% if object.category.thumbnail %}{{ object.category.thumbnail.url }}{% endif %}</thumb>

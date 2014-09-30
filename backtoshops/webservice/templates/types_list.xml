@@ -2,6 +2,7 @@
 	{% for type in object_list %}
     <type id="{{ type.pk }}">
         <name>{{ type.name }}</name>
+        <sort_order>{% if type.sort_order %}{{ type.sort_order}}{% endif %}</sort_order>
         <category id="{{ type.category.pk }}">
             <name>{{ type.category.name }}</name>
             <thumb>{% if type.category.thumbnail %}{{ type.category.thumbnail.url }}{% endif %}</thumb>

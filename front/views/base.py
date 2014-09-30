@@ -193,10 +193,13 @@ class BaseHtmlResource(BaseResource):
             if remote_resp.get('res') == RESP_RESULT.F:
                 resp_dict['err'] = remote_resp.get('err')
             else:
-                resp_dict['menus'] = remote_resp
-                for v in resp_dict['menus'].itervalues():
+                resp_dict['menus'] = remote_resp.values()
+                for v in resp_dict['menus']:
                     v['url_name'] = get_normalized_name(
                         FRT_ROUTE_ROLE.TYPE_LIST, 'type_name', v['name'])
+                resp_dict['menus'].sort(cmp=
+                    lambda x, y: cmp(int(x.get('sort_order')) or 0,
+                                     int(y.get('sort_order')) or 0))
             if 'cur_type_id' not in resp_dict:
                 resp_dict['cur_type_id'] = -1
 
