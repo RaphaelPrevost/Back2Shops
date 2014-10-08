@@ -1257,7 +1257,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                     if i['common_attribute'] == ca:
                         return i['external_id']
         else:
-            if self.stocks_infos.externalrefs:
+            if getattr(self.stocks_infos, 'externalrefs', None):
                 for i in self.stocks_infos.externalrefs:
                     if i:
                         if i['brand_attribute'] == ba:
