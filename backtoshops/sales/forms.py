@@ -500,9 +500,13 @@ class StockStepForm(forms.Form):
                 elif len(set(br_shops_id).intersection(set(shops))):
                     raise forms.ValidationError(_("product barcode %s already used in your shop." % new_upc))
 
-        if len(upcs) > len(set(upcs)):
+        if shops == []:
             # barcodes are now optional for global sales, so empty upcs are OK.
-            if not (shops == [] and set(upcs) == set([''])):
+            filled_upcs = [_id for _id in upcs if _id]
+            if len(filled_upcs) > len(set(filled_upcs)):
+                raise forms.ValidationError(_("You cannot use two same product barcodes."))
+        else:
+            if len(upcs) > len(set(upcs)):
                 raise forms.ValidationError(_("You cannot use two same product barcodes."))
 
     def _clean_externalrefs(self):
@@ -534,10 +538,15 @@ class StockStepForm(forms.Form):
                 elif len(set(shops_id).intersection(set(shops))):
                     raise forms.ValidationError(_("external refs %s already used in your shop." % new_exid))
 
-        if len(exids) > len(set(exids)):
+        if shops == []:
             # optional for global sales, so empty are OK.
-            if not (shops == [] and set(exids) == set([''])):
+            filled_exids = [_id for _id in exids if _id]
+            if len(filled_exids) > len(set(filled_exids)):
                 raise forms.ValidationError(_("You cannot use two same external refs."))
+        else:
+            if len(exids) > len(set(exids)):
+                raise forms.ValidationError(_("You cannot use two same external refs."))
+
 
 class TargetForm(forms.Form):
     gender = forms.ChoiceField(choices=GENDERS, label=_("Target gender"))
