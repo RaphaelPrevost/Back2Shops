@@ -700,6 +700,7 @@ class ShippingFeesView(BaseCryptoWebService, ListView):
         weight_unit = self.request.GET.get('unit')
         dest = self.request.GET.get('dest')
         id_address = self.request.GET.get('id_address')
+        amount = self.request.GET.get('amount')
 
         if carrier_services_map:
             carrier_services_map = json.loads(carrier_services_map)
@@ -737,10 +738,12 @@ class ShippingFeesView(BaseCryptoWebService, ListView):
             elif custom_rule.total_order_type == STOY_WEIGHT:
                 pass #TODO
             elif custom_rule.total_order_type == STOY_COUNTRY:
-                if self._addr_in_france(dest_addr):
+                if self._addr_in_france(dest_addr) and (not amount
+                        or float(custom_rule.total_order_lower) <= float(amount) < float(custom_rule.total_order_upper)):
                     matched_custom_rules.append(custom_rule)
             elif custom_rule.total_order_type == STOY_REGION:
-                if self._addr_in_europe(dest_addr):
+                if self._addr_in_europe(dest_addr) and (not amount
+                        or float(custom_rule.total_order_lower) <= float(amount) < float(custom_rule.total_order_upper)):
                     matched_custom_rules.append(custom_rule)
         return [carrier_rules, matched_custom_rules or custom_rules]
 
@@ -1081,7 +1084,7 @@ class InvoiceView(BaseCryptoWebService, ListView):
                      id_carrier, id_service,
                      from_address, to_address):
         shipping = {}
-        if id_carrier and id_service:
+        if id_carrier and int(id_carrier) and id_service and int(id_service):
             service = Service.objects.get(pk=id_service)
             shipping['postage'] = service
             shipping['desc'] = service.desc

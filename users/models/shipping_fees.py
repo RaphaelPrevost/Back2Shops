@@ -103,19 +103,22 @@ class ShipmentShippingFees(BaseShippingFees):
         supported_services = self._get_supported_service()
         weight_unit = SHIPPING_WEIGHT_UNIT
         dest = ujson.dumps(get_user_dest_addr(self.conn, self.id_user))
-        weight, weight_with_free, id_address = self._get_weight_and_address()
+        weight, weight_with_free, amount, amount_with_free, \
+                    id_address = self._get_weight_and_address()
         if not self.with_free_shipping_fee:
             return remote_xml_shipping_fee(supported_services,
                                            weight,
                                            weight_unit,
                                            dest,
-                                           id_address)
+                                           id_address,
+                                           amount)
         else:
             xml_fee = remote_xml_shipping_fee(supported_services,
                                            weight,
                                            weight_unit,
                                            dest,
-                                           id_address)
+                                           id_address,
+                                           amount)
             xml_fee_with_free = None
             if weight_with_free:
                 xml_fee_with_free = remote_xml_shipping_fee(
@@ -123,7 +126,8 @@ class ShipmentShippingFees(BaseShippingFees):
                     weight_with_free,
                     weight_unit,
                     dest,
-                    id_address)
+                    id_address,
+                    amount_with_free)
             return xml_fee, xml_fee_with_free
 
     def _get_supported_service(self):
@@ -149,6 +153,9 @@ class ShipmentShippingFees(BaseShippingFees):
         spm_weight = 0
         spm_weight_with_free = 0
         id_address = None
+
+        total_amount = 0
+        total_amount_with_free = 0
         for shipping in shipping_list:
             if (shipping['free_shipping'] and
                     not self.with_free_shipping_fee):
@@ -175,4 +182,13 @@ class ShipmentShippingFees(BaseShippingFees):
                 id_address = self._get_sale_address(sale,
                                                     shipping['id_shop'])
 
-        return spm_weight, spm_weight_with_free, id_address
+            amount = sale.final_price(shipping['id_variant'],
+                                      shipping['id_price_type'])
+            if not shipping['free_shipping']:
+                total_amount += amount * quantity
+            if self.with_free_shipping_fee:
+                total_amount_with_free += amount * quantity
+
+        return spm_weight, spm_weight_with_free, \
+               total_amount, total_amount_with_free, id_address
+
