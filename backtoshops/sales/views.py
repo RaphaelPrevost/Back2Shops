@@ -1075,7 +1075,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             #self.stocks_infos.externalrefs_expired = True
         if self.stocks_infos.stocks_expired \
                 or self.stocks_infos.barcodes_expired \
-                or self.stocks_infos.externalrefs_expired:
+                or getattr(self.stocks_infos, 'externalrefs_expired', None):
             self.storage.set_step_data(self.STEP_STOCKS, None)
             self.storage.set_step_files(self.STEP_STOCKS, None)
         return super(SaleWizardNew, self).process_step(form)
