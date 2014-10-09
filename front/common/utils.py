@@ -547,6 +547,7 @@ def get_order_table_info(order_id, order_resp, all_sales=None):
                 shipping_list.update(item_invoice_info.get(shipment_id))
 
                 shipping_list['item'] = order_items[-1]
+                shipping_list['item']['quantity'] = shipping_list['shipping_list_quantity']
                 shipping_list['status_name'] = SHIPMENT_STATUS.toReverseDict().get(
                                                int(shipping_list['status']))
                 shipping_list['due_within'] = shipping_list['due_within'] or 1
