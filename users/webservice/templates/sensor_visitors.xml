@@ -1,0 +1,18 @@
+<?xml version="1.0" standalone="yes"?>
+<visitors version="1.0">
+    {% if error %}
+        <error>{{ error }}</error>
+    {% endif %}
+    {% if GET %}
+        <number>{{ GET.number }}</number>
+        {% for visitor in GET.visitors %}
+            <user sid="{{ visitor.sid }}">
+                <users_id>{% if visitor.user_id %}{{ visitor.users_id }}{% endif %}</users_id>
+                <visit_time>{{ visitor.visit_time }}</visit_time>
+            </user>
+        {% endfor %}
+    {% endif %}
+    {% if POST %}
+        <res>{{ POST.res }}</res>
+    {% endif %}
+</visitors>

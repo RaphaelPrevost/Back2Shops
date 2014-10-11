@@ -19,6 +19,7 @@ from common.error import ServerError
 from B2SCrypto.utils import gen_encrypt_json_context
 from B2SCrypto.utils import get_from_remote
 from B2SCrypto.constant import SERVICES
+from B2SProtocol.constants import EXPIRY_FORMAT
 from B2SUtils.common import set_cookie, get_cookie
 from B2SUtils.errors import ValidationError
 from B2SUtils import db_utils
@@ -89,9 +90,8 @@ def get_hexdigest(algorithm, iterations, salt, password):
 def get_hmac(secret_key, text, algorithm=hashlib.sha256):
     return hmac.new(secret_key, text, algorithm).hexdigest()
 
-_EXPIRY_FORMAT = '%a, %d %b %Y %H:%M:%S UTC'
 def gen_cookie_expiry(utc_expiry):
-    return utc_expiry.strftime(_EXPIRY_FORMAT)
+    return utc_expiry.strftime(EXPIRY_FORMAT)
 
 def make_auth_cookie(expiry, csrf_token, auth_token, users_id):
     secret_key = hmac_secret_key()
@@ -150,7 +150,7 @@ def _user_verify(conn, users_id, user_auth, ip, headers):
     """
 
     # XXX enforce expiry time
-    expiry = datetime.datetime.strptime(user_auth['exp'], _EXPIRY_FORMAT)
+    expiry = datetime.datetime.strptime(user_auth['exp'], EXPIRY_FORMAT)
     if expiry < datetime.datetime.utcnow():
         raise ValidationError('LOGIN_REQUIRED_ERR_EXPIRED_AUTH')
 
@@ -273,7 +273,7 @@ def encrypt_password(raw_password):
     return auth_token, values
 
 def remote_xml_shipping_fee(carrier_services, weight, unit, dest,
-                            id_address, amount=None):
+                            id_address):
     uri = 'protected/shipping/fees'
     if isinstance(carrier_services, list):
         carrier_services = ujson.dumps(carrier_services)
@@ -285,8 +285,6 @@ def remote_xml_shipping_fee(carrier_services, weight, unit, dest,
              'unit': unit,
              'dest': dest,
              'id_address': id_address}
-    if amount:
-        query['amount'] = amount
     content = get_from_sale_server(uri, **query)
     return content
 

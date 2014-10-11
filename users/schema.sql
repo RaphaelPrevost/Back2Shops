@@ -277,3 +277,10 @@ CREATE TABLE transactions (
     url_success character varying(100),
     url_failure character varying(100)
 );
+
+CREATE TABLE visitors_log (
+    sid  character varying(36) PRIMARY KEY,
+    users_id BIGINT,
+    visit_time timestamp without time zone DEFAULT now() NOT NULL
+);
+
