@@ -205,6 +205,7 @@ INSTALLED_APPS = (
     get_site_prefix()+'taxes',
     get_site_prefix()+'promotion',
     get_site_prefix()+'routes',
+    get_site_prefix()+'stats',
     'south',
     'form_utils',
     'formwizard',
@@ -321,4 +322,8 @@ ORDER_DELETE = '%s/webservice/1.0/private/order/delete' % USR_SERVER
 CRYPTO_RESP_DEBUGING = True
 
 SALE_IMG_UPLOAD_MAX_SIZE = 1024 * 1024  # Bytes, 1M
+
+STATS_VISITORS = '%s/webservice/1.0/private/sensor/visits' % USR_SERVER
+STATS_INCOME = '%s/webservice/1.0/private/sensor/income' % USR_SERVER
+STATS_ORDER = '%s/webservice/1.0/private/sensor/orders' % USR_SERVER
 

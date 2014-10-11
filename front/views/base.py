@@ -5,12 +5,16 @@ import falcon
 import logging
 import re
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from B2SFrontUtils.constants import REMOTE_API_NAME
 from B2SProtocol.constants import RESP_RESULT
+from B2SProtocol.constants import SESSION_COOKIE_NAME
+from B2SProtocol.constants import EXPIRY_FORMAT
+
 from B2SRespUtils.generate import gen_json_resp
 from B2SUtils.base_actor import as_list
+from B2SUtils.common import set_cookie, get_cookie
 from B2SUtils.errors import ValidationError
 from common.constants import FRT_ROUTE_ROLE
 from common.constants import Redirection
@@ -19,6 +23,8 @@ from common.m17n import trans_func
 from common.utils import cur_symbol
 from common.utils import format_amount
 from common.utils import gen_html_resp
+from common.utils import gen_cookie_expiry
+from common.utils import gen_SID
 from common.utils import get_normalized_name
 from common.utils import get_thumbnail
 from common.utils import get_url_format
@@ -65,6 +71,7 @@ class BaseResource(object):
 
     def msg_handler(self, method_name, req, resp, **kwargs):
         try:
+            self.set_session(req, resp)
             self._verify_user_online(req, resp, method_name)
             method = getattr(self, '_on_' + method_name)
             data = method(req, resp, **kwargs)
@@ -80,6 +87,47 @@ class BaseResource(object):
             data = {'res': RESP_RESULT.F,
                     'err': 'SERVER_ERR'}
         return data
+
+    def set_session(self, req, resp):
+        def __gen_session_expiry():
+            delta = timedelta(seconds=settings.SESSION_EXP_TIME)
+            utc_expiry = datetime.utcnow() + delta
+            return gen_cookie_expiry(utc_expiry)
+
+        def __set(_sid):
+            _exp = __gen_session_expiry()
+            data = {'sid': _sid, 'exp': _exp}
+            session = '&'.join(['%s=%s' % (k, v)
+                                for k, v in data.iteritems()])
+
+            set_cookie(resp,
+                       SESSION_COOKIE_NAME,
+                       session)
+
+        def __set_session():
+            sid = gen_SID()
+            __set(sid)
+
+        def __up_session(_sid):
+            __set(_sid)
+
+        cookie = get_cookie(req)
+        session = cookie and cookie.get(SESSION_COOKIE_NAME)
+        session = session and session.value.split('&')
+        session = session and [tuple(field.split('='))
+                                     for field in session if field]
+        session = session and dict(session)
+        sid = session and session['sid'] or None
+        exp = session and session['exp'] or None
+
+        if exp:
+            expiry = datetime.strptime(exp, EXPIRY_FORMAT)
+            if expiry > datetime.utcnow():
+                __up_session(sid)
+            else:
+                __set_session()
+        else:
+            __set_session()
 
     def _verify_user_online(self, req, resp, method_name):
         remote_resp = data_access(REMOTE_API_NAME.ONLINE,

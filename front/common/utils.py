@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import base64
 import settings
 import HTMLParser
 import datetime
@@ -11,12 +12,14 @@ import time
 import ujson
 import uuid
 import xmltodict
+import M2Crypto
 
 from B2SFrontUtils.constants import REMOTE_API_NAME
 from B2SFrontUtils.geolocation import get_location_by_ip
 from B2SFrontUtils.utils import get_thumbnail_url
 from B2SFrontUtils.utils import normalize_name
 from B2SProtocol.constants import EURO_UNION_COUNTRIES
+from B2SProtocol.constants import EXPIRY_FORMAT
 from B2SProtocol.constants import INVALIDATE_CACHE_LIST
 from B2SProtocol.constants import INVALIDATE_CACHE_OBJ
 from B2SProtocol.constants import ORDER_STATUS
@@ -669,3 +672,9 @@ def html_escape_params(req, resp, params):
 def unescape_string(s):
     h = HTMLParser.HTMLParser()
     return h.unescape(s)
+
+def gen_SID(num_bytes=16):
+    return uuid.UUID(bytes = M2Crypto.m2.rand_bytes(num_bytes))
+
+def gen_cookie_expiry(utc_expiry):
+    return utc_expiry.strftime(EXPIRY_FORMAT)

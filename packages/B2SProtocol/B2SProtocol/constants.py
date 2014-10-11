@@ -123,3 +123,7 @@ EURO_UNION_COUNTRIES = (
     'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL',
     'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'GB',
 )
+
+
+SESSION_COOKIE_NAME = 'SESSION'
+EXPIRY_FORMAT = '%a, %d %b %Y %H:%M:%S UTC'

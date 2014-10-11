@@ -45,3 +45,7 @@
 
 == version 0.0.14 ==
 1. Add constants for taxes redis key
+
+== version 0.0.15 ==
+1. Add constant SESSION_COOKIE_NAME
+2. Add constant EXPIRY_FORMAT
