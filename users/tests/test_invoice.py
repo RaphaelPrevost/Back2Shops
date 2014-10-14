@@ -4,6 +4,7 @@ import ujson
 from common.test_utils import is_backoffice_server_running
 from tests.base_order_test import BaseOrderTestCase
 from B2SUtils import db_utils
+from B2SUtils.common import to_round
 
 SKIP_REASON = "Please run backoffice server before running this test"
 
@@ -13,6 +14,7 @@ class TestInvoice(BaseOrderTestCase):
     '''
     @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
     def testDiffCountry(self):
+
         # update user address to China BJ
         self.b.update_account_address(self.users_id, "CN", "BJ", "BeiJing")
 
@@ -30,13 +32,14 @@ class TestInvoice(BaseOrderTestCase):
         weight = 2
         shipping_fee = 2.0 * weight * qty
         handling_fee = 6.0
-        tax1 = 3
-        tax2 = 4
-        expect_amount = (type_attr_price*qty +
-                         handling_fee +
-                         shipping_fee +
-                         type_attr_price*qty * tax1 / 100.0 +
-                         type_attr_price*qty * tax2 / 100.0)
+        tax1 = 3/100.0
+        tax2 = 4/100.0
+        expect_amount = (
+            type_attr_price*qty +
+            handling_fee +
+            shipping_fee +
+            (to_round(type_attr_price * (1 + tax1)) - type_attr_price) * qty +
+            (to_round(type_attr_price * (1 + tax2)) - type_attr_price) * qty)
 
         wwwOrder = [item]
         id_order = self.success_wwwOrder(self.telephone,
@@ -73,11 +76,16 @@ class TestInvoice(BaseOrderTestCase):
         handling_fee = 6.0
         tax1 = 1/100.0
         tax2 = 2/100.0
-        expect_amount = (type_attr_price*qty +
-                         handling_fee +
-                         shipping_fee +
-                         type_attr_price*qty * tax1 +
-                         type_attr_price*qty * (1+tax1) * tax2)
+
+        t1_amount = (to_round(type_attr_price * (1 + tax1)) - type_attr_price) * qty
+        after_amount = to_round(type_attr_price * (1 + tax1))
+        t2_amount = (to_round(after_amount * (1 + tax2)) - after_amount) * qty
+        expect_amount = (
+            type_attr_price*qty +
+            handling_fee +
+            shipping_fee +
+            t1_amount +
+            t2_amount)
 
         wwwOrder = [item]
         id_order = self.success_wwwOrder(self.telephone,
@@ -116,11 +124,14 @@ class TestInvoice(BaseOrderTestCase):
         tax1 = 1/100.0
         tax2 = 0.5/100.0
         tax3 = 1/100.0 # taxable
-        expect_amount = (type_attr_price*qty +
-                         handling_fee +
-                         shipping_fee +
-                         type_attr_price*qty * (tax1 + tax2 + tax3) +
-                         (handling_fee + shipping_fee) * tax3)
+        expect_amount = (
+            type_attr_price*qty +
+            handling_fee +
+            shipping_fee +
+            (to_round(type_attr_price * (1 + tax1)) - type_attr_price) * qty +
+            (to_round(type_attr_price * (1 + tax2)) - type_attr_price) * qty +
+            (to_round(type_attr_price * (1 + tax3)) - type_attr_price) * qty +
+            to_round((handling_fee + shipping_fee) * (1 + tax3)) - (handling_fee + shipping_fee))
 
         wwwOrder = [item]
         id_order = self.success_wwwOrder(self.telephone,

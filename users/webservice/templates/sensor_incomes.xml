@@ -1,0 +1,20 @@
+<?xml version="1.0" standalone="yes"?>
+<incomes version="1.0">
+    {% if error %}
+        <error>{{ error }}</error>
+    {% endif %}
+    {% if GET_R %}
+        {% for income in GET_R.objects %}
+            <income id_order="{{ income.id_order }}" up_time="{{ income.up_time }}" id_user="{{ income.id_user }}">
+                <id_sale>{{ income.id_sale }}</id_sale>
+                <id_shop>{{ income.id_shop }}</id_shop>
+                <id_variant>{{ income.id_variant }}</id_variant>
+                <price>{{ income.price }}</price>
+                <quantity>{{ income.quantity }}</quantity>
+            </income>
+        {% endfor %}
+    {% endif %}
+    {% if POST_R %}
+        <res>{{ POST_R.res }}</res>
+    {% endif %}
+</incomes>

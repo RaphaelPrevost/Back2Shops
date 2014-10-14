@@ -110,15 +110,13 @@ class ShipmentShippingFees(BaseShippingFees):
                                            weight,
                                            weight_unit,
                                            dest,
-                                           id_address,
-                                           amount)
+                                           id_address)
         else:
             xml_fee = remote_xml_shipping_fee(supported_services,
                                            weight,
                                            weight_unit,
                                            dest,
-                                           id_address,
-                                           amount)
+                                           id_address)
             xml_fee_with_free = None
             if weight_with_free:
                 xml_fee_with_free = remote_xml_shipping_fee(
@@ -126,8 +124,7 @@ class ShipmentShippingFees(BaseShippingFees):
                     weight_with_free,
                     weight_unit,
                     dest,
-                    id_address,
-                    amount_with_free)
+                    id_address)
             return xml_fee, xml_fee_with_free
 
     def _get_supported_service(self):

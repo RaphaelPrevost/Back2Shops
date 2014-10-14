@@ -6,6 +6,7 @@ from B2SUtils.db_utils import select, delete
 
 class SensorVisitorsResource(SensorBaseResource):
     template = "sensor_visitors.xml"
+    time_field = 'visit_time'
 
     def _on_get(self, req, resp, conn, **kwargs):
         where = self._get_req_range(req)
@@ -16,7 +17,7 @@ class SensorVisitorsResource(SensorBaseResource):
 
         data = {'number': len(visitors),
                 'visitors': visitors}
-        return {'GET': data}
+        return {'GET_R': data}
 
     def _on_post(self, req, resp, conn, **kwargs):
         try:
@@ -27,7 +28,7 @@ class SensorVisitorsResource(SensorBaseResource):
                 where = {'sid__in': tuple(sid_list)}
                 delete(self.conn, 'visitors_log', where=where)
             logging.info('visitors_log_del: %s', sid_list)
-            return {'POST': {'res': RESP_RESULT.S}}
+            return {'POST_R': {'res': RESP_RESULT.S}}
         except Exception, e:
             logging.error('visitors_log_del_err: %s', e, exc_info=True)
-            return {'res': RESP_RESULT.F}
+            return {'POST_R': {'res': RESP_RESULT.F}}
