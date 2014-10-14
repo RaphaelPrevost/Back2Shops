@@ -284,3 +284,9 @@ CREATE TABLE visitors_log (
     visit_time timestamp without time zone DEFAULT now() NOT NULL
 );
 
+CREATE TABLE incomes_log (
+    order_id BIGINT PRIMARY KEY,
+    users_id BIGINT NOT NULL,
+    up_time timestamp without time zone DEFAULT now() NOT NULL
+);
+

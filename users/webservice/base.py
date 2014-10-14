@@ -9,18 +9,14 @@ from datetime import datetime
 
 from common.utils import cookie_verify
 from common.utils import detect_locale
-from common.redis_utils import get_redis_cli
+from models.stats_log import log_visitors
 
-from B2SProtocol.constants import EXPIRY_FORMAT
 from B2SProtocol.constants import RESP_RESULT
-from B2SProtocol.constants import SESSION_COOKIE_NAME
 from B2SRespUtils.generate import gen_html_resp
 from B2SRespUtils.generate import gen_json_resp
 from B2SRespUtils.generate import gen_xml_resp
 from B2SRespUtils.generate import gen_text_resp
 from B2SUtils import db_utils
-from B2SUtils.db_utils import insert
-from B2SUtils.common import set_cookie, get_cookie
 from B2SUtils.errors import DatabaseError
 from B2SUtils.errors import ValidationError
 from B2SCrypto.constant import SERVICES
@@ -89,55 +85,8 @@ class BaseResource(object):
                 data = {'res': RESP_RESULT.F,
                         'err': 'SERVER_ERR'}
                 conn.rollback()
-        gevent.spawn(self._count_visitors, req)
+        gevent.spawn(log_visitors, conn, req, self.users_id)
         return data
-
-    def _count_visitors(self, req):
-        cookie = get_cookie(req)
-        session = cookie and cookie.get(SESSION_COOKIE_NAME)
-        if not session:
-            return
-
-        session = cookie and cookie.get(SESSION_COOKIE_NAME)
-        session = session and session.value.split('&')
-        session = session and [tuple(field.split('='))
-                               for field in session if field]
-        session = session and dict(session)
-        sid = session and session['sid'] or None
-        exp = (session and
-               datetime.strptime(session['exp'], EXPIRY_FORMAT) or
-               None)
-        now = datetime.utcnow()
-
-        cli = get_redis_cli()
-        delta = exp - now
-        name = 'SID:%s' % sid
-
-        if exp and now < exp:
-            if not cli.exists(name):
-                self._log_visitors(sid)
-            else:
-                u_id = cli.get(name)
-                if u_id is None and self.users_id:
-                    self._up_visitors(sid, self.users_id)
-        else:
-            self._log_visitors(sid)
-
-        cli.setex(name, self.users_id, delta)
-
-    def _up_visitors(self, sid, users_id):
-        db_utils.update(self.conn,
-                        'visitors_log',
-                        {'users_id': users_id},
-                        where={'sid': sid})
-        self.conn.commit()
-
-    def _log_visitors(self, sid):
-        values = {'sid': sid}
-        if self.users_id:
-            values['users_id'] = int(self.users_id)
-        insert(self.conn, 'visitors_log', values=values)
-        self.conn.commit()
 
     def _on_get(self, req, resp, conn, **kwargs):
         pass

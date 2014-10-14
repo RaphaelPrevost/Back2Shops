@@ -25,6 +25,7 @@ from models.invoice import get_invoice_by_order
 from models.invoice import get_iv_numbers
 from models.invoice import get_sum_amount_due
 from models.invoice import update_invoice
+from models.stats_log import log_incomes
 from models.transaction import create_trans
 from models.transaction import get_trans_by_id
 from models.transaction import update_trans
@@ -201,6 +202,7 @@ class BasePaymentHandlerResource(BaseResource):
                 values = {'amount_paid': iv['amount_due'],
                           'status': INVOICE_STATUS.INVOICE_PAID}
                 update_invoice(conn, id_iv, values, iv=iv)
+                gevent.spawn(log_incomes, conn, id_iv)
 
             update_trans(conn,
                          values={'status': TRANS_STATUS.TRANS_PAID},

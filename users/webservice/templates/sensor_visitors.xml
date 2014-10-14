@@ -3,16 +3,16 @@
     {% if error %}
         <error>{{ error }}</error>
     {% endif %}
-    {% if GET %}
-        <number>{{ GET.number }}</number>
-        {% for visitor in GET.visitors %}
+    {% if GET_R %}
+        <number>{{ GET_R.number }}</number>
+        {% for visitor in GET_R.visitors %}
             <user sid="{{ visitor.sid }}">
                 <users_id>{% if visitor.user_id %}{{ visitor.users_id }}{% endif %}</users_id>
                 <visit_time>{{ visitor.visit_time }}</visit_time>
             </user>
         {% endfor %}
     {% endif %}
-    {% if POST %}
-        <res>{{ POST.res }}</res>
+    {% if POST_R %}
+        <res>{{ POST_R.res }}</res>
     {% endif %}
 </visitors>

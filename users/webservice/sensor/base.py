@@ -14,6 +14,7 @@ class SensorBaseResource(BaseXmlResource):
 
     login_required = {'get': False, 'post': False}
     date_format = "%Y-%m-%d"
+    time_field = None
 
     def _on_post(self, req, resp, conn, **kwargs):
         try:
@@ -34,9 +35,9 @@ class SensorBaseResource(BaseXmlResource):
 
         if from_:
             from_ = datetime.strptime(from_, self.date_format)
-            where['visit_time__>='] = from_
+            where['%s__>=' % self.time_field] = from_
         if to:
             to = datetime.strptime(to, self.date_format)
-            where['visit_time__<='] = to
+            where['%s__<' % self.time_field] = to
 
         return where

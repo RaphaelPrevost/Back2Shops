@@ -57,4 +57,5 @@ urlpatterns += patterns('',
     url(r'^taxes', include(settings.get_site_prefix()+'taxes.urls')),
     url(r'^countries', include(settings.get_site_prefix()+'countries.urls')),
     url(r'^promotion', include(settings.get_site_prefix()+'promotion.urls')),
+    url(r'^stats', include(settings.get_site_prefix()+'stats.urls')),
 )

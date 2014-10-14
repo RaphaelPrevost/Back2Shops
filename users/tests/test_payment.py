@@ -9,6 +9,7 @@ from models.actors.error import ActorError
 from models.actors.payment import ActorPayment
 from tests.base_order_test import BaseShipmentTestCase
 from B2SUtils import db_utils
+from B2SUtils.common import to_round
 from B2SProtocol.constants import TRANS_STATUS
 
 SKIP_REASON = "Please run backoffice server before running this test"
@@ -102,18 +103,36 @@ class TestPayment(BaseShipmentTestCase):
                                          wwwOrder)
         self._shipmentsCountCheck(id_order, 3)
 
+        item_tax = (to_round(item1_price * (1 + tax1)) - item1_price +
+                    to_round(item1_price * (1 + tax2)) - item1_price +
+                    to_round(item1_price * (1 + tax3)) - item1_price)
+        shipping_fee = item1_handling_fee + item1_shipping_fee
+        shipping_tax = to_round(shipping_fee * (1 +tax3)) - shipping_fee
+
         iv1_due = (item1_price +
-                   item1_price * (tax1 + tax2 + tax3) +
+                   item_tax +
                    (item1_handling_fee + item1_shipping_fee * 1) +
-                   (item1_handling_fee + item1_shipping_fee * 1) * tax3)
+                   shipping_tax)
+
+        item_tax = (to_round(item1_price * (1 + tax1)) - item1_price +
+                    to_round(item1_price * (1 + tax2)) - item1_price +
+                    to_round(item1_price * (1 + tax3)) - item1_price)
+        shipping_fee = item1_handling_fee + item1_shipping_fee
+        shipping_tax = to_round(shipping_fee * (1 +tax3)) - shipping_fee
         iv2_due = (item1_price +
-                   item1_price * (tax1 + tax2 + tax3) +
+                   item_tax +
                    (item1_handling_fee + item1_shipping_fee * 1) +
-                   (item1_handling_fee + item1_shipping_fee * 1) * tax3)
+                   shipping_tax)
+
+        item_tax = (to_round(item2_price * (1 + tax1)) - item2_price +
+                    to_round(item2_price * (1 + tax2)) - item2_price +
+                    to_round(item2_price * (1 + tax3)) - item2_price) * item2_quantity
+        shipping_fee = item2_handling_fee + item2_shipping_fee * item2_quantity
+        shipping_tax = to_round(shipping_fee * (1 +tax3)) - shipping_fee
         iv3_due = (item2_price * item2_quantity +
-                   item2_price * item2_quantity * (tax1 + tax2 + tax3) +
+                   item_tax +
                    (item2_handling_fee + item2_shipping_fee * item2_quantity) +
-                   (item2_handling_fee + item2_shipping_fee * item2_quantity) * tax3)
+                   shipping_tax)
 
         expect_due = (iv1_due + iv2_due + iv3_due)
         self.b.post_invoices(id_order)
