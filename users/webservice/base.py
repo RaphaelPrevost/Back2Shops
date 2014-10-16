@@ -46,7 +46,7 @@ class BaseResource(object):
         params = copy.copy(req._params)
         if params.get('password'):
             params['password'] = '******'
-        logging.info('Got %s requet at %s UTC, %s with params %s'
+        logging.info('Got %s request at %s UTC, %s with params %s'
                      % (req.method, datetime.utcnow(),
                         req.path, params))
 
@@ -63,7 +63,7 @@ class BaseResource(object):
             self.conn = conn
             try:
                 if self.login_required.get(method_name):
-                    self.users_id = cookie_verify(conn, req, resp)
+                    self._auth(conn, req, resp, **kwargs)
                     kwargs['users_id'] = self.users_id
                 self.language = detect_locale(
                     req.headers.get('accept-language', ''))
@@ -87,6 +87,9 @@ class BaseResource(object):
                 conn.rollback()
         gevent.spawn(log_visitors, conn, req, self.users_id)
         return data
+
+    def _auth(self, conn, req, resp, **kwargs):
+        self.users_id = cookie_verify(conn, req, resp)
 
     def _on_get(self, req, resp, conn, **kwargs):
         pass

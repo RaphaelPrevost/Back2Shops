@@ -33,6 +33,9 @@ from webservice.sensor.incomes import SensorIncomesResource
 from webservice.shops import ShopsResource
 from webservice.taxes import TaxesResource
 from webservice.types import TypesResource
+from webservice.vessel.search import SearchPortResource
+from webservice.vessel.search import SearchVesselResource
+from webservice.vessel.vessel import VesselDetailResource
 
 
 urlpatterns = {
@@ -72,6 +75,10 @@ urlpatterns = {
 
     '/webservice/1.0/protected/shipping/list': ShippingListResource,
     '/webservice/1.0/protected/shipment': ShipmentResource,
+
+    '/webservice/1.0/protected/vessel/search': SearchVesselResource,
+    '/webservice/1.0/protected/port/search': SearchPortResource,
+    '/webservice/1.0/protected/vessel/details': VesselDetailResource,
 
     r'/payment/paypal/{id_trans}/process': PaypalProcessResource,
     r'/payment/paypal/{id_trans}/gateway': PaypalGatewayResource,

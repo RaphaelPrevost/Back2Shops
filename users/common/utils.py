@@ -272,6 +272,25 @@ def encrypt_password(raw_password):
               "hash_iteration_count": hash_iteration_count}
     return auth_token, values
 
+
+def get_api_key(email, salt, hash_iteration_count,
+                algorithm=settings.DEFAULT_API_KEY_HASH_ALGORITHM):
+    return get_hexdigest(algorithm, hash_iteration_count, salt, email)
+
+def api_key_verify(conn, email, api_key):
+    result = db_utils.select(conn, "users",
+                             columns=("id", "salt", "hash_iteration_count"),
+                             where={'email': email.lower()},
+                             limit=1)
+    if len(result) == 0:
+        raise ValidationError('ERR_EMAIL')
+
+    users_id, salt, hash_count = result[0]
+    if api_key != get_api_key(email, salt, hash_count):
+        raise ValidationError('ERR_API_KEY')
+    return users_id
+
+
 def remote_xml_shipping_fee(carrier_services, weight, unit, dest,
                             id_address):
     uri = 'protected/shipping/fees'

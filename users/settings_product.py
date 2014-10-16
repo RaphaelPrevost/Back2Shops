@@ -6,6 +6,7 @@ ADM_ROOT_URI = "http://37.187.48.33"
 USR_ROOT_URI = "http://92.222.30.2"
 FIN_ROOT_URI = "http://92.222.30.3"
 FRONT_ROOT_URI = "http://92.222.30.5"
+VSL_ROOT_URI = "http://92.222.30.6"
 
 SALES_SERVER_API_URL = "%s/webservice/1.0/%%(api)s" % ADM_ROOT_URI
 FRONT_RESET_PASSWORD_URL = "%s/reset_password" % FRONT_ROOT_URI
@@ -14,6 +15,7 @@ SERVER_APIKEY_URI_MAP = {
     'USR': '%s/webservice/1.0/pub/apikey.pem' % USR_ROOT_URI,
     'ADM': '%s/webservice/1.0/pub/apikey.pem' % ADM_ROOT_URI,
     'FIN': '%s/webservice/1.0/pub/apikey.pem' % FIN_ROOT_URI,
+    'VSL': '%s/webservice/1.0/pub/apikey.pem' % VSL_ROOT_URI,
     'FRO': '%s/webservice/1.0/pub/apikey.pem' % FRONT_ROOT_URI,
 }
 
