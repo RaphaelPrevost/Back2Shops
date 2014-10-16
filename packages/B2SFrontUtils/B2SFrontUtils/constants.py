@@ -125,14 +125,17 @@ USR_API_SETTINGS = {
     },
     REMOTE_API_NAME.SEARCH_VESSEL: {
         'url': '/webservice/1.0/protected/vessel/search',
-        'method': HTTP_METHOD.GET
+        'method': HTTP_METHOD.GET,
+        'encrypt': False,
     },
     REMOTE_API_NAME.GET_VESSEL_DETAIL: {
         'url': '/webservice/1.0/protected/vessel/details',
-        'method': HTTP_METHOD.GET
+        'method': HTTP_METHOD.GET,
+        'encrypt': False,
     },
     REMOTE_API_NAME.SEARCH_PORT: {
         'url': '/webservice/1.0/protected/port/search',
-        'method': HTTP_METHOD.GET
+        'method': HTTP_METHOD.GET,
+        'encrypt': False,
     },
 }

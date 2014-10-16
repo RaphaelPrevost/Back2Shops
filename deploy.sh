@@ -682,6 +682,7 @@ function make_vesselfront_src_dir() {
     if [ -d $CWD/front -a ! -d $CWD/vesselfront_src ]; then
         cp -r $CWD/front $CWD/vesselfront_src
         cp $CWD/front/settings_product_vessel.py $CWD/vesselfront_src/settings.py
+        edit_product_settings $CWD/vesselfront_src/settings_product.py
         edit_product_settings $CWD/vesselfront_src/settings.py
         chown -R backtoshops.www-data $CWD/vesselfront_src
         chmod -R 2750 $CWD/vesselfront_src
@@ -713,8 +714,8 @@ function setup_vesselfront() {
         echo "(-) Creating Nginx Site..."
         cat > /etc/nginx/sites-available/vesselfront <<EOF
 server {
-    listen    $FRT_ADDR;
-    server_name    $FRT_DOMAIN;
+    listen    $VSLFRT_ADDR;
+    server_name    $VSLFRT_DOMAIN;
 
     rewrite ^/$ /vessel;
 
