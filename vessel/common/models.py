@@ -1,7 +1,16 @@
+import copy
 
 class BaseVesselObj(object):
     def toDict(self):
-        return self.__dict__
+        d = copy.deepcopy(self.__dict__)
+        for k in d:
+            if isinstance(d[k], BaseVesselObj):
+                d[k] = d[k].toDict()
+            if isinstance(d[k], list) and len(d[k]) > 0 \
+                    and isinstance(d[k][0], BaseVesselObj):
+                for index, subitem in enumerate(d[k]):
+                    d[k][index] = subitem.toDict()
+        return d
 
 class VesselInfo(BaseVesselObj):
     def __init__(self, **kwargs):
@@ -32,7 +41,7 @@ class VesselDetailInfo(VesselInfo):
         self.arrival_locode = kwargs.get('arrival_locode', '')
         self.arrival_time = kwargs.get('arrival_time', '')
         self.status = kwargs.get('status', '')
-        self.positions = [VesselPos(**pos).toDict()
+        self.positions = [VesselPos(**pos)
                           for pos in kwargs.get('positions', [])]
 
 class PortInfo(BaseVesselObj):

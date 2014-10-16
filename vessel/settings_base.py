@@ -4,7 +4,7 @@ SERVER_PORT = 8700
 
 DATABASE = {
     'NAME': 'vessel',
-    'USER': 'bts',
+    'USER': 'postgres',
     'PASSWORD': '',
     'HOST': 'localhost',
     'PORT': '5432',

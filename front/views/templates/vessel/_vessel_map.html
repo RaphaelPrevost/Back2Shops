@@ -3,9 +3,9 @@
     <div id="search_input">
         <form id="searchForm" name="searchForm" action="/vessel/search" method="POST">
             <label for="search_vessel">Vessel</label>
-            <input id="search_vessel" name="vessel" type="text" placeholder="Search IMO, MMSI or Name" />
+            <input id="search_vessel" name="vessel_input" type="text" placeholder="Search IMO, MMSI or Name" value="${vessel_input}" />
             <label for="search_port">Port</label>
-            <input id="search_port" name="port" type="text" placeholder="Search LOCODE or Name" />
+            <input id="search_port" name="port_input" type="text" placeholder="Search LOCODE or Name" value="${port_input}"/>
             <input name="search" type="submit" value="SEARCH" />
         </form>
     </div>
@@ -14,6 +14,8 @@
             <?py pos=v['positions'][0] ?>
             <div class="vessel_item">
                 <div>
+                    <?py img = v['photos'][0] if v['photos'] and len(v['photos']) > 0 else '' ?>
+                    <img src="${img}"/>
                     <a name="${v['name']}" lat="${pos['latitude']}" lon="${pos['longitude']}" href="#">${v['name']} (${v['country_name']}) </a>
                 </div>
                 <div>IMO: ${v['imo']}, MMSI: ${v['mmsi']}, CallSign: ${v['cs']}</div>

@@ -15,6 +15,8 @@ class VesselHomepageResource(BaseHtmlResource):
         return {
             'vessels': vessels,
             'ports': ports,
+            'vessel_input': '',
+            'port_input': '',
         }
 
 
@@ -24,20 +26,22 @@ class SearchResource(BaseHtmlResource):
     def _on_post(self, req, resp, **kwargs):
         vessels = []
         ports = []
-        if req.get_param('vessel'):
+        if req.get_param('vessel_input'):
             vessels = self.search_vessel(req, resp)
-        elif req.get_param('port'):
+        elif req.get_param('port_input'):
             ports = self.search_port(req, resp)
         else:
             pass
         return {
             'vessels': vessels,
             'ports': ports,
+            'vessel_input': req.get_param('vessel_input') or '',
+            'port_input': req.get_param('port_input') or '',
         }
 
     def search_vessel(self, req, resp):
         vessels = []
-        query = req.get_param('vessel')
+        query = req.get_param('vessel_input')
         if query.isdigit():
             for search_by in ('imo', 'mmsi'):
                 result = data_access(REMOTE_API_NAME.SEARCH_VESSEL,
@@ -57,7 +61,7 @@ class SearchResource(BaseHtmlResource):
 
     def search_port(self, req, resp):
         ports = []
-        query = req.get_param('port')
+        query = req.get_param('port_input')
         for search_by in ('locode', 'name'):
             result = data_access(REMOTE_API_NAME.SEARCH_PORT,
                                  req, resp,

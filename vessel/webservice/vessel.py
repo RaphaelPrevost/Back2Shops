@@ -14,7 +14,7 @@ from webservice.base import BaseJsonResource
 
 def query_details(conn, search_by, q):
     sql = """
-        select vessel.name, imo, mmsi, cs, type, country_isocode, country.name, photos
+        select vessel.name, imo, mmsi, cs, type, country_isocode, country.printable_name, photos,
                departure_portname, departure_locode, departure_time,
                arrival_portname, arrival_locode, arrival_time, status,
                location, longitude, latitude, heading, time
@@ -24,7 +24,7 @@ def query_details(conn, search_by, q):
         join vessel_position
            on (vessel_navigation.id=vessel_position.id_vessel_navigation)
         left join country
-           on (vessel.country_isocode=country.name)
+           on (vessel.country_isocode=country.iso)
         where vessel.%s=%%s
           and vessel_position.time > now() - interval '%s seconds'
         order by vessel_position.time desc limit 1
@@ -33,33 +33,35 @@ def query_details(conn, search_by, q):
     if search_by != 'name':
         detail = db_utils.query(conn, sql, (q,))
         if len(detail) > 0:
-            item = detail[0]
-            detail_obj = VesselDetailInfo(
-                name=item[0],
-                imo=item[1],
-                mmsi=item[2],
-                cs=item[3],
-                type=item[4],
-                country_isocode=item[5],
-                country_name=item[6],
-                photos=ujson.loads(item[7]),
+            detail_results = []
+            for item in detail:
+                detail_obj = VesselDetailInfo(
+                    name=item[0],
+                    imo=item[1],
+                    mmsi=item[2],
+                    cs=item[3],
+                    type=item[4],
+                    country_isocode=item[5],
+                    country_name=item[6],
+                    photos=ujson.loads(item[7]),
 
-                departure_portname=item[8],
-                departure_locode=item[9],
-                departure_time=item[10],
-                arrival_portname=item[11],
-                arrival_locode=item[12],
-                arrival_time=item[13],
-                status=item[14],
-                positions=[{
-                    'location': item[15],
-                    'longitude': item[16],
-                    'latitude': item[17],
-                    'heading': item[18],
-                    'time': item[19],
-                }],
-            )
-            return detail_obj.toDict()
+                    departure_portname=item[8],
+                    departure_locode=item[9],
+                    departure_time=item[10],
+                    arrival_portname=item[11],
+                    arrival_locode=item[12],
+                    arrival_time=item[13],
+                    status=item[14],
+                    positions=[{
+                        'location': item[15],
+                        'longitude': item[16],
+                        'latitude': item[17],
+                        'heading': item[18],
+                        'time': item[19],
+                    }],
+                )
+                detail_results.append(detail_obj.toDict())
+            return detail_results
 
     detail_results = getDs().getVesselInfo(**{search_by: q})
     for d in detail_results:
@@ -105,7 +107,6 @@ def _save_result(conn, detail_obj):
     id_navi = db_utils.insert(conn, "vessel_navigation",
                               values=navi_values, returning='id')[0]
     for pos in detail_obj.positions:
-        pos = VesselPos(**pos)
         pos_values = {
             'id_vessel_navigation': id_navi,
             'location': pos.location,
