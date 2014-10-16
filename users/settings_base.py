@@ -24,6 +24,7 @@ CENTRAL_REDIS = {
 DEFAULT_REDIS_CACHE_TTL = 15 * 60 # now it's used for only TypesCacheProxy
 
 DEFAULT_PASSWORD_HASH_ALGORITHM = HASH_ALGORITHM.WHIRLPOOL
+DEFAULT_API_KEY_HASH_ALGORITHM = HASH_ALGORITHM.SHA256
 HASH_MIN_ITERATIONS = 2
 HASH_MAX_ITERATIONS = 256
 USER_CREATION_CAPTCHA = "1234" # temporary solution for now
@@ -40,6 +41,7 @@ HMAC_KEY_FILE_PATH = 'hmac.pem'
 ADM_ROOT_URI = "http://localhost:8000"
 USR_ROOT_URI = "http://localhost:8100"
 FIN_ROOT_URI = "http://localhost:9000"
+VSL_ROOT_URI = "http://localhost:8700"
 FRONT_ROOT_URI = "http://localhost:9500"
 
 SALES_SERVER_API_URL = "%s/webservice/1.0/%%(api)s" % ADM_ROOT_URI
@@ -47,6 +49,7 @@ SALES_SERVER_API_URL = "%s/webservice/1.0/%%(api)s" % ADM_ROOT_URI
 SERVER_APIKEY_URI_MAP = {
     'ADM': os.path.join(ADM_ROOT_URI, 'webservice/1.0/pub/apikey.pem'),
     'FIN': os.path.join(FIN_ROOT_URI, 'webservice/1.0/pub/apikey.pem'),
+    'VSL': os.path.join(VSL_ROOT_URI, 'webservice/1.0/pub/apikey.pem'),
     'FRO': os.path.join(FRONT_ROOT_URI, 'webservice/1.0/pub/apikey.pem'),
 }
 
