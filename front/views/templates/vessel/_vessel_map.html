@@ -1,0 +1,78 @@
+<div id="map" class="floater left"></div>
+<div id="search" class="floater right">
+    <div id="search_input">
+        <form id="searchForm" name="searchForm" action="/vessel/search" method="POST">
+            <label for="search_vessel">Vessel</label>
+            <input id="search_vessel" name="vessel" type="text" placeholder="Search IMO, MMSI or Name" />
+            <label for="search_port">Port</label>
+            <input id="search_port" name="port" type="text" placeholder="Search LOCODE or Name" />
+            <input name="search" type="submit" value="SEARCH" />
+        </form>
+    </div>
+    <div id="search_result">
+        <?py for v in vessels: ?>
+            <?py pos=v['positions'][0] ?>
+            <div class="vessel_item">
+                <div>
+                    <a name="${v['name']}" lat="${pos['latitude']}" lon="${pos['longitude']}" href="#">${v['name']} (${v['country_name']}) </a>
+                </div>
+                <div>IMO: ${v['imo']}, MMSI: ${v['mmsi']}, CallSign: ${v['cs']}</div>
+                <div>Type: ${v['type']}</div>
+                <div class="navi">
+                    <div>Navigation: ${v['departure_portname']} --> ${v['arrival_portname']}</div>
+                    <div>ATD: ${v['departure_time']}</div>
+                    <div>ETA: ${v['arrival_time']}</div>
+                    <div>Navigation Status: ${v['status']}</div>
+                    <div>Location: ${pos['location']}</div>
+                </div>
+            </div>
+        <?py #endfor ?>
+        <?py for p in ports: ?>
+            <div class="port_item">
+                <div>Port: ${p['name']}</div>
+                <div>Country: ${p['country_name']}</div>
+                <div>LOCODE: ${p['locode']}</div>
+            </div>
+        <?py #endfor ?>
+    </div>
+</div>
+
+<script>
+var map = L.map('map');
+
+function view(lat, lon, zoom) {
+    if (zoom == undefined) zoom = 5;
+    map.setView([lat, lon], zoom);
+
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+}
+function mark(lat, lon, popup) {
+    var marker = L.marker([lat, lon]).addTo(map);
+    marker.bindPopup(popup);
+    marker.on('click', function(e) {
+        marker.openPopup();
+    });
+}
+
+$(function() {
+    if ($('#search_result .vessel_item a').length == 0)
+        view(0, 0, 2);
+
+    $('#search_result .vessel_item a').each(function(){
+        var popup = $(this).parent().parent();
+        mark($(this).attr('lat'), $(this).attr('lon'), popup.html());
+        popup.find('.navi').hide();
+
+        if ($('#search_result .vessel_item a')[0] == this)
+            view($(this).attr('lat'), $(this).attr('lon'), 2);
+    });
+
+    $('#search_result .vessel_item a').click(function(){
+        view($(this).attr('lat'), $(this).attr('lon'));
+    });
+});
+
+</script>
+

@@ -1,0 +1,74 @@
+#header {
+	position: relative;
+	height: 25px;
+	margin-bottom: 15px; 
+	border-bottom: 1px solid #A7ACCD;
+}
+#linkHead {
+	position: absolute;
+	right: 0px;
+	text-align: right;
+}
+
+.floater {
+	display: block;
+	min-height: 200px;
+	margin: 20px 0 20px 0;
+	border: 1px solid #dbdbdb;
+	background-color: #f9f8f8;
+} 
+.floater.left {
+    float: left;
+    width: 70%;
+}
+.floater.right {
+    float: right;
+    width: 28%;
+    min-width: 350px; 
+ }
+.floater label {
+	display: inline-block;
+	margin-left: 12px;
+	width: 30px; height: 25px; 
+	line-height: 25px;
+}
+.floater input {
+	display: inline-block;
+	margin: 12px 12px;
+	padding: 0px 12px;
+	width: 250px; height: 25px; 
+	line-height: 25px;
+	color: #666666; border: 1px solid #e5e5e5;
+} 
+
+#map {
+    height: 600px;
+}
+
+#search {
+    height: 600px;
+    overflow: scroll;
+}
+
+#search_result .port_item,
+#search_result .vessel_item {
+	border-top: 1px solid #e5e5e5;
+	margin: 12px 20px 12px 20px;
+	padding: 12px 12px 12px 12px;
+	width: 250px; height: 30px; 
+	line-height: 25px;
+    font-size: 12px;
+}
+
+#loginForm input {
+	margin: 5px 12px;
+	padding: 0px 12px;
+    width: 200px;
+    height: 30px;
+}
+#registerForm input {
+	margin: 5px 12px;
+	padding: 0px 12px;
+    width: 200px;
+    height: 30px;
+}

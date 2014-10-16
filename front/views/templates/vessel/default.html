@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+<head>
+    <title>Testing</title>
+    <meta charset="UTF-8">
+    <script type="text/javascript">
+        #{set_cookies_js}
+    </script>
+
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/jquery-ui-1.10.4.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="/templates/vessel/css/main.css" />
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+
+    <script type="text/javascript" src="/js/jquery-1.10.2.js"></script>
+    <script type="text/javascript" src="/js/jquery-ui-1.10.4.js"></script>
+    <script type="text/javascript" src="/js/utils.js"></script>
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+</head>
+<body>
+    <!--WRAPPER-->
+    <div id="wrapper">
+        <!--HEADER-->
+        <header id="header" role="banner">
+            <div id="linkHead">
+                <?py if users_id: ?>
+                <a href="/vessel">My Fleet</a>
+                <a href="javascript:logout()">Logout</a>
+                <?py else: ?>
+                <a href="javascript:toLogin()">Login</a>
+                <?py #endif ?>
+            </div>
+            <script>
+            function logout() {
+                document.cookie = "USER_AUTH=\"\";path=\"/\"";
+                location = "${logout_url_format}";
+            }
+            </script>
+        </header>
+        <!--//HEADER-->
+
+        <div id="dialog-login" title="Login">
+            <?py include('login.html') ?>
+        </div>
+        <div id="dialog-register" title="Register">
+            <?py include('registration.html') ?>
+        </div>
+
+        <!--CONTENT-->
+        #{_content}
+        <!--//CONTENT-->
+
+        <!--FOOTER-->
+        <footer id="footer" role="contentinfo">
+        </footer>
+        <!--//FOOTER-->
+
+    </div>
+</body>
+</html>

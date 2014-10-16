@@ -19,6 +19,7 @@ BRAND_NAME = "BREUER"
 
 TEMPLATE_PATH = ['views/templates/breuer']
 #TEMPLATE_PATH = ['views/templates/dragondollar', 'views/templates/breuer']
+#TEMPLATE_PATH = ['views/templates/vessel', 'views/templates/breuer']
 DEFAULT_TEMPLATE = 'default.html'
 
 DEFAULT_LANG = 'fr'

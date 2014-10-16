@@ -32,6 +32,11 @@ class REMOTE_API_NAME(CustomEnum):
     PAYMENT_FORM = "PAYMENT_FORM"
     GET_TAXES = "GET_TAXES"
 
+    SEARCH_VESSEL = "SEARCH_VESSEL"
+    GET_VESSEL_DETAIL = "GET_VESSEL_DETAIL"
+    SEARCH_PORT = "SEARCH_PORT"
+
+
 class HTTP_METHOD(CustomEnum):
     GET = "GET"
     POST = "POST"
@@ -116,6 +121,18 @@ USR_API_SETTINGS = {
     },
     REMOTE_API_NAME.GET_TAXES: {
         'url': '/webservice/1.0/private/taxes/list',
+        'method': HTTP_METHOD.GET
+    },
+    REMOTE_API_NAME.SEARCH_VESSEL: {
+        'url': '/webservice/1.0/protected/vessel/search',
+        'method': HTTP_METHOD.GET
+    },
+    REMOTE_API_NAME.GET_VESSEL_DETAIL: {
+        'url': '/webservice/1.0/protected/vessel/details',
+        'method': HTTP_METHOD.GET
+    },
+    REMOTE_API_NAME.SEARCH_PORT: {
+        'url': '/webservice/1.0/protected/port/search',
         'method': HTTP_METHOD.GET
     },
 }

@@ -44,3 +44,6 @@
 
 == version 0.0.15 ==
 1. add more arguments to filter taxes in TaxesCacheProxy
+
+== version 0.0.16 ==
+1. add vessels api constants

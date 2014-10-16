@@ -1,0 +1,51 @@
+<form id="registerForm" name="registerForm" method="POST">
+    <div class="errwrapper">&nbsp;</div>
+    <div>
+        <input type="text" name="email" id="email" placeholder="${{_('EMAIL')}}" class="text ui-widget-content ui-corner-all">
+    </div>
+    <div>
+        <input type="password" name="password" id="password" placeholder="${{_('PASSWORD')}}" class="text ui-widget-content ui-corner-all">
+    </div>
+    <div>
+        <input type="password" name="password2" id="password2" placeholder="${{_('VERIFY_PASSWORD')}}" class="text ui-widget-content ui-corner-all">
+    </div>
+    <br/>
+    <div>
+        <a style="text-decoration:underline" href="javascript:toLogin();">Have account ? login here</a>
+    </div>
+</form>
+
+<script>
+function toLogin() {
+    $("#dialog-register").dialog('close');
+    $("#dialog-login").dialog('open');
+}
+
+$(function() {
+    $( "#dialog-register" ).dialog({
+        autoOpen: false,
+        height: 360,
+        modal: true,
+        buttons: {
+            ${{_('REGISTER')}}: function() {
+                $.post('/ajax_register',
+                    $("#registerForm").serializeArray(),
+                    function(data) {
+                        if (data['res'] == 'FAILURE') {
+                            $("#registerForm .errwrapper").text(data['err']);
+                        } else {
+                            if (data['set_cookies_js']) {
+                                eval(data['set_cookies_js']);
+                            }
+                            location = '/vessel';
+                        }
+                    }
+                )
+            },
+            "Cancel": function() {
+                $(this).dialog("close");
+            }
+        }
+    });
+});
+</script>
