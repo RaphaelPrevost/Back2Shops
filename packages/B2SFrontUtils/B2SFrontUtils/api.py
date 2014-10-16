@@ -20,8 +20,10 @@ def remote_call(usr_root_uri, api_name,
     try:
         url = usr_root_uri + USR_API_SETTINGS[api_name]['url']
         method = USR_API_SETTINGS[api_name]['method']
+        encrypt = USR_API_SETTINGS[api_name].get('encrypt')
+        if encrypt is None:
+            encrypt = re.search('/(private|protected)/', url)
         headers = generate_remote_req_headers(req, resp)
-        encrypt = re.search('/(private|protected)/', url)
 
         remote_resp = _request_remote_server(
             url, method, kwargs, headers,

@@ -22,6 +22,7 @@ USR_REQUIREMENT=$CWD/requirements/usr.backtoshops.com.requirements.txt
 FIN_REQUIREMENT=$CWD/requirements/finance.backtoshops.com.requirements.txt
 AST_REQUIREMENT=$CWD/requirements/assets.backtoshops.com.requirements.txt
 FRT_REQUIREMENT=$CWD/requirements/front.requirements.txt
+VSL_REQUIREMENT=$CWD/requirements/vessel.backtoshops.com.requirements.txt
 
 ADM_DEPS=(psmisc libapache2-mod-wsgi python2.7-dev libpq-dev python-pip git \
           libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev \
@@ -34,6 +35,7 @@ FIN_DEPS=(psmisc nginx python2.7-dev libpq-dev python-pip git python-lxml \
           libxml2-dev libxslt1-dev)
 AST_DEPS=(psmisc nginx python2.7-dev python-pip git)
 FRT_DEPS=(psmisc nginx python2.7-dev python-pip git sendmail sendmail-cf)
+VSL_DEPS=(psmisc nginx python2.7-dev python-pip git)
 DPKG=$(dpkg -l)
 
 INITDB=${INITDB:-""}
@@ -54,6 +56,7 @@ function edit_product_settings() {
     sed -i -e "s|92.222.30.3|$FIN_ADDR|g" $1
     sed -i -e "s|92.222.30.4|$AST_ADDR|g" $1
     sed -i -e "s|92.222.30.5|$FRT_ADDR|g" $1
+    sed -i -e "s|92.222.30.6|$VSL_ADDR|g" $1
 }
 
 function usage() {
@@ -609,6 +612,157 @@ function deploy_front() {
 }
 
 
+########## vessel related functions ##########
+function make_vsl_src_dir() {
+    # remove old sourcecode
+    [ -d $CWD/vessel -a -d $CWD/vessel_src ] && rm -rf $CWD/vessel_src
+
+    if [ -d $CWD/vessel -a ! -d $CWD/vessel_src ]; then
+        cp -r $CWD/vessel $CWD/vessel_src
+        cp $CWD/vessel/settings_product.py $CWD/vessel_src/settings.py
+        edit_product_settings $CWD/vessel_src/settings.py
+        chown -R backtoshops.www-data $CWD/vessel_src
+        chmod -R 2750 $CWD/vessel_src
+    fi
+}
+
+function setup_vsl() {
+    cd $CWD/vessel_src/
+    source $CWD/env/bin/activate
+
+    # edit the settings if needed
+
+    # db
+    if [ ! -z $RESETDB ]; then
+        source ./dbconf.sh
+        bash setupdb.sh $DBNAME
+    fi
+
+    # start server
+    PORT=8700
+    SERVER=vessel_server
+    ps aux | grep $PORT | grep $SERVER | grep -v grep | awk '{print $2}' | xargs kill -9 || echo "no uwsgi process to kill"
+    sleep 1
+    start_uwsgi $PORT $SERVER
+
+    # nginx
+    if [ ! -r /etc/nginx/sites-available/vessel ]; then
+        echo "(-) Creating Nginx Site..."
+        cat > /etc/nginx/sites-available/vessel <<EOF
+server {
+    listen    $VSL_ADDR;
+    server_name    $VSL_DOMAIN;
+    location / {
+        include uwsgi_params;
+        uwsgi_pass 127.0.0.1:8700;
+        uwsgi_param SCRIPT_NAME '';
+    }
+}
+EOF
+        ln -s /etc/nginx/sites-available/vessel /etc/nginx/sites-enabled/
+    else
+        echo "(i) Nginx Server OK"
+    fi
+    service nginx restart
+}
+
+function deploy_vessel() {
+    sanity_checks $VSL_REQUIREMENT "${VSL_DEPS[*]}"
+    create_python_env $VSL_REQUIREMENT
+    make_vsl_src_dir
+    setup_vsl
+    echo "(i) Deploy vessel server finished"
+}
+
+########## vesselfront related functions ##########
+function make_vesselfront_src_dir() {
+    # remove old sourcecode
+    [ -d $CWD/front -a -d $CWD/vesselfront_src ] && rm -rf $CWD/vesselfront_src
+
+    if [ -d $CWD/front -a ! -d $CWD/vesselfront_src ]; then
+        cp -r $CWD/front $CWD/vesselfront_src
+        cp $CWD/front/settings_product_vessel.py $CWD/vesselfront_src/settings.py
+        edit_product_settings $CWD/vesselfront_src/settings.py
+        chown -R backtoshops.www-data $CWD/vesselfront_src
+        chmod -R 2750 $CWD/vesselfront_src
+    fi
+
+    if [ ! -d $CWD/vesselfront_files ]; then
+        mkdir $CWD/vesselfront_files
+        chown -R backtoshops.www-data $CWD/vesselfront_files
+        chmod -R 2770 $CWD/vesselfront_files
+    fi
+    cp -r $CWD/front/static/css $CWD/vesselfront_files/
+    cp -r $CWD/front/static/js $CWD/vesselfront_files/
+    cp -r $CWD/front/static/img $CWD/vesselfront_files/
+}
+
+function setup_vesselfront() {
+    cd $CWD/vesselfront_src/
+    source $CWD/env/bin/activate
+
+    # start server
+    PORT=9501
+    SERVER=front_server
+    ps aux | grep $PORT | grep $SERVER | grep -v grep | awk '{print $2}' | xargs kill -9 || echo "no uwsgi process to kill"
+    sleep 1
+    start_uwsgi $PORT $SERVER
+
+    # nginx
+    if [ ! -r /etc/nginx/sites-available/vesselfront ]; then
+        echo "(-) Creating Nginx Site..."
+        cat > /etc/nginx/sites-available/vesselfront <<EOF
+server {
+    listen    $FRT_ADDR;
+    server_name    $FRT_DOMAIN;
+
+    rewrite ^/$ /vessel;
+
+    location /img/ {
+        alias /home/backtoshops/vesselfront_files/img/;
+        autoindex off;
+    }
+    location /js/ {
+        alias /home/backtoshops/vesselfront_files/js/;
+        autoindex off;
+    }
+    location /css/ {
+        alias /home/backtoshops/vesselfront_files/css/;
+        autoindex off;
+    }
+    location /templates/ {
+        alias /home/backtoshops/vesselfront_src/views/templates/;
+        autoindex off;
+    }
+    location /webservice/1.0/pub/apikey.pem {
+        alias /home/backtoshops/vesselfront_src/static/keys/front_pub.key;
+        autoindex off;
+    }
+    location / {
+        include uwsgi_params;
+        uwsgi_pass 127.0.0.1:9501;
+        uwsgi_param SCRIPT_NAME '';
+    }
+}
+EOF
+        ln -s /etc/nginx/sites-available/vesselfront /etc/nginx/sites-enabled/
+    else
+        echo "(i) Nginx Server OK"
+    fi
+
+    sleep 1
+    service nginx restart
+}
+
+function deploy_vesselfront() {
+    sanity_checks $FRT_REQUIREMENT "${FRT_DEPS[*]}"
+    create_python_env $FRT_REQUIREMENT
+    make_vesselfront_src_dir
+    setup_vesselfront
+    echo "(i) Deploy vesselfront server finished"
+}
+
+
 function restart_servers() {
     service apache2 restart
 
@@ -667,6 +821,10 @@ case $1 in
             ;;
         testdata)
             deploy_test
+            ;;
+        vessels)
+            deploy_vessel
+            deploy_vesselfront
             ;;
         *)
             usage

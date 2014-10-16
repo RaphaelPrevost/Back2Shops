@@ -1,0 +1,46 @@
+<form id="loginForm" name="loginForm" method="POST">
+    <div class="errwrapper">&nbsp;</div>
+    <div>
+        <input type="text" name="email" id="email" placeholder="${{_('EMAIL')}}" class="text ui-widget-content ui-corner-all">
+        <input type="password" name="password" id="password" placeholder="${{_('PASSWORD')}}" class="text ui-widget-content ui-corner-all">
+    </div>
+    <br/>
+    <div>
+        <a style="text-decoration:underline" href="javascript:toRegister();">No account ? register here</a>
+    </div>
+</form>
+
+<script>
+function toRegister() {
+    $("#dialog-login").dialog('close');
+    $("#dialog-register").dialog('open');
+}
+
+$(function() {
+    $( "#dialog-login" ).dialog({
+        autoOpen: false,
+        height: 300,
+        modal: true,
+        buttons: {
+            ${{_('LOGIN')}}: function() {
+                $.post('/ajax_login',
+                    $("#loginForm").serializeArray(),
+                    function(data) {
+                        if (data['res'] == 'FAILURE') {
+                            $("#loginForm .errwrapper").text(data['err']);
+                        } else {
+                            if (data['set_cookies_js']) {
+                                eval(data['set_cookies_js']);
+                            }
+                            location = '/vessel';
+                        }
+                    }
+                )
+            },
+            "Cancel": function() {
+                $(this).dialog("close");
+            }
+        }
+    });
+});
+</script>

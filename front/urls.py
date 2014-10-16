@@ -8,6 +8,7 @@ from common.data_access import data_access
 from views import error
 from views import email
 from views import homepage
+from views import vessel
 from views.basket import BasketAPIResource
 from views.basket import BasketResource
 from views.homepage import HomepageResource
@@ -42,6 +43,7 @@ from views.user import UserAPIResource
 from views.user import UserAuthResource
 from views.user import UserLogoutResource
 from views.user import UserResource
+from views.vessel import VesselHomepageResource
 from webservice import crypto
 from webservice import download
 from webservice.aux import AuxResource
@@ -134,6 +136,9 @@ fixed_urlpatterns = {
     r'/new_user_email': email.NewUserEmailResource,
     r'/orders/{id_order}/email': email.OrderEmailResource,
     r'/reset_password_email': email.ResetPwdEmailResource,
+
+    r'/vessel': vessel.VesselHomepageResource,
+    r'/vessel/search': vessel.SearchResource,
 }
 
 
