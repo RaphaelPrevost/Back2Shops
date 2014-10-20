@@ -1,5 +1,4 @@
 import logging
-import gevent
 import ujson
 import xmltodict
 from collections import defaultdict
