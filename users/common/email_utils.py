@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import settings
 import gevent
 import ujson
@@ -14,6 +15,18 @@ def send_html_email(to, subject, content):
     if not settings.SEND_EMAILS:
         return
     send_email(settings.SERVICE_EMAIL, to, subject, content, settings)
+
+def send_order_email_to_service():
+    gevent.spawn(send_html_email,
+                 settings.SERVICE_EMAIL,
+                 "Nouvelle commande",
+"""
+Bonjour,
+
+Une nouvelle commande a été effectuée et doit être traitée en backoffice.
+
+Merci !
+""")
 
 def send_order_email(conn, id_order):
     order_resp = get_order_detail(conn, id_order, 0)
