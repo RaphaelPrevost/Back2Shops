@@ -49,3 +49,6 @@
 == version 0.0.15 ==
 1. Add constant SESSION_COOKIE_NAME
 2. Add constant EXPIRY_FORMAT
+
+== version 0.0.16 ==
+1. Add constant INVOICE_STATUS

@@ -61,6 +61,12 @@ class TRANS_PAYPAL_STATUS (CustomEnum):
     COMPLETED = 'completed'
     PENDING = 'pending'
 
+class INVOICE_STATUS(CustomEnum):
+    INVOICE_OPEN = 1
+    INVOICE_PART = 2
+    INVOICE_VOID = 3
+    INVOICE_PAID = 4
+    INVOICE_LATE = 5
 
 FREE_SHIPPING_CARRIER = -1
 CUSTOM_SHIPPING_CARRIER = 0

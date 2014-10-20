@@ -77,9 +77,6 @@
                 <!--INFOS VENTE-->
                 <div class="content">
                     <a class="imgProd" href="#">
-                        {% thumbnail order.thumbnail_img "40x43" as im %}
-                            <img style='margin:{{ im|margin:"40x43" }}' src="{{ im.url }}" alt='{% trans "Product picture" %} {{ order.items.values.0.name }}' width="{{ im.x }}" height="{{ im.y }}"/>
-                        {% endthumbnail %}
                     </a>
                     <div class="address_area">
                         <em>{% if order.shipping_dest.full_name %}

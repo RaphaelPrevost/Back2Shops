@@ -110,9 +110,9 @@ class ShipmentResource(BaseJsonResource):
             # create manually shipment
             id_shipment = create_shipment(
                 conn,
-                id_order=id_order,
-                id_brand=id_brand,
-                id_shop=id_shop,
+                id_order,
+                id_brand,
+                id_shop,
                 status=SHIPMENT_STATUS.PACKING,
                 handling_fee=handling_fee,
                 shipping_fee=shipping_fee,

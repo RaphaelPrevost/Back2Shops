@@ -1,0 +1,39 @@
+<?xml version="1.0" standalone="yes"?>
+<orders version="1.0">
+    {% if error %}
+        <error>{{ error }}</error>
+    {% endif %}
+    {% if GET_R %}
+        {% for obj in GET_R.objects %}
+            <log id="{{ obj.id }}">
+                <users_id>{{ obj.users_id }}</users_id>
+                <id_order>{{ obj.id_order }}</id_order>
+                <id_brand>{{ obj.id_brand }}</id_brand>
+                <id_shop>{{ obj.id_shop }}</id_shop>
+                <pending_date>
+                    {% if obj.pending_date %}
+                        {{ obj.pending_date }}
+                    {% endif %}
+                </pending_date>
+                <waiting_payment_date>
+                    {% if obj.waiting_payment_date %}
+                        {{ obj.waiting_payment_date }}
+                    {% endif %}
+                </waiting_payment_date>
+                <waiting_shipping_date>
+                    {% if obj.waiting_shipping_date %}
+                        {{ obj.waiting_shipping_date }}
+                    {% endif %}
+                </waiting_shipping_date>
+                <completed_date>
+                    {% if obj.completed_date %}
+                        {{ obj.completed_date }}
+                    {% endif %}
+                </completed_date>
+            </log>
+        {% endfor %}
+    {% endif %}
+    {% if POST_R %}
+        <res>{{ POST_R.res }}</res>
+    {% endif %}
+</orders>

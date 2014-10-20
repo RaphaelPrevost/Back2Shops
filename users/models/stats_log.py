@@ -11,52 +11,57 @@ from B2SUtils.common import set_cookie, get_cookie
 
 
 ##### visitors statistics log #####
-def _up_visitors(conn, sid, users_id):
-    db_utils.update(conn,
-                    'visitors_log',
-                    {'users_id': users_id},
-                    where={'sid': sid})
-    conn.commit()
+def _up_visitors(sid, users_id):
+    with db_utils.get_conn() as conn:
+        db_utils.update(conn,
+                        'visitors_log',
+                        {'users_id': users_id},
+                        where={'sid': sid})
+        conn.commit()
 
-def _log_visitors(conn, users_id, sid):
-    values = {'sid': sid}
-    if users_id:
-        values['users_id'] = int(users_id)
-    insert(conn, 'visitors_log', values=values)
-    conn.commit()
+def _log_visitors(users_id, sid):
+    with db_utils.get_conn() as conn:
+        values = {'sid': sid}
+        if users_id:
+            values['users_id'] = int(users_id)
+        insert(conn, 'visitors_log', values=values)
+        conn.commit()
 
-def log_visitors(conn, req, users_id):
-    cookie = get_cookie(req)
-    session = cookie and cookie.get(SESSION_COOKIE_NAME)
-    if not session:
-        return
+def log_visitors(req, users_id):
+    try:
+        cookie = get_cookie(req)
+        session = cookie and cookie.get(SESSION_COOKIE_NAME)
+        if not session:
+            return
 
-    session = cookie and cookie.get(SESSION_COOKIE_NAME)
-    session = session and session.value.split('&')
-    session = session and [tuple(field.split('='))
-                           for field in session if field]
-    session = session and dict(session)
-    sid = session and session['sid'] or None
-    exp = (session and
-           datetime.strptime(session['exp'], EXPIRY_FORMAT) or
-           None)
-    now = datetime.utcnow()
+        session = cookie and cookie.get(SESSION_COOKIE_NAME)
+        session = session and session.value.split('&')
+        session = session and [tuple(field.split('='))
+                               for field in session if field]
+        session = session and dict(session)
+        sid = session and session['sid'] or None
+        exp = (session and
+               datetime.strptime(session['exp'], EXPIRY_FORMAT) or
+               None)
+        now = datetime.utcnow()
 
-    cli = get_redis_cli()
-    delta = exp - now
-    name = 'SID:%s' % sid
+        cli = get_redis_cli()
+        delta = exp - now
+        name = 'SID:%s' % sid
 
-    if exp and now < exp:
-        if not cli.exists(name):
-            _log_visitors(conn, users_id, sid)
+        if exp and now < exp:
+            if not cli.exists(name):
+                _log_visitors(users_id, sid)
+            else:
+                u_id = cli.get(name)
+                if u_id is None and users_id:
+                    _up_visitors(sid, users_id)
         else:
-            u_id = cli.get(name)
-            if u_id is None and users_id:
-                _up_visitors(conn, sid, users_id)
-    else:
-        _log_visitors(conn, users_id, sid)
+            _log_visitors(users_id, sid)
 
-    cli.setex(name, users_id, delta)
+        cli.setex(name, users_id, delta)
+    except Exception, e:
+        logging.error('log_visitors_err: %s', e, exc_info=True)
 
 
 ##### incomes statistics #####
@@ -75,13 +80,12 @@ def log_incomes(conn, iv_id):
         id_user = r[0][0]
 
         insert(conn, 'incomes_log',
-               values={'id_order': id_order,
-                       'id_user': id_user,
+               values={'order_id': id_order,
+                       'users_id': id_user,
                        'up_time': datetime.utcnow()})
 
     except Exception, e:
         logging.error('log_incomes_err: %s', e, exc_info=True)
-        raise
 
 def get_incomes_log(conn, where):
     incomes = select_dict(conn, 'incomes_log', 'order_id', where=where)
@@ -111,3 +115,17 @@ def get_incomes_log(conn, where):
         detail.update({'up_time': incomes[id_order]['up_time'],
                        'id_user': incomes[id_order]['users_id']})
     return details
+
+##### orders statistics #####
+def get_orders_log(conn, from_, to):
+    try:
+        q = ("SELECT * "
+               "FROM orders_log "
+              "WHERE (pending_date >= %s AND pending_date < %s) or "
+                    "(waiting_payment_date >= %s AND waiting_payment_date < %s) or "
+                    "(waiting_shipping_date >= %s AND waiting_shipping_date < %s) or "
+                    "(completed_date >=%s AND completed_date < %s)")
+        r = query(conn, q, (from_, to, from_, to, from_, to, from_, to))
+        return r
+    except Exception, e:
+        logging.error('get_orders_log: %s', e, exc_info=True)

@@ -95,6 +95,7 @@ CREATE TABLE orders (
 CREATE TABLE order_items (
     id serial PRIMARY KEY,
     id_sale BIGINT NOT NULL,
+    id_brand BIGINT NOT NULL,
     id_shop BIGINT,
     id_variant BIGINT,
     id_type BIGINT,
@@ -281,7 +282,7 @@ CREATE TABLE transactions (
 CREATE TABLE visitors_log (
     sid  character varying(36) PRIMARY KEY,
     users_id BIGINT,
-    visit_time timestamp without time zone DEFAULT now() NOT NULL
+    up_time timestamp without time zone DEFAULT now() NOT NULL
 );
 
 CREATE TABLE incomes_log (
@@ -290,3 +291,14 @@ CREATE TABLE incomes_log (
     up_time timestamp without time zone DEFAULT now() NOT NULL
 );
 
+CREATE TABLE orders_log (
+    id serial PRIMARY KEY,
+    users_id BIGINT NOT NULL,
+    id_order BIGINT NOT NULL,
+    id_brand BIGINT NOT NULL,
+    id_shop BIGINT NOT NULL,
+    pending_date date,
+    waiting_payment_date date,
+    waiting_shipping_date date,
+    completed_date date
+);

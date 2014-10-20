@@ -30,6 +30,7 @@ from webservice.shipping import ShippingFeesResource
 from webservice.shipping import ShippingListResource
 from webservice.sensor.visitors import SensorVisitorsResource
 from webservice.sensor.incomes import SensorIncomesResource
+from webservice.sensor.orders import SensorOrdersResource
 from webservice.shops import ShopsResource
 from webservice.taxes import TaxesResource
 from webservice.types import TypesResource
@@ -71,7 +72,8 @@ urlpatterns = {
     '/webservice/1.0/private/invoice/send': InvoiceSendResource,
 
     '/webservice/1.0/private/sensor/visits': SensorVisitorsResource,
-    '/webservice/1.0/private/sensor/income': SensorIncomesResource,
+    '/webservice/1.0/private/sensor/incomes': SensorIncomesResource,
+    '/webservice/1.0/private/sensor/orders': SensorOrdersResource,
 
     '/webservice/1.0/protected/shipping/list': ShippingListResource,
     '/webservice/1.0/protected/shipment': ShipmentResource,

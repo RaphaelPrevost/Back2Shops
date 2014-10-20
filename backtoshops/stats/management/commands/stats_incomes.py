@@ -1,38 +1,19 @@
 import logging
 import urllib
-import ujson
 import settings
 import xmltodict
 
-from datetime import datetime, timedelta
-from optparse import make_option
-from django.core.management.base import BaseCommand
 from stats.models import Incomes
+from stats.management.commands._base import StatsCommand
 
-from B2SCrypto.utils import gen_encrypt_json_context
 from B2SCrypto.utils import get_from_remote
 from B2SCrypto.constant import SERVICES
 from B2SProtocol.constants import RESP_RESULT
 
 
-DT_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
-class Command(BaseCommand):
+class Command(StatsCommand):
     help = "Collect incomes statistics information from user server"
-    option_list = BaseCommand.option_list + (
-        make_option(
-            '-f', '--from',
-            action='store',
-            type='string',
-            dest='from',
-            default=str(datetime.utcnow().date())),
-        make_option(
-            '-t', '--to',
-            action='store',
-            type='string',
-            dest='to',
-            default=str((datetime.utcnow() + timedelta(days=1)).date())),
-    )
 
     def handle(self, *args, **options):
         p = {'from': options['from'],
@@ -75,18 +56,8 @@ class Command(BaseCommand):
         if not handled_orders:
             return
         orders = {'order_list': handled_orders}
-        data = gen_encrypt_json_context(
-            ujson.dumps(orders),
-            settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
-            settings.PRIVATE_KEY_PATH)
         try:
-            resp = get_from_remote(
-                settings.STATS_INCOME,
-                settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
-                settings.PRIVATE_KEY_PATH,
-                data=data,
-                headers={'Content-Type': 'application/json'})
-            data = xmltodict.parse(resp)
+            data = self._send_feedback(settings.STATS_INCOME, orders)
             r = data['incomes']['res']
             assert r == RESP_RESULT.S
         except Exception, e:

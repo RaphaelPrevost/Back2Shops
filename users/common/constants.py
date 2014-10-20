@@ -21,12 +21,6 @@ class HASH_ALGORITHM(CustomEnum):
     WHIRLPOOL = 1
     SHA256 = 2
 
-class INVOICE_STATUS(CustomEnum):
-    INVOICE_OPEN = 1
-    INVOICE_PART = 2
-    INVOICE_VOID = 3
-    INVOICE_PAID = 4
-    INVOICE_LATE = 5
 
 class RETURN_STATUS(CustomEnum):
     RETURN_ELIGIBLE = 1
@@ -56,3 +50,6 @@ class PAYMENT_TYPES(CustomEnum):
 
 
 RESET_PASSWORD_REDIS_KEY = 'RESET_PWD:%s'
+
+SESSION_COOKIE_NAME = 'SESSION'
+EXPIRY_FORMAT = '%a, %d %b %Y %H:%M:%S UTC'
