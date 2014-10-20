@@ -40,3 +40,9 @@ CREATE TABLE country (
     numcode smallint
 );
 
+CREATE TABLE user_fleet (
+    id serial PRIMARY KEY,
+    id_user BIGINT NOT NULL,
+    imo character varying(64),
+    mmsi character varying(64)
+);

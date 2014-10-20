@@ -13,10 +13,10 @@
         <?py for v in vessels: ?>
             <?py pos=v['positions'][0] ?>
             <div class="vessel_item">
+                <?py img = v['photos'][0] if v['photos'] and len(v['photos']) > 0 else '' ?>
+                <div><img src="${img}"/></div>
                 <div>
-                    <?py img = v['photos'][0] if v['photos'] and len(v['photos']) > 0 else '' ?>
-                    <img src="${img}"/>
-                    <a name="${v['name']}" lat="${pos['latitude']}" lon="${pos['longitude']}" href="#">${v['name']} (${v['country_name']}) </a>
+                    <a class="viewmap" lat="${pos['latitude']}" lon="${pos['longitude']}" href="javascript:view(${pos['latitude']}, ${pos['longitude']})">${v['name']} (${v['country_name']}) </a>
                 </div>
                 <div>IMO: ${v['imo']}, MMSI: ${v['mmsi']}, CallSign: ${v['cs']}</div>
                 <div>Type: ${v['type']}</div>
@@ -26,6 +26,13 @@
                     <div>ETA: ${v['arrival_time']}</div>
                     <div>Navigation Status: ${v['status']}</div>
                     <div>Location: ${pos['location']}</div>
+                </div>
+                <div>
+                    <?py if vessel_input: ?>
+                    <a class="add2myfleet" href="javascript:add2myfleet(${v['imo']}, ${v['mmsi']})">Add to My Fleet</a>
+                    <?py else: ?>
+                    <a class="navpath" href="javascript:show_navpath(${v['imo']}, ${v['mmsi']})">Show Navigation Path</a>
+                    <?py #endif ?>
                 </div>
             </div>
         <?py #endfor ?>
@@ -57,22 +64,53 @@ function mark(lat, lon, popup) {
         marker.openPopup();
     });
 }
+function add2myfleet(imo, mmsi) {
+    $.post('/vessel/update_user_fleet',
+        {'action': 'add',
+         'imo': imo,
+         'mmsi': mmsi,
+        },
+        function(data) {
+            if (data['set_cookies_js']) {
+                eval(data['set_cookies_js']);
+            }
 
+            if (data['res'] == 'FAILURE') {
+            } else {
+                alert('added successfully');
+            }
+        }
+    )
+}
+function show_navpath(imo, mmsi) {
+    $.post('/vessel/get_vessel_navpath',
+        {
+         'imo': imo,
+         'mmsi': mmsi,
+        },
+        function(data) {
+            if (data['set_cookies_js']) {
+                eval(data['set_cookies_js']);
+            }
+            if (data['res'] == 'FAILURE') {
+            } else {
+                var path = L.polyline(data['positions']).addTo(map);
+                //map.fitBounds(path.getBounds());
+            }
+        }
+    )
+}
 $(function() {
-    if ($('#search_result .vessel_item a').length == 0)
+    if ($('#search_result .vessel_item').length == 0)
         view(0, 0, 2);
 
-    $('#search_result .vessel_item a').each(function(){
+    $('#search_result .vessel_item a.viewmap').each(function(){
         var popup = $(this).parent().parent();
         mark($(this).attr('lat'), $(this).attr('lon'), popup.html());
         popup.find('.navi').hide();
 
-        if ($('#search_result .vessel_item a')[0] == this)
+        if ($('#search_result .vessel_item a.viewmap')[0] == this)
             view($(this).attr('lat'), $(this).attr('lon'), 2);
-    });
-
-    $('#search_result .vessel_item a').click(function(){
-        view($(this).attr('lat'), $(this).attr('lon'));
     });
 });
 

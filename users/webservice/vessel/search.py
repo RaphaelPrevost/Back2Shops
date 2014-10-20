@@ -1,4 +1,3 @@
-import settings
 from B2SUtils.errors import ValidationError
 from webservice.vessel.base import BaseVesselResource
 
