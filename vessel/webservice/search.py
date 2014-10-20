@@ -2,7 +2,7 @@ from B2SProtocol.constants import RESP_RESULT
 from B2SUtils.errors import ValidationError
 from common.thirdparty.datasource import getDs
 from webservice.base import BaseJsonResource
-from webservice.vessel import query_details
+from common.utils import query_vessel_details
 
 
 class SearchVesselResource(BaseJsonResource):
@@ -20,7 +20,8 @@ class SearchVesselResource(BaseJsonResource):
         results = getDs().searchVessel(**{search_by: q})
 
         if len(results) > 0 and req.get_param('details') == 'true':
-            results = query_details(conn, search_by, q)
+            results = query_vessel_details(conn, search_by, q)
+
         return {'objects': results,
                 'res': RESP_RESULT.S}
 

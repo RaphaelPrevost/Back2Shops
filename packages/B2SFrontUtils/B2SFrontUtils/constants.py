@@ -34,7 +34,13 @@ class REMOTE_API_NAME(CustomEnum):
 
     SEARCH_VESSEL = "SEARCH_VESSEL"
     GET_VESSEL_DETAIL = "GET_VESSEL_DETAIL"
+    GET_VESSEL_NAVPATH = "GET_VESSEL_NAVPATH"
+    GET_USER_FLEET = "GET_USER_FLEET"
+    SET_USER_FLEET = "SET_USER_FLEET"
+    SET_VESSEL_REMINDER = "SET_VESSEL_REMINDER"
     SEARCH_PORT = "SEARCH_PORT"
+    SEARCH_CONTAINER = "SEARCH_CONTAINER"
+    SET_CONTAINER_REMINDER = "SET_CONTAINER_REMINDER"
 
 
 class HTTP_METHOD(CustomEnum):
@@ -133,9 +139,39 @@ USR_API_SETTINGS = {
         'method': HTTP_METHOD.GET,
         'encrypt': False,
     },
+    REMOTE_API_NAME.GET_VESSEL_NAVPATH: {
+        'url': '/webservice/1.0/protected/vessel/path',
+        'method': HTTP_METHOD.GET,
+        'encrypt': False,
+    },
+    REMOTE_API_NAME.GET_USER_FLEET: {
+        'url': '/webservice/1.0/private/user_fleet',
+        'method': HTTP_METHOD.GET,
+        'encrypt': False,
+    },
+    REMOTE_API_NAME.SET_USER_FLEET: {
+        'url': '/webservice/1.0/private/user_fleet',
+        'method': HTTP_METHOD.POST,
+        'encrypt': False,
+    },
+    REMOTE_API_NAME.SET_VESSEL_REMINDER: {
+        'url': '/webservice/1.0/private/vessel/reminder',
+        'method': HTTP_METHOD.POST,
+        'encrypt': False,
+    },
     REMOTE_API_NAME.SEARCH_PORT: {
         'url': '/webservice/1.0/protected/port/search',
         'method': HTTP_METHOD.GET,
+        'encrypt': False,
+    },
+    REMOTE_API_NAME.SEARCH_CONTAINER: {
+        'url': '/webservice/1.0/protected/container/search',
+        'method': HTTP_METHOD.GET,
+        'encrypt': False,
+    },
+    REMOTE_API_NAME.SET_CONTAINER_REMINDER: {
+        'url': '/webservice/1.0/private/container/reminder',
+        'method': HTTP_METHOD.POST,
         'encrypt': False,
     },
 }

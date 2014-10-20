@@ -43,7 +43,6 @@ from views.user import UserAPIResource
 from views.user import UserAuthResource
 from views.user import UserLogoutResource
 from views.user import UserResource
-from views.vessel import VesselHomepageResource
 from webservice import crypto
 from webservice import download
 from webservice.aux import AuxResource
@@ -139,6 +138,8 @@ fixed_urlpatterns = {
 
     r'/vessel': vessel.VesselHomepageResource,
     r'/vessel/search': vessel.SearchResource,
+    r'/vessel/get_vessel_navpath': vessel.VesselNavPathResource,
+    r'/vessel/update_user_fleet': vessel.UserFleetResource,
 }
 
 

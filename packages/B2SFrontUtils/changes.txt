@@ -47,3 +47,6 @@
 
 == version 0.0.16 ==
 1. add vessels api constants
+
+== version 0.0.17 ==
+1. add vessels api constants

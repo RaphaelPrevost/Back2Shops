@@ -4,6 +4,7 @@ import os
 import ujson
 import urllib
 
+from B2SCrypto.utils import gen_encrypt_json_context
 from B2SCrypto.utils import get_from_remote
 from B2SUtils.errors import ValidationError
 from common.utils import api_key_verify
@@ -11,16 +12,24 @@ from common.utils import cookie_verify
 from webservice.base import BaseJsonResource
 
 
-def get_from_vessel_server(path, **query):
+def get_from_vessel_server(method, path, **query):
     remote_uri = os.path.join(settings.VSL_ROOT_URI, path)
     if query:
         query_str = urllib.urlencode(query)
-        remote_uri = '?'.join([remote_uri, query_str])
+        if method == 'GET':
+            remote_uri = '?'.join([remote_uri, query_str])
+            data = None
+        else:
+            data = gen_encrypt_json_context(
+                query_str,
+                settings.SERVER_APIKEY_URI_MAP['VSL'],
+                settings.PRIVATE_KEY_PATH)
 
     try:
         content = get_from_remote(remote_uri,
                                   settings.SERVER_APIKEY_URI_MAP['VSL'],
-                                  settings.PRIVATE_KEY_PATH)
+                                  settings.PRIVATE_KEY_PATH,
+                                  data=data)
     except Exception, e:
         logging.error('get_from_vessel_server: %s', e, exc_info=True)
         raise
@@ -48,5 +57,11 @@ class BaseVesselResource(BaseJsonResource):
 
     def _on_get(self, req, resp, conn, **kwargs):
         remote_kwargs = self._get_valid_args(req, resp, conn, **kwargs)
-        return get_from_vessel_server(self.api_path, **remote_kwargs)
+        return get_from_vessel_server(req.method, self.api_path,
+                                      **remote_kwargs)
+
+    def _on_post(self, req, resp, conn, **kwargs):
+        remote_kwargs = self._get_valid_args(req, resp, conn, **kwargs)
+        return get_from_vessel_server(req.method, self.api_path,
+                                      **remote_kwargs)
 
