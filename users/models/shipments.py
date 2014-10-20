@@ -1,4 +1,5 @@
 import logging
+import gevent
 import ujson
 import xmltodict
 from collections import defaultdict
@@ -13,7 +14,8 @@ from B2SUtils.db_utils import execute
 from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import query
 from B2SUtils.db_utils import update
-from common.constants import INVOICE_STATUS
+from B2SUtils.db_utils import select
+from B2SProtocol.constants import INVOICE_STATUS
 from common.utils import get_from_sale_server
 from common.utils import remote_xml_shipping_fee
 from common.utils import remote_xml_shipping_services
@@ -67,7 +69,6 @@ def create_shipment(conn, id_order, id_brand, id_shop,
         _add_shipping_supported_services(conn,
                                           sm_id[0],
                                           supported_services)
-
 
     return sm_id[0]
 
@@ -845,6 +846,9 @@ def update_shipment(conn, id_shipment, values, shipment=None):
                values={'id_shipment': id_shipment,
                        'status': shipment['status'],
                        'timestamp': shipment['update_time']})
+        from models.order import up_order_log
+        up_order_log(conn, shipment['id_order'],
+                     {shipment['id_brand']: shipment['id_shop']})
 
     logging.info("shipment_%s updated: %s", id_shipment, values)
     return r and r[0] or None

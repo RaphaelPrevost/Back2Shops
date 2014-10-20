@@ -85,7 +85,7 @@ class BaseResource(object):
                 data = {'res': RESP_RESULT.F,
                         'err': 'SERVER_ERR'}
                 conn.rollback()
-        gevent.spawn(log_visitors, conn, req, self.users_id)
+        gevent.spawn(log_visitors, req, self.users_id)
         return data
 
     def _auth(self, conn, req, resp, **kwargs):

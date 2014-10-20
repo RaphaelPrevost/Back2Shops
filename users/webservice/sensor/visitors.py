@@ -6,7 +6,7 @@ from B2SUtils.db_utils import select, delete
 
 class SensorVisitorsResource(SensorBaseResource):
     template = "sensor_visitors.xml"
-    time_field = 'visit_time'
+    time_field = 'up_time'
 
     def _on_get(self, req, resp, conn, **kwargs):
         where = self._get_req_range(req)

@@ -11,7 +11,7 @@ from datetime import datetime
 
 from B2SProtocol.constants import TRANS_PAYPAL_STATUS
 from B2SProtocol.constants import TRANS_STATUS
-from common.constants import INVOICE_STATUS
+from B2SProtocol.constants import INVOICE_STATUS
 from common.constants import PAYPAL_VERIFIED
 from common.constants import PAYMENT_TYPES
 from common.email_utils import send_order_email
@@ -202,7 +202,7 @@ class BasePaymentHandlerResource(BaseResource):
                 values = {'amount_paid': iv['amount_due'],
                           'status': INVOICE_STATUS.INVOICE_PAID}
                 update_invoice(conn, id_iv, values, iv=iv)
-                gevent.spawn(log_incomes, conn, id_iv)
+                log_incomes(conn, id_iv)
 
             update_trans(conn,
                          values={'status': TRANS_STATUS.TRANS_PAID},

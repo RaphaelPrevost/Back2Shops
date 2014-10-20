@@ -1,6 +1,7 @@
 # coding:UTF-8
 from django.db import models
 
+from accounts.models import Brand
 from sales.models import Sale
 from shops.models import Shop
 from attributes.models import BrandAttribute
@@ -22,3 +23,13 @@ class Incomes(models.Model):
     quantity = models.IntegerField(null=False, blank=False)
     users_id = models.IntegerField(null=False, blank=False)
     up_time = models.DateTimeField(null=False, blank=False)
+
+class Orders(models.Model):
+    users_id = models.IntegerField()
+    order_id = models.IntegerField()
+    brand = models.ForeignKey(Brand)
+    shop = models.ForeignKey(Shop, null=True, blank=True)
+    pending_date = models.DateField(null=True, blank=True)
+    waiting_payment_date = models.DateField(null=True, blank=True)
+    waiting_shipping_date = models.DateField(null=True, blank=True)
+    completed_date = models.DateField(null=True, blank=True)

@@ -2,16 +2,16 @@ import logging
 
 from common.utils import currency_exchange
 from datetime import datetime
+from B2SProtocol.constants import INVOICE_STATUS
 from B2SProtocol.constants import ORDER_IV_SENT_STATUS
 from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SUtils.common import to_round
 from B2SUtils.db_utils import delete
 from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import query
+from B2SUtils.db_utils import select
 from B2SUtils.db_utils import select_dict
 from B2SUtils.db_utils import update
-
-from common.constants import INVOICE_STATUS
 
 def create_invoice(conn, id_order, id_shipment, amount_due,
                    currency,
@@ -49,6 +49,10 @@ def create_invoice(conn, id_order, id_shipment, amount_due,
     logging.info('invoice created: id: %s, values: %s',
                  invoice_id[0], values)
 
+    seller = get_seller(conn, id_shipment)
+
+    from models.order import up_order_log
+    up_order_log(conn, id_order, seller)
     return invoice_id[0]
 
 def get_invoice_by_order(conn, id_order):
@@ -236,6 +240,10 @@ def update_invoice(conn, id_iv, values, iv=None):
                        'amount_paid': iv['amount_paid'],
                        'timestamp': iv['update_time']})
 
+        seller = get_seller(conn, iv['id_shipment'])
+        from models.order import up_order_log
+        up_order_log(conn, iv['id_order'], seller)
+
     logging.info("invoice_%s updated: %s", id_iv, values)
     return r and r[0] or None
 
@@ -248,3 +256,7 @@ def delete_invoices(conn, where):
         deleted_invoice_ids.append(invoice_id)
         logging.info('invoice %s deleted for %s', invoice_id, where)
     return deleted_invoice_ids
+
+def get_seller(conn, id_shipment):
+    r = select(conn, 'shipments', where={'id': id_shipment})
+    return {r[0]['id_brand']: [r[0]['id_shop']]}

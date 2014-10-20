@@ -1,15 +1,16 @@
 import logging
 import ujson
 
+from collections import defaultdict
+from datetime import datetime
 from B2SProtocol.constants import ORDER_STATUS
 from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SUtils.common import to_round
 from B2SUtils.db_utils import insert
-from B2SUtils.db_utils import join
 from B2SUtils.db_utils import query
-from B2SUtils.db_utils import select
 from B2SUtils.db_utils import update
-from common.constants import INVOICE_STATUS
+from B2SUtils.db_utils import select
+from B2SProtocol.constants import INVOICE_STATUS
 from models.actors.sale import CachedSale
 from models.actors.shop import get_shop_id
 from models.invoice import iv_to_sent_qty
@@ -55,7 +56,7 @@ def _modify_order_shipment_detail(conn, id_order,
     logging.info('order_shipment_details for order %s modified values: %s',
                  id_order, values)
 
-def _create_order_item(conn, sale, id_variant, upc_shop=None,
+def _create_order_item(conn, sale, id_variant, id_brand, upc_shop=None,
                        barcode=None, id_shop=None,
                        id_type=None,
                        id_weight_type=None,
@@ -68,6 +69,7 @@ def _create_order_item(conn, sale, id_variant, upc_shop=None,
     item_value = {
         'id_sale': sale.id,
         'id_variant': id_variant,
+        'id_brand': id_brand,
         'id_shop': shop_id or 0,
         'price': sale.final_price(id_variant, id_price_type or 0),
         'name': sale.whole_name(id_variant),
@@ -106,6 +108,42 @@ def _create_order_details(conn, id_order, id_item, quantity):
     insert(conn, 'order_details', values=details_value)
     logging.info('order_details create: %s', details_value)
 
+def _log_order(conn, users_id, id_order, sellers):
+    for id_brand, shops in sellers.iteritems():
+        for id_shop in shops:
+            values = {'users_id': users_id,
+                      'id_order': id_order,
+                      'id_brand': id_brand,
+                      'id_shop': id_shop
+                      }
+            insert(conn, 'orders_log', values=values)
+
+def up_order_log(conn, id_order, sellers):
+    for id_brand, shops in sellers.iteritems():
+        for id_shop in shops:
+            status = get_order_status(conn, id_order, id_brand, id_shop)
+            where = {'id_order': id_order,
+                     'id_brand': id_brand,
+                     'id_shop': id_shop}
+            log = select(conn, 'orders_log', where=where)[0]
+            v = None
+            if status == ORDER_STATUS.PENDING:
+                if log['pending_date'] is None:
+                    v = {'pending_date': datetime.utcnow().date()}
+            elif status == ORDER_STATUS.AWAITING_PAYMENT:
+                if log['waiting_payment_date'] is None:
+                    v = {'waiting_payment_date': datetime.utcnow().date()}
+            elif status == ORDER_STATUS.AWAITING_SHIPPING:
+                if log['waiting_shipping_date' is None]:
+                    v = {'waiting_shipping_date': datetime.utcnow().date()}
+            elif status == ORDER_STATUS.COMPLETED:
+                if log['completed_date' is None]:
+                    v = {'completed_date': datetime.utcnow().date()}
+            if v is not None:
+                where = {'id_order': id_order,
+                         'id_brand': id_brand,
+                         'id_shop': id_shop}
+                update(conn, 'orders_log', values=v, where=where)
 
 
 def create_order(conn, users_id, telephone_id, order_items,
@@ -113,9 +151,12 @@ def create_order(conn, users_id, telephone_id, order_items,
     order_id = _create_order(conn, users_id)
     _create_order_shipment_detail(conn, order_id, shipaddr,
                                   billaddr, telephone_id)
+
+    sellers = defaultdict(set)
     for order in order_items:
         sale = CachedSale(order['id_sale']).sale
         item_id = _create_order_item(conn, sale, order['id_variant'],
+                                     sale.brand.id,
                                      upc_shop=upc_shop,
                                      barcode=order.get('barcode', None),
                                      id_shop=order['id_shop'],
@@ -126,6 +167,10 @@ def create_order(conn, users_id, telephone_id, order_items,
         # used when create shipping list.
         order['id_order_item'] = item_id
         _create_order_details(conn, order_id, item_id, order['quantity'])
+        sellers[sale.brand.id].add(order['id_shop'])
+
+    _log_order(conn, users_id, order_id, sellers)
+
     if upc_shop is None:
         wwwOrderShipments(conn,
                           order_id,
@@ -139,8 +184,7 @@ def create_order(conn, users_id, telephone_id, order_items,
                           None,
                           users_id).create()
 
-        # TODO: Create fake shipments for posOrder items.
-        pass
+    up_order_log(conn, order_id, sellers)
 
     return order_id
 
@@ -295,39 +339,79 @@ def _get_invoice_info_for_order_item(conn, item_id):
             r['invoice_item'] = ujson.dumps({})
     return results
 
-def _get_order_shipments_status(conn, id_order):
+def _get_order_shipments_status(conn, id_order, id_brand=None, id_shop=None):
     query_str = ("SELECT status "
-                   "FROM shipments "
-                  "WHERE id_order = %s")
-    rst = query(conn, query_str, (id_order,))
+                   "FROM shipments ")
+    where = 'WHERE id_order = %s '
+    where_v = (id_order,)
+    if id_brand:
+        where += 'and id_brand = %s '
+        where_v += (id_brand,)
+    if id_shop:
+        where += 'and id_shop = %s'
+        where_v += (id_shop,)
+
+    query_str += where
+    rst = query(conn, query_str, where_v)
     return [item[0] for item in rst]
 
-def _get_order_invoice_status(conn, id_order):
-    query_str = ("SELECT status "
-                   "FROM invoices "
-                  "WHERE id_order = %s")
-    rst = query(conn, query_str, (id_order,))
+def _get_order_invoice_status(conn, id_order, id_brand=None, id_shop=None):
+    query_str = ("SELECT iv.status FROM invoices as iv ")
+
+    if id_brand is not None or id_shop is not None:
+        query_str += "JOIN shipments as sp ON iv.id_shipment = sp.id "
+
+    where = 'where iv.id_order = %s '
+    where_v = (id_order,)
+
+    if id_brand is not None:
+        where += 'and sp.id_brand = %s '
+        where_v += (id_brand,)
+    if id_shop is not None:
+        where += 'and sp.id_shop = %s '
+        where_v += (id_shop,)
+
+    query_str += where
+    rst = query(conn, query_str, where_v)
     return [item[0] for item in rst]
 
-def _all_order_items_packed(conn, id_order):
+def _all_order_items_packed(conn, id_order, id_brand=None, id_shop=None):
     item_qtt_sql = ("SELECT sum(quantity) "
-                      "FROM order_details "
-                     "WHERE id_order = %s")
+                      "FROM order_details as od ")
+    where = 'WHERE od.id_order=%s '
+    where_v = (id_order, )
+    if id_brand is not None or id_shop is not None:
+        item_qtt_sql += 'JOIN order_items as oi on od.id_item = oi.id '
+    if id_brand is not None:
+        where += 'and oi.id_brand = %s'
+        where_v += (id_brand, )
+    if id_shop is not None:
+        where += 'and oi.id_shop = %s '
+        where_v += (id_shop, )
+
+    item_qtt_sql += where
+    item_qtt = query(conn, item_qtt_sql, where_v)[0][0]
 
     grouped_qtt_sql = ("SELECT sum(spl.quantity), sum(spl.packing_quantity) "
                          "FROM shipping_list as spl "
                          "JOIN shipments as sp "
-                           "ON spl.id_shipment = sp.id "
-                        "WHERE sp.id_order = %s "
-                          "AND sp.status <> %s")
-    item_qtt = query(conn, item_qtt_sql, (id_order,))[0][0]
-    grouped_qtt, packed_qtt = query(conn,
-                        grouped_qtt_sql,
-                        (id_order, SHIPMENT_STATUS.DELETED))[0]
+                           "ON spl.id_shipment = sp.id ")
+
+    where = "WHERE sp.id_order = %s AND sp.status <> %s "
+    where_v = (id_order, SHIPMENT_STATUS.DELETED)
+    if id_brand is not None:
+        where += "and sp.id_brand = %s "
+        where_v += (id_brand,)
+    if id_shop is not None:
+        where += 'and sp.id_shop = %s '
+        where_v += (id_shop,)
+    grouped_qtt_sql += where
+
+    grouped_qtt, packed_qtt = query(conn, grouped_qtt_sql, where_v)[0]
 
     return item_qtt == grouped_qtt and item_qtt == packed_qtt
 
-def get_order_status(conn, order_id):
+def get_order_status(conn, order_id, id_brand=None, id_shop=None):
     """
     There is 4 status.
     Pending order is the initial status.
@@ -337,8 +421,13 @@ def get_order_status(conn, order_id):
     When the merchant has set the status of all shipments as sent, the order
     is "completed".
     """
-    shipment_status_set = set(_get_order_shipments_status(conn, order_id))
-    invoice_status_set = set(_get_order_invoice_status(conn, order_id))
+    if not _all_order_items_packed(conn, order_id, id_brand, id_shop):
+        return ORDER_STATUS.PENDING
+
+    shipment_status_set = set(_get_order_shipments_status(
+        conn, order_id, id_brand, id_shop))
+    invoice_status_set = set(_get_order_invoice_status(
+        conn, order_id, id_brand, id_shop))
 
     if shipment_status_set == set([SHIPMENT_STATUS.FETCHED]):
         return ORDER_STATUS.COMPLETED
@@ -351,8 +440,7 @@ def get_order_status(conn, order_id):
             shipment_status_set != set([SHIPMENT_STATUS.DELIVER])):
         return ORDER_STATUS.AWAITING_SHIPPING
 
-    if (invoice_status_set != set([INVOICE_STATUS.INVOICE_PAID]) and
-        _all_order_items_packed(conn, order_id)):
+    if invoice_status_set != set([INVOICE_STATUS.INVOICE_PAID]):
         return ORDER_STATUS.AWAITING_PAYMENT
 
     return ORDER_STATUS.PENDING
