@@ -15,6 +15,7 @@ from B2SProtocol.constants import INVOICE_STATUS
 from common.constants import PAYPAL_VERIFIED
 from common.constants import PAYMENT_TYPES
 from common.email_utils import send_order_email
+from common.email_utils import send_order_email_to_service
 from common.error import ErrorCode
 from common.error import UserError
 from common.utils import get_client_ip
@@ -213,6 +214,10 @@ class BasePaymentHandlerResource(BaseResource):
                           exc_info=True)
             raise
 
+        try:
+            send_order_email_to_service()
+        except Exception, e:
+            logging.error("Failed to send order email: %s", e, exc_info=True)
         try:
             send_order_email(conn, trans['id_order'])
         except Exception, e:
