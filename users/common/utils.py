@@ -292,7 +292,7 @@ def api_key_verify(conn, email, api_key):
 
 
 def remote_xml_shipping_fee(carrier_services, weight, unit, dest,
-                            id_address):
+                            id_address, amount=None):
     uri = 'protected/shipping/fees'
     if isinstance(carrier_services, list):
         carrier_services = ujson.dumps(carrier_services)
@@ -304,6 +304,8 @@ def remote_xml_shipping_fee(carrier_services, weight, unit, dest,
              'unit': unit,
              'dest': dest,
              'id_address': id_address}
+    if amount:
+        query['amount'] = amount
     content = get_from_sale_server(uri, **query)
     return content
 

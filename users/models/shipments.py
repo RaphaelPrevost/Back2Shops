@@ -633,7 +633,8 @@ class ShipmentsHandler(object):
             weight,
             unit,
             dest,
-            id_orig_address)
+            id_orig_address,
+            amount)
         dict_fee = xmltodict.parse(xml_fee)
         return ActorShippingFees(dict_fee['carriers'])
 
