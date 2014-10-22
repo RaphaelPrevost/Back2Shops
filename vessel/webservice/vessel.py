@@ -58,8 +58,8 @@ class VesselNaviPathResource(BaseJsonResource):
             sql = """
                 select %s
                 from vessel_position
-                where id = %s
-                order by time desc limit 1
+                where id_vessel_navigation = %s
+                order by time desc
                 """ % (','.join(VESSEL_POS_FILES),
                        id_vessel_nav)
             positions = db_utils.query(conn, sql, (id_vessel_nav,))

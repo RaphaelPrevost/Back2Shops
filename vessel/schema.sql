@@ -14,10 +14,10 @@ CREATE TABLE vessel_navigation (
     id_vessel bigint REFERENCES vessel(id),
     departure_portname character varying(64),
     departure_locode character varying(64),
-    departure_time character varying(64),
+    departure_time timestamp without time zone NOT NULL,
     arrival_portname character varying(64),
     arrival_locode character varying(64),
-    arrival_time character varying(64),
+    arrival_time timestamp without time zone NOT NULL,
     status character varying(64),
     created timestamp without time zone DEFAULT now() NOT NULL
 );

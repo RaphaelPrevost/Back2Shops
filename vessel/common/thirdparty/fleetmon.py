@@ -1,12 +1,48 @@
 import settings
+import datetime
 import logging
 import os
+import random
 import ujson
 import urllib
 import urllib2
 
 from B2SUtils.errors import ValidationError
 
+def _get_mock_vessel_detail():
+    return {
+        'objects': [{
+            'destination': 'CADIZ',
+            'etatime': '2014-12-03T09:45+0000',
+            'flag': 'IT|Italy',
+            'heading': '87.0',
+            'imonumber': 9362542,
+            'last_ports': [
+                {"arrival": '2014-12-03T09:45+0000',
+                 "departure": '2014-12-03T11:45+0000',
+                 "locode": "ESYCZ",
+                 "name": "Cadiz",
+                },
+                {"arrival": '2014-12-02T08:56+0000',
+                 "departure": '2014-12-02T15:29+0000',
+                 "locode": "PTLIS",
+                 "name": "Lisboa", },
+            ],
+            'latitude': str(random.uniform(25, 36.3424)),
+            'location': 'North Atlantic Ocean, PT',
+            'longitude': str(random.uniform(-15, -7.83245)),
+            'mmsinumber': 247229700,
+            'name': 'AIDABELLA',
+            'navigationstatus': 'under way with engine',
+            'photos': '//img4.fleetmon.com/thumbnails/COSCO_CHINA_41931.220x146.jpg|//img4.fleetmon.com/thumbnails/COSCO_CHINA_41931.570x1140.jpg',
+            'positionreceived': str(datetime.datetime.utcnow()), #'2015-11-03T05:42+0000',
+            'type': 'Passenger ship',
+        }],
+        "meta": {
+            "limit": 5, "next": None, "offset": 0,
+            "previous": None, "total_count": 2,
+        }
+    }
 
 class FleetmonAPI:
     def searchVessel(self, name=None, imo=None, mmsi=None):
@@ -40,37 +76,12 @@ class FleetmonAPI:
             raise ValidationError('INVALID_REQUEST')
 
         kwargs['lastports'] = 1
-        #result = self._execute('/api/p/personal-v1/vessels_terrestrial/', **kwargs)
-        result = {'objects': [{
-            'destination': 'CADIZ',
-            'etatime': '2013-01-03T09:45+0000',
-            'flag': 'IT|Italy',
-            'heading': '87.0',
-            'imonumber': 9362542,
-            'last_ports': [
-                {"arrival": '2013-01-03T09:45+0000',
-                 "departure": '2013-01-03T11:45+0000',
-                 "locode": "ESYCZ",
-                 "name": "Cadiz",
-                },
-                {"arrival": '2013-01-02T08:56+0000',
-                 "departure": '2013-01-02T15:29+0000',
-                 "locode": "PTLIS",
-                 "name": "Lisboa",
-                },
-            ],
-            'latitude': '36.3424',
-            'location': 'North Atlantic Ocean, PT',
-            'longitude': '-7.83245',
-            'mmsinumber': 247229700,
-            'name': 'AIDABELLA',
-            'navigationstatus': 'under way with engine',
-            'photos': '//img4.fleetmon.com/thumbnails/COSCO_CHINA_41931.220x146.jpg|//img4.fleetmon.com/thumbnails/COSCO_CHINA_41931.570x1140.jpg',
-            'positionreceived': '2015-01-03T05:42+0000',
-            'type': 'Passenger ship',
-        }],
-        "meta": {"limit": 5, "next": None, "offset": 0, "previous": None, "total_count": 2}}
-        print result
+        if settings.USE_MOCK_FLEETMON_DATA:
+            result = _get_mock_vessel_detail()
+        else:
+            result = self._execute('/api/p/personal-v1/vessels_terrestrial/',
+                                   **kwargs)
+            print result
         objects = result['objects']
 
         while result['meta']['next']:
