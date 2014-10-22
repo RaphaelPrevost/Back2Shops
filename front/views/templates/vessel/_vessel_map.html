@@ -27,11 +27,12 @@
                     <div>Navigation Status: ${v['status']}</div>
                     <div>Location: ${pos['location']}</div>
                 </div>
-                <div>
+                <div class="links">
                     <?py if vessel_input: ?>
-                    <a class="add2myfleet" href="javascript:add2myfleet(${v['imo']}, ${v['mmsi']})">Add to My Fleet</a>
+                    <a class="add2myfleet" href="javascript:void(0);" onclick="javascript:add2myfleet(this, ${v['imo']}, ${v['mmsi']})">Add to My Fleet</a>
                     <?py else: ?>
-                    <a class="navpath" href="javascript:show_navpath(${v['imo']}, ${v['mmsi']})">Show Navigation Path</a>
+                    <a class="navpath" href="javascript:void(0);" onclick="javascript:show_navpath(${v['imo']}, ${v['mmsi']})">Show Navigation Path</a>
+                    <a class="del4myfleet" href="javascript:void(0);" onclick="javascript:del4myfleet(this, ${v['imo']}, ${v['mmsi']})">Delete from My Fleet</a>
                     <?py #endif ?>
                 </div>
             </div>
@@ -64,7 +65,7 @@ function mark(lat, lon, popup) {
         marker.openPopup();
     });
 }
-function add2myfleet(imo, mmsi) {
+function add2myfleet(obj, imo, mmsi) {
     $.post('/vessel/update_user_fleet',
         {'action': 'add',
          'imo': imo,
@@ -78,6 +79,30 @@ function add2myfleet(imo, mmsi) {
             if (data['res'] == 'FAILURE') {
             } else {
                 alert('added successfully');
+                $(obj).attr('class', 'del4myfleet');
+                $(obj).attr('onclick', 'javascript:del4myfleet(this, ' + imo + ', ' + mmsi + ')');
+                $(obj).text('Delete from My Fleet');
+            }
+        }
+    )
+}
+function del4myfleet(obj, imo, mmsi) {
+    $.post('/vessel/update_user_fleet',
+        {'action': 'delete',
+         'imo': imo,
+         'mmsi': mmsi,
+        },
+        function(data) {
+            if (data['set_cookies_js']) {
+                eval(data['set_cookies_js']);
+            }
+
+            if (data['res'] == 'FAILURE') {
+            } else {
+                alert('deleted successfully');
+                $(obj).attr('class', 'add2myfleet');
+                $(obj).attr('onclick', 'javascript:add2myfleet(this, ' + imo + ', ' + mmsi + ')');
+                $(obj).text('Add to My Fleet');
             }
         }
     )
@@ -106,8 +131,10 @@ $(function() {
 
     $('#search_result .vessel_item a.viewmap').each(function(){
         var popup = $(this).parent().parent();
+        popup.find('.links').hide();
         mark($(this).attr('lat'), $(this).attr('lon'), popup.html());
         popup.find('.navi').hide();
+        popup.find('.links').show();
 
         if ($('#search_result .vessel_item a.viewmap')[0] == this)
             view($(this).attr('lat'), $(this).attr('lon'), 2);

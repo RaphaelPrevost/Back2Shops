@@ -1,4 +1,5 @@
 import settings
+import datetime
 import logging
 import ujson
 
@@ -16,7 +17,9 @@ VESSEL_NAV_FIELDS = [
     'arrival_portname', 'arrival_locode', 'arrival_time', 'status']
 VESSEL_POS_FILES = ['location', 'longitude', 'latitude', 'heading', 'time']
 
-def query_vessel_details(conn, search_by, q):
+
+def query_vessel_details(conn, search_by, q,
+                         data_time_limit=settings.FETCH_VESSEL_INTERVAL):
     sql = """
         select %s
         from vessel
@@ -33,7 +36,7 @@ def query_vessel_details(conn, search_by, q):
                search_by)
 
     if search_by != 'name':
-        detail = db_utils.query(conn, sql, (q, settings.FETCH_VESSEL_INTERVAL))
+        detail = db_utils.query(conn, sql, (q, data_time_limit))
         if len(detail) > 0:
             detail_results = []
             for item in detail:
@@ -76,14 +79,30 @@ def _save_result(conn, detail_obj):
         'id_vessel': id_vessel,
         'departure_portname': detail_obj.departure_portname,
         'departure_locode': detail_obj.departure_locode,
-        'departure_time': detail_obj.departure_time,
         'arrival_portname': detail_obj.arrival_portname,
         'arrival_locode': detail_obj.arrival_locode,
+        'arrival_time__gt': datetime.datetime.utcnow(),
+    }
+    navi_update_values = {
+        'departure_time': detail_obj.departure_time,
         'arrival_time': detail_obj.arrival_time,
         'status': detail_obj.status,
     }
-    id_navi = db_utils.insert(conn, "vessel_navigation",
-                              values=navi_values, returning='id')[0]
+    vessel_nav = db_utils.select(conn, "vessel_navigation",
+                             columns=("id",),
+                             where=navi_values,
+                             order=('created__desc', ),
+                             limit=1)
+    if len(vessel_nav) > 0:
+        id_navi = vessel_nav[0][0]
+        db_utils.update(conn, "vessel_navigation",
+                        values=navi_update_values,
+                        where={'id': id_navi})
+    else:
+        navi_values.pop('arrival_time__gt')
+        navi_values.update(navi_update_values)
+        id_navi = db_utils.insert(conn, "vessel_navigation",
+                                  values=navi_values, returning='id')[0]
     for pos in detail_obj.positions:
         pos_values = {
             'id_vessel_navigation': id_navi,

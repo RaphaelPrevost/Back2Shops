@@ -72,7 +72,7 @@ class UserFleetResource(BaseJsonResource):
                 db_utils.insert(conn, "user_fleet", values=values)
 
         elif action == 'delete':
-            db_utils.delete(conn, "user_fleet", values=values)
+            db_utils.delete(conn, "user_fleet", where=values)
 
         return {'res': RESP_RESULT.S}
 

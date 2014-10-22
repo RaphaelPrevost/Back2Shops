@@ -28,5 +28,7 @@ USE_FLEETMON = True
 FLEETMON_API_URL = 'http://www.fleetmon.com'
 FLEETMON_USERNAME = 'nereustechnology'
 FLEETMON_API_KEY = 'e3651ac0347ca2a8370664ba060a586c72fa477b'
+USE_MOCK_FLEETMON_DATA = True # mock generic vessel api which is billed per use
 
 FETCH_VESSEL_INTERVAL = 3600 * 4 # seconds
+
