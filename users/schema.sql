@@ -302,3 +302,9 @@ CREATE TABLE orders_log (
     waiting_shipping_date date,
     completed_date date
 );
+
+CREATE TABLE bought_history (
+    id serial PRIMARY KEY,
+    id_sale BIGINT NOT NULL,
+    users_id BIGINT NOT NULL
+)

@@ -31,7 +31,9 @@ from webservice.shipping import ShippingListResource
 from webservice.sensor.visitors import SensorVisitorsResource
 from webservice.sensor.incomes import SensorIncomesResource
 from webservice.sensor.orders import SensorOrdersResource
+from webservice.sensor.bought_history import SensorBoughtHistoryResource
 from webservice.shops import ShopsResource
+from webservice.suggest import SuggestResource
 from webservice.taxes import TaxesResource
 from webservice.types import TypesResource
 from webservice.vessel.search import SearchPortResource
@@ -60,6 +62,7 @@ urlpatterns = {
     '/webservice/1.0/pub/payment/form': PaymentFormResource,
     '/webservice/1.0/pub/apikey.pem': ApiKeyResource,
     '/webservice/1.0/pub/invoice/request': InvoiceResource,
+    '/webservice/1.0/pub/suggest': SuggestResource,
 
     '/webservice/protected/invalidate': InvalidationResource,
     '/webservice/protected/shipping/fee': ShippingFeeResource,
@@ -76,6 +79,7 @@ urlpatterns = {
     '/webservice/1.0/private/sensor/visits': SensorVisitorsResource,
     '/webservice/1.0/private/sensor/incomes': SensorIncomesResource,
     '/webservice/1.0/private/sensor/orders': SensorOrdersResource,
+    '/webservice/1.0/private/sensor/bought_history': SensorBoughtHistoryResource,
 
     '/webservice/1.0/protected/shipping/list': ShippingListResource,
     '/webservice/1.0/protected/shipment': ShipmentResource,

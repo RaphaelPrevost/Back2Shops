@@ -13,7 +13,6 @@ from B2SUtils.db_utils import execute
 from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import query
 from B2SUtils.db_utils import update
-from B2SUtils.db_utils import select
 from B2SProtocol.constants import INVOICE_STATUS
 from common.utils import get_from_sale_server
 from common.utils import remote_xml_shipping_fee

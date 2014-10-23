@@ -6,7 +6,7 @@ from common.redis_utils import get_redis_cli
 from B2SProtocol.constants import EXPIRY_FORMAT
 from B2SProtocol.constants import SESSION_COOKIE_NAME
 from B2SUtils import db_utils
-from B2SUtils.db_utils import insert, query, select_dict
+from B2SUtils.db_utils import insert, query, select_dict, select
 from B2SUtils.common import set_cookie, get_cookie
 
 
@@ -129,3 +129,21 @@ def get_orders_log(conn, from_, to):
         return r
     except Exception, e:
         logging.error('get_orders_log: %s', e, exc_info=True)
+
+
+##### customers who bought also bought history #####
+def gen_bought_history(users_id, id_sales):
+    try:
+        with db_utils.get_conn() as conn:
+            for id_sale in id_sales:
+                insert(conn,
+                       'bought_history',
+                       values={'id_sale': id_sale,
+                               'users_id': users_id})
+            conn.commit()
+    except Exception, e:
+        logging.error('gen_bought_history_err: %s', e)
+
+def get_bought_history(conn):
+    return select(conn, 'bought_history')
+

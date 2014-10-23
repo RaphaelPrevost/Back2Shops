@@ -1,0 +1,17 @@
+<?xml version="1.0" standalone="yes"?>
+<histories version="1.0">
+    {% if error %}
+        <error>{{ error }}</error>
+    {% endif %}
+    {% if GET_R %}
+        {% for history in GET_R.objects %}
+            <item id="{{ history.id }}">
+                <id_sale>{{ history.id_sale }}</id_sale>
+                <users_id>{{ history.users_id }}</users_id>
+            </item>
+        {% endfor %}
+    {% endif %}
+    {% if POST_R %}
+        <res>{{ POST_R.res }}</res>
+    {% endif %}
+</histories>

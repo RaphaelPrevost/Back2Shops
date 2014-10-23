@@ -33,3 +33,7 @@ class Orders(models.Model):
     waiting_payment_date = models.DateField(null=True, blank=True)
     waiting_shipping_date = models.DateField(null=True, blank=True)
     completed_date = models.DateField(null=True, blank=True)
+
+class BoughtHistory(models.Model):
+    sale = models.ForeignKey(Sale, null=False, blank=False)
+    users = models.TextField(null=False, blank=False)

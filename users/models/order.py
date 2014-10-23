@@ -1,4 +1,5 @@
 import logging
+import gevent
 import ujson
 
 from collections import defaultdict
@@ -18,6 +19,7 @@ from models.invoice import order_iv_sent_status
 from models.shipments import get_shipments_by_order
 from models.shipments import posOrderShipments
 from models.shipments import wwwOrderShipments
+from models.stats_log import gen_bought_history
 from models.user import get_user_dest_addr
 from models.user import get_user_profile
 from models.user import get_user_sel_phone_num
@@ -153,22 +155,25 @@ def create_order(conn, users_id, telephone_id, order_items,
                                   billaddr, telephone_id)
 
     sellers = defaultdict(set)
-    for order in order_items:
-        sale = CachedSale(order['id_sale']).sale
-        item_id = _create_order_item(conn, sale, order['id_variant'],
+    id_sales = []
+    for item in order_items:
+        sale = CachedSale(item['id_sale']).sale
+        item_id = _create_order_item(conn, sale, item['id_variant'],
                                      sale.brand.id,
                                      upc_shop=upc_shop,
-                                     barcode=order.get('barcode', None),
-                                     id_shop=order['id_shop'],
-                                     id_type=order.get('id_type', None),
-                                     id_price_type=order.get('id_price_type', None),
-                                     id_weight_type=order.get('id_weight_type', None))
+                                     barcode=item.get('barcode', None),
+                                     id_shop=item['id_shop'],
+                                     id_type=item.get('id_type', None),
+                                     id_price_type=item.get('id_price_type', None),
+                                     id_weight_type=item.get('id_weight_type', None))
         # populate id_order_item into order params, it will be
         # used when create shipping list.
-        order['id_order_item'] = item_id
-        _create_order_details(conn, order_id, item_id, order['quantity'])
-        sellers[sale.brand.id].add(order['id_shop'])
+        item['id_order_item'] = item_id
+        id_sales.append(sale.id)
+        _create_order_details(conn, order_id, item_id, item['quantity'])
+        sellers[sale.brand.id].add(item['id_shop'])
 
+    gevent.spawn(gen_bought_history, users_id, id_sales)
     _log_order(conn, users_id, order_id, sellers)
 
     if upc_shop is None:
