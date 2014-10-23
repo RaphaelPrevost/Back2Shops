@@ -1,5 +1,3 @@
-import logging
-import urllib
 import ujson
 import settings
 import xmltodict
@@ -7,12 +5,10 @@ import xmltodict
 from datetime import datetime, timedelta
 from optparse import make_option
 from django.core.management.base import BaseCommand
-from stats.models import Orders
 
 from B2SCrypto.utils import gen_encrypt_json_context
 from B2SCrypto.utils import get_from_remote
 from B2SCrypto.constant import SERVICES
-from B2SProtocol.constants import RESP_RESULT
 
 
 class StatsCommand(BaseCommand):

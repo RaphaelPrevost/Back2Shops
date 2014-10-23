@@ -278,6 +278,13 @@ function sync_adm() {
     )
 }
 
+function adm_redis() {
+    source $CWD/env/bin/activate
+    ( cd $CWD/public_html
+      ./manage.py start_stats_redis &
+    )
+}
+
 function deploy_backoffice() {
     sanity_checks $ADM_REQUIREMENT "${ADM_DEPS[*]}"
     create_python_env $ADM_REQUIREMENT
@@ -286,6 +293,7 @@ function deploy_backoffice() {
     make_adm_logs_dir
     setup_adm_wsgi
     sync_adm
+    adm_redis
     echo "(i) Deploy backoffice server finished"
 }
 

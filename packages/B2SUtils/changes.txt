@@ -29,3 +29,6 @@
 
 == version 0.0.10 ==
 1. add common function to_round()
+
+== version 0.1.0 ==
+1. add redis utils function

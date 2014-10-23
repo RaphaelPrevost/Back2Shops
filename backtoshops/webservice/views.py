@@ -22,6 +22,7 @@ from B2SCrypto.utils import decrypt_json_resp
 from B2SCrypto.utils import gen_encrypt_json_context
 from B2SCrypto.constant import SERVICES
 from B2SUtils.common import to_round
+from B2SUtils.redis_cli import redis_cli
 
 from accounts.models import UserProfile
 from address.models import Address
@@ -1165,6 +1166,23 @@ class InvoiceView(BaseCryptoWebService, ListView):
 
         return payment
 
+class SuggestView(View):
+    def get(self, request, *args, **kwargs):
+        like = request.GET.get('like')
+        cli = redis_cli(settings.SALES_SIM_REDIS)
+        suggests = cli.zrange(str(like),
+                              -settings.SALES_SIM_COUNT,
+                              -1,
+                              withscores=True)
+        suggests.reverse()
+        sgt_sales = [sgt[0] for sgt in suggests]
+        content = gen_encrypt_json_context(
+            ujson.dumps(sgt_sales),
+            settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+            settings.PRIVATE_KEY_PATH
+        )
+
+        return HttpResponse(content, mimetype='application/json')
 
 @csrf_exempt
 def payment_init(request, *args, **kwargs):
