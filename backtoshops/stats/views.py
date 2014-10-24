@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 from common.constants import USERS_ROLE
 from common.constants import TARGET_MARKET_TYPES
-from django.db.models import Q, F
+from django.db.models import Q
 from django.http import HttpResponse
 from fouillis.views import OperatorUpperLoginRequiredMixin
 from django.views.generic import View
@@ -51,6 +51,8 @@ class StatsIncomesView(StatsView):
                              Q(sale__type_stock=TARGET_MARKET_TYPES.GLOBAL))
                 else:
                     q = q & Q(shop__in=shops_id)
+
+                q = q & Q(sale__mother_brand_id=brand_id)
             else:
                 raise
         r = Incomes.objects.filter(q)
@@ -101,7 +103,7 @@ class StatsOrdersView(StatsView):
         q = (Q(pending_date__isnull=False) &
              Q(pending_date__lt=to) &
              (Q(waiting_payment_date__isnull=True) |
-              Q(waiting_payment_date__gt=F('pending_date'))
+              Q(waiting_payment_date__gte=to)
              ))
         q = q & profile_limit
         pending_orders = self._filter_out_orders(q)
@@ -111,8 +113,9 @@ class StatsOrdersView(StatsView):
         q = (Q(waiting_payment_date__isnull=False) &
              Q(waiting_payment_date__lt=to) &
              (Q(waiting_shipping_date__isnull=True) |
-              Q(waiting_shipping_date__gt=F('waiting_payment_date')))
-        )
+               Q(waiting_shipping_date__gte=to)
+             ))
+
         q = q&profile_limit
         waiting_payment_orders = self._filter_out_orders(q)
         waiting_payment_orders -= pending_orders
@@ -122,7 +125,7 @@ class StatsOrdersView(StatsView):
         q = (Q(waiting_shipping_date__isnull=False) &
              Q(waiting_shipping_date__lt=to) &
              (Q(completed_date__isnull=True) |
-              Q(completed_date__gt=F('waiting_shipping_date')))
+              Q(completed_date__gte=to))
         )
         q = q&profile_limit
         waiting_shipping_orders = self._filter_out_orders(q)
@@ -133,10 +136,11 @@ class StatsOrdersView(StatsView):
         # get completed orders.
         q = (Q(completed_date__isnull=False) &
              Q(completed_date__lt=to) &
-             Q(completed_date__gt=from_))
+             Q(completed_date__gte=from_))
 
         q = q&profile_limit
         completed_orders = self._filter_out_orders(q)
+
         completed_orders -= waiting_shipping_orders
         completed_orders -= waiting_payment_orders
         completed_orders -= pending_orders

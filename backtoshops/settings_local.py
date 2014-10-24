@@ -331,3 +331,7 @@ STATS_BOUGHT_HISTORY = '%s/webservice/1.0/private/sensor/bought_history' % USR_S
 SALES_SIM_REDIS = {'HOST': 'localhost',
                    'PORT': 8001}
 SALES_SIM_COUNT = 5
+
+FIXTURE_DIRS = (
+   'fixtures/',
+)

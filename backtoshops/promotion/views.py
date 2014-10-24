@@ -38,7 +38,8 @@ class BasePromotionView(ManagerUpperLoginRequiredMixin):
             if req_u_profile.allow_internet_operate:
                 return Group.objects.filter(
                     Q(shop__in=req_u_profile.shops.all()) |
-                    Q(shop__isnull=True))
+                    Q(shop__isnull=True)).filter(
+                        brand=req_u_profile.work_for)
             else:
                 return Group.objects.filter(
                     shop__in=req_u_profile.shops.all())
