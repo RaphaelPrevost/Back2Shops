@@ -31,8 +31,8 @@ class Shop(models.Model):
     longitude = models.FloatField()
     address = models.ForeignKey(Address, unique=True)
     owner = models.ForeignKey(User, blank=True, null=True)
-    business_reg_num = models.CharField(verbose_name="Business Reg Num", max_length=100)
-    tax_reg_num = models.CharField(verbose_name="Tax Reg Num", max_length=100)
+    business_reg_num = models.CharField(verbose_name="Business Reg Num", max_length=100, blank=True, null=True)
+    tax_reg_num = models.CharField(verbose_name="Tax Reg Num", max_length=100, blank=True, null=True)
     default_currency = models.CharField(verbose_name="Default Currency",
                                         max_length=3, null=True)
 
