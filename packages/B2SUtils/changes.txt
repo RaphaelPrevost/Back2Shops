@@ -32,3 +32,6 @@
 
 == version 0.1.0 ==
 1. add redis utils function
+
+== version 0.1.1 ==
+1. patch falcon response to add more Set-Cookies in the header
