@@ -1,5 +1,7 @@
 from gevent import monkey
 monkey.patch_all()
+from B2SUtils.patch import monkey_patch
+monkey_patch()
 import gevent_psycopg2
 gevent_psycopg2.monkey_patch()
 

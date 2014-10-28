@@ -31,6 +31,7 @@ def log_visitors(req, users_id):
     try:
         cookie = get_cookie(req)
         session = cookie and cookie.get(SESSION_COOKIE_NAME)
+
         if not session:
             return
 
@@ -46,7 +47,7 @@ def log_visitors(req, users_id):
         now = datetime.utcnow()
 
         cli = get_redis_cli()
-        delta = exp - now
+        delta = int((exp - now).total_seconds())
         name = 'SID:%s' % sid
 
         if exp and now < exp:
@@ -54,12 +55,13 @@ def log_visitors(req, users_id):
                 _log_visitors(users_id, sid)
             else:
                 u_id = cli.get(name)
-                if u_id is None and users_id:
+                if not u_id and users_id is not None:
                     _up_visitors(sid, users_id)
+            cli.setex(name, users_id or "", delta)
         else:
             _log_visitors(users_id, sid)
+            cli.setex(name, users_id or "", 0)
 
-        cli.setex(name, users_id, delta)
     except Exception, e:
         logging.error('log_visitors_err: %s', e, exc_info=True)
 

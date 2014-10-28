@@ -3,6 +3,8 @@ import Cookie
 import logging
 import urllib
 
+from Cookie import SimpleCookie
+
 def parse_form_params(req, resp, params):
     if req.method == 'GET':
         for p in req._params:
@@ -29,22 +31,23 @@ def parse_form_params(req, resp, params):
 
 
 def set_cookie(resp, k, v, expiry=None, domain=None, path='/', secure=False):
-    values = ['%s="%s"' % (k, v)]
-    if expiry:
-        values.append('expires="%s"' % expiry)
-    if domain:
-        values.append('domain=%s' % domain)
-    if path:
-        values.append('path=%s' % path)
-    if secure is True:
-        values.append('secure')
+    sc = 'set-cookie'
+    c = SimpleCookie()
 
-    new_value = ';'.join(values)
-    if 'set-cookie' in resp._headers:
-        old_value = resp._headers['set-cookie']
-        resp.set_header('set-cookie', ' '.join([old_value, new_value]))
-    else:
-        resp.set_header('set-cookie', new_value)
+    if resp._headers.get(sc):
+        c.load(resp._headers.get(sc))
+
+    c[k] = v.strip()
+    if expiry:
+        c[k]['expires'] = expiry
+    if domain:
+        c[k]['domain'] = domain
+    if path:
+        c[k]['path'] = path
+    if secure is True:
+        c[k]['secure'] = True
+
+    resp.append_header(sc, c[k].OutputString())
 
 def get_cookie(req):
     """ Get cookie from request environment.
