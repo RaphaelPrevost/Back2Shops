@@ -57,16 +57,14 @@ class SearchContainerResource(BaseJsonResource):
         if found:
             container_info = self._get_container_info(search_by, q,
                                   vessel_name, first_pol, last_pod)
-            if container_info:
-                if len(container_info['shipment_cycle']) > 0:
-                    container_info['vessel_name'] = vessel_name
-                    container_info['first_pol'] = first_pol
-                    container_info['last_pod'] = last_pod
-
-                    if container_info['shipment_cycle'][0]['mode'] == 'Vessel':
-                        vessel_info = self._get_vessel_info(conn, vessel_name)
-                        container_info['vessel_info'] = vessel_info
-                results.append(container_info)
+            container_info['vessel_name'] = vessel_name
+            container_info['first_pol'] = first_pol
+            container_info['last_pod'] = last_pod
+            if len(container_info['shipment_cycle']) > 0:
+                if container_info['shipment_cycle'][0]['mode'] == 'Vessel':
+                    vessel_info = self._get_vessel_info(conn, vessel_name)
+                    container_info['vessel_info'] = vessel_info
+            results.append(container_info)
         return {'objects': results,
                 'res': RESP_RESULT.S}
 

@@ -81,11 +81,11 @@
                 <td>${c['vessel_name']}</td>
                 <td>${c['first_pol']}</td>
                 <td>${c['last_pod']}</td>
-                <?py info = c['shipment_cycle'][0] ?>
-                <td>${info['status']}</td>
-                <td>${info['location']}</td>
-                <td>${info['time']}</td>
-                <td>${info['mode']}</td>
+                <?py info = c['shipment_cycle'][0] if len(c['shipment_cycle']) > 0 else {} ?>
+                <td>${info.get('status', '--')}</td>
+                <td>${info.get('location', '--')}</td>
+                <td>${info.get('time', '--')}</td>
+                <td>${info.get('mode', '--')}</td>
                 <?py if c.get('vessel_info'): ?>
                     <?py include('_vessel_item.html', v=c['vessel_info'], search=True, popup_only=True) ?>
                 <?py #endif ?>
@@ -97,6 +97,10 @@
     <?py else: ?>
     <table class="empty_table">
     </table>
+    <?py if vessel_input or port_input or container_input: ?>
+        <div class="msg">no records found</div>
+    <?py #endif ?>
+
     <?py #endif ?>
 </div>
 

@@ -44,12 +44,13 @@ class CosconAPI:
         shipment_cycle = []
         for row in rows:
             cols = [col.getText() for col in row.find_all(attrs={'class': 'labelTextMyFocus'})]
-            shipment_cycle.append({
-                'status': cols[0],
-                'location': cols[1],
-                'time': cols[2], #TODO: convert timezone
-                'mode': cols[3],
-            })
+            if cols:
+                shipment_cycle.append({
+                    'status': cols[0],
+                    'location': cols[1],
+                    'time': cols[2], #TODO: convert timezone
+                    'mode': cols[3],
+                })
         return {'shipment_cycle': shipment_cycle}
 
     def _get_jsf_state(self, response):
