@@ -8,28 +8,21 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'Incomes'
-        db.create_table(u'stats_incomes', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('sale', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['sales.Sale'])),
-            ('shop', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['shops.Shop'])),
-            ('variant', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['attributes.BrandAttribute'])),
-            ('price', self.gf('django.db.models.fields.FloatField')()),
-            ('quantity', self.gf('django.db.models.fields.IntegerField')()),
-            ('users_id', self.gf('django.db.models.fields.IntegerField')()),
-            ('up_time', self.gf('django.db.models.fields.DateTimeField')()),
-        ))
-        db.send_create_signal(u'stats', ['Incomes'])
+        db.alter_column(u'stats_incomes', 'shop_id',
+                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['shops.Shop'], null=True, blank=True))
 
+        db.alter_column(u'stats_incomes', 'variant_id',
+                        self.gf('django.db.models.fields.related.ForeignKey')(to=orm['attributes.BrandAttribute'], null=True, blank=True))
 
     def backwards(self, orm):
-        # Deleting model 'Incomes'
-        db.delete_table(u'stats_incomes')
-
+        db.alter_column(u'stats_incomes', 'shop_id',
+                        self.gf('django.db.models.fields.related.ForeignKey')(to=orm['shops.Shop']))
+        db.alter_column(u'stats_incomes', 'variant_id',
+                        self.gf('django.db.models.fields.related.ForeignKey')(to=orm['attributes.BrandAttribute']))
 
     models = {
         u'accounts.brand': {
-            'Me_idta': {'object_name': 'Brand'},
+            'Meta': {'object_name': 'Brand'},
             'address': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['address.Address']", 'unique': 'True'}),
             'business_reg_num': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '100', 'null': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -190,7 +183,7 @@ class Migration(SchemaMigration):
         u'shops.shop': {
             'Meta': {'object_name': 'Shop'},
             'address': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['address.Address']", 'unique': 'True'}),
-            'business_reg_num': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'business_reg_num': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'catcher': ('django.db.models.fields.CharField', [], {'max_length': '250', 'null': 'True', 'blank': 'True'}),
             'default_currency': ('django.db.models.fields.CharField', [], {'max_length': '3', 'null': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '500', 'null': 'True', 'blank': 'True'}),
@@ -204,8 +197,14 @@ class Migration(SchemaMigration):
             'opening_hours': ('django.db.models.fields.CharField', [], {'max_length': '1000', 'null': 'True', 'blank': 'True'}),
             'owner': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']", 'null': 'True', 'blank': 'True'}),
             'phone': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True', 'blank': 'True'}),
-            'tax_reg_num': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'tax_reg_num': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'upc': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True', 'blank': 'True'})
+        },
+        u'stats.boughthistory': {
+            'Meta': {'object_name': 'BoughtHistory'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'sale': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['sales.Sale']"}),
+            'users': ('django.db.models.fields.TextField', [], {})
         },
         u'stats.incomes': {
             'Meta': {'object_name': 'Incomes'},
@@ -213,10 +212,22 @@ class Migration(SchemaMigration):
             'price': ('django.db.models.fields.FloatField', [], {}),
             'quantity': ('django.db.models.fields.IntegerField', [], {}),
             'sale': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['sales.Sale']"}),
-            'shop': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['shops.Shop']"}),
+            'shop': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['shops.Shop']", 'null': 'True', 'blank': 'True'}),
             'up_time': ('django.db.models.fields.DateTimeField', [], {}),
             'users_id': ('django.db.models.fields.IntegerField', [], {}),
             'variant': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['attributes.BrandAttribute']"})
+        },
+        u'stats.orders': {
+            'Meta': {'object_name': 'Orders'},
+            'brand': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounts.Brand']"}),
+            'completed_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'order_id': ('django.db.models.fields.IntegerField', [], {}),
+            'pending_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'shop': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['shops.Shop']", 'null': 'True', 'blank': 'True'}),
+            'users_id': ('django.db.models.fields.IntegerField', [], {}),
+            'waiting_payment_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'waiting_shipping_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'})
         },
         u'stats.visitors': {
             'Meta': {'object_name': 'Visitors'},

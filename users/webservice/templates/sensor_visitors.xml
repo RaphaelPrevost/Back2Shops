@@ -7,7 +7,7 @@
         <number>{{ GET_R.number }}</number>
         {% for visitor in GET_R.visitors %}
             <user sid="{{ visitor.sid }}">
-                <users_id>{% if visitor.user_id %}{{ visitor.users_id }}{% endif %}</users_id>
+                <users_id>{% if visitor.users_id %}{{ visitor.users_id }}{% endif %}</users_id>
                 <visit_time>{{ visitor.up_time }}</visit_time>
             </user>
         {% endfor %}

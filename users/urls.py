@@ -29,6 +29,7 @@ from webservice.shipping import ShippingConfResource
 from webservice.shipping import ShippingFeesResource
 from webservice.shipping import ShippingListResource
 from webservice.sensor.visitors import SensorVisitorsResource
+from webservice.sensor.visitors_online import SensorVisitorsOnlineResource
 from webservice.sensor.incomes import SensorIncomesResource
 from webservice.sensor.orders import SensorOrdersResource
 from webservice.sensor.bought_history import SensorBoughtHistoryResource
@@ -78,9 +79,10 @@ urlpatterns = {
     '/webservice/1.0/private/invoice/send': InvoiceSendResource,
 
     '/webservice/1.0/private/sensor/visits': SensorVisitorsResource,
-    '/webservice/1.0/private/sensor/incomes': SensorIncomesResource,
+    '/webservice/1.0/private/sensor/income': SensorIncomesResource,
     '/webservice/1.0/private/sensor/orders': SensorOrdersResource,
     '/webservice/1.0/private/sensor/bought_history': SensorBoughtHistoryResource,
+    '/webservice/1.0/private/sensor/visitors_online': SensorVisitorsOnlineResource,
 
     '/webservice/1.0/protected/shipping/list': ShippingListResource,
     '/webservice/1.0/protected/shipment': ShipmentResource,

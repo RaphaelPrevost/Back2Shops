@@ -12,8 +12,13 @@ class SensorIncomesResource(SensorBaseResource):
     def _on_get(self, req, resp, conn, **kwargs):
         where = self._get_req_range(req)
 
-        objects = get_incomes_log(conn, where)
-        return {'GET_R': {'objects': objects}}
+        try:
+            logging.error('???' * 30)
+            objects = get_incomes_log(conn, where)
+            return {'GET_R': {'objects': objects}}
+        except Exception, e:
+            logging.error('incomes_log_get_err: %s', e, exc_info=True)
+            raise
 
     def _on_post(self, req, resp, conn, **kwargs):
         try:

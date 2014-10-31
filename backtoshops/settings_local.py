@@ -324,12 +324,14 @@ CRYPTO_RESP_DEBUGING = True
 SALE_IMG_UPLOAD_MAX_SIZE = 1024 * 1024  # Bytes, 1M
 
 STATS_VISITORS = '%s/webservice/1.0/private/sensor/visits' % USR_SERVER
+STATS_VISITORS_ONLINE = '%s/webservice/1.0/private/sensor/visitors_online' % USR_SERVER
 STATS_INCOME = '%s/webservice/1.0/private/sensor/income' % USR_SERVER
 STATS_ORDER = '%s/webservice/1.0/private/sensor/orders' % USR_SERVER
 STATS_BOUGHT_HISTORY = '%s/webservice/1.0/private/sensor/bought_history' % USR_SERVER
 
 SALES_SIM_REDIS = {'HOST': 'localhost',
-                   'PORT': 8001}
+                   'PORT': 8001,
+                   'TIMEOUT': 1}
 SALES_SIM_COUNT = 5
 
 FIXTURE_DIRS = (

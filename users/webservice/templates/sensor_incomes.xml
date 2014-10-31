@@ -7,8 +7,8 @@
         {% for income in GET_R.objects %}
             <income id_order="{{ income.id_order }}" up_time="{{ income.up_time }}" id_user="{{ income.id_user }}">
                 <id_sale>{{ income.id_sale }}</id_sale>
-                <id_shop>{{ income.id_shop }}</id_shop>
-                <id_variant>{{ income.id_variant }}</id_variant>
+                <id_shop>{% if income.id_shop %}{{ income.id_shop }}{% endif %}</id_shop>
+                <id_variant>{% if income.id_variant %}{{ income.id_variant }}{% endif %}</id_variant>
                 <price>{{ income.price }}</price>
                 <quantity>{{ income.quantity }}</quantity>
             </income>

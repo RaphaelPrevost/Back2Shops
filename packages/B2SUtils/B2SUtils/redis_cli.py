@@ -5,8 +5,11 @@ class RedisConnPool(object):
 
     def __new__(cls, config):
         if not cls._pool:
-            cls._pool = redis.ConnectionPool(host=config['HOST'],
-                                             port=config['PORT'])
+            kwargs = {'host': config['HOST'],
+                      'port': config['PORT']}
+            if config.get('TIMEOUT'):
+                kwargs.update({'socket_timeout': config['TIMEOUT']})
+            cls._pool = redis.ConnectionPool(**kwargs)
         return cls._pool
 
 def redis_cli(config):
