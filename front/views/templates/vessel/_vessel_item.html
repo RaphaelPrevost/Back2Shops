@@ -1,0 +1,44 @@
+<?py pos=v['positions'][0] ?>
+<?py img1, img2 = v['photos'][:2] if v['photos'] and len(v['photos']) >= 2 else ('', '') ?>
+
+<?py if not popup_only: ?>
+<td>${v['country_name']}</td>
+<td>
+    <a class="viewmap" lat="${pos['latitude']}" lon="${pos['longitude']}" href="javascript:view(${pos['latitude']}, ${pos['longitude']})">${v['name']}</a>
+    (${v['type']})
+</td>
+<td>${v['imo']}/${v['mmsi']}</td>
+<td><img class="thumb" src="${img1}"/></td>
+<td>${v['departure_portname']}/${v['departure_locode']}</td>
+<td>${v['arrival_portname']}/${v['arrival_locode']}</td>
+<td>${pos['speed'] or '--'}</td>
+<td>${pos['location']}</td>
+<td>${pos['time']}</td>
+<td>
+    <?py if search: ?>
+    <a class="add2myfleet" href="javascript:void(0);" onclick="javascript:add2myfleet(this, ${v['imo']}, ${v['mmsi']})">Add to My Fleet</a>
+    <?py else: ?>
+    <a class="del4myfleet" href="javascript:void(0);" onclick="javascript:del4myfleet(this, ${v['imo']}, ${v['mmsi']})">Delete from My Fleet</a>
+    <?py #endif ?>
+</td>
+<?py #endif ?>
+
+<td style="display:none" class="popup">
+    <div><img src="${img1}"/></div>
+    <div>
+        <a class="viewmap" lat="${pos['latitude']}" lon="${pos['longitude']}" href="javascript:view(${pos['latitude']}, ${pos['longitude']})">${v['name']} (${v['type']}) </a>
+    </div>
+    <div>IMO: ${v['imo']}</div>
+    <div>${v['mmsi']}</div>
+    <div class="navi">
+        <div>ATD: ${v['departure_time']}</div>
+        <div>ETA: ${v['arrival_time']}</div>
+        <div>Speed: ${pos['speed'] or '--'}</div>
+        <div>Location: ${pos['location']}</div>
+        <div>Status: ${pos['status']}</div>
+    </div>
+    <div class="links">
+        <a class="navpath" href="javascript:void(0);" onclick="javascript:show_navpath(${v['imo']}, ${v['mmsi']})">Show Navigation Path</a>
+    </div>
+</td>
+

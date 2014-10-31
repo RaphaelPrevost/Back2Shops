@@ -11,38 +11,38 @@ from B2SUtils.errors import ValidationError
 
 def _get_mock_vessel_detail():
     return {
-        'objects': [{
-            'destination': 'CADIZ',
-            'etatime': '2014-12-03T09:45+0000',
-            'flag': 'IT|Italy',
-            'heading': '87.0',
-            'imonumber': 9362542,
-            'last_ports': [
-                {"arrival": '2014-12-03T09:45+0000',
-                 "departure": '2014-12-03T11:45+0000',
-                 "locode": "ESYCZ",
-                 "name": "Cadiz",
-                },
-                {"arrival": '2014-12-02T08:56+0000',
-                 "departure": '2014-12-02T15:29+0000',
-                 "locode": "PTLIS",
-                 "name": "Lisboa", },
-            ],
-            'latitude': str(random.uniform(25, 36.3424)),
-            'location': 'North Atlantic Ocean, PT',
-            'longitude': str(random.uniform(-15, -7.83245)),
-            'mmsinumber': 247229700,
-            'name': 'AIDABELLA',
-            'navigationstatus': 'under way with engine',
-            'photos': '//img4.fleetmon.com/thumbnails/COSCO_CHINA_41931.220x146.jpg|//img4.fleetmon.com/thumbnails/COSCO_CHINA_41931.570x1140.jpg',
-            'positionreceived': str(datetime.datetime.utcnow()), #'2015-11-03T05:42+0000',
-            'type': 'Passenger ship',
-        }],
         "meta": {
-            "limit": 5, "next": None, "offset": 0,
-            "previous": None, "total_count": 2,
-        }
-    }
+            "cp_consumed": 1.5, "cp_remaining": 96.0, "limit": 5,
+            "next": None, "offset": 0, "previous": None, "total_count": 1},
+        "objects": [{
+            "destination": "BAR HARBOR",
+            "etatime": "2014-10-28T11:00+0000",
+            "flag": "IT|Italy",
+            "heading": "307.0",
+            "imonumber": 9362542,
+            "last_ports": [{
+                "arrival": "2014-10-21T12:37+0000",
+                "departure": "2014-10-23T18:08+0000",
+                "locode": "CAMTR",
+                "portname": "Montreal"
+            }, {
+                "arrival": "2014-10-27T10:10+0000",
+                "departure": "2014-10-27T17:50+0000",
+                "locode": "CAHAL",
+                "portname": "Halifax"
+            }],
+            "latitude": str(random.uniform(25, 43.628562)),
+            "location": "Gulf of Maine, CA",
+            "longitude": str(random.uniform(-30, -66.714317)),
+            "mmsinumber": 247229700,
+            "name": "AIDABELLA",
+            "navigationstatus": "under way using engine",
+            "photos": "//img3.fleetmon.com/thumbnails/AIDABELLA_603862.220x146.jpg|//img3.fleetmon.com/thumbnails/AIDABELLA_603862.570x1140.jpg", 
+            "positionreceived": str(datetime.datetime.utcnow()),
+            "publicurl": "http://www.fleetmon.com/en/vessels/Aidabella_50934",
+            "type": "Passenger ship"}
+        ]}
+
 
 class FleetmonAPI:
     def searchVessel(self, name=None, imo=None, mmsi=None):
@@ -81,7 +81,6 @@ class FleetmonAPI:
         else:
             result = self._execute('/api/p/personal-v1/vessels_terrestrial/',
                                    **kwargs)
-            print result
         objects = result['objects']
 
         while result['meta']['next']:
@@ -120,8 +119,12 @@ class FleetmonAPI:
 
         try:
             req = urllib2.Request(api_url)
-            resp = urllib2.urlopen(req, timeout=5)
-            return ujson.loads(resp.read())
+            resp = urllib2.urlopen(req,
+                         timeout=settings.THIRDPARTY_ACCESS_TIMEOUT)
+            json_return = ujson.loads(resp.read())
+            logging.info('Got return from Fleetmon (url: %s) : \n%s',
+                         api_url, json_return)
+            return json_return
         except Exception, e:
             logging.error("Got exception when accessing third-party API "
                           "(url: %s) : %s", api_url, e, exc_info=True)

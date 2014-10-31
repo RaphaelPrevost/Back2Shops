@@ -18,17 +18,18 @@ CREATE TABLE vessel_navigation (
     arrival_portname character varying(64),
     arrival_locode character varying(64),
     arrival_time timestamp without time zone NOT NULL,
-    status character varying(64),
     created timestamp without time zone DEFAULT now() NOT NULL
 );
 
 CREATE TABLE vessel_position (
     id serial PRIMARY KEY,
-    id_vessel_navigation bigint REFERENCES vessel_navigation(id),
+    id_vessel bigint REFERENCES vessel(id),
     location character varying(32),
     longitude double precision,
     latitude double precision,
     heading double precision,
+    speed double precision,
+    status character varying(64),
     time timestamp without time zone DEFAULT now() NOT NULL
 );
 
@@ -45,4 +46,15 @@ CREATE TABLE user_fleet (
     id_user BIGINT NOT NULL,
     imo character varying(64),
     mmsi character varying(64)
+);
+
+
+CREATE TABLE container_x_vessel (
+    id serial PRIMARY KEY,
+    container character varying(64),
+    bill_of_landing character varying(64),
+    first_pol character varying(64),
+    last_pod character varying(64),
+    vessel_name character varying(64),
+    voyage character varying(64)
 );

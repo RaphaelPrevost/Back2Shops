@@ -4,7 +4,7 @@ from B2SUtils.errors import ValidationError
 from webservice.base import BaseJsonResource
 from common.utils import query_vessel_details
 from common.utils import init_vessel_detail_obj
-from common.utils import VESSEL_FIELDS, VESSEL_NAV_FIELDS, VESSEL_POS_FILES
+from common.utils import VESSEL_FIELDS, VESSEL_NAV_FIELDS, VESSEL_POS_FIELDS
 
 
 class VesselDetailResource(BaseJsonResource):
@@ -39,7 +39,7 @@ class VesselNaviPathResource(BaseJsonResource):
             q = mmsi
 
         sql = """
-            select vessel_navigation.id, %s
+            select vessel.id, %s
             from vessel
             join vessel_navigation
                on (vessel.id=vessel_navigation.id_vessel)
@@ -54,15 +54,16 @@ class VesselNaviPathResource(BaseJsonResource):
         return_obj = {}
         if len(vessel_nav) > 0:
             vessel_nav = vessel_nav[0]
-            id_vessel_nav = vessel_nav.pop(0)
+            id_vessel = vessel_nav.pop(0)
             sql = """
                 select %s
                 from vessel_position
-                where id_vessel_navigation = %s
+                where id_vessel = %%s
+                  and time >= %%s and time <= %%s
                 order by time desc
-                """ % (','.join(VESSEL_POS_FILES),
-                       id_vessel_nav)
-            positions = db_utils.query(conn, sql, (id_vessel_nav,))
+                """ % ','.join(VESSEL_POS_FIELDS)
+            positions = db_utils.query(conn, sql,
+                               (id_vessel, vessel_nav[10], vessel_nav[13]))
             if positions:
                 detail_obj = init_vessel_detail_obj(vessel_nav, positions)
                 return_obj = detail_obj.toDict()
