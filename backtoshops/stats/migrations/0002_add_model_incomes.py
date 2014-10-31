@@ -29,7 +29,7 @@ class Migration(SchemaMigration):
 
     models = {
         u'accounts.brand': {
-            'Me_idta': {'object_name': 'Brand'},
+            'Meta': {'object_name': 'Brand'},
             'address': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['address.Address']", 'unique': 'True'}),
             'business_reg_num': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '100', 'null': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
