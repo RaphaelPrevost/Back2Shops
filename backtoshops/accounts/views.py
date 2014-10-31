@@ -1,5 +1,6 @@
 # Create your views here.
 import logging
+from common.utils import is_shop_manager_upper
 from django import http
 from django.utils.translation import check_for_language
 import settings
@@ -27,7 +28,11 @@ def home_page(request):
     """
     if request.user.is_superuser: #== super admin
         return render_to_response('sa_index.html', context_instance=RequestContext(request))
-    else: #non super admin
+    elif is_shop_manager_upper(request.user.get_profile().pk): #non super admin
+        context = RequestContext(request)
+        return render_to_response('new_index.html', context_instance=context)
+    else:
+        # TODO: operator directly redirect to order page.
         context = RequestContext(request)
         return render_to_response('index.html', context_instance=context)
 

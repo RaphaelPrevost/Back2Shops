@@ -1,0 +1,215 @@
+{% extends "new_base.html" %}
+{% load i18n %}
+
+{% block content %}
+    <div id="content_Home">
+			<div class="blocHome bloc1" >
+				<h1>{% trans "Ventes" %} <span id="earned_today">$ <em>{% trans "earned today" %}</em></span></h1>
+				<ul>
+					<li><a class="linkHome link1" href="#"><span>*</span>{% trans "Créer une vente" %}</a></li>
+					<li><a class="linkHome link2" href="#"><span>*</span>{% trans "Ventes en cours" %}</a></li>
+					<li><a class="linkHome link3" href="#"><span>*</span>{% trans "Historique des ventes" %}</a></li>
+				</ul>
+				<div class="graph" id="incomes_chart">
+				</div>
+			</div>
+
+			<div class="blocHome bloc2">
+				<h1>{% trans "Commandes" %} <span id="waiting_shipping_today">19 <em>"{% trans 'pending orders' %}"</em></span></h1>
+				<ul>
+					<li><a class="linkHome link2" href="#"><span>*</span>{% trans "Commandes en cours" %}</a></li>
+					<li><a class="linkHome link2" href="#"><span>*</span>{% trans "Gestion des retours" %}</a></li>
+				</ul>
+				<div class="graph" id="orders_chart">
+				</div>
+			</div>
+
+			<div class="blocHome bloc3">
+				<h1>{% trans "Boutiques" %} <span id="visitors_online"> <em>{% trans "visitors online" %}</em></span></h1>
+				<ul>
+					<li><a class="linkHome link4" href="#"><span>*</span>{% trans "Boutiques" %}</a></li>
+					<li><a class="linkHome link5" href="#"><span>*</span>{% trans "Statistiques" %}</a></li>
+					<li><a class="linkHome link6" href="#"><span>*</span>{% trans "Opérateurs mgmt" %}</a></li>
+				</ul>
+				<div class="graph" id="visitors_chart">
+				</div>
+			</div>
+
+			<div class="blocHome bloc4">
+				<h1>{% trans "Réglages" %}</h1>
+				<a href="#" class="graph reglage">
+					<img src="static/img/reglages.png" alt="{% trans "Réglages" %}" />
+				</a>
+			</div>
+
+            <div id="target"></div>
+    </div>
+
+{% endblock %}
+
+
+{% block javascript %}
+<script type="text/javascript">
+    function draw_line(ele_id, line) {
+        $.jqplot(ele_id, [line], {
+            seriesDefaults:{
+                showMarker: false
+            },
+
+            axes:{
+                xaxis:{
+                    renderer:$.jqplot.DateAxisRenderer,
+                    rendererOptions: {drawBaseline: false},
+                    tickRenderer: $.jqplot.CanvasAxisTickRenderer ,
+                    tickOptions:{
+                        formatString:'%m-%d',
+                        showMark: false,
+                        showGridline: false,
+                        labelPosition: 'end',
+                        angle: -45
+                    }
+                },
+                yaxis: {
+                    min: 0,
+                    rendererOptions: {
+                        drawBaseline: false
+                    },
+                    tickRenderer: $.jqplot.CanvasAxisTickRenderer ,
+                    tickOptions:{
+                        showMark: false,
+                        showGridline: false,
+                        labelPosition: 'middle',
+                        angle: 0
+                    }
+                }
+
+            },
+            grid: {
+                showGridline: false,
+                borderColor: 'transparent',
+                background: 'transparent',
+                shadow: false,
+                drawBorder: false,
+                shadowColor: 'transparent'
+            }
+        });
+    }
+
+    function draw_bar_line(ele_id, bar, line, ticks) {
+        $.jqplot(ele_id, [bar, line], {
+            seriesDefaults:{
+                showMarker: false
+            },
+
+            axes:{
+                xaxis:{
+                    renderer: $.jqplot.CategoryAxisRenderer,
+                    rendererOptions: {drawBaseline: false},
+                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                    ticks: ticks,
+                    tickOptions:{
+                        showMark: false,
+                        showGridline: false,
+                        labelPosition: 'middle',
+                        angle: -45
+                    }
+                },
+                yaxis: {
+                    min: 0,
+                    rendererOptions: {
+                        drawBaseline: false
+                    },
+                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                    tickOptions:{
+                        showMark: false,
+                        showGridline: false,
+                        labelPosition: 'middle'
+                    }
+                }
+            },
+            grid: {
+                showGridline: false,
+                borderColor: 'transparent',
+                background: 'transparent',
+                shadow: false,
+                drawBorder: false,
+                shadowColor: 'transparent'},
+            series:[{renderer: $.jqplot.BarRenderer}
+            ]
+        });
+    }
+
+    function load_stats() {
+        $.ajax({
+            type: 'GET',
+            url: '/stats/incomes',
+            dataType: "json",
+            beforeSend: function(xhr) {
+                $('.bloc1').loadingOverlay();
+            }
+        }).fail(function(jqXHR, textStatus) {
+                    console.log('failed to get incomes stats with status ' + textStatus)
+                }).success(function(data, textStatus) {
+                    if (textStatus == 'success') {
+                        draw_line('incomes_chart', data['lines'])
+                        $("#earned_today").html("$" + data['earned_today'] + ' <em>{% trans "earned today" %}</em>');
+                    }
+
+                }).done(function(){
+                    $('.bloc1').loadingOverlay('remove');
+                });
+
+        $.ajax({
+            type: 'GET',
+            url: '/stats/orders',
+            dataType: "json",
+            beforeSend: function(xhr) {
+                $('.bloc2').loadingOverlay();
+            }
+        }).fail(function(jqXHR, textStatus) {
+                    console.log('failed to get order stats with status ' + textStatus)
+                }).success(function(data, textStatus) {
+                    if (textStatus == 'success') {
+                        draw_line('orders_chart', data['lines'])
+                        $("#waiting_shipping_today").html(
+                                data['pending'] + " <em>{% trans 'pending orders' %}</em>");
+
+                    }
+
+                }).done(function(){
+                    $('.bloc2').loadingOverlay('remove');
+                });
+
+        $.ajax({
+            type: 'GET',
+            url: '/stats/visitors',
+            dataType: "json",
+            beforeSend: function(xhr) {
+                $('.bloc3').loadingOverlay();
+            }
+        }).fail(function(jqXHR, textStatus) {
+                    console.log('failed to get visitors stats with status ' + textStatus)
+                }).success(function(data, textStatus) {
+                    if (textStatus == 'success') {
+                        draw_bar_line('visitors_chart',
+                                      data['visitors_day_count'],
+                                      data['trans_rate_line'],
+                                      data['ticks']);
+                        $("#visitors_online").html(
+                                data['visitors_online'] + " <em> {% trans 'visitors online' %}</em>"
+                        );
+                    }
+
+                }).done(function(){
+                    $('.bloc3').loadingOverlay('remove');
+                });
+
+    }
+
+    $(document).ready(function(){
+        load_stats();
+    });
+
+
+</script>
+{% endblock %}
