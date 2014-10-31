@@ -13,7 +13,6 @@ class SensorIncomesResource(SensorBaseResource):
         where = self._get_req_range(req)
 
         try:
-            logging.error('???' * 30)
             objects = get_incomes_log(conn, where)
             return {'GET_R': {'objects': objects}}
         except Exception, e:
