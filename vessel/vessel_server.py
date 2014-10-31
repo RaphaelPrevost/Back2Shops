@@ -8,7 +8,7 @@ import gevent
 from gevent.pywsgi import WSGIServer
 
 import settings
-from batch import fetch_user_fleets_data
+from batch import start as batch_start
 from urls import urlpatterns
 from B2SUtils.common import parse_form_params
 from B2SUtils.db_utils import init_db_pool
@@ -28,7 +28,7 @@ def init_db():
     init_db_pool(settings.DATABASE)
 
 init_db()
-fetch_user_fleets_data.start()
+batch_start()
 
 if __name__ == '__main__':
     import logging

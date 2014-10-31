@@ -5,7 +5,7 @@ from B2SUtils import db_utils
 from common.utils import query_vessel_details
 
 
-class FetchUserFleetsData(object):
+class FetchContainerVesselData(object):
 
     def run(self):
         with db_utils.get_conn() as conn:
@@ -13,18 +13,11 @@ class FetchUserFleetsData(object):
             gevent.spawn_later(settings.FETCH_VESSEL_INTERVAL, self.run)
 
     def fetch(self, conn):
-        fleets = db_utils.query(conn,
-                    "select distinct imo, mmsi from user_fleet")
-        for imo, mmsi in fleets:
-            if imo:
-                search_by = 'imo'
-                q = imo
-            elif mmsi:
-                search_by = 'mmsi'
-                q = mmsi
-            else:
-                continue
-
+        vessels = db_utils.query(conn,
+                    "select distinct vessel_name from container_x_vessel")
+        for name in vessels:
+            search_by = 'name'
+            q = name
             try:
                 query_vessel_details(conn, search_by, q,
                                      settings.FETCH_VESSEL_INTERVAL/2)

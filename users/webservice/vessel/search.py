@@ -23,7 +23,21 @@ class SearchPortResource(BaseVesselResource):
         if search_by not in ('name', 'locode') or not q:
             raise ValidationError('INVALID_REQUEST')
 
+        args = {"search_by": search_by,
+                "q": q}
+        if req.get_param('country'):
+            args['country'] = req.get_param('country')
+        return args
+
+class SearchContainerResource(BaseVesselResource):
+    api_path = 'webservice/1.0/protected/container/search'
+
+    def _get_valid_args(self, req, resp, conn, **kwargs):
+        search_by = req.get_param('search_by')
+        q = req.get_param('q')
+        if search_by not in ('container', 'bill_of_landing') or not q:
+            raise ValidationError('INVALID_REQUEST')
+
         return {"search_by": search_by,
-                "q": q,
-                'country': req.get_param('country')}
+                "q": q}
 

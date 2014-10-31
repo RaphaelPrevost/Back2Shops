@@ -8,6 +8,8 @@ pypgwrap==0.1.4
 gevent==1.0.1
 gevent-psycopg2==0.0.3
 mechanize==0.2.5
+beautifulsoup4==4.3.2
+pyKML=0.1.0
 M2Crypto==0.21.1.B2S
 B2SCrypto==0.0.4
 B2SUtils==0.1.0

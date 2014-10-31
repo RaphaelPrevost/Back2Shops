@@ -9,43 +9,59 @@ class VesselHomepageResource(BaseHtmlResource):
     template = 'vessel_index.html'
 
     def _on_get(self, req, resp, **kwargs):
-        vessels = []
-        ports = []
+        return self._get_common_data(req, resp, **kwargs)
+
+    def _get_common_data(self, req, resp, **kwargs):
+        myfleets = []
         if self.users_id:
             result = data_access(REMOTE_API_NAME.GET_USER_FLEET,
                                  req, resp)
             if result.get('res') != RESP_RESULT.F:
-                vessels = result['objects']
+                myfleets = result['objects']
         return {
-            'vessels': vessels,
-            'ports': ports,
+            'myfleets': myfleets,
+            'vessels': [],
+            'ports': [],
+            'containers': [],
             'vessel_input': '',
             'port_input': '',
+            'container_input': '',
         }
 
 
-class SearchResource(BaseHtmlResource):
+class SearchResource(VesselHomepageResource):
     template = 'vessel_index.html'
 
     def _on_post(self, req, resp, **kwargs):
-        vessels = []
-        ports = []
-        if req.get_param('vessel_input'):
-            vessels = self.search_vessel(req, resp)
-        elif req.get_param('port_input'):
-            ports = self.search_port(req, resp)
+        data = self._get_common_data(req, resp, **kwargs)
+
+        if req.get_param('search_vessel'):
+            vessel_input = req.get_param('vessel_input') or ''
+            vessels = self.search_vessel(req, resp, vessel_input)
+            data.update({
+                'vessel_input': vessel_input,
+                'vessels': vessels,
+            })
+        elif req.get_param('search_port'):
+            port_input = req.get_param('port_input') or ''
+            ports = self.search_port(req, resp, port_input)
+            data.update({
+                'port_input': port_input,
+                'ports': ports,
+            })
+        elif req.get_param('search_container'):
+            container_input = req.get_param('container_input') or ''
+            containers = self.search_container(req, resp, container_input)
+            data.update({
+                'container_input': container_input,
+                'containers': containers,
+            })
         else:
             pass
-        return {
-            'vessels': vessels,
-            'ports': ports,
-            'vessel_input': req.get_param('vessel_input') or '',
-            'port_input': req.get_param('port_input') or '',
-        }
+        return data
 
-    def search_vessel(self, req, resp):
+    def search_vessel(self, req, resp, query):
         vessels = []
-        query = req.get_param('vessel_input')
         if query.isdigit():
             for search_by in ('imo', 'mmsi'):
                 result = data_access(REMOTE_API_NAME.SEARCH_VESSEL,
@@ -63,9 +79,8 @@ class SearchResource(BaseHtmlResource):
                 vessels = result['objects']
         return vessels
 
-    def search_port(self, req, resp):
+    def search_port(self, req, resp, query):
         ports = []
-        query = req.get_param('port_input')
         for search_by in ('locode', 'name'):
             result = data_access(REMOTE_API_NAME.SEARCH_PORT,
                                  req, resp,
@@ -75,6 +90,18 @@ class SearchResource(BaseHtmlResource):
                 if len(ports) > 0:
                     break
         return ports
+
+    def search_container(self, req, resp, query):
+        containers = []
+        for search_by in ('container', 'bill_of_landing'):
+            result = data_access(REMOTE_API_NAME.SEARCH_CONTAINER,
+                                 req, resp,
+                                 search_by=search_by, q=query)
+            if result.get('res') != RESP_RESULT.F:
+                containers = result['objects']
+                if len(containers) > 0:
+                    break
+        return containers
 
 
 class VesselNavPathResource(BaseJsonResource):

@@ -36,6 +36,7 @@ from webservice.shops import ShopsResource
 from webservice.suggest import SuggestResource
 from webservice.taxes import TaxesResource
 from webservice.types import TypesResource
+from webservice.vessel.search import SearchContainerResource
 from webservice.vessel.search import SearchPortResource
 from webservice.vessel.search import SearchVesselResource
 from webservice.vessel.user_fleet import UserFleetResource
@@ -85,6 +86,7 @@ urlpatterns = {
     '/webservice/1.0/protected/shipment': ShipmentResource,
 
     '/webservice/1.0/protected/port/search': SearchPortResource,
+    '/webservice/1.0/protected/container/search': SearchContainerResource,
     '/webservice/1.0/protected/vessel/details': VesselDetailResource,
     '/webservice/1.0/protected/vessel/path': VesselNaviPathResource,
     '/webservice/1.0/protected/vessel/search': SearchVesselResource,

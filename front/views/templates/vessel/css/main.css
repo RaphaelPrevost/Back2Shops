@@ -10,54 +10,73 @@
 	text-align: right;
 }
 
-.floater {
-	display: block;
-	min-height: 200px;
-	margin: 20px 0 20px 0;
-	border: 1px solid #dbdbdb;
-	background-color: #f9f8f8;
-} 
-.floater.left {
-    float: left;
-    width: 70%;
+.content {
+    margin: 20px auto;
+    width: 1200px;
 }
-.floater.right {
-    float: right;
-    width: 28%;
-    min-width: 350px; 
- }
-.floater label {
-	display: inline-block;
-	margin-left: 12px;
-	width: 30px; height: 25px; 
-	line-height: 25px;
-}
-.floater input {
-	display: inline-block;
-	margin: 12px 12px;
-	padding: 0px 12px;
-	width: 250px; height: 25px; 
-	line-height: 25px;
-	color: #666666; border: 1px solid #e5e5e5;
-} 
 
 #map {
     height: 600px;
 }
 
-#search {
-    height: 600px;
-    overflow: scroll;
+#search_input form {
+    float: left;
 }
 
-#search_result .port_item,
-#search_result .vessel_item {
-	border-top: 1px solid #e5e5e5;
-	margin: 12px 20px 12px 20px;
-	padding: 12px 12px 12px 12px;
-	width: 250px; height: 30px; 
+#search_input label {
+	display: inline-block;
+	margin-left: 12px;
+	height: 25px; 
 	line-height: 25px;
+}
+
+#search_input input {
+	display: inline-block;
+	margin: 12px 12px;
+	padding: 0px 12px;
+	width: 170px;
+    height: 25px; 
+	line-height: 25px;
+	color: #666666;
+    border: 1px solid #e5e5e5;
+} 
+
+#search_input input.btn {
+	width: 60px;
+}
+
+#myfleets,
+#search_result {
+	border: 1px solid #dbdbdb;
+	background-color: #f9f8f8;
+}
+
+#myfleets table,
+#search_result table {
+	border: 1px solid #e5e5e5;
+    margin: 15px auto;
+    text-align: center;
+    width: 1150px;
+}
+#myfleets tr,
+#search_result tr {
+	height: 35px;
     font-size: 12px;
+}
+#myfleets td,
+#search_result td {
+    width: 220px;
+}
+#myfleets img.thumb,
+#search_result img.thumb {
+    width: 50px;
+    vertical-align: middle;
+}
+#search_result .port_table tr {
+	height: 25px;
+}
+#search_result .port_table td {
+	width: 350px;
 }
 
 #loginForm input {

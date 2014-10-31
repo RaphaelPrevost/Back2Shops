@@ -1,14 +1,20 @@
 import settings
 from common.models import *
+from common.thirdparty import coscon
 from common.thirdparty import fleetmon
 
 
-def getDs():
+def getVesselDs():
     if settings.USE_FLEETMON:
         return FleetmonDs()
     else:
         raise NotImplementedError()
 
+def getContainerDs():
+    if settings.USE_COSCON_CONTAINER:
+        return CosconDs()
+    else:
+        raise NotImplementedError()
 
 class BaseDataSource(object):
 
@@ -20,6 +26,19 @@ class BaseDataSource(object):
 
     def searchPort(self, **kwargs):
         raise NotImplementedError()
+
+    def searchContainer(self, **kwargs):
+        raise NotImplementedError()
+
+
+class CosconDs(BaseDataSource):
+    def __init__(self):
+        self.api = coscon.CosconAPI()
+
+    def searchContainer(self, **kwargs):
+        data = self.api.searchContainer(**kwargs)
+        return ContainerInfo(**data).toDict()
+
 
 class FleetmonDs(BaseDataSource):
     def __init__(self):
@@ -48,8 +67,10 @@ class FleetmonDs(BaseDataSource):
         results = []
         for item in items:
             country_isocode, country_name = item['flag'].split('|')
-            to_port = item['last_ports'][0]
-            from_port = item['last_ports'][1]
+            if len(item['last_ports']) > 0:
+                from_port = item['last_ports'][0]
+            else:
+                from_port = {}
             info = VesselDetailInfo(
                     name=item['name'],
                     imo=item['imonumber'],
@@ -60,19 +81,20 @@ class FleetmonDs(BaseDataSource):
                     country_name=country_name,
                     photos=item['photos'].split('|'),
 
-                    departure_portname=from_port['name'],
-                    departure_locode=from_port['locode'],
-                    departure_time=from_port['departure'],
-                    arrival_portname=to_port['name'],
-                    arrival_locode=to_port['locode'],
-                    arrival_time=to_port['arrival'],
-                    status=item['navigationstatus'],
+                    departure_portname=from_port.get('portname'),
+                    departure_locode=from_port.get('locode'),
+                    departure_time=from_port.get('departure'),
+                    arrival_portname=item['destination'],
+                    arrival_locode=item['destination'],
+                    arrival_time=item['etatime'],
                     positions=[{
                         'location': item['location'],
                         'longitude': item['longitude'],
                         'latitude': item['latitude'],
                         'heading': item['heading'],
+                        'speed': None,
                         'time': item['positionreceived'],
+                        'status': item['navigationstatus'],
                     }],
                 ).toDict()
             results.append(info)
