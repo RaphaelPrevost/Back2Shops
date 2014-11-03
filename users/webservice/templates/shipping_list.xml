@@ -14,7 +14,7 @@
                         <name>{{ carrier.name }}</name>
                         {% for service in carrier.services %}
                             <service id="{{ service.id }}">
-                                <name>{{ service.name }}</name>
+                                <name>{{ service.name|e }}</name>
                                 <desc>{{ service.desc }}</desc>
                             </service>
                         {% endfor %}
