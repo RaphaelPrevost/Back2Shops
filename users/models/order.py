@@ -127,7 +127,11 @@ def up_order_log(conn, id_order, sellers):
             where = {'id_order': id_order,
                      'id_brand': id_brand,
                      'id_shop': id_shop}
-            log = select(conn, 'orders_log', where=where)[0]
+            log = select(conn, 'orders_log', where=where)
+            if log:
+                log = log[0]
+            else:
+                continue
             v = None
             if status == ORDER_STATUS.PENDING:
                 if log['pending_date'] is None:
@@ -136,10 +140,10 @@ def up_order_log(conn, id_order, sellers):
                 if log['waiting_payment_date'] is None:
                     v = {'waiting_payment_date': datetime.utcnow().date()}
             elif status == ORDER_STATUS.AWAITING_SHIPPING:
-                if log['waiting_shipping_date' is None]:
+                if log['waiting_shipping_date'] is None:
                     v = {'waiting_shipping_date': datetime.utcnow().date()}
             elif status == ORDER_STATUS.COMPLETED:
-                if log['completed_date' is None]:
+                if log['completed_date'] is None:
                     v = {'completed_date': datetime.utcnow().date()}
             if v is not None:
                 where = {'id_order': id_order,

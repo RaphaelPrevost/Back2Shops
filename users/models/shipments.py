@@ -847,7 +847,7 @@ def update_shipment(conn, id_shipment, values, shipment=None):
                        'timestamp': shipment['update_time']})
         from models.order import up_order_log
         up_order_log(conn, shipment['id_order'],
-                     {shipment['id_brand']: shipment['id_shop']})
+                     {shipment['id_brand']: [shipment['id_shop']]})
 
     logging.info("shipment_%s updated: %s", id_shipment, values)
     return r and r[0] or None
