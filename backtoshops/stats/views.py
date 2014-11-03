@@ -39,8 +39,6 @@ class StatsIncomesView(StatsView):
         obj = {'earned_today': incomes[0][1],
                'lines': incomes}
 
-        print incomes
-
         return HttpResponse(ujson.dumps(obj), mimetype="application/json")
 
     def _day_income(self, user, date):
@@ -175,7 +173,6 @@ class StatsOrdersView(BaseOrdersView):
             order_status = self._day_order(request, date)
             orders.append([date.strftime(DT_FORMAT), order_status])
 
-        print orders
         obj = {'pending': orders[0][1][ORDER_STATUS.AWAITING_SHIPPING],
                'lines': [[item[0], item[1][ORDER_STATUS.COMPLETED] + item[1][ORDER_STATUS.AWAITING_SHIPPING]]
                             for item in orders]}

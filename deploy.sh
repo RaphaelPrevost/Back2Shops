@@ -285,6 +285,13 @@ function adm_redis() {
     )
 }
 
+function adm_batch () {
+    source $CWD/env/bin/activate
+    ( cd $CWD/public_html
+      ./manage.py batch_start &
+    )
+}
+
 function deploy_backoffice() {
     sanity_checks $ADM_REQUIREMENT "${ADM_DEPS[*]}"
     create_python_env $ADM_REQUIREMENT
@@ -294,6 +301,7 @@ function deploy_backoffice() {
     setup_adm_wsgi
     sync_adm
     adm_redis
+    adm_batch
     echo "(i) Deploy backoffice server finished"
 }
 
