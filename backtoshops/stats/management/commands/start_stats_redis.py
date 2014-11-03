@@ -7,9 +7,11 @@ from django.core.management.base import BaseCommand
 
 redis_conf = """
 port %(port)s
+timeout 60
 dbfilename sales_sim_%(port)s.rdb
 pidfile redis-server-%(port)s.pid
 loglevel debug
+logfile sales_sim_%(port)s.log
 save 900 1
 save 300 10
 save 60 10000
