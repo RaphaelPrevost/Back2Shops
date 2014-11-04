@@ -2,6 +2,7 @@ import settings
 import Cookie
 import copy
 import falcon
+import gevent
 import logging
 import re
 import time
@@ -20,6 +21,7 @@ from common.constants import FRT_ROUTE_ROLE
 from common.constants import Redirection
 from common.data_access import data_access
 from common.m17n import trans_func
+from common.redis_utils import get_redis_cli
 from common.utils import cur_symbol
 from common.utils import format_amount
 from common.utils import gen_html_resp
@@ -35,6 +37,7 @@ class BaseResource(object):
     login_required = {'get': False, 'post': False}
     request = None
     response = None
+    users_id = None
 
     def __init__(self, **kwargs):
         object.__init__(self)
@@ -71,7 +74,6 @@ class BaseResource(object):
 
     def msg_handler(self, method_name, req, resp, **kwargs):
         try:
-            self.set_session(req, resp)
             self._verify_user_online(req, resp, method_name)
             method = getattr(self, '_on_' + method_name)
             data = method(req, resp, **kwargs)
@@ -86,6 +88,8 @@ class BaseResource(object):
             logging.error('Server Error: %s', (e,), exc_info=True)
             data = {'res': RESP_RESULT.F,
                     'err': 'SERVER_ERR'}
+        finally:
+            self.set_session(req, resp)
         return data
 
     def set_session(self, req, resp):
@@ -104,12 +108,30 @@ class BaseResource(object):
                        SESSION_COOKIE_NAME,
                        session)
 
+            name = 'SID:%s' % _sid
+            cli = get_redis_cli()
+            cli.setex(name,
+                      self.users_id or "",
+                      settings.SESSION_EXP_TIME)
+
         def __set_session():
             sid = gen_SID()
             __set(sid)
+            __remote_log(sid)
 
         def __up_session(_sid):
+            cli = get_redis_cli()
+            name = 'SID:%s' % _sid
+            if not cli.get(name) and self.users_id:
+                __remote_log(_sid)
             __set(_sid)
+
+        def __remote_log(_sid):
+            values = {'sid': _sid}
+            if self.users_id:
+                values['users_id'] = self.users_id
+            gevent.spawn(data_access, REMOTE_API_NAME.LOG_VISITORS,
+                         req, resp, **values)
 
         cookie = get_cookie(req)
         session = cookie and cookie.get(SESSION_COOKIE_NAME)

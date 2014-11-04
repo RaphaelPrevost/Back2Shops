@@ -1,69 +1,8 @@
 import logging
 from datetime import datetime
 
-from common.redis_utils import get_redis_cli
-
-from B2SProtocol.constants import EXPIRY_FORMAT
-from B2SProtocol.constants import SESSION_COOKIE_NAME
 from B2SUtils import db_utils
 from B2SUtils.db_utils import insert, query, select_dict, select
-from B2SUtils.common import set_cookie, get_cookie
-
-
-##### visitors statistics log #####
-def _up_visitors(sid, users_id):
-    with db_utils.get_conn() as conn:
-        db_utils.update(conn,
-                        'visitors_log',
-                        {'users_id': users_id},
-                        where={'sid': sid})
-        conn.commit()
-
-def _log_visitors(users_id, sid):
-    with db_utils.get_conn() as conn:
-        values = {'sid': sid}
-        if users_id:
-            values['users_id'] = int(users_id)
-        insert(conn, 'visitors_log', values=values)
-        conn.commit()
-
-def log_visitors(req, users_id):
-    try:
-        cookie = get_cookie(req)
-        session = cookie and cookie.get(SESSION_COOKIE_NAME)
-
-        if not session:
-            return
-
-        session = cookie and cookie.get(SESSION_COOKIE_NAME)
-        session = session and session.value.split('&')
-        session = session and [tuple(field.split('='))
-                               for field in session if field]
-        session = session and dict(session)
-        sid = session and session['sid'] or None
-        exp = (session and
-               datetime.strptime(session['exp'], EXPIRY_FORMAT) or
-               None)
-        now = datetime.utcnow()
-
-        cli = get_redis_cli()
-        delta = int((exp - now).total_seconds())
-        name = 'SID:%s' % sid
-
-        if exp and now < exp:
-            if not cli.exists(name):
-                _log_visitors(users_id, sid)
-            else:
-                u_id = cli.get(name)
-                if not u_id and users_id is not None:
-                    _up_visitors(sid, users_id)
-            cli.setex(name, users_id or "", delta)
-        else:
-            _log_visitors(users_id, sid)
-            cli.setex(name, users_id or "", 0)
-
-    except Exception, e:
-        logging.error('log_visitors_err: %s', e, exc_info=True)
 
 
 ##### incomes statistics #####

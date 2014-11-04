@@ -33,10 +33,17 @@ class Command(StatsCommand):
                 users = [users]
 
             for user in users:
-                Visitors.objects.create(
-                    sid=user['@sid'],
-                    users_id=user['users_id'],
-                    visit_time=user['visit_time'])
+                try:
+                    v = Visitors.objects.get(sid=user['@sid'])
+                    v.sid = user['@sid']
+                    v.visit_time = user['visit_time']
+                    v.users_id = user['users_id']
+                    v.save()
+                except Visitors.DoesNotExist:
+                    Visitors.objects.create(
+                        sid=user['@sid'],
+                        users_id=user['users_id'],
+                        visit_time=user['visit_time'])
 
             self.send_feedback(users)
         except Exception, e:

@@ -1,7 +1,6 @@
 import copy
 import logging
 import falcon
-import gevent
 import time
 import ujson
 import settings
@@ -9,7 +8,6 @@ from datetime import datetime
 
 from common.utils import cookie_verify
 from common.utils import detect_locale
-from models.stats_log import log_visitors
 
 from B2SProtocol.constants import RESP_RESULT
 from B2SRespUtils.generate import gen_html_resp
@@ -85,7 +83,6 @@ class BaseResource(object):
                 data = {'res': RESP_RESULT.F,
                         'err': 'SERVER_ERR'}
                 conn.rollback()
-        gevent.spawn(log_visitors, req, self.users_id)
         return data
 
     def _auth(self, conn, req, resp, **kwargs):
