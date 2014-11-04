@@ -42,6 +42,8 @@ class REMOTE_API_NAME(CustomEnum):
     SEARCH_CONTAINER = "SEARCH_CONTAINER"
     SET_CONTAINER_REMINDER = "SET_CONTAINER_REMINDER"
 
+    LOG_VISITORS = "LOG_VISITORS"
+
 
 class HTTP_METHOD(CustomEnum):
     GET = "GET"
@@ -174,4 +176,9 @@ USR_API_SETTINGS = {
         'method': HTTP_METHOD.POST,
         'encrypt': False,
     },
+    REMOTE_API_NAME.LOG_VISITORS: {
+        'url': '/webservice/1.0/private/sensor/visitors/log',
+        'method': HTTP_METHOD.POST,
+        'encrypt': False,
+    }
 }
