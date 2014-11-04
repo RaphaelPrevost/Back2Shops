@@ -6,9 +6,10 @@
 			<div class="blocHome bloc1" >
 				<h1>{% trans "Ventes" %} <span id="earned_today">$ <em>{% trans "earned today" %}</em></span></h1>
 				<ul>
-					<li><a class="linkHome link1" href="#"><span>*</span>{% trans "Créer une vente" %}</a></li>
-					<li><a class="linkHome link2" href="#"><span>*</span>{% trans "Ventes en cours" %}</a></li>
-					<li><a class="linkHome link3" href="#"><span>*</span>{% trans "Historique des ventes" %}</a></li>
+					<li><a class="linkHome link1" href="{% url 'add_sale' %}"><span>*</span>{% trans "Add a new sale" %}</a></li>
+					<li><a class="linkHome link2" href="{% url 'list_sales' 'current'%}"><span>*</span>{% trans "Current sales" %}</a></li>
+					<li><a class="linkHome link3" href="{% url 'list_sales' 'old'%}"><span>*</span>{% trans "History" %}</a></li>
+                    <li><a class="linkHome link11" href="{% url 'page_promotion' %}"><span>*</span>{% trans "Promotion groups" %}</a></li>
 				</ul>
 				<div class="graph" id="incomes_chart">
 				</div>
@@ -17,8 +18,8 @@
 			<div class="blocHome bloc2">
 				<h1>{% trans "Commandes" %} <span id="waiting_shipping_today">19 <em>"{% trans 'pending orders' %}"</em></span></h1>
 				<ul>
-					<li><a class="linkHome link2" href="#"><span>*</span>{% trans "Commandes en cours" %}</a></li>
-					<li><a class="linkHome link2" href="#"><span>*</span>{% trans "Gestion des retours" %}</a></li>
+					<li><a class="linkHome link8" href="{% url 'list_orders' %}"><span>*</span>{% trans "Orders" %}</a></li>
+					<li><a class="linkHome link8" href="#"><span>*</span>{% trans "Returns" %}</a></li>
 				</ul>
 				<div class="graph" id="orders_chart">
 				</div>
@@ -27,9 +28,8 @@
 			<div class="blocHome bloc3">
 				<h1>{% trans "Boutiques" %} <span id="visitors_online"> <em>{% trans "visitors online" %}</em></span></h1>
 				<ul>
-					<li><a class="linkHome link4" href="#"><span>*</span>{% trans "Boutiques" %}</a></li>
-					<li><a class="linkHome link5" href="#"><span>*</span>{% trans "Statistiques" %}</a></li>
-					<li><a class="linkHome link6" href="#"><span>*</span>{% trans "Opérateurs mgmt" %}</a></li>
+					<li><a class="linkHome link4" href="{% url 'page_shops' %}"><span>*</span>{% trans "Shops" %}</a></li>
+					<li><a class="linkHome link7" href="{% url 'operators' %}"><span>*</span>{% trans "Staff" %}</a></li>
 				</ul>
 				<div class="graph" id="visitors_chart">
 				</div>
@@ -37,6 +37,10 @@
 
 			<div class="blocHome bloc4">
 				<h1>{% trans "Réglages" %}</h1>
+                <ul>
+                    <li><a class="linkHome link12" href="{% url 'routes' %}"><span>*</span>{% trans "Content and presentation" %}</a></li>
+                    <li><a class="linkHome link12" href="{% url 'new_template' %}"><span>*</span>{% trans "E-mails and Notifications" %}</a></li>
+                </ul>
 				<a href="#" class="graph reglage">
 					<img src="static/img/reglages.png" alt="{% trans "Réglages" %}" />
 				</a>
