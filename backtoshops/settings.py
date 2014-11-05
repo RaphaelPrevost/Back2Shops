@@ -1,9 +1,9 @@
 from platform import node
 
 DEVELOPMENT_HOST='Nicholass-MacBook-Pro.local'
-DEVELOPMENT_HOST = 'ada-pc'
+DEVELOPMENT_HOST = ['ada-pc', 'jessica-pc', 'jessica']
 
-if node() == DEVELOPMENT_HOST:
+if node() in DEVELOPMENT_HOST:
     from settings_local import *
 elif node() == 'debian': #tentatively using this as VPS debian dev setting
     from settings_debian import *

@@ -54,31 +54,33 @@
 
 {% block javascript %}
 <script type="text/javascript">
-    function draw_line(ele_id, line) {
+    function draw_line(ele_id, line, ticks) {
         $.jqplot(ele_id, [line], {
+
             seriesDefaults:{
                 showMarker: false
+            },
+            axesDefaults: {
+                rendererOptions: {drawBaseline: false},
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer
             },
 
             axes:{
                 xaxis:{
-                    renderer:$.jqplot.DateAxisRenderer,
-                    rendererOptions: {drawBaseline: false},
-                    tickRenderer: $.jqplot.CanvasAxisTickRenderer ,
+                    renderer: $.jqplot.CategoryAxisRenderer,
+                    rendererOptions: {
+                        sortMergedLabels: true
+                    },
+                    ticks: ticks,
                     tickOptions:{
-                        formatString:'%m-%d',
                         showMark: false,
                         showGridline: false,
-                        labelPosition: 'end',
+                        labelPosition: 'middle',
                         angle: -45
                     }
                 },
                 yaxis: {
                     min: 0,
-                    rendererOptions: {
-                        drawBaseline: false
-                    },
-                    tickRenderer: $.jqplot.CanvasAxisTickRenderer ,
                     tickOptions:{
                         showMark: false,
                         showGridline: false,
@@ -90,11 +92,9 @@
             },
             grid: {
                 showGridline: false,
-                borderColor: 'transparent',
                 background: 'transparent',
                 shadow: false,
-                drawBorder: false,
-                shadowColor: 'transparent'
+                drawBorder: false
             }
         });
     }
@@ -102,13 +102,17 @@
     function draw_bar_line(ele_id, bar, line, ticks) {
         $.jqplot(ele_id, [bar, line], {
             seriesDefaults:{
-                showMarker: false
+                showMarker: false,
+                rendererOptions: {fillToZero: true}
             },
 
             axes:{
                 xaxis:{
                     renderer: $.jqplot.CategoryAxisRenderer,
-                    rendererOptions: {drawBaseline: false},
+                    rendererOptions: {
+                        drawBaseline: false,
+                        sortMergedLabels: true
+                    },
                     tickRenderer: $.jqplot.CanvasAxisTickRenderer,
                     ticks: ticks,
                     tickOptions:{
@@ -121,7 +125,23 @@
                 yaxis: {
                     min: 0,
                     rendererOptions: {
-                        drawBaseline: false
+                        drawBaseline: false,
+                        sortMergedLabels: true
+                    },
+                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                    tickOptions:{
+                        showMark: false,
+                        showGridline: false,
+                        labelPosition: 'middle'
+                    },
+                    autoscale:true
+                },
+
+                y2axis: {
+                    min: 0,
+                    rendererOptions: {
+                        drawBaseline: false,
+                        sortMergedLabels: true
                     },
                     tickRenderer: $.jqplot.CanvasAxisTickRenderer,
                     tickOptions:{
@@ -133,13 +153,11 @@
             },
             grid: {
                 showGridline: false,
-                borderColor: 'transparent',
                 background: 'transparent',
                 shadow: false,
-                drawBorder: false,
-                shadowColor: 'transparent'},
-            series:[{renderer: $.jqplot.BarRenderer}
-            ]
+                drawBorder: false},
+            series:[{renderer: $.jqplot.BarRenderer},
+                    {yaxis: 'y2axis'}]
         });
     }
 
@@ -155,7 +173,7 @@
                     console.log('failed to get incomes stats with status ' + textStatus)
                 }).success(function(data, textStatus) {
                     if (textStatus == 'success') {
-                        draw_line('incomes_chart', data['lines'])
+                        draw_line('incomes_chart', data['lines'], data['ticks']);
                         $("#earned_today").html("$" + data['earned_today'] + ' <em>{% trans "earned today" %}</em>');
                     }
 
@@ -174,7 +192,7 @@
                     console.log('failed to get order stats with status ' + textStatus)
                 }).success(function(data, textStatus) {
                     if (textStatus == 'success') {
-                        draw_line('orders_chart', data['lines'])
+                        draw_line('orders_chart', data['lines'], data['ticks']);
                         $("#waiting_shipping_today").html(
                                 data['pending'] + " <em>{% trans 'pending orders' %}</em>");
 

@@ -23,7 +23,9 @@ DT_FORMAT = "%m-%d"
 class StatsView(OperatorUpperLoginRequiredMixin, View):
     def gen_week_days(self):
         today = datetime.utcnow().date()
-        return [today - timedelta(days=i) for i in range(0, 7)]
+        week_days = [today - timedelta(days=i) for i in range(0, 7)]
+        week_days.reverse()
+        return week_days
 
 
 class StatsIncomesView(StatsView):
@@ -31,13 +33,16 @@ class StatsIncomesView(StatsView):
         user = request.user
         week_days = self.gen_week_days()
         incomes = []
+        ticks = []
 
         for date in week_days:
             income = self._day_income(user, date)
-            incomes.append([date.strftime(DT_FORMAT), income])
+            incomes.append(income)
+            ticks.append(date.strftime(DT_FORMAT))
 
-        obj = {'earned_today': incomes[0][1],
-               'lines': incomes}
+        obj = {'earned_today': incomes[-1],
+               'lines': incomes,
+               'ticks': ticks}
 
         return HttpResponse(ujson.dumps(obj), mimetype="application/json")
 
@@ -168,14 +173,17 @@ class StatsOrdersView(BaseOrdersView):
     def get(self, request, *args, **kwargs):
         week_days = self.gen_week_days()
         orders = []
+        ticks = []
 
         for date in week_days:
             order_status = self._day_order(request, date)
-            orders.append([date.strftime(DT_FORMAT), order_status])
+            orders.append(order_status)
+            ticks.append(date.strftime(DT_FORMAT))
 
-        obj = {'pending': orders[0][1][ORDER_STATUS.AWAITING_SHIPPING],
-               'lines': [[item[0], item[1][ORDER_STATUS.COMPLETED] + item[1][ORDER_STATUS.AWAITING_SHIPPING]]
-                            for item in orders]}
+        obj = {'pending': orders[-1][ORDER_STATUS.AWAITING_SHIPPING],
+               'lines': [item[ORDER_STATUS.COMPLETED] + item[ORDER_STATUS.AWAITING_SHIPPING]
+                            for item in orders],
+               'ticks': ticks}
         return HttpResponse(ujson.dumps(obj),
                             mimetype="application/json")
 
@@ -214,12 +222,8 @@ class StatsVisitorsView(BaseOrdersView):
 
             rate = 0
             if v_day_count > 0:
-                rate = orders_count / v_day_count
+                rate = float(orders_count) / float(v_day_count)
             trans_rate_line.append(rate)
-
-        ticks.reverse()
-        visitors_days_count.reverse()
-        trans_rate_line.reverse()
 
 
         obj = {'ticks': ticks,
