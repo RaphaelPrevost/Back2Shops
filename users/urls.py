@@ -38,6 +38,8 @@ from webservice.shops import ShopsResource
 from webservice.suggest import SuggestResource
 from webservice.taxes import TaxesResource
 from webservice.types import TypesResource
+from webservice.vessel.notif import VesselArrivalNotifResource
+from webservice.vessel.notif import ContainerArrivalNotifResource
 from webservice.vessel.search import SearchContainerResource
 from webservice.vessel.search import SearchPortResource
 from webservice.vessel.search import SearchVesselResource
@@ -90,11 +92,13 @@ urlpatterns = {
     '/webservice/1.0/protected/shipping/list': ShippingListResource,
     '/webservice/1.0/protected/shipment': ShipmentResource,
 
-    '/webservice/1.0/protected/port/search': SearchPortResource,
     '/webservice/1.0/protected/container/search': SearchContainerResource,
+    '/webservice/1.0/protected/port/search': SearchPortResource,
     '/webservice/1.0/protected/vessel/details': VesselDetailResource,
     '/webservice/1.0/protected/vessel/path': VesselNaviPathResource,
     '/webservice/1.0/protected/vessel/search': SearchVesselResource,
+    '/webservice/1.0/private/container/reminder': ContainerArrivalNotifResource,
+    '/webservice/1.0/private/vessel/reminder': VesselArrivalNotifResource,
     '/webservice/1.0/private/user_fleet': UserFleetResource,
 
     r'/payment/paypal/{id_trans}/process': PaypalProcessResource,

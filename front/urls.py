@@ -138,8 +138,11 @@ fixed_urlpatterns = {
 
     r'/vessel': vessel.VesselHomepageResource,
     r'/vessel/search': vessel.SearchResource,
+    r'/vessel/quick_search': vessel.VesselQuickSearchResource,
     r'/vessel/get_vessel_navpath': vessel.VesselNavPathResource,
     r'/vessel/update_user_fleet': vessel.UserFleetResource,
+    r'/vessel/update_vessel_reminder': vessel.VesselArrivalReminderResource,
+    r'/vessel/update_container_reminder': vessel.ContainerArrivalReminderResource,
 }
 
 

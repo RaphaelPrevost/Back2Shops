@@ -53,30 +53,11 @@ class SearchContainerResource(BaseJsonResource):
             raise ValidationError('INVALID_REQUEST')
 
         results = []
-        found, vessel_name, first_pol, last_pod = self._find_vessel(conn, search_by, q)
-        if found:
-            container_info = self._get_container_info(search_by, q,
-                                  vessel_name, first_pol, last_pod)
-            container_info['vessel_name'] = vessel_name
-            container_info['first_pol'] = first_pol
-            container_info['last_pod'] = last_pod
-            if len(container_info['shipment_cycle']) > 0:
-                if container_info['shipment_cycle'][0]['mode'] == 'Vessel':
-                    vessel_info = self._get_vessel_info(conn, vessel_name)
-                    container_info['vessel_info'] = vessel_info
+        container_info = self._get_container_info(conn, search_by, q)
+        if len(container_info['shipment_cycle']) > 0:
             results.append(container_info)
         return {'objects': results,
                 'res': RESP_RESULT.S}
-
-    def _find_vessel(self, conn, search_by, q):
-        vessels = db_utils.select(conn, "container_x_vessel",
-                columns=("vessel_name", "first_pol", "last_pod"),
-                where={search_by: q},
-                limit=1)
-        if len(vessels) > 0:
-            vessel_name, first_pol, last_pod = vessels[0]
-            return True, vessel_name, first_pol, last_pod
-        return False, None, None, None
 
     def _get_vessel_info(self, conn, vessel_name):
         vessel_info = None
@@ -87,9 +68,13 @@ class SearchContainerResource(BaseJsonResource):
                 break
         return vessel_info
 
-    def _get_container_info(self, search_by, q,
-                            vessel_name, first_pol, last_pod):
+    def _get_container_info(self, conn, search_by, q):
         container_info = getContainerDs().searchContainer(
                             search_by=search_by, number=q)
+        for shipment in container_info['shipment_cycle']:
+            if shipment['vessel_name']:
+                vessel_info = self._get_vessel_info(conn, shipment['vessel_name'])
+                container_info['vessel_info'] = vessel_info
+            break
         return container_info
 

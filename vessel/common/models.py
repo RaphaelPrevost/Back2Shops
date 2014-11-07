@@ -58,9 +58,20 @@ class ContainerStatus(BaseObj):
         self.location = kwargs.get('location', '')
         self.time = kwargs.get('time', '')
         self.mode = kwargs.get('mode', '')
+        self.vessel_name = kwargs.get('vessel_name', '')
+        self.from_port = kwargs.get('from_port', '')
+        self.to_port = kwargs.get('to_port', '')
+
+class Ports(BaseObj):
+    def __init__(self, **kwargs):
+        self.first_pol = kwargs.get('first_pol', '')
+        self.last_pod = kwargs.get('last_pod', '')
+        self.ts_port = kwargs.get('ts_port', [])
 
 class ContainerInfo(BaseObj):
     def __init__(self, **kwargs):
+        self.container = kwargs.get('container', '')
         self.shipment_cycle = [ContainerStatus(**one)
                                for one in kwargs.get('shipment_cycle', [])]
+        self.ports = Ports(**kwargs.get('ports', {}))
 

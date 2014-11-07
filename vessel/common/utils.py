@@ -5,6 +5,7 @@ import ujson
 
 from B2SUtils import db_utils
 from B2SUtils.errors import DatabaseError
+from common.email_utils import send_vessel_arrival_notif
 from common.models import VesselDetailInfo
 from common.thirdparty.datasource import getVesselDs
 
@@ -20,7 +21,7 @@ VESSEL_POS_FIELDS = ['location', 'longitude', 'latitude', 'heading',
 
 
 def query_vessel_details(conn, search_by, q,
-                         data_time_limit=settings.FETCH_VESSEL_INTERVAL):
+                         force=False):
     sql = """
         select %s
         from vessel
@@ -37,31 +38,59 @@ def query_vessel_details(conn, search_by, q,
         """ % (','.join(VESSEL_FIELDS + VESSEL_NAV_FIELDS + VESSEL_POS_FIELDS),
                search_by)
 
-    if search_by != 'name':
+    if search_by != 'name' and not force:
         detail = db_utils.query(conn, sql, (q, ))
-        if len(detail) > 0 and not need_fetch_new_pos(detail[0][-1], data_time_limit):
+        if len(detail) > 0 and not need_fetch_new_pos(detail[0][-1]):
             detail_results = []
             for item in detail:
                 detail_obj = init_vessel_detail_obj(item, [item[-5:]])
                 detail_results.append(detail_obj.toDict())
             return detail_results
 
-    detail_results = getVesselDs().getVesselInfo(**{search_by: q})
+    detail_results, old_records = getVesselDs().getVesselInfo(**{search_by: q})
     for d in detail_results:
         try:
             detail_obj = VesselDetailInfo(**d)
             _save_result(conn, detail_obj)
+
+            update_interval = _get_update_interval(detail_obj)
+            now = datetime.datetime.utcnow()
+            delta = datetime.timedelta(seconds=update_interval)
+            db_utils.update(conn, "vessel",
+                            values={'next_update_time': now + delta},
+                            where={'mmsi': str(detail_obj.mmsi)})
+        except DatabaseError, e:
+            conn.rollback()
+            logging.error('Server DB Error: %s', (e,), exc_info=True)
+
+    for d in old_records:
+        try:
+            detail_obj = VesselDetailInfo(**d)
+            _save_result(conn, detail_obj, update_only=True)
         except DatabaseError, e:
             conn.rollback()
             logging.error('Server DB Error: %s', (e,), exc_info=True)
 
     return detail_results
 
-def need_fetch_new_pos(last_pos_time, data_time_limit):
-    now = datetime.datetime.utcnow()
-    return last_pos_time > now - datetime.timedelta(seconds=data_time_limit)
+def _get_update_interval(detail_obj):
+    update_interval = settings.FETCH_VESSEL_MIN_INTERVAL
+    if len(detail_obj.positions) > 0:
+        pos = detail_obj.positions[0]
+        # TODO: set update interval to 4h if vessel in distant sea
+        update_interval = settings.FETCH_VESSEL_MAX_INTERVAL
 
-def _save_result(conn, detail_obj):
+        if pos.status.lower() == 'moored':
+            gevent.spawn(send_vessel_arrival_notif, detail_obj)
+
+    return update_interval
+
+def need_fetch_new_pos(last_pos_time):
+    now = datetime.datetime.utcnow()
+    delta = datetime.timedelta(seconds=settings.FETCH_VESSEL_MAX_INTERVAL)
+    return last_pos_time < now - delta
+
+def _save_result(conn, detail_obj, update_only=False):
     vessels = db_utils.select(conn, "vessel",
                              columns=("id", ),
                              where={'mmsi': str(detail_obj.mmsi)},
@@ -80,6 +109,7 @@ def _save_result(conn, detail_obj):
         db_utils.update(conn, "vessel", values=vessel_values,
                         where={'id': id_vessel})
     else:
+        if update_only: return
         id_vessel = db_utils.insert(conn, "vessel",
                                   values=vessel_values, returning='id')[0]
 
@@ -88,29 +118,31 @@ def _save_result(conn, detail_obj):
             'id_vessel': id_vessel,
             'departure_portname': detail_obj.departure_portname,
             'departure_locode': detail_obj.departure_locode,
-            'arrival_portname': detail_obj.arrival_portname,
+            'departure_time': format_datetime(detail_obj.departure_time),
             'arrival_locode': detail_obj.arrival_locode,
-            'arrival_time__gt': datetime.datetime.utcnow(),
         }
         navi_update_values = {
-            'departure_time': detail_obj.departure_time,
-            'arrival_time': detail_obj.arrival_time,
+            'arrival_portname': detail_obj.arrival_portname,
+            'arrival_time': format_datetime(detail_obj.arrival_time),
         }
         vessel_nav = db_utils.select(conn, "vessel_navigation",
-                                 columns=("id",),
+                                 columns=("id", ),
                                  where=navi_values,
-                                 order=('created__desc', ),
+                                 order=('arrival_time__desc', ),
                                  limit=1)
         if len(vessel_nav) > 0:
             id_navi = vessel_nav[0][0]
             db_utils.update(conn, "vessel_navigation",
                             values=navi_update_values,
                             where={'id': id_navi})
+
         else:
-            navi_values.pop('arrival_time__gt')
+            if update_only: return
             navi_values.update(navi_update_values)
             id_navi = db_utils.insert(conn, "vessel_navigation",
                                       values=navi_values, returning='id')[0]
+
+    if update_only: return
 
     for pos in detail_obj.positions:
         pos_values = {
@@ -125,6 +157,8 @@ def _save_result(conn, detail_obj):
         }
         db_utils.insert(conn, "vessel_position", values=pos_values)
 
+def format_datetime(dt_str):
+    return datetime.datetime.strptime(dt_str, '%Y-%m-%dT%H:%M+0000')
 
 def init_vessel_detail_obj(item, pos_list):
     positions = [dict(zip(VESSEL_POS_FIELDS, pos)) for pos in pos_list]

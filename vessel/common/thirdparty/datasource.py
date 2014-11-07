@@ -64,11 +64,12 @@ class FleetmonDs(BaseDataSource):
 
     def getVesselInfo(self, **kwargs):
         items = self.api.getVesselInfo(**kwargs)
-        results = []
+        curr_navi = []
+        last_navi = []
         for item in items:
             country_isocode, country_name = item['flag'].split('|')
             if len(item['last_ports']) > 0:
-                from_port = item['last_ports'][0]
+                from_port = item['last_ports'][-1]
             else:
                 from_port = {}
             info = VesselDetailInfo(
@@ -97,8 +98,31 @@ class FleetmonDs(BaseDataSource):
                         'status': item['navigationstatus'],
                     }],
                 ).toDict()
-            results.append(info)
-        return results
+            curr_navi.append(info)
+
+            if len(item['last_ports']) >= 2:
+                from_port = item['last_ports'][-2]
+                to_port = item['last_ports'][-1]
+                info = VesselDetailInfo(
+                        name=item['name'],
+                        imo=item['imonumber'],
+                        mmsi=item['mmsinumber'],
+                        cs='',
+                        type=item['type'],
+                        country_isocode=country_isocode,
+                        country_name=country_name,
+                        photos=item['photos'].split('|'),
+
+                        departure_portname=from_port.get('portname'),
+                        departure_locode=from_port.get('locode'),
+                        departure_time=from_port.get('departure'),
+                        arrival_portname=to_port.get('destination'),
+                        arrival_locode=to_port.get('locode'),
+                        arrival_time=to_port.get('arrival'),
+                        positions=[],
+                    ).toDict()
+            last_navi.append(info)
+        return curr_navi, last_navi
 
     def searchPort(self, **kwargs):
         items = self.api.searchPort(**kwargs)

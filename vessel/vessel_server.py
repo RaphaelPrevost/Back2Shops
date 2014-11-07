@@ -28,7 +28,7 @@ def init_db():
     init_db_pool(settings.DATABASE)
 
 init_db()
-batch_start()
+gevent.spawn_later(30, batch_start)
 
 if __name__ == '__main__':
     import logging

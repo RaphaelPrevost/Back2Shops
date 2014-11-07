@@ -1,13 +1,8 @@
 <div id="search_input">
     <form name="searchForm" action="/vessel/search" method="POST">
         <label for="search_vessel">Vessel</label>
-        <input id="search_vessel" name="vessel_input" type="text" placeholder="Search IMO, MMSI or Name" value="${vessel_input}" />
+        <input id="search_vessel" name="vessel_input" type="text" placeholder="Search Vessel Name, IMO, MMSI or Port Name" value="${vessel_input}" />
         <input class="btn" name="search_vessel" type="submit" value="SEARCH" />
-    </form>
-    <form name="searchForm" action="/vessel/search" method="POST">
-        <label for="search_port">Port</label>
-        <input id="search_port" name="port_input" type="text" placeholder="Search LOCODE or Name" value="${port_input}"/>
-        <input class="btn" name="search_port" type="submit" value="SEARCH" />
     </form>
     <form name="searchForm" action="/vessel/search" method="POST">
         <label for="search_container">Container</label>
@@ -41,8 +36,9 @@
             <?py #endfor ?>
         </tbody>
     </table>
+    <?py #endif ?>
 
-    <?py elif ports: ?>
+    <?py if ports: ?>
     <table class="port_table">
         <thead>
             <tr>
@@ -61,46 +57,53 @@
             <?py #endfor ?>
         </tbody>
     </table>
+    <?py #endif ?>
 
-    <?py elif containers: ?>
+    <?py if containers: ?>
     <table class="container_table">
         <thead>
             <tr>
-                <th>Vessel Name</th>
+                <th>Container</th>
                 <th>First POL</th>
                 <th>Last POD</th>
                 <th>Status</th>
-                <th>Location</th>
-                <th>Time</th>
                 <th>Transportation Mode</th>
+                <th>Vessel Name</th>
+                <th>Update Time</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
             <?py for c in containers: ?>
             <tr>
-                <td>${c['vessel_name']}</td>
-                <td>${c['first_pol']}</td>
-                <td>${c['last_pod']}</td>
+                <td>${c['container']}</td>
+                <td>${c['ports']['first_pol']}</td>
+                <td>${c['ports']['last_pod']}</td>
                 <?py info = c['shipment_cycle'][0] if len(c['shipment_cycle']) > 0 else {} ?>
                 <td>${info.get('status', '--')}</td>
-                <td>${info.get('location', '--')}</td>
-                <td>${info.get('time', '--')}</td>
                 <td>${info.get('mode', '--')}</td>
+                <td>${info.get('vessel_name', '--')}</td>
                 <?py if c.get('vessel_info'): ?>
+                    <td>${c['vessel_info']['positions'][0]['time']}</td>
                     <?py include('_vessel_item.html', v=c['vessel_info'], search=True, popup_only=True) ?>
+                <?py else: ?>
+                    <td>--</td>
                 <?py #endif ?>
+                <td>
+                    <a class="add2creminder" href="javascript:void(0);" onclick="javascript:add2creminder(this, '${c['container']}')">Add ArrivalReminder</a>
+                </td>
             </tr>
             <?py #endfor ?>
         </tbody>
     </table>
-
-    <?py else: ?>
-    <table class="empty_table">
-    </table>
-    <?py if vessel_input or port_input or container_input: ?>
-        <div class="msg">no records found</div>
     <?py #endif ?>
 
+    <?py if not vessels and not ports and not containers: ?>
+    <table class="empty_table">
+    </table>
+        <?py if vessel_input or container_input: ?>
+        <div class="msg">no records found</div>
+        <?py #endif ?>
     <?py #endif ?>
 </div>
 
@@ -117,7 +120,7 @@
                 <th>Picture</th>
                 <th>Departure</th>
                 <th>Destination</th>
-                <th>Speed</th>
+                <th>Speed (knots)</th>
                 <th>Location</th>
                 <th>Update Time</th>
                 <th></th>
@@ -211,6 +214,88 @@ function show_navpath(imo, mmsi) {
         }
     )
 }
+function add2reminder(obj, imo, mmsi) {
+    $.post('/vessel/update_vessel_reminder',
+        {'action': 'add',
+         'imo': imo,
+         'mmsi': mmsi,
+        },
+        function(data) {
+            if (data['set_cookies_js']) {
+                eval(data['set_cookies_js']);
+            }
+
+            if (data['res'] == 'FAILURE') {
+            } else {
+                alert('added successfully');
+                $(obj).attr('class', 'del4reminder');
+                $(obj).attr('onclick', 'javascript:del4reminder(this, ' + imo + ', ' + mmsi + ')');
+                $(obj).text('Remove ArrivalReminder');
+            }
+        }
+    )
+}
+function del4reminder(obj, imo, mmsi) {
+    $.post('/vessel/update_vessel_reminder',
+        {'action': 'delete',
+         'imo': imo,
+         'mmsi': mmsi,
+        },
+        function(data) {
+            if (data['set_cookies_js']) {
+                eval(data['set_cookies_js']);
+            }
+
+            if (data['res'] == 'FAILURE') {
+            } else {
+                alert('deleted successfully');
+                $(obj).attr('class', 'add2reminder');
+                $(obj).attr('onclick', 'javascript:add2reminder(this, ' + imo + ', ' + mmsi + ')');
+                $(obj).text('Add ArrivalReminder');
+            }
+        }
+    )
+}
+function add2creminder(obj, container) {
+    $.post('/vessel/update_container_reminder',
+        {'action': 'add',
+         'container': container,
+        },
+        function(data) {
+            if (data['set_cookies_js']) {
+                eval(data['set_cookies_js']);
+            }
+
+            if (data['res'] == 'FAILURE') {
+            } else {
+                alert('added successfully');
+                $(obj).attr('class', 'del4creminder');
+                $(obj).attr('onclick', 'javascript:del4creminder(this, "' + container + '")');
+                $(obj).text('Remove ArrivalReminder');
+            }
+        }
+    )
+}
+function del4creminder(obj, container) {
+    $.post('/vessel/update_container_reminder',
+        {'action': 'delete',
+         'container': container,
+        },
+        function(data) {
+            if (data['set_cookies_js']) {
+                eval(data['set_cookies_js']);
+            }
+
+            if (data['res'] == 'FAILURE') {
+            } else {
+                alert('deleted successfully');
+                $(obj).attr('class', 'add2creminder');
+                $(obj).attr('onclick', 'javascript:add2creminder(this, "' + container + '")');
+                $(obj).text('Add ArrivalReminder');
+            }
+        }
+    )
+}
 $(function() {
     view(0, 0, 2);
 
@@ -224,6 +309,14 @@ $(function() {
         mark($(this).attr('lat'), $(this).attr('lon'), popup.html());
         view($(this).attr('lat'), $(this).attr('lon'), 2);
     });
+
+    $("input#search_vessel").quickselect({
+        ajax: '/vessel/quick_search',
+        autoFill: false,
+        autoSelectFirst: false,
+        delay: 1000,
+        minChars: 3,
+    })
 });
 
 </script>

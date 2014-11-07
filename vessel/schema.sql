@@ -6,7 +6,8 @@ CREATE TABLE vessel (
     cs character varying(64),
     type character varying(64),
     country_isocode character varying(2),
-    photos text
+    photos text,
+    next_update_time timestamp without time zone DEFAULT now() NOT NULL
 );
 
 CREATE TABLE vessel_navigation (
@@ -48,13 +49,19 @@ CREATE TABLE user_fleet (
     mmsi character varying(64)
 );
 
-
-CREATE TABLE container_x_vessel (
+CREATE TABLE vessel_arrival_notif (
     id serial PRIMARY KEY,
+    id_user BIGINT NOT NULL,
+    email character varying(128) NOT NULL,
+    imo character varying(64),
+    mmsi character varying(64),
+    done boolean DEFAULT false
+);
+
+CREATE TABLE container_arrival_notif (
+    id serial PRIMARY KEY,
+    id_user BIGINT NOT NULL,
+    email character varying(128) NOT NULL,
     container character varying(64),
-    bill_of_landing character varying(64),
-    first_pol character varying(64),
-    last_pod character varying(64),
-    vessel_name character varying(64),
-    voyage character varying(64)
+    done boolean DEFAULT false
 );

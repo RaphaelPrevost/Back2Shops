@@ -20,6 +20,8 @@
     <?py else: ?>
     <a class="del4myfleet" href="javascript:void(0);" onclick="javascript:del4myfleet(this, ${v['imo']}, ${v['mmsi']})">Delete from My Fleet</a>
     <?py #endif ?>
+    <br>
+    <a class="add2reminder" href="javascript:void(0);" onclick="javascript:add2reminder(this, ${v['imo']}, ${v['mmsi']})">Add ArrivalReminder</a>
 </td>
 <?py #endif ?>
 
@@ -33,7 +35,7 @@
     <div class="navi">
         <div>ATD: ${v['departure_time']}</div>
         <div>ETA: ${v['arrival_time']}</div>
-        <div>Speed: ${pos['speed'] or '--'}</div>
+        <div>Speed: ${pos['speed'] or '--'} knots</div>
         <div>Location: ${pos['location']}</div>
         <div>Status: ${pos['status']}</div>
     </div>
