@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 import settings
 import logging
 import os
+import re
 import requests
 import urllib
 from bs4 import BeautifulSoup
@@ -10,6 +12,9 @@ number_type_mapping = {
     'bill_of_landing': 'BILLOFLADING',
 }
 
+def gen_resp_soup(response):
+    return BeautifulSoup(response.text.encode('utf8'))
+
 class CosconAPI:
 
     def searchContainer(self, search_by=None, number=None):
@@ -17,8 +22,16 @@ class CosconAPI:
         context = requests.session()
         init_response = self._execute(context)
         jsessionid = self._get_jsessionid(init_response)
-        jsf_state = self._get_jsf_state(init_response)
+        jsf_state = self._get_jsf_state(gen_resp_soup(init_response))
 
+        data = self._get_common_post_data(number_type, number, jsf_state)
+        post_response = self._post(context, data,
+                                   number, number_type, jsessionid, jsf_state)
+        return self._parse_post_response(post_response, context,
+                                         number_type, number, jsessionid)
+
+    def _post(self, context, data,
+              number, number_type, jsessionid, jsf_state):
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
             'X-Requested-With': 'XMLHttpRequest',
@@ -32,31 +45,112 @@ class CosconAPI:
                    'number': number,
                    'numberType': number_type,
                    'language': 'en_US'}
-        data = self._gen_post_data(number_type, number, jsf_state)
-        post_response = self._execute(context,
-                      data=data, headers=headers, cookies=cookies)
-        return self.parse_post_response(post_response)
+        post_response = self._execute(context, data=data,
+                                      headers=headers, cookies=cookies)
+        return post_response
 
-    def parse_post_response(self, response):
-        soup = BeautifulSoup(response.text.encode('utf8'))
-        history = soup.find(id='cargoTrackingContainerHistory')
+    def _parse_post_response(self, response, context,
+                             number_type, number, jsessionid):
+        jsf_state = self._get_updated_value("javax.faces.ViewState", response)
+        soup = gen_resp_soup(response)
+        history = soup.find(id='cargoTrackingContainerHistory6')
         rows = history.find(name='tbody').findChildren(name='tr')
         shipment_cycle = []
+        last_vessel_info = None
         for row in rows:
-            cols = [col.getText() for col in row.find_all(attrs={'class': 'labelTextMyFocus'})]
+            cols = row.find_all(attrs={'class': 'labelTextMyFocus'})
             if cols:
-                shipment_cycle.append({
-                    'status': cols[0],
-                    'location': cols[1],
-                    'time': cols[2], #TODO: convert timezone
-                    'mode': cols[3],
-                })
-        return {'shipment_cycle': shipment_cycle}
+                status = cols[0].getText()
+                location = cols[1].getText()
+                time = cols[2].getText()
+                mode = cols[3].getText().strip()
+                shipment = {
+                    'status': status,
+                    'location': location,
+                    'time': time,
+                    'mode': mode,
+                }
+                a_tag = cols[3].find_parent(name='a')
+                if mode == 'Vessel' and a_tag:
+                    a_id = a_tag.get('id')
+                    data = self._get_common_post_data(number_type, number, jsf_state)
+                    # TODO check the params for bill of landing query
+                    data['cntrNum'] = number
+                    data['cntrStatus'] = status
+                    data['containerHistorySize'] = len(rows)
+                    data['containerSize'] = 1
+                    data['issueTime'] = time
+                    data[a_id] = a_id
+                    data['javax.faces.partial.render'] = 'vesselInfoField'
+                    data['javax.faces.source'] = a_id
+                    data['numberType'] = number_type
+                    post_response = self._post(context, data, number, number_type,
+                                               jsessionid, jsf_state)
+                    jsf_state = self._get_updated_value("javax.faces.ViewState",
+                                                        post_response)
+                    vessel_html = self._get_updated_value("vesselInfoField",
+                                                          post_response)
+                    vessel_info = self._parse_vessel_info(vessel_html)
+                    last_vessel_info = vessel_info
+                    shipment.update(vessel_info)
 
-    def _get_jsf_state(self, response):
-        soup = BeautifulSoup(response.text.encode('utf8'))
+                if mode == '' and last_vessel_info:
+                    shipment.update(last_vessel_info)
+
+                shipment_cycle.append(shipment)
+
+        return {'container': self._get_container_num(soup),
+                'ports': self._get_ports_info(soup),
+                'shipment_cycle': shipment_cycle}
+
+    def _parse_vessel_info(self, html):
+        soup = BeautifulSoup(html)
+        info = soup.find(id='vesselInfoField_content')
+        rows = info.find(name='table').findChildren(name='tr')
+        vessel_info = {
+            'vessel_name': rows[0].find_all(name='td')[1].getText(),
+            'from_port': rows[1].find_all(name='td')[1].getText(),
+            'to_port': rows[3].find_all(name='td')[1].getText(),
+        }
+        return vessel_info
+
+    def _get_container_num(self, soup):
+        top = soup.find(id='CargoTracking1').find(attrs={'class': 'Containerkuang3'})
+        rows = top.find(name='table').findChildren(name='tr')
+        return rows[-1].find(attrs={'class': 'labelTextMyFocus'}).getText()
+
+    def _get_ports_info(self, soup):
+        ports = {}
+        points = soup.find(id='cargopic1')
+        p = points.find(name='div', text='始发港')
+        if p and p.find_next():
+            ports['first_pol'] = self._get_valid_port_name(p.find_next().text)
+
+        p = points.find(name='div', text='目的港')
+        if p and p.find_next():
+            ports['last_pod'] = self._get_valid_port_name(p.find_next().text)
+
+        ports['ts_port'] = []
+        for p in points.findChildren(name='div', text='中转港'):
+            if p and p.find_next():
+                pname = self._get_valid_port_name(p.find_next().text)
+                if pname and (len(ports['ts_port']) == 0
+                              or ports['ts_port'][-1] != pname):
+                    ports['ts_port'].append(pname)
+        return ports
+
+    def _get_valid_port_name(self, text):
+        return text.encode('utf-8').split('\n')[0].replace('·', '').strip().split(',')[0]
+
+    def _get_jsf_state(self, soup):
         state = soup.find(id='javax.faces.ViewState')
         return state.get('value') if state else ''
+
+    def _get_updated_value(self, name, response):
+        ret = re.findall(
+            r'<update id="%s"><\!\[CDATA\[(.*?)\]\]></update>' % name,
+            response.text, re.M|re.S)
+        return ret[0]
 
     def _get_jsessionid(self, response):
         return response.cookies.get('JSESSIONID') or ''
@@ -65,6 +159,7 @@ class CosconAPI:
         try:
             api_url = settings.COSCON_CONTAINER_URL
             if data:
+                data = urllib.urlencode(data)
                 response = context.post(api_url, data=data,
                                   timeout=settings.THIRDPARTY_ACCESS_TIMEOUT,
                                   headers=headers, cookies=cookies)
@@ -77,8 +172,8 @@ class CosconAPI:
                           "(url: %s) : %s", api_url, e, exc_info=True)
             raise
 
-    def _gen_post_data(self, number_type, number, jsf_state):
-        return urllib.urlencode({
+    def _get_common_post_data(self, number_type, number, jsf_state):
+        return {
             'a10time1': '',
             'a10time2': '',
             'a11time1': '',
@@ -134,5 +229,5 @@ class CosconAPI:
             'onlyFirstAndLast2': 'false',
             'userId': '',
             'validateCargoTracking': 'false',
-        })
+        }
 

@@ -3,6 +3,7 @@ from webservice.vessel.base import BaseVesselResource
 
 
 class UserFleetResource(BaseVesselResource):
+    login_required = {'get': True, 'post': True}
     api_path = 'webservice/1.0/private/user_fleet'
 
     def _get_valid_args(self, req, resp, conn, **kwargs):

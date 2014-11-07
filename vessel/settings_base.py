@@ -35,5 +35,13 @@ COSCON_CONTAINER_URL = 'http://ebusiness.coscon.com/NewEBWeb/public/cargoTrackin
 
 THIRDPARTY_ACCESS_TIMEOUT = 5
 
-FETCH_VESSEL_INTERVAL = 3600 * 4 # seconds
+FETCH_CONTAINER_INTERVAL = 3600 * 4 # seconds
+FETCH_VESSEL_MAX_INTERVAL = 3600 * 4 # seconds
+FETCH_VESSEL_MIN_INTERVAL = 300 # seconds
+
+SEND_EMAILS = False
+SERVICE_EMAIL = 'serviceclients@example.com'
+MAIL_HOST = 'smtp.gmail.com:587'
+MAIL_FROM_USER = 'xxx'
+MAIL_FROM_PASS = 'xxx'
 

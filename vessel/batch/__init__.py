@@ -1,6 +1,6 @@
-from batch.fetch_container_vessel_data import FetchContainerVesselData
-from batch.fetch_user_fleets_data import FetchUserFleetsData
+from batch.fetch_container_data import FetchContainerData
+from batch.fetch_vessel_data import FetchVesselData
 
 def start():
-    FetchUserFleetsData().run()
-    FetchContainerVesselData().run()
+    FetchVesselData().run()
+    FetchContainerData().run()

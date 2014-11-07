@@ -37,7 +37,6 @@ def get_from_vessel_server(method, path, **query):
 
 
 class BaseVesselResource(BaseJsonResource):
-    login_required = {'get': True, 'post': True}
     api_path = ''
 
     def _auth(self, conn, req, resp, **kwargs):
