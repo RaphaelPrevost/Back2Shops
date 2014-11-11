@@ -281,6 +281,11 @@ function sync_adm() {
 function adm_redis() {
     source $CWD/env/bin/activate
     ( cd $CWD/public_html
+      ps aux | grep 'start_stats_redis' | grep -v grep | awk '{print $2}' | xargs kill -9 || echo "no similarity redis process to kill"
+      sleep 1
+      PORT=8001
+      redis-cli -p $PORT shutdown
+      sleep 1
       ./manage.py start_stats_redis &
     )
 }
@@ -288,6 +293,8 @@ function adm_redis() {
 function adm_batch () {
     source $CWD/env/bin/activate
     ( cd $CWD/public_html
+        ps aux | grep 'batch_start' | grep -v grep | awk '{print $2}' | xargs kill -9 || echo "no batch process to kill"
+        sleep 1
       ./manage.py batch_start &
     )
 }
