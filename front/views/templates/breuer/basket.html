@@ -26,13 +26,14 @@
                     <div class="prod">
                         <a href="${item.get('link')}">
                             <img width="60px" src="${get_thumbnail(item['variant'].get('img') or get_single_attribute(item['product'], 'img'), 80)}"/>
-                            <h3 class="title">${item['product']['name']}</h1>
+                            <h3 class="title">${item['product']['name']}</h3>
                             <strong class="type">
                             <?py if item['type']: ?>Taille : ${item['type']['name']}<?py #endif ?>
                             <?py if item['variant'] and item['type']: ?> - <?py #endif ?>
                             <?py if item['variant']: ?>Coloris : ${item['variant']['name']}<?py #endif ?>
                             </strong>
                             <span class="ref">Ref : ${item['product']['id']}</span>
+                            <span class="ref">External Ref : ${item['external_id']}</span>
                         </a>
                     </div>
                 </td>

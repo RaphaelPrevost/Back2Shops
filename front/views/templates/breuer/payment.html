@@ -73,13 +73,14 @@
                         <td class="left">
                             <div class="prod">
                                 <img width="60px" src="${get_thumbnail(item['picture'], 80)}"/>
-                                <h3 class="title">${item['product_name']}</h1>
+                                <h3 class="title">${item['product_name']}</h3>
                                 <strong class="type">
                                 <?py if item.get('type_name'): ?>Taille : ${item['type_name']}<?py #endif ?>
                                 <?py if item.get('variant_name') and item.get('type_name'): ?> - <?py #endif ?>
                                 <?py if item.get('variant_name'): ?>Coloris : ${item['variant_name']}<?py #endif ?>
                                 </strong>
                                 <span class="ref">Ref : ${item['id_sale']}</span>
+                                <span class="ref">External Ref : ${item['external_id']}</span>
                             </div>
                         </td>
                         <td class="price">

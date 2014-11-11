@@ -388,7 +388,7 @@ def _get_order_shipments_status(conn, id_order, id_brand=None, id_shops=None):
 def _get_order_invoice_status(conn, id_order, id_brand=None, id_shops=None):
     query_str = ("SELECT iv.status FROM invoices as iv ")
 
-    if id_brand is not None or id_shops is not None:
+    if id_brand is not None or id_shops:
         query_str += "JOIN shipments as sp ON iv.id_shipment = sp.id "
 
     where = 'where iv.id_order = %s '
@@ -397,7 +397,7 @@ def _get_order_invoice_status(conn, id_order, id_brand=None, id_shops=None):
     if id_brand is not None:
         where += 'and sp.id_brand = %s '
         where_v.append(int(id_brand))
-    if id_shops is not None:
+    if id_shops:
         where += 'and sp.id_shop in %s '
         where_v.append(tuple(id_shops))
 
@@ -415,7 +415,7 @@ def _all_order_items_packed(conn, id_order, id_brand=None, id_shops=None):
     if id_brand is not None:
         where += 'and oi.id_brand = %s '
         where_v.append(id_brand)
-    if id_shops is not None:
+    if id_shops:
         where += 'and oi.id_shop in %s '
         where_v.append(tuple(id_shops))
 
@@ -432,7 +432,7 @@ def _all_order_items_packed(conn, id_order, id_brand=None, id_shops=None):
     if id_brand is not None:
         where += "and sp.id_brand = %s "
         where_v.append(id_brand)
-    if id_shops is not None:
+    if id_shops:
         where += 'and sp.id_shop in %s '
         where_v.append(tuple(id_shops))
     grouped_qtt_sql += where
@@ -523,7 +523,7 @@ def _update_extra_info_for_order_item(conn, item_id, order_item):
          'invoice_info': _get_invoice_info_for_order_item(conn, item_id),
          })
 
-def get_orders_list(conn, brand_id, shops_id,
+def get_orders_list(conn, brand_id, shops_id=None,
                     users_id=None, limit=None, offset=None):
     fields, columns = zip(*(ORDER_FIELDS_COLUMNS +
                             ORDER_SHIPMENT_COLUMNS +

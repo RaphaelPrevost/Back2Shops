@@ -508,6 +508,7 @@ def get_order_table_info(order_id, order_resp, all_sales=None):
                 'type_name': item_info.get('type_name') or '',
                 'price': item_info['price'],
                 'picture': item_info['picture'],
+                'external_id': item_info['external_id'],
             }
             if all_sales and id_sale in all_sales:
                 sale_info = all_sales[id_sale]
@@ -573,7 +574,7 @@ def get_order_table_info(order_id, order_resp, all_sales=None):
         'first_name': user_profile.get('first_name') or '',
         'dest_addr': dest_addr,
         'shipments': shipments,
-        'order_invoice_url': get_url_format(FRT_ROUTE_ROLE.ORDER_INFO)
+        'order_invoice_url': get_url_format(FRT_ROUTE_ROLE.ORDER_INVOICES)
                              % {'id_order': order_id},
     }
     return data
