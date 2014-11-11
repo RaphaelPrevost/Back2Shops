@@ -1062,7 +1062,7 @@ a.right {
 
 
  
-/* Mot de passe oublié */
+/* Mot de passe oubliï¿½ */
 #panier .floater.center { width: 500px; float: none; margin-right: auto; margin-left: auto; }
 #panier .floater.center  input { margin: 30px auto; width: 280px; } 
 #panier .floater.center .btn { width: 110px; margin: 30px auto; float: none; background-position: 79px -70px; }
@@ -1869,13 +1869,15 @@ a.right {
 
 
 .contenuTxt h2, 
-.contenuTxt h3 { 
+.contenuTxt h3,
+.contenuTxt h4 {
 	display: block; margin: 50px 110px 0 110px;
 	font-family: verdana;
 	font-size: 12px;
 	text-align: center;
 }
 .contenuTxt h3 { margin: 20px 110px 0 110px; color: #000; }
+.contenuTxt h4 { margin: 20px 110px 0 110px; text-align: left; }
 
 .contenuTxt p {
 	margin: 12px 110px 0 110px;
@@ -1897,9 +1899,10 @@ a.right {
 .contenuTxt dl dt { background: none; padding: 0; }
 .contenuTxt .retrait { display: block; margin: 20px 0 0 40px; }
 
+.contenuTxt #cgv h3 {text-align: left}
 
-
-
+.contenuTxt .mark {color: #464A69;}
+.contenuTxt .mark a {color: #464A69;}
 
 
 
