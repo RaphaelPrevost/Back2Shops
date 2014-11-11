@@ -160,7 +160,8 @@ def send_new_shipment(id_order, id_shop, id_brand,
              'content': content}, e, exc_info=True)
         raise UsersServerError
 
-def send_update_shipment(id_shipment, shipping_fee=None, handling_fee=None,
+def send_update_shipment(id_shipment, id_shop, id_brand,
+                         shipping_fee=None, handling_fee=None,
                          status=None, tracking_num=None, content=None,
                          shipping_date=None, tracking_name=None,
                          shipping_carrier=None):
@@ -190,6 +191,8 @@ def send_update_shipment(id_shipment, shipping_fee=None, handling_fee=None,
             return
 
         data['shipment'] = id_shipment
+        data['shop'] = id_shop
+        data['brand'] = id_brand
         data['action'] = 'modify'
         data = ujson.dumps(data)
         data = gen_encrypt_json_context(
@@ -216,10 +219,12 @@ def send_update_shipment(id_shipment, shipping_fee=None, handling_fee=None,
         raise UsersServerError
 
 
-def send_delete_shipment(id_shipment):
+def send_delete_shipment(id_shipment, id_shop, id_brand):
     try:
         data = {'action': 'delete',
-                'shipment': id_shipment}
+                'shipment': id_shipment,
+                'shop': id_shop,
+                'brand': id_brand}
         data = ujson.dumps(data)
         data = gen_encrypt_json_context(
             data,

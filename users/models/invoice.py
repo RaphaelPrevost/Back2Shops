@@ -71,31 +71,19 @@ def get_invoice_by_id(conn, id_iv):
 
 def get_invoices_by_shipments(conn, id_shipments):
     assert len(id_shipments) > 0
-    if len(id_shipments) == 1:
-        where = "id_shipment = %s"
-        where_condition = id_shipments[0]
-    else:
-        where = "id_shipment in (%s)"
-        where_condition = ', '.join([str(sp) for sp in id_shipments])
 
     sql = """SELECT *
                FROM invoices
-              WHERE %s""" % where
-    r = query(conn, sql, (where_condition,))
+              WHERE id_shipment in %s"""
+    r = query(conn, sql, [tuple(id_shipments)])
     return r
 
 def get_sum_amount_due(conn, id_invoices):
-    if len(id_invoices) == 1:
-        where = "id = %s" % id_invoices[0]
-    else:
-        id_invoices = [str(id_iv) for id_iv in id_invoices]
-        where = "id in (%s)" % ", ".join(id_invoices)
-
     sql = """SELECT amount_due, currency
                FROM invoices
-              WHERE %s
-          """ % where
-    r = query(conn, sql)
+              WHERE id in %s
+          """
+    r = query(conn, sql, [tuple(id_invoices)])
 
     currency = set([item[1] for item in r])
     sum_amount = 0.0
@@ -112,44 +100,29 @@ def get_sum_amount_due(conn, id_invoices):
     return None, None
 
 def get_iv_numbers(conn, iv_ids):
-    if len(iv_ids) == 1:
-        where = "id = %s" % iv_ids[0]
-    else:
-        iv_ids = [str(id_iv) for id_iv in iv_ids]
-        where = "id in (%s)" % ", ".join(iv_ids)
-
     sql = """SELECT invoice_number
                FROM invoices
-              WHERE %s
-          """ % where
-    r = query(conn, sql)
+              WHERE id in %s
+          """
+    r = query(conn, sql, [tuple(iv_ids)])
 
     return [item[0] for item in r]
 
-def _shops_where(tb, id_shops):
-    shops_where = ""
-    if id_shops and len(id_shops) == 1:
-        shops_where = ('AND %s.id_shop = %s'
-                       % (tb, id_shops[0]))
-    elif id_shops and len(id_shops) > 1:
-        shops_cond = ', '.join([str(id_shop) for id_shop in id_shops])
-        shops_where = ('AND %s.id_shop in (%s)'
-                       % (tb, shops_cond))
-    return shops_where
-
 def _order_iv_info(conn, order_id, id_brand, id_shops):
-    shops_where = _shops_where('spm', id_shops)
     sp_query = (
         "SELECT id "
           "FROM shipments as spm "
-         "WHERE status <> %%s "
-           "AND id_order = %%s "
-           "AND id_brand = %%s "
-                "%(shops_condition)s"
-        % {'shops_condition': shops_where})
+         "WHERE status <> %s "
+           "AND id_order = %s "
+           "AND id_brand = %s "
+           )
 
-    sp_r = query(conn, sp_query,
-                 (SHIPMENT_STATUS.DELETED, order_id, id_brand))
+    params = [SHIPMENT_STATUS.DELETED, order_id, id_brand]
+    if id_shops:
+        sp_query += "AND spm.id_shop in %s "
+        params.append(tuple(id_shops))
+
+    sp_r = query(conn, sp_query, params)
     sp_r = [item[0] for item in sp_r]
 
     # generated invoices for order.
@@ -158,12 +131,14 @@ def _order_iv_info(conn, order_id, id_brand, id_shops):
           "FROM invoices as iv "
      "LEFT JOIN shipments as spm "
             "ON iv.id_shipment = spm.id "
-         "WHERE iv.id_order = %%s "
-           "AND spm.id_brand = %%s "
-                "%(shops_condition)s"
-        % {"shops_condition": shops_where}
-    )
-    iv_r = query(conn, iv_query, (order_id, id_brand))
+         "WHERE iv.id_order = %s "
+           "AND spm.id_brand = %s ")
+
+    params = [order_id, id_brand]
+    if id_shops:
+        iv_query += "AND spm.id_shop in %s "
+        params.append(tuple(id_shops))
+    iv_r = query(conn, iv_query, params)
     iv_r = [item[0] for item in iv_r]
     return sp_r, iv_r
 
@@ -179,35 +154,40 @@ def order_iv_sent_status(conn, order_id, id_brand, id_shops):
     elif len(set(sp_r) - set(iv_r)) > 0:
         return ORDER_IV_SENT_STATUS.PART_SENT
 
-    shops_where = _shops_where('spm', id_shops)
     # sum packing quantity for order.
     pk_qty_query = (
         "SELECT sum(quantity) "
           "FROM shipping_list as spl "
           "JOIN shipments as spm "
             "ON spl.id_shipment = spm.id "
-         "WHERE spm.id_order = %%s "
-           "AND spm.status <> %%s "
-           "AND spm.id_brand = %%s "
-                "%(shops_condition)s"
-        % {"shops_condition": shops_where}
+         "WHERE spm.id_order = %s "
+           "AND spm.status <> %s "
+           "AND spm.id_brand = %s "
     )
-    pk_qty = query(conn, pk_qty_query,
-                   (order_id, SHIPMENT_STATUS.DELETED, id_brand))
+
+    params = [order_id, SHIPMENT_STATUS.DELETED, id_brand]
+    if id_shops:
+        pk_qty_query += "AND spm.id_shop in %s "
+        params.append(tuple(id_shops))
+
+    pk_qty = query(conn, pk_qty_query, params)
     pk_qty = pk_qty and pk_qty[0][0] or 0
 
     # sum order items quantity for order.
-    shops_where = _shops_where('oi', id_shops)
     od_qty_query = (
         "SELECT sum(quantity) "
           "FROM order_details as od "
           "JOIN order_items as oi "
             "ON od.id_item = oi.id "
-         "WHERE od.id_order = %%s "
-                "%(shops_condition)s"
-        % {"shops_condition": shops_where}
+         "WHERE od.id_order = %s "
+
     )
-    od_qty = query(conn, od_qty_query, (order_id,))[0][0]
+    params = [order_id]
+    if id_shops:
+        od_qty_query += "AND oi.id_shop in %s"
+        params.append(tuple(id_shops))
+
+    od_qty = query(conn, od_qty_query, params)[0][0]
 
 
     if od_qty - pk_qty > 0:

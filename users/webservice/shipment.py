@@ -10,7 +10,6 @@ from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
 from common.error import UserError
 from common.error import ErrorCode as E_C
 from webservice.base import BaseJsonResource
-from models.actors.shop import CachedShop
 from models.order import order_exist
 from models.order import order_item_quantity
 from models.shipments import create_shipment
@@ -18,8 +17,6 @@ from models.shipments import create_shipping_list
 from models.shipments import order_item_grouped_quantity
 from models.shipments import shipping_list_item_quantity
 from models.shipments import get_shipment_by_id
-from models.shipments import get_spl_by_item
-from models.shipments import get_spl_item_by_id
 from models.shipments import update_shipping_list
 from models.shipments import update_shipment
 from models.shipments import update_shipping_fee
@@ -32,7 +29,8 @@ class ShipmentResource(BaseJsonResource):
 
     post_action_func_map = {'create': 'shipment_create',
                             'modify': 'shipment_update',
-                            'delete': 'shipment_delete'}
+                            'delete': 'shipment_delete',
+                            'match_check': 'match_check'}
 
     def _on_post(self, req, resp, conn, **kwargs):
         data = decrypt_json_resp(req.stream,
@@ -49,14 +47,16 @@ class ShipmentResource(BaseJsonResource):
         assert hasattr(func, '__call__')
         return func(req, resp, conn)
 
-
-    def content_check(self, conn, content, id_shipment=None):
+    def content_check(self, conn, content, id_shop, id_brand,
+                      id_shipment=None):
         if isinstance(content, str):
             content = ujson.loads(content)
 
+        items_id = []
         for item in content:
             id_order_item = item.get('id_order_item')
             quantity = item.get('quantity')
+            items_id.append(id_order_item)
 
             assert id_order_item is not None, 'id_order_item'
             assert quantity is not None, 'quantity'
@@ -83,6 +83,29 @@ class ShipmentResource(BaseJsonResource):
                               exc_info=True)
                 raise UserError(E_C.ERR_EINVAL[0], E_C.ERR_EINVAL[1])
 
+        # check items shop/brand is consistence with operator's shop/brand
+        from models.order import get_order_items_by_id
+        items = get_order_items_by_id(conn, items_id)
+        items_shop = []
+        items_brand = []
+        for item in items:
+            items_shop.append(item['id_shop'])
+            items_brand.append(item['id_brand'])
+
+        try:
+            assert {int(id_shop)} == set(items_shop), ("items shop %s is not "
+                                                       "consistence with "
+                                                       "operators shop %s"
+                                                       % (items_shop, id_shop))
+            assert {int(id_brand)} == set(items_brand), ("items brand %s is not "
+                                                       "consistence with "
+                                                       "operators brand %s"
+                                                       % (items_brand, id_brand))
+        except AssertionError, e:
+            logging.error('spm_content_check_err:%s', e, exc_info=True)
+            raise UserError(E_C.ERR_EPERM[0], E_C.ERR_EPERM[1])
+
+
     def _update_orig_spl_item(self, conn, id_shipping_list, quantity):
         where = {'id': id_shipping_list}
         values = {'packing_quantity': quantity}
@@ -102,7 +125,7 @@ class ShipmentResource(BaseJsonResource):
             content = self.request.get_param('content')
             content = ujson.loads(content)
 
-            self.content_check(conn, content)
+            self.content_check(conn, content, id_shop, id_brand)
 
             handling_fee = self.request.get_param('handling_fee')
             shipping_fee = self.request.get_param('shipping_fee')
@@ -249,6 +272,8 @@ class ShipmentResource(BaseJsonResource):
 
     def shipment_update(self, req, resp, conn):
         id_shipment = self.request.get_param('shipment')
+        id_shop = self.request.get_param('shop')
+        id_brand = self.request.get_param('brand')
         try:
             shipment = get_shipment_by_id(conn, id_shipment)
             self.shipment_check(shipment)
@@ -259,7 +284,8 @@ class ShipmentResource(BaseJsonResource):
                 content = self.request.get_param('content')
                 if content:
                     content = ujson.loads(content)
-                    self.content_check(conn, content, id_shipment)
+                    self.content_check(conn, content, id_shop, id_brand,
+                                       id_shipment)
                     self.content_update(conn, id_shipment, content)
 
                 # update status, shipping fee, handling fee
@@ -296,11 +322,17 @@ class ShipmentResource(BaseJsonResource):
 
     def shipment_delete(self, req, resp, conn):
         id_shipment = self.request.get_param('shipment')
+        id_shop = self.request.get_param('shop')
+        id_brand = self.request.get_param('brand')
         try:
             shipment = get_shipment_by_id(conn, id_shipment)
             if not shipment:
                 raise UserError(E_C.ERR_ENOENT[0], E_C.ERR_ENOENT[1])
             if int(shipment['status']) == SHIPMENT_STATUS.DELIVER:
+                raise UserError(E_C.ERR_EPERM[0], E_C.ERR_EPERM[1])
+            if int(shipment['id_brand']) != int(id_brand):
+                raise UserError(E_C.ERR_EPERM[0], E_C.ERR_EPERM[1])
+            if int(shipment['id_shop']) != int(id_shop):
                 raise UserError(E_C.ERR_EPERM[0], E_C.ERR_EPERM[1])
 
             # update shipment status to deleted

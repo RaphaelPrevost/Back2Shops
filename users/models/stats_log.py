@@ -31,12 +31,8 @@ def log_incomes(conn, iv_id):
 def get_incomes_log(conn, where):
     incomes = select_dict(conn, 'incomes_log', 'order_id', where=where)
 
-    where = 'WHERE '
     if not incomes:
         return []
-    else:
-        orders = [str(ord) for ord in incomes.keys()]
-        where += 'od.id_order in (%s)' % ','.join(orders)
 
     q = ("SELECT od.id_order as id_order, "
                 "oi.id_sale as id_sale, "
@@ -47,8 +43,8 @@ def get_incomes_log(conn, where):
            "FROM order_items as oi "
            "JOIN order_details as od "
              "ON od.id_item = oi.id "
-             "%s" % where)
-    r = query(conn, q)
+          "WHERE od.id_order in %s")
+    r = query(conn, q, [tuple(incomes.keys())])
 
     details = [dict(income) for income in r]
     for detail in details:

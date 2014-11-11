@@ -24,6 +24,10 @@
 <form id="packing_form_{{ shipment.id }}" class="packing_form" method="post">
 <input type="hidden" name="id_shipment" value="{{ shipment.id }}" />
 <input type="hidden"
+       name="brand_for_{{ shipment.id }}"
+       id="brand_for_{{ shipment.id }}"
+       value="{{ shipment.brand }}"/>
+<input type="hidden"
        name="shop_for_{{ shipment.id }}"
        id="shop_for_{{ shipment.id }}"
        value="{{ shipment.shop }}"/>

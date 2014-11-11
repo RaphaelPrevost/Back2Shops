@@ -92,6 +92,7 @@ class ActorWeight(BaseActor):
 class ActorItem(BaseActor):
     attrs_map = {'sale': '@sale',
                  'name': 'name',
+                 'currency': 'currency',
                  'quantity': 'quantity',
                  'packing_quantity': 'packing_quantity',
                  'shipping_status': 'shipping_status',
