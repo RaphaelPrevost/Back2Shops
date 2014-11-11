@@ -40,6 +40,22 @@ def search_port(req, resp, query):
                 break
     return ports
 
+def search_container(req, resp, query):
+    containers = []
+    if query.isdigit():
+        search_by = 'bill_of_landing'
+    elif query:
+        search_by = 'container'
+    else:
+        return containers
+
+    result = data_access(REMOTE_API_NAME.SEARCH_CONTAINER,
+                         req, resp,
+                         search_by=search_by, q=query)
+    if result.get('res') != RESP_RESULT.F:
+        containers = result['objects']
+    return containers
+
 
 class VesselHomepageResource(BaseHtmlResource):
     template = 'vessel_index.html'
@@ -90,7 +106,7 @@ class SearchResource(VesselHomepageResource):
         elif req.get_param('search_container'):
             container_input = req.get_param('container_input') or ''
             container_input = container_input.strip()
-            containers = self.search_container(req, resp, container_input)
+            containers = search_container(req, resp, container_input)
             data.update({
                 'container_input': container_input,
                 'containers': containers,
@@ -98,18 +114,6 @@ class SearchResource(VesselHomepageResource):
         else:
             pass
         return data
-
-    def search_container(self, req, resp, query):
-        containers = []
-        for search_by in ('container', 'bill_of_landing'):
-            result = data_access(REMOTE_API_NAME.SEARCH_CONTAINER,
-                                 req, resp,
-                                 search_by=search_by, q=query)
-            if result.get('res') != RESP_RESULT.F:
-                containers = result['objects']
-                if len(containers) > 0:
-                    break
-        return containers
 
 
 class VesselQuickSearchResource(BaseJsonResource):

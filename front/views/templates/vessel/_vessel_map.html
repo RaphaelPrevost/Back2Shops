@@ -6,7 +6,7 @@
     </form>
     <form name="searchForm" action="/vessel/search" method="POST">
         <label for="search_container">Container</label>
-        <input id="search_container" name="container_input" type="text" placeholder="Search Container Number" value="${container_input}"/>
+        <input id="search_container" name="container_input" type="text" placeholder="Search Container Number or Bill of Landing" value="${container_input}"/>
         <input class="btn" name="search_container" type="submit" value="SEARCH" />
     </form>
 </div>
@@ -87,7 +87,7 @@
                     <td>${c['vessel_info']['positions'][0]['time']}</td>
                     <?py include('_vessel_item.html', v=c['vessel_info'], search=True, popup_only=True) ?>
                 <?py else: ?>
-                    <td>--</td>
+                    <td>${info.get('time', '--')}</td>
                 <?py #endif ?>
                 <td>
                     <a class="add2creminder" href="javascript:void(0);" onclick="javascript:add2creminder(this, '${c['container']}')">Add ArrivalReminder</a>
