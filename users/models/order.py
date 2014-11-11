@@ -3,9 +3,11 @@ import gevent
 import ujson
 
 from collections import defaultdict
+from common.error import NotExistError
 from datetime import datetime
 from B2SProtocol.constants import ORDER_STATUS
 from B2SProtocol.constants import SHIPMENT_STATUS
+from B2SUtils.base_actor import actor_to_dict
 from B2SUtils.common import to_round
 from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import query
@@ -74,8 +76,10 @@ def _create_order_item(conn, sale, id_variant, id_brand, upc_shop=None,
         'id_brand': id_brand,
         'id_shop': shop_id or 0,
         'price': sale.final_price(id_variant, id_price_type or 0),
+        'currency': sale.price.currency,
         'name': sale.whole_name(id_variant),
         'description': sale.desc,
+        'weight_unit': sale.weight_unit,
     }
     external_id = sale.get_external_id(id_variant, id_type)
     main_picture = sale.get_main_picture(id_variant)
@@ -95,6 +99,23 @@ def _create_order_item(conn, sale, id_variant, id_brand, upc_shop=None,
         item_value['id_price_type'] = id_price_type
     if external_id is not None:
         item_value['external_id'] = external_id
+
+    try:
+        variant = sale.get_variant(id_variant)
+        if variant:
+            item_value['variant_detail'] = ujson.dumps(actor_to_dict(variant))
+    except NotExistError:
+        pass
+
+    try:
+        weight_detail = sale.get_weight_attr(id_weight_type)
+        item_value['weight'] = weight_detail.weight.value
+        item_value['weight_type_detail'] = ujson.dumps(actor_to_dict(weight_detail))
+    except NotExistError:
+        item_value['weight'] = sale.standard_weight
+
+    item_value['item_detail'] = ujson.dumps(actor_to_dict(sale))
+
     item_id = insert(conn, 'order_items',
                      values=item_value, returning='id')
     logging.info('order_item create: item id: %s, values: %s',
@@ -123,7 +144,7 @@ def _log_order(conn, users_id, id_order, sellers):
 def up_order_log(conn, id_order, sellers):
     for id_brand, shops in sellers.iteritems():
         for id_shop in shops:
-            status = get_order_status(conn, id_order, id_brand, id_shop)
+            status = get_order_status(conn, id_order, id_brand, [id_shop])
             where = {'id_order': id_order,
                      'id_brand': id_brand,
                      'id_shop': id_shop}
@@ -214,8 +235,8 @@ def delete_order(conn, order_id, brand_id, shops_id):
     allowed = True
     for result in results:
         order_item = dict(zip(fields, result))
-        if not _valid_sale_brand(order_item['sale_id'], brand_id) \
-                or order_item['shop_id'] not in shops_id:
+        if (order_item['brand_id'] != int(brand_id) or
+            order_item['shop_id'] not in shops_id):
             allowed = False
             break
 
@@ -276,6 +297,7 @@ ORDER_ITEM_FIELDS_COLUMNS = [('item_id', 'order_items.id'),
                              ('quantity', 'quantity'),
                              ('sale_id', 'id_sale'),
                              ('shop_id', 'id_shop'),
+                             ('brand_id', 'id_brand'),
                              ('id_variant', 'id_variant'),
                              ('price', 'price'),
                              ('name', 'name'),
@@ -288,15 +310,14 @@ ORDER_ITEM_FIELDS_COLUMNS = [('item_id', 'order_items.id'),
                              ('id_type', 'id_type'),
                              ('type_name', 'type_name'),
                              ('external_id', 'order_items.external_id'),
+                             ('currency', 'order_items.currency'),
+                             ('weight', 'order_items.weight'),
+                             ('weight_unit', 'order_items.weight_unit'),
+                             ('sel_variant', 'order_items.variant_detail'),
+                             ('sel_weight_type', 'order_items.weight_type_detail'),
+                             ('item_detail', 'order_items.item_detail'),
                              ]
 
-
-def _valid_sale_brand(sale_id, brand_id):
-    if int(brand_id) == 0:
-        return True
-
-    sale = CachedSale(sale_id).sale
-    return sale and sale.brand and int(sale.brand.id) == int(brand_id)
 
 def _get_shipment_info_for_order_item(conn, item_id):
     fields, columns = zip(*[('shipment_id', 'shipments.id'),
@@ -348,55 +369,55 @@ def _get_invoice_info_for_order_item(conn, item_id):
             r['invoice_item'] = ujson.dumps({})
     return results
 
-def _get_order_shipments_status(conn, id_order, id_brand=None, id_shop=None):
+def _get_order_shipments_status(conn, id_order, id_brand=None, id_shops=None):
     query_str = ("SELECT status "
                    "FROM shipments ")
     where = 'WHERE id_order = %s '
-    where_v = (id_order,)
+    where_v = [id_order]
     if id_brand:
         where += 'and id_brand = %s '
-        where_v += (id_brand,)
-    if id_shop:
-        where += 'and id_shop = %s'
-        where_v += (id_shop,)
+        where_v.append(id_brand)
+    if id_shops:
+        where += 'and id_shop in %s'
+        where_v.append(tuple(id_shops))
 
     query_str += where
     rst = query(conn, query_str, where_v)
     return [item[0] for item in rst]
 
-def _get_order_invoice_status(conn, id_order, id_brand=None, id_shop=None):
+def _get_order_invoice_status(conn, id_order, id_brand=None, id_shops=None):
     query_str = ("SELECT iv.status FROM invoices as iv ")
 
-    if id_brand is not None or id_shop is not None:
+    if id_brand is not None or id_shops is not None:
         query_str += "JOIN shipments as sp ON iv.id_shipment = sp.id "
 
     where = 'where iv.id_order = %s '
-    where_v = (id_order,)
+    where_v = [id_order,]
 
     if id_brand is not None:
         where += 'and sp.id_brand = %s '
-        where_v += (id_brand,)
-    if id_shop is not None:
-        where += 'and sp.id_shop = %s '
-        where_v += (id_shop,)
+        where_v.append(int(id_brand))
+    if id_shops is not None:
+        where += 'and sp.id_shop in %s '
+        where_v.append(tuple(id_shops))
 
     query_str += where
     rst = query(conn, query_str, where_v)
     return [item[0] for item in rst]
 
-def _all_order_items_packed(conn, id_order, id_brand=None, id_shop=None):
+def _all_order_items_packed(conn, id_order, id_brand=None, id_shops=None):
     item_qtt_sql = ("SELECT sum(quantity) "
                       "FROM order_details as od ")
     where = 'WHERE od.id_order=%s '
-    where_v = (id_order, )
-    if id_brand is not None or id_shop is not None:
+    where_v = [id_order, ]
+    if id_brand is not None or id_shops is not None:
         item_qtt_sql += 'JOIN order_items as oi on od.id_item = oi.id '
     if id_brand is not None:
-        where += 'and oi.id_brand = %s'
-        where_v += (id_brand, )
-    if id_shop is not None:
-        where += 'and oi.id_shop = %s '
-        where_v += (id_shop, )
+        where += 'and oi.id_brand = %s '
+        where_v.append(id_brand)
+    if id_shops is not None:
+        where += 'and oi.id_shop in %s '
+        where_v.append(tuple(id_shops))
 
     item_qtt_sql += where
     item_qtt = query(conn, item_qtt_sql, where_v)[0][0]
@@ -407,20 +428,20 @@ def _all_order_items_packed(conn, id_order, id_brand=None, id_shop=None):
                            "ON spl.id_shipment = sp.id ")
 
     where = "WHERE sp.id_order = %s AND sp.status <> %s "
-    where_v = (id_order, SHIPMENT_STATUS.DELETED)
+    where_v = [id_order, SHIPMENT_STATUS.DELETED]
     if id_brand is not None:
         where += "and sp.id_brand = %s "
-        where_v += (id_brand,)
-    if id_shop is not None:
-        where += 'and sp.id_shop = %s '
-        where_v += (id_shop,)
+        where_v.append(id_brand)
+    if id_shops is not None:
+        where += 'and sp.id_shop in %s '
+        where_v.append(tuple(id_shops))
     grouped_qtt_sql += where
 
     grouped_qtt, packed_qtt = query(conn, grouped_qtt_sql, where_v)[0]
 
     return item_qtt == grouped_qtt and item_qtt == packed_qtt
 
-def get_order_status(conn, order_id, id_brand=None, id_shop=None):
+def get_order_status(conn, order_id, id_brand=None, id_shops=None):
     """
     There is 4 status.
     Pending order is the initial status.
@@ -430,13 +451,16 @@ def get_order_status(conn, order_id, id_brand=None, id_shop=None):
     When the merchant has set the status of all shipments as sent, the order
     is "completed".
     """
-    if not _all_order_items_packed(conn, order_id, id_brand, id_shop):
+    if id_shops and not isinstance(id_shops, list):
+        id_shops = [id_shops]
+
+    if not _all_order_items_packed(conn, order_id, id_brand, id_shops):
         return ORDER_STATUS.PENDING
 
     shipment_status_set = set(_get_order_shipments_status(
-        conn, order_id, id_brand, id_shop))
+        conn, order_id, id_brand, id_shops))
     invoice_status_set = set(_get_order_invoice_status(
-        conn, order_id, id_brand, id_shop))
+        conn, order_id, id_brand, id_shops))
 
     if shipment_status_set == set([SHIPMENT_STATUS.FETCHED]):
         return ORDER_STATUS.COMPLETED
@@ -505,26 +529,25 @@ def get_orders_list(conn, brand_id, shops_id,
                             ORDER_SHIPMENT_COLUMNS +
                             ORDER_ITEM_FIELDS_COLUMNS))
 
-    filter_where = "where orders.valid "
-    params = []
+    filter_where = "where orders.valid and order_items.id_brand=%s "
+    params = [brand_id]
     if users_id:
-        filter_where += " and orders.id_user=%s"
+        filter_where += "and orders.id_user=%s "
         params.append(users_id)
     elif shops_id:
-        filter_where += (" and order_items.id_shop in (%s)"
-                 % ', '.join(['%s'] * len(shops_id)))
-        params += shops_id
+        filter_where += "and order_items.id_shop in %s "
+        params.append(tuple(shops_id))
 
-    order_by = "ORDER BY confirmation_time, order_items.id"
+    order_by = "ORDER BY confirmation_time, order_items.id "
     if users_id:
-        order_by = "ORDER BY confirmation_time desc, orders.id desc"
+        order_by = "ORDER BY confirmation_time desc, orders.id desc "
 
     limit_offset = ""
     if limit:
-        limit_offset += " limit %s "
+        limit_offset += "limit %s "
         params.append(limit)
     if offset:
-        limit_offset += " offset %s"
+        limit_offset += "offset %s"
         params.append(offset)
 
     query_str = """
@@ -546,8 +569,6 @@ def get_orders_list(conn, brand_id, shops_id,
     sorted_order_ids = []
     for result in results:
         order_item = dict(zip(fields, result))
-        if not _valid_sale_brand(order_item['sale_id'], brand_id):
-            continue
 
         order_id = order_item.pop('order_id')
         if order_id not in orders_dict:
@@ -558,7 +579,8 @@ def get_orders_list(conn, brand_id, shops_id,
                 'user_info': get_user_profile(conn, id_user),
                 'user_id': id_user,
                 'confirmation_time': order_item.pop('confirmation_time'),
-                'first_sale_id': order_item['sale_id'],
+                'thumbnail_img': order_item['picture'], # use the first
+                # order item's picture as order's thumbnail image
                 'shipping_dest': get_user_dest_addr(conn, id_user, id_shipaddr),
                 'contact_phone': get_user_sel_phone_num(conn, id_user, id_phone),
                 'order_items': [],
@@ -572,7 +594,7 @@ def get_orders_list(conn, brand_id, shops_id,
             sorted_order_ids.append(order_id)
 
     for order_id, order in orders_dict.iteritems():
-        order['order_status'] = get_order_status(conn, order_id)
+        order['order_status'] = get_order_status(conn, order_id, brand_id, shops_id)
         if order['order_status'] > ORDER_STATUS.AWAITING_PAYMENT:
             order['paid_time_info'] = _get_paid_time_list(
                 conn, order['order_status'], order_id)
@@ -604,13 +626,22 @@ def _get_order_items(conn, order_id, brand_id, shops_id=None):
         if shops_id and order_item['shop_id'] not in shops_id:
             continue
 
-        if not _valid_sale_brand(order_item['sale_id'], brand_id):
+        if order_item['brand_id'] != int(brand_id):
             continue
 
         item_id = order_item.pop('item_id')
         _update_extra_info_for_order_item(conn, item_id, order_item)
         items['order_items'].append({item_id: order_item})
     return items
+
+def get_order_items_by_id(conn, items_id):
+    if not isinstance(items_id, list):
+        items_id = [items_id]
+    q = ("SELECT * "
+           "FROM order_items "
+          "WHERE id in %s")
+    r = query(conn, q, [tuple(items_id)])
+    return r
 
 def get_order_items(conn, order_id):
     fields, columns = zip(*ORDER_ITEM_FIELDS_COLUMNS)
@@ -656,10 +687,10 @@ def get_order_detail(conn, order_id, brand_id, shops_id=None):
     order_items = _get_order_items(conn, order_id, brand_id, shops_id)
     details.update(order_items)
     details.update({
-        'first_sale_id': order_items['order_items'][0].values()[0]['sale_id'],
+        'thumbnail_img': order_items['order_items'][0].values()[0]['picture'],
         'shipping_dest': get_user_dest_addr(conn, details['user_id'],
                                             details['id_shipaddr']),
-        'order_status': get_order_status(conn, order_id)})
+        'order_status': get_order_status(conn, order_id, brand_id, shops_id)})
     return details
 
 def user_accessable_order(conn, id_order, id_user):

@@ -279,13 +279,8 @@ class BaseInvoiceGetResource(BaseJsonResource, BaseInvoiceMixin):
                     continue
                 if spm['id_brand'] != id_brand:
                     continue
-                if id_shops:
-                    if spm['id_shop'] not in id_shops:
-                        continue
-                elif spm['id_shop']:
-                    cached_shop = CachedShop(id_shop=spm['id_shop'])
-                    if int(cached_shop.shop.brand.id) != id_brand:
-                        continue
+                if id_shops and spm['id_shop'] not in id_shops:
+                    continue
 
                 content.append(
                     {'id': iv['id'],

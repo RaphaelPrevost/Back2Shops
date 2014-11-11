@@ -1,7 +1,7 @@
 import logging
+import ujson
 import xmltodict
 
-from common.error import NotExistError
 from common.error import UserError
 from common.error import ErrorCode as E_C
 from common.utils import weight_convert
@@ -13,13 +13,12 @@ from models.order import get_order
 from models.order import get_order_items
 from models.order import get_order_status
 from models.order import user_accessable_order
-from models.actors.sale import CachedSale
 from models.actors.shipping import ActorCarriers
 from models.shipments import conf_shipping_service
 from models.shipments import get_shipping_fee
 from models.shipments import get_shipments_by_order
 from models.shipments import order_item_grouped_quantity
-from models.shipments import remote_get_supported_services
+from models.shipments import get_supported_services
 from models.shipments import get_shipment_paid_time
 from models.shipments import get_shipping_supported_services
 from models.shipments import get_shipping_list
@@ -113,9 +112,9 @@ class BaseShippingListResource(BaseXmlResource):
                               "item %s", id_order_item)
                 continue
             id_shop = order_item['shop_id']
-            id_sale = order_item['sale_id']
-            if shop_shipment.get(id_shop) is None:
-                id_brand = CachedSale(id_sale).sale.brand.id
+            id_brand = order_item['brand_id']
+            key = '-'.join([str(id_brand), str(id_shop)])
+            if shop_shipment.get(key) is None:
                 shop_shipment[id_shop] = {
                     'id': 0,
                     'calculation_method': SCM.MANUAL,
@@ -125,12 +124,31 @@ class BaseShippingListResource(BaseXmlResource):
                     'shipping_list': []
                 }
 
+            sale_item = ujson.loads(order_item['item_detail'])
+            sale_item['quantity'] = quantity-grouped_quantity
+            sale_item['packing_quantity'] = 0
+            sale_item['weight'] = order_item['weight']
+
+
+            sel_variant = order_item['sel_variant']
+            sel_weight_type = order_item['sel_weight_type']
+            if sel_variant:
+                sel_variant = ujson.loads(sel_variant)
+            if sel_weight_type:
+                sel_weight_type = ujson.loads(sel_weight_type)
+
+            sale_item['sel_variant'] = sel_variant
+            sale_item['sel_weight_type'] = sel_weight_type
+
             sale_item = self._gen_shipping_sale_item(
-                order_item['sale_id'],
-                order_item['id_variant'],
-                order_item['id_weight_type'],
+                order_item['item_detail'],
+                order_item['weight'],
+                order_item['weight_unit'],
+                sel_variant,
+                sel_weight_type,
                 quantity-grouped_quantity,
                 0)
+
             shipping = {'id_sale': order_item['sale_id'],
                         'id_item': order_item['item_id'],
                         'sale_item': sale_item}
@@ -143,8 +161,10 @@ class BaseShippingListResource(BaseXmlResource):
                               SCM.CUSTOM_SHIPPING_RATE]:
             return []
         id_shipment= shipment['id']
-        xml_supported_services = remote_get_supported_services(
-            conn, id_shipment)
+        supported_services = get_supported_services(conn, id_shipment)
+        if not supported_services:
+            return []
+        xml_supported_services = supported_services[0]['supported_services_details']
         data = xmltodict.parse(xml_supported_services)
         actor_carriers = ActorCarriers(data=data['carriers'])
         return actor_to_dict(actor_carriers).get('carriers', [])
@@ -154,36 +174,17 @@ class BaseShippingListResource(BaseXmlResource):
         #  shipping status is DELIVER
         pass
 
-    def _gen_shipping_sale_item(self, id_sale, id_variant, id_weight_type,
+    def _gen_shipping_sale_item(self, item_detail, weight, weight_unit,
+                                sel_variant, sel_weight_type,
                                 quantity, packing_quantity):
-        sale = CachedSale(id_sale).sale
-
-        weight = sale.standard_weight or None
-
-        sel_weight_type = None
-        try:
-            sel_weight_type = sale.get_weight_attr(id_weight_type)
-            weight = sel_weight_type.weight.value
-        except NotExistError:
-            pass
-
-        sel_variant = None
-        try:
-            sel_variant = sale.get_variant(id_variant)
-        except NotExistError:
-            pass
-
-        weight = weight_convert(sale.weight_unit, weight) * quantity
-        item = actor_to_dict(sale)
+        item = ujson.loads(item_detail)
         item['quantity'] = quantity
         item['packing_quantity'] = packing_quantity
+        item['sel_variant'] = sel_variant
+        item['sel_weight_type'] = sel_weight_type
+
+        weight = weight_convert(weight_unit, weight) * quantity
         item['weight'] = weight
-        item['sel_variant'] = (sel_variant and
-                               actor_to_dict(sel_variant) or
-                               None)
-        item['sel_weight_type'] = (sel_weight_type and
-                                   actor_to_dict(sel_weight_type) or
-                                   None)
         return item
 
     def _get_shipping_list(self, conn, id_shipment):
@@ -191,10 +192,20 @@ class BaseShippingListResource(BaseXmlResource):
 
         shipping_list = get_shipping_list(conn, id_shipment)
         for shipping in shipping_list:
+            sel_variant = shipping['sel_variant']
+            sel_weight_type = shipping['sel_weight_type']
+            if sel_variant:
+                sel_variant = ujson.loads(sel_variant)
+            if sel_weight_type:
+                sel_weight_type = ujson.loads(sel_weight_type)
+
+
             item = self._gen_shipping_sale_item(
-                shipping['id_sale'],
-                shipping['id_variant'],
-                shipping['id_weight_type'],
+                shipping['item_detail'],
+                shipping['weight'],
+                shipping['weight_unit'],
+                sel_variant,
+                sel_weight_type,
                 shipping['quantity'],
                 shipping['packing_quantity'])
 

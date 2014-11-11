@@ -102,13 +102,19 @@ CREATE TABLE order_items (
     id_weight_type BIGINT,
     id_price_type BIGINT,
     price double precision NOT NULL,
+    currency character varying(3) NOT NULL,
     name character varying(150) NOT NULL,
     type_name character varying(50),
     picture character varying(200),
     description text,
     copy_time timestamp without time zone DEFAULT now() NOT NULL,
     external_id character varying(50),
-    barcode character varying(50)
+    barcode character varying(50),
+    weight double precision NOT NULL,
+    weight_unit character varying(150) NOT NULL,
+    weight_type_detail text,
+    variant_detail text,
+    item_detail text
 );
 
 CREATE TABLE order_details (
@@ -145,6 +151,7 @@ CREATE TABLE shipping_supported_services (
     id_shipment bigint,
     id_postage bigint,
     supported_services text,
+    supported_services_details text,
     FOREIGN KEY (id_shipment) REFERENCES shipments (id)
 );
 

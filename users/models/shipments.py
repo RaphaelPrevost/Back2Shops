@@ -7,6 +7,7 @@ from datetime import datetime
 from B2SProtocol.constants import FREE_SHIPPING_CARRIER
 from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS
+from B2SUtils.base_actor import actor_to_dict
 from B2SUtils.common import to_round
 from B2SUtils.db_utils import delete
 from B2SUtils.db_utils import execute
@@ -14,11 +15,13 @@ from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import query
 from B2SUtils.db_utils import update
 from B2SProtocol.constants import INVOICE_STATUS
+from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
 from common.utils import get_from_sale_server
 from common.utils import remote_xml_shipping_fee
 from common.utils import remote_xml_shipping_services
 from common.utils import weight_convert
 from models.actors.sale import CachedSale
+from models.actors.shipping import ActorCarriers
 from models.actors.shipping import ActorShipping
 from models.actors.shipping_fees import ActorShippingFees
 from models.actors.shop import CachedShop
@@ -43,6 +46,7 @@ def create_shipment(conn, id_order, id_brand, id_shop,
         }
     if calculation_method is not None:
         sm_values['calculation_method'] = calculation_method
+
 
     if isinstance(supported_services, str):
         supported_services = ujson.loads(supported_services)
@@ -70,6 +74,18 @@ def create_shipment(conn, id_order, id_brand, id_shop,
 
     return sm_id[0]
 
+def _get_supported_services(self, conn, shipment):
+    cal_method = shipment['calculation_method']
+    if cal_method not in [SCM.CARRIER_SHIPPING_RATE,
+                          SCM.CUSTOM_SHIPPING_RATE]:
+        return []
+    id_shipment= shipment['id']
+    xml_supported_services = remote_get_supported_services(
+        conn, id_shipment)
+    data = xmltodict.parse(xml_supported_services)
+    actor_carriers = ActorCarriers(data=data['carriers'])
+    return actor_to_dict(actor_carriers).get('carriers', [])
+
 def _add_shipping_supported_services(conn, id_shipment,
                                       supported_services):
     values = {"id_shipment": id_shipment}
@@ -80,6 +96,13 @@ def _add_shipping_supported_services(conn, id_shipment,
     if (supported_services and
         len(supported_services) == 1):
         values['id_postage'] = supported_services.keys()[0]
+
+    carrier_services_map = defaultdict(list)
+    for id_service, id_carrier in supported_services.iteritems():
+        carrier_services_map[id_carrier].append(id_service)
+    supported_services_details = remote_xml_shipping_services(
+        carrier_services_map.items())
+    values['supported_services_details'] = supported_services_details
 
     if isinstance(supported_services, dict):
         supported_services = ujson.dumps(supported_services)
@@ -787,20 +810,11 @@ def get_shipments_by_order(conn, id_order):
 def get_shipments_by_id(conn, id_shipments):
     assert len(id_shipments) > 0
 
-    if len(id_shipments) == 1:
-        where = "id = %s"
-        where_condition = id_shipments[0]
-    else:
-        where = "id in (%s)"
-        where_condition = ', '.join([str(id) for id in id_shipments])
-    where = where % where_condition
-
     query_str = ("SELECT %s "
                    "FROM shipments "
-                  "WHERE %s "
-                 % (", ".join(SHIPMENT_FIELDS), where))
-    r = query(conn,
-              query_str)
+                  "WHERE id in %%s "
+                 % ", ".join(SHIPMENT_FIELDS))
+    r = query(conn, query_str, [tuple(id_shipments)])
     shipment_list = []
     for item in r:
         shipment_list.append(dict(zip(SHIPMENT_FIELDS, item)))
@@ -854,7 +868,7 @@ def update_shipment(conn, id_shipment, values, shipment=None):
 
 
 SHIPMENT_SERVICES_FIELDS = [
-    'id', 'id_shipment', 'id_postage', 'supported_services']
+    'id', 'id_shipment', 'id_postage', 'supported_services', 'supported_services_details']
 
 def get_supported_services(conn, id_shipment):
     query_str = ("SELECT %s "
@@ -866,6 +880,7 @@ def get_supported_services(conn, id_shipment):
     for item in r:
         serv_list.append(dict(zip(SHIPMENT_SERVICES_FIELDS, item)))
     return serv_list
+
 
 def get_shipping_supported_services(conn, id_shipment):
     serv_list = get_supported_services(conn, id_shipment)
@@ -921,6 +936,12 @@ SHIPPING_ITEM_FIELDS = [
     ('name', 'oi.name'),
     ('type_name', 'oi.type_name'),
     ('external_id', 'oi.external_id'),
+    ('currency', 'oi.currency'),
+    ('weight', 'oi.weight'),
+    ('weight_unit', 'oi.weight_unit'),
+    ('sel_variant', 'oi.variant_detail'),
+    ('sel_weight_type', 'oi.weight_type_detail'),
+    ('item_detail', 'oi.item_detail'),
     ]
 
 def get_shipping_list(conn, id_shipment):
