@@ -21,7 +21,7 @@ VESSEL_POS_FIELDS = ['location', 'longitude', 'latitude', 'heading',
 
 
 def query_vessel_details(conn, search_by, q,
-                         force=False):
+                         force=False, exact_match=False):
     sql = """
         select %s
         from vessel
@@ -38,7 +38,7 @@ def query_vessel_details(conn, search_by, q,
         """ % (','.join(VESSEL_FIELDS + VESSEL_NAV_FIELDS + VESSEL_POS_FIELDS),
                search_by)
 
-    if search_by != 'name' and not force:
+    if not force and (search_by != 'name' or exact_match):
         detail = db_utils.query(conn, sql, (q, ))
         if len(detail) > 0 and not need_fetch_new_pos(detail[0][-1]):
             detail_results = []

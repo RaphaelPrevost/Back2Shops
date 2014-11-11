@@ -51,6 +51,38 @@ class CosconAPI:
 
     def _parse_post_response(self, response, context,
                              number_type, number, jsessionid):
+        if number_type == 'BILLOFLADING':
+            func = self._parse_billoflanding_post_response
+        else:
+            func = self._parse_container_post_response
+        data = func(response, context, number_type, number, jsessionid)
+        return data
+
+    def _parse_billoflanding_post_response(self, response, context,
+                                           number_type, number, jsessionid):
+        soup = gen_resp_soup(response)
+        container_num = self._get_container_num(soup, number_type)
+        end_time = self._get_endtime(soup)
+        if end_time:
+            shipment_cycle = [{
+                'status': 'Empty Equipment Returned',
+                'time': end_time,
+            }]
+        else:
+            shipment_cycle = self.searchContainer(search_by='container',
+                                                  number=container_num
+                                                  )['shipment_cycle']
+        return {'container': container_num,
+                'ports': self._get_ports_info(soup, number_type),
+                'shipment_cycle': shipment_cycle}
+
+    def _get_endtime(self, soup):
+        top = soup.find(id='containerInfoByBlNum')
+        rows = top.find(name='tbody').findChildren(name='tr')
+        return rows[-1].findChildren(attrs={'class': 'labelTextMyFocus'})[-1].getText()
+
+    def _parse_container_post_response(self, response, context,
+                                       number_type, number, jsessionid):
         jsf_state = self._get_updated_value("javax.faces.ViewState", response)
         soup = gen_resp_soup(response)
         history = soup.find(id='cargoTrackingContainerHistory6')
@@ -67,7 +99,7 @@ class CosconAPI:
                 shipment = {
                     'status': status,
                     'location': location,
-                    'time': time,
+                    'time': time, #TODO convert timezone
                     'mode': mode,
                 }
                 a_tag = cols[3].find_parent(name='a')
@@ -99,8 +131,8 @@ class CosconAPI:
 
                 shipment_cycle.append(shipment)
 
-        return {'container': self._get_container_num(soup),
-                'ports': self._get_ports_info(soup),
+        return {'container': self._get_container_num(soup, number_type),
+                'ports': self._get_ports_info(soup, number_type),
                 'shipment_cycle': shipment_cycle}
 
     def _parse_vessel_info(self, html):
@@ -114,14 +146,24 @@ class CosconAPI:
         }
         return vessel_info
 
-    def _get_container_num(self, soup):
-        top = soup.find(id='CargoTracking1').find(attrs={'class': 'Containerkuang3'})
-        rows = top.find(name='table').findChildren(name='tr')
+    def _get_container_num(self, soup, number_type):
+        if number_type == 'CONTAINER':
+            top = soup.find(id='CargoTracking1') \
+                      .find(attrs={'class': 'Containerkuang3'})
+            rows = top.find(name='table').findChildren(name='tr')
+        else:
+            top = soup.find(id='containerInfoByBlNum')
+            rows = top.find(name='tbody').findChildren(name='tr')
         return rows[-1].find(attrs={'class': 'labelTextMyFocus'}).getText()
 
-    def _get_ports_info(self, soup):
+    def _get_ports_info(self, soup, number_type):
+        if number_type == 'CONTAINER':
+            tag_id = 'cargopic1'
+        else:
+            tag_id = 'Billkuang'
+
+        points = soup.find(id=tag_id)
         ports = {}
-        points = soup.find(id='cargopic1')
         p = points.find(name='div', text='始发港')
         if p and p.find_next():
             ports['first_pol'] = self._get_valid_port_name(p.find_next().text)

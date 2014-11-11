@@ -61,7 +61,8 @@ class SearchContainerResource(BaseJsonResource):
 
     def _get_vessel_info(self, conn, vessel_name):
         vessel_info = None
-        results = query_vessel_details(conn, 'name', vessel_name)
+        results = query_vessel_details(conn, 'name', vessel_name,
+                                       exact_match=True)
         for v in results:
             if settings.USE_MOCK_FLEETMON_DATA or v['name'] == vessel_name:
                 vessel_info = v
