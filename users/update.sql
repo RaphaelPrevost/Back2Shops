@@ -83,4 +83,56 @@ ALTER TABLE invoices ADD COLUMN invoice_items text;
 
 ALTER TABLE order_items ADD COLUMN id_type bigint;
 ALTER TABLE order_items ADD COLUMN external_id character varying(50);
+
+
+-- r516 --
+CREATE TABLE incomes_log (
+    order_id BIGINT PRIMARY KEY,
+    users_id BIGINT NOT NULL,
+    up_time timestamp without time zone DEFAULT now() NOT NULL
+);
+
+-- r522 --
+ALTER TABLE order_items ADD COLUMN id_brand BIGINT NOT NULL;
+CREATE TABLE orders_log (
+    id serial PRIMARY KEY,
+    users_id BIGINT NOT NULL,
+    id_order BIGINT NOT NULL,
+    id_brand BIGINT NOT NULL,
+    id_shop BIGINT NOT NULL,
+    pending_date date,
+    waiting_payment_date date,
+    waiting_shipping_date date,
+    completed_date date
+);
+
+-- r530 --
+CREATE TABLE bought_history (
+    id serial PRIMARY KEY,
+    id_sale BIGINT NOT NULL,
+    users_id BIGINT NOT NULL
+);
+
+-- r547 --
+ALTER TABLE order_items ADD COLUMN currency character varying(3);
+ALTER TABLE order_items ADD COLUMN weight double precision;
+ALTER TABLE order_items ADD COLUMN weight_unit character varying(2);
+ALTER TABLE order_items ADD COLUMN weight_type_detail text;
+ALTER TABLE order_items ADD COLUMN variant_detail text;
+ALTER TABLE order_items ADD COLUMN item_detail text;
+
+ALTER TABLE shipping_supported_services ADD COLUMN supported_services_details text;
+
+---Note: Please run the comment out commands after execute: nohup python scripts/oneoff/populate_order_items_data.py --
+--ALTER TABLE order_items ALTER COLUMN currency character varying(3) not NULL;
+--ALTER TABLE order_items ALTER COLUMN weight double precision not NULL;
+--ALTER TABLE order_items ALTER COLUMN weight_unit character varying(2) not NULL;
+--ALTER TABLE order_items ALTER COLUMN item_detail text not NULL;
+---
+
+ALTER TABLE order_items ALTER COLUMN currency set not NULL;
+ALTER TABLE order_items ALTER COLUMN weight set not NULL;
+ALTER TABLE order_items ALTER COLUMN weight_unit set not NULL;
+ALTER TABLE order_items ALTER COLUMN item_detail set not NULL;
+
 COMMIT;
