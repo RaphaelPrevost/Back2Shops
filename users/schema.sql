@@ -111,10 +111,10 @@ CREATE TABLE order_items (
     external_id character varying(50),
     barcode character varying(50),
     weight double precision NOT NULL,
-    weight_unit character varying(150) NOT NULL,
+    weight_unit character varying(2) NOT NULL,
     weight_type_detail text,
     variant_detail text,
-    item_detail text
+    item_detail text not NULL
 );
 
 CREATE TABLE order_details (

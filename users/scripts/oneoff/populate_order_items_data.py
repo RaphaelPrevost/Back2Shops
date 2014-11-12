@@ -1,0 +1,70 @@
+import ujson
+import settings
+
+from collections import defaultdict
+from common.utils import remote_xml_shipping_services
+from models.actors.sale import CachedSale
+from B2SUtils.db_utils import select_dict, get_conn, update
+from B2SUtils.db_utils import init_db_pool
+from B2SUtils.base_actor import actor_to_dict
+
+
+init_db_pool(settings.DATABASE)
+
+def populate_order_items():
+
+    with get_conn() as conn:
+        r = select_dict(conn, "order_items", 'id')
+        for item_id, item in r.iteritems():
+            id_sale = item['id_sale']
+            sale = CachedSale(id_sale).sale
+            if not sale:
+                print 'no cached sale for: ', id_sale, 'please populate data manually'
+
+            values = {'weight_unit': sale.weight_unit,
+                      'currency': sale.price.currency}
+
+            id_weight_type = item['id_weight_type']
+            if id_weight_type:
+                weight_detail = sale.get_weight_attr(id_weight_type)
+                values['weight'] = weight_detail.weight.value
+                values['weight_type_detail'] = ujson.dumps(actor_to_dict(weight_detail))
+            else:
+                values['weight'] = sale.standard_weight
+
+            id_variant = item['id_variant']
+            if id_variant:
+                variant = sale.get_variant(id_variant)
+                variant_detail = ujson.dumps(actor_to_dict(variant))
+                values['variant_detail'] = variant_detail
+
+            values['item_detail'] = ujson.dumps(actor_to_dict(sale))
+
+            update(conn, 'order_items', values=values, where={'id': item['id']})
+            print "update order items ", item['id'], 'with values', values
+
+
+def poplate_supported_services():
+
+    with get_conn() as conn:
+        r = select_dict(conn, 'shipping_supported_services', 'id')
+        for item_id, item in r.iteritems():
+            supported_services = item['supported_services']
+            supported_services = ujson.loads(supported_services)
+            carrier_services_map = defaultdict(list)
+            for id_service, id_carrier in supported_services.iteritems():
+                carrier_services_map[id_carrier].append(id_service)
+            supported_services_details = remote_xml_shipping_services(
+                carrier_services_map.items())
+            values = {'supported_services_details': supported_services_details}
+            update(conn, 'shipping_supported_services', values=values)
+
+            print "update supported services details ", item['id'], 'with values', values
+
+
+if __name__ == "__main__":
+    populate_order_items()
+    poplate_supported_services()
+
+
+
