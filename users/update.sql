@@ -124,15 +124,9 @@ ALTER TABLE order_items ADD COLUMN item_detail text;
 ALTER TABLE shipping_supported_services ADD COLUMN supported_services_details text;
 
 ---Note: Please run the comment out commands after execute: nohup python scripts/oneoff/populate_order_items_data.py --
---ALTER TABLE order_items ALTER COLUMN currency character varying(3) not NULL;
---ALTER TABLE order_items ALTER COLUMN weight double precision not NULL;
---ALTER TABLE order_items ALTER COLUMN weight_unit character varying(2) not NULL;
---ALTER TABLE order_items ALTER COLUMN item_detail text not NULL;
----
-
-ALTER TABLE order_items ALTER COLUMN currency set not NULL;
-ALTER TABLE order_items ALTER COLUMN weight set not NULL;
-ALTER TABLE order_items ALTER COLUMN weight_unit set not NULL;
-ALTER TABLE order_items ALTER COLUMN item_detail set not NULL;
+-- ALTER TABLE order_items ALTER COLUMN currency set not NULL;
+-- ALTER TABLE order_items ALTER COLUMN weight set not NULL;
+-- ALTER TABLE order_items ALTER COLUMN weight_unit set not NULL;
+-- ALTER TABLE order_items ALTER COLUMN item_detail set not NULL;
 
 COMMIT;
