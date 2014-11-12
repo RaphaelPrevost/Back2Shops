@@ -306,7 +306,7 @@ STATS_INCOME = '%s/webservice/1.0/private/sensor/income' % USR_SERVER
 STATS_ORDER = '%s/webservice/1.0/private/sensor/orders' % USR_SERVER
 STATS_BOUGHT_HISTORY = '%s/webservice/1.0/private/sensor/bought_history' % USR_SERVER
 
-SALES_SIM_REDIS = {'HOST': '37.187.48.33',
+SALES_SIM_REDIS = {'HOST': '127.0.0.1',
                    'PORT': 8001,
                    'TIMEOUT': 1}
 SALES_SIM_COUNT = 5

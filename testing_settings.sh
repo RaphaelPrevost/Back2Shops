@@ -8,7 +8,7 @@ export FRT_DOMAIN=${FRT_DOMAIN:-front.backtoshops.com}
 export VSL_DOMAIN=${VSL_DOMAIN:-vessel.backtoshops.com}
 export VSLFRT_DOMAIN=${VSLFRT_DOMAIN:-vesselfront.backtoshops.com}
 
-export ADM_ADDR='188.165.192.57'
+export ADM_ADDR='188.165.192.57:80'
 export USR_ADDR='188.165.192.57:18100'
 export FIN_ADDR='188.165.192.57:19000'
 export AST_ADDR='188.165.192.57:19300'
