@@ -38,7 +38,7 @@ def _get_mock_vessel_detail():
             "name": "AIDABELLA",
             "navigationstatus": "under way using engine",
             "photos": "//img3.fleetmon.com/thumbnails/AIDABELLA_603862.220x146.jpg|//img3.fleetmon.com/thumbnails/AIDABELLA_603862.570x1140.jpg", 
-            "positionreceived": str(datetime.datetime.utcnow()),
+            "positionreceived": datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M+0000'),
             "publicurl": "http://www.fleetmon.com/en/vessels/Aidabella_50934",
             "type": "Passenger ship"}
         ]}

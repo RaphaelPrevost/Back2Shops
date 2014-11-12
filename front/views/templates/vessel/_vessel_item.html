@@ -13,7 +13,7 @@
 <td>${v['arrival_portname']}/${v['arrival_locode']}</td>
 <td>${pos['speed'] or '--'}</td>
 <td>${pos['location']}</td>
-<td>${pos['time']}</td>
+<td>${format_datetime(pos['time'])}</td>
 <td>
     <?py if search: ?>
     <a class="add2myfleet" href="javascript:void(0);" onclick="javascript:add2myfleet(this, ${v['imo']}, ${v['mmsi']})">Add to My Fleet</a>
@@ -33,8 +33,8 @@
     <div>IMO: ${v['imo']}</div>
     <div>${v['mmsi']}</div>
     <div class="navi">
-        <div>ATD: ${v['departure_time']}</div>
-        <div>ETA: ${v['arrival_time']}</div>
+        <div>ATD: ${format_datetime(v['departure_time'])}</div>
+        <div>ETA: ${format_datetime(v['arrival_time'])}</div>
         <div>Speed: ${pos['speed'] or '--'} knots</div>
         <div>Location: ${pos['location']}</div>
         <div>Status: ${pos['status']}</div>

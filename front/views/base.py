@@ -24,6 +24,7 @@ from common.m17n import trans_func
 from common.redis_utils import get_redis_cli
 from common.utils import cur_symbol
 from common.utils import format_amount
+from common.utils import format_datetime
 from common.utils import gen_html_resp
 from common.utils import gen_cookie_expiry
 from common.utils import gen_SID
@@ -278,6 +279,7 @@ class BaseHtmlResource(BaseResource):
         resp_dict['err'] = trans_func(resp_dict['err'])
         resp_dict['route_args'] = self.route_args
 
+        resp_dict['format_datetime'] = format_datetime
         resp_dict['as_list'] = as_list
         resp_dict['get_single_attribute'] = self.get_single_attribute
         resp_dict['format_amount'] = format_amount

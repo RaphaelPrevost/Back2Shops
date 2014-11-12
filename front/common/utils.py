@@ -29,6 +29,8 @@ from B2SProtocol.constants import USER_BASKET
 from B2SProtocol.constants import USER_BASKET_COOKIE_NAME
 from B2SUtils.base_actor import as_list
 from B2SUtils.common import get_cookie_value
+from B2SUtils.common import localize_datetime
+from B2SUtils.common import parse_ts
 from B2SUtils.common import set_cookie
 from B2SUtils.common import to_round
 from common.constants import ADDR_TYPE
@@ -675,7 +677,17 @@ def unescape_string(s):
     return h.unescape(s)
 
 def gen_SID(num_bytes=16):
-    return uuid.UUID(bytes = M2Crypto.m2.rand_bytes(num_bytes))
+    return uuid.UUID(bytes=M2Crypto.m2.rand_bytes(num_bytes))
 
 def gen_cookie_expiry(utc_expiry):
     return utc_expiry.strftime(EXPIRY_FORMAT)
+
+def format_datetime(dt_str, tz_from='UTC', tz_to=settings.TIMEZONE):
+    dt = parse_ts(dt_str)
+    if dt is None:
+        if dt_str:
+            logging.error('Failed to format datetime: %s', dt_str)
+        return dt_str
+    return localize_datetime(dt, tz_from, tz_to
+                             ).strftime('%Y-%m-%d %H:%M')
+
