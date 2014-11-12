@@ -107,7 +107,9 @@
     <?py #endif ?>
 </div>
 
-<div id="map"></div>
+<div id="map">
+    <div id="map_info" unselectable="on"></div>
+</div>
 
 <div id="myfleets">
     <h3>My Fleets</h3>
@@ -148,8 +150,17 @@ function view(lat, lon, zoom) {
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 }
-function mark(lat, lon, popup) {
-    var marker = L.marker([lat, lon]).addTo(map);
+function getIcon(degree) {
+    var region = parseInt(degree/45 + 0.5);
+    if (region >= 360) region = 0;
+    return L.icon({
+        iconUrl: '/templates/vessel/img/my-icon-' + region * 45 + '.png',
+        iconSize: [25, 25]
+    });
+}
+function mark(lat, lon, heading, popup) {
+    var marker = L.marker([lat, lon],
+                          {icon: getIcon(heading)}).addTo(map);
     marker.bindPopup(popup);
     marker.on('click', function(e) {
         marker.openPopup();
@@ -301,13 +312,24 @@ $(function() {
 
     $('.vessel_table .popup a.viewmap').each(function(){
         var popup = $(this).parent().parent();
-        mark($(this).attr('lat'), $(this).attr('lon'), popup.html());
+        mark($(this).attr('lat'), $(this).attr('lon'),
+             $(this).attr('heading'), popup.html());
     });
 
     $('.container_table .popup a.viewmap').each(function(){
         var popup = $(this).parent().parent();
-        mark($(this).attr('lat'), $(this).attr('lon'), popup.html());
+        mark($(this).attr('lat'), $(this).attr('lon'),
+             $(this).attr('heading'), popup.html());
         view($(this).attr('lat'), $(this).attr('lon'), 2);
+    });
+
+    $('#map').mousemove(function(e){
+        var latlng = map.mouseEventToLatLng(e);
+        var lat = latlng.lat.toFixed(2);
+        lat = (lat > 0 ? "N": "S") + Math.abs(lat); 
+        var lng = latlng.lng.toFixed(2);
+        lng = (lng > 0 ? "E": "W") + Math.abs(lng); 
+        $('#map_info').text('(' + lat + ', ' + lng + ')');
     });
 
     $("input#search_vessel").quickselect({
