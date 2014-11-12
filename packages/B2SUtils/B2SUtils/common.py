@@ -1,7 +1,9 @@
 import cgi
 import Cookie
+import datetime
 import logging
 import urllib
+from pytz import timezone
 
 from Cookie import SimpleCookie
 
@@ -77,3 +79,27 @@ def to_round(val, decimal_digits=2):
     except:
         logging.error("something wrong with this money value: " + str(val))
     return val
+
+def parse_ts(ts):
+    if isinstance(ts, datetime.datetime) or isinstance(ts, datetime.date):
+        return ts
+    elif ts is None:
+        return None
+    elif isinstance(ts, (str, unicode)):
+        for pattern in ('%Y-%m-%dT%H:%M', '%Y-%m-%d %H:%M'):
+            try:
+                dt = datetime.datetime.strptime(ts[:16], pattern)
+                return dt
+            except:
+                pass
+    else:
+         return datetime.datetime.fromtimestamp(ts)
+
+def localize_datetime(date, tz_from, tz_to):
+    if date.tzinfo is None:
+        date = timezone(tz_from).localize(date)
+        dt = date.astimezone(timezone(tz_to))
+    # use normalize() method to handle daylight savings time
+    # and other timezone transitions.
+    return dt.tzinfo.normalize(dt)
+

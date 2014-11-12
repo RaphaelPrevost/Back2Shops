@@ -83,6 +83,7 @@ class CosconAPI:
 
     def _parse_container_post_response(self, response, context,
                                        number_type, number, jsessionid):
+        from common.utils import format_datetime
         jsf_state = self._get_updated_value("javax.faces.ViewState", response)
         soup = gen_resp_soup(response)
         history = soup.find(id='cargoTrackingContainerHistory6')
@@ -99,7 +100,7 @@ class CosconAPI:
                 shipment = {
                     'status': status,
                     'location': location,
-                    'time': time, #TODO convert timezone
+                    'time': format_datetime(time, 'Hongkong', 'UTC'),
                     'mode': mode,
                 }
                 a_tag = cols[3].find_parent(name='a')

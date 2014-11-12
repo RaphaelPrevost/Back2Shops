@@ -35,3 +35,9 @@
 
 == version 0.1.1 ==
 1. patch falcon response to add more Set-Cookies in the header
+
+== version 0.1.2 ==
+???
+
+== version 0.1.3 ==
+1. add common function parse_ts and localize_datetime

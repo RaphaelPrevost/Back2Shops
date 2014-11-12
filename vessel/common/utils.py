@@ -4,6 +4,8 @@ import logging
 import ujson
 
 from B2SUtils import db_utils
+from B2SUtils.common import localize_datetime
+from B2SUtils.common import parse_ts
 from B2SUtils.errors import DatabaseError
 from common.email_utils import send_vessel_arrival_notif
 from common.models import VesselDetailInfo
@@ -118,12 +120,12 @@ def _save_result(conn, detail_obj, update_only=False):
             'id_vessel': id_vessel,
             'departure_portname': detail_obj.departure_portname,
             'departure_locode': detail_obj.departure_locode,
-            'departure_time': format_datetime(detail_obj.departure_time),
+            'departure_time': parse_ts(detail_obj.departure_time),
             'arrival_locode': detail_obj.arrival_locode,
         }
         navi_update_values = {
             'arrival_portname': detail_obj.arrival_portname,
-            'arrival_time': format_datetime(detail_obj.arrival_time),
+            'arrival_time': parse_ts(detail_obj.arrival_time),
         }
         vessel_nav = db_utils.select(conn, "vessel_navigation",
                                  columns=("id", ),
@@ -152,13 +154,19 @@ def _save_result(conn, detail_obj, update_only=False):
             'latitude': pos.latitude,
             'heading': pos.heading,
             'speed': pos.speed,
-            'time': pos.time,
+            'time': parse_ts(pos.time),
             'status': pos.status,
         }
         db_utils.insert(conn, "vessel_position", values=pos_values)
 
-def format_datetime(dt_str):
-    return datetime.datetime.strptime(dt_str, '%Y-%m-%dT%H:%M+0000')
+def format_datetime(dt_str, tz_from, tz_to):
+    dt = parse_ts(dt_str)
+    if dt is None:
+        if dt_str:
+            logging.error('Failed to format datetime: %s', dt_str)
+        return dt_str
+    return localize_datetime(dt, tz_from, tz_to
+                             ).strftime('%Y-%m-%d %H:%M')
 
 def init_vessel_detail_obj(item, pos_list):
     positions = [dict(zip(VESSEL_POS_FIELDS, pos)) for pos in pos_list]

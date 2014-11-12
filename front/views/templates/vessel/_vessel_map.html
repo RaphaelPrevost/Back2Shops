@@ -84,10 +84,10 @@
                 <td>${info.get('mode', '--')}</td>
                 <td>${info.get('vessel_name', '--')}</td>
                 <?py if c.get('vessel_info'): ?>
-                    <td>${c['vessel_info']['positions'][0]['time']}</td>
+                    <td>${format_datetime(c['vessel_info']['positions'][0]['time'])}</td>
                     <?py include('_vessel_item.html', v=c['vessel_info'], search=True, popup_only=True) ?>
                 <?py else: ?>
-                    <td>${info.get('time', '--')}</td>
+                    <td>${format_datetime(info.get('time')) or '--'}</td>
                 <?py #endif ?>
                 <td>
                     <a class="add2creminder" href="javascript:void(0);" onclick="javascript:add2creminder(this, '${c['container']}')">Add ArrivalReminder</a>

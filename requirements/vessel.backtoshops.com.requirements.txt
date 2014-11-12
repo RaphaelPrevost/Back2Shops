@@ -12,6 +12,6 @@ beautifulsoup4==4.3.2
 pyKML==0.1.0
 M2Crypto==0.21.1.B2S
 B2SCrypto==0.0.4
-B2SUtils==0.1.2
+B2SUtils==0.1.3
 B2SRespUtils==0.0.2
 B2SProtocol==0.0.16
