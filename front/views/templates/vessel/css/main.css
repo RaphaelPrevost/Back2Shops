@@ -19,6 +19,13 @@
     height: 600px;
 }
 
+#map_info {
+    position: absolute;
+    left: 20px;
+    bottom: 10px;
+    z-index: 1007;
+}
+
 #search_input form {
     float: left;
 }

@@ -4,7 +4,7 @@
 <?py if not popup_only: ?>
 <td>${v['country_name']}</td>
 <td>
-    <a class="viewmap" lat="${pos['latitude']}" lon="${pos['longitude']}" href="javascript:view(${pos['latitude']}, ${pos['longitude']})">${v['name']}</a>
+    <a class="viewmap" lat="${pos['latitude']}" lon="${pos['longitude']}" heading="${pos['heading']}" href="javascript:view(${pos['latitude']}, ${pos['longitude']})">${v['name']}</a>
     (${v['type']})
 </td>
 <td>${v['imo']}/${v['mmsi']}</td>
@@ -28,7 +28,7 @@
 <td style="display:none" class="popup">
     <div><img src="${img1}"/></div>
     <div>
-        <a class="viewmap" lat="${pos['latitude']}" lon="${pos['longitude']}" href="javascript:view(${pos['latitude']}, ${pos['longitude']})">${v['name']} (${v['type']}) </a>
+        <a class="viewmap" lat="${pos['latitude']}" lon="${pos['longitude']}" heading="${pos['heading']}"href="javascript:view(${pos['latitude']}, ${pos['longitude']})">${v['name']} (${v['type']}) </a>
     </div>
     <div>IMO: ${v['imo']}</div>
     <div>${v['mmsi']}</div>
