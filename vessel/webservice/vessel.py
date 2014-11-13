@@ -38,8 +38,9 @@ class VesselNaviPathResource(BaseJsonResource):
             search_by = 'mmsi'
             q = mmsi
 
+        fields = ['vessel.id'] + VESSEL_FIELDS + VESSEL_NAV_FIELDS
         sql = """
-            select vessel.id, %s
+            select %s
             from vessel
             join vessel_navigation
                on (vessel.id=vessel_navigation.id_vessel)
@@ -47,14 +48,15 @@ class VesselNaviPathResource(BaseJsonResource):
                on (vessel.country_isocode=country.iso)
             where vessel.%s=%%s
             order by created desc limit 1
-            """ % (','.join(VESSEL_FIELDS + VESSEL_NAV_FIELDS),
+            """ % (','.join(fields),
                    search_by)
         vessel_nav = db_utils.query(conn, sql, (q,))
 
         return_obj = {}
         if len(vessel_nav) > 0:
             vessel_nav = vessel_nav[0]
-            id_vessel = vessel_nav.pop(0)
+            vessel_nav_dict = dict(zip(fields, vessel_nav))
+            id_vessel = vessel_nav_dict['vessel.id']
             sql = """
                 select %s
                 from vessel_position
@@ -63,9 +65,13 @@ class VesselNaviPathResource(BaseJsonResource):
                 order by time desc
                 """ % ','.join(VESSEL_POS_FIELDS)
             positions = db_utils.query(conn, sql,
-                               (id_vessel, vessel_nav[10], vessel_nav[13]))
+                               (id_vessel,
+                                vessel_nav_dict['departure_time'],
+                                vessel_nav_dict['arrival_time']))
             if positions:
-                detail_obj = init_vessel_detail_obj(vessel_nav, positions)
+                positions = [dict(zip(VESSEL_POS_FIELDS, pos))
+                             for pos in positions]
+                detail_obj = init_vessel_detail_obj(vessel_nav_dict, positions)
                 return_obj = detail_obj.toDict()
 
         return {'object': return_obj,

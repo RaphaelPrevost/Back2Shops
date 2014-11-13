@@ -24,6 +24,7 @@ VESSEL_POS_FIELDS = ['location', 'longitude', 'latitude', 'heading',
 
 def query_vessel_details(conn, search_by, q,
                          force=False, exact_match=False):
+    fields = VESSEL_FIELDS + VESSEL_NAV_FIELDS + VESSEL_POS_FIELDS
     sql = """
         select %s
         from vessel
@@ -37,15 +38,16 @@ def query_vessel_details(conn, search_by, q,
           and vessel_position.time >= vessel_navigation.departure_time
           and vessel_position.time <= vessel_navigation.arrival_time
         order by vessel_position.time desc limit 1
-        """ % (','.join(VESSEL_FIELDS + VESSEL_NAV_FIELDS + VESSEL_POS_FIELDS),
-               search_by)
+        """ % (','.join(fields), search_by)
 
     if not force and (search_by != 'name' or exact_match):
         detail = db_utils.query(conn, sql, (q, ))
-        if len(detail) > 0 and not need_fetch_new_pos(detail[0][-1]):
+        if len(detail) > 0 and \
+                not need_fetch_new_pos(dict(zip(fields, detail[0]))['time']):
             detail_results = []
             for item in detail:
-                detail_obj = init_vessel_detail_obj(item, [item[-5:]])
+                item_dict = dict(zip(fields, item))
+                detail_obj = init_vessel_detail_obj(item_dict, [item_dict])
                 detail_results.append(detail_obj.toDict())
             return detail_results
 
@@ -168,24 +170,23 @@ def format_datetime(dt_str, tz_from, tz_to):
     return localize_datetime(dt, tz_from, tz_to
                              ).strftime('%Y-%m-%d %H:%M')
 
-def init_vessel_detail_obj(item, pos_list):
-    positions = [dict(zip(VESSEL_POS_FIELDS, pos)) for pos in pos_list]
+def init_vessel_detail_obj(item_dict, positions):
     detail_obj = VesselDetailInfo(
-        name=item[0],
-        imo=item[1],
-        mmsi=item[2],
-        cs=item[3],
-        type=item[4],
-        country_isocode=item[5],
-        country_name=item[6],
-        photos=ujson.loads(item[7]),
+        name=item_dict['vessel.name'],
+        imo=item_dict['imo'],
+        mmsi=item_dict['mmsi'],
+        cs=item_dict['cs'],
+        type=item_dict['type'],
+        country_isocode=item_dict['country_isocode'],
+        country_name=item_dict['country.printable_name'],
+        photos=ujson.loads(item_dict['photos']),
 
-        departure_portname=item[8],
-        departure_locode=item[9],
-        departure_time=item[10],
-        arrival_portname=item[11],
-        arrival_locode=item[12],
-        arrival_time=item[13],
+        departure_portname=item_dict['departure_portname'],
+        departure_locode=item_dict['departure_locode'],
+        departure_time=item_dict['departure_time'],
+        arrival_portname=item_dict['arrival_portname'],
+        arrival_locode=item_dict['arrival_locode'],
+        arrival_time=item_dict['arrival_time'],
         positions=positions,
     )
     return detail_obj
