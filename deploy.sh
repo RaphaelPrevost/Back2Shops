@@ -16,6 +16,7 @@
 set -ex
 
 CWD=$(pwd)
+AST=/var/local/assets
 
 ADM_REQUIREMENT=$CWD/requirements/adm.backtoshops.com.requirements.txt
 USR_REQUIREMENT=$CWD/requirements/usr.backtoshops.com.requirements.txt
@@ -147,6 +148,12 @@ function create_python_env() {
     fi
 }
 
+function create_assets_dir() {
+    if [ ! -d $AST ]; then
+        mkdir $AST
+    fi
+}
+
 
 ########## adm related functions ##########
 
@@ -217,6 +224,12 @@ function setup_adm_wsgi() {
         SetHandler None
     </Location>
 
+    Alias /static/admin $CWD/public_html/static/admin
+    Alias /static/css $CWD/public_html/static/css
+    Alias /static/fonts $CWD/public_html/static/fonts
+    Alias /static/img $CWD/public_html/static/img
+    Alias /static/js $CWD/public_html/static/js
+    Alias /static/keys/adm_pub.key $CWD/public_html/static/keys/adm_pub.key
     Alias /static $CWD/public_html/static
     Alias /site-media $CWD/public_html/media
 
@@ -464,16 +477,19 @@ function make_assets_src_dir() {
         chmod -R 2750 $CWD/assets_src
     fi
 
-    if [ ! -d $CWD/assets_files ]; then
-        mkdir $CWD/assets_files
-        cp -r $CWD/assets/static/css $CWD/assets_files/
-        cp -r $CWD/assets/static/js $CWD/assets_files/
-        cp -r $CWD/assets/static/img $CWD/assets_files/
-        cp -r $CWD/assets/static/html $CWD/assets_files/
-        chown -R backtoshops.www-data $CWD/assets_files
+    create_assets_dir
+
+    if [ ! -d $AST/assets_files ]; then
+        mkdir $AST/assets_files
+        chown -R backtoshops.www-data $AST/assets_files
         # allow writing in the upload directories
-        chmod -R 2770 $CWD/assets_files
+        chmod -R 2770 $AST/assets_files
     fi
+
+    cp -r $CWD/assets/static/css $AST/assets_files/
+    cp -r $CWD/assets/static/js $AST/assets_files/
+    cp -r $CWD/assets/static/img $AST/assets_files/
+    cp -r $CWD/assets/static/html $AST/assets_files/
 }
 
 function setup_assets() {
@@ -495,19 +511,19 @@ server {
     listen    $AST_ADDR;
     server_name    $AST_DOMAIN;
     location /img/ {
-        alias /home/backtoshops/assets_files/img/;
+        alias /var/local/assets/assets_files/img/;
         autoindex off;
     }
     location /js/ {
-        alias /home/backtoshops/assets_files/js/;
+        alias /var/local/assets/assets_files/js/;
         autoindex off;
     }
     location /css/ {
-        alias /home/backtoshops/assets_files/css/;
+        alias /var/local/assets/assets_files/css/;
         autoindex off;
     }
     location /html/ {
-        alias /home/backtoshops/assets_files/html/;
+        alias /var/local/assets/assets_files/html/;
         autoindex off;
     }
     location / {
@@ -561,14 +577,16 @@ function make_front_src_dir() {
         chmod -R 2750 $CWD/front_src
     fi
 
-    if [ ! -d $CWD/front_files ]; then
-        mkdir $CWD/front_files
-        chown -R backtoshops.www-data $CWD/front_files
-        chmod -R 2770 $CWD/front_files
+    create_assets_dir
+
+    if [ ! -d $AST/front_files ]; then
+        mkdir $AST/front_files
+        chown -R backtoshops.www-data $AST/front_files
+        chmod -R 2770 $AST/front_files
     fi
-    cp -r $CWD/front/static/css $CWD/front_files/
-    cp -r $CWD/front/static/js $CWD/front_files/
-    cp -r $CWD/front/static/img $CWD/front_files/
+    cp -r $CWD/front/static/css $AST/front_files/
+    cp -r $CWD/front/static/js $AST/front_files/
+    cp -r $CWD/front/static/img $AST/front_files/
 }
 
 function setup_front() {
@@ -590,15 +608,15 @@ server {
     listen    $FRT_ADDR;
     server_name    $FRT_DOMAIN;
     location /img/ {
-        alias /home/backtoshops/front_files/img/;
+        alias /var/local/assets/front_files/img/;
         autoindex off;
     }
     location /js/ {
-        alias /home/backtoshops/front_files/js/;
+        alias /var/local/assets/front_files/js/;
         autoindex off;
     }
     location /css/ {
-        alias /home/backtoshops/front_files/css/;
+        alias /var/local/assets/front_files/css/;
         autoindex off;
     }
     location /templates/ {
@@ -711,14 +729,16 @@ function make_vesselfront_src_dir() {
         chmod -R 2750 $CWD/vesselfront_src
     fi
 
-    if [ ! -d $CWD/vesselfront_files ]; then
-        mkdir $CWD/vesselfront_files
-        chown -R backtoshops.www-data $CWD/vesselfront_files
-        chmod -R 2770 $CWD/vesselfront_files
+    create_assets_dir
+
+    if [ ! -d $AST/vesselfront_files ]; then
+        mkdir $AST/vesselfront_files
+        chown -R backtoshops.www-data $AST/vesselfront_files
+        chmod -R 2770 $AST/vesselfront_files
     fi
-    cp -r $CWD/front/static/css $CWD/vesselfront_files/
-    cp -r $CWD/front/static/js $CWD/vesselfront_files/
-    cp -r $CWD/front/static/img $CWD/vesselfront_files/
+    cp -r $CWD/front/static/css $AST/vesselfront_files/
+    cp -r $CWD/front/static/js $AST/vesselfront_files/
+    cp -r $CWD/front/static/img $AST/vesselfront_files/
 }
 
 function setup_vesselfront() {
@@ -743,15 +763,15 @@ server {
     rewrite ^/$ /vessel;
 
     location /img/ {
-        alias /home/backtoshops/vesselfront_files/img/;
+        alias /var/local/assets/vesselfront_files/img/;
         autoindex off;
     }
     location /js/ {
-        alias /home/backtoshops/vesselfront_files/js/;
+        alias /var/local/assets/vesselfront_files/js/;
         autoindex off;
     }
     location /css/ {
-        alias /home/backtoshops/vesselfront_files/css/;
+        alias /var/local/assets/vesselfront_files/css/;
         autoindex off;
     }
     location /templates/ {

@@ -3,7 +3,7 @@ from settings_local import *
 
 PRODUCTION = True
 
-STATIC_FILES_PATH = '/home/backtoshops/front_files'
+STATIC_FILES_PATH = '/var/local/assets/front_files'
 
 USR_ROOT_URI = "http://92.222.30.2"
 SERVER_APIKEY_URI_MAP = {
