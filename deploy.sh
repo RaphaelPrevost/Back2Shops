@@ -152,6 +152,8 @@ function create_assets_dir() {
     if [ ! -d $AST ]; then
         mkdir $AST
     fi
+    chown -R backtoshops.www-data $AST
+    chmod -R 2750 $AST
 }
 
 
@@ -205,7 +207,7 @@ function setup_adm_wsgi() {
     if [ ! -r /etc/apache2/sites-available/backtoshops ]; then
         echo "(-) Creating Apache VirtualHost..."
         cat > /etc/apache2/sites-available/backtoshops <<EOF
-<VirtualHost *:80>
+<VirtualHost $ADM_ADDR>
     ServerName $ADM_DOMAIN
     WSGIScriptReloading On
     WSGIDaemonProcess bts-prod
@@ -229,7 +231,7 @@ function setup_adm_wsgi() {
     Alias /static/fonts $CWD/public_html/static/fonts
     Alias /static/img $CWD/public_html/static/img
     Alias /static/js $CWD/public_html/static/js
-    Alias /static/keys/adm_pub.key $CWD/public_html/static/keys/adm_pub.key
+    Alias /webservice/1.0/pub/apikey.pem $CWD/public_html/static/keys/adm_pub.key
     Alias /site-media $CWD/public_html/media
 
     <Location "/admin-media">
