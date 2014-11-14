@@ -72,6 +72,7 @@ class VesselNaviPathResource(BaseJsonResource):
                 positions = [dict(zip(VESSEL_POS_FIELDS, pos))
                              for pos in positions]
                 detail_obj = init_vessel_detail_obj(vessel_nav_dict, positions)
+                detail_obj.update_portnames(conn)
                 return_obj = detail_obj.toDict()
 
         return {'object': return_obj,

@@ -30,3 +30,5 @@ class FetchVesselData(object):
             else:
                 conn.commit()
 
+            gevent.sleep(1)
+

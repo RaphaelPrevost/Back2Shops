@@ -85,7 +85,7 @@ class FleetmonDs(BaseDataSource):
                     departure_portname=from_port.get('portname'),
                     departure_locode=from_port.get('locode'),
                     departure_time=from_port.get('departure'),
-                    arrival_portname=item['destination'],
+                    arrival_portname='',
                     arrival_locode=item['destination'],
                     arrival_time=item['etatime'],
                     positions=[{

@@ -158,7 +158,7 @@ class VesselNavPathResource(BaseJsonResource):
                              req, resp, imo=imo, mmsi=mmsi)
         if result.get('res') != RESP_RESULT.F:
             positions = [(pos['latitude'], pos['longitude'])
-                         for pos in result['object']['positions']]
+                         for pos in result['object'].get('positions', [])]
         else:
             positions = []
         return {'positions': positions}
