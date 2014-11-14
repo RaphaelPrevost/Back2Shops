@@ -230,7 +230,6 @@ function setup_adm_wsgi() {
     Alias /static/img $CWD/public_html/static/img
     Alias /static/js $CWD/public_html/static/js
     Alias /static/keys/adm_pub.key $CWD/public_html/static/keys/adm_pub.key
-    Alias /static $CWD/public_html/static
     Alias /site-media $CWD/public_html/media
 
     <Location "/admin-media">
