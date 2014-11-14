@@ -2,6 +2,7 @@ import gevent
 import logging
 import settings
 from B2SUtils import db_utils
+from common.constants import CONTAINER_STATUS
 from common.email_utils import send_container_arrival_notif
 from common.thirdparty.datasource import getContainerDs
 
@@ -25,7 +26,8 @@ class FetchContainerData(object):
                                  search_by='container', number=num)
                 last_pod = container_info['ports']['last_pod']
                 for shipment in container_info['shipment_cycle']:
-                    if last_pod and shipment['status'] == 'Discharged at Last POD':
+                    if last_pod and shipment['status'] \
+                            == CONTAINER_STATUS.DISCHARGED_AT_LAST_POD:
                         gevent.spawn(send_container_arrival_notif, num, last_pod)
                         break
             except Exception, e:
@@ -33,4 +35,6 @@ class FetchContainerData(object):
                 conn.rollback()
             else:
                 conn.commit()
+
+            gevent.sleep(1)
 

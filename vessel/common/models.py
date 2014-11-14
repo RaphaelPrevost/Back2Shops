@@ -1,4 +1,5 @@
 import copy
+from B2SUtils import db_utils
 
 class BaseObj(object):
     def toDict(self):
@@ -44,6 +45,48 @@ class VesselDetailInfo(VesselInfo):
         self.arrival_time = kwargs.get('arrival_time', '')
         self.positions = [VesselPos(**pos)
                           for pos in kwargs.get('positions', [])]
+
+    def update_portnames(self, conn):
+        if self.departure_locode:
+            if self.departure_portname:
+                self._update_portname(conn,
+                                      self.departure_portname,
+                                      self.departure_locode)
+            else:
+                name = self._query_portname(conn, self.departure_locode) or ''
+                self.departure_portname = name
+
+        if self.arrival_locode:
+            if self.arrival_portname:
+                self._update_portname(conn,
+                                      self.arrival_portname,
+                                      self.arrival_locode)
+            else:
+                name = self._query_portname(conn, self.arrival_locode) or ''
+                self.arrival_portname = name
+
+    def _query_portname(self, conn, locode):
+        results = db_utils.select(conn, "port",
+                                 columns=("name", ),
+                                 where={'locode': locode},
+                                 limit=1)
+        if len(results) > 0:
+            return results[0][0]
+        else:
+            return None
+
+    def _update_portname(self, conn, port_name, locode):
+        if not port_name: return
+
+        existing_name = self._query_portname(conn, locode)
+        values = {'locode': locode, 'name': port_name}
+
+        if existing_name is None:
+            db_utils.insert(conn, "port", values=values)
+        else:
+            if existing_name != port_name:
+                db_utils.update(conn, "port", values=values,
+                                where={'locode': locode})
 
 class PortInfo(BaseObj):
     def __init__(self, **kwargs):

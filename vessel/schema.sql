@@ -18,10 +18,8 @@ CREATE INDEX vessel_by_next_update_time ON vessel USING btree (next_update_time)
 CREATE TABLE vessel_navigation (
     id serial PRIMARY KEY,
     id_vessel bigint REFERENCES vessel(id),
-    departure_portname character varying(64),
     departure_locode character varying(64),
     departure_time timestamp without time zone NOT NULL,
-    arrival_portname character varying(64),
     arrival_locode character varying(64),
     arrival_time timestamp without time zone NOT NULL,
     created timestamp without time zone DEFAULT now() NOT NULL
@@ -84,4 +82,11 @@ CREATE TABLE container_arrival_notif (
 CREATE INDEX container_arrival_notif_by_id_user_not_done ON container_arrival_notif USING btree (id_user) WHERE not done;
 CREATE INDEX container_arrival_notif_by_container_not_done ON container_arrival_notif USING btree (container) WHERE not done;
 
+
+CREATE TABLE port (
+    locode character varying(64) PRIMARY KEY,
+    name character varying(128) not null,
+    longitude double precision,
+    latitude double precision
+);
 

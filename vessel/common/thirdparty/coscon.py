@@ -107,7 +107,6 @@ class CosconAPI:
                 if mode == 'Vessel' and a_tag:
                     a_id = a_tag.get('id')
                     data = self._get_common_post_data(number_type, number, jsf_state)
-                    # TODO check the params for bill of landing query
                     data['cntrNum'] = number
                     data['cntrStatus'] = status
                     data['containerHistorySize'] = len(rows)
