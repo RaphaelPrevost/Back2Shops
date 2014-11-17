@@ -685,7 +685,7 @@ function setup_vsl() {
     SERVER=vessel_server
     ps aux | grep $PORT | grep $SERVER | grep -v grep | awk '{print $2}' | xargs kill -9 || echo "no uwsgi process to kill"
     sleep 1
-    start_uwsgi $PORT $SERVER
+    start_uwsgi $PORT $SERVER 1
 
     # nginx
     if [ ! -r /etc/nginx/sites-available/vessel ]; then
@@ -832,7 +832,8 @@ function restart_servers() {
 }
 
 function start_uwsgi() {
-    uwsgi -s 127.0.0.1:$1 -w $2 -M -p4 --callable app -d uwsgi.log --gevent 100
+    p_num=${3:-"4"}
+    uwsgi -s 127.0.0.1:$1 -w $2 -M -p$p_num --callable app -d uwsgi.log --gevent 100
 }
 
 ########## main ##########
