@@ -20,6 +20,7 @@ def populate_order_items():
             sale = CachedSale(id_sale).sale
             if not sale:
                 print 'no cached sale for: ', id_sale, 'please populate data manually'
+                continue
 
             values = {'weight_unit': sale.weight_unit,
                       'currency': sale.price.currency}

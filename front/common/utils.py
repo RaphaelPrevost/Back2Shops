@@ -397,15 +397,33 @@ def get_basket_table_info(req, resp, basket_data, users_id):
 
         sale_info = all_sales[id_sale]
         _type = sale_info.get('type', {})
+
+        variant = get_valid_attr(
+                        sale_info.get('variant'),
+                        item_info.get('id_variant'))
+        type =  get_valid_attr(
+                        sale_info.get('type', {}).get('attribute'),
+                        item_info.get('id_attr'))
+
+        id_variant = variant.get('@id')
+        id_type = type.get('@id')
+
+        external_id = ''
+        external_list = sale_info.get('external')
+        if external_list and not isinstance(external_list, list):
+            external_list = [external_list]
+
+        if id_variant and id_type and external_list:
+            for external in external_list:
+                if (external.get('@variant') == id_variant and
+                    external.get('@attribute') == id_type):
+                    external_id = external.get('#text')
+
         one = {
             'item': item,
             'quantity': quantity,
-            'variant': get_valid_attr(
-                        sale_info.get('variant'),
-                        item_info.get('id_variant')),
-            'type': get_valid_attr(
-                        sale_info.get('type', {}).get('attribute'),
-                        item_info.get('id_attr')),
+            'variant': variant,
+            'type': type,
             'product': get_brief_product(sale_info, req, resp, False),
             'link': get_url_format(FRT_ROUTE_ROLE.PRDT_INFO) % {
                 'id_type': _type.get('@id', 0),
@@ -417,6 +435,7 @@ def get_basket_table_info(req, resp, basket_data, users_id):
                                                  'sale_name',
                                                  sale_info.get('name', '')),
             },
+            'external_id': external_id
         }
         price = get_product_default_display_price(sale_info, one['type'])[1]
         if one['variant']:

@@ -1,4 +1,4 @@
-from urllib2 import HTTPError
+from urllib2 import HTTPError, URLError
 from sorl.thumbnail.base import ThumbnailBackend as _ThumbnailBackend
 from sorl.thumbnail import base
 from common.assets_utils import get_full_url
@@ -12,7 +12,7 @@ class CustomThumbnailBackend(_ThumbnailBackend):
             if not thumbnail.exists():
                 super(CustomThumbnailBackend, self).delete(thumbnail)
                 thumbnail = super(CustomThumbnailBackend, self).get_thumbnail(file, geometry_string, **options)
-        except HTTPError, e:
+        except (HTTPError, URLError), e:
             file = get_full_url('img/product_pictures/default_img.png')
             thumbnail = super(CustomThumbnailBackend, self).get_thumbnail(file, geometry_string, **options)
 
