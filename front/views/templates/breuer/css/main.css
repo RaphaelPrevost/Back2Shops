@@ -847,7 +847,7 @@ a.right {
 
 /*-----Product-----*/
 #panier .prod img { display: block; float: left; margin: 0 8px 0 0; border: 1px solid #dbdbdb; }
-#panier .prod .title, #panier .prod .type, #panier .prod .ref { display: block; font-weight: normal; }
+#panier .prod .title, #panier .prod .type, #panier .prod .ref { display: block; font-weight: normal; padding-left: 60px;}
 
 #panier .prod .title { font-size: 14px; font-family: georgia; }
 #panier .prod .type { font-size: 11px; font-family: Arial, Helvetica, sans-serif; color: #000; }
