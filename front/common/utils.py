@@ -409,15 +409,14 @@ def get_basket_table_info(req, resp, basket_data, users_id):
         id_type = type.get('@id')
 
         external_id = ''
-        external_list = sale_info.get('external')
+        external_list = sale_info.get('external') or []
         if external_list and not isinstance(external_list, list):
             external_list = [external_list]
-
-        if id_variant and id_type and external_list:
-            for external in external_list:
-                if (external.get('@variant') == id_variant and
-                    external.get('@attribute') == id_type):
-                    external_id = external.get('#text')
+        for external in external_list:
+            if ((id_variant and id_variant == external.get('@variant') or not id_variant) and
+                (id_type and id_type == external.get('@attribute') or not id_type)):
+                external_id = external.get('#text')
+                break
 
         one = {
             'item': item,
