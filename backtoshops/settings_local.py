@@ -89,7 +89,7 @@ USE_I18N = True
 USE_L10N = True
 
 LOCALE_PATHS = (
-    "locale",
+    "%s/locale" % SITE_ROOT,
     "%s/locale" % os.path.split(SITE_ROOT)[0], # other servers' locale dir
 )
 ROSETTA_POFILENAMES = ('django.po', 'djangojs.po', 'front.po')
