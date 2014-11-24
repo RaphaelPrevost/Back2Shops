@@ -127,6 +127,12 @@ $ svn co http://trac.lbga.fr/svn/backtoshops/
   $ python ./scripts/gen_hmac_key.py
 
 
+== Make/Compile PO files ==
+  $ python i18nmessages.py --locale=fr_FR make
+  $ python i18nmessages.py --locale=zh_CN make
+  $ python i18nmessages.py compile
+
+
 == Start servers ==
 1. admin server:
    * change following line in $(PROJECT_HOME)/backtoshops/settings.py

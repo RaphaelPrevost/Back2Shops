@@ -4,7 +4,7 @@ from tenjin.helpers import *
 
 import settings
 import urllib
-from common.m17n import trans_func
+from common.m17n import gettext_func
 
 global temp_engines
 temp_engines = {}
@@ -22,6 +22,7 @@ def get_engine(force=False, **kwargs):
     return engine
 
 def render_template(template, content, **kwargs):
-    content['_'] = trans_func
+    if kwargs.get('lang'):
+        content['_'] = gettext_func(locale=kwargs['lang'])
     return get_engine(**kwargs).render(template, content)
 

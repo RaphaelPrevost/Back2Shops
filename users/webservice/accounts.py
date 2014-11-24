@@ -152,7 +152,7 @@ class UserResource(BaseJsonResource):
                 dict([(c, init_values[1].get(c, "")) for c in columns]),
             ]
             addr_type_options.append(
-                ('Billing and shipping', ADDR_TYPE.Both),
+                ('Both', ADDR_TYPE.Both),
             )
         else:
             addresses = map(lambda x: {'id': x[0],
@@ -186,7 +186,7 @@ class UserResource(BaseJsonResource):
                         "/webservice/1.0/pub/JSONAPI?get=provinces",
                         depends="country_code"),
              'address_desp': field_utils.TextFieldType("Description", "", ""),
-             'full_name': field_utils.TextFieldType("Full name", "", ""),
+             'full_name': field_utils.TextFieldType("Recipient", "", ""),
              },
             addresses,
             ['addr_type', 'address', 'address2',

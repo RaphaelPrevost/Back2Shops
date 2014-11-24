@@ -156,6 +156,17 @@ function create_assets_dir() {
     chmod -R 2750 $AST
 }
 
+function compile_i18n_labels() {
+    source $CWD/env/bin/activate
+    (
+        cd $CWD
+        python i18nmessages.py --locale=fr_FR --domain=$1 make
+        python i18nmessages.py --locale=zh_CN --domain=$1 make
+        python i18nmessages.py --domain=$1 compile
+        cd -
+    )
+}
+
 
 ########## adm related functions ##########
 
@@ -174,6 +185,9 @@ function setup_adm_db() {
 function make_adm_html_dir() {
     # copy locale directory back
     [ -d $CWD/backtoshops -a -d $CWD/public_html/locale ] && cp -r $CWD/public_html/locale $CWD/backtoshops/
+    # make and compile po files
+    compile_i18n_labels "backoffice"
+
     # remove old sourcecode
     [ -d $CWD/backtoshops -a -d $CWD/public_html ] && rm -rf $CWD/public_html
 
@@ -284,11 +298,6 @@ function sync_adm() {
     ( cd $CWD/public_html
       ./manage.py syncdb
       ./manage.py migrate
-
-      ./manage.py makemessages --locale=fr_FR
-      ./manage.py makemessages --locale=zh_CN
-      ./manage.py compilemessages --locale=fr_FR
-      ./manage.py compilemessages --locale=zh_CN
     )
 }
 
@@ -569,6 +578,8 @@ function setup_geoip_database() {
 function make_front_src_dir() {
     # remove old sourcecode
     [ -d $CWD/front -a -d $CWD/front_src ] && rm -rf $CWD/front_src
+    # make and compile po files
+    compile_i18n_labels "front"
 
     if [ -d $CWD/front -a ! -d $CWD/front_src ]; then
         cp -r $CWD/front $CWD/front_src
@@ -720,6 +731,8 @@ function deploy_vessel() {
 function make_vesselfront_src_dir() {
     # remove old sourcecode
     [ -d $CWD/front -a -d $CWD/vesselfront_src ] && rm -rf $CWD/vesselfront_src
+    # make and compile po files
+    compile_i18n_labels "front"
 
     if [ -d $CWD/front -a ! -d $CWD/vesselfront_src ]; then
         cp -r $CWD/front $CWD/vesselfront_src

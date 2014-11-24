@@ -88,6 +88,12 @@ USE_I18N = True
 # calendars according to the current locale
 USE_L10N = True
 
+LOCALE_PATHS = (
+    "locale",
+    "%s/locale" % os.path.split(SITE_ROOT)[0], # other servers' locale dir
+)
+ROSETTA_POFILENAMES = ('django.po', 'djangojs.po', 'front.po')
+
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
 MEDIA_ROOT = os.path.join(SITE_ROOT, 'media')

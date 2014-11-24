@@ -36,13 +36,14 @@ from B2SUtils.common import to_round
 from common.constants import ADDR_TYPE
 from common.constants import FRT_ROUTE_ROLE
 from common.constants import CURR_USER_BASKET_COOKIE_NAME
-from common.m17n import trans_func
+from common.m17n import gettext as _
 from common.redis_utils import get_redis_cli
 from common.template import render_template
 
 
 def gen_html_resp(template, resp, data,
-                  lang='en', layout=settings.DEFAULT_TEMPLATE):
+                  lang=settings.DEFAULT_LOCALE,
+                  layout=settings.DEFAULT_TEMPLATE):
     resp.body = gen_html_body(template, data,
                               lang=lang,
                               layout=layout)
@@ -50,7 +51,8 @@ def gen_html_resp(template, resp, data,
     return resp
 
 def gen_html_body(template, data,
-                  lang='en', layout=settings.DEFAULT_TEMPLATE):
+                  lang=settings.DEFAULT_LOCALE,
+                  layout=settings.DEFAULT_TEMPLATE):
     return render_template(template, data,
                            lang=lang,
                            layout=layout,
@@ -587,8 +589,7 @@ def get_order_table_info(order_id, order_resp, all_sales=None):
         'order_id': order_id,
         'order_created': order_created,
         'order_status': order_status,
-        'status_name': trans_func(ORDER_STATUS.toReverseDict().get(
-                                    order_status) or ''),
+        'status_name': get_order_status_msg(order_status),
         'user_name': user_name,
         'dest_user_name': dest_user_name,
         'first_name': user_profile.get('first_name') or '',
@@ -604,12 +605,40 @@ def get_shipping_msg(order_status, order_created,
     if order_status == ORDER_STATUS.AWAITING_SHIPPING:
         expected_shipping_date = format_date(order_created,
                             shipping_period, '%d/%m/%Y')
-        shipping_msg = trans_func('OFF_SCHEDULE_BY') % {'date': expected_shipping_date}
+        shipping_msg = _('Off schedule by : %(date)s') \
+                       % {'date': expected_shipping_date}
     elif order_status == ORDER_STATUS.COMPLETED:
-        shipping_msg = trans_func('SHIPPED_AT') % {'date': format_epoch_time(shipping_date)}
+        shipping_msg = _('Shipped at : %(date)s') \
+                       % {'date': format_epoch_time(shipping_date)}
     else:
         shipping_msg = ''
     return shipping_msg
+
+def get_order_status_msg(status):
+    return {
+        ORDER_STATUS.PENDING: _('Waiting for confirmation'),
+        ORDER_STATUS.AWAITING_PAYMENT: _('Awaiting payment'),
+        ORDER_STATUS.AWAITING_SHIPPING: _('Awaiting shipment'),
+        ORDER_STATUS.COMPLETED: _('Shipped'),
+    }.get(status) or status
+
+def get_err_msg(err):
+    return {
+        'INVALID_REQUEST': _('Invalid request.'),
+        'SERVER_ERR': _('Server error.'),
+        'DB_ERR': _('Server error.'),
+        'ERR_EMAIL': _('Invalid email.'),
+        'ERR_PASSWORD': _('Invalid password.'),
+        'ERR_LOGIN': _('Invalid email or password.'),
+        'INVALID_FIRST_NAME': _('Invalid first name.'),
+        'INVALID_LAST_NAME': _('Invalid last name.'),
+        'INVALID_PHONE_NUMBER': _('Invalid phone number.'),
+        'INVALID_ADDRESS': _('Invalid address.'),
+        'INVALID_CITY': _('Invalid city.'),
+        'INVALID_POSTAL_CODE': _('Invalid postal code.'),
+        'FAILED_PLACE_ORDER': _('Failed to place your order.'),
+        'ERR_QUANTITY': _('Invalid quantity.'),
+    }.get(err) or err
 
 def get_url_format(role):
     from urls import BrandRoutes

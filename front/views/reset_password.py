@@ -6,7 +6,7 @@ from B2SProtocol.constants import RESP_RESULT
 from B2SUtils.errors import ValidationError
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
-from common.m17n import trans_func
+from common.m17n import gettext as _
 from common.utils import get_url_format
 from views.base import BaseHtmlResource
 
@@ -34,7 +34,8 @@ class ResetPwdRequestResource(BaseHtmlResource):
         if remote_resp.get('res') == RESP_RESULT.F:
             err = remote_resp.get('err')
         else:
-            msg = trans_func('RESET_PWD_EMAIL_SEND') % {'email': email}
+            msg = _('The reset password email has been sent to %(email)s') \
+                  % {'email': email}
         return {'err': err,
                 'msg': msg}
 
