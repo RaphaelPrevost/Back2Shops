@@ -24,7 +24,7 @@ def process_kmz(kmz_filename):
 def process_kml(kml_content):
     root = parser.fromstring(kml_content)
     pmark = root.Document.Folder.Placemark
-    while pmark:
+    while pmark is not None:
         mmsi = pmark.name.text
         lon, lat = pmark.Point.coordinates.text.split(',')
         detail_html = pmark.description.text
@@ -100,7 +100,11 @@ def format_text(unicode_text):
 def format_number(unicode_text):
     text = format_text(unicode_text)
     text = text.split()[0]
-    return text if text.isdigit() else None
+    try:
+        float(text)
+        return text
+    except:
+        return None
 
 
 if __name__ == '__main__':
