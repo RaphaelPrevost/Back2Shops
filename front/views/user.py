@@ -11,7 +11,7 @@ from B2SUtils.errors import ValidationError
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
 from common.email_utils import send_new_user_email
-from common.m17n import trans_func
+from common.m17n import gettext as _
 from common.utils import allowed_countries
 from common.utils import get_client_ip
 from common.utils import get_order_table_info
@@ -95,12 +95,12 @@ class UserResource(BaseHtmlResource):
             # translate name
             for fs_name, fs in user_profile.iteritems():
                 if 'name' in fs:
-                    fs['name'] = trans_func(fs['name'])
+                    fs['name'] = _(fs['name'])
                 if 'fields' in fs:
                     for f_name, f in fs['fields']:
-                        f['name'] = trans_func(f['name'])
+                        f['name'] = _(f['name'])
                         if f['type'] == 'radio':
-                            f['accept'] = [[trans_func(n), v] for n, v in f['accept']]
+                            f['accept'] = [[_(n), v] for n, v in f['accept']]
 
             # filter country list
             white_countries = allowed_countries()
@@ -176,7 +176,7 @@ class UserAPIResource(BaseJsonResource):
         resp_dict.update(remote_resp)
 
         if resp_dict.get('res') == RESP_RESULT.F:
-            resp_dict['err'] = trans_func(resp_dict['err'])
+            resp_dict['err'] = _(resp_dict['err'])
         else:
             if req.get_param('first_time') == 'True':
                 # send email

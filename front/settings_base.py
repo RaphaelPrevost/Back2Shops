@@ -22,7 +22,10 @@ TEMPLATE_PATH = ['views/templates/breuer']
 #TEMPLATE_PATH = ['views/templates/vessel', 'views/templates/breuer']
 DEFAULT_TEMPLATE = 'default.html'
 
-DEFAULT_LANG = 'fr'
+DEFAULT_LOCALE = 'fr_FR'
+SUPPORTED_LOCALES = ['fr_FR']
+LOCALE_DIR = '../locale'
+LOCALE_DOMAIN = 'front'
 
 STATIC_FILES_PATH = 'static'
 

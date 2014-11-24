@@ -1,0 +1,318 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-11-22 20:23+0800\n"
+"PO-Revision-Date: 2014-11-22 14:08+0009\n"
+"Last-Translator:   <>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
+"X-Translated-Using: django-rosetta 0.7.4\n"
+
+#: front/common/constants.py:50
+msgid "Civility"
+msgstr ""
+
+#: front/common/constants.py:51
+msgid "First name"
+msgstr ""
+
+#: front/common/constants.py:52
+msgid "Last name"
+msgstr ""
+
+#: front/common/constants.py:53
+msgid "Title"
+msgstr ""
+
+#: front/common/constants.py:54
+msgid "Locale"
+msgstr ""
+
+#: front/common/constants.py:55
+msgid "Gender"
+msgstr ""
+
+#: front/common/constants.py:56
+msgid "Birthday"
+msgstr ""
+
+#: front/common/constants.py:57 front/views/templates/breuer/login.html:5
+#: front/views/templates/breuer/registration.html:5
+#: front/views/templates/dragondollar/login.html:4
+#: front/views/templates/dragondollar/registration.html:4
+#: front/views/templates/vessel/login.html:4
+#: front/views/templates/vessel/registration.html:4
+msgid "Email"
+msgstr ""
+
+#: front/common/constants.py:58
+msgid "Phone number"
+msgstr ""
+
+#: front/common/constants.py:59
+msgid "Calling code"
+msgstr ""
+
+#: front/common/constants.py:60
+msgid "Number"
+msgstr ""
+
+#: front/common/constants.py:61
+msgid "Address"
+msgstr ""
+
+#: front/common/constants.py:62
+msgid "Billing"
+msgstr ""
+
+#: front/common/constants.py:63
+msgid "Shipping"
+msgstr ""
+
+#: front/common/constants.py:64
+msgid "Both"
+msgstr ""
+
+#: front/common/constants.py:65
+msgid "City"
+msgstr ""
+
+#: front/common/constants.py:66
+msgid "Postal code"
+msgstr ""
+
+#: front/common/constants.py:67
+msgid "Country"
+msgstr ""
+
+#: front/common/constants.py:68
+msgid "Description"
+msgstr ""
+
+#: front/common/constants.py:69
+msgid "Recipient"
+msgstr ""
+
+#: front/common/email_utils.py:10
+#, python-format
+msgid "Your account was created %(brand)s"
+msgstr ""
+
+#: front/common/email_utils.py:18
+msgid "Confirmation of your order"
+msgstr ""
+
+#: front/common/utils.py:590
+#, python-format
+msgid "Off schedule by : %(date)s"
+msgstr ""
+
+#: front/common/utils.py:593
+#, python-format
+msgid "Shipped at : %(date)s"
+msgstr ""
+
+#: front/common/utils.py:601
+msgid "Waiting for confirmation"
+msgstr ""
+
+#: front/common/utils.py:602
+msgid "Awaiting payment"
+msgstr ""
+
+#: front/common/utils.py:603
+msgid "Awaiting shipment"
+msgstr ""
+
+#: front/common/utils.py:604
+msgid "Shipped"
+msgstr ""
+
+#: front/common/utils.py:609
+msgid "Invalid request."
+msgstr ""
+
+#: front/common/utils.py:610 front/common/utils.py:611
+msgid "Server error."
+msgstr ""
+
+#: front/common/utils.py:612
+msgid "Invalid email."
+msgstr ""
+
+#: front/common/utils.py:613
+msgid "Invalid password."
+msgstr ""
+
+#: front/common/utils.py:614
+msgid "Invalid email or password."
+msgstr ""
+
+#: front/common/utils.py:615
+msgid "Invalid first name."
+msgstr ""
+
+#: front/common/utils.py:616
+msgid "Invalid last name."
+msgstr ""
+
+#: front/common/utils.py:617
+msgid "Invalid phone number."
+msgstr ""
+
+#: front/common/utils.py:618
+msgid "Invalid address."
+msgstr ""
+
+#: front/common/utils.py:619
+msgid "Invalid city."
+msgstr ""
+
+#: front/common/utils.py:620
+msgid "Invalid postal code."
+msgstr ""
+
+#: front/common/utils.py:621
+msgid "Failed to place your order."
+msgstr ""
+
+#: front/common/utils.py:622
+msgid "Invalid quantity."
+msgstr ""
+
+#: front/views/error.py:8
+msgid "Sorry, our server met problems. Please try later."
+msgstr ""
+
+#: front/views/reset_password.py:37
+#, python-format
+msgid "The reset password email has been sent to %(email)s"
+msgstr ""
+
+#: front/views/templates/breuer/_order_invoices.html:2
+#: front/views/templates/dragondollar/_order_invoices.html:2
+msgid "Order"
+msgstr ""
+
+#: front/views/templates/breuer/_order_invoices.html:5
+#: front/views/templates/dragondollar/_order_invoices.html:5
+msgid "Please contact customer service."
+msgstr ""
+
+#: front/views/templates/breuer/_order_invoices.html:8
+#: front/views/templates/dragondollar/_order_invoices.html:8
+msgid "No invoices currently"
+msgstr ""
+
+#: front/views/templates/breuer/login.html:8
+#: front/views/templates/breuer/registration.html:8
+#: front/views/templates/dragondollar/login.html:7
+#: front/views/templates/dragondollar/registration.html:7
+#: front/views/templates/vessel/login.html:5
+#: front/views/templates/vessel/registration.html:7
+msgid "Password"
+msgstr ""
+
+#: front/views/templates/breuer/login.html:28
+#: front/views/templates/dragondollar/login.html:27
+#: front/views/templates/vessel/login.html:25
+msgid "Login"
+msgstr ""
+
+#: front/views/templates/breuer/registration.html:11
+#: front/views/templates/dragondollar/registration.html:10
+#: front/views/templates/vessel/registration.html:10
+msgid "Verify Password"
+msgstr ""
+
+#: front/views/templates/breuer/registration.html:31
+#: front/views/templates/dragondollar/registration.html:30
+#: front/views/templates/vessel/registration.html:30
+msgid "Register"
+msgstr ""
+
+#: front/views/templates/dragondollar/basket.html:25
+msgid "Detail"
+msgstr ""
+
+#: front/views/templates/dragondollar/basket.html:32
+msgid "Checkout"
+msgstr ""
+
+#: front/views/templates/dragondollar/default.html:5
+#: front/views/templates/dragondollar/default.html:28
+msgid "Dragon Dollar & Chinese Coins"
+msgstr ""
+
+#: front/views/templates/dragondollar/default.html:34
+#: front/views/templates/dragondollar/product_info.html:32
+msgid "Buy"
+msgstr ""
+
+#: front/views/templates/dragondollar/default.html:37
+msgid "Learn"
+msgstr ""
+
+#: front/views/templates/dragondollar/default.html:40
+msgid "Collet"
+msgstr ""
+
+#: front/views/templates/dragondollar/default.html:43
+msgid "Library"
+msgstr ""
+
+#: front/views/templates/dragondollar/default.html:46
+msgid "What is your chinese coin worth ?"
+msgstr ""
+
+#: front/views/templates/dragondollar/default.html:85
+#: front/views/templates/dragondollar/product_list.html:3
+msgid "Dragon Dollars"
+msgstr ""
+
+#: front/views/templates/dragondollar/default.html:86
+#: front/views/templates/dragondollar/product_info.html:65
+msgid "Terms & Conditions"
+msgstr ""
+
+#: front/views/templates/dragondollar/default.html:87
+msgid "Copyright @ 2013-2014 Dragon Dollar Limited"
+msgstr ""
+
+#: front/views/templates/dragondollar/product_info.html:42
+msgid "Catalog ref"
+msgstr ""
+
+#: front/views/templates/dragondollar/product_info.html:46
+msgid "Weight"
+msgstr ""
+
+#: front/views/templates/dragondollar/product_info.html:50
+msgid "Condition"
+msgstr ""
+
+#: front/views/templates/dragondollar/product_info.html:54
+msgid "Cert"
+msgstr ""
+
+#: front/views/templates/dragondollar/product_info.html:59
+msgid "Check Certificate"
+msgstr ""
+
+#: front/views/templates/dragondollar/product_info.html:63
+msgid "Add to Wishlist"
+msgstr ""
+
+#: front/views/templates/dragondollar/product_info.html:64
+msgid "DragonDollar Warranty"
+msgstr ""

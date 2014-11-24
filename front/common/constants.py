@@ -1,7 +1,9 @@
 import urllib
-from B2SProtocol.constants import USER_BASKET_COOKIE_NAME
+
 from B2SProtocol.constants import CustomEnum
 from B2SProtocol.constants import ORDER_STATUS
+from B2SProtocol.constants import USER_BASKET_COOKIE_NAME
+from common.m17n import gettext as _
 
 class ADDR_TYPE(CustomEnum):
     Shipping = 0
@@ -42,4 +44,28 @@ class Redirection:
 
 
 CURR_USER_BASKET_COOKIE_NAME = "CURR_%s" % USER_BASKET_COOKIE_NAME
+
+# list user form labels to make them searchable for gettext
+[
+    _('Civility'),
+    _('First name'),
+    _('Last name'),
+    _('Title'),
+    _('Locale'),
+    _('Gender'),
+    _('Birthday'),
+    _('Email'),
+    _('Phone number'),
+    _('Calling code'),
+    _('Number'),
+    _('Address'),
+    _('Billing'),
+    _('Shipping'),
+    _('Both'),
+    _('City'),
+    _('Postal code'),
+    _('Country'),
+    _('Description'),
+    _('Recipient'),
+]
 

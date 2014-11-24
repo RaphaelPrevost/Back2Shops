@@ -20,7 +20,8 @@ from B2SUtils.errors import ValidationError
 from common.constants import FRT_ROUTE_ROLE
 from common.constants import Redirection
 from common.data_access import data_access
-from common.m17n import trans_func
+from common.m17n import get_locale
+from common.m17n import set_locale
 from common.redis_utils import get_redis_cli
 from common.utils import cur_symbol
 from common.utils import format_amount
@@ -28,6 +29,7 @@ from common.utils import format_datetime
 from common.utils import gen_html_resp
 from common.utils import gen_cookie_expiry
 from common.utils import gen_SID
+from common.utils import get_err_msg
 from common.utils import get_normalized_name
 from common.utils import get_thumbnail
 from common.utils import get_url_format
@@ -75,6 +77,7 @@ class BaseResource(object):
 
     def msg_handler(self, method_name, req, resp, **kwargs):
         try:
+            #TODO set user locale
             self._verify_user_online(req, resp, method_name)
             method = getattr(self, '_on_' + method_name)
             data = method(req, resp, **kwargs)
@@ -225,7 +228,8 @@ class BaseHtmlResource(BaseResource):
             if isinstance(data, dict):
                 self._add_common_data(data)
                 resp = gen_html_resp(self.template, resp, data,
-                                     lang='en', layout=self.base_template)
+                                     lang=get_locale(),
+                                     layout=self.base_template)
             else:
                 resp.body = data
                 resp.content_type = "text/html"
@@ -276,7 +280,7 @@ class BaseHtmlResource(BaseResource):
 
         if 'err' not in resp_dict:
             resp_dict['err'] = ''
-        resp_dict['err'] = trans_func(resp_dict['err'])
+        resp_dict['err'] = get_err_msg(resp_dict['err'])
         resp_dict['route_args'] = self.route_args
 
         resp_dict['format_datetime'] = format_datetime
@@ -306,6 +310,6 @@ class BaseHtmlResource(BaseResource):
 class BaseJsonResource(BaseResource):
     def gen_resp(self, resp, data):
         if isinstance(data, dict) and 'err' in data:
-            data['err'] = trans_func(data['err'])
+            data['err'] = get_err_msg(data['err'])
         return gen_json_resp(resp, data)
 

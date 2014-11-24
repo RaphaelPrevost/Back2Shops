@@ -2,10 +2,10 @@
     <form id="loginForm" name="loginForm" method="POST">
         <div class="errwrapper"></div>
         <div>
-            <input type="text" name="email" id="email" placeholder="${{_('EMAIL')}}" class="text ui-widget-content ui-corner-all">
+            <input type="text" name="email" id="email" placeholder="${_('Email')}" class="text ui-widget-content ui-corner-all">
         </div>
         <div>
-            <input type="password" name="password" id="password" placeholder="${{_('PASSWORD')}}" class="text ui-widget-content ui-corner-all">
+            <input type="password" name="password" id="password" placeholder="${_('Password')}" class="text ui-widget-content ui-corner-all">
         </div>
         <br/>
         <div>
@@ -25,7 +25,7 @@ $(function() {
         height: 250,
         modal: true,
         buttons: {
-            ${{_('LOGIN')}}: function() {
+            ${_('Login')}: function() {
                 $.post('/ajax_login',
                     $("#loginForm").serializeArray(),
                     function(data) {

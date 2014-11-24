@@ -12,6 +12,7 @@ import signal
 
 import settings
 from common.data_access import data_access
+from common.m17n import init_translators
 from common.utils import html_escape_params
 from common.utils import send_reload_signal
 from common.utils import watching_invalidate_cache_list
@@ -22,6 +23,7 @@ from B2SFrontUtils.constants import REMOTE_API_NAME
 
 
 setupLogging(settings.LOG_CONFIG_FILE)
+init_translators()
 
 def get_app(reload_=False):
     # falcon.API instances are callable WSGI apps
