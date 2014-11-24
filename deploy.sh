@@ -163,6 +163,9 @@ function compile_i18n_labels() {
         python i18nmessages.py --locale=fr_FR --domain=$1 make
         python i18nmessages.py --locale=zh_CN --domain=$1 make
         python i18nmessages.py --domain=$1 compile
+        chown -R backtoshops.www-data $CWD/locale
+        chmod -R 2770 $CWD/locale
+
         cd -
     )
 }
