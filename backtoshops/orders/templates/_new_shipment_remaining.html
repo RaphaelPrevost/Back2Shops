@@ -69,7 +69,7 @@
                                value="{{ item.id_order_item }}"/>
                         <div class="prodSail">
                             <a title="click to edit this sale" href="/sales/edit/{{ item.sale}}/product/" class="imgProd">
-                                <strong class="nbQuant red">{{ item.packing_quantity }}</strong>
+                                <strong class="nbQuant red_bg">{{ item.packing_quantity }}</strong>
                                 {% thumbnail item.picture|no_thumbnail "40x40" as im %}
                                     <img width="40"
                                          height="40"
