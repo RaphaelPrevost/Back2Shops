@@ -1,35 +1,111 @@
-{% extends "new_base.html" %}
 {% load i18n %}
 
-{% block head %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+    <title>{% block title %}{% trans "Backoffice" %}{% endblock %}</title>
+
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/new_main.css" />
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/new-order-list.css" />
+    <link type="text/css" rel="stylesheet" media="screen" href="http://37.187.48.33/static/css/ui-lightness/jquery-ui-1.8.16.custom.css" />
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.1.6.2.min.js"></script>
     <script src="//code.jquery.com/jquery-1.10.2.js"></script>
     <script src="//code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
-{% endblock %}
 
-{% block content %}
-    {% if obj.res == 'FAILURE' %}
-        {% trans 'SERVER ERROR, please connect the admin' %}
-    {% else %}
-        {% if obj.iv_sent_status == 2 %}
-            <button url="{% url 'send_invoices' %}" id_order="{{ order_id }}" class="sendInvoices">{% trans "Send Invoices" %} ({{ obj.iv_to_sent_qty }})</button>
-        {% elif obj.content|length == 0 %}
-            {% if obj.order_status > 1 %}
-                {% trans 'No invoices currently, Please try it later or connect the admin' %}
-            {% else %}
-                {% trans 'No invoices currently, Please create packing list for remaining items, then send invoices' %}
-            {% endif %}
+    <script type="text/javascript">
+        $(document).ajaxSend(function(event, xhr, settings) {
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            function sameOrigin(url) {
+                // url could be relative or scheme relative or absolute
+                var host = document.location.host; // host + port
+                var protocol = document.location.protocol;
+                var sr_origin = '//' + host;
+                var origin = protocol + sr_origin;
+                // Allow absolute or scheme relative URLs to same origin
+                return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+                        (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+                    // or any other URL that isn't scheme relative or absolute i.e relative.
+                        !(/^(\/\/|http:|https:).*/.test(url));
+            }
+            function safeMethod(method) {
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+
+            if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+            }
+        });
+    </script>
+
+</head>
+<body>
+
+<!--CONTENEUR-->
+<div id="conteneur">
+
+    {% csrf_token %}
+    <!--CONTENU-->
+    <div id="contenu">
+
+        {% if obj.res == 'FAILURE' %}
+            {% trans 'SERVER ERROR, please connect the admin' %}
         {% else %}
-            <div class="invoice" iv_html="{{ obj.invoice }}"></div>
-        {% endif %}
-    {% endif %}
-{% endblock %}
+            {% if obj.iv_sent_status == 2 %}
+                <button url="{% url 'send_invoices' %}" id_order="{{ order_id }}" class="sendInvoices">{% trans "Send Invoices" %} ({{ obj.iv_to_sent_qty }})</button>
+            {% elif obj.content|length == 0 %}
+                {% if obj.order_status > 1 %}
+                    {% trans 'No invoices currently, Please try it later or connect the admin' %}
+                {% else %}
+                    {% trans 'No invoices currently, Please create packing list for remaining items, then send invoices' %}
+                {% endif %}
+            {% else %}
+                <div class="invoices" iv_html="{{ obj.invoice }}">
+                    <div class="invoices_title">
+                        <span id="see_invoice_{{ obj.iv_id }}" for_invoice="{{ obj.iv_id }}" class="see_invoice">
+                            See invoice #{{ obj.iv_id }}
+                        </span>
+                    </div>
+                    <div id="invoice">
 
-{% block javascript %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+        <!--FIN content-right-->
+        <div class="clear"></div>
+    </div>
+    <!--FIN CONTENU-->
+
+</div>
+<!--FIN CONTENEUR-->
+
+
+</body>
+</html>
+
+
 <script type="text/javascript">
 $(document).ready(function(){
     function init(){
-        var html = $('.invoice').attr('iv_html');
-        $('.invoice').html($(html));
+        var html = $('.invoices').attr('iv_html');
+        $('#invoice').html($(html));
     }
     init();
 
@@ -65,4 +141,3 @@ $(document).ready(function(){
 
 });
 </script>
-{% endblock %}
