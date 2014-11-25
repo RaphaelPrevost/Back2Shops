@@ -791,6 +791,7 @@ class OrderInvoices(View, TemplateResponseMixin):
         for invoice in resp['content']:
             if int(invoice['id_shipment']) == int(shipment):
                 resp['invoice'] = invoice['html']
+                resp['iv_id'] = invoice['id']
                 break
 
 
