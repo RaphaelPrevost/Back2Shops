@@ -4,7 +4,7 @@
     font-family: Verdana,Tahoma,Helvetica,Sans-Serif;
     font-size: 11px;
     color: #000;
-	
+
 	/* switching box model for all elements */
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
@@ -53,16 +53,16 @@ label {
 
 
 /*-----FIL-ARIANNE-----*/
-.arianne  { 
-	position: relative; 
+.arianne  {
+	position: relative;
 	height: 34px; margin: 25px 0;
-	
+
 	-webkit-border-radius: 7px;
 	-moz-border-radius: 7px;
 	-ms-border-radius: 7px;
 	-o-border-radius: 7px;
 	border-radius: 7px;
-	
+
 	background-color: #94d1ff;
 }
 .arianne li {
@@ -71,17 +71,17 @@ label {
 	line-height: 34px;
 	padding: 0px 40px 0px 20px;
 	color: #fff; font-size: 13px;
-	background: url(../img/arianne.png) no-repeat right 0px #94d1ff; 
-} 
+	background: url(../img/arianne.png) no-repeat right 0px #94d1ff;
+}
 .arianne li span {
 	margin-right: 5px;
 	font-size: 13px; color: #fff;
-} 
+}
 .arianne li.on { background-position: right -83px; background-color: #24A5EC; }
 .arianne li.ok { background-position: right -42px; background-color: #24A5EC; }
-.arianne li.li1 { 
-	z-index: 6; 
-	
+.arianne li.li1 {
+	z-index: 6;
+
 	-webkit-border-radius: 7px 0 0 7px;
 	-moz-border-radius: 7px 0 0 7px;
 	-ms-border-radius: 7px 0 0 7px;
@@ -103,8 +103,6 @@ label {
 /*--------------------*/
 /*      Ico PAYS      */
 /*--------------------*/
-.fr { background-image: url(../img/flag/fr.gif); }
-	
 
 
 #conteneur {
@@ -115,7 +113,7 @@ label {
    /* border: 1px solid #ffffff;
     border-bottom: none;
     background-color: #fff;
-	
+
 	-webkit-box-shadow: 0 0 4px #c4c4c4;
 	-moz-box-shadow: 0 0 4px #c4c4c4;
 	-ms-box-shadow: 0 0 4px #c4c4c4;
@@ -130,7 +128,7 @@ label {
     height: 160px;
 	border-bottom: 1px solid #d1d1d1;
     background-color: #f5f5f5;
-	
+
     border-bottom: 1px solid #fff;
 
     box-shadow: 0 3px 5px #cacaca;
@@ -149,7 +147,7 @@ label {
 		padding-top: 1px;
 	}
 
-	#header #wrapHead h1 { 
+	#header #wrapHead h1 {
 		width: 25%; float: left;
 		margin: 0 auto 0 auto;
 		text-align: left;
@@ -157,8 +155,8 @@ label {
 	#header #wrapHead h1 a { font-size: 2em; color: #017DB5; }
 
 
-	
-	
+
+
 /*--- ALERTE ---*/
 #alerte {
 	padding-top: 0.3em;
@@ -183,11 +181,11 @@ label {
 #alerte p.stop { background-position: 0 -129px; }
 
 
-	
+
 /*--- NAV ---*/
 #nav {
     position: relative;
-	 
+
     height: 32px;
     padding: 0;
 	margin-top: 85px;
@@ -213,7 +211,7 @@ label {
         overflow: hidden;
         text-indent: -1500px;
     }
-	
+
 
     #language_form {
         display: block;
@@ -225,26 +223,26 @@ label {
         display: block;
         position: absolute;
 		left: 0px; top: 0px;
-        width: 164px; height: 22px; 
+        width: 164px; height: 22px;
     }
-	#language .pays { 
+	#language .pays {
 		background-position: center center;
 		background-repeat: no-repeat;
 	}
 
     #userName { color: #000; }
 
-	
+
 	#welcome {
 		position: absolute;
 		top: 10px; right: 0px;
-		
+
 		line-height: 30px;
 		font-weight: bold;
 		color: #4A4A4A;
 	}
-		
-		
+
+
 
     /*-Logout-*/
     #logout,#login {
@@ -341,13 +339,13 @@ label {
             height: 27px;
             overflow: hidden;
             text-indent: -1500px;
-			
+
 			-webkit-border-radius: 15px;
 			-moz-border-radius: 15px;
 			-ms-border-radius: 15px;
 			-o-border-radius: 15px;
 			border-radius: 15px;
-			
+
             background-color: #eee;
         }
         #menu_ico li { margin: 0 0 0 5px; }
@@ -362,6 +360,8 @@ label {
 
 
             .link1, .link1 span{ background-position: 1px 1px; }
+			#menu_ico li .link1, #menu_ico li .link1 span { background-image: url(../img/ico-dollard.png); }
+
             .link2, .link2 span { background-position: 1px -24px; }
             .link3, .link3 span { background-position: 1px -49px; }
             .link4, .link4 span { background-position: 1px -74px; }
@@ -374,7 +374,7 @@ label {
             .link12, .link12 span { background-position: 1px -499px; }
 
 
-	 
+
 
 
 
@@ -444,31 +444,31 @@ label {
         margin: 10px 20px 0 30px;
     }
 
-	
+
 
 /*--------- TITRES PAGES, Title ---------*/
 #title { margin-bottom: 20px; }
     #title span, #title h2 { display: block; }
-    #title span { 
+    #title span {
 
         width: 25px; height: 25px;
 		float: left;
         margin: 0 1em 0 0;
         overflow: hidden;
         text-indent: -1500px;
-		
+
 		-webkit-border-radius: 20px;
 		-moz-border-radius: 20px;
 		-ms-border-radius: 20px;
 		-o-border-radius: 20px;
 		border-radius: 20px;
-		
+
         background-color: #2B98EE;
         background-image: url(../img/icon.png);
         background-repeat: no-repeat;
     }
     #title h2 {
-        width: 100%; 
+        width: 100%;
         margin: 0; padding: 10px 0;
 		font-size: 22px; font-weight: normal;
 		color: #2B98EE; line-height: 24px;
@@ -484,13 +484,13 @@ label {
             #title h2 em a:hover, #title h2 em a.on { text-decoration: underline; }
 
 
-			
-			
-			
-			
+
+
+
+
 /*------- HOME RUBRIQUAGE --------*/
 #content_Home {
-	max-width: 1150px; 
+	max-width: 1150px;
     margin: 0 auto;
 }
 	.blocHome {
@@ -498,14 +498,21 @@ label {
 		width: 98%; height: 250px;
 		margin: 0 1% 2% 1%;
 		overflow: hidden;
+
+		border: 1px solid rgba(255,255,255,0.7);
+		-webkit-box-shadow: 0 0 4px rgba(0,0,0,0.5);
+		-moz-box-shadow: 0 0 4px rgba(0,0,0,0.5);
+		-ms-box-shadow: 0 0 4px rgba(0,0,0,0.5);
+		-o-box-shadow: 0 0 4px rgba(0,0,0,0.5);
+		box-shadow: 0 0 4px rgba(0,0,0,0.5);
 	}
 	.blocHome.bloc1 { background-color: #0a5da3; }
 	.blocHome.bloc2 { background-color: #2396cc; }
 	.blocHome.bloc3 { background-color: #1fbba6; }
 	.blocHome.bloc4 { background-color: #436647; }
-	
+
 	.blocHome h1 {
-		padding: 0px 20px; 
+		padding: 0px 20px;
 		height: 40px; line-height: 40px;
 		color: #ffffff; font-size: 17px;
 		font-weight: normal;
@@ -523,7 +530,7 @@ label {
 		border-radius: 5px;
 		font-size: 16px;
 		font-weight: bold;
-		color: #000; 
+		color: #000;
 		background-color: #ffffff;
 	}
 	.blocHome h1 span em {
@@ -532,11 +539,11 @@ label {
 		color: #555;
 	}
 	.blocHome ul {
-		 
-		width: 100%; height: 260px; 
+
+		width: 100%; height: 260px;
 		padding: 40px;
 		background-color: rgba(0,0,0,0.4);
-		
+
 		-webkit-transition: all ease 0.5s;
 		-moz-transition: all ease 0.5s;
 		-ms-transition: all ease 0.5s;
@@ -551,14 +558,14 @@ label {
 		margin-right: 25px;
 		padding-right: 30px;
 	}
-	
+
 		.blocHome ul li a.linkHome {
 			display: block;
 			width: 100%; height: 27px;
-			margin: 0 0 4px 6px;
+			margin: 0 0 15px 6px;
 			line-height: 27px; color: #ffffff;
 			font-size: 12px; font-weight: bold;
-			
+
 			-webkit-transition: all ease 0.3s;
 			-moz-transition: all ease 0.3s;
 			-ms-transition: all ease 0.3s;
@@ -569,20 +576,26 @@ label {
 		.blocHome ul li a.linkHome span {
 			display: block; float: left;
 			width: 27px; height: 27px;
-			margin: 0 5px 0 0;
-			border: 1px solid rgba(255,255,255,0.4);
+			margin: 0 5px 0 -8px;
+
 			overflow: hidden;
 			text-indent: -1500px;
-			background-color: #000;
+			background-color: #74BFFB;
 			background-image: url(../img/icon.png);
 			background-repeat: no-repeat;
+
+			-webkit-border-radius: 15px;
+			-moz-border-radius: 15px;
+			-ms-border-radius: 15px;
+			-o-border-radius: 15px;
+			border-radius: 15px;
 		}
 
-	.blocHome .graph { display: block; width: 70%; height: 250px; }
+	.blocHome .graph { display: block; width: 100%; height: 300px; }
 	.blocHome .graph.reglage img { display: block; margin: 70px auto 0 auto; }
-		
-		
-		
+
+
+
 /*------- BOUTON -------*/
 .btn {
     display: block;
@@ -737,7 +750,7 @@ label {
 #page_num { width: 23px; height:15px; }
 .page_size{
     display: block; float: right;
-    width: 140px;
+    width: 150px;
     margin: 5px;
     font-size: 11px;
     font-family: arial;
@@ -786,7 +799,7 @@ label {
     height: 80px;
 	border-bottom: 1px solid #d1d1d1;
     background-color: #f5f5f5;
-	
+
     border-bottom: 1px solid #fff;
 
     box-shadow: 0 3px 5px #cacaca;
@@ -804,7 +817,7 @@ label {
         margin: 0 auto;
 	}
 
-	#header #wrapHead h1 { 
+	#header #wrapHead h1 {
 		width: 25%; float: none;
 		margin: 0 auto;
 		text-align: center;
@@ -825,87 +838,83 @@ label {
     color: #4A4A4A;
 }
 
- 
-	 
-	
+
+
+
 /*------- HOME RUBRIQUAGE --------*/
-#content_Home {
-	max-width: 1150px; 
-    margin: 0 auto;
-}
-	.blocHome {
-		float: left; position: relative;
-		width: 48%; height: 300px;
-		margin: 0 1% 2% 1%;
-		overflow: hidden;
-	}
-	.blocHome.bloc1 { background-color: #0a5da3; }
-	.blocHome.bloc2 { background-color: #2396cc; }
-	.blocHome.bloc3 { background-color: #1fbba6; }
-	.blocHome.bloc4 { background-color: #436647; }
-	
-	.blocHome h1 {
-		padding: 0px 20px; 
-		height: 40px; line-height: 40px;
-		color: #ffffff; font-size: 17px;
-		font-weight: normal;
-		background-color: rgba(0,0,0,0.7);
-	}
+#content_Home { }
+	.blocHome { width: 48%; height: 300px; }
+	.blocHome.bloc1 { }
+	.blocHome.bloc2 { }
+	.blocHome.bloc3 { }
+	.blocHome.bloc4 { }
+
+	.blocHome h1 { }
 	.blocHome ul {
 		position: absolute; z-index: 10000;
 		top: 300px; left: 0;
-		width: 100%; height: 260px; 
-		padding: 40px;
-		background-color: rgba(0,0,0,0.4);
-		
-		-webkit-transition: all ease 0.5s;
-		-moz-transition: all ease 0.5s;
-		-ms-transition: all ease 0.5s;
-		-o-transition: all ease 0.5s;
-		transition: all ease 0.5s;
 	}
-	.blocHome:hover ul {
-		top: 41px; left: 0;
-	}
-	.blocHome ul li {
-		width: 100%;
-		margin-right: 25px;
-		padding-right: 30px;
-	}
-	
-		.blocHome ul li a.linkHome {
-			display: block;
-			width: 100%; height: 27px;
-			margin: 0 0 4px 6px;
-			line-height: 27px; color: #ffffff;
-			font-size: 12px; font-weight: bold;
-			
-			-webkit-transition: all ease 0.3s;
-			-moz-transition: all ease 0.3s;
-			-ms-transition: all ease 0.3s;
-			-o-transition: all ease 0.3s;
-			transition: all ease 0.3s;
-		}
-		.blocHome ul li a.linkHome:hover { background-color: rgba(0,0,0,0.4); }
-		.blocHome ul li a.linkHome span {
-			display: block; float: left;
-			width: 27px; height: 27px;
-			margin: 0 5px 0 0;
-			border: 1px solid rgba(255,255,255,0.4);
-			overflow: hidden;
-			text-indent: -1500px;
-			background-color: #000;
-			background-image: url(../img/icon.png);
-			background-repeat: no-repeat;
-		}
+	.blocHome:hover ul { }
+	.blocHome ul li { }
 
-	.blocHome .graph { display: block; width: 100%; height: 250px; }
+		.blocHome ul li a.linkHome { }
+		.blocHome ul li a.linkHome:hover { }
+		.blocHome ul li a.linkHome span {  }
+
+	.blocHome .graph { display: block; width: 100%; height: 300px; }
+
+.green_bg {
+    background-color: #008000;
 }
 
-#incomes_chart .jqplot-xaxis-tick {
-    color: #2396cc
+.red_bg {
+    background-color: #C10000;
 }
 
-#incomes_chart .jqplot-yaxis-tick {
-    color: #2396cc
+.green_text {
+    color: #008000;
 }
+
+.red_text {
+    color: #C10000;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

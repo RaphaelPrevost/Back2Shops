@@ -326,6 +326,7 @@ def _get_shipment_info_for_order_item(conn, item_id):
                             ('shipping_fee', 'shipping_fee'),
                             ('shipping_date', 'shipping_date'),
                             ('shipping_list_quantity', 'quantity'),
+                            ('packing_quantity', 'packing_quantity'),
                          ])
     query_str = (
         "SELECT %s FROM shipping_list "
@@ -523,6 +524,7 @@ def _update_extra_info_for_order_item(conn, item_id, order_item):
          'invoice_info': _get_invoice_info_for_order_item(conn, item_id),
          })
 
+
 def get_orders_list(conn, brand_id, shops_id=None,
                     users_id=None, limit=None, offset=None):
     fields, columns = zip(*(ORDER_FIELDS_COLUMNS +
@@ -587,7 +589,7 @@ def get_orders_list(conn, brand_id, shops_id=None,
                 'shop_ids': []}
         item_id = order_item.pop('item_id')
         _update_extra_info_for_order_item(conn, item_id, order_item)
-        orders_dict[order_id]['order_items'].append({item_id: order_item})
+        orders_dict[order_id]['order_items'].append((item_id, order_item))
         orders_dict[order_id]['shop_ids'].append(order_item['shop_id'])
 
         if order_id not in sorted_order_ids:

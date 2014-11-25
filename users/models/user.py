@@ -65,6 +65,8 @@ def get_user_profile(conn, user_id):
                      columns=columns)
     if results:
         user_profile = dict(zip(columns, results[0]))
+
+    user_profile.update({'email': get_user_email(conn, user_id)})
     return user_profile
 
 def get_user_address(conn, user_id, addr_id=None):

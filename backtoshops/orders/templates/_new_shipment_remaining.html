@@ -1,0 +1,172 @@
+{% load i18n %}
+{% load thumbnail %}
+{% load no_thumbnail %}
+{% load get_currency %}
+
+<div id="tabs1-{{ packing.order_id }}-0" class="tabs1">
+    {% for shipment in packing.shipments.remaining_shipments %}
+        {% if shipment.shop == '0' %}
+            <div id="tabs2-{{ packing.order_id}}-0">
+                <label>{% trans "Internal Sales" %} : </label>
+        {% else %}
+            <div id="tabs2-{{ shipment.shop }}">
+                <label>{{ shipment.shop_name }} : </label>
+        {% endif %}
+
+
+        <div id="detail">
+
+
+            <div class="detail">
+                <form id="shop_form_livr_{{ packing.order_id }}_{{ shipment.shop }}" method="post">
+                <div class="formLivr">
+                    <input type="hidden"
+                           name="id_order"
+                           value="{{ packing.order_id }}"/>
+                    <input type="hidden"
+                           name="id_brand"
+                           value="{{ shipment.brand }}"/>
+                    <input type="hidden"
+                           name="id_shop"
+                           value="{{ shipment.shop }}"/>
+                    <!--PACKING-->
+                    <div class="packing_info">
+                        <div class="manual_shipping_fee shipping_fee formrow">
+                            <label>{% trans "Shipping fee" %}: </label>
+                            <span>
+                                <input type="text" name="shipping_fee"/>
+                            </span>
+                            {% get_currency user shipment.shop as currency %}
+                                <span class="shipping_currency">{{ currency }}</span>
+                        </div>
+
+                        <div class="manual_handling_fee handling_fee formrow">
+                            <label>{% trans "Handling fee" %}: </label>
+                            <span>
+                                <input type="text" name="handling_fee"/>
+                            </span>
+                            {% get_currency user shipment.shop as currency %}
+                                <span class="shipping_currency">{{ currency }}</span>
+                        </div>
+                    </div>
+                    <div class="formrow rowbtn">
+                        <button class="seefacture save"
+                                for_shipment="{{ shipment.id }}"
+                                for_shop="{{ shipment.shop }}"
+                                for_order="{{ packing.order_id }}"
+                                name="new_shipment"
+                                type="button">{% trans "Save" %}</button>
+                    </div>
+                </div>
+                </form>
+
+
+                <div class="prodLivr" id="shop_prod_livr_{{ packing.order_id }}_{{ shipment.shop }}">
+                    {% for item in shipment.remaining_list %}
+                        <form class="prod_sail_form">
+                        <input type="hidden"
+                               name="id_order_item"
+                               value="{{ item.id_order_item }}"/>
+                        <div class="prodSail">
+                            <a title="click to edit this sale" href="/sales/edit/{{ item.sale}}/product/" class="imgProd">
+                                <strong class="nbQuant red">{{ item.packing_quantity }}</strong>
+                                {% thumbnail item.picture|no_thumbnail "40x40" as im %}
+                                    <img width="40"
+                                         height="40"
+                                         alt='{% trans "Product picture Pochette 100% Laine roulottée main" %}'
+                                         src="{{ item.picture|no_thumbnail }}" style="margin:1px 0px 2px 0px"/>
+                                {% endthumbnail %}
+                            </a>
+                            <div>
+                                <h5>{{ item.name }}</h5>
+                                <span class="ref">{% trans 'ref' %} {{ item.external_id }}</span>
+                            <span class="qt">
+                                {% trans 'Quantité' %} : <input type="text"
+                                                                name="quantity"
+                                                                value="{{ item.packing_quantity}}" /><strong class="red_text"> / {{ item.quantity }}</strong></span>
+                                <span>{% trans "Barcode" %} : {{ item.barcode|default:"-" }}</span>
+                            </div>
+                        </div>
+                        </form>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        </div>
+
+    {% endfor %}
+
+
+</div>
+
+<script type="text/javascript">
+$(function () {
+    $('.save').off('click').on('click', function(){
+        var shop = $(this).attr('for_shop');
+        var order = $(this).attr('for_order');
+
+        var form = $("#shop_form_livr_" + order + "_" + shop);
+        var data = form.serialize();
+
+        var prod = $("#shop_prod_livr_" + order + "_" + shop);
+        var packing = false;
+        $(".prod_sail_form", prod).each(function(){
+            var prod=$(this).serialize();
+            data += "&" + $.param({"content": prod});
+            $("input[name=quantity]", $(this)).each(function(){
+                var value = $(this).val();
+                if (value != "" && parseInt(value) > 0) {
+                    packing = true;
+                }
+            });
+        })
+
+        if (!packing) {
+            alert("{% trans 'Please input valid quantity value' %}");
+            return;
+        }
+
+        var shipping_fee = $("input[name=shipping_fee]", form).val();
+        if (!shipping_fee) {
+            alert("{% trans 'Please input shipping fee' %}")
+            return;
+        }
+        var handling_fee = $("input[name=handling_fee]", form).val();
+        if (!handling_fee) {
+            alert("{% trans 'please input handling fee' %}");
+            return;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: "/orders/new/packing",
+            data: data,
+            success: function(data, status) {
+                if (data.res == 'SUCCESS') {
+                    packing_reload(order);
+                } else {
+                    alert('{% trans "Error:" %}' + data.err);
+                }
+
+            }
+        });
+
+    });
+
+    function packing_reload(order_id) {
+        var detail = ".packing_detail[order='" + order_id + "']";
+        var url = $(detail).attr('url');
+        $(detail).load(url, function(){
+            $(".tabs1", detail).hide();
+            var left_to_ship = $("[href=#tabs1-" + order_id + "-0]");
+            if (left_to_ship.length > 0) {
+                left_to_ship.click();
+            } else {
+                var tabs = $("li a", $(detail));
+                tabs[tabs.length - 1].click();
+            }
+        })
+    }
+});
+</script>

@@ -94,6 +94,9 @@ class ActorItem(BaseActor):
                  'name': 'name',
                  'currency': 'currency',
                  'quantity': 'quantity',
+                 'external_id': 'external_id',
+                 'barcode': 'barcode',
+                 'picture': 'picture',
                  'packing_quantity': 'packing_quantity',
                  'shipping_status': 'shipping_status',
                  'id_order_item': "@id_order_item"}

@@ -1,0 +1,68 @@
+{% extends "new_base.html" %}
+{% load i18n %}
+
+{% block head %}
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+{% endblock %}
+
+{% block content %}
+    {% if obj.res == 'FAILURE' %}
+        {% trans 'SERVER ERROR, please connect the admin' %}
+    {% else %}
+        {% if obj.iv_sent_status == 2 %}
+            <button url="{% url 'send_invoices' %}" id_order="{{ order_id }}" class="sendInvoices">{% trans "Send Invoices" %} ({{ obj.iv_to_sent_qty }})</button>
+        {% elif obj.content|length == 0 %}
+            {% if obj.order_status > 1 %}
+                {% trans 'No invoices currently, Please try it later or connect the admin' %}
+            {% else %}
+                {% trans 'No invoices currently, Please create packing list for remaining items, then send invoices' %}
+            {% endif %}
+        {% else %}
+            <div class="invoice" iv_html="{{ obj.invoice }}"></div>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+$(document).ready(function(){
+    function init(){
+        var html = $('.invoice').attr('iv_html');
+        $('.invoice').html($(html));
+    }
+    init();
+
+
+    $(".sendInvoices").off('click').on('click', function(){
+        var url = $(this).attr('url');
+        var id_order = $(this).attr('id_order');
+        var data = "id_order=" + id_order;
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: data,
+            success: function(data, status) {
+                if (data['res'] == 'FAILURE') {
+                    alert("{% trans 'Server Error, please connect admin' %}");
+                } else {
+                    var iv_sent_status = data['order_iv_status'];
+                    if (iv_sent_status == 1) {
+                        alert("{% trans 'Pleas conf shipping method before send invoices' %}");
+                    } else if (iv_sent_status == 2) {
+                    } else if (iv_sent_status == 3) {
+                        alert("{% trans 'Successful send invoices for the current packing lists, please create new shipment for the remaining items' %}");
+                        location.reload();
+                    } else if (iv_sent_status == 4) {
+                        alert("{% trans 'Successful send invoices for this order' %}");
+                        location.reload();
+                    }
+                }
+            }
+        });
+        return false;
+    });
+
+});
+</script>
+{% endblock %}

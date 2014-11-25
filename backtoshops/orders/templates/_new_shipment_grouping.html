@@ -1,0 +1,235 @@
+{% load i18n %}
+{% load is_order_completed %}
+
+{% for shipment in packing.shipments.packing_shipments %}
+    <div id="tabs1-{{ shipment.id }}" class="tabs1">
+        {% include "_new_shipment.html" %}
+    </div>
+{% endfor %}
+<script type="text/javascript">
+
+jQuery(
+        //JQuery的日历控件汉化
+        function($){
+            $.datepicker.regional['zh_CN'] = {
+                clearText: '清除',
+
+                clearStatus: '清除已选日期',
+                closeText: '关闭',
+
+                closeStatus: '不改变当前选择',
+                prevText: '&lt;上月',
+
+                prevStatus: '显示上月',
+                nextText: '下月&gt;',
+
+                nextStatus: '显示下月',
+                currentText: '今天',
+
+                currentStatus: '显示本月',
+                monthNames: ['1月','2月','3月','4月','5月','6月',
+                    '7月','8月','9月','10月','11月','12月'],
+                monthNamesShort: ['一','二','三','四','五','六',
+                    '七','八','九','十','十一','十二'],
+                monthStatus: '选择月份', yearStatus: '选择年份',
+                weekHeader: '周', weekStatus: '年内周次',
+                dayNames: ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'],
+                dayNamesShort: ['周日','周一','周二','周三','周四','周五','周六'],
+                dayNamesMin: ['日','一','二','三','四','五','六'],
+                dayStatus: '设置 DD 为一周起始',
+
+                dateStatus: '选择 m月 d日, DD',
+                dateFormat: 'yy-mm-dd',   //日期格式化形式
+
+                firstDay: 7,
+                initStatus: '请选择日期',
+
+                showMonthAfterYear: true,
+                yearSuffix: '年',
+
+                isRTL: false
+            };
+            $.datepicker.setDefaults($.datepicker.regional[_get_datepicker_locale("{{ LANGUAGE_CODE }}")]);
+        }
+);
+
+function _get_datepicker_locale(s) {
+    var l = s.split('-');
+    if (l[0] == 'en') return '';
+    if (l[1]) l[1] = l[1].toUpperCase();
+    l = l.join('_');
+    return l;
+}
+
+$(document).ready(function(){
+
+    $(".update_shipment").off("click").on('click', function(){
+        var shipment_id = $(this).attr('for_shipment');
+        var form = $("#formLivr_for_" + shipment_id);
+
+        var packing_status = $('.packing_status', form);
+        var shipping_date = $('.shipping_date', form);
+
+        var packing_count_err = "";
+        $(".packing_item_out_count", form).each(function(){
+            if ($(this).val() == "") {
+                packing_count_err = "{% trans 'Please input all items updated count' %}";
+            } else {
+                if (parseInt($(this).val()) > parseInt($(this).attr('orig_quantity'))) {
+                    packing_count_err = "{% trans 'Please input valid item update count' %}";
+                }
+            }
+        });
+
+        if (packing_count_err) {
+            alert(packing_count_err);
+            return;
+        }
+
+        var content = collect_update_info(shipment_id);
+        if (!confirm(content)) return;
+
+        var data = form.serialize();
+        $("[disabled=true]", form).each(function(){
+            var p = {};
+            var name = $(this).attr('name');
+            p[name] = $(this).val();
+            data += "&" + $.param(p);
+        });
+
+        var prod = $("#prodLivr_for_" + shipment_id);
+        $(".prod_sail_form", prod).each(function(){
+            var prod = $(this).serialize();
+            data += "&" + $.param({'content': prod});
+
+        });
+
+        $.ajax({
+            type: 'POST',
+            url: "/orders/update/packing",
+            data: data,
+            success: function(data, status) {
+                if (data.res == 'SUCCESS') {
+                    alert('{% trans "Success" %}');
+                } else {
+                    alert('{% trans "Error:" %}' + data.err);
+                }
+            }
+        });
+        return false;
+    });
+
+    $(".delete_shipment").off('click').on('click', function() {
+        var shipment_id = $(this).attr('for_shipment');
+        var order_id = $(this).attr('for_order');
+        var data = $("#formLivr_for_" + shipment_id).serialize();
+
+        if (!confirm(
+                "{% trans 'Are you sure you want to delete ' %}" +
+                        "{% trans 'current packing list: ' %}" +
+                        shipment_id
+        )) {
+            return true;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: "/orders/delete/packing",
+            data: data,
+            success: function(data, status) {
+                if (data.res == 'SUCCESS') {
+                    packing_reload(order_id);
+
+                } else {
+                    alert('{% trans "Error:" %}' + data.err);
+                }
+            }
+        });
+    });
+
+    function packing_reload(order_id) {
+        var detail = ".packing_detail[order='" + order_id + "']";
+        var url = $(detail).attr('url');
+        $(detail).load(url, function(){
+            $(".tabs1", detail).hide();
+            var left_to_ship = $("[href=#tabs1-" + order_id + "-0]");
+            if (left_to_ship) {
+                left_to_ship.click();
+            }
+        })
+
+    }
+
+    function collect_update_info(id_shipment) {
+        var content = {};
+        var spm_prod = $("#prodLivr_for_" + id_shipment);
+        $(".prodSail", spm_prod).each(function(){
+            var id_order_item = $("input[name=id_order_item]").val();
+            var name = $('h5', this).html();
+            var quantity = $("input[name=quantity]").val();
+            content[id_order_item] = {
+                'name': name,
+                'packing_count': quantity};
+        });
+
+        var shipping_carrier = $("#shipping_carrier_for_shipment_" + id_shipment);
+        var tracking_name = $("#tracking_name_for_shipment_" + id_shipment);
+        var shipping_fee = $("#shipping_fee_for_shipment_" + id_shipment);
+        var handling_fee = $("#handling_fee_for_shipment_" + id_shipment);
+        var packing_status = $("#packing_status_for_shipment_" + id_shipment);
+        var shipping_date = $("#shipping_date_for_shipment_" + id_shipment);
+        var tracking_number = $("#tracking_num_for_shipment_" + id_shipment);
+
+        var content_confirm = "Please Confirm: \n";
+        if (shipping_carrier.length > 0 & !shipping_carrier.prop('disabled')) {
+            content_confirm += "Carrier: " + "\t" + shipping_carrier.find("option:selected").text().trim() + "\n";
+        }
+        if (!tracking_name.prop('disabled') & !tracking_name.is(":hidden")) {
+            content_confirm += "Tracking name: " + "\t" + tracking_name.val() + "\n";
+        }
+        if (!shipping_fee.prop('disabled')) {
+            content_confirm += "Shipping Fee: " + "\t" + shipping_fee.val() + " " + shipping_fee.attr('currency')  + "\n";
+        }
+        if (!handling_fee.prop('disabled')) {
+            content_confirm += "Handling Fee: " + "\t" + handling_fee.val() + " " + handling_fee.attr('currency') +  "\n";
+        }
+        if (!packing_status.prop('disabled')) {
+            content_confirm += "Status: " + "\t" + packing_status.find("option:selected").text() + "\n";
+        }
+        if (!shipping_date.prop('disabled') & !shipping_date.is(":hidden")) {
+            content_confirm += "Shipping Date: " + "\t" + shipping_date.val() + "\n";
+        }
+        if (!tracking_number.prop('disabled') & !tracking_number.is(":hidden")) {
+            content_confirm += "Tracking Number: " + "\t" + tracking_number.val() + "\n";
+        }
+
+        content_confirm += "{% trans 'Packing list or sale item \n' %}";
+        $.each(content, function(k, v) {
+            content_confirm += "\t" + "{% trans 'name:' %}" + v.name + '\n';
+            content_confirm += '\t {% trans "packing count" %}: ';
+            content_confirm += v.packing_count;
+            content_confirm += '\n';
+        });
+
+        return content_confirm;
+    }
+
+    function init() {
+        {% if packing.order_status|is_order_completed %}
+            $(".group_packing input").each(function() {
+                $(this).prop('disabled', true);
+                $(this).prop('readonly', true);
+
+            });
+            $(".group_packing select").each(function() {
+                $(this).prop('disabled', true);
+                $(this).prop('readonly', true);
+
+            });
+
+        {% endif %}
+    }
+    init();
+
+});
+</script>

@@ -65,6 +65,7 @@
             {% for order_id, order in order_dict.items %}
                 {{ order.order_items.0.values.picture }}
                 {{ order.order_items.0.values.thumbnail_img }}
+                {{ order.confirmation_time }}
             <div class="vente" order="{{ order_id }}">
                 <!--NOM, CATEGORIE, TYPE de Prod-->
                 <a href=""><h3>#{{ order_id  }}</h3></a>

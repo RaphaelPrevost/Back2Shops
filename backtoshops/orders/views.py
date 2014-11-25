@@ -2,6 +2,7 @@ import datetime
 import logging
 import settings
 import ujson
+import urlparse
 import xmltodict
 
 from decimal import Decimal
@@ -9,7 +10,6 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
-from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View, TemplateResponseMixin
 from django.views.generic.edit import CreateView, UpdateView
 from fouillis.views import OperatorUpperLoginRequiredMixin
@@ -189,7 +189,7 @@ def _get_req_user_shops(user):
 
 
 class ListOrdersView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin):
-    template_name = 'order_list.html'
+    template_name = 'new_order_list.html'
     list_current = True
 
     def set_orders_list(self, request, params):
@@ -213,32 +213,53 @@ class ListOrdersView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
             ORDER_STATUS.AWAITING_SHIPPING: [],
             ORDER_STATUS.COMPLETED: [],
         }
+
+        status = params.get('status')
+        query = None
+        if status == "search":
+            query = params.get('search')
+            orders_by_status['search'] = []
+
         for order_dict in orders:
             for order_id, order in order_dict.iteritems():
                 orders_by_status[order['order_status']].append({order_id: order})
+                if query and query in order['search_options']:
+                    orders_by_status['search'].append({order_id: order})
 
-        status = params.get('status')
         if status and status.isdigit() and int(status) in orders_by_status:
             status = int(status)
-        else:
+        elif status is None:
             # default status
             for _status, _orders in orders_by_status.iteritems():
                 status = _status
                 if len(_orders) > 0:
                     break
+        elif status != 'search':
+            raise
         self.status = status
+        self.query = query or ""
         self.orders = orders_by_status[status]
         self.page_title = _("Current Orders")
         self.status_tabs = [
             {'name': _('Pending Orders'),
+             'class': 'pending',
              'status': ORDER_STATUS.PENDING},
             {'name': _('Awaiting payment'),
+             'class': 'payment',
              'status': ORDER_STATUS.AWAITING_PAYMENT},
             {'name': _('Awaiting Shipping'),
+             'class': 'shipping',
              'status': ORDER_STATUS.AWAITING_SHIPPING},
             {'name': _('Completed'),
+             'class': 'completed',
              'status': ORDER_STATUS.COMPLETED},
         ]
+        if query:
+            self.status_tabs.append(
+                {'name': query,
+                 'class': 'results',
+                 'status': 'search'}
+            )
         return
 
     def make_page(self):
@@ -409,9 +430,8 @@ class BaseOrderPacking(OperatorUpperLoginRequiredMixin, View):
         if int(spm_shop_id):
             spm['shop_name'] = Shop.objects.get(pk=spm_shop_id).name
             spm['shop_currency'] = Shop.objects.get(pk=spm_shop_id).default_currency
-        packing_list, remaining_list = self._divide_packing_items(spm_actor)
-        spm['packing_list'] = packing_list
-        spm['remaining_list'] = remaining_list
+        spm['packing_list'] = [actor_to_dict(item) for item in spm_actor.items]
+        spm['remaining_list'] = self._get_remaining_list(spm_actor)
         sp_carriers = spm_actor.delivery.carriers
         if (len(sp_carriers) > 1 or
             len(sp_carriers) == 1 and len(sp_carriers[0].services) > 1):
@@ -432,8 +452,8 @@ class BaseOrderPacking(OperatorUpperLoginRequiredMixin, View):
 
         return spms
 
-    def _divide_packing_items(self, spm_actor):
-        packing_list = []
+    def _get_remaining_list(self, spm_actor):
+        # remaining_list is only meaningful for left to ship shipments
         remaining_list = []
 
         for item in spm_actor.items:
@@ -443,10 +463,7 @@ class BaseOrderPacking(OperatorUpperLoginRequiredMixin, View):
 
             if packing_quantity < quantity:
                 remaining_list.append(item)
-            if packing_quantity > 0:
-                packing_list.append(item)
-
-        return packing_list, remaining_list
+        return remaining_list
 
     def _get_deadline(self, request, spms_actor):
         if not getattr(self, 'cache_shipping_period', None):
@@ -531,47 +548,6 @@ class BaseOrderPacking(OperatorUpperLoginRequiredMixin, View):
             else:
                 return False
 
-    def remaining_items_content(self, post, id_shop, id_brand):
-        '''
-        @param post:
-            id_shipment
-            shop_for_$id_shipment
-
-            remaining_item_ckb_$id_shipping_list
-            remaining_item_choose_$id_shipping_list
-            sale_for_$id_shipping_list
-
-            should in post dict
-        @return: remaining items list in post request.
-            [{'id_order_item': xxx,
-              'quantity': xxx} ...]
-        '''
-        content = []
-        ckb_prefix = "remaining_item_ckb_"
-        qtt_prefix = "remaining_item_choose_"
-        sale_prefix = "sale_for_"
-        items = [key for key, _ in post.iteritems()
-                 if key.startswith(ckb_prefix)]
-
-        for item in items:
-            id_order_item = item[len(ckb_prefix):]
-
-            quantity = post.get(qtt_prefix + id_order_item)
-            assert quantity is not None, "miss quantity of %s" % id_order_item
-            assert int(quantity) > 0, "quantity %s must be a positive number" % quantity
-
-
-            id_sale = post.get(sale_prefix + id_order_item)
-            assert id_sale is not None, "miss sale info of %s" % id_order_item
-
-            if not self.permission_check(id_shop, id_brand):
-                raise InvalidRequestError("You have no priority to "
-                                          "operate sale: %s" % id_sale)
-
-            content.append({'id_order_item': id_order_item,
-                            'quantity': quantity})
-        return content
-
 def carrier_options():
     option = []
     carriers = Carrier.objects.all()
@@ -591,7 +567,7 @@ def carrier_options():
     return option
 
 class OrderPacking(BaseOrderPacking, TemplateResponseMixin):
-    template_name = "_order_packing.html"
+    template_name = "_new_order_packing.html"
 
     def get(self, request, order_id):
         packing = {'order_id': order_id,
@@ -607,6 +583,7 @@ class OrderPacking(BaseOrderPacking, TemplateResponseMixin):
             id_shipment = request.GET.get('shipment') or None
             xml_packing_list = get_order_packing_list(order_id)
             dict_pl = xmltodict.parse(xml_packing_list)
+
             spms_actor = ActorShipments(data=dict_pl['shipments'])
             spms = self._parse_shipment(
                 spms_actor,
@@ -659,18 +636,32 @@ class OrderNewPacking(BaseOrderPacking):
         id_shop = request.POST.get('id_shop')
         id_brand = request.POST.get('id_brand')
 
-        content = self.remaining_items_content(request.POST, id_shop, id_brand)
+        content = self.packing_items_content(request.POST);
 
         sp_fee = request.POST.get("shipping_fee")
         hd_fee = request.POST.get("handling_fee")
         assert sp_fee is not None, "miss shipping fee"
         assert hd_fee is not None, "miss handling fee"
-        assert content, "At least one item must be selected"
+        assert content, "At least one item must be packed"
 
         return send_new_shipment(id_order, id_shop, id_brand,
                                  sp_fee, hd_fee, content)
 
 
+    def packing_items_content(self, post):
+        items_list = post.get('content')
+        if not isinstance(items_list, list):
+            items_list = [items_list]
+
+        content = []
+        for item in items_list:
+            prod = urlparse.parse_qs(item)
+            for key, value in prod.iteritems():
+                prod[key] = value[0]
+            if prod.get('quantity') is not None:
+                content.append(prod)
+
+        return content or None
 
 class OrderUpdatePacking(BaseOrderPacking):
     def post(self, request, *args, **kwargs):
@@ -708,72 +699,30 @@ class OrderUpdatePacking(BaseOrderPacking):
             [{'id_order_item': xxx,
               'quantity': xxx} ...]
         '''
-        content = {}
-        packing_ckb_prefix = "packing_item_ckb_"
-        packing_qtt_prefix = "packing_item_out_count_for_"
-        remaining_ckb_prefix = "remaining_item_ckb_"
-        remaining_qtt_prefix = "remaining_item_choose_"
-        total_count_prefix = "total_count_for_"
-        sale_prefix = "sale_for_"
+        items_list = post.get('content')
+        if not isinstance(items_list, list):
+            items_list = [items_list]
 
-        packing_items = [key for key, _ in post.iteritems()
-                 if key.startswith(packing_qtt_prefix)]
+        content = []
+        for item in items_list:
+            prod = urlparse.parse_qs(item)
+            for key, value in prod.iteritems():
+                prod[key] = value[0]
+            if prod.get('quantity') is not None:
+                content.append(prod)
 
-        remaining_items = [key for key, _ in post.iteritems()
-                         if key.startswith(remaining_ckb_prefix)]
-
-        for item in packing_items:
-            id_order_item = item[len(packing_qtt_prefix):]
-
-            packing_qtt = post.get(item)
-            assert packing_qtt is not None, "quantity must be a positive number"
-            assert int(packing_qtt) > 0, "quantity %s must be a positive number" % packing_qtt
-
-            id_sale = post.get(sale_prefix + id_order_item)
-            assert id_sale is not None, "miss sale info of %s" % id_order_item
-
-            packing_ckb = post.get(packing_ckb_prefix + id_order_item)
-            remaining_ckb = post.get(remaining_ckb_prefix + id_order_item)
-            total_count = post.get(total_count_prefix + id_order_item)
-
-            if packing_ckb and packing_ckb.lower() == 'on':
-                quantity = int(packing_qtt)
-            elif remaining_ckb and remaining_ckb.lower() == 'on':
-                remaining_count = post.get(remaining_qtt_prefix + id_order_item)
-                quantity = int(total_count) - int(remaining_count)
-            else:
-                quantity = 0
-
-            content[id_order_item] = {'id_order_item': id_order_item,
-                                      'quantity': quantity}
-        for item in remaining_items:
-            id_order_item = item[len(remaining_ckb_prefix):]
-            if content.get(id_order_item):
-                continue
-
-            id_sale = post.get(sale_prefix + id_order_item)
-            assert id_sale is not None, "miss sale info of %s" % id_order_item
-
-            total_count = post.get(total_count_prefix + id_order_item)
-            remaining_count = post.get(remaining_qtt_prefix + id_order_item)
-            quantity = int(total_count) - int(remaining_count)
-            content[id_order_item] = {'id_order_item': id_order_item,
-                                      'quantity': quantity}
-
-        return content.values()
+        return content or None
 
     def update_packing(self, request):
         post = request.POST
 
         id_shipment = post.get('id_shipment')
-        id_shop = post.get('shop_for_' + id_shipment)
-        id_brand = post.get('brand_for_' + id_shipment)
+        id_shop = post.get('id_shop')
+        id_brand = post.get('id_brand')
 
         if not self.permission_check(id_shop, id_brand):
             raise InvalidRequestError("You have no priority to "
                                       "operate this shipment: %s" % id_shipment)
-
-        content = self.packing_items_content(post)
 
         sp_fee = post.get("shipping_fee") or None
         hd_fee = post.get("handling_fee") or None
@@ -782,7 +731,7 @@ class OrderUpdatePacking(BaseOrderPacking):
         tracking_name = post.get('tracking_name') or None
         shipping_carrier = post.get("shipping_carrier") or None
 
-        content = content or None
+        content = self.packing_items_content(post)
         sp_date = post.get('shipping_date') or None
 
         return send_update_shipment(
@@ -822,14 +771,8 @@ class OrderDeletePacking(BaseOrderPacking):
 
     def delete_packing(self, request):
         id_shipment = request.POST.get('id_shipment')
-        item_prefix = "pack_item_out_count_for_"
-
-        sale_prefix = "sale_for_"
-        shop_prefix = "shop_for_"
-        brand_prefix = "brand_for_"
-
-        id_shop = request.POST.get(shop_prefix + id_shipment)
-        id_brand = request.POST.get(brand_prefix + id_shipment)
+        id_shop = request.POST.get('id_shop')
+        id_brand = request.POST.get('id_brand')
         assert id_shop is not None, "miss shop info of %s" % id_shipment
         assert id_brand is not None, "miss brand info of %s" % id_shipment
 
@@ -837,29 +780,28 @@ class OrderDeletePacking(BaseOrderPacking):
             raise InvalidRequestError("You have no priority to "
                                       "operate shipment: %s" % id_shipment)
 
-        items = [key for key, _ in request.POST.iteritems()
-                 if key.startswith(item_prefix)]
-
-        # check merchant have permission to operate this shipment.
-        for item in items:
-            id_shipping_list = item[len(item_prefix):]
-
-            id_sale = request.POST.get(sale_prefix + id_shipping_list)
-            assert id_sale is not None, "miss sale info of %s" % id_shipping_list
-
         return send_delete_shipment(id_shipment, id_shop, id_brand)
 
 
 class OrderInvoices(View, TemplateResponseMixin):
-    template_name = "_order_invoices.html"
+    template_name = "_new_order_invoices.html"
 
-    def get(self, request, order_id):
+    def get(self, request, **kwargs):
+        order_id = kwargs.get('order_id')
+        shipment = kwargs.get('shipment')
         req_u_profile = request.user.get_profile()
         id_brand = req_u_profile.work_for.id
         shops_id = _get_req_user_shops(request.user)
 
         resp = remote_invoices(order_id, id_brand, shops_id)
         resp = ujson.loads(resp)
+
+
+        for invoice in resp['content']:
+            if int(invoice['id_shipment']) == int(shipment):
+                resp['invoice'] = invoice['html']
+                break
+
 
         self.obj = resp
         self.order_id = order_id

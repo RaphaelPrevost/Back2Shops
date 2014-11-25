@@ -1,0 +1,318 @@
+{% load i18n %}
+{% load is_auto_shipment %}
+{% load is_flat_rate %}
+{% load is_free_shipping %}
+{% load is_order_completed %}
+{% load has_delivered %}
+{% load is_shop_manager_upper %}
+{% load thumbnail %}
+{% load no_thumbnail %}
+
+
+
+    <!--ENSEMBLE EN DETAIL-->
+    <div id="detail">
+        <div class="detail">
+            <form id="formLivr_for_{{ shipment.id }}" class="packing_form" method="post">
+
+            <input type="hidden" name="id_shipment" value="{{ shipment.id }}" />
+            <input type="hidden"
+                   name="id_brand"
+                   value="{{ shipment.brand }}"/>
+            <input type="hidden"
+                   name="id_shop"
+                   value="{{ shipment.shop }}"/>
+
+            <div class="formLivr">
+                <!--PACKING-->
+                    <div class="packing">
+                        <em>
+                            {% if packing.deadline %}
+                                <span class="deadline">
+                                    {% trans "Deadline:" %}{{ packing.deadline.0 }} ({{ packing.deadline.1 }} {% trans 'working days left' %})
+                                </span>
+                            {% endif %}
+                        </em>
+
+                        <!--GROUP-PACKING-->
+                        <div class="group_packing">
+
+                            <!--ID-SHIPMENT-->
+                            <div id="shipment_{{ shipment.id }}">
+
+                                <!--PACKING-SHIPMENT-->
+                                <div class="packing_shipment">
+
+                                    <div class="packing_list_title">
+                                        <span class="status">{% trans "Status" %} : {{ shipment.delivery.status_desc }}</span>
+                                    </div>
+
+                                        <!--PACKING-INFOS-->
+                                        <div class="packing_info">
+                                            {% if not shipment.method|is_flat_rate %}
+                                                <div class="auto_shipping_carrier formrow">
+                                                    <label>{% trans "Carrier" %} : </label>
+
+                                                    <select id="shipping_carrier_for_shipment_{{ shipment.id }}"
+                                                            name="shipping_carrier"
+                                                            class="carrier_selector"
+                                                            for_shipment="{{ shipment.id }}"
+                                                            {% if shipment.method|is_auto_shipment or shipment.delivery.status|has_delivered %}
+                                                            disabled="true"
+                                                            {% endif %}>
+                                                        {% for op in carrier_options %}
+                                                            <option value="{{ op.value }}"
+                                                                    {% if op.value == shipment.shipping_carrier %}
+                                                                    selected="selected"
+                                                                    {% endif %}>
+                                                                {{ op.label }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+
+                                            {% endif %}
+
+
+                                            <div class="formrow">
+                                                <label>{% trans "Status:" %}</label>
+                                                <select id="packing_status_for_shipment_{{ shipment.id }}"
+                                                        name="packing_status"
+                                                        class="packing_status"
+                                                        {% if shipment.delivery.status|has_delivered %}
+                                                        disabled="true"
+                                                        {% endif %}
+                                                        for_shipment="{{ shipment.id }}">
+                                                    {% for op in packing.shipment_status %}
+                                                        <option value="{{ op.value }}"
+                                                                {% ifequal shipment.delivery.status op.value %}selected="selected"{% else %}{{ op.value }}{% endifequal %}
+                                                                >{{ op.label }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+
+                                            <br /><br />
+
+                                            <div class="outer_shipping_date formrow" id="outer_shipping_date_for_shipment_{{ shipment.id }}">
+                                                <label>{% trans "Shipping Date" %} : </label>
+                                                <span>
+                                                    <input class="shipping_date inputM"
+                                                           type="text"
+                                                           name="shipping_date"
+                                                           id="shipping_date_for_shipment_{{ shipment.id }}"
+                                                           value="{% if shipment.shipping_date %}{{ shipment.shipping_date }}{% endif %}"/>
+                                                </span>
+                                            </div>
+
+                                            <br />
+
+                                            {% if not shipment.method|is_flat_rate %}
+                                                <div class="outer_tracking_name formrow" id="outer_tracking_name_for_{{ shipment.id }}">
+                                                    <label>{% trans "Tracking name" %} : </label>
+                                                    <span>
+                                                    <input type="text"
+                                                           class="inputM"
+                                                           name="tracking_name"
+                                                           id="tracking_name_for_shipment_{{ shipment.id }}"
+                                                            {% if shipment.tracking_name %}
+                                                           value="{{ shipment.tracking_name }}"
+                                                            {% endif %} />
+
+                                                    </span>
+                                                </div>
+                                            {% endif %}
+
+                                            <div class="tracking_num formrow" id="outer_tracking_num_for_shipment_{{ shipment.id }}">
+                                                <label>{% trans "Tracking Number" %} : </label>
+                                                <input type="text"
+                                                       class="inputM"
+                                                       name="tracking_num"
+                                                       id="tracking_num_for_shipment_{{ shipment.id }}"
+                                                        {% if shipment.tracking_num %}
+                                                       value="{{ shipment.tracking_num }}"
+                                                       orig_value="{{ shipment.tracking_num }}"
+                                                        {% endif %}/>
+                                            </div>
+
+                                            <br />
+
+                                            <div class="shipping_fee formrow">
+                                                <label>{% trans "Shipping fee" %} : </label>
+                                                <span>
+                                                    <input type="text"
+                                                           name="shipping_fee"
+                                                           id="shipping_fee_for_shipment_{{ shipment.id }}"
+                                                           currency="{{ shipment.fees.shipping.currency }}"
+                                                            {% if shipment.method|is_auto_shipment or shipment.delivery.status|has_delivered %}
+                                                           readonly="true"
+                                                           disabled="true"
+                                                            {% endif %}
+                                                            {% if shipment.method|is_free_shipping %}
+                                                           value="0"
+                                                            {% elif shipment.fees.shipping %}
+                                                           value="{{ shipment.fees.shipping.value }}"
+                                                            {% endif %} />
+                                                </span>
+                                                <span>{{ shipment.fees.shipping.currency }}</span>
+                                            </div>
+                                            <div class="handling_fee formrow">
+                                                <label>{% trans "Handling fee" %} : </label>
+                                                <span>
+                                                    <input type="text"
+                                                           name="handling_fee"
+                                                           id="handling_fee_for_shipment_{{ shipment.id }}"
+                                                           currency="{{ shipment.fees.handling.currency }}"
+                                                            {% if shipment.method|is_auto_shipment or shipment.delivery.status|has_delivered %}
+                                                           readonly="true"
+                                                           disabled="true"
+                                                            {% endif %}
+                                                            {% if shipment.method|is_free_shipping %}
+                                                           value="0"
+                                                            {% elif shipment.fees.handling %}
+                                                           value="{{ shipment.fees.handling.value }}"
+                                                            {% endif %} />
+                                                </span>
+                                                <span>{{ shipment.fees.handling.currency }}</span>
+                                            </div>
+
+                                        </div>
+                                        <!--PACKING-INFOS-->
+
+                                </div>
+                                <!--//PACKING-SHIPMENT-->
+
+
+                            </div>
+                            <!--//ID-SHIPMENT-->
+
+                        </div>
+                        <!--//GROUP-PACKING-->
+
+                    </div>
+                    <!--//PACKING-->
+
+
+                    <div class="formrow rowbtn">
+                        {% if not packing.order_status|is_order_completed %}
+                            <button class="seefacture update update_shipment" for_shipment="{{ shipment.id }}" name="update_shipment" type="button">{% trans "Update" %}</button>
+                        {% endif %}
+                        <a class="seefacture invoice" href="{% url 'order_invoices_list' packing.order_id shipment.id %}" target="_blank">{% trans "Invoice" %}</a>
+
+                        {% if not packing.order_status|is_order_completed %}
+                        {% if user|is_shop_manager_upper %}
+                            <button class="seefacture delete delete_shipment"
+                                    for_shipment="{{ shipment.id }}"
+                                    for_order="{{ packing.order_id }}"
+                                    name="delete_shipment"
+                                    type="button">{% trans "Delete" %}</button>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+
+                </div>
+            </form>
+
+            <div class="prodLivr" id="prodLivr_for_{{ shipment.id }}">
+                {% for item in shipment.packing_list %}
+                    <form class="prod_sail_form">
+                    <div class="prodSail" id="packing_item_for_{{ item.id_order_item }}">
+                        <input type="hidden"
+                               name="id_order_item"
+                               value="{{ item.id_order_item}}"/>
+
+                        <a title="click to edit this sale" href="/sales/edit/{{ item.sale}}/product/" class="imgProd">
+                            <strong class="nbQuant {% if item.packing_quantity == item.quantity %}green_bg{% else %}red_bg{% endif %}">{{ item.packing_quantity }}</strong>
+                            {% thumbnail item.picture|no_thumbnail "40x40" as im %}
+                                <img width="40"
+                                     height="40"
+                                     alt='{% trans "Product picture Pochette 100% Laine roulottée main" %}'
+                                     src="{{ item.picture|no_thumbnail }}" style="margin:1px 0px 2px 0px"/>
+                            {% endthumbnail %}
+                        </a>
+                        <div>
+                            <h5>{{ item.name }}</h5>
+                            <span class="ref">{% trans 'ref' %} {{ item.external_id }}</span>
+                            <span class="qt">
+                                {% trans 'Quantité' %} : <input type="text"
+                                                                class="packing_item_out_count"
+                                                                name="quantity"
+                                                                id="packing_item_out_count_for_{{ item.id_order_item }}"
+                                                                for_item="{{ item.id_order_item }}"
+                                                                value="{{ item.packing_quantity }}"
+                                                                {% if shipment.method|is_auto_shipment or shipment.delivery.status|has_delivered %}
+                                                                    readonly="true"
+                                                                    disabled="true"
+                                                                {% endif %}
+                                                                total_count="{{ item.quantity }}"/><strong class="{% if item.packing_quantity == item.quantity %}green_text{% else %}red_text{% endif %}"> / {{ item.quantity }}</strong></span>
+                            <span>{% trans "Barcode" %} : {{ item.barcode|default:"-" }}</span>
+                        </div>
+
+                    </div>
+                    </form>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $(".shipping_date").datepicker('destroy').datepicker();
+
+        function carrier_selector_change(selector) {
+            var for_shipment = $(selector).attr('for_shipment');
+            var outer_tracking_name = $("#outer_tracking_name_for_" + for_shipment);
+            var tracking_name = $("#tracking_name_for_" + for_shipment);
+            var sel=$(selector).val();
+
+            if (sel == 0 || sel == -1) {
+                tracking_name.val("");
+                outer_tracking_name.show();
+            } else {
+                tracking_name.val($(selector).find("option:selected").text());
+                outer_tracking_name.hide();
+            }
+        }
+
+        $(".carrier_selector").change(function(){
+           carrier_selector_change($(this))
+        });
+
+        function packing_status_change(selector) {
+            var status = $(selector).val();
+            var id_shipment = $(selector).attr('for_shipment');
+            var outer_tracking_num = $('#outer_tracking_num_for_shipment_' + id_shipment);
+            var outer_shipping_date = $("#outer_shipping_date_for_shipment_" + id_shipment);
+
+            if (parseInt(status) == 1) {
+                outer_shipping_date.hide();
+            } else {
+                outer_shipping_date.show();
+            }
+
+            // if select DELIVER, show tracking number input
+            if (parseInt(status) == 3) {
+                outer_tracking_num.show();
+            } else {
+                outer_tracking_num.hide();
+                var tracking_num = $('#tracking_num_for_' + id_shipment);
+                var orig_value = tracking_num.attr('orig_value');
+                orig_value = orig_value || "";
+                tracking_num.val(orig_value);
+            }
+        }
+
+        $(".packing_status").change(function(){
+            packing_status_change($(this));
+        });
+
+        function init() {
+            var id_shipment = "{{ shipment.id }}";
+            var sp_carrier = $('#shipping_carrier_for_shipment_' + id_shipment);
+            var packing_status = $('#packing_status_for_shipment_' + id_shipment);
+            carrier_selector_change(sp_carrier);
+            packing_status_change(packing_status);
+        }
+
+        init();
+    });
+</script>

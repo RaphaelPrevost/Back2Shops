@@ -189,7 +189,6 @@ def order_iv_sent_status(conn, order_id, id_brand, id_shops):
 
     od_qty = query(conn, od_qty_query, params)[0][0]
 
-
     if od_qty - pk_qty > 0:
         return ORDER_IV_SENT_STATUS.WAITING_SPM_CREATE
     else:
