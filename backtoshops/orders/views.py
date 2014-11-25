@@ -686,15 +686,6 @@ class OrderUpdatePacking(BaseOrderPacking):
 
     def packing_items_content(self, post):
         '''
-        @param post:
-            id_shipment
-            shop_for_$id_shipment
-
-            remaining_item_ckb_$id_shipping_list
-            remaining_item_choose_$id_shipping_list
-            sale_for_$id_shipping_list
-
-            should in post dict
         @return: remaining items list in post request.
             [{'id_order_item': xxx,
               'quantity': xxx} ...]

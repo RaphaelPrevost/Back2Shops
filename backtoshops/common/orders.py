@@ -1,15 +1,12 @@
 import settings
 import logging
 import ujson
-import urllib
 
-from collections import defaultdict
 from B2SCrypto.constant import SERVICES
 from B2SCrypto.utils import gen_encrypt_json_context
 from B2SCrypto.utils import get_from_remote
 from common.error import UsersServerError
 from countries.models import Country
-from B2SProtocol.constants import SHIPMENT_STATUS
 
 def send_shipping_fee(id_shipment, id_postage, shipping_fee):
     try:
