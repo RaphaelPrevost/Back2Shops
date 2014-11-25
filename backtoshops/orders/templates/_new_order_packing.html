@@ -1,0 +1,31 @@
+{% load i18n %}
+
+<div class="tabs">
+<ul>
+    {% for shipment in packing.shipments.packing_shipments %}
+        <li><a href="#tabs1-{{ shipment.id }}">{% trans 'Livraison' %} {{ shipment.id }}</a></li>
+    {% endfor %}
+    {% if packing.shipments.remaining_shipments %}
+        <li><a href="#tabs1-{{ packing.order_id }}-0">{% trans 'Left to ship' %}</a></li>
+    {% endif %}
+</ul>
+
+{% if packing.shipments.packing_shipments %}
+    {% include "_new_shipment_grouping.html" %}
+{% endif %}
+{% if packing.shipments.remaining_shipments %}
+    {% include "_new_shipment_remaining.html" %}
+{% endif %}
+
+</div>
+
+<script type="text/javascript">
+    $(function () {
+
+        $(".tabs").tabs({
+            active: false,
+            collapsible: true
+        });
+    });
+
+</script>

@@ -3,10 +3,13 @@ import logging
 import ujson
 import urllib
 
+from collections import defaultdict
 from B2SCrypto.constant import SERVICES
 from B2SCrypto.utils import gen_encrypt_json_context
 from B2SCrypto.utils import get_from_remote
 from common.error import UsersServerError
+from countries.models import Country
+from B2SProtocol.constants import SHIPMENT_STATUS
 
 def send_shipping_fee(id_shipment, id_postage, shipping_fee):
     try:
@@ -30,6 +33,36 @@ def send_shipping_fee(id_shipment, id_postage, shipping_fee):
                       exc_info=True)
 
 
+def _populate_order_info(order):
+    for id_order, order_detail in order.iteritems():
+        search_options = []
+        shipping_dest = order_detail['shipping_dest']
+        country_code = shipping_dest['country']
+        country = Country.objects.get(iso=country_code)
+        shipping_dest['country_iso'] = country.iso
+        shipping_dest['country_iso3'] = country.iso3
+        shipping_dest['country_name'] = country.name
+        shipping_dest['country_printable_name'] = country.printable_name
+        shipping_dest['country_numcode'] = country.numcode
+
+        search_options.append(shipping_dest['full_name'])
+        search_options.append(shipping_dest['address'])
+        search_options.append(shipping_dest['address2'])
+
+        user_info = order_detail['user_info']
+        search_options.append(user_info['email'])
+
+        contact_phone = order_detail['contact_phone']
+        search_options.append(contact_phone['phone_num'])
+
+        order_items = order_detail['order_items']
+        for id_item, item_detail in order_items:
+            search_options.append(item_detail['name'])
+
+        options = [item for item in search_options
+                   if item != None and item != ""]
+        order_detail['search_options'] = options
+
 def get_order_list(brand_id, shops_id=None):
     try:
         order_url = '%s?brand_id=%s' % (settings.ORDER_LIST_URL, brand_id)
@@ -41,7 +74,10 @@ def get_order_list(brand_id, shops_id=None):
             settings.PRIVATE_KEY_PATH,
             headers={'Content-Type': 'application/json'}
         )
-        return ujson.loads(data)
+        orders = ujson.loads(data)
+        for order in orders:
+            _populate_order_info(order)
+        return orders
     except Exception, e:
         logging.error('Failed to get order list from usr servers',
                       exc_info=True)

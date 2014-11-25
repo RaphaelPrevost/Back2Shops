@@ -49,6 +49,20 @@
                 <item sale="{{ shipping.id_sale }}" id_order_item="{{ shipping.id_item }}">
                     <name>{{ shipping.sale_item.name }}</name>
                     <currency>{{ shipping.currency }}</currency>
+                    <external_id>
+                        {% if shipping.external_id %}
+                            {{ shipping.external_id }}
+                        {% endif %}</external_id>
+                    <barcode>
+                        {% if shipping.barcode %}
+                            {{ shipping.barcode }}
+                        {% endif %}
+                    </barcode>
+                    <picture>
+                        {% if shipping.picture %}
+                            {{ shipping.picture }}
+                        {% endif %}
+                    </picture>
                     {% if shipping.sale_item.sel_weight_type %}
                         <type id="{{ shipping.sale_item.type.id }}">
                             <name>{{ shipping.sale_item.type.name }}</name>

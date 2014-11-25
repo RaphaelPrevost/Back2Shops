@@ -9,6 +9,7 @@
     <title>{% block title %}{% trans "Backoffice" %}{% endblock %}</title>
 
     <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/new_main.css" />
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/flag.css" />
     <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/loading_overlay.css" />
     <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/jquery.jqplot.min.css" />
     {% if not user.is_authenticated %}
@@ -23,7 +24,6 @@ ss/login.css" />
     <script type="text/javascript" src="{{ STATIC_URL }}js/jqplot.canvasAxisTickRenderer.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/jqplot.categoryAxisRenderer.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/loading-overlay.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/smooth-scrolling.js"></script>
 
 
     <!--[if IE]><link rel="stylesheet" media="screen" href="css/IE.css" /><![endif]-->
@@ -73,6 +73,10 @@ ss/login.css" />
         		$("#language_form").submit()
         	});
         });
+
+        $(document).ready(function() {
+		});
+
 
     </script>
 

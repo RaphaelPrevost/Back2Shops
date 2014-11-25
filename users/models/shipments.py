@@ -942,6 +942,9 @@ SHIPPING_ITEM_FIELDS = [
     ('sel_variant', 'oi.variant_detail'),
     ('sel_weight_type', 'oi.weight_type_detail'),
     ('item_detail', 'oi.item_detail'),
+    ('external_id', 'oi.external_id'),
+    ('barcode', 'oi.barcode'),
+    ('picture', 'oi.picture'),
     ]
 
 def get_shipping_list(conn, id_shipment):

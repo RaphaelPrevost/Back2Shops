@@ -614,7 +614,7 @@ class SalesFindProxy:
         return SALES_QUERY % query
 
     def parse_xml(self, xml):
-        sales = sales_cache_proxy.parse_xml(xml, False)
+        sales = sale_cache_proxy.parse_xml(xml, False)
         return sales.keys()
 
 sale_cache_proxy = SalesCacheProxy()
