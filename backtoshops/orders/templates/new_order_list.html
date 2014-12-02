@@ -6,14 +6,11 @@
     <META HTTP-EQUIV="Expires" CONTENT="-1">
     <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/new-order-list.css" />
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.form.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.11.1.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.ui.autocomplete.html.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.ui.datepicker-fr.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/fileupload/jquery.iframe-transport.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/fileupload/jquery.fileupload.js"></script>
-    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/ui-lightness/jquery-ui-1.8.16.custom.css" />
-    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
-	<script src="//code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -41,10 +38,8 @@
             <ul id="order-status-tabs">
                 {% for tab in status_tabs %}
                     <li>
-                        <a href="#megatabs{{ tab.status }}"
-                           status_code="{{ tab.status }}"
-                           {% if tab.status == status %}selected{% endif %}
-                           class="order_tab {{ tab.class }} {% if tab.status == status %}selected{% endif %}">
+                        <a status_code="{{ tab.status }}"
+                           class="order_tab order_base_tab {{ tab.class }} {% if tab.status == status %}selected{% endif %}">
                            {{ tab.name }}
                         </a>
                     </li>
@@ -54,7 +49,7 @@
 
             <div class="clear"></div>
             <!--MEGATABS1-->
-            <div class="megatab" id="megatabs1">
+            <div class="megatab">
 
                 <!--SELECT TRIER PAR-->
                 <p id="triVente">
@@ -75,190 +70,90 @@
                     </span>
                 </p>
                 <!--FIN SELECT TRIER PAR-->
-
-
-
-                {% for order_dict in page.object_list %}
-                {% for order_id, order in order_dict.items %}
-                {{ order.order_items.0.values.picture }}
-                {{ order.order_items.0.values.thumbnail_img }}
-                <!--VENTE-->
-                <div class="vente" id="vente_{{ order_id }}" order="{{ order_id }}">
-
-
-                    <!--INFOS VENTE-->
-                    <div class="content">
-                        <a class="delete" href="#">[X]</a>
-                        <!--<a class="imgProd" href="#">
-                            <img style='margin:1px 0px 2px 0px' srchi"http://37.187.48.33/site_media/cache/8a/2a/8a2a0b6475ec3c8db30230ef174da37a.jpg" alt='Product picture' width="40" height="40"/>
-                        </a>-->
-
-                        <div class="address_area">
-                            <strong>{{ order.shipping_dest.full_name|default:"No receiver name" }}</strong>
-                            <span class="adress">{{ order.shipping_dest.address|default:"No shipment address for order? " }}</span>
-                            <span class="adress">
-                                {% if order.shipping_dest.address2 %}
-                                    {{ order.shipping_dest.address2 }}
-                                {% else %} &nbsp;
-                                {% endif %}
-                            </span>
-                            <strong class="city">{{ order.shipping_dest.city }}</strong><span class="cp">{{ order.shipping_dest.postalcode }}</span>
-                            <strong class="pays {{ order.shipping_dest.country_iso|lower }}">{{ order.shipping_dest.country_name }}</strong>
-                        </div>
-
-                        <span class="phone_num {{ order.shipping_dest.country_iso|lower }}"> (+ {{ order.shipping_dest.country_numcode }}) {{ order.contact_phone.phone_num }} </span>
-
-                    </div>
-
-
-                    <div class="prix">
-                        <span class="status-pending-blue">&nbsp;</span>
-                        <span class="status-next">&nbsp;</span>
-                        <span class="status-payment-gray">&nbsp;</span>
-                        <span class="status-next">&nbsp;</span>
-                        <span class="status-shipping-gray">&nbsp;</span>
-                    </div>
-                    <p class="confirme_time">
-                        {% trans ' Order submitted' %} : <strong class="conf_time" conf_time={{ order.confirmation_time }}></strong>
-                    </p>
-
-                    <div class="clear"></div>
-
-                    <div class="packing_detail" order="{{ order_id }}" url="{% url 'order_packing_list' order_id %}">
-                    </div>
-
-                </div>
-                <!--FIN VENTE-->
-
-                {% endfor %}
-                {% endfor %}
-
             </div>
-			<!--//MEGATABS1-->
+            <!--//MEGATABS1-->
         </fieldset>
         </div>
         <!--//MEGA-TAB-->
     </form>
 
-
-
-    {% if page.paginator.num_pages > 1%}
-        <div class="pag_nav">
-        <span class="page_info">
-        {% blocktrans with number=page.number num_pages=page.paginator.num_pages %}
-            Page <input type="text" value="{{ number }}" id="page_num"> of {{ num_pages }} pages.
-        {% endblocktrans %}
-    </span>
-        <span class="page_size">
-            {% trans '(' %}
-            <select id="page_size" name="page_size">
-                {% for page_size in choice_page_size %}
-                    <option value="{{ page_size }}" {% if current_page_size == page_size %}selected="selected"{% endif %}>{{ page_size }}</option>
-                {% endfor %}
-            </select>
-            {% trans ' elements/page )' %}
-        </span>
-            <div class="page_ico">
-                <a href="javascript:redirect('page', 1);" class="pagination prev2">|<</a>
-                <a href="javascript:redirect('page', {{ prev_10 }});" class="pagination prev1"><</a>
-                {% for page_num in page_nav %}
-                    {% if page.number != page_num %}
-                        <a href="javascript:redirect('page', {{ page_num }});" class="pagination">{{ page_num }}</a>
-                        {% else %}<span class="pagination current">{{ page_num }}</span>{% endif %}
-                {% endfor %}
-                <a href="javascript:redirect('page', {{ next_10 }});" class="pagination next1">></a>
-                <a href="javascript:redirect('page', {{ page.paginator.num_pages}});" class="pagination next2">>|</a>
-            </div>
-        </div>
-    {% endif %}
-
-</div>
+    <div id="order_vente">
+        {% include "order_vente.html" %}
+    </div>
 
 <div class="clear"></div>
 
+<div class="template hidden">
+    <div id="order_search_tab">
+        <li>
+            <a status_code=""
+               id=""
+               query=""
+               class="order_tab results order_search_tab">
+                <span class='search'></span>
+                <span href="#" class="delete">[X]</span>
+            </a>
+        </li>
+    </div>
+</div>
 {% endblock %}
 
 {% block javascript %}
+
     <script type="text/javascript">
-        $(document).ready(function(){
-            $('.conf_time').each(function(){
-                var utc_sec = $(this).attr('conf_time');
-                var d = new Date(0);
-                d.setUTCSeconds(utc_sec);
-
-                var year = d.getFullYear();
-                var month = d.getMonth() + 1;
-                var date = d.getDate();
-                var hour = d.getHours();
-                var min = d.getMinutes();
-                $(this).html(date+"/"+month+"/"+year+" "+hour+":"+min);
-            });
-        });
-
         $(function() {
-            $(".order_tab").click(function(){
+            function sel_mega_tab(node, status){
+                $('#order-status-tabs .selected').removeClass('selected');
+                $(node).addClass('selected');
+                $("#{{ form.status.auto_id }}").val(status);
+            }
+
+            $(".order_base_tab").click(function(){
                 var code = $(this).attr("status_code");
                 if (code == $("#{{ form.status.auto_id }}").val()) return;
-                $("#{{ form.status.auto_id }}").val(code);
-                $("#main_form").submit();
-            });
+                sel_mega_tab($(this), code);
 
-            $(".find").click(function(){
-                if ($('input[name=search]').val() == "") return;
-                $("#{{ form.status.auto_id }}").val("search");
-                $("#main_form").submit();
-            });
+                var data = $("#main_form").serialize();
 
-            //set page size
-            $("#page_size").change(function(event){
-                redirect('page_size', $(this).val());
-            });
-
-            //go specific page by input
-            $("#page_num").keypress(function(event){
-                if(event.which == 13){ //'enter' key
-                    var page_num = $(this).val();
-                    if(!isNaN(page_num)&&parseInt(page_num)==page_num)
-                    {
-                        redirect('page', page_num);
+                $.ajax({
+                    type: 'GET',
+                    url: '/orders/vente',
+                    data: data,
+                    success: function(content, status) {
+                        $('#order_vente').html(content);
                     }
-                    else
-                    {
-                        alert("{% trans "Please enter a valid page number." %}");
-                    }
-                }
-
-            });
-        });
-
-        function redirect(param, value) {
-            url = '{{request.path}}?' + param + '=' + value;
-            if (param != '{{form.status.html_name}}')
-                url += '&{{form.status.html_name}}={{form.status.value}}';
-            if (param != '{{form.order_by1.html_name}}')
-                url += '&{{form.order_by1.html_name}}={{form.order_by1.value}}';
-            if (param != '{{form.order_by2.html_name}}')
-                url += '&{{form.order_by2.html_name}}={{form.order_by2.value}}';
-            if (param != '{{form.page.html_name}}')
-                url += '&{{form.page.html_name}}={{form.page.value}}';
-            if ($("#{{ form.status.auto_id }}").val() == 'search')
-                url += '&search=' + $('input[name=search]').val();
-            location.href = url;
-        }
-
-        function loading_packing_detail(){
-            $(".packing_detail").each(function(){
-                var url = $(this).attr('url');
-                $(this).load(url, function(){
-                    $(".tabs1").hide();
                 });
             });
 
-        }
+            $(".find").click(function(){
+                var query = $('input[name=search]').val();
+                if (query == "") return;
+                $("#{{ form.status.auto_id }}").val("search");
 
-        loading_packing_detail();
 
-        //$( ".magatabs" ).tabs({});
+                var data=$("#main_form").serialize();
+
+                $.ajax({
+                    type: 'GET',
+                    url: '/orders/vente',
+                    data: data,
+                    success: function(content, status) {
+                        var search_tab = $("#search_" + query);
+                        if (search_tab.length == 0) {
+                            var tab = $($("#order_search_tab").html());
+                            var search_tab = $('a', tab);
+                            search_tab.attr('status_code', 'search');
+                            search_tab.attr('query', query);
+                            search_tab.attr('id', "search_" + query);
+                            $('.search', search_tab).html(query);
+                            $("#order-status-tabs").append(tab);
+                        }
+                        sel_mega_tab(search_tab, 'search');
+                        $('#order_vente').html(content);
+                    }
+                });
+            });
+        });
 
     </script>
 {% endblock %}

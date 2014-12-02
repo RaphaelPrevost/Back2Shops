@@ -31,6 +31,84 @@
                            value="{{ shipment.shop }}"/>
                     <!--PACKING-->
                     <div class="packing_info">
+                        <div class="shipping_carrier formrow">
+                            <label>{% trans "Carrier" %} : </label>
+
+                            <select name="shipping_carrier"
+                                    for_shop="{{ shipment.shop }}"
+                                    for_order="{{ packing.order_id }}"
+                                    class="carrier_selector">
+                                {% for op in carrier_options %}
+                                    <option value="{{ op.value }}">
+                                        {{ op.label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="formrow">
+                            <label>{% trans "Status:" %}</label>
+                            <select name="packing_status"
+                                    for_shop="{{ shipment.shop }}"
+                                    for_order="{{ packing.order_id }}"
+                                    class="packing_status">
+                                {% for op in packing.shipment_status %}
+                                    <option value="{{ op.value }}">{{ op.label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <br />
+
+                        <input type="hidden" name="shipping_service"/>
+                        {% for service in service_options %}
+                            <div class="shipping_service formrow hidden" for_carrier="{{ service.0 }}">
+                                <label>{% trans "Service" %} : </label>
+
+                                <select name="service_selector"
+                                        for_shop="{{ shipment.shop }}"
+                                        for_order="{{ packing.order_id }}"
+                                        class="service_selector">
+                                    {% for op in service.1 %}
+                                        <option value="{{ op.value }}">
+                                            {{ op.label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endfor %}
+                        <br />
+
+                        <div class="outer_shipping_date formrow">
+                            <label>{% trans "Shipping Date" %} : </label>
+                            <span>
+                                <input class="shipping_date inputM"
+                                       type="text"
+                                       name="shipping_date"
+                                       value=""/>
+                            </span>
+                        </div>
+
+                        <br />
+
+                        <div class="tracking_name formrow">
+                            <label>{% trans "Tracking name" %} : </label>
+                            <span>
+                                <input type="text"
+                                       class="inputM"
+                                       name="tracking_name"/>
+                            </span>
+                        </div>
+
+                        <div class="tracking_num formrow">
+                            <label>{% trans "Tracking Number" %} : </label>
+                            <input type="text"
+                                   class="inputM"
+                                   name="tracking_num"/>
+                        </div>
+
+                        <br />
+
                         <div class="manual_shipping_fee shipping_fee formrow">
                             <label>{% trans "Shipping fee" %}: </label>
                             <span>
@@ -62,14 +140,20 @@
 
 
                 <div class="prodLivr" id="shop_prod_livr_{{ packing.order_id }}_{{ shipment.shop }}">
-                    {% for item in shipment.remaining_list %}
-                        <form class="prod_sail_form">
+                    {% for item in shipment.packing_list %}
+                        <form class="prod_sail_form" for_item={{ item.id_order_item }}>
                         <input type="hidden"
                                name="id_order_item"
                                value="{{ item.id_order_item }}"/>
+                        <input type="hidden"
+                                name="weight"
+                                value="{{ item.weight.value }}"/>
+                        <input type="hidden"
+                                name="weight_unit"
+                                value="{{ item.weight.unit }}"/>
                         <div class="prodSail">
                             <a title="click to edit this sale" href="/sales/edit/{{ item.sale}}/product/" class="imgProd">
-                                <strong class="nbQuant red_bg">{{ item.packing_quantity }}</strong>
+                                <strong class="nbQuant red_bg">{{ item.remaining_quantity }}</strong>
                                 {% thumbnail item.picture|no_thumbnail "40x40" as im %}
                                     <img width="40"
                                          height="40"
@@ -83,7 +167,13 @@
                             <span class="qt">
                                 {% trans 'Quantité' %} : <input type="text"
                                                                 name="quantity"
-                                                                value="{{ item.packing_quantity}}" /><strong class="red_text"> / {{ item.quantity }}</strong></span>
+                                                                class="quantity packing_item_count"
+                                                                for_item="{{ item.id_order_item }}"
+                                                                for_shop="{{ shipment.shop }}"
+                                                                for_order="{{ packing.order_id }}"
+                                                                orig="{{ item.packing_quantity }}"
+                                                                remaining="{{ item.remaining_quantity }}"
+                                                                value="{{ item.packing_quantity}}" /><strong class="red_text total_mark"> / {{ item.quantity }}</strong></span>
                                 <span>{% trans "Barcode" %} : {{ item.barcode|default:"-" }}</span>
                             </div>
                         </div>
@@ -101,6 +191,162 @@
 </div>
 
 <script type="text/javascript">
+
+    $(document).ready(function(){
+        $(".shipping_date").datepicker('destroy').datepicker();
+
+        function disable_input(ele) {
+            $(ele).attr('disabled', true);
+            $(ele).attr('readonly', true);
+        }
+
+        function enable_input(ele) {
+            $(ele).attr('disabled', false);
+            $(ele).attr('readonly', false);
+        }
+
+        function carrier_selector_change(selector) {
+            var shop = $(selector).attr('for_shop');
+            var order = $(selector).attr('for_order');
+            var form = $("form#shop_form_livr_" + order + "_" + shop);
+            var tracking_name = $("input[name=tracking_name]", form);
+            var sel=$(selector).val();
+
+            if (sel == 0 || sel == -1) {
+                tracking_name.val("");
+                tracking_name.parent().parent().show();
+            } else {
+                tracking_name.val($(selector).find("option:selected").text());
+                tracking_name.parent().parent().hide();
+            }
+
+            var shipping_fee = $("input[name=shipping_fee]", form);
+            var handling_fee = $("input[name=handling_fee]", form);
+            $(".shipping_service", form).hide();
+            if (sel != -1) {
+                enable_input(shipping_fee);
+                enable_input(handling_fee);
+            }
+            if (sel == -1) {
+                shipping_fee.val(0);
+                handling_fee.val(0);
+                disable_input(shipping_fee);
+                disable_input(handling_fee)
+            } else if(sel == 0) {
+                shipping_fee.val("");
+                handling_fee.val("");
+                enable_input(shipping_fee);
+                enable_input(handling_fee);
+            } else {
+                var service_selector = $(".shipping_service[for_carrier=" + sel + "]");
+                service_selector.show();
+                var service = $('select', service_selector).val();
+                $('input[name=shipping_service]', form).val(service);
+                calc_shipping_fee(order, shop);
+                enable_input(handling_fee);
+                disable_input(shipping_fee);
+            }
+        }
+
+        function is_auto_carrier(order, shop) {
+            var carrier = $("select[name=shipping_carrier]" +
+                                  "[for_shop=" + shop + "]" +
+                                  "[for_order=" + order + "]").val();
+
+            carrier = parseInt(carrier);
+            if (carrier == -1 || carrier == 0) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        function calc_shipping_fee(order_id, shop_id) {
+            if (!is_auto_carrier(order_id, shop_id)) return;
+
+            var prod = $("#shop_prod_livr_" +  order_id + "_" + shop_id);
+            var form = $("form#shop_form_livr_" + order_id + "_" + shop_id);
+            var data = form.serialize();
+            var addr_dest = $("#shipping_dest_for_" + order_id).serialize();
+            if ( !data ) return;
+            data += "&" + $.param({"addr_dest": addr_dest});
+
+            $(".prod_sail_form", prod).each(function(){
+                var prod=$(this).serialize();
+                data += "&" + $.param({"item": prod});
+            });
+
+            $.ajax({
+                type: 'GET',
+                url: "/orders/packing/fee",
+                data: data,
+                success: function(data, status) {
+                    if (status == 'success') {
+                        $('input[name=shipping_fee]').val(data);
+                    } else {
+                        $('input[name=shipping_fee]').val("");
+                    }
+                }
+            });
+        }
+
+        $(".carrier_selector").change(function(){
+            carrier_selector_change($(this))
+        });
+
+        $(".service_selector").change(function(){
+            var shop = $(selector).attr('for_shop');
+            var order = $(selector).attr('for_order');
+            var form = $("form#shop_form_livr_" + order + "_" + shop);
+
+            $('input[name=shipping_service]', form).val($(this).val());
+            calc_shipping_fee(order, shop);
+        });
+
+        function packing_status_change(selector) {
+            var shop = $(selector).attr('for_shop');
+            var order = $(selector).attr('for_order');
+            var form = $("form#shop_form_livr_" + order + "_" + shop);
+
+            var status = $(selector).val();
+            var tracking_num = $(".tracking_num", form);
+            var shipping_date = $(".outer_shipping_date", form);
+
+            if (parseInt(status) == 1) {
+                shipping_date.hide();
+            } else {
+                shipping_date.show();
+            }
+
+            // if select DELIVER, show tracking number input
+            if (parseInt(status) == 3) {
+                tracking_num.show();
+            } else {
+                tracking_num.hide();
+            }
+        }
+
+        $(".packing_status").change(function(){
+            packing_status_change($(this));
+        });
+
+        function init() {
+            $(".carrier_selector").each(function() {
+                carrier_selector_change($(this));
+            });
+
+            $(".packing_status").each(function() {
+                packing_status_change($(this));
+            });
+
+            $(".shipping_service").hide();
+            $(".shipping_service[for_carrier=1]").show();
+        }
+
+        init();
+    });
+
+
 $(function () {
     $('.save').off('click').on('click', function(){
         var shop = $(this).attr('for_shop');
@@ -108,6 +354,11 @@ $(function () {
 
         var form = $("#shop_form_livr_" + order + "_" + shop);
         var data = form.serialize();
+        $('input[disabled=disabled]', form).each(function(){
+            var p = {};
+            p[$(this).attr('name')] = $(this).val();
+            data += "&" + $.param(p);
+        });
 
         var prod = $("#shop_prod_livr_" + order + "_" + shop);
         var packing = false;

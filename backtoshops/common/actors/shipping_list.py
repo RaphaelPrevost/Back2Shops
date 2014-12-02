@@ -98,6 +98,7 @@ class ActorItem(BaseActor):
                  'barcode': 'barcode',
                  'picture': 'picture',
                  'packing_quantity': 'packing_quantity',
+                 'remaining_quantity': 'remaining_quantity',
                  'shipping_status': 'shipping_status',
                  'id_order_item': "@id_order_item"}
     @property
@@ -117,10 +118,6 @@ class ActorItem(BaseActor):
     @property
     def weight(self):
         return ActorWeight(data=self.data.get('weight'))
-
-    @property
-    def remaining_quantity(self):
-        return int(self.quantity) - int(self.packing_quantity)
 
 
 class ActorShipment(BaseActor):

@@ -1,30 +1,7 @@
-import ujson
-
-from B2SUtils.db_utils import join
+from B2SUtils.db_utils import query
 from B2SUtils.db_utils import select
 from common.error import UserError
 from common.error import ErrorCode as E_C
-
-
-def get_user_address(conn, user_id):
-    # {'address': {add_1_id: {...},
-    #              add_2_id: {...}
-    #              ...}
-    # }
-    user_address_dict = {'address': {}}
-
-    columns = ['users_address.id', 'addr_type', 'address', 'city',
-               'postal_code', 'country_code', 'province_code', 'address_desp',
-               'address2', 'full_name']
-    results = join(conn, ['users, users_address'],
-                   where={'users.id': user_id, 'valid': True},
-                   columns=columns)
-
-    for result in results:
-        u_addr_id = result[0]
-        addr_dict = dict(zip(columns[1:], result[1:]))
-        user_address_dict['address'].update({u_addr_id: addr_dict})
-    return user_address_dict
 
 
 def get_user_phone_num(conn, user_id, id_phone=None):
@@ -69,6 +46,19 @@ def get_user_profile(conn, user_id):
     user_profile.update({'email': get_user_email(conn, user_id)})
     return user_profile
 
+
+ADDR_FIELDS_COLUMNS = [
+    ('id', 'users_address.id'),
+    ('address', 'users_address.address'),
+    ('address2','users_address.address2'),
+    ('city','users_address.city'),
+    ('country','users_address.country_code'),
+    ('province','users_address.province_code'),
+    ('postalcode','users_address.postal_code'),
+    ('full_name', 'users_address.full_name'),
+    ('calling_code', 'country_calling_code.calling_code'),
+
+]
 def get_user_address(conn, user_id, addr_id=None):
     """
     @param conn: database connection
@@ -84,19 +74,35 @@ def get_user_address(conn, user_id, addr_id=None):
                'full_name': ...},
                ...]
     """
-    columns = ['id', 'address', 'city', 'country_code', 'province_code',
-               'postal_code', 'address2', 'full_name']
+    fields, columns = zip(*ADDR_FIELDS_COLUMNS)
 
-    where = {'users_id': user_id}
+    where = "WHERE users_id = %s "
+    params = [user_id]
     if addr_id:
-        where['id'] = addr_id
-    results = select(conn,
-                     'users_address',
-                     where=where,
-                     columns=columns,
-                     order=('id',))
+        where += "AND id = %s "
+        params.append(addr_id)
 
-    return [dict(zip(columns, result)) for result in results]
+    query_str = (
+        "SELECT %s "
+          "FROM users_address "
+          "LEFT JOIN country_calling_code "
+            "ON users_address.country_code = country_calling_code.country_code "
+            "%s"
+      "ORDER BY users_address.id"
+    ) % (", ".join(columns), where)
+
+    results = query(conn, query_str, params=params)
+
+    customer_name = None
+    addrs = [dict(zip(fields, result)) for result in results]
+    for addr in addrs:
+        if not addr['full_name']:
+            if not customer_name:
+                profile = get_user_profile(conn, user_id)
+                customer_name = ' '.join([profile['first_name'],
+                                          profile['last_name']])
+            addr['full_name'] = customer_name
+    return addrs
 
 def get_user_dest_addr(conn, id_user, id_addr=None):
     """
@@ -114,15 +120,7 @@ def get_user_dest_addr(conn, id_user, id_addr=None):
     if not user_address:
         raise UserError(E_C.UR_NO_ADDR[0],
                         E_C.UR_NO_ADDR[1] % (id_user, id_addr))
-    user_address = user_address[0]
-    address = {'address': user_address['address'],
-               'address2': user_address.get('address2', ''),
-               'city': user_address['city'],
-               'country': user_address['country_code'],
-               'province': user_address['province_code'],
-               'postalcode': user_address['postal_code'],
-               'full_name': user_address['full_name']}
-    return address
+    return user_address[0]
 
 def get_user_email(conn, id_user):
     where = {'id': id_user}

@@ -35,6 +35,10 @@ def create_shipment(conn, id_order, id_brand, id_shop,
                     handling_fee=None,
                     shipping_fee=None,
                     supported_services=None,
+                    shipping_date=None,
+                    shipping_carrier=None,
+                    tracking_name=None,
+                    tracking_num=None,
                     calculation_method=None):
     sm_values = {
         'id_order': id_order,
@@ -47,18 +51,28 @@ def create_shipment(conn, id_order, id_brand, id_shop,
     if calculation_method is not None:
         sm_values['calculation_method'] = calculation_method
 
+    if tracking_name is not None:
+        sm_values['tracking_name'] = tracking_name
+
+    if tracking_num is not None:
+        sm_values['mail_tracking_number'] = tracking_num
 
     if isinstance(supported_services, str):
         supported_services = ujson.loads(supported_services)
 
     if supported_services and len(supported_services) == 1:
         sm_values['shipping_carrier'] = int(supported_services.values()[0])
+    elif shipping_carrier is not None:
+        sm_values['shipping_carrier'] = shipping_carrier
 
     if (status == SHIPMENT_STATUS.FETCHED or
         calculation_method == SHIPPING_CALCULATION_METHODS.FREE_SHIPPING):
         sm_values['shipping_carrier'] = FREE_SHIPPING_CARRIER
         shipping_fee = 0
         handling_fee = 0
+
+    if shipping_date is not None:
+        sm_values['shipping_date'] = shipping_date
 
     sm_id = insert(conn, 'shipments', values=sm_values, returning='id')
     logging.info('shipment created: id: %s, values: %s',
@@ -156,7 +170,7 @@ def create_shipping_list(conn, id_item, quantity, packing_quantity,
         shipping_value['id_shipment'] = id_shipment
     if picture:
         shipping_value['picture'] = picture
-    if free_shipping:
+    if free_shipping is not None:
         shipping_value['free_shipping'] = free_shipping
 
     insert(conn, 'shipping_list', values=shipping_value)
@@ -1058,6 +1072,16 @@ def shipping_list_item_quantity(conn, id_shipment, id_order_item):
     r = query(conn, query_str, (id_order_item, id_shipment))
     return r and r[0][0] or None
 
+def shipping_list_item_packing_quantity(conn, id_shipment, id_order_item):
+    query_str = ("SELECT packing_quantity "
+                 "FROM shipping_list as spl "
+                 "WHERE spl.id_item = %s "
+                 "AND spl.id_shipment = %s ")
+
+    r = query(conn, query_str, (id_order_item, id_shipment))
+    return r and r[0][0] or None
+
+
 def order_item_grouped_quantity(conn, id_order_item):
     sql = ("SELECT sum(spl.quantity) "
              "FROM shipping_list as spl "
@@ -1065,6 +1089,16 @@ def order_item_grouped_quantity(conn, id_order_item):
                "ON spl.id_shipment = spm.id "
             "WHERE id_item = %s "
               "AND spm.status <> %s")
+    r = query(conn, sql, (id_order_item, SHIPMENT_STATUS.DELETED))
+    return r and r[0][0] or 0
+
+def order_item_packing_quantity(conn, id_order_item):
+    sql = ("SELECT sum(spl.packing_quantity) "
+           "FROM shipping_list as spl "
+           "JOIN shipments as spm "
+           "ON spl.id_shipment = spm.id "
+           "WHERE id_item = %s "
+           "AND spm.status <> %s")
     r = query(conn, sql, (id_order_item, SHIPMENT_STATUS.DELETED))
     return r and r[0][0] or 0
 

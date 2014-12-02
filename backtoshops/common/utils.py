@@ -57,6 +57,52 @@ def get_default_setting(key, user, shop=None):
         value = get_setting(key)
     return value
 
+def get_merchant_address(user_profile, id_shop=None):
+    from accounts.models import Brand
+    from shops.models import Shop
+
+    if id_shop is not None and int(id_shop) == 0:
+        id_shop = None
+
+    id_brand = user_profile.work_for_id
+    if user_profile.role == USERS_ROLE.ADMIN:
+        if id_shop is not None:
+            shop = Shop.objects.get(pk=id_shop)
+            if shop.mother_brand_id == id_brand:
+                return shop.address
+            else:
+                raise Exception("addr_auth_err: merchant: %s, "
+                                "shop: %s" % (user_profile.id, id_shop))
+        else:
+            return Brand.objects.get(pk=id_brand).address
+    elif user_profile.role == USERS_ROLE.MANAGER:
+        if id_shop is not None and int(id_shop) != 0:
+            manage_shops = user_profile.shops.all()
+
+            if int(id_shop) in [s.id for s in manage_shops]:
+                return Shop.objects.get(pk=id_shop).address
+            else:
+                raise Exception("addr_auth_err: merchant: %s, "
+                                "shop: %s" % (user_profile.id, id_shop))
+        else:
+            if user_profile.allow_internet_operate:
+                return Brand.objects.get(pk=id_brand).address
+            else:
+                raise Exception("addr_auth_err: merchant: %s, "
+                                "shop: %s" % (user_profile.id, id_shop))
+    else:
+        if id_shop is not None and int(id_shop) != 0:
+            manage_shops = user_profile.shops.all()
+
+            if int(id_shop) in [s.id for s in manage_shops]:
+                return Shop.objects.get(pk=id_shop).address
+            else:
+                raise Exception("addr_auth_err: merchant: %s, "
+                                "shop: %s" % (user_profile.id, id_shop))
+        else:
+            raise Exception("addr_auth_err: merchant: %s, "
+                            "shop: %s" % (user_profile.id, id_shop))
+
 
 def get_valid_sort_fields(order_by1, order_by2, default_sort_field=None):
     sort_fields = []
@@ -114,3 +160,30 @@ class Sorter(object):
                 break
         return result
 
+
+
+OZ_GRAM_CONVERSION = 28.3495231
+LB_GRAM_CONVERSION = 453.59237
+GRAM_KILOGRAM_CONVERSION = 0.001
+
+def oz_to_gram(weight):
+    return weight * OZ_GRAM_CONVERSION
+
+def gram_to_kilogram(weight):
+    return weight * GRAM_KILOGRAM_CONVERSION
+
+def lb_to_gram(weight):
+    return weight * LB_GRAM_CONVERSION
+
+def weight_convert(from_unit, weight):
+    weight = float(weight)
+    if from_unit == 'kg':
+        return weight
+    elif from_unit == 'g':
+        return gram_to_kilogram(weight)
+    elif from_unit == 'oz':
+        weight_in_gram = oz_to_gram(weight)
+        return gram_to_kilogram(weight_in_gram)
+    elif from_unit == 'lb':
+        weight_in_gram = oz_to_gram(weight)
+        return gram_to_kilogram(weight_in_gram)

@@ -9,6 +9,8 @@ from orders.views import ListOrdersView
 from orders.views import OrderDelete
 from orders.views import OrderDetails
 from orders.views import OrderPacking
+from orders.views import OrderVenteView
+from orders.views import PackingFeeView
 from orders.views import ShippingFee
 from orders.views import ShippingStatusView
 from orders.views import OrderDeletePacking
@@ -29,6 +31,11 @@ urlpatterns = patterns(settings.get_site_prefix()+'orders',
                                 login_url="bo_login",
                                 super_allowed=False),
         name='list_orders'),
+    url(r'/vente/(?:(?P<orders_type>.+)/)?$',
+        operator_upper_required(OrderVenteView.as_view(),
+                                login_url="bo_login",
+                                super_allowed=False),
+        name='order_vente'),
     url(r'/details/(?:(?P<order_id>\d+)/)?$',
         operator_upper_required(OrderDetails.as_view(),
                                 login_url="bo_login",
@@ -69,5 +76,10 @@ urlpatterns = patterns(settings.get_site_prefix()+'orders',
                                 login_url="bo_login",
                                 super_allowed=False),
         name='send_invoices'),
+    url(r'/packing/fee',
+        operator_upper_required(PackingFeeView.as_view(),
+                                login_url="bo_login",
+                                super_allowed=False),
+        name='packing_fee'),
 )
 

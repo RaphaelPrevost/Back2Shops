@@ -423,7 +423,7 @@ def _all_order_items_packed(conn, id_order, id_brand=None, id_shops=None):
     item_qtt_sql += where
     item_qtt = query(conn, item_qtt_sql, where_v)[0][0]
 
-    grouped_qtt_sql = ("SELECT sum(spl.quantity), sum(spl.packing_quantity) "
+    grouped_qtt_sql = ("SELECT sum(spl.packing_quantity) "
                          "FROM shipping_list as spl "
                          "JOIN shipments as sp "
                            "ON spl.id_shipment = sp.id ")
@@ -438,9 +438,8 @@ def _all_order_items_packed(conn, id_order, id_brand=None, id_shops=None):
         where_v.append(tuple(id_shops))
     grouped_qtt_sql += where
 
-    grouped_qtt, packed_qtt = query(conn, grouped_qtt_sql, where_v)[0]
-
-    return item_qtt == grouped_qtt and item_qtt == packed_qtt
+    packed_qtt = query(conn, grouped_qtt_sql, where_v)[0][0]
+    return item_qtt == packed_qtt
 
 def get_order_status(conn, order_id, id_brand=None, id_shops=None):
     """

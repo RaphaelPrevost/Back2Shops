@@ -15,7 +15,9 @@ from models.order import order_item_quantity
 from models.shipments import create_shipment
 from models.shipments import create_shipping_list
 from models.shipments import order_item_grouped_quantity
+from models.shipments import order_item_packing_quantity
 from models.shipments import shipping_list_item_quantity
+from models.shipments import shipping_list_item_packing_quantity
 from models.shipments import get_shipment_by_id
 from models.shipments import update_shipping_list
 from models.shipments import update_shipment
@@ -55,33 +57,34 @@ class ShipmentResource(BaseJsonResource):
         items_id = []
         for item in content:
             id_order_item = item.get('id_order_item')
-            quantity = item.get('quantity')
+            quantity = int(item.get('quantity'))
             items_id.append(id_order_item)
 
             assert id_order_item is not None, 'id_order_item'
             assert quantity is not None, 'quantity'
 
 
-            if id_shipment:
-                orig_quantity = shipping_list_item_quantity(conn,
-                                                       id_shipment,
-                                                       id_order_item)
-            else:
-                orig_quantity = order_item_quantity(conn,
-                                                    id_order_item)
-                grouped_quantity = order_item_grouped_quantity(
-                    conn, id_order_item)
-                orig_quantity -= grouped_quantity
+            orig_packing_quantity = shipping_list_item_packing_quantity(
+                conn, id_shipment, id_order_item)
+            if orig_packing_quantity is None:
+                orig_packing_quantity = 0
 
-            if orig_quantity is None or int(quantity) > orig_quantity:
-                logging.error("shipment_err: "
-                              "invalid shipping list quantity %s "
-                              "for order item:%s with shipment %s",
-                              quantity,
-                              orig_quantity,
-                              id_shipment,
-                              exc_info=True)
-                raise UserError(E_C.ERR_EINVAL[0], E_C.ERR_EINVAL[1])
+            if quantity > orig_packing_quantity:
+                item_quantity = order_item_quantity(conn, id_order_item)
+                cur_packing = order_item_packing_quantity(conn, id_order_item)
+
+                added_packing = quantity - orig_packing_quantity
+                left_packing = item_quantity - cur_packing
+
+                if added_packing > left_packing:
+                    logging.error("shipment_err: "
+                                  "invalid shipping list quantity %s "
+                                  "for order item:%s with shipment %s",
+                                  quantity,
+                                  id_order_item,
+                                  id_shipment,
+                                  exc_info=True)
+                    raise UserError(E_C.ERR_EINVAL[0], E_C.ERR_EINVAL[1])
 
         # check items shop/brand is consistence with operator's shop/brand
         from models.order import get_order_items_by_id
@@ -129,6 +132,17 @@ class ShipmentResource(BaseJsonResource):
 
             handling_fee = self.request.get_param('handling_fee')
             shipping_fee = self.request.get_param('shipping_fee')
+            packing_status = self.request.get_param('packing_status')
+            tracking_name = self.request.get_param('tracking_name')
+            tracking_num = self.request.get_param('tracking_num')
+
+            shipping_carrier = self.request.get_param('shipping_carrier')
+            shipping_date = self.request.get_param('shipping_date')
+            shipping_service = self.request.get_param('shipping_service')
+
+            supported_services = None
+            if shipping_service is not None:
+                supported_services = {shipping_service: shipping_carrier}
 
             # create manually shipment
             id_shipment = create_shipment(
@@ -136,10 +150,15 @@ class ShipmentResource(BaseJsonResource):
                 id_order,
                 id_brand,
                 id_shop,
-                status=SHIPMENT_STATUS.PACKING,
+                status=packing_status,
                 handling_fee=handling_fee,
                 shipping_fee=shipping_fee,
-                calculation_method=SCM.MANUAL)
+                supported_services=supported_services,
+                shipping_date=shipping_date,
+                shipping_carrier=shipping_carrier,
+                tracking_name=tracking_name,
+                calculation_method=SCM.MANUAL,
+                tracking_num=tracking_num)
 
             # create shipping list.
             for item in content:
