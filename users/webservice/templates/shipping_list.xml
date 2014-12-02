@@ -48,10 +48,10 @@
             {% for shipping in shipment.shipping_list %}
                 <item sale="{{ shipping.id_sale }}" id_order_item="{{ shipping.id_item }}">
                     <name>{{ shipping.sale_item.name }}</name>
-                    <currency>{{ shipping.currency }}</currency>
+                    <currency>{{ shipping.sale_item.currency }}</currency>
                     <external_id>
-                        {% if shipping.external_id %}
-                            {{ shipping.external_id }}
+                        {% if shipping.sale_item.external_id %}
+                            {{ shipping.sale_item.external_id }}
                         {% endif %}</external_id>
                     <barcode>
                         {% if shipping.barcode %}
@@ -59,8 +59,8 @@
                         {% endif %}
                     </barcode>
                     <picture>
-                        {% if shipping.picture %}
-                            {{ shipping.picture }}
+                        {% if shipping.sale_item.img %}
+                            {{ shipping.sale_item.img.0 }}
                         {% endif %}
                     </picture>
                     {% if shipping.sale_item.sel_weight_type %}
@@ -81,6 +81,7 @@
                     </weight>
                     <quantity>{{ shipping.sale_item.quantity }}</quantity>
                     <packing_quantity>{{ shipping.sale_item.packing_quantity }}</packing_quantity>
+                    <remaining_quantity>{{ shipping.sale_item.remaining_quantity }}</remaining_quantity>
                 </item>
             {% endfor %}
         </shipment>

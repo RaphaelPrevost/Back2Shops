@@ -12,12 +12,13 @@ from models.actors.shipping_fees import ActorShippingFees
 from models.order import get_order
 from models.order import get_order_items
 from models.order import get_order_status
+from models.order import order_item_quantity
 from models.order import user_accessable_order
 from models.actors.shipping import ActorCarriers
 from models.shipments import conf_shipping_service
 from models.shipments import get_shipping_fee
 from models.shipments import get_shipments_by_order
-from models.shipments import order_item_grouped_quantity
+from models.shipments import order_item_packing_quantity
 from models.shipments import get_supported_services
 from models.shipments import get_shipment_paid_time
 from models.shipments import get_shipping_supported_services
@@ -26,6 +27,7 @@ from models.shipments import get_shipping_postage
 from models.shipments import user_accessable_shipment
 from models.shipping_fees import SaleShippingFees
 from models.shipping_fees import ShipmentShippingFees
+from models.user import get_user_dest_addr
 from B2SProtocol.constants import SUCCESS
 from B2SProtocol.constants import FAILURE
 from B2SProtocol.constants import ORDER_STATUS
@@ -49,7 +51,12 @@ class BaseShippingListResource(BaseXmlResource):
 
         id_order = req._params.get('id_order')
         order_status = get_order_status(conn, id_order)
-        order_create_date = self._get_order_create_date(conn, id_order)
+
+        order = get_order(conn, id_order)
+        order_create_date = order['confirmation_time'].date()
+        id_user = order['id_user']
+        id_shipaddr = order['id_shipaddr']
+        shipping_dest = get_user_dest_addr(conn, id_user, id_shipaddr)
 
         shipment_list = get_shipments_by_order(conn, id_order)
 
@@ -80,7 +87,8 @@ class BaseShippingListResource(BaseXmlResource):
                 'order_status': order_status,
                 'order_create_date': order_create_date,
                 'shipping_currency': SHIPPING_CURRENCY,
-                'shipping_weight_unit': SHIPPING_WEIGHT_UNIT}
+                'shipping_weight_unit': SHIPPING_WEIGHT_UNIT,
+                'shipping_dest': shipping_dest}
 
     def _on_post(self, req, resp, conn, **kwargs):
         return self._on_get(req, resp, conn, **kwargs)
@@ -102,11 +110,12 @@ class BaseShippingListResource(BaseXmlResource):
         for order_item in order_items:
             id_order_item = order_item['item_id']
             quantity = order_item['quantity']
-            grouped_quantity = order_item_grouped_quantity(
+            packing_quantity = order_item_packing_quantity(
                 conn, id_order_item)
-            if quantity == grouped_quantity:
+
+            if quantity == packing_quantity:
                 continue
-            elif quantity < grouped_quantity:
+            elif quantity < packing_quantity:
                 logging.error("shipment_group_err: grouped item quantity "
                               "bigger than orig item quantity for order "
                               "item %s", id_order_item)
@@ -115,7 +124,7 @@ class BaseShippingListResource(BaseXmlResource):
             id_brand = order_item['brand_id']
             key = '-'.join([str(id_brand), str(id_shop)])
             if shop_shipment.get(key) is None:
-                shop_shipment[id_shop] = {
+                shop_shipment[key] = {
                     'id': 0,
                     'calculation_method': SCM.MANUAL,
                     'id_brand': id_brand,
@@ -124,12 +133,6 @@ class BaseShippingListResource(BaseXmlResource):
                     'shipping_list': []
                 }
 
-            sale_item = ujson.loads(order_item['item_detail'])
-            sale_item['quantity'] = quantity-grouped_quantity
-            sale_item['packing_quantity'] = 0
-            sale_item['weight'] = order_item['weight']
-
-
             sel_variant = order_item['sel_variant']
             sel_weight_type = order_item['sel_weight_type']
             if sel_variant:
@@ -137,8 +140,6 @@ class BaseShippingListResource(BaseXmlResource):
             if sel_weight_type:
                 sel_weight_type = ujson.loads(sel_weight_type)
 
-            sale_item['sel_variant'] = sel_variant
-            sale_item['sel_weight_type'] = sel_weight_type
 
             sale_item = self._gen_shipping_sale_item(
                 order_item['item_detail'],
@@ -146,13 +147,17 @@ class BaseShippingListResource(BaseXmlResource):
                 order_item['weight_unit'],
                 sel_variant,
                 sel_weight_type,
-                quantity-grouped_quantity,
-                0)
+                order_item['external_id'],
+                order_item['currency'],
+                quantity-packing_quantity,
+                0,
+                quantity-packing_quantity)
 
             shipping = {'id_sale': order_item['sale_id'],
                         'id_item': order_item['item_id'],
                         'sale_item': sale_item}
-            shop_shipment[id_shop]['shipping_list'].append(shipping)
+            shipping.update(order_item)
+            shop_shipment[key]['shipping_list'].append(shipping)
         return shop_shipment.values()
 
     def _get_supported_services(self, conn, shipment):
@@ -176,12 +181,17 @@ class BaseShippingListResource(BaseXmlResource):
 
     def _gen_shipping_sale_item(self, item_detail, weight, weight_unit,
                                 sel_variant, sel_weight_type,
-                                quantity, packing_quantity):
+                                external_id, currency,
+                                quantity, packing_quantity,
+                                remaining_quantity):
         item = ujson.loads(item_detail)
         item['quantity'] = quantity
         item['packing_quantity'] = packing_quantity
         item['sel_variant'] = sel_variant
         item['sel_weight_type'] = sel_weight_type
+        item['remaining_quantity'] = remaining_quantity
+        item['external_id'] = external_id
+        item['currency'] = currency
 
         weight = weight_convert(weight_unit, weight) * quantity
         item['weight'] = weight
@@ -199,15 +209,22 @@ class BaseShippingListResource(BaseXmlResource):
             if sel_weight_type:
                 sel_weight_type = ujson.loads(sel_weight_type)
 
-
+            cur_packed = order_item_packing_quantity(
+                conn, shipping['id_item'])
+            item_quantity = order_item_quantity(conn, shipping['id_item'])
+            remaining = item_quantity - cur_packed
             item = self._gen_shipping_sale_item(
                 shipping['item_detail'],
                 shipping['weight'],
                 shipping['weight_unit'],
                 sel_variant,
                 sel_weight_type,
-                shipping['quantity'],
-                shipping['packing_quantity'])
+                shipping['external_id'],
+                shipping['currency'],
+                item_quantity,
+                shipping['packing_quantity'],
+                remaining)
+
 
             shipping['sale_item'] = item
             r.append(shipping)

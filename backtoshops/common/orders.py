@@ -161,7 +161,10 @@ def remote_send_invoices(id_order, id_brand, id_shops):
 
 
 def send_new_shipment(id_order, id_shop, id_brand,
-                      handling_fee, shipping_fee, content):
+                      shipping_fee, handling_fee, content,
+                      shipping_carrier, packing_status, tracking_name,
+                      shipping_service=None, shipping_date=None,
+                      tracking_num=None):
     if isinstance(content, list):
         content = ujson.dumps(content)
 
@@ -172,7 +175,14 @@ def send_new_shipment(id_order, id_shop, id_brand,
                 'brand': id_brand,
                 'handling_fee': handling_fee,
                 'shipping_fee': shipping_fee,
-                'content': content}
+                'content': content,
+                'shipping_carrier': shipping_carrier,
+                'packing_status': packing_status,
+                'tracking_name': tracking_name,
+                'shipping_service': shipping_service,
+                'shipping_date': shipping_date,
+                'tracking_num': tracking_num}
+
         data = ujson.dumps(data)
         data = gen_encrypt_json_context(
             data,

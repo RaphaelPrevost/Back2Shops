@@ -878,43 +878,8 @@ label {
 .red_text {
     color: #C10000;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+.hidden {
+    display: None;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
