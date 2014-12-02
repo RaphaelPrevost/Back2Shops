@@ -513,77 +513,76 @@ def get_order_table_info(order_id, order_resp, all_sales=None):
     shipments = {}
     order_status = int(order_resp['order_status'])
     order_created = format_epoch_time(order_resp['confirmation_time'])
-    for item in order_resp.get('order_items', []):
-        for item_id, item_info in item.iteritems():
-            id_sale = str(item_info['sale_id'])
+    for item_id, item_info in order_resp.get('order_items', []):
+        id_sale = str(item_info['sale_id'])
 
-            if item_info['id_variant'] == 0:
-                product_name = item_info['name']
-                variant_name = ''
-            else:
-                product_name, variant_name = item_info['name'].rsplit('-', 1)
-            one = {
+        if item_info['id_variant'] == 0:
+            product_name = item_info['name']
+            variant_name = ''
+        else:
+            product_name, variant_name = item_info['name'].rsplit('-', 1)
+        one = {
+            'id_sale': id_sale,
+            'quantity': item_info['quantity'],
+            'product_name': product_name,
+            'variant_name': variant_name,
+            'type_name': item_info.get('type_name') or '',
+            'price': item_info['price'],
+            'picture': item_info['picture'],
+            'external_id': item_info['external_id'],
+        }
+        if all_sales and id_sale in all_sales:
+            sale_info = all_sales[id_sale]
+            _type = sale_info.get('type', {})
+            one['link'] = get_url_format(FRT_ROUTE_ROLE.PRDT_INFO) % {
+                'id_type': _type.get('@id', 0),
+                'type_name': get_normalized_name(FRT_ROUTE_ROLE.PRDT_INFO,
+                                                 'type_name',
+                                                 _type.get('name', '')),
                 'id_sale': id_sale,
-                'quantity': item_info['quantity'],
-                'product_name': product_name,
-                'variant_name': variant_name,
-                'type_name': item_info.get('type_name') or '',
-                'price': item_info['price'],
-                'picture': item_info['picture'],
-                'external_id': item_info['external_id'],
+                'sale_name': get_normalized_name(FRT_ROUTE_ROLE.PRDT_INFO,
+                                                 'sale_name',
+                                                 sale_info.get('name', '')),
             }
-            if all_sales and id_sale in all_sales:
-                sale_info = all_sales[id_sale]
-                _type = sale_info.get('type', {})
-                one['link'] = get_url_format(FRT_ROUTE_ROLE.PRDT_INFO) % {
-                    'id_type': _type.get('@id', 0),
-                    'type_name': get_normalized_name(FRT_ROUTE_ROLE.PRDT_INFO,
-                                                     'type_name',
-                                                     _type.get('name', '')),
-                    'id_sale': id_sale,
-                    'sale_name': get_normalized_name(FRT_ROUTE_ROLE.PRDT_INFO,
-                                                     'sale_name',
-                                                     sale_info.get('name', '')),
-                }
-            order_items.append(one)
+        order_items.append(one)
 
-            item_invoice_info = {}
-            for iv in item_info['invoice_info']:
-                iv_item_info = ujson.loads(iv['invoice_item'])
-                if iv_item_info:
-                    taxes = as_list(iv_item_info.get('tax', {}))
-                    iv['tax'] = sum([float(t['#text']) for t in taxes
-                                     if t.get('@to_worldwide') == 'True'
-                                        or t.get('@show') == 'True'])
-                    iv['tax_per_item'] = iv['tax'] / int(iv_item_info['qty'])
-                    iv['show_final_price'] = len(
-                        [t for t in taxes if t.get('@show') == 'True']) > 0
-                else:
-                    iv['tax'] = 0
-                    iv['tax_per_item'] = 0
-                    iv['show_final_price'] = False
-                item_invoice_info[iv['shipment_id']] = iv
+        item_invoice_info = {}
+        for iv in item_info['invoice_info']:
+            iv_item_info = ujson.loads(iv['invoice_item'])
+            if iv_item_info:
+                taxes = as_list(iv_item_info.get('tax', {}))
+                iv['tax'] = sum([float(t['#text']) for t in taxes
+                                 if t.get('@to_worldwide') == 'True'
+                                    or t.get('@show') == 'True'])
+                iv['tax_per_item'] = iv['tax'] / int(iv_item_info['qty'])
+                iv['show_final_price'] = len(
+                    [t for t in taxes if t.get('@show') == 'True']) > 0
+            else:
+                iv['tax'] = 0
+                iv['tax_per_item'] = 0
+                iv['show_final_price'] = False
+            item_invoice_info[iv['shipment_id']] = iv
 
-            for _shipment_info in item_info['shipment_info']:
-                shipment_id = _shipment_info.get('shipment_id')
-                if not shipment_id:
-                    # sth. wrong when create order
-                    continue
-                shipping_list = _shipment_info.copy()
-                shipping_list.update(item_invoice_info.get(shipment_id))
+        for _shipment_info in item_info['shipment_info']:
+            shipment_id = _shipment_info.get('shipment_id')
+            if not shipment_id:
+                # sth. wrong when create order
+                continue
+            shipping_list = _shipment_info.copy()
+            shipping_list.update(item_invoice_info.get(shipment_id))
 
-                shipping_list['item'] = order_items[-1]
-                shipping_list['item']['quantity'] = shipping_list['shipping_list_quantity']
-                shipping_list['status_name'] = SHIPMENT_STATUS.toReverseDict().get(
-                                               int(shipping_list['status']))
-                shipping_list['due_within'] = shipping_list['due_within'] or 1
-                shipping_list['shipping_within'] = shipping_list['shipping_within'] or 7
-                shipping_list['shipping_msg'] = get_shipping_msg(order_status,
-                                order_created, shipping_list['shipping_date'],
-                                shipping_list['shipping_within'])
-                if shipment_id not in shipments:
-                    shipments[shipment_id] = []
-                shipments[shipment_id].append(shipping_list)
+            shipping_list['item'] = order_items[-1]
+            shipping_list['item']['quantity'] = shipping_list['shipping_list_quantity']
+            shipping_list['status_name'] = SHIPMENT_STATUS.toReverseDict().get(
+                                           int(shipping_list['status']))
+            shipping_list['due_within'] = shipping_list['due_within'] or 1
+            shipping_list['shipping_within'] = shipping_list['shipping_within'] or 7
+            shipping_list['shipping_msg'] = get_shipping_msg(order_status,
+                            order_created, shipping_list['shipping_date'],
+                            shipping_list['shipping_within'])
+            if shipment_id not in shipments:
+                shipments[shipment_id] = []
+            shipments[shipment_id].append(shipping_list)
 
     data = {
         'order_id': order_id,

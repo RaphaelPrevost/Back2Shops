@@ -108,7 +108,8 @@ def get_hashed_headers(req):
     ## chrome supports "sdch" and will add it to accept-encoding when needed
     accept_encoding = req.get_header('Accept-Encoding') or ''
     accept_encoding = ','.join([one for one in accept_encoding.split(',')
-                                    if one != 'sdch'])
+                                    if one.strip() != 'sdch'])
+
     headers = ";".join([
             #req.get_header('Accept') or '',
             req.get_header('Accept-Language') or '',
@@ -116,6 +117,7 @@ def get_hashed_headers(req):
             req.get_header('Accept-Charset') or '',
             req.get_header('User-Agent') or '',
             req.get_header('DNT') or ''])
+
     return hashfn(HASH_ALGORITHM.SHA256, headers)
 
 def gen_json_response(resp, data):
@@ -232,7 +234,7 @@ def cookie_verify(conn, req, resp):
     user_auth = _parse_auth_cookie(user_auth)
     for field in auth_fields:
         if not user_auth.has_key(field):
-            raise ValidationError('LOGIN_REQUIRED_ERR_MISSING_DATA')
+            raise ValidationError('LOGIN_REQUIRED_ERR_MISSING_DATA: %s' % field)
 
     # check if the cookie has been tampered with before going any further
     _hmac_verify(user_auth)

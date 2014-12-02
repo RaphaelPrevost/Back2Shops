@@ -92,8 +92,8 @@ class BaseResource(object):
             logging.error('Server Error: %s', (e,), exc_info=True)
             data = {'res': RESP_RESULT.F,
                     'err': 'SERVER_ERR'}
-        finally:
-            self.set_session(req, resp)
+        #finally:
+        #    self.set_session(req, resp)
         return data
 
     def set_session(self, req, resp):
