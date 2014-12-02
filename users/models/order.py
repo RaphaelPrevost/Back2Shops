@@ -632,7 +632,7 @@ def _get_order_items(conn, order_id, brand_id, shops_id=None):
 
         item_id = order_item.pop('item_id')
         _update_extra_info_for_order_item(conn, item_id, order_item)
-        items['order_items'].append({item_id: order_item})
+        items['order_items'].append((item_id, order_item))
     return items
 
 def get_order_items_by_id(conn, items_id):
@@ -688,7 +688,7 @@ def get_order_detail(conn, order_id, brand_id, shops_id=None):
     order_items = _get_order_items(conn, order_id, brand_id, shops_id)
     details.update(order_items)
     details.update({
-        'thumbnail_img': order_items['order_items'][0].values()[0]['picture'],
+        'thumbnail_img': order_items['order_items'][0][1]['picture'],
         'shipping_dest': get_user_dest_addr(conn, details['user_id'],
                                             details['id_shipaddr']),
         'order_status': get_order_status(conn, order_id, brand_id, shops_id)})
