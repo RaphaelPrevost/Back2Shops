@@ -108,8 +108,7 @@ class BaseResource(object):
 
             set_cookie(resp,
                        SESSION_COOKIE_NAME,
-                       session,
-                       )
+                       session)
 
             name = 'SID:%s' % _sid
             cli = get_redis_cli()
