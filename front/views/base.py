@@ -92,8 +92,8 @@ class BaseResource(object):
             logging.error('Server Error: %s', (e,), exc_info=True)
             data = {'res': RESP_RESULT.F,
                     'err': 'SERVER_ERR'}
-        #finally:
-        #    self.set_session(req, resp)
+        finally:
+            self.set_session(req, resp)
         return data
 
     def set_session(self, req, resp):
@@ -104,13 +104,12 @@ class BaseResource(object):
 
         def __set(_sid):
             _exp = __gen_session_expiry()
-            data = {'sid': _sid, 'exp': _exp}
-            session = '&'.join(['%s=%s' % (k, v)
-                                for k, v in data.iteritems()])
+            session = "sid@%s&exp@%s" % (_sid, _exp)
 
             set_cookie(resp,
                        SESSION_COOKIE_NAME,
-                       session)
+                       session,
+                       )
 
             name = 'SID:%s' % _sid
             cli = get_redis_cli()
@@ -140,11 +139,15 @@ class BaseResource(object):
         cookie = get_cookie(req)
         session = cookie and cookie.get(SESSION_COOKIE_NAME)
         session = session and session.value.split('&')
-        session = session and [tuple(field.split('='))
+        session = session and [tuple(field.split('@'))
                                      for field in session if field]
-        session = session and dict(session)
-        sid = session and session['sid'] or None
-        exp = session and session['exp'] or None
+        try:
+            session = session and dict(session)
+            sid = session and session['sid'] or None
+            exp = session and session['exp'] or None
+        except Exception, e:
+            sid = None
+            exp = None
 
         if exp:
             expiry = datetime.strptime(exp, EXPIRY_FORMAT)
