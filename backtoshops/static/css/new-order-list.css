@@ -21,7 +21,10 @@
 #lienUP { margin: 88px 0 0 -4em; }
 
 /*----SELECT TRIER PAR----*/
-fieldset { border: none 0; }
+fieldset {
+    border: none 0;
+    padding-bottom: 5px;
+}
 
 
 .inputSearch {
@@ -91,7 +94,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
 
 #triVente { 
 	margin: 0px 0 0px 0; overflow: auto;	
-	padding: 25px 0 15px 0;
+    padding: 0px;
 	/*background-color: #EEF9FF;*/
 	background-color: #ffffff;
 	
@@ -500,8 +503,49 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
 #order-status-tabs a.payment { background-image: url(../img/ico-awaiting-payment.png); background-position: 5px 8px; float: left;}
 #order-status-tabs a.shipping { background-image: url(../img/ico-awaiting-shipping.png); background-position: 5px 8px; float: left;}
 #order-status-tabs a.completed { background-image: url(../img/ico-completed.png); background-position: 5px 8px; float: left;}
-#order-status-tabs a.results { background-image: url(../img/ico-results.png); background-position: 5px 8px; float: left;}
+#order-status-tabs a.results {
+    background-image: url(../img/ico-results.png);
+    background-position: 5px 8px;
+    float: left;
+    height: 100%;
+}
 
+
+.snake_loading {
+    background: url(../img/snake_loading.gif) no-repeat;
+    background-position: center right;
+    display: block;
+    height: 90px;
+}
+
+.no_loading_text {
+    display: none;
+}
+
+.loading .loading-overlay {
+    z-index: 10000;
+}
+.big_flower_loading {
+    background: url(../img/big_flower.gif) no-repeat ;
+    background-position: center center;
+    display: block;
+    height: 50px;
+}
+.loading_spinner {
+    position: absolute;
+    top: 100px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: -3.9375rem auto 0;
+    color: #1a1d1d;
+    text-align: center;
+}
+
+.no_matching_orders {
+    color: #74BFFB;
+    font-size: large;
+}
 
 #order-status-tabs a.results .delete {
     display: block; float: right;
@@ -515,10 +559,16 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
 }
 #order-status-tabs a.results .delete:hover { background: url(../img/ico-close.png) no-repeat scroll -1px -1px #EAEAEA; }
 
-.megatab { padding: 0!important; }
+#order_vente {
+    float: left;
+    width: 100%;
+    position: relative;
+    display: inline-block;
+}
 
-
-
+.megatab {
+    padding: 0!important;
+}
 
 div#detail table { border: 1px solid #cbcbcb; }
 

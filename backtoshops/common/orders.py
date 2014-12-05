@@ -58,7 +58,7 @@ def _populate_order_info(order):
 
         options = [item for item in search_options
                    if item != None and item != ""]
-        order_detail['search_options'] = options
+        order_detail['search_options'] = ' '.join(options)
 
 def get_order_list(brand_id, shops_id=None):
     try:
