@@ -5,6 +5,11 @@
 {% else %}
     <div id="megatabs{{ status }}" class="megatabs">
 {% endif %}
+    {% if not page.object_list %}
+        <div class="no_matching_orders">
+            {% trans "No matching orders" %}
+        </div>
+    {% endif %}
     {% for order_dict in page.object_list %}
         {% for order_id, order in order_dict.items %}
             {{ order.order_items.0.values.picture }}
@@ -42,7 +47,11 @@
                         <strong class="pays {{ order.shipping_dest.country_iso|lower }}">{{ order.shipping_dest.country_name }}</strong>
                     </div>
 
-                    <span class="phone_num {{ order.shipping_dest.country_iso|lower }}"> (+ {{ order.shipping_dest.calling_code }}) {{ order.contact_phone.phone_num }} </span>
+                    <span class="phone_num {{ order.shipping_dest.country_iso|lower }}">
+                        {% if order.shipping_dest.calling_code %}
+                            (+ {{ order.shipping_dest.calling_code }})
+                        {% endif %}
+                        {{ order.contact_phone.phone_num }} </span>
 
                 </div>
 

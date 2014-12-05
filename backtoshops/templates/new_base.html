@@ -11,20 +11,23 @@
     <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/new_main.css" />
     <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/flag.css" />
     <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/loading_overlay.css" />
-    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/jquery.jqplot.min.css" />
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/jquery.jqplot-1.0.4.min.css" />
     <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/ui-lightness/jquery-ui-1.11.1.css" />
     {% if not user.is_authenticated %}
     <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}c
 ss/login.css" />
     {% endif %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.10.2.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.jqplot.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jqplot.dateAxisRenderer.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jqplot.canvasTextRenderer.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jqplot.barRenderer.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jqplot.canvasAxisTickRenderer.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jqplot.categoryAxisRenderer.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/loading-overlay.min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.10.2.min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}js/jquery-migrate-1.2.1.min.js "></script>
+
+    <!--[if IE]><script language="javascript" type="text/javascript" src="{{ STATIC_URL }}js/excanvas.min.js"></script><![endif]-->
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}js/jquery.jqplot-1.0.4.min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}js/jqplot_plugins/jqplot.dateAxisRenderer.min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}js/jqplot_plugins/jqplot.canvasTextRenderer.min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}js/jqplot_plugins/jqplot.barRenderer.min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}js/jqplot_plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}js/jqplot_plugins/jqplot.categoryAxisRenderer.min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}js/loading-overlay.min.js"></script>
 
 
     <!--[if IE]><link rel="stylesheet" media="screen" href="css/IE.css" /><![endif]-->
