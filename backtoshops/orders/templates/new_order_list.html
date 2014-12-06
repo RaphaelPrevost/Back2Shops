@@ -127,15 +127,15 @@
                 var code = $(this).attr("status_code");
                 if (code == $("#{{ form.status.auto_id }}").val()) return;
 
-                var data = $("#main_form").serialize();
                 var tab = $(this);
+                sel_mega_tab(tab, code);
+                var data = $("#main_form").serialize();
 
                 $.ajax({
                     type: 'GET',
                     url: '/orders/vente',
                     data: data,
                     beforeSend: function(){
-                        sel_mega_tab(tab, code);
                         var loading_overlay = $("#big_flower_loading_overlay").html();
                         $("#order_vente").prepend(loading_overlay);
                         $("#order_vente .order_list").fadeOut();
@@ -161,23 +161,23 @@
                 $("#{{ form.status.auto_id }}").val("search");
 
 
-                var data=$("#main_form").serialize();
                 var search_tab = $(".order_search_tab[query='" + query + "']");
+                if (search_tab.length == 0) {
+                    var tab = $($("#order_search_tab").html());
+                    search_tab = $('a', tab);
+                    search_tab.attr('status_code', 'search');
+                    search_tab.attr('query', query);
+                    $('.search', search_tab).html(orig_query);
+                    $("#order-status-tabs").append(tab);
+                }
+                sel_mega_tab(search_tab, 'search');
+                var data=$("#main_form").serialize();
 
                 $.ajax({
                     type: 'GET',
                     url: '/orders/vente',
                     data: data,
                     beforeSend: function(){
-                        if (search_tab.length == 0) {
-                            var tab = $($("#order_search_tab").html());
-                            search_tab = $('a', tab);
-                            search_tab.attr('status_code', 'search');
-                            search_tab.attr('query', query);
-                            $('.search', search_tab).html(orig_query);
-                            $("#order-status-tabs").append(tab);
-                        }
-                        sel_mega_tab(search_tab, 'search');
 
                         var loading_overlay = $("#big_flower_loading_overlay").html();
                         $("#order_vente").prepend(loading_overlay);
