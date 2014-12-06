@@ -2,8 +2,8 @@
 /*       LISTE DES VENTES        */
 /*-------------------------------*/
 
-#title span { 
-	
+#title span {
+
 	background-image: url(../img/ico-dollard.png);
 
 }
@@ -28,7 +28,7 @@ fieldset {
 
 
 .inputSearch {
- 
+
 	display: inline-block;
 	width: 200px; height: 2.5em;
 	margin: 0 0 0.4em 0.5em;
@@ -39,7 +39,7 @@ fieldset {
 	-webkit-border-radius: 6px;
 	border-radius: 6px;
 	border: 1px solid #fff;
-	
+
 	font-size: 1.1em;
 	-o-box-shadow: 0 0 1px #a3a3a3 inset;
 	-ms-box-shadow: 0 0 1px #a3a3a3 inset;
@@ -58,7 +58,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
 }
 .inputSearch:hover,
 .inputSearch:focus {
-	
+
 background: #d6d6d6; /* Old browsers */
 background: -moz-linear-gradient(top,  #d6d6d6 0%, #F5F0CF  13%, #fffee6 33%, #fffee6 90%, #f8f7f5 97%, #efeeea 100%); /* FF3.6+ */
 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d6d6d6), color-stop(13%,#F5F0CF ), color-stop(33%,#fffee6), color-stop(90%,#fffee6), color-stop(97%,#f8f7f5), color-stop(100%,#efeeea)); /* Chrome,Safari4+ */
@@ -92,16 +92,16 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
 
 
 
-#triVente { 
-	margin: 0px 0 0px 0; overflow: auto;	
+#triVente {
+	margin: 0px 0 0px 0; overflow: auto;
     padding: 0px;
 	/*background-color: #EEF9FF;*/
 	background-color: #ffffff;
-	
+
 }
-#triVente .left { display: block; float: left; } 
-#triVente .left1 { width: 32%; min-width: 350px; } 
-#triVente .left2 { width: 68%; min-width: 500px; } 
+#triVente .left { display: block; float: left; }
+#triVente .left1 { width: 32%; min-width: 350px; }
+#triVente .left2 { width: 68%; min-width: 500px; }
 
 #triVente label,
 #triVente select,
@@ -121,7 +121,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
     margin: 1px 0px 5px 6px;
     background-color: #fff;
 }
-#triVente .plus { 
+#triVente .plus {
     width: 20px;
     height: 20px;
     margin: 1px 0 5px 6px;
@@ -129,7 +129,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
     text-indent: -1500px;
     background: url(../img/icon.png) no-repeat 0 -350px;
 }
-#triVente .valid { 
+#triVente .valid {
     width: 20px; height: 20px;
 	float: left;
     margin: 1px 0 5px 8px;
@@ -161,19 +161,19 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
     -ms-box-shadow: 0 0 8px #e2e2e2;
     -o-box-shadow: 0 0 8px #e2e2e2;
     box-shadow: 0 0 8px #e2e2e2;
-	
-	-webkit-border-radius: 8px; 
-	-moz-border-radius: 8px; 
-	-ms-border-radius: 8px; 
-	-o-border-radius: 8px; 
-	border-radius: 8px; 
-	
+
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	-ms-border-radius: 8px;
+	-o-border-radius: 8px;
+	border-radius: 8px;
+
     background-color: #F7FCFF;
 }
 
 
 /*NOM, CATEGORIE, TYPE de Prod*/
-.vente h3, .vente h4 { 
+.vente h3, .vente h4 {
     min-height: 30px;
     line-height: 30px;
     margin-right: 1px;
@@ -195,7 +195,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
 	.phone_num {
 		float: left;
 		height: 30px;
-		
+
 		margin: 5px 0 0 10px;
 		padding-left: 25px;
 		font-size: 18px;
@@ -206,9 +206,9 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
 		background-position: 0 11px;
 		background-repeat: no-repeat;
 	}
-	
-	
-	.vente a.delete { 
+
+
+	.vente a.delete {
 		display: block; float: right;
 		width: 14px; height: 14px;
 		margin: 8px 8px 0 0;
@@ -216,10 +216,10 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
 		background: url(../img/ico-close.png) no-repeat scroll -1px -1px #fff;
 	}
 	.vente a.delete:hover { background: url(../img/ico-close.png) no-repeat scroll -1px -1px #EAEAEA; }
-	
+
 
 /*---INFOS VENTE---*/
-.content { 
+.content {
     width:100%;
     /*height: 62px;*/
 }
@@ -263,13 +263,13 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
 		font-size: 13px;
     }
 
-	
+
 	.content .address_area .city,
 	.content .address_area .cp { margin: 4px 5px 0 0;  color: #0093CB; font-size: 13px; }
 
 	.content .address_area .pays { margin: 4px 0 0 0; padding-left: 23px; font-size: 13px; background-repeat: no-repeat; background-position: 0 3px; }
-	
-	
+
+
 
 
 
@@ -335,7 +335,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
     border: 0!important;
 	padding-right: 0;
 }
-	
+
 .detail { overflow: auto; }
 .prodSail {
 	float: left; min-width: 280px;
@@ -362,10 +362,10 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
 		-ms-border-radius: 15px;
 		-o-border-radius: 15px;
 		border-radius: 15px;
-		
+
 		color: #fff;
 	}
-	
+
 	.prodSail .imgProd img {
         display: block;
         width: 70%;
@@ -375,18 +375,23 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
         border: 1px solid #d8d8d8;
         background-color: #fff;
     }
-.prodSail h5 { margin-top: 10px; line-height: 13px; }
+.prodSail h5 {
+    margin-top: 10px;
+    line-height: 13px;
+    height: 13px;
+    overflow-y: hidden;
+ }
 .prodSail div span { display: block; }
 .prodSail div span.ref {
     color: #348f00;
     font-size: 10px;
-    font-weight: bold; 
+    font-weight: bold;
 	line-height: 20px;
 }
 .prodSail div span.qt { color: #767676; }
 .prodSail div span input { width: 50px; }
-	
-	
+
+
 	.prodLivr { width: 280px; overflow: hidden; }
 	.formLivr {
 		float: none; position: relative;
@@ -394,50 +399,50 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
 		margin: 8px 0 10px 0;
 		padding: 15px;
 		background-color: #EEF9FF;
-	}	
-	
+	}
+
 	.rowbtn {
 		text-align: center;
 	}
-	
+
 	.seefacture,
 	button.seefacture,
 	a.seefacture {
-		float: none;  
+		float: none;
 		display: inline-block;
 		width: 125px;
 		height: 30px; line-height: 30px;
 		margin: 0px auto 5px auto;
 		padding: 0px 40px 0px 10px;
-		color: #fff!important; 
+		color: #fff!important;
 		border: 0;
 		font-size: 13px!important;
 		-webkit-border-radius: 3px;
 		-moz-border-radius: 3px;
 		-ms-border-radius: 3px;
 		-o-border-radius: 3px;
-		border-radius: 3px; 
-		
+		border-radius: 3px;
+
 		cursor: pointer;
 	}
 	.seefacture.update { padding-right: 30px; background: url(../img/ico-refresh.png) no-repeat 85px 5px #5CB85C; }
 	.seefacture.update:hover { background-color: #449D44; }
-	
+
 	.seefacture.save { background: url(../img/ico-save.png) no-repeat 80px 5px #5CB85C; }
 	.seefacture.save:hover { background-color: #449D44; }
-	
+
 	.seefacture.invoice { background: url(../img/ico-invoice.png) no-repeat 80px 3px #31B0D5; }
 	.seefacture.invoice:hover { background-color: #13ACDD; }
-	
+
 	.seefacture.delete { background: url(../img/ico-delete.png) no-repeat 90px 5px #D9534F; }
 	.seefacture.delete:hover { background-color: #C9302C; }
-	
-	
+
+
 	.ui-widget #detail input, .ui-widget #detail select, .ui-widget #detail textarea, .ui-widget #detail button {
 		font-family: Verdana, Trebuchet MS,Tahoma,Arial,sans-serif!important;
 		font-size: 13px!important;
 	}
-	
+
 	.confirme_time {
 		display: block;
 		float: left;
@@ -445,8 +450,8 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
 		color: #0093cb;
 	}
 	.confirme_time strong { color: #0093cb; }
-	
-	.prodLivr .save { 
+
+	.prodLivr .save {
 		display: block; float: left;
 		clear: both;
 		height: 28px; line-height: 28px;
@@ -460,11 +465,11 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
 		-o-border-radius: 5px;
 		border-radius: 5px;
 	}
-	.prodLivr .save:hover { background-color: #73C635; } 
+	.prodLivr .save:hover { background-color: #73C635; }
 
 
 #order-status-tabs {
-    width: 100%; 
+    width: 100%;
 	margin: 0.5em 0 0em;
 	padding: 0;
     background-color: #ffffff!important;
@@ -475,19 +480,19 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
     background-color: #ffffff;
 }
 #order-status-tabs a {
-	display: inline-block; 
+	display: inline-block;
 	position: relative;
 	width: 19.8%; min-width: 175px;
 	margin: 5px 2px 0 0;
     background-color: #f2f2f2;
-	
+
     border: 1px solid #cbcbcb;
     -webkit-border-radius: 10px 10px 0 0;
     -moz-border-radius: 10px 10px 0 0;
     -ms-border-radius: 10px 10px 0 0;
     -o-border-radius: 10px 10px 0 0;
     border-radius: 10px 10px 0 0;
-	
+
     line-height: 40px;
 	padding: 0px 8px 0px 40px;
 	background-repeat: no-repeat;
@@ -496,8 +501,8 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
     background-color: #F8F8F8;
 }
 #order-status-tabs a.selected {
-    background-color: #e3f6ff; 
-    font-weight: bold; 
+    background-color: #e3f6ff;
+    font-weight: bold;
 }
 #order-status-tabs a.pending { background-image: url(../img/ico-pending.png); background-position: 5px 8px; float: left;}
 #order-status-tabs a.payment { background-image: url(../img/ico-awaiting-payment.png); background-position: 5px 8px; float: left;}
@@ -589,7 +594,7 @@ div.error_msg {
 
 .packing {
     margin-bottom: 15px;
-    padding: 1px 1px 10px 1px; 
+    padding: 1px 1px 10px 1px;
 }
 
 .packing h3 {
@@ -604,7 +609,7 @@ div.error_msg {
 
 .packing em .deadline {
     display: block;
-    height: 40px; line-height: 40px; 
+    height: 40px; line-height: 40px;
     margin-bottom: 15px;
     padding: 0 20px;
     color: #406d07;
@@ -615,7 +620,7 @@ div.error_msg {
 	-ms-border-radius: 10px;
 	-o-border-radius: 10px;
 	border-radius: 10px;
-	
+
 	border: 1px solid #dbdbdb;
 }
 
@@ -655,7 +660,7 @@ div.error_msg {
     display: block;
     padding: 0 0 10px 0;
 	color: #348f00;
-	
+
     font-size: 15px; font-weight: bold;
 	font-weight: bold; text-align: center;
 }
@@ -737,7 +742,7 @@ div.error_msg {
 }
 
 .outer_shipping_date {
-    padding-left: 30px; 
+    padding-left: 30px;
 }
 
 .remaining_packing_items {
@@ -971,11 +976,11 @@ span.item_name {
 /*-------------DATE-NUM-FACTURE--------------*/
 .invoices #header,
 #headBuild {
-	float: right; 
+	float: right;
 	width: auto; height: 100px;
-	margin: 0px 0 35px 0; 
+	margin: 0px 0 35px 0;
 	padding: 30px 10px 10px 10px;
-	text-align: right; 
+	text-align: right;
 	color: #000;
 	font-size: 12px;
 	font-weight: bold;
@@ -1000,13 +1005,13 @@ span.item_name {
 #seller {
 	float: left;
 	width: 43%;
-	margin: 0; 
+	margin: 0;
 }
 
 #seller #sellerLogo {
-	display: block;  
+	display: block;
 	height: 100px;
-	margin: 0 30px 35px 60px; 
+	margin: 0 30px 35px 60px;
 }
 #seller span{
 	display: block;
@@ -1016,15 +1021,15 @@ span.item_name {
 #seller #sellerName { padding-top: 15px; }
 #seller .province span { padding: 0; }
 #seller .province .country { padding-bottom: 15px; }
- 
+
 
 
 
 /*-------------BUYER--------------*/
-#buyer { 
+#buyer {
 	float: right;
 	width: 55%;
-	margin: 0 0 20px 0; 
+	margin: 0 0 20px 0;
 	padding: 10px 20px;
 	text-align: left; font-size: 16px;
 	border: 1px solid #dbdbdb;
@@ -1034,8 +1039,8 @@ span.item_name {
 
 
 /*-------------TITLE--------------*/
-.invoices h1 { 
-	clear: both; padding: 50px 0 10px 0; 
+.invoices h1 {
+	clear: both; padding: 50px 0 10px 0;
 	border-bottom: 1px solid #dbdbdb;
 	font-size: 22px; font-weight: normal;
 }
@@ -1059,7 +1064,7 @@ span.item_name {
 /*--------------------------*/
 
 .invoices table {
-	width: 100%; 
+	width: 100%;
 	margin-top: 14px;
 	border: 1px solid #dbdbdb;
 	font-family: Arial, Helvetica, sans-serif;
@@ -1108,7 +1113,7 @@ span.item_name {
 .invoices table th,
 .invoices table td { border-left: 0; border-right: 0; }
 
- 
+
 .invoices table tr th:first-child,
 .invoices table tr td:first-child { text-align: left; }
 
@@ -1161,26 +1166,26 @@ span.item_name {
 #invoiceTotal { overflow: auto; }
 
 #invoiceTotal label,
-#invoiceTotal span { 
-	display: block; float: left; 
+#invoiceTotal span {
+	display: block; float: left;
 	height: 40px; line-height: 40px;
 	margin-bottom: 5px;
 }
 
-#invoiceTotal label { 
+#invoiceTotal label {
 	clear: left; width: 725px;
 	padding-right: 25px;
 	text-align: right; font-size: 12px;
 	text-transform: uppercase; font-weight: bold;
-	
+
 	border: 1px solid #E7E7E7;
 	border-right: 1px solid #fff;
 	background-color: #ebf4ff;
 }
 
 
-#invoiceTotal span { 
-	width: 173px;  
+#invoiceTotal span {
+	width: 173px;
 	text-align: center; color: #fff;
 	font-weight: bold;
 	border: 1px solid #9BBBE0;
@@ -1190,15 +1195,15 @@ span.item_name {
 
 
 
-#invoiceTotal label:last-child { 
+#invoiceTotal label:last-child {
 	clear: left; width: 795px;
 	padding-right: 25px;
 	text-align: right; font-size: 12px;
 	text-transform: uppercase; font-weight: bold;
 	background-color: #ebf4ff;
 }
-#invoiceTotal span:last-child { 
-	width: 173px;  
+#invoiceTotal span:last-child {
+	width: 173px;
 	text-align: center; color: #fff;
 	background-color: #61A8F7;
 }
@@ -1223,7 +1228,7 @@ span.item_name {
 /*-------------MESSAGE-FOOTER--------------*/
 .invoices #footer,
 #footBuild {
-	margin: 30px 0 0 0; 
+	margin: 30px 0 0 0;
 	padding: 10px;
 	font-size: 12px; text-align: center;
 	background-color: #F7F7F7;
@@ -1257,7 +1262,7 @@ span.item_name {
 .phone_num { margin: 45px 0 0 0; }
 
 .prodLivr { min-width: 280px; width: auto; }
-.formLivr { float: right; width: 510px; }	
+.formLivr { float: right; width: 510px; }
 
 
 
@@ -1265,7 +1270,7 @@ span.item_name {
 
 
 .confirme_time {
-	position:absolute; 
+	position:absolute;
 	top: 90px; right: 20px;
 	color: #0093cb;
 }
@@ -1274,7 +1279,7 @@ span.item_name {
 .packing_detail {
     min-height: 30px;
 }
-	
+
 }
 
 

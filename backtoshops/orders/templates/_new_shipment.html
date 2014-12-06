@@ -229,10 +229,10 @@
                             {% endthumbnail %}
                         </a>
                         <div>
-                            <h5>{{ item.name }}</h5>
-                            <span class="ref">{% trans 'ref' %} {{ item.external_id }}</span>
+                          <h5 title="{{ item.name }}">{{ item.name }}</h5>
+                            <span class="ref">{% trans 'SKU' %} : {{ item.external_id }}</span>
                             <span class="qt">
-                                {% trans 'Quantité' %} : <input type="text"
+                                {% trans 'Qty' %} : <input type="text"
                                                                 class="packing_item_count"
                                                                 name="quantity"
                                                                 for_item="{{ item.id_order_item }}"
@@ -247,7 +247,7 @@
                                                                 orig="{{ item.packing_quantity }}"
                                                                 remaining="{{ item.remaining_quantity }}"
                                                                 total_count="{{ item.quantity }}"/><strong class="total_mark {% if item.remaining_quantity == '0' %}green_text{% else %}red_text{% endif %}"> / {{ item.quantity }}</strong></span>
-                            <span>{% trans "Barcode" %} : {{ item.barcode|default:"-" }}</span>
+                            <span>{% trans "UPC" %} : {{ item.barcode|default:"-" }}</span>
                         </div>
 
                     </div>

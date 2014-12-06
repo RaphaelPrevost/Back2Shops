@@ -266,7 +266,7 @@ class ListOrdersView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
         for order_dict in orders:
             for order_id, order in order_dict.iteritems():
                 orders_by_status[order['order_status']].append({order_id: order})
-                if query and query in order['search_options']:
+                if query and query.lower() in order['search_options']:
                     orders_by_status['search'].append({order_id: order})
 
         if status and status.isdigit() and int(status) in orders_by_status:
