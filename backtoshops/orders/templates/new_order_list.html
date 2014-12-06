@@ -82,12 +82,22 @@
     </form>
 
     <div id="order_vente">
-        {% include "order_vente.html" %}
+        <div class="order_list">
+            {% include "order_vente.html" %}
+        </div>
     </div>
 
 <div class="clear"></div>
 
 <div class="template hidden">
+    <div id="big_flower_loading_overlay">
+      <div class="loading-overlay">
+        <p class="loading_spinner">
+          <span class="big_flower_loading"></span>
+          <span class="loading-text">loading</span>
+        </p>
+      </div>
+    </div>
     <div id="order_search_tab">
         <li>
             <a status_code=""
@@ -108,14 +118,14 @@
         $(function() {
             function sel_mega_tab(node, status){
                 $('#order-status-tabs .selected').removeClass('selected');
-                $(node).addClass('selected');
+                //$(node).addClass('selected');
                 $("#{{ form.status.auto_id }}").val(status);
             }
 
             $(".order_base_tab").click(function(){
+                var tab = $(this);
                 var code = $(this).attr("status_code");
                 if (code == $("#{{ form.status.auto_id }}").val()) return;
-                sel_mega_tab($(this), code);
 
                 var data = $("#main_form").serialize();
                 var tab = $(this);
@@ -125,30 +135,29 @@
                     url: '/orders/vente',
                     data: data,
                     beforeSend: function(){
-                        tab.loadingOverlay({
-                            iconClass: 'snake_loading',
-                            textClass: 'no_loading_text'
-                        });
-                        $("#order_vente").loadingOverlay({
-                            iconClass: 'big_flower_loading',
-                            spinnerClass: 'loading_spinner'
-                        });
+                        sel_mega_tab(tab, code);
+                        var loading_overlay = $("#big_flower_loading_overlay").html();
+                        $("#order_vente").prepend(loading_overlay);
+                        $("#order_vente .order_list").fadeOut();
+
                     },
                     success: function(content, status) {
-                        $('#order_vente').html(content);
+                        $('#order_vente .order_list').html(content);
                     }
                 }).done(function(){
-                            tab.loadingOverlay('remove');
-                            $("#order_vente").loadingOverlay('remove', {
-                                iconClass: 'big_flower_loading',
-                             spinnerClass: 'loading_spinner'
-                            })
+                            $("#order_vente .loading-overlay").fadeOut(function(){
+                                $(this).remove();
+                            });
+                            tab.addClass('selected');
+                            $("#order_vente .order_list").fadeIn();
                     });
             });
 
             $(".find").click(function(){
                 var query = $('input[name=search]').val();
                 if (query == "") return;
+                var orig_query = query;
+                query = query.toLowerCase();
                 $("#{{ form.status.auto_id }}").val("search");
 
 
@@ -165,31 +174,24 @@
                             search_tab = $('a', tab);
                             search_tab.attr('status_code', 'search');
                             search_tab.attr('query', query);
-                            $('.search', search_tab).html(query);
+                            $('.search', search_tab).html(orig_query);
                             $("#order-status-tabs").append(tab);
                         }
                         sel_mega_tab(search_tab, 'search');
 
-                        search_tab.loadingOverlay({
-                            iconClass: 'snake_loading',
-                            textClass: 'no_loading_text'
-                        });
-                        $("#order_vente").loadingOverlay({
-                            iconClass: 'big_flower_loading',
-                            spinnerClass: 'loading_spinner'
-                        });
-
-
+                        var loading_overlay = $("#big_flower_loading_overlay").html();
+                        $("#order_vente").prepend(loading_overlay);
+                        $("#order_vente .order_list").fadeOut();
                     },
                     success: function(content, status) {
-                        $('#order_vente').html(content);
+                        $('#order_vente .order_list').html(content);
                     }
                 }).done(function(){
-                            search_tab.loadingOverlay('remove');
-                            $("#order_vente").loadingOverlay('remove', {
-                                iconClass: 'big_flower_loading',
-                                spinnerClass: 'loading_spinner'
-                            })
+                            $("#order_vente .loading-overlay").fadeOut(function(){
+                                $(this).remove();
+                            });
+                            search_tab.addClass('selected');
+                            $("#order_vente .order_list").fadeIn();
                         });
             });
         });

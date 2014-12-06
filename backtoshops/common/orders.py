@@ -56,7 +56,7 @@ def _populate_order_info(order):
         for id_item, item_detail in order_items:
             search_options.append(item_detail['name'])
 
-        options = [item for item in search_options
+        options = [item.lower() for item in search_options
                    if item != None and item != ""]
         order_detail['search_options'] = ' '.join(options)
 
