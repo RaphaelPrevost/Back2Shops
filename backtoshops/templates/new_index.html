@@ -1,46 +1,49 @@
 {% extends "new_base.html" %}
 {% load i18n %}
+{% load get_brand_currency %}
 
 {% block content %}
     <div id="content_Home">
 			<div class="blocHome bloc1" >
-				<h1>{% trans "Ventes" %} <span id="earned_today">$ <em>{% trans "earned today" %}</em></span></h1>
+				<h1>{% trans "Sales" %} <span id="earned_today"><em class="earned"></em> <em>{% get_brand_currency user %} {% trans "earned today" %}</em></span></h1>
 				<ul>
 					<li><a class="linkHome link1" href="{% url 'add_sale' %}"><span>*</span>{% trans "Add a new sale" %}</a></li>
 					<li><a class="linkHome link2" href="{% url 'list_sales' 'current'%}"><span>*</span>{% trans "Current sales" %}</a></li>
 					<li><a class="linkHome link3" href="{% url 'list_sales' 'old'%}"><span>*</span>{% trans "History" %}</a></li>
-                    <li><a class="linkHome link11" href="{% url 'page_promotion' %}"><span>*</span>{% trans "Promotion groups" %}</a></li>
 				</ul>
-				<div class="graph" id="incomes_chart">
-				</div>
+                <div class="graph" id="incomes_chart">
+                </div>
 			</div>
 
 			<div class="blocHome bloc2">
-				<h1>{% trans "Commandes" %} <span id="waiting_shipping_today">19 <em>"{% trans 'pending orders' %}"</em></span></h1>
+				<h1>{% trans "Orders" %} <span id="waiting_shipping_today">19 <em>"{% trans 'pending orders' %}"</em></span></h1>
 				<ul>
-					<li><a class="linkHome link8" href="{% url 'list_orders' %}"><span>*</span>{% trans "Orders" %}</a></li>
-					<li><a class="linkHome link8" href="#"><span>*</span>{% trans "Returns" %}</a></li>
+					<li><a class="linkHome link2" href="{% url 'list_orders' %}"><span>*</span>{% trans "Orders" %}</a></li>
+					<li><a class="linkHome link2" href="#"><span>*</span>{% trans "Returns" %}</a></li>
 				</ul>
-				<div class="graph" id="orders_chart">
-				</div>
+                <div class="graph" id="orders_chart">
+                </div>
 			</div>
 
 			<div class="blocHome bloc3">
-				<h1>{% trans "Boutiques" %} <span id="visitors_online"> <em>{% trans "visitors online" %}</em></span></h1>
+				<h1>{% trans "Shops" %} <span id="visitors_online"> <em>{% trans "visitors online" %}</em></span></h1>
 				<ul>
 					<li><a class="linkHome link4" href="{% url 'page_shops' %}"><span>*</span>{% trans "Shops" %}</a></li>
-					<li><a class="linkHome link7" href="{% url 'operators' %}"><span>*</span>{% trans "Staff" %}</a></li>
+					<li><a class="linkHome link5" href="#"><span>*</span>{% trans "Statistics" %}</a></li>
+                    <li><a class="linkHome link6" href="{% url 'operators' %}"><span>*</span>{% trans "Operators mgmt" %}</a></li>
 				</ul>
-				<div class="graph" id="visitors_chart">
-				</div>
+                <div class="graph" id="visitors_chart">
+                </div>
 			</div>
 
 			<div class="blocHome bloc4">
-				<h1>{% trans "Réglages" %}</h1>
+				<h1>{% trans "Settings" %}</h1>
+                <!--
                 <ul>
                     <li><a class="linkHome link12" href="{% url 'routes' %}"><span>*</span>{% trans "Content and presentation" %}</a></li>
                     <li><a class="linkHome link12" href="{% url 'new_template' %}"><span>*</span>{% trans "E-mails and Notifications" %}</a></li>
                 </ul>
+                    -->
 				<a href="#" class="graph reglage">
 					<img src="static/img/reglages.png" alt="{% trans "Réglages" %}" />
 				</a>
@@ -48,17 +51,28 @@
 
             <div id="target"></div>
     </div>
+    <div class="hidden">
+        <div id="blochome_loading_overlay">
+            <div class="loading_overlay">
+                <p class="loading_spinner">
+                    <span class="big_flower_loading"></span>
+                    <span class="loading-text">loading</span>
+                </p>
+            </div>
+        </div>
+    </div>
 
 {% endblock %}
 
 
 {% block javascript %}
 <script type="text/javascript">
-    function draw_line(ele_id, line, ticks) {
+    function draw_line(ele_id, line, ticks, series_color) {
         $.jqplot(ele_id, [line], {
 
             seriesDefaults:{
-                showMarker: false
+                showMarker: false,
+                color: series_color
             },
             axesDefaults: {
                 rendererOptions: {drawBaseline: false},
@@ -97,6 +111,7 @@
                 drawBorder: false
             }
         });
+        $("#" + ele_id).hide();
     }
 
     function draw_bar_line(ele_id, bar, line, ticks) {
@@ -156,59 +171,70 @@
                 background: 'transparent',
                 shadow: false,
                 drawBorder: false},
-            series:[{renderer: $.jqplot.BarRenderer},
-                    {yaxis: 'y2axis'}]
+            series:[{renderer: $.jqplot.BarRenderer, color: "#0098D8"},
+                    {yaxis: 'y2axis', color: '#C80C15', shadow: true}]
         });
+        $("#" + ele_id).hide();
+    }
+
+    function loading(ele) {
+        ele.addClass('loading');
+        var l = $($('#blochome_loading_overlay').html());
+        ele.prepend(l);
+    }
+
+    function remove_loading(ele) {
+        $('.loading_overlay', $(ele)).fadeOut({duration: 2000}, function(){
+            $(this).remove();
+        });
+        ele.removeClass('loading');
+        $('.graph', ele).fadeIn({duration:2000});
     }
 
     function load_stats() {
+        var bloc1 = $(".bloc1");
+        var bloc2 = $(".bloc2");
+        var bloc3 = $(".bloc3");
+        loading(bloc1);
+        loading(bloc2);
+        loading(bloc3);
         $.ajax({
             type: 'GET',
             url: '/stats/incomes',
-            dataType: "json",
-            beforeSend: function(xhr) {
-                $('.bloc1').loadingOverlay();
-            }
+            dataType: "json"
         }).fail(function(jqXHR, textStatus) {
                     console.log('failed to get incomes stats with status ' + textStatus)
                 }).success(function(data, textStatus) {
                     if (textStatus == 'success') {
-                        draw_line('incomes_chart', data['lines'], data['ticks']);
-                        $("#earned_today").html("$" + data['earned_today'] + ' <em>{% trans "earned today" %}</em>');
+                        draw_line('incomes_chart', data['lines'], data['ticks'], "#14A40D");
+                        $("#earned_today .earned").html(data['earned_today']);
                     }
 
                 }).done(function(){
-                    $('.bloc1').loadingOverlay('remove');
+                    remove_loading(bloc1);
                 });
 
         $.ajax({
             type: 'GET',
             url: '/stats/orders',
-            dataType: "json",
-            beforeSend: function(xhr) {
-                $('.bloc2').loadingOverlay();
-            }
+            dataType: "json"
         }).fail(function(jqXHR, textStatus) {
                     console.log('failed to get order stats with status ' + textStatus)
                 }).success(function(data, textStatus) {
                     if (textStatus == 'success') {
-                        draw_line('orders_chart', data['lines'], data['ticks']);
+                        draw_line('orders_chart', data['lines'], data['ticks'], "#e3f6ff");
                         $("#waiting_shipping_today").html(
                                 data['pending'] + " <em>{% trans 'pending orders' %}</em>");
 
                     }
-
                 }).done(function(){
-                    $('.bloc2').loadingOverlay('remove');
+                    remove_loading(bloc2);
                 });
 
         $.ajax({
             type: 'GET',
             url: '/stats/visitors',
-            dataType: "json",
-            beforeSend: function(xhr) {
-                $('.bloc3').loadingOverlay();
-            }
+            dataType: "json"
         }).fail(function(jqXHR, textStatus) {
                     console.log('failed to get visitors stats with status ' + textStatus)
                 }).success(function(data, textStatus) {
@@ -223,7 +249,7 @@
                     }
 
                 }).done(function(){
-                    $('.bloc3').loadingOverlay('remove');
+                    remove_loading(bloc3);
                 });
 
     }

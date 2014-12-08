@@ -78,6 +78,11 @@ LANGUAGES = (
     ('zh-CN', ugettext('Chinese')),
 )
 LANGUAGES_2 = tuple([(lang[:2], text) for lang, text in LANGUAGES])
+LANG_MAP = {
+    'en-us': {'iso': 'us'},
+    'fr-FR': {'iso': 'fr'},
+    'zh-CN': {'iso': 'cn'},
+    }
 SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not

@@ -515,38 +515,6 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
     height: 100%;
 }
 
-
-.snake_loading {
-    background: url(../img/snake_loading.gif) no-repeat;
-    background-position: center right;
-    display: block;
-    height: 90px;
-}
-
-.no_loading_text {
-    display: none;
-}
-
-.loading .loading-overlay {
-    z-index: 10000;
-}
-.big_flower_loading {
-    background: url(../img/big_flower.gif) no-repeat ;
-    background-position: center center;
-    display: block;
-    height: 50px;
-}
-.loading_spinner {
-    position: absolute;
-    top: 100px;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: -3.9375rem auto 0;
-    color: #1a1d1d;
-    text-align: center;
-}
-
 .no_matching_orders {
     color: #74BFFB;
     font-size: large;
