@@ -1,5 +1,4 @@
 from django import template
-from B2SProtocol.constants import ORDER_STATUS
 from shops.models import Shop
 from common.utils import get_currency as _get_currency
 

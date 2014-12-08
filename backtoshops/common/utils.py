@@ -44,6 +44,11 @@ def get_currency(user, shop=None):
         value = get_ba_settings(user).get('default_currency')
     return value or default_currency
 
+def get_brand_currency(user):
+    default_currency = get_setting('default_currency')
+    value = get_ba_settings(user).get('default_currency')
+    return value or default_currency
+
 def get_default_setting(key, user, shop=None):
     if user.is_superuser: return
     if key not in dict(BRAND_SETTING_KEY_CHOICES): return
