@@ -1,0 +1,32 @@
+FROM ubuntu
+
+RUN apt-get update
+
+RUN apt-get install -y libapache2-mod-wsgi python2.7-dev libpq-dev python-pip git \
+          libjpeg-turbo8-dev libssl-dev libkrb5-dev comerr-dev libexpat1-dev zlib1g \
+          libtiff4-dev libjpeg8-dev zlib1g-dev libc6-dev libfreetype6-dev \
+          liblcms1-dev libwebp-dev gettext libevent-dev swig
+          libcairo2 libpango1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info \
+          libxml2-dev libxslt1-dev python-lxml memcached redis-server \
+          sendmail sendmail-cf psmisc wget vim
+
+RUN cp /usr/include/x86_64-linux-gnu/openssl/opensslconf.h /usr/include/openssl/
+RUN cd /usr/include; ln -s freetype2 freetype
+
+
+RUN apt-get install -y postgresql-9.1
+RUN service postgresql stop
+
+RUN sed -i -e"s|^data_directory\s*=\s*'/var/lib/postgresql/9.1/main'|data_directory = '/var/lib/container_pg/9.1/main'|" /etc/postgresql/9.1/main/postgresql.conf
+RUN sed -i -e"s|^listen_addresses\s*=\s*'localhost'|listen_addresses= '*'|" /etc/postgresql/9.1/main/postgresql.conf
+
+RUN su postgres createuser -s bts
+RUN echo "
+local   all             postgres                                trust
+local   all             all                                     trust
+host    all             all             127.0.0.1/32            trust
+host    all             all             ::1/128                 trust
+" > /etc/postgresql/9.1/main/pg_hba.conf
+
+RUN cd /usr/share/locales; ./install-language-pack en_US.UTF-8; locale-gen
+RUN service postgresql start
