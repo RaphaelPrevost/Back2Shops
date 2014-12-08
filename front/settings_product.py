@@ -2,8 +2,15 @@
 from settings_local import *
 
 PRODUCTION = True
+LOG_CONFIG_FILE = 'product_logging.cfg'
 
 STATIC_FILES_PATH = '/var/local/assets/front_files'
+
+CENTRAL_REDIS = {
+    'HOST': 'user',
+    'PORT': 6379,
+    'TEST_PORT': 6279
+}
 
 USR_ROOT_URI = "http://92.222.30.2"
 SERVER_APIKEY_URI_MAP = {

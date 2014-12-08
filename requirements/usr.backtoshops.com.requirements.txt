@@ -18,3 +18,4 @@ B2SRespUtils==0.0.2
 B2SProtocol==0.0.16
 email==4.0.2
 lxml==3.3.3
+pytz==2014.4

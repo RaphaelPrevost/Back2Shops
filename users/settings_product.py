@@ -2,6 +2,8 @@
 from settings_base import *
 
 PRODUCTION = True
+LOG_CONFIG_FILE = 'product_logging.cfg'
+
 ADM_ROOT_URI = "http://37.187.48.33"
 USR_ROOT_URI = "http://92.222.30.2"
 FIN_ROOT_URI = "http://92.222.30.3"

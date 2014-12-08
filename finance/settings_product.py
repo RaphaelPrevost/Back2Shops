@@ -3,6 +3,8 @@ import os
 from settings_base import *
 
 PRODUCTION = True
+LOG_CONFIG_FILE = 'product_logging.cfg'
+
 ADM_ROOT_URI = "http://37.187.48.33"
 USR_ROOT_URI = "http://92.222.30.2"
 SALES_SERVER_API_URL = "%s/webservice/1.0/%%(api)s" % ADM_ROOT_URI
