@@ -76,6 +76,7 @@ export AST_DOMAIN='$AST_DOMAIN'
 export AST_ADDR='$AST_ADDR'
 export VSL_DOMAIN='$VSL_DOMAIN'
 export VSL_ADDR='$VSL_ADDR'
+export MAIN_BRAND='$BRAND'
 export $(echo $BRAND)_FRT_DOMAIN='$FRT_DOMAIN'
 export $(echo $BRAND)_FRT_ADDR='$FRT_ADDR'
 EOF
@@ -183,9 +184,9 @@ function load_image() {
 }
 
 function start_db_container() {
-    docker_pull busybox
+    docker_pull debian
     docker_stop_container $DB_CONTAINER_NAME
-    docker run --name $DB_CONTAINER_NAME -v /var/lib/postgresql/:/var/lib/container_pg/ busybox true
+    docker run --name $DB_CONTAINER_NAME -v /var/lib/postgresql/:/var/lib/container_pg/ debian true
 }
 
 ### backoffice ###
@@ -601,7 +602,7 @@ function deploy_all_fronts() {
 [ $1 ] || usage
 case $1 in
         baseimage)
-            docker_pull ubuntu
+            docker_pull debian
             make_image $BASE_IMG
             ;;
 
@@ -636,11 +637,7 @@ case $1 in
 
         front)
             check_deploy_settings
-            if [ -n $2 ]; then
-                deploy_front $2
-            else
-                deploy_all_fronts
-            fi
+            deploy_all_fronts
             ;;
 
         everything)

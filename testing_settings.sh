@@ -13,3 +13,5 @@ export AST_ADDR='188.165.192.57:19300'
 export VSL_ADDR='188.165.192.57:18700'
 export breuer_FRT_ADDR='188.165.192.57:19500'
 export vessel_FRT_ADDR='188.165.192.57:19501'
+
+export MAIN_BRAND='breuer'

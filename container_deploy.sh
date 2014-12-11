@@ -27,7 +27,7 @@ FRT_DEPS=(psmisc python2.7-dev python-pip git sendmail sendmail-cf)
 VSL_DEPS=(psmisc python2.7-dev python-pip git sendmail sendmail-cf)
 DPKG=$(dpkg -l)
 
-BRAND=${BRAND:-""}
+BRAND=${BRAND:-"$MAIN_BRAND"}
 INITDB=${INITDB:-""}
 RESETDB=${RESETDB:-"$INITDB"}
 INST=""
@@ -144,7 +144,7 @@ function create_python_env() {
         if [ -z `pip freeze | grep -i $lib_name` ]; then
             echo "Missed python package ${lib_name}"
             cd $CWD
-            [ -r $REQUIREMENT_FILE ] && pip install -r $REQUIREMENT_FILE -f $CWD/packages/dist/
+            [ -r $REQUIREMENT_FILE ] && pip install -r $REQUIREMENT_FILE -f file://$CWD/packages/dist/
         fi
     done
 }
@@ -265,7 +265,6 @@ Listen 8000
 EOF
         a2enmod wsgi
         a2ensite backoffice.conf
-        a2dissite 000-default.conf
         sed -i -e "s|Require all denied|#Require all denied|g" /etc/apache2/apache2.conf
     else
         echo "(i) Apache VirtualHost OK"
@@ -312,7 +311,7 @@ function adm_redis() {
       ps aux | grep 'start_stats_redis' | grep -v grep | awk '{print $2}' | xargs kill -9 || echo "no similarity redis process to kill"
       sleep 1
       PORT=8001
-      redis-cli -p $PORT shutdown
+      redis-cli -p $PORT shutdown || echo "no running redis"
       sleep 1
       ./manage.py start_stats_redis &
     )
