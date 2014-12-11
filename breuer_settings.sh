@@ -11,3 +11,5 @@ export FIN_ADDR='92.222.30.3:80'
 export AST_ADDR='92.222.30.4:80'
 export VSL_ADDR=''
 export breuer_FRT_ADDR='92.222.30.5:80'
+
+export MAIN_BRAND='breuer'
