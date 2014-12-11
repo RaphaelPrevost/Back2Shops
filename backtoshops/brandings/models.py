@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from accounts.models import Brand
 from common.assets_utils import AssetsStorage
 
 # Create your models here.
@@ -9,9 +10,19 @@ class Branding(models.Model):
     img = models.ImageField(verbose_name=_('Slide image'),
                             upload_to="img/branding",
                             storage=AssetsStorage())
-    landing_url = models.CharField(max_length=50, verbose_name=_('landing URL'), null=True, blank=True)
-    show_from = models.DateTimeField(null=True, blank=True, verbose_name=_('Show from'))
-    show_until = models.DateTimeField(null=True, blank=True, verbose_name=_('Show until'))
+    landing_url = models.CharField(max_length=50,
+                                   verbose_name=_('landing URL'),
+                                   null=True,
+                                   blank=True)
+    show_from = models.DateTimeField(null=True,
+                                     blank=True,
+                                     verbose_name=_('Show from'))
+    show_until = models.DateTimeField(null=True,
+                                      blank=True,
+                                      verbose_name=_('Show until'))
+    for_brand = models.ForeignKey(Brand, null=True, blank=True)
+
     
     def __unicode__(self):
         return self.name
+

@@ -159,7 +159,15 @@ class BrandInfoView(BaseWebservice, DetailView):
 
 class BrandingsListView(BaseWebservice, ListView):
     template_name = "brandings_slideshow.xml"
-    queryset = Branding.objects.exclude(show_from__gt=datetime.now()).exclude(show_until__lt=datetime.now()).order_by('sort_key')[:5]
+    def get(self, request, brand, *args, **kwargs):
+        self.id_brand = brand
+        return super(BrandingsListView, self).get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return Branding.objects.filter(for_brand_id=self.id_brand)\
+                   .exclude(show_from__gt=datetime.now())\
+                   .exclude(show_until__lt=datetime.now())\
+                   .order_by('sort_key')[:5]
 
 class SalesInfoView(BaseWebservice, DetailView):
     template_name = "sales_info.xml"

@@ -1,4 +1,4 @@
-{% extends "sa_base.html" %}
+{% extends "new_base.html" %}
 {% load i18n %}
 
 {% block title %}
@@ -10,12 +10,7 @@
 {% endblock %}
 
 {% block head %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
     <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/admin_branding.css">
-{% endblock %}
-
-{% block navigation %}
-    {% include "sa_quick_nav.html" %}
 {% endblock %}
 
 {% block content %}
@@ -30,9 +25,9 @@
 
     <!--FORM-->
     {% if pk %}
-    <form id="main_form" method="post" action="{% url 'sa_edit_branding' pk %}" enctype="multipart/form-data">{% csrf_token %}
+    <form id="main_form" method="post" action="{% url 'edit_branding' pk %}" enctype="multipart/form-data">{% csrf_token %}
     {% else %}
-    <form id="main_form" method="post" action="{% url 'sa_brandings' %}" enctype="multipart/form-data">{% csrf_token %}
+    <form id="main_form" method="post" action="{% url 'page_brandings' %}" enctype="multipart/form-data">{% csrf_token %}
     {% endif %}
     {% if pk %}
         <h3>{% trans "Edit a slide" %}</h3>
@@ -42,6 +37,9 @@
 
         <fieldset>
             {{ form.name.errors }}
+            <div class="formrow hidden">
+                {{ form.for_brand }}
+            </div>
             <div class="formrow">
                 <label for="{{form.name.auto_id}}">{% trans form.name.label %}</label>
                 {{ form.name }}
@@ -94,10 +92,10 @@
             </tr>
             {% for branding in page.object_list %}
             <tr id="branding_{{ branding.pk }}"><!-- class=new -->
-                <td><a href="{% url 'sa_edit_branding' branding.pk %}">{{ branding.name }}</a></td>
+                <td><a href="{% url 'edit_branding' branding.pk %}">{{ branding.name }}</a></td>
                 <td>{{ branding.img }}</td>
                 <td>{{ branding.sort_key }}</td>
-                <td><a class="modif" href="{% url 'sa_edit_branding' branding.pk %}">{% trans "Edit" %}</a><a class="out delete_branding" href="{% url 'sa_delete_branding' branding.pk %}">{% trans "Delete" %}</a></td>
+                <td><a class="modif" href="{% url 'edit_branding' branding.pk %}">{% trans "Edit" %}</a><a class="out delete_branding" href="{% url 'delete_branding' branding.pk %}">{% trans "Delete" %}</a></td>
             </tr>
             {% empty %}
             <tr class="noshop">
@@ -135,7 +133,7 @@
         {% endif %}
     </div>
     <!--//Liste-Branding-->
-    <a class="btn ajouter" href="{% url 'sa_brandings' %}">{% trans "Add a new slide" %}</a>
+    <a class="btn ajouter" href="{% url 'page_brandings' %}">{% trans "Add a new slide" %}</a>
 </div>
 <!--FIN content-right-->
 <div class="clear"></div>
@@ -150,7 +148,7 @@ $(document).ready(function(){
                 $.post(this.href, function(data){
                     $("#branding_"+data.branding_pk).remove();
                     if(data.branding_pk == "{% firstof pk "0" %}") {
-                        location.replace("{% url 'sa_brandings' %}");
+                        location.replace("{% url 'page_brandings' %}");
                     }
                 });
             }

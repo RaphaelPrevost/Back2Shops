@@ -21,7 +21,6 @@ from attributes.models import CommonAttribute
 from backend.forms import SAAttributeForm
 from backend.forms import SABrandForm
 from backend.forms import SABrandSettingsForm
-from backend.forms import SABrandingForm
 from backend.forms import SACarrierForm
 from backend.forms import SACategoryForm
 from backend.forms import SACommonAttributeForm
@@ -29,7 +28,6 @@ from backend.forms import SACreateUserForm
 from backend.forms import SASettingsForm
 from backend.forms import SATaxForm
 from backend.forms import SAUserForm
-from brandings.models import Branding
 from common.constants import USERS_ROLE
 from fouillis.views import super_admin_required
 from fouillis.views import manager_upper_required
@@ -402,27 +400,6 @@ class UpdateAttributeOrderView(SARequiredMixin, View):
             obj.save()
         content = {'success': True}
         return HttpResponse(content=json.dumps(content),
-                            mimetype="application/json")
-
-class BaseBrandingView(SARequiredMixin):
-    template_name = "sa_branding.html"
-    form_class = SABrandingForm
-    model = Branding
-    
-class CreateBrandingView(BaseBrandingView, CreateView):
-    def get_success_url(self):
-        return reverse('sa_edit_branding',args=[self.object.id])
-    
-class EditBrandingView(BaseBrandingView, UpdateView):
-    def get_success_url(self):
-        pk = self.kwargs.get('pk', None)
-        return reverse("sa_edit_branding",args=[pk])
-
-class DeleteBrandingView(BaseBrandingView, DeleteView):
-    def delete(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        self.object.delete()
-        return HttpResponse(content=json.dumps({"branding_pk": self.kwargs.get('pk', None)}),
                             mimetype="application/json")
 
 

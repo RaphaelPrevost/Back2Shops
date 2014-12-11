@@ -15,7 +15,6 @@ from accounts.models import Brand
 from accounts.models import UserProfile
 from brandsettings import get_ba_settings
 from brandsettings import save_ba_settings
-from brandings.models import Branding
 from common.constants import USERS_ROLE
 from globalsettings import get_setting
 from globalsettings.models import GlobalSettings
@@ -224,14 +223,6 @@ class SACarrierForm(forms.ModelForm):
 
     class Meta:
         model = Carrier
-
-
-class SABrandingForm(forms.ModelForm):
-    error_css_class = 'error'
-    required_css_class = 'required'
-    
-    class Meta:
-        model = Branding
 
 
 class SASettingsForm(forms.Form):
