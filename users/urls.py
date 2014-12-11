@@ -35,6 +35,7 @@ from webservice.sensor.incomes import SensorIncomesResource
 from webservice.sensor.orders import SensorOrdersResource
 from webservice.sensor.bought_history import SensorBoughtHistoryResource
 from webservice.shops import ShopsResource
+from webservice.slide_show import SlideShowResource
 from webservice.suggest import SuggestResource
 from webservice.taxes import TaxesResource
 from webservice.types import TypesResource
@@ -68,6 +69,7 @@ urlpatterns = {
     '/webservice/1.0/pub/apikey.pem': ApiKeyResource,
     '/webservice/1.0/pub/invoice/request': InvoiceResource,
     '/webservice/1.0/pub/suggest': SuggestResource,
+    '/webservice/1.0/pub/brand/home/slideshow': SlideShowResource,
 
     '/webservice/protected/invalidate': InvalidationResource,
     '/webservice/protected/shipping/fee': ShippingFeeResource,
