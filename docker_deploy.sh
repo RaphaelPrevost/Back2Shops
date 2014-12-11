@@ -184,9 +184,12 @@ function load_image() {
 }
 
 function start_db_container() {
-    docker_pull debian
-    docker_stop_container $DB_CONTAINER_NAME
-    docker run --name $DB_CONTAINER_NAME -v /var/lib/postgresql/:/var/lib/container_pg/ debian true
+    exist=$(docker ps -a | awk '{print $(NF)}' | grep $DB_CONTAINER_NAME | wc -l)
+    if [ $exist == "0" ]; then
+        docker_pull debian
+        docker_stop_container $DB_CONTAINER_NAME
+        docker run --name $DB_CONTAINER_NAME -v /var/lib/postgresql/:/var/lib/container_pg/ debian true
+    fi
 }
 
 ### backoffice ###
