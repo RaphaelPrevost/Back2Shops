@@ -6,6 +6,7 @@ from api import remote_call
 from constants import REMOTE_API_NAME
 from B2SProtocol.constants import RESP_RESULT
 from B2SProtocol.constants import ALL
+from B2SProtocol.constants import CATEGORY
 from B2SProtocol.constants import SALE
 from B2SProtocol.constants import SALES_ALL
 from B2SProtocol.constants import SALES_FOR_TYPE
@@ -206,6 +207,7 @@ class SalesCacheProxy(BaseCacheProxy):
 
         resp_dict = {}
         types = {}
+        categories = {}
         shops = {}
         for _id in obj_ids:
             obj = self.redis_cli.get(self.obj_redis_key % _id)
@@ -213,8 +215,11 @@ class SalesCacheProxy(BaseCacheProxy):
                 resp_dict[_id] = ujson.loads(obj)
 
                 type_id = resp_dict[_id].get('type', {}).get('@id')
+                cate_id = resp_dict[_id].get('category', {}).get('@id')
                 if type_id and type_id not in types:
                     types[type_id] = ujson.loads(self.redis_cli.get(TYPE % type_id))
+                if cate_id and cate_id not in categories:
+                    categories[cate_id] = ujson.loads(self.redis_cli.get(CATEGORY % cate_id) or "{}")
 
                 shop_list = as_list(resp_dict[_id].get('shop'))
                 for s in shop_list:
@@ -243,9 +248,9 @@ class SalesCacheProxy(BaseCacheProxy):
             if type_id and types[type_id]:
                 # update type name
                 sale['type']['name'] = types[type_id].get('name', '')
-                # update category info
-                if category_id and category_id == types[type_id].get('category', {}).get('@id'):
-                    sale['category'] = types[type_id].get('category', {})
+            # update category info
+            if category_id and categories.get(category_id):
+                sale['category'] = categories.get(category_id, {})
 
         return resp_dict
 

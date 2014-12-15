@@ -53,3 +53,6 @@
 
 == version 0.0.18 ==
 1. add log visitors api constants
+
+== version 0.0.19 ==
+1. Populate sale's category info with new cached data structure

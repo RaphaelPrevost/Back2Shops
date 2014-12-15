@@ -218,6 +218,8 @@ INSTALLED_APPS = (
     get_site_prefix()+'routes',
     get_site_prefix()+'stats',
     get_site_prefix()+'batch',
+    get_site_prefix()+'categories',
+    get_site_prefix()+'producttypes',
     'south',
     'form_utils',
     'formwizard',
@@ -307,7 +309,7 @@ GEONAMES_USERNAME = "moonstrap"
 USR_SERVER = 'http://localhost:8100'
 FIN_SERVER = 'http://localhost:9000'
 AST_SERVER = 'http://localhost:9300'
-ASSETS_CDN = 'http://%s:9300' % node()
+ASSETS_CDN = 'http://%s:9300' % "10.0.8.66"
 
 SERVER_APIKEY_URI_MAP = {
     'USR': os.path.join(USR_SERVER, 'webservice/1.0/pub/apikey.pem'),

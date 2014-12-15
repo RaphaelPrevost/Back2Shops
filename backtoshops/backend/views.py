@@ -10,20 +10,15 @@ from django.forms.models import inlineformset_factory
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.views.generic.base import View
 from django.views.generic.edit import CreateView
 from django.views.generic.edit import DeleteView
 from django.views.generic.edit import UpdateView
 
 from accounts.models import Brand
 from accounts.models import UserProfile
-from attributes.models import CommonAttribute
-from backend.forms import SAAttributeForm
 from backend.forms import SABrandForm
 from backend.forms import SABrandSettingsForm
 from backend.forms import SACarrierForm
-from backend.forms import SACategoryForm
-from backend.forms import SACommonAttributeForm
 from backend.forms import SACreateUserForm
 from backend.forms import SASettingsForm
 from backend.forms import SATaxForm
@@ -33,8 +28,6 @@ from fouillis.views import super_admin_required
 from fouillis.views import manager_upper_required
 from globalsettings import get_setting
 from globalsettings.models import GlobalSettings
-from sales.models import ProductCategory
-from sales.models import ProductType
 from shippings.models import Carrier
 from shippings.models import Service
 from taxes.models import Rate
@@ -243,31 +236,6 @@ def ajax_user_search(request):
     return render_to_response('ajax/user_search.html', {'users':users,}, mimetype='text/html')
 
 
-class BaseCategoryView(SARequiredMixin):
-    template_name = "sa_category.html"
-    form_class = SACategoryForm
-    model = ProductCategory
-
-class CreateCategoryView(BaseCategoryView, CreateView):
-    def get_success_url(self):
-        return reverse('sa_categories')
-    
-class EditCategoryView(BaseCategoryView, UpdateView):
-    def get_success_url(self):
-        pk = self.kwargs.get('pk', None)
-        return reverse("sa_edit_category",args=[pk])
-
-class DeleteCategoryView(BaseCategoryView, DeleteView):
-    def delete(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        content = {"category_pk": self.kwargs.get('pk', None)}
-        self.object.delete()
-        if self.object.products.all():
-            content.update({'reprieve': True, 'name': self.object.name})
-        return HttpResponse(content=json.dumps(content),
-                            mimetype="application/json")
-
-
 class BaseCarrierView(SARequiredMixin):
     template_name = "sa_carrier.html"
     form_class = SACarrierForm
@@ -324,82 +292,6 @@ class DeleteCarrierView(BaseCarrierView, DeleteView):
         self.object = self.get_object()
         self.object.delete()
         return HttpResponse(content=json.dumps({"carrier_pk": self.kwargs.get('pk', None)}),
-                            mimetype="application/json")
-
-class BaseAttributeView(SARequiredMixin):
-    template_name = "sa_attribute.html"
-    form_class = SAAttributeForm
-    model = ProductType
-    formset = inlineformset_factory(ProductType, CommonAttribute,
-                                    form=SACommonAttributeForm, extra=0)
-
-    def get_queryset(self):
-        qs = super(BaseAttributeView, self).get_queryset()
-        return qs.order_by('sort_order')
-
-    def get_context_data(self, **kwargs):
-        kwargs.update({"formset": self.formset})
-        return super(BaseAttributeView, self).get_context_data(**kwargs)
-
-class CreateAttributeView(BaseAttributeView, CreateView):
-    def get_success_url(self):
-        return reverse('sa_edit_attribute', args=[self.object.id])
-
-    def post(self, request, *args, **kwargs):
-        self.object = None
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        if form.is_valid():
-            product_type=form.save(commit=False)
-            formset = self.formset(data=self.request.POST, instance=product_type)
-            if formset.is_valid():
-                form.save(commit=True)
-                formset.save()
-                return self.form_valid(form)
-        return self.form_invalid(form)
-    
-class EditAttributeView(BaseAttributeView, UpdateView):
-    def get_success_url(self):
-        pk = self.kwargs.get('pk', None)
-        return reverse("sa_edit_attribute",args=[pk])
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        self.formset = self.formset(instance=self.get_object())
-        return super(BaseAttributeView, self).get(request, *args, **kwargs)
-    
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        if form.is_valid():
-            product_type = form.save(commit=False)
-            formset = self.formset(data=self.request.POST, instance=product_type)
-            if formset.is_valid():
-                form.save(commit=True)
-                formset.save()
-                return self.form_valid(form)
-        return self.form_invalid(form)
-
-class DeleteAttributeView(BaseAttributeView, DeleteView):
-    def delete(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        content = {"attribute_pk": self.kwargs.get('pk', None)}
-        self.object.delete()
-        if self.object.products.all():
-            content.update({'reprieve': True, 'name': self.object.name})
-        return HttpResponse(content=json.dumps(content),
-                            mimetype="application/json")
-
-class UpdateAttributeOrderView(SARequiredMixin, View):
-    def post(self, *args, **kwargs):
-        sorted_attrs = json.loads(self.request.POST.get('sorted', '{}'))
-        for attr in sorted_attrs:
-            obj = ProductType.objects.get(pk=attr.replace('attribute_', ''))
-            obj.sort_order = sorted_attrs[attr]
-            obj.save()
-        content = {'success': True}
-        return HttpResponse(content=json.dumps(content),
                             mimetype="application/json")
 
 

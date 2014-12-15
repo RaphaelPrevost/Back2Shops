@@ -1,6 +1,7 @@
 {% extends "new_base.html" %}
 {% load i18n %}
 {% load get_brand_currency %}
+{% load is_admin %}
 
 {% block content %}
     <div id="content_Home">
@@ -38,12 +39,15 @@
 
 			<div class="blocHome bloc4">
 				<h1>{% trans "Settings" %}</h1>
-                <!--
+                {% if user|is_admin %}
                 <ul>
                     <li><a class="linkHome link12" href="{% url 'routes' %}"><span>*</span>{% trans "Content and presentation" %}</a></li>
                     <li><a class="linkHome link12" href="{% url 'new_template' %}"><span>*</span>{% trans "E-mails and Notifications" %}</a></li>
+                    <li><a class="linkHome link12" href="{% url 'page_brandings' %}"><span>*</span>{% trans "Frontpage" %}</a></li>
+                    <li><a class="linkHome link12" href="{% url 'list_categories' %}"><span>*</span>{% trans "Sales categories" %}</a></li>
+                    <li><a class="linkHome link12" href="{% url 'page_producttypes' %}"><span>*</span>{% trans "Items" %}</a></li>
                 </ul>
-                    -->
+                {% endif %}
 				<a href="#" class="graph reglage">
 					<img src="static/img/reglages.png" alt="{% trans "Réglages" %}" />
 				</a>
