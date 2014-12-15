@@ -102,14 +102,13 @@ class ProductCategory(models.Model):
     picture = models.ImageField(upload_to='img/category_images',
                                 null=True, blank=True,
                                 storage=AssetsStorage())
+    brand = models.ForeignKey(Brand, null=True, blank=True)
 
     def __unicode__(self):
         return self.name
 
     def delete(self, using=None):
         if self.products.all():
-            for pt in self.producttype_set.all():
-                pt.delete()
             self.valid = False
             self.save()
         else:
@@ -120,9 +119,9 @@ class ProductCategory(models.Model):
 
 class ProductType(models.Model):
     name = models.CharField(max_length=50, verbose_name='name')
-    category = models.ForeignKey(ProductCategory, verbose_name='category')
     valid = models.BooleanField(default=True)
     sort_order = models.SmallIntegerField(null=True, blank=True)
+    brand = models.ForeignKey(Brand, null=True, blank=True)
 
     def __unicode__(self):
         return self.name
@@ -137,6 +136,11 @@ class ProductType(models.Model):
             # Can't use 'super', why?
             from django.db import models
             models.Model.delete(self, using)
+
+
+class CategoryTypeMap(models.Model):
+    category = models.ForeignKey(ProductCategory, verbose_name='category')
+    type = models.ForeignKey(ProductType, verbose_name='type')
 
 
 class ProductBrand(models.Model):

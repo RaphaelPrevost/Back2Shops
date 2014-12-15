@@ -12,6 +12,7 @@ import settings
 from B2SCrypto.constant import SERVICES
 from B2SCrypto.utils import decrypt_json_resp
 from B2SProtocol.constants import ALL
+from B2SProtocol.constants import CATEGORY
 from B2SProtocol.constants import GLOBAL_MARKET
 from B2SProtocol.constants import ROUTE
 from B2SProtocol.constants import ROUTES_VERSION
@@ -426,13 +427,16 @@ class ShopsCacheProxy(CacheProxy):
 
 
 class TypesCacheProxy(CacheProxy):
-    list_api = "pub/types/list?%s"
+    list_api = "pub/types/list/%s"
     obj_api = "pub/types/info/%s"
     obj_key = TYPE
 
     @property
     def query_options(self):
         return ('seller')
+
+    def _get_query_str(self, **kw):
+        return kw.get('seller')
 
     def del_obj(self, obj_id):
         pass
@@ -461,9 +465,11 @@ class TypesCacheProxy(CacheProxy):
         data = data.get('types', data.get('info'))
         version = data['@version']
         types = as_list(data.get('type', None))
+        cats = as_list(data.get('category', None))
 
         try:
             self._refresh_redis(version, types, is_entire_result, **kw)
+            self._refresh_cats_redis(cats)
         except (RedisError, ConnectionError), e:
             logging.error('Redis Error: %s', (e,), exc_info=True)
 
@@ -481,6 +487,19 @@ class TypesCacheProxy(CacheProxy):
             pipe.expire(TYPES_FOR_BRAND % brand_id, settings.DEFAULT_REDIS_CACHE_TTL)
             pipe.execute()
         self._save_objs_to_redis(types)
+
+    def _refresh_cats_redis(self, cats, **kw):
+        if not cats:
+            return
+
+        pipe = get_redis_cli().pipeline()
+        for cat in cats:
+            id_cat = cat['@id']
+            cat_str = ujson.dumps(cat)
+            name = CATEGORY % id_cat
+            pipe.set(name, cat_str)
+        pipe.execute()
+
 
 class CatesCacheProxy(TypesCacheProxy):
     def refresh(self, obj_id=None):

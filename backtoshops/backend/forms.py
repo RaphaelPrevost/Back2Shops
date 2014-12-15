@@ -18,9 +18,7 @@ from brandsettings import save_ba_settings
 from common.constants import USERS_ROLE
 from globalsettings import get_setting
 from globalsettings.models import GlobalSettings
-from sales.models import ProductCategory
 from sales.models import ProductCurrency
-from sales.models import ProductType
 from sales.models import WeightUnit
 from shippings.models import Carrier
 from taxes.models import Rate
@@ -165,42 +163,10 @@ class SAUserForm(BaseUserForm):
         return self.instance
 
 
-class SACategoryForm(forms.ModelForm):
-    error_css_class = 'error'
-    required_css_class = 'required'
-    thumbnail = forms.ImageField(widget=AdvancedFileInput, required=False)
-    picture = forms.ImageField(widget=AdvancedFileInput, required=False)
-
-    def __init__(self, *args, **kwargs):
-        super(SACategoryForm, self).__init__(*args, **kwargs)
-        cat = kwargs.get('instance', None)
-        if cat:
-            if not cat.valid:
-                for field in self.fields.iterkeys():
-                    self.fields[field].widget.attrs.update(DISABLED_WIDGET_ATTRS)
-
+class CategoryTypeForm(forms.ModelForm):
     class Meta:
-        model = ProductCategory
-        exclude = ['valid', ]
-
-
-class SAAttributeForm(forms.ModelForm):
-    error_css_class = 'error'
-    required_css_class = 'required'
-
-    def __init__(self, *args, **kwargs):
-        super(SAAttributeForm, self).__init__(*args, **kwargs)
-        self.fields['category'].queryset = ProductCategory.objects.filter(valid=True)
-        sa_attr = kwargs.get('instance', None)
-        if sa_attr:
-            if not sa_attr.valid:
-                for field in self.fields.iterkeys():
-                    self.fields[field].widget.attrs.update(DISABLED_WIDGET_ATTRS)
-
-
-    class Meta:
-        model = ProductType
-        exclude = ['valid', ]
+        from sales.models import CategoryTypeMap
+        model = CategoryTypeMap
 
 class SACommonAttributeForm(forms.ModelForm):
 

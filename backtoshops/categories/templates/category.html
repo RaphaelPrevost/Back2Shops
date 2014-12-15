@@ -1,4 +1,4 @@
-{% extends "sa_base.html" %}
+{% extends "new_base.html" %}
 {% load i18n %}
 
 {% block title %}
@@ -10,12 +10,7 @@
 {% endblock %}
 
 {% block head %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
     <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/admin_category.css">
-{% endblock %}
-
-{% block navigation %}
-    {% include "sa_quick_nav.html" %}
 {% endblock %}
 
 {% block content %}
@@ -30,9 +25,9 @@
 
     <!--FORM-->
     {% if pk %}
-    <form id="main_form" method="post" action="{% url 'sa_edit_category' pk %}" enctype="multipart/form-data">{% csrf_token %}
+    <form id="main_form" method="post" action="{% url 'edit_category' pk %}" enctype="multipart/form-data">{% csrf_token %}
     {% else %}
-    <form id="main_form" method="post" action="{% url 'sa_categories' %}" enctype="multipart/form-data">{% csrf_token %}
+    <form id="main_form" method="post" action="{% url 'list_categories' %}" enctype="multipart/form-data">{% csrf_token %}
     {% endif %}
     {% if pk %}
         <h3>{% trans "Edit a sales category" %}</h3>
@@ -63,12 +58,52 @@
                 {{ form.picture }}
             </div>
         </fieldset>
+        <fieldset>
+            <h3>{% trans "Please select the kind of items belonging to this category:" %}</h3>
+            <div class="formrow">
+                <ul>
+                    {% for type in types %}
+                        <li>
+                            <input type="checkbox"
+                                   class="type_check"
+                                   name="type_{{ type.id }}"
+                                   for_type="{{ type.id }}"
+                                   {% if type.selected %}checked="checked"{% endif %}
+                                   />
+                            <span class="type_name">{{ type.name }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+        </fieldset>
+
+        <fieldset id="subform" class="hidden">
+            <div>{{ formset.management_form }}</div>
+            {% for subform in formset.forms %}
+                <div class="formrow" id="product_type_{{ subform.type.value }}">
+                    {{ subform.id }}
+                    <input type="text" name="{{subform.type.html_name}}" value="{{ subform.type.value }}" id="{{subform.type.auto_id}}" />
+                    <input type="checkbox" name="{{subform.DELETE.html_name}}" id="{{subform.DELETE.auto_id}}" />
+                </div>
+            {% endfor %}
+        </fieldset>
+
+
         <!--BOUTONS-->
         {% if form.instance.valid %}
         <input class="btn valider" type="submit" value='{% trans "Save" %}'/>
         {% endif %}
         <button type="reset" class="btn annuler">{% trans "Cancel" %}</button>
     </form>
+
+    <div id="add_map_form" class="hidden">
+        <div class="formrow" id="__product_type__">
+            {{ formset.empty_form.id }}
+            <input type="text" name="{{formset.empty_form.type.html_name}}" id="{{ formset.empty_form.type.auto_id }}"/>
+            <input type="checkbox" name="{{formset.empty_form.DELETE.html_name}}" id="{{formset.empty_form.DELETE.auto_id}}" />
+        </div>
+    </div>
     <!--FIN FORM-->
 </div>
 <!--FIN content-left-->
@@ -85,8 +120,8 @@
             </tr>
             {% for category in page.object_list %}
             <tr id="category_{{ category.pk }}"><!-- class=new -->
-                <td><a class="category_name" href="{% url 'sa_edit_category' category.pk %}">{{ category.name }}{% if not category.valid %} ({% trans "invalid" %}){% endif %}</a></td>
-                <td><a class="modif" href="{% url 'sa_edit_category' category.pk %}">{% trans "Edit" %}</a><a class="out delete_category" href="{% url 'sa_delete_category' category.pk %}">{% trans "Delete" %}</a></td>
+                <td><a class="category_name" href="{% url 'edit_category' category.pk %}">{{ category.name }}{% if not category.valid %} ({% trans "invalid" %}){% endif %}</a></td>
+                <td><a class="modif" href="{% url 'edit_category' category.pk %}">{% trans "Edit" %}</a><a class="out delete_category" href="{% url 'delete_category' category.pk %}">{% trans "Delete" %}</a></td>
             </tr>
             {% empty %}
             <tr class="noshop">
@@ -125,7 +160,7 @@
         {% endif %}
     </div>
     <!--//Liste-Category-->
-    <a class="btn ajouter" href="{% url 'sa_categories' %}">{% trans "Add a new sales category" %}</a>
+    <a class="btn ajouter" href="{% url 'list_categories' %}">{% trans "Add a new sales category" %}</a>
 </div>
 <!--FIN content-right-->
 <div class="clear"></div>
@@ -144,7 +179,7 @@ $(document).ready(function(){
                     } else {
                         $("#category_"+data.category_pk).remove();
                         if(data.category_pk == "{% firstof pk "0" %}") {
-                            location.replace("{% url 'sa_categories' %}");
+                            location.replace("{% url 'list_categories' %}");
                         }
                     }
                 });
@@ -165,6 +200,41 @@ $(document).ready(function(){
             else
                 alert("{% trans "Please enter a valid page number." %}");
         }
+    });
+
+    function select_type(for_type) {
+        var type = $("#product_type_" + for_type);
+        var total_forms = $("#{{ formset.management_form.TOTAL_FORMS.auto_id }}").val();
+        if (type.length == 0) {
+            var new_subform = $("#add_map_form").html();
+
+            new_subform = new_subform.replace(/__prefix__/g,total_forms.toString());
+            new_subform = new_subform.replace(/__product_type__/g, 'product_type_' + for_type);
+            $("#subform").append(new_subform);
+            var sel_type = '#{{formset.empty_form.type.auto_id}}'.replace(/__prefix__/g,total_forms.toString());
+            $(sel_type).val(for_type);
+        } else {
+            $("input[type='checkbox']", type).removeAttr('checked');
+        }
+
+        total_forms++;
+        $("#{{ formset.management_form.TOTAL_FORMS.auto_id }}").val(total_forms);
+    }
+
+    function remove_type(for_type) {
+        var type = $("#product_type_" + for_type);
+        $("input[type='checkbox']", type).attr('checked', 'checked');
+    }
+
+    $(".type_check").change(function(){
+        var for_type = $(this).attr('for_type');
+        var checked = $(this).is(':checked');
+        if (checked) {
+            select_type(for_type);
+        } else {
+            remove_type(for_type);
+        }
+
     });
 });
 </script>

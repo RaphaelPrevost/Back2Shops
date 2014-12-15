@@ -53,9 +53,11 @@ from sales.forms import TargetForm
 from sales.models import ExternalRef
 from sales.models import Product
 from sales.models import ProductBrand
+from sales.models import ProductCategory
 from sales.models import ProductCurrency
 from sales.models import ProductPicture
 from sales.models import ProductType
+from sales.models import CategoryTypeMap
 from sales.models import STOCK_TYPE_DETAILED
 from sales.models import STOCK_TYPE_GLOBAL
 from sales.models import Sale
@@ -1435,12 +1437,30 @@ class SaleWizardNew(NamedUrlSessionWizardView):
 
 def get_product_types(request, *args, **kwargs):
     product_types_list = []
-    product_types = ProductType.objects.filter(
-        category_id=kwargs.get('cat_id', None))
-    for type in product_types:
-        product_types_list.append({'label': type.name,
-                                   'value': type.id,
-                                   'valid': type.valid})
+    brand = request.user.get_profile().work_for
+    cat_id = kwargs.get('cat_id')
+    cat = ProductCategory.objects.filter(pk=cat_id).filter(brand=brand)
+    if cat:
+        cat_maps = CategoryTypeMap.objects\
+            .filter(category_id=cat_id)\
+            .filter(type__brand=brand)
+
+        types = [map.type for map in cat_maps]
+        map_types = CategoryTypeMap.objects\
+            .order_by('type')\
+            .values('type')\
+            .distinct()
+        orphan_types = ProductType.objects\
+            .filter(brand=brand)\
+            .exclude(id__in=map_types)
+
+        orphan_types = list(orphan_types)
+        types.extend(orphan_types)
+
+        for type in types:
+            product_types_list.append({'label': type.name,
+                                       'value': type.id,
+                                       'valid': type.valid})
     return HttpResponse(json.dumps(product_types_list),
                         mimetype='application/json')
 

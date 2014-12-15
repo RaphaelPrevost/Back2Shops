@@ -14,7 +14,7 @@ from webservice.views import SalesListView, BrandInfoView, BrandListView, SalesI
 urlpatterns = patterns(settings.SITE_NAME,
     url(r'1.0/pub/sales/list', SalesListView.as_view()),
     url(r'1.0/pub/shops/list', ShopsListView.as_view()),
-    url(r'1.0/pub/types/list', TypesListView.as_view()),
+    url(r'1.0/pub/types/list/(?P<brand>\d+)', TypesListView.as_view()),
     url(r'1.0/pub/brand/list', BrandListView.as_view()),
     url(r'1.0/pub/brand/home/slideshow/(?P<brand>\d+)', BrandingsListView.as_view()),
     url(r'1.0/pub/brand/info/(?P<pk>\d+)', BrandInfoView.as_view()),

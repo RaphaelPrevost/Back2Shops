@@ -338,8 +338,10 @@ class ProductForm(forms.Form):
         self.fields['brand'] = forms.ModelChoiceField(
             queryset=ProductBrand.objects.filter(seller=mother_brand)
         )
+        cat_queryset = ProductCategory.objects.filter(brand=mother_brand)
         if add_new:
-            self.fields['category'].queryset = ProductCategory.objects.filter(valid=True)
+            cat_queryset = cat_queryset.filter(valid=True)
+        self.fields['category'].queryset = cat_queryset
         formset = formset_factory(BrandAttributeForm, extra=0, can_delete=True)
         if initial:
             self.brand_attributes = formset(data=data, initial=initial.get('brand_attributes', None), prefix="brand_attributes")

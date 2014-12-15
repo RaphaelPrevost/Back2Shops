@@ -52,3 +52,6 @@
 
 == version 0.0.16 ==
 1. Add constant INVOICE_STATUS
+
+== version 0.0.17 ==
+1. Add constant CATEGORY

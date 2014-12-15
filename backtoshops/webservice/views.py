@@ -125,13 +125,13 @@ class TypesListView(BaseWebservice, ListView):
     template_name = "types_list.xml"
 
     def get_queryset(self):
-        brand = self.request.GET.get('seller', None)
-        queryset = ProductType.objects.all()
-        self.q_category = ProductCategory.objects.all()
-        if brand:
-            queryset = queryset.filter(products__sale__mother_brand=brand).distinct()
-            self.q_category = self.q_category.filter(products__sale__mother_brand=brand).distinct()
+        queryset = ProductType.objects.filter(brand_id=self.id_brand)
+        self.q_category = ProductCategory.objects.filter(brand_id=self.id_brand)
         return queryset
+
+    def get(self, request, brand, *args, **kwargs):
+        self.id_brand = brand
+        return super(TypesListView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         kwargs.update({
