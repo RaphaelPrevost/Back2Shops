@@ -194,6 +194,8 @@ INSTALLED_APPS = (
     get_site_prefix()+'routes',
     get_site_prefix()+'stats',
     get_site_prefix()+'batch',
+    get_site_prefix()+'categories',
+    get_site_prefix()+'producttypes',
     'south',
     'form_utils',
     'formwizard',
