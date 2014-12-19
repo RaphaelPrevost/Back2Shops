@@ -7,12 +7,12 @@ gevent==1.0.1
 redis==2.8.0
 hiredis==0.1.1
 Tenjin==1.1.1
-B2SUtils==0.1.4
-B2SRespUtils==0.0.2
-B2SProtocol==0.0.17
-B2SFrontUtils==0.0.19
+B2SUtils==0.1.5
+B2SRespUtils==0.0.3
+B2SProtocol==0.0.18
+B2SFrontUtils==0.0.20
 M2Crypto==0.21.1.B2S
-B2SCrypto==0.0.4
+B2SCrypto==0.0.5
 xmltodict==0.7.0
 Unidecode==0.04.16
 Pillow==2.1.0

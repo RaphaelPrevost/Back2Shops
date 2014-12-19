@@ -56,3 +56,6 @@
 
 == version 0.0.19 ==
 1. Populate sale's category info with new cached data structure
+
+== version 0.0.20 ==
+1. Add license header

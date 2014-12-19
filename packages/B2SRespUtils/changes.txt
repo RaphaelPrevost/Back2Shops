@@ -3,3 +3,7 @@
 
 == version 0.0.2 ==
 1. add temp_content function to generate html/xml/pdf content
+
+== version 0.0.3 ==
+1. add license header
+
