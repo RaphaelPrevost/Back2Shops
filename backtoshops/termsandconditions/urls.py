@@ -35,6 +35,10 @@
 # knowledge of the CeCILL-B license and that you accept its terms.
 #
 #############################################################################import settings
+
+
+import settings
+
 from django.conf.urls.defaults import patterns, url
 from fouillis.views import operator_upper_required
 from termsandconditions.views import TermsAndConditionsView

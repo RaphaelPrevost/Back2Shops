@@ -35,6 +35,8 @@
 # knowledge of the CeCILL-B license and that you accept its terms.
 #
 ############################################################################## Create your views here.
+
+
 from django.views.generic.base import TemplateView
 
 class TermsAndConditionsView(TemplateView):
