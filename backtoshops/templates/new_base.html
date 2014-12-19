@@ -163,8 +163,10 @@ ss/login.css" />
 
 	<!--FOOTER-->
 	<div id="footer">
-        <!--<a href="http://www.backtoshops.com">www.backtoshops.com</a>-->
-		<strong>&copy; BACK TO SHOPS 2012</strong>
+        {% block footer %}
+            <!--<a href="http://www.backtoshops.com">www.backtoshops.com</a>-->
+            <a href="{% url "terms_and_conditions" %}"><strong>{% trans 'Terms & Conditions' %}</strong></a>
+        {% endblock %}
 	</div>
 	<!--FIN FOOTER-->
 
@@ -172,3 +174,4 @@ ss/login.css" />
     {% endblock %}
 </body>
 </html>
+

@@ -44,3 +44,6 @@
 
 == version 0.1.4 ==
 1. revert set_cookie function which broken cookies in IE browser.
+
+== version 0.1.5 ==
+1. add license header

@@ -490,7 +490,9 @@ label {
         }
             #title h2 em a:hover, #title h2 em a.on { text-decoration: underline; }
 
-
+#terms_and_conditions #title {
+    text-align: center;
+}
 
 
 
