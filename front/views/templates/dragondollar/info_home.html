@@ -1,0 +1,38 @@
+
+<div id="infoHome">
+    <div id="content_slide">
+        <div id="slider">
+            <ul>
+                <?py for slide in slides: ?>
+                <li>
+                    <a href="#" class="offreSlid">${_("Voir l'offre")}</a>
+                    <a href="#">
+                        <img src="${slide['@img']}" alt="${slide['@alt']}"/>
+                    </a>
+                </li>
+                <?py #endfor ?>
+            </ul>
+        </div>
+
+    </div>
+
+    <!--LE BLOG-->
+    <div id="blog">
+        <ul>
+
+            <?py for coin in coins: ?>
+            <li>
+                <a href="${coin['link']}" class="lienBlog">
+                        <span>
+                            <strong>${coin['title']}</strong>
+                            ${coin['summary']}
+                        </span>
+                    <img src="${coin['img']['src']}" alt="${coin['img']['alt']}" />
+                </a>
+            </li>
+            <?py #endfor ?>
+        </ul>
+    </div>
+    <!--//LE BLOG-->
+
+</div>

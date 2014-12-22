@@ -50,6 +50,7 @@ import os
 import signal
 
 import settings
+from batch import start as batch_start
 from common.data_access import data_access
 from common.m17n import init_translators
 from common.utils import html_escape_params
@@ -80,6 +81,7 @@ if not settings.PRODUCTION:
     gevent.spawn(send_reload_signal, pid)
 gevent.spawn(watching_invalidate_cache_list, pid)
 gevent.spawn(data_access, REMOTE_API_NAME.GET_SALES)
+gevent.spawn_later(30, batch_start)
 
 def load_app(server, app=None):
     if not app:

@@ -10,10 +10,12 @@ Tenjin==1.1.1
 B2SUtils==0.1.5
 B2SRespUtils==0.0.3
 B2SProtocol==0.0.18
-B2SFrontUtils==0.0.20
+B2SFrontUtils==0.0.21
 M2Crypto==0.21.1.B2S
 B2SCrypto==0.0.5
 xmltodict==0.7.0
 Unidecode==0.04.16
 Pillow==2.1.0
 pytz==2014.4
+beautifulsoup4==4.3.2
+feedparser==5.1.3

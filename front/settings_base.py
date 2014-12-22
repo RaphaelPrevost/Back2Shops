@@ -57,7 +57,6 @@ BRAND_ID = "1000001"
 BRAND_NAME = "BREUER"
 
 TEMPLATE_PATH = ['views/templates/breuer']
-#TEMPLATE_PATH = ['views/templates/dragondollar', 'views/templates/breuer']
 #TEMPLATE_PATH = ['views/templates/vessel', 'views/templates/breuer']
 DEFAULT_TEMPLATE = 'default.html'
 
@@ -102,3 +101,6 @@ ORDERS_COUNT_PER_PAGE = 10
 SESSION_EXP_TIME = 1800
 
 TIMEZONE = 'Europe/Paris'
+
+
+DRAGON_FEED_CACHE_PATH = None

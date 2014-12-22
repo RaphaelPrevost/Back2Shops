@@ -5,6 +5,7 @@ export AST_DOMAIN='assets.backtoshops.com'
 export VSL_DOMAIN='vessel.backtoshops.com'
 export breuer_FRT_DOMAIN='front.backtoshops.com'
 export vessel_FRT_DOMAIN='front.backtoshops.com'
+export dragon_FRT_DOMAIN='front.backtoshops.com'
 
 export ADM_ADDR='188.165.192.57:80'
 export USR_ADDR='188.165.192.57:18100'
@@ -13,5 +14,7 @@ export AST_ADDR='188.165.192.57:19300'
 export VSL_ADDR='188.165.192.57:18700'
 export breuer_FRT_ADDR='188.165.192.57:19500'
 export vessel_FRT_ADDR='188.165.192.57:19501'
+export dragon_FRT_ADDR='188.165.192.57:19502'
+
 
 export MAIN_BRAND='breuer'

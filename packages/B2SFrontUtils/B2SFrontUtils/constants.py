@@ -82,6 +82,7 @@ class REMOTE_API_NAME(CustomEnum):
     SET_CONTAINER_REMINDER = "SET_CONTAINER_REMINDER"
 
     LOG_VISITORS = "LOG_VISITORS"
+    GET_SLIDE_SHOW = "GET_SLIDE_SHOW"
 
 
 class HTTP_METHOD(CustomEnum):
@@ -219,5 +220,10 @@ USR_API_SETTINGS = {
         'url': '/webservice/1.0/private/sensor/visitors/log',
         'method': HTTP_METHOD.POST,
         'encrypt': False,
-    }
+    },
+    REMOTE_API_NAME.GET_SLIDE_SHOW: {
+        'url': '/webservice/1.0/pub/brand/home/slideshow',
+        'method': HTTP_METHOD.GET,
+        'encrypt': False,
+        }
 }

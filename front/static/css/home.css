@@ -1,0 +1,169 @@
+
+
+
+/*------ INFO HOME ------*/
+#infoHome {
+	width: 958px;
+	height: 379px;
+	margin: auto;
+}
+
+/*------------------------*/
+/*         SLIDER         */
+/*------------------------*/
+#content_slide {
+	position: relative;
+	float: left;
+	width: 685px;
+	height: 378px;
+	border: 1px solid #a59164;
+	background-color: #000000; 
+}
+
+#slider .offreSlid {
+	display: block; position: absolute;
+	width: 133px; height: 27px;
+	line-height: 27px;
+	left: 27px; bottom: 26px;
+	text-transform: uppercase;
+	text-shadow: 1px 1px 1px #000;
+	-moz-text-shadow: 1px 1px 1px #000;
+	-webkit-text-shadow: 1px 1px 1px #000;
+	text-align: center;
+	font-size: 14px;
+	font-weight: bold;
+	color: #fff;
+	/*background: url(../img/voirOffreSlid.png) no-repeat 0 0;*/
+}
+
+	/* Easy Slider */
+	#slider ul, #slider li {
+		margin:0;
+		padding:0;
+		list-style:none;
+	}
+	#slider li { 
+		/* 
+			define width and height of list item (slide)
+			entire slider area will adjust according to the parameters provided here
+		*/ 
+		width: 685px;
+		height: 378px;
+		position: relative;
+	}
+	#prevBtn, #nextBtn { 
+		display:block;
+		width:30px;
+		height:77px;
+		position:absolute;
+		left:-30px;
+		top:71px;
+		z-index:1000;
+	}	
+	#nextBtn { left:696px; }														
+	#prevBtn a, #nextBtn a {
+		display:block;
+		position:relative;
+		width:30px;
+		height:77px;
+		background:url(../images/btn_prev.gif) no-repeat 0 0;	
+	}	
+	#nextBtn a { background:url(../images/btn_next.gif) no-repeat 0 0; }	
+		
+		
+	/* numeric controls */	
+
+	ol#controls {
+		position: absolute;
+		bottom: 10px;
+		right: 0px;
+		height: 30px;
+		padding: 0 0 0 10px;
+		background-color: #000;	
+		opacity:0.85; 
+		-moz-opacity:0.85; 
+	}
+	ol#controls li {
+		float:left;
+		height: 10px;
+		margin: 10px 10px 10px 0; 
+		list-style:none;
+	}
+	ol#controls li a {
+		float:left;
+		width: 10px;
+		height: 10px;
+		text-decoration:none;
+		overflow: hidden;
+		text-indent: -1500px;
+		background: #606060;
+	}
+	ol#controls li.current a,
+	ol#controls li a:hover {
+		background: #fff;
+	}
+	ol#controls li a:focus, #prevBtn a:focus, #nextBtn a:focus {outline:none; background: #fff;}
+	
+/* // Easy Slider */
+
+
+
+
+
+/*------------------------*/
+/*          BLOG          */
+/*------------------------*/
+
+#blog {
+	float: right;
+	width: 247px;
+	height: 378px;
+}
+
+	#blog li {
+		position: relative;
+		overflow: hidden;
+		width: 245px;
+		height: 177px;
+		
+		border: 1px solid #A59164;
+		background-color: #0C0C0C;
+	}
+	#blog li.first, #blog li:first-child { margin-bottom: 22px; }
+	
+		#blog li .lienBlog img { width: 245px; }
+		
+		#blog li .lienBlog span {
+			position: absolute;
+			display: block;
+			top: 126px;
+			left: 0;
+			width: 229px; height: 177px; 
+			line-height: 17px;
+			padding: 8px;
+			background-color: #ffffff;
+			opacity: 0.75;
+			-moz-opacity: 0.75;
+			color: #000;
+			font-size: 11px;
+		}
+		
+		#blog li .lienBlog:hover  span {
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+		#blog li .lienBlog span strong {
+			display: block;
+			font-size: 13px;
+			line-height: 17px;
+			color: #77150c;
+			font-weight: bold;
+			text-transform: uppercase;
+			margin-bottom: 10px;
+		}
+	
+	
+
+
+

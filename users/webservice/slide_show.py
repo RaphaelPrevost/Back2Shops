@@ -38,9 +38,11 @@
 
 
 import logging
+import ujson
 import urllib
 import urllib2
 import settings
+import xmltodict
 
 from B2SRespUtils.generate import gen_xml_resp
 
@@ -69,15 +71,15 @@ class SlideShowResource(BaseProxy):
     api_path = "/webservice/1.0/pub/brand/home/slideshow/%s"
 
     def on_get(self, req, resp, **kwargs):
-
         try:
             brand = req.get_param('brand')
             assert brand is not None, 'Missing brand'
 
             api_path = self.api_path % brand
             content = self.bo_proxy(api_path)
-            resp.body = content
-            resp.content_type = "application/xml"
+            slides = xmltodict.parse(content)
+            resp.body = ujson.dumps(slides)
+            resp.content_type = "application/json"
         except Exception, e:
             gen_xml_resp('error.xml', resp, **{'error': str(e)})
         return resp
