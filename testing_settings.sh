@@ -7,7 +7,7 @@ export breuer_FRT_DOMAIN='front.backtoshops.com'
 export vessel_FRT_DOMAIN='front.backtoshops.com'
 export dragon_FRT_DOMAIN='front.backtoshops.com'
 
-export ADM_ADDR='188.165.192.57:80'
+export ADM_ADDR='188.165.192.57:18000'
 export USR_ADDR='188.165.192.57:18100'
 export FIN_ADDR='188.165.192.57:19000'
 export AST_ADDR='188.165.192.57:19300'
