@@ -88,7 +88,7 @@ function server_local_port() {
                 vessel)
                     echo "9501"
                     ;;
-                vessel)
+                dragon)
                     echo "9502"
                     ;;
             esac
@@ -532,6 +532,7 @@ function make_front_src_dir() {
         cp -r $CWD/front $src_name
         cp $settings_file $src_name/settings.py
         edit_product_settings $src_name/settings.py
+        edit_product_settings $src_name/settings_product.py
 
         chown -R backtoshops.www-data $src_name
         chmod -R 2750 $src_name
