@@ -37,7 +37,9 @@
 #############################################################################
 
 
+import settings
 from batch.fetch_coin_feed import FetchCoinFeed
 
 def start():
-    FetchCoinFeed().run()
+    if settings.BRAND_NAME == 'DRAGONDOLLAR':
+        FetchCoinFeed().run()
