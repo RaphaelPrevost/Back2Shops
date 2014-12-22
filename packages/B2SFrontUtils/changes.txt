@@ -59,3 +59,6 @@
 
 == version 0.0.20 ==
 1. Add license header
+
+== version 0.0.21 ==
+1. Add constant GET_SLIDE_SHOW

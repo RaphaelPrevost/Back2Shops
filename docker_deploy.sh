@@ -61,7 +61,7 @@ function set_deploy_settings() {
     read -p "Please input assets server address: " AST_ADDR
     read -p "Please input vessel server domain: " VSL_DOMAIN
     read -p "Please input vessel server address: " VSL_ADDR
-    read -p "Please input front server brand (breuer/vessel): " BRAND
+    read -p "Please input front server brand (breuer/vessel/dragon): " BRAND
     read -p "Please input front server domain: " FRT_DOMAIN
     read -p "Please input front server address: " FRT_ADDR
 
@@ -87,7 +87,7 @@ EOF
 function set_more_front() {
     read -p "Need more front for other brand ? (y/n) " yes
     if [ $yes == "y" ]; then
-        read -p "Please input front server brand (breuer/vessel): " BRAND
+        read -p "Please input front server brand (breuer/vessel/dragon): " BRAND
         read -p "Please input front server domain: " FRT_DOMAIN
         read -p "Please input front server address: " FRT_ADDR
         cat >> $CWD/deploy_settings.sh <<EOF
@@ -124,6 +124,9 @@ function server_local_port() {
                     ;;
                 vessel)
                     echo "9501"
+                    ;;
+                dragon)
+                    echo "9502"
                     ;;
             esac
             ;;
@@ -598,6 +601,9 @@ function deploy_all_fronts() {
     fi
     if [ -n $vessel_FRT_ADDR ]; then
         deploy_front "vessel"
+    fi
+    if [ -n $dragon_FRT_ADDR ]; then
+        deploy_front "dragon"
     fi
 }
 

@@ -37,6 +37,9 @@
 #############################################################################
 
 
+import settings
+import ujson
+
 from B2SFrontUtils.constants import REMOTE_API_NAME
 from common.data_access import data_access
 from common.utils import get_brief_product_list
@@ -48,7 +51,29 @@ class HomepageResource(BaseHtmlResource):
     def _on_get(self, req, resp, **kwargs):
         sales = data_access(REMOTE_API_NAME.GET_SALES,
                             req, resp, **req._params)
-        return {'product_list': get_brief_product_list(sales, req, resp)}
+
+        data = {'product_list': get_brief_product_list(sales, req, resp)}
+
+        if settings.BRAND_NAME == 'DRAGONDOLLAR':
+            dd_data = self.dragondollar_data(req, resp)
+            data.update(dd_data)
+
+        return data
+
+    def dragondollar_data(self, req, resp):
+        data = {}
+        slides = data_access(REMOTE_API_NAME.GET_SLIDE_SHOW,
+                             req, resp, **req._params)
+        data['slides'] = slides.get('slideshow', {}).get('slide', [])
+
+        try:
+            with open(settings.DRAGON_FEED_CACHE_PATH, 'r') as f:
+                data['coins'] = ujson.load(f)
+        except IOError:
+            pass
+
+        return data
+
 
 class EShopResource(BaseHtmlResource):
     template = 'eshop.html'

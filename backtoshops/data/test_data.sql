@@ -107,9 +107,9 @@ COPY sales_productbrand (id, seller_id, name, picture) FROM stdin;
 -- Data for Name: sales_productcategory; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY sales_productcategory (id, name, valid) FROM stdin;
-1000001	product category 1	t
-1000002	product category 2	t
+COPY sales_productcategory (id, name, brand_id, valid) FROM stdin;
+1000001	product category 1	1000001	t
+1000002	product category 2	1000001	t
 \.
 
 
@@ -117,7 +117,7 @@ COPY sales_productcategory (id, name, valid) FROM stdin;
 -- Data for Name: sales_producttype; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY sales_producttype (id, name, category_id, valid) FROM stdin;
+COPY sales_producttype (id, name, brand_id, valid) FROM stdin;
 1000001	product type 1	1000001	t
 1000002	product type 2	1000001	t
 1000003	product type 3	1000002	t

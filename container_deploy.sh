@@ -88,6 +88,9 @@ function server_local_port() {
                 vessel)
                     echo "9501"
                     ;;
+                vessel)
+                    echo "9502"
+                    ;;
             esac
             ;;
     esac

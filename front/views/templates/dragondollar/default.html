@@ -5,20 +5,82 @@
     <title>${route_args.get('title') or _('Dragon Dollar & Chinese Coins')}</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-    <link rel="icon" type="image/png" href="/img/favicon.png" />
-    <link rel="stylesheet" type="text/css" media="screen" href="/css/jquery-ui-1.10.4.css" />
+    <!-- Required CSS -->
+    <link type="text/css" href="/css/fancymoves.css" media="screen" charset="utf-8" rel="stylesheet"  />
     <link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="/css/fancymoves.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/home.css" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/jquery-ui-1.10.4.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="/css/ficheProd.css"/>
     <link rel="stylesheet" type="text/css" media="screen" href="/css/compte.css"/>
 
     <script type="text/javascript" src="/js/jquery-1.10.2.js"></script>
     <script type="text/javascript" src="/js/jquery-ui-1.10.4.js"></script>
+    <script type="text/javascript" src="/js/jquery-migrate-1.2.1.min.js "></script>
+
+    <script type="text/javascript" src="js/easySlider1.7.js"></script>
+    <script type="text/javascript" src="js/jquery.touchSwipe.min.js"></script>
+
     <script type="text/javascript" src="/js/jquery.movingboxes.js"></script>
     <script type="text/javascript" src="/js/jquery.maphilight.js"></script>
+
+     <!-- FancyBox scripts -->
+    <script type="text/javascript" src="/js/fancybox/jquery.mousewheel-3.0.4.pack.js"></script>
+    <script type="text/javascript" src="/js/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+
+    <link rel="icon" type="image/png" href="/img/favicon.png" />
+<!--[if IE]><link rel="stylesheet" media="screen" href="css/IE.css" /><![endif]-->
+<!--[if IE 6]><link rel="stylesheet" media="screen" href="css/IE6.css" /><![endif]-->
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#slider").easySlider({
+            auto: true,
+            continuous: true,
+            numeric: true,
+            speed: 	400,
+            pause: 4000
+        });
+
+        $("#filtreLink").click(function () {
+            $(".filtreform").toggleClass("on", 100);
+            return false;
+        });
+        $("#trieOk").click(function () {
+            $(".filtreform").toggleClass("on", 100);
+            return false;
+        });
+        $("#allProd").click(function () {
+            $(".filtreform").toggleClass("on", 100);
+            return false;
+        });
+
+
+        //Select header present sur toutes les pages
+        $("#city span").click(function () {
+            $(".ville").toggleClass("on", 100);
+            return false;
+        });
+        $("#listecity li label").click(function () {
+            $(".ville").toggleClass("on", 100);
+            return false;
+        });
+    });
+
+    #{set_cookies_js}
+</script>
+
+<!--[if IE 6]>
     <script type="text/javascript">
-        #{set_cookies_js}
-    </script>
+    $(document).ready(function(){
+        $("#filtreLink").click(function () {
+            $(".filtreform").toggleClass("on",100);
+            return false;
+        });
+    });
+</script>
+<![endif]-->
+
 </head>
 <body>
     <!--HEADER-->
@@ -29,7 +91,7 @@
             <!--NAV-->
             <div id="nav">
                 <!--MENU-->
-                <ul id="menu"> 
+                <ul id="menu">
                     <li>
                         <a href="#">${_('Buy')}</a>
                     </li>
@@ -47,7 +109,7 @@
                     </li>
                 </ul>
                 <!--FIN MENU-->
-                
+
                 <ul id="partage">
                     <li class="btnSocial fck"><a href="http://www.facebook.com/sharer.php?u=http://www.dragondollar.com/" target="_blank"></a></li>
                     <li class="btnSocial gg"><a href="https://plusone.google.com/_/+1/confirm?hl=en&url=http://www.dragondollar.com" target="_blank"></a></li>
@@ -57,10 +119,10 @@
                 </ul>
             </div>
             <!--FIN NAV-->
-            
+
             <!--PANIER-->
             <a href="${basket_url_format}" id="panier"><em id="nb_prod">0</em></a>
-            
+
         </div>
         <!--FIN HEADER-->
     </div>
