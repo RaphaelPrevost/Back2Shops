@@ -37,7 +37,7 @@
 }
 
 .quickselect_loading {
-	background: Window url('/img/indicator.gif') right center no-repeat;
+	background: Window url('/img/indicator.gif') center center no-repeat;
     background-size: 25px 25px;
 }
 

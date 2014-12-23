@@ -1,0 +1,124 @@
+<div id="map"></div>
+
+<div id="containerlist" style="display:none">
+    <div class="list-title">您的个人货物监管</div>
+    <?py for c in containers: ?>
+    <?py c_info = c.get('container') or {} ?>
+    <?py v_info = c.get('vessel_info') or {} ?>
+    <div class="list-box">
+        <div class="box-tabs">
+            <div class="tab1">集装箱信息</div>
+            <div class="splitter-tab1"></div>
+            <div class="tab2 off">当前周期历史动态</div>
+        </div>
+        <div class="box-tab1">
+            <div class="box-title">
+                <span class="status">编号</span>
+                <span class="name">${c_info['container_num']}</span>
+                <span class="status">${c_info['seal_no']}</span>
+                <a class="add2creminder" href="javascript:add2creminder(this, ${c_info['container_num']})">
+                    <span class="notif"></span>
+                </a>
+            </div>
+            <div class="box-content">
+                <div class="right">
+                    <div class="item-name">当前位置</div>
+                    <div class="item-value">${c_info['location']}</div>
+                    <div class="item-name">最后更新时间</div>
+                    <div class="item-value">${format_datetime(c_info['datetime'])}</div>
+                </div>
+                <div class="left">
+                    <div class="item-name">箱型尺寸</div>
+                    <div class="item-value">${c_info['container_size']}</div>
+                    <div class="item-name">预计到达时间</div>
+                    <div class="item-value">--</div>
+                </div>
+            </div>
+        </div>
+        <div class="box-tab2" style="display:none">
+        <?py for s_info in c['shipment_cycle']: ?>
+            <div class="box-title">
+                <span class="status">状态</span>
+                <span class="name">${s_info.get('status', '--')}</span>
+            </div>
+            <div class="box-content">
+                <div class="left">
+                    <div class="item-name">地点</div>
+                    <div class="item-value">${s_info.get('location') or '--'}</div>
+                </div>
+                <div class="right">
+                    <div class="item-name">运输方式</div>
+                    <div class="item-value">${s_info.get('mode') or '--'}</div>
+                </div>
+                <div class="left">
+                    <div class="item-name">最后更新时间</div>
+                    <div class="item-value">${format_datetime(s_info.get('time')) or '--'}</div>
+                </div>
+            </div>
+        <?py #endfor ?>
+        <?py if v_info: ?>
+            <?py include('_container_popup.html', v=v_info) ?>
+        <?py #endif ?>
+        </div>
+    </div>
+    <?py #endfor ?>
+</div>
+<div id="list-label">
+    <div class="title">您的个人货物监管</div>
+</div>
+
+<script>
+var map = L.map('map');
+L.control.scale().addTo(map);
+
+$(function() {
+    view(map, 0, 0, 2);
+
+    $('#containerlist .viewmap').each(function(){
+        var popup = $(this).parent().find(".popup-wrapper");
+        mark(map, $(this).attr('lat'), $(this).attr('lon'),
+             $(this).attr('heading'), popup.html());
+    });
+
+    function _hide() {
+        $("#list-label").attr('class', 'fold');
+        $("#containerlist").hide();
+    }
+    function _show() {
+        $("#list-label").attr('class', 'open');
+        $("#containerlist").show();
+    }
+    <?py if len(containers) > 0 : ?>
+        _show();
+    <?py else: ?>
+        _hide();
+    <?py #endif ?>
+    $("#list-label").click(function(e){
+        if ($("#containerlist:hidden").length == 0) {
+            _hide();
+        } else {
+            _show();
+        }
+    });
+
+    $('#containerlist .list-box').each(function(){
+        var obj = $(this);
+        obj.find('.box-tabs .tab1').click(function(e){
+            obj.find('.box-tabs .tab1').attr('class', 'tab1');
+            obj.find('.box-tab1').show();
+            obj.find('.box-tabs .tab2').attr('class', 'tab2 off');
+            obj.find('.box-tab2').hide();
+            obj.find('.box-tabs .splitter-tab2').attr('class', 'splitter-tab1');
+        });
+        obj.find('.box-tabs .tab2').click(function(e){
+            obj.find('.box-tabs .tab2').attr('class', 'tab2');
+            obj.find('.box-tab2').show();
+            obj.find('.box-tabs .tab1').attr('class', 'tab1 off');
+            obj.find('.box-tab1').hide();
+            obj.find('.box-tabs .splitter-tab1').attr('class', 'splitter-tab2');
+        });
+    });
+});
+
+</script>
+

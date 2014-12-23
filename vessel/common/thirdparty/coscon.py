@@ -100,6 +100,8 @@ class CosconAPI:
                                            number_type, number, jsessionid):
         soup = gen_resp_soup(response)
         container_num = self._get_container_num(soup, number_type)
+        result = self.searchContainer(search_by='container',
+                                      number=container_num)
         end_time = self._get_endtime(soup)
         if end_time:
             shipment_cycle = [{
@@ -107,10 +109,8 @@ class CosconAPI:
                 'time': end_time,
             }]
         else:
-            shipment_cycle = self.searchContainer(search_by='container',
-                                                  number=container_num
-                                                  )['shipment_cycle']
-        return {'container': container_num,
+            shipment_cycle = result['shipment_cycle']
+        return {'container': result['container'],
                 'ports': self._get_ports_info(soup, number_type),
                 'shipment_cycle': shipment_cycle}
 
@@ -169,7 +169,7 @@ class CosconAPI:
 
                 shipment_cycle.append(shipment)
 
-        return {'container': self._get_container_num(soup, number_type),
+        return {'container': self._get_container_info(soup, number_type),
                 'ports': self._get_ports_info(soup, number_type),
                 'shipment_cycle': shipment_cycle}
 
@@ -193,6 +193,23 @@ class CosconAPI:
             top = soup.find(id='containerInfoByBlNum')
             rows = top.find(name='tbody').findChildren(name='tr')
         return rows[-1].find(attrs={'class': 'labelTextMyFocus'}).getText()
+
+    def _get_container_info(self, soup, number_type):
+        if number_type != 'CONTAINER': return {}
+
+        top = soup.find(id='CargoTracking1') \
+                  .find(attrs={'class': 'Containerkuang3'})
+        rows = top.find(name='table').findChildren(name='tr')
+        result = rows[-1].find_all(attrs={'class': 'labelTextMyFocus'})
+        from common.utils import format_datetime
+        return {
+            'container_num': result[0].getText(),
+            'container_size': result[1].getText(),
+            'seal_no': result[2].getText(),
+            'location': result[3].getText(),
+            'status': result[4].getText(),
+            'datetime': format_datetime(result[5].getText(), 'Hongkong', 'UTC'),
+        }
 
     def _get_ports_info(self, soup, number_type):
         if number_type == 'CONTAINER':
