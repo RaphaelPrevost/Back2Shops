@@ -14,7 +14,7 @@ VSL_REQUIREMENT=$CWD/requirements/vessel.backtoshops.com.requirements.txt
 
 ADM_DEPS=(psmisc apache2 libapache2-mod-wsgi python2.7-dev libpq-dev python-pip \
           libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev git redis-server \
-          liblcms1-dev libwebp-dev gettext libevent-dev swig memcached)
+          liblcms1-dev libwebp-dev gettext libevent-dev swig memcached postgresql-contrib)
 USR_DEPS=(psmisc python2.7-dev libpq-dev python-pip git python-lxml \
           libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev \
           liblcms1-dev libwebp-dev libevent-dev swig redis-server \
