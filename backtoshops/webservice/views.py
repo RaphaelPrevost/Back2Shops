@@ -229,11 +229,11 @@ class SalesFindView(BaseWebservice, ListView):
         sorteds = self.request.GET.getlist('sorted', [])
 
         queryset = Sale.objects.filter(
-                Q(product__name__contains=search)|
-                Q(product__description__contains=search)|
-                Q(mother_brand__name__contains=search)|
-                Q(product__type__name__contains=search)|
-                Q(product__brand_attributes__name__contains=search)).distinct()
+                Q(product__name__icontains=search)|
+                Q(product__description__icontains=search)|
+                Q(mother_brand__name__icontains=search)|
+                Q(product__type__name__icontains=search)|
+                Q(product__brand_attributes__name__icontains=search)).distinct()
 
         if filters and not isinstance(filters, list):
             filters = [filters]

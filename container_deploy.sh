@@ -185,6 +185,7 @@ function setup_adm_db() {
         fi
         su postgres -c "createdb -E UNICODE backtoshops -O bts"
         su postgres -c "psql -U bts backtoshops -c 'grant all on database backtoshops to bts;'"
+        su postgres -c "psql -U bts backtoshops -c 'CREATE EXTENSION unaccent;'"
     fi
 }
 
