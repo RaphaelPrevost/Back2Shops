@@ -1,0 +1,56 @@
+<?py pos=v['positions'][0] ?>
+<?py img1, img2 = v['photos'][:2] if v['photos'] and len(v['photos']) >= 2 else ('', '') ?>
+
+<div class="viewmap" style="display:none" lat="${pos['latitude']}" lon="${pos['longitude']}" heading="${pos['heading']}"></div>
+
+<div class="popup-wrapper" style="display:none">
+    <div class="popup">
+        <div class="title">${v['name']}</div>
+        <div class="right">
+            <div class="countdown">距离目的港仅</div>
+            <div class="countdown-time">
+                <span class="day">
+                    <span class="day-num">00</span>
+                    <span>天</span>
+                </span>
+                <span class="hour">
+                    <span class="hour-num">00</span>
+                    <span>小时</span>
+                </span>
+                <span class="minute">
+                    <span class="minute-num">00</span>
+                    <span>分钟</span>
+                </span>
+            </div>
+        </div>
+        <div class="left">
+            <img class="preview" src="${img1}"/>
+            <div class="eta">
+                <span>预计到达时间:</span>
+                <span>${format_datetime(v['arrival_time'])}</span>
+            </div>
+            <div class="pol">
+                <span>始发港:</span>
+                <span>${v['departure_portname']}</span>
+            </div>
+            <div class="pod">
+                <span>目的港:</span>
+                <span>${v['arrival_portname']}</span>
+            </div>
+            <div>
+                <span class="speed">船舶速度</span>
+                <span class="speed-num">${pos['speed'] or '--'}</span>
+                <span class="speed-unit">kn</span>
+                <span class="update">更新时间:</span>
+                <span class="update-time">${format_datetime(pos['time'])}</span>
+            </div>
+            <div>
+            </div>
+        </div>
+        <div class="btns">
+            <a href="javascript:show_navpath(${v['imo']}, ${v['mmsi']});">历史轨迹</a>
+            <a href="javascript:add2reminder(this, ${v['imo']}, ${v['mmsi']});">到港提醒</a>
+            <a href="javascript:add2myfleet(this, ${v['imo']}, ${v['mmsi']});">添加到我的船队</a>
+        </div>
+    </div>
+</div>

@@ -1,17 +1,19 @@
 <form id="registerForm" name="registerForm" method="POST">
     <div class="errwrapper">&nbsp;</div>
-    <div>
-        <input type="text" name="email" id="email" placeholder="${_('Email')}" class="text ui-widget-content ui-corner-all">
+    <div class="row">
+        <input type="text" name="email">
+        <label for="email">用户名:</label>
     </div>
-    <div>
-        <input type="password" name="password" id="password" placeholder="${_('Password')}" class="text ui-widget-content ui-corner-all">
+    <div class="row">
+        <input type="password" name="password">
+        <label for="password">密码:</label>
     </div>
-    <div>
-        <input type="password" name="password2" id="password2" placeholder="${_('Verify Password')}" class="text ui-widget-content ui-corner-all">
+    <div class="row">
+        <input type="password" name="password">
+        <label for="password">再一次:</label>
     </div>
-    <br/>
-    <div>
-        <a style="text-decoration:underline" href="javascript:toLogin();">Have account ? login here</a>
+    <div class="row">
+        <span class="btn register">注册</span>
     </div>
 </form>
 
@@ -24,28 +26,27 @@ function toLogin() {
 $(function() {
     $( "#dialog-register" ).dialog({
         autoOpen: false,
-        height: 360,
-        modal: true,
-        buttons: {
-            ${_('Register')}: function() {
-                $.post('/ajax_register',
-                    $("#registerForm").serializeArray(),
-                    function(data) {
-                        if (data['res'] == 'FAILURE') {
-                            $("#registerForm .errwrapper").text(data['err']);
-                        } else {
-                            if (data['set_cookies_js']) {
-                                eval(data['set_cookies_js']);
-                            }
-                            location = '/vessel';
-                        }
+        height: 160,
+        width: 180,
+        position: ["right", "top"],
+    });
+    $( "#dialog-register .btn.login").click(function(e){
+        toLogin();
+    });
+    $( "#dialog-register .btn.register").click(function(e){
+        $.post('/ajax_register',
+            $("#registerForm").serializeArray(),
+            function(data) {
+                if (data['res'] == 'FAILURE') {
+                    $("#registerForm .errwrapper").text(data['err']);
+                } else {
+                    if (data['set_cookies_js']) {
+                        eval(data['set_cookies_js']);
                     }
-                )
-            },
-            "Cancel": function() {
-                $(this).dialog("close");
+                    location = '/vessel';
+                }
             }
-        }
+        )
     });
 });
 </script>

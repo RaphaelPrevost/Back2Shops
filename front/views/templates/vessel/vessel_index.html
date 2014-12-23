@@ -1,7 +1,16 @@
 <div class="content">
 <?py if users_id: ?>
-    <?py include('_vessel_map.html') ?>
+    <?py if cur_tab_index == 1: ?>
+        <?py include('_container_map.html') ?>
+    <?py else: ?>
+        <?py include('_vessel_map.html') ?>
+    <?py #endif ?>
 <?py else: ?>
--- introduction --
+    <div id="map"></div>
+    <script>
+        var map = L.map('map');
+        L.control.scale().addTo(map);
+        view(map, 0, 0, 2);
+    </script>
 <?py #endif ?>
 </div>

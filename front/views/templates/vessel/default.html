@@ -9,8 +9,8 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="/css/jquery-ui-1.10.4.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="/css/jquery.quickselect.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="/templates/vessel/css/main.css" />
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="/templates/vessel/css/main.css" />
 
     <script type="text/javascript" src="/js/jquery-1.10.2.js"></script>
     <script type="text/javascript" src="/js/jquery-ui-1.10.4.js"></script>
@@ -18,18 +18,50 @@
     <script type="text/javascript" src="/js/jquery.quickselect.js"></script>
     <script type="text/javascript" src="/js/utils.js"></script>
     <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+    <script type="text/javascript" src="/templates/vessel/js/main.js"></script>
 </head>
 <body>
     <!--WRAPPER-->
     <div id="wrapper">
         <!--HEADER-->
         <header id="header" role="banner">
-            <div id="linkHead">
-                <?py if users_id: ?>
-                <a href="/vessel">My Fleet</a>
-                <a href="javascript:logout()">Logout</a>
+            <div class="logo">
+            </div>
+            <div class="icon-row left"> 
+                <?py for tab in tabs: ?>
+                    <?py _clsname = 'current' if tab.get('current') else '' ?>
+                    <a class="icon-bg ${_clsname}" href="${tab['url']}">
+                        <div class="icon ${tab.get('icon') or ''}">${tab['name']}</div>
+                    </a >
+                <?py #endfor ?>
+            </div>
+            <div class="search">
+                <?py if cur_tab_index == 1: ?>
+                <form id="searchForm" name="searchForm" method="POST">
+                    <input id="search_container" name="container_input" type="text" placeholder="请输入集装箱或货运提单号" value="${container_input}" size="45"/>
+                    <input name="search_container" type="hidden" value="search_container"/>
+                    <div class="btn"></div>
+                </form>
                 <?py else: ?>
-                <a href="javascript:toLogin()">Login</a>
+                <form id="searchForm" name="searchForm" method="POST">
+                    <input id="search_vessel" name="vessel_input" type="text" placeholder="请输入IMO,MMSI,船名或者港口" value="${vessel_input}" size="45"/>
+                    <input name="search_vessel" type="hidden" value="search_vessel"/>
+                    <div class="btn"></div>
+                </form>
+                <?py #endif ?>
+            </div>
+            <div class="icon-row right">
+                <a class="icon-bg">
+                    <div class="icon message"></div>
+                 </a>
+                <?py if users_id: ?>
+                <a class="icon-bg" href="javascript:logout()">
+                    <div class="icon user"></div>
+                 </a>
+                <?py else: ?>
+                <a class="icon-bg" href="javascript:toLogin()">
+                    <div class="icon user"></div>
+                </a>
                 <?py #endif ?>
             </div>
             <script>
@@ -41,10 +73,10 @@
         </header>
         <!--//HEADER-->
 
-        <div id="dialog-login" title="Login">
+        <div id="dialog-login" style="display:none">
             <?py include('login.html') ?>
         </div>
-        <div id="dialog-register" title="Register">
+        <div id="dialog-register" style="display:none">
             <?py include('registration.html') ?>
         </div>
 
@@ -54,9 +86,36 @@
 
         <!--FOOTER-->
         <footer id="footer" role="contentinfo">
+            <a href="mailto:info@nereus-technology.com">
+                <span class="mail">info@nereus-technology.com</span>
+            </a>
+            <a href="tel:+852 8197 9994">
+                <span class="phone">+852 8197 9994</span>
+            </a>
+            <a href="javascript:void(0);">
+                <span class="weibo"></span>
+            </a>
+            <a href="javascript:void(0);">
+                <span class="weixin"></span>
+            </a>
         </footer>
         <!--//FOOTER-->
 
     </div>
 </body>
 </html>
+<script>
+$(function() {
+    $("#searchForm .btn").click(function(e) {
+        $("#searchForm").submit();
+    });
+    $("input#search_vessel").quickselect({
+        ajax: '/vessel/quick_search',
+        autoFill: false,
+        autoSelectFirst: false,
+        delay: 1000,
+        minChars: 3,
+    });
+});
+</script>
+

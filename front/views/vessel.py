@@ -37,11 +37,21 @@
 #############################################################################
 
 
+import copy
 import re
+from B2SUtils.base_actor import as_list
 from B2SFrontUtils.constants import REMOTE_API_NAME
 from B2SProtocol.constants import RESP_RESULT
+from common.constants import FRT_ROUTE_ROLE
+from common.utils import cur_symbol
+from common.utils import format_amount
+from common.utils import format_datetime
+from common.utils import get_err_msg
+from common.utils import get_url_format
+from common.utils import get_thumbnail
+from common.utils import zero
 from common.data_access import data_access
-from views.base import BaseHtmlResource
+from views.base import BaseHtmlResource as BaseHtmlResource
 from views.base import BaseJsonResource
 
 
@@ -95,32 +105,50 @@ def search_container(req, resp, query):
         containers = result['objects']
     return containers
 
+class _BaseHtmlResource(BaseHtmlResource):
+    tabs = [
+        {'icon': 'trackvessel', 'name': '船队跟踪',
+         'url': '/vessel'},
+        {'icon': 'trackcontainer', 'name': '货物跟踪',
+         'url': '/vessel/container'},
+        {'icon': 'myfleets', 'name': '我的船队',
+         'url': '/vessel/myfleets'},
+        {'icon': 'eta', 'name': '智能ETA',
+         'url': ''},
+    ]
+    cur_tab_index = 0
 
-class VesselHomepageResource(BaseHtmlResource):
+    def _add_common_data(self, resp_dict):
+        resp_dict['users_id'] = self.users_id
+        resp_dict['tabs'] = copy.deepcopy(self.tabs)
+        resp_dict['cur_tab_index'] = self.cur_tab_index
+        if self.cur_tab_index >= 0:
+            resp_dict['tabs'][self.cur_tab_index]['current'] = True
+
+        if 'err' not in resp_dict:
+            resp_dict['err'] = ''
+        resp_dict['err'] = get_err_msg(resp_dict['err'])
+
+        resp_dict['as_list'] = as_list
+        resp_dict['cur_symbol'] = cur_symbol
+        resp_dict['format_amount'] = format_amount
+        resp_dict['format_datetime'] = format_datetime
+        resp_dict['get_thumbnail'] = get_thumbnail
+        resp_dict['zero'] = zero
+        resp_dict.update({
+            'auth_url_format': get_url_format(FRT_ROUTE_ROLE.USER_AUTH),
+            'logout_url_format': get_url_format(FRT_ROUTE_ROLE.USER_LOGOUT),
+            'reset_pwd_req_url_format': get_url_format(FRT_ROUTE_ROLE.RESET_PWD_REQ),
+            'user_url_format': get_url_format(FRT_ROUTE_ROLE.USER_INFO),
+            'my_account_url_format': get_url_format(FRT_ROUTE_ROLE.MY_ACCOUNT),
+        })
+
+
+class VesselHomepageResource(_BaseHtmlResource):
     template = 'vessel_index.html'
 
     def _on_get(self, req, resp, **kwargs):
         return self._get_common_data(req, resp, **kwargs)
-
-    def _get_common_data(self, req, resp, **kwargs):
-        myfleets = []
-        if self.users_id:
-            result = data_access(REMOTE_API_NAME.GET_USER_FLEET,
-                                 req, resp)
-            if result.get('res') != RESP_RESULT.F:
-                myfleets = result['objects']
-        return {
-            'myfleets': myfleets,
-            'vessels': [],
-            'ports': [],
-            'containers': [],
-            'vessel_input': '',
-            'container_input': '',
-        }
-
-
-class SearchResource(VesselHomepageResource):
-    template = 'vessel_index.html'
 
     def _on_post(self, req, resp, **kwargs):
         data = self._get_common_data(req, resp, **kwargs)
@@ -142,7 +170,39 @@ class SearchResource(VesselHomepageResource):
                 'vessels': vessels,
                 'ports': ports,
             })
-        elif req.get_param('search_container'):
+        else:
+            pass
+        return data
+
+    def _get_common_data(self, req, resp, **kwargs):
+        myfleets = []
+        if self.users_id:
+            result = data_access(REMOTE_API_NAME.GET_USER_FLEET,
+                                 req, resp)
+            if result.get('res') != RESP_RESULT.F:
+                myfleets = result['objects']
+        return {
+            'vessels': [],
+            'myfleets': myfleets,
+            'ports': [],
+            'vessel_input': '',
+        }
+
+class MyFleetsResource(VesselHomepageResource):
+    cur_tab_index = 2
+
+
+class ContainerResource(_BaseHtmlResource):
+    template = 'vessel_index.html'
+    cur_tab_index = 1
+
+    def _on_get(self, req, resp, **kwargs):
+        return self._get_common_data(req, resp, **kwargs)
+
+    def _on_post(self, req, resp, **kwargs):
+        data = self._get_common_data(req, resp, **kwargs)
+
+        if req.get_param('search_container'):
             container_input = req.get_param('container_input') or ''
             container_input = container_input.strip()
             containers = search_container(req, resp, container_input)
@@ -153,6 +213,12 @@ class SearchResource(VesselHomepageResource):
         else:
             pass
         return data
+
+    def _get_common_data(self, req, resp, **kwargs):
+        return {
+            'containers': [],
+            'container_input': '',
+        }
 
 
 class VesselQuickSearchResource(BaseJsonResource):

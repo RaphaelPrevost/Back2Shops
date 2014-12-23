@@ -176,7 +176,8 @@ fixed_urlpatterns = {
     r'/reset_password_email': email.ResetPwdEmailResource,
 
     r'/vessel': vessel.VesselHomepageResource,
-    r'/vessel/search': vessel.SearchResource,
+    r'/vessel/myfleets': vessel.MyFleetsResource,
+    r'/vessel/container': vessel.ContainerResource,
     r'/vessel/quick_search': vessel.VesselQuickSearchResource,
     r'/vessel/get_vessel_navpath': vessel.VesselNavPathResource,
     r'/vessel/update_user_fleet': vessel.UserFleetResource,

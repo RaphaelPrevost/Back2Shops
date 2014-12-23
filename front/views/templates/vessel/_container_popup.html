@@ -1,0 +1,51 @@
+<?py pos=v['positions'][0] ?>
+
+<div class="viewmap" style="display:none" lat="${pos['latitude']}" lon="${pos['longitude']}" heading="${pos['heading']}"></div>
+
+<div class="popup-wrapper" style="display:none">
+    <div class="popup">
+        <div class="left">
+            <div class="countdown">
+                <span>距离目的港仅</span>
+                <span class="countdown-time">
+                    <span class="day">
+                        <span class="day-num">00</span>
+                        <span>天</span>
+                    </span>
+                    <span class="hour">
+                        <span class="hour-num">00</span>
+                        <span>小时</span>
+                    </span>
+                    <span class="minute">
+                        <span class="minute-num">00</span>
+                        <span>分钟</span>
+                    </span>
+                </span>
+            </div>
+            <div class="eta">
+                <span>预计到达时间:</span>
+                <span>${format_datetime(v['arrival_time'])}</span>
+            </div>
+            <div class="line">
+            </div>
+            <div class="pol">
+                <span>始发港:</span>
+                <span>${v['departure_portname']}</span>
+            </div>
+            <div class="pod">
+                <span>目的港:</span>
+                <span>${v['arrival_portname']}</span>
+            </div>
+            <div>
+                <span class="update">更新时间:</span>
+                <span class="update-time">${format_datetime(pos['time'])}</span>
+            </div>
+            <div>
+            </div>
+        </div>
+        <div class="btns wide">
+            <a href="javascript:show_navpath(${v['imo']}, ${v['mmsi']});">历史轨迹</a>
+            <a href="javascript:add2reminder(this, ${v['imo']}, ${v['mmsi']});">到港提醒</a>
+        </div>
+    </div>
+</div>
