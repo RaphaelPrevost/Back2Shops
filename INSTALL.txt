@@ -24,7 +24,7 @@
 
 == Database ==
 1. install postgres 9.1
-    sudo apt-get install postgresql-9.1
+    sudo apt-get install postgresql-9.1 postgresql-contrib
 2. Config pg_hba.conf (/etc/postgresql/9.1/main/pg_hba.conf):
    host    all             bts              $(your ip)/32          trust
    host    all             postgres         $(your ip)/32          trust

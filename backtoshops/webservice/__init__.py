@@ -35,5 +35,7 @@
 # knowledge of the CeCILL-B license and that you accept its terms.
 #
 #############################################################################
+from webservice.monkey_patch import patch_unaccent
 
+patch_unaccent()
 
