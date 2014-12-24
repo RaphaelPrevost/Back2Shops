@@ -10,7 +10,7 @@
             <?py for item in basket: ?>
             <!--Produit-->
             <div class="prod">
-                <h1 class="titleProd"><strong><span><em class="prix">${item['product']['price']} ${item['product']['currency']}</em></span></strong></h1>
+                <h1 class="titleProd"><strong><span><em class="prix">${item['price']} ${item['product']['currency']}</em></span></strong></h1>
                 <a class="visuel" href="${item['product']['link']}"><img src="${item['product']['img']}" alt="${item['product']['name']}"/></a>
                 <!--DESCRIPTION-->
                 <div class="descrProd">
