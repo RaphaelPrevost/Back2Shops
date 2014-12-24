@@ -544,7 +544,7 @@ function setup_front_server() {
     if [ $SITE_NAME=='dragon_front' ]; then
         COIN_PROXY="
         location /coins/ {
-            alias www.dragondollar.com/coins/;
+            proxy_pass http://www.dragondollar.com/coins/;
             autoindex off;
         }"
     fi
