@@ -59,6 +59,7 @@ from B2SUtils.errors import ValidationError
 from common.constants import FRT_ROUTE_ROLE
 from common.constants import Redirection
 from common.data_access import data_access
+from common.utils import get_basket
 from common.m17n import get_locale
 from common.m17n import set_locale
 from common.redis_utils import get_redis_cli
@@ -292,6 +293,13 @@ class BaseHtmlResource(BaseResource):
             resp = resp[0]
         return resp
 
+    def _add_basket_quantity(self):
+        _, basket_data = get_basket(self.request, self.response)
+        quantity = 0
+        for _, qty in basket_data.iteritems():
+            quantity += int(qty)
+        return quantity
+
     def _add_common_data(self, resp_dict):
         resp_dict['users_id'] = self.users_id
         resp_dict['tabs'] = copy.deepcopy(self.tabs)
@@ -331,6 +339,7 @@ class BaseHtmlResource(BaseResource):
         resp_dict['zero'] = zero
         resp_dict['cur_symbol'] = cur_symbol
         resp_dict['get_thumbnail'] = get_thumbnail
+        resp_dict['basket_qty'] = self._add_basket_quantity()
         resp_dict.update({
             'prodlist_url_format': get_url_format(FRT_ROUTE_ROLE.PRDT_LIST),
             'auth_url_format': get_url_format(FRT_ROUTE_ROLE.USER_AUTH),

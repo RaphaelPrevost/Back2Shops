@@ -42,6 +42,7 @@ import feedparser
 import gevent
 import logging
 import settings
+import HTMLParser
 
 from bs4 import BeautifulSoup
 
@@ -62,13 +63,15 @@ class FetchCoinFeed(object):
             cache = []
             for coin in coins:
                 content = coin.content[0].value
+                summary = HTMLParser.HTMLParser().unescape(coin.summary)
                 soup = BeautifulSoup(content)
                 img = soup.find_all('img')[0]
+
 
                 cache.append(
                     {'title': coin.title,
                      'link': coin.link,
-                     'summary': coin.summary,
+                     'summary': summary,
                      'img': {'src': img.attrs['src'],
                              'alt': img.attrs['alt']}
                      }

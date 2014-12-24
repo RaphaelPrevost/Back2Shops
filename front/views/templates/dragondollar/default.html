@@ -18,8 +18,8 @@
     <script type="text/javascript" src="/js/jquery-ui-1.10.4.js"></script>
     <script type="text/javascript" src="/js/jquery-migrate-1.2.1.min.js "></script>
 
-    <script type="text/javascript" src="js/easySlider1.7.js"></script>
-    <script type="text/javascript" src="js/jquery.touchSwipe.min.js"></script>
+    <script type="text/javascript" src="/js/easySlider1.7.js"></script>
+    <script type="text/javascript" src="/js/jquery.touchSwipe.min.js"></script>
 
     <script type="text/javascript" src="/js/jquery.movingboxes.js"></script>
     <script type="text/javascript" src="/js/jquery.maphilight.js"></script>
@@ -65,6 +65,8 @@
             $(".ville").toggleClass("on", 100);
             return false;
         });
+
+        $("#copyright").html($("#copyright").text());
     });
 
     #{set_cookies_js}
@@ -121,7 +123,7 @@
             <!--FIN NAV-->
 
             <!--PANIER-->
-            <a href="${basket_url_format}" id="panier"><em id="nb_prod">0</em></a>
+            <a href="${basket_url_format}" id="panier"><em id="nb_prod">${basket_qty}</em></a>
 
         </div>
         <!--FIN HEADER-->
@@ -146,7 +148,7 @@
         <ul>
             <li><a href="#">${_('Dragon Dollars')}</a>|</li>
             <li><a hrem="#">${_('Terms & Conditions')}</a>|</li>
-            <li><strong id="copyright">${_('Copyright @ 2013-2014 Dragon Dollar Limited')}</strong></li>
+            <li><strong id="copyright">${_('Copyright &copy; 2013-2014 Dragon Dollar Limited')}</strong></li>
         </ul>
     </div>
 	<!--FIN FOOTER-->

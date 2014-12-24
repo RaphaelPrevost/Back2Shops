@@ -540,6 +540,15 @@ function setup_front_server() {
     SERVER_NAME=$2_FRT_DOMAIN
     SERVER_NAME=$(eval echo "\$${SERVER_NAME}")
 
+    COIN_PROXY=''
+    if [ $SITE_NAME=='dragon_front' ]; then
+        COIN_PROXY="
+        location /coins/ {
+            alias www.dragondollar.com/coins/;
+            autoindex off;
+        }"
+    fi
+
     # nginx
     if [ ! -r /etc/nginx/sites-available/$SITE_NAME ]; then
         echo "(-) Creating Nginx Site..."
@@ -567,6 +576,7 @@ server {
         alias $CWD/front_$2_src/static/keys/front_pub.key;
         autoindex off;
     }
+    $COIN_PROXY
     location / {
         include uwsgi_params;
         uwsgi_pass 127.0.0.1:$PORT;
