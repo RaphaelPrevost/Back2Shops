@@ -200,7 +200,7 @@ $(function(){
         rate = parseFloat(rate);
         if (show_final_price== 'True') {
             $("#ori_price ").text(formatAmount(ori_price + ori_price * rate / 100) + " " + currency);
-            $("#discounted_price").text(formatAmount(discounted_price + discounted_price * rate / 100) + " " + currency);
+            $("#discounted_price").text(formatAmount(discounted_price + discounted_price * rate / 100) + " " + currency + " (${_('after tax')})");
         } else {
             if (rate > 0) {
                 $("#price_after_tax").show();
