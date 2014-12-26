@@ -8,7 +8,7 @@
         <?py #endfor ?>
     </span>
     <?py display=product_info.get('display',{}) ?>
-    <span id="discounted_price" class="prix1">${format_amount(display.get('price'))} ${cur_symbol(product_info.get('price',{}).get('@currency'))}</span>
+    <span id="discounted_price" class="prix1">${format_amount(display.get('price'))} ${cur_symbol(product_info.get('price',{}).get('@currency'))}( _{_('without tax')})</span>
     <span id="price_after_tax" class="prix3" style="display:none">(After tax: <span></span>)</span>
 
     <?py if product_info.get('discount'): ?>
@@ -186,7 +186,7 @@ $(function(){
 
     function _display_prices() {
         $("#ori_price").text(formatAmount(ori_price) + " " + currency);
-        $("#discounted_price").text(formatAmount(discounted_price) + " " + currency);
+        $("#discounted_price").text(formatAmount(discounted_price) + " " + currency + " (${_('without tax')})");
         _display_price_after_tax();
     }
 
