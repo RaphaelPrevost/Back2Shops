@@ -933,6 +933,25 @@ label {
     text-align: center;
 }
 
+#terms_and_conditions h1 {
+    color: #c10000;
+    font-size: 2em;
+}
+
+#tc_content {
+    width: 55%;
+    margin-left: auto; margin-right: auto;
+    padding: 5px;
+    text-align: justify;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #fff;
+    box-shadow: 0 3px 5px #cacaca;
+    -webkit-box-shadow: 0 3px 5px #cacaca;
+    -moz-box-shadow: 0 3px 5px #cacaca;
+    -ms-box-shadow: 0 3px 5px #cacaca;
+    -o-box-shadow: 0 3px 5px #cacaca;
+}
+
 #order_vente .loading_spinner {
     top: 100px;
 }
