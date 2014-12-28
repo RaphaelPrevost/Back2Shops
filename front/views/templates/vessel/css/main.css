@@ -221,6 +221,12 @@ body {
     border: 7px solid #000;
     border-color: #3b8787 #d1e8e8 #d1e8e8 #3b8787;
 }
+#containerlist .box-tabs .tab3 {
+    background-color: #3b8787;
+    color: #ffffff;
+    text-align: center;
+    cursor: pointer;
+}
 #containerlist .box-title,
 #vessellist .box-title {
     clear: both;
@@ -268,6 +274,12 @@ body {
     width: 90px;
     padding: 3px 5px;
     text-align: right;
+}
+#containerlist .bottom span {
+    float: left;
+    padding: 2px;
+    max-width: 50px;
+    font-size: 9px;
 }
 #vessellist .item-value {
     padding-bottom: 2px;

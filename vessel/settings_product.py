@@ -39,6 +39,8 @@
 
 from settings_base import *
 
+LOG_CONFIG_FILE = 'product_logging.cfg'
+
 USR_ROOT_URI = "http://92.222.30.2"
 SERVER_APIKEY_URI_MAP = {
     'USR': os.path.join(USR_ROOT_URI,

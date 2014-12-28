@@ -24,7 +24,7 @@ FIN_DEPS=(psmisc python2.7-dev libpq-dev python-pip git python-lxml \
           libxml2-dev libxslt1-dev)
 AST_DEPS=(psmisc python2.7-dev python-pip git)
 FRT_DEPS=(psmisc python2.7-dev python-pip git sendmail sendmail-cf)
-VSL_DEPS=(psmisc python2.7-dev python-pip git sendmail sendmail-cf)
+VSL_DEPS=(psmisc python2.7-dev python-requests python-pip git sendmail sendmail-cf)
 DPKG=$(dpkg -l)
 
 BRAND=${BRAND:-"$MAIN_BRAND"}

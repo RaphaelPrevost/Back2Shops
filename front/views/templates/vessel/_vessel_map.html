@@ -46,9 +46,9 @@ $(function() {
     view(map, 0, 0, 2);
 
     $('#vessellist .viewmap').each(function(){
-        var popup = $(this).parent().find(".popup-wrapper");
+        var popup = $(this).parent().find(".popup")[0];
         mark(map, $(this).attr('lat'), $(this).attr('lon'),
-             $(this).attr('heading'), popup.html());
+             $(this).attr('heading'), popup);
     });
 
     $("input#search_vessel").quickselect({
@@ -78,6 +78,11 @@ $(function() {
         } else {
             _show();
         }
+    });
+
+    $('.popup-wrapper .countdown-time').each(function(){
+        var obj = $(this);
+        setTimeout(function(){refresh_countdown(obj, 60);}, 60*1000);
     });
 });
 

@@ -43,12 +43,14 @@ from B2SUtils.base_actor import as_list
 from B2SFrontUtils.constants import REMOTE_API_NAME
 from B2SProtocol.constants import RESP_RESULT
 from common.constants import FRT_ROUTE_ROLE
+from common.utils import countdown_time
 from common.utils import cur_symbol
 from common.utils import format_amount
 from common.utils import format_datetime
 from common.utils import get_err_msg
 from common.utils import get_url_format
 from common.utils import get_thumbnail
+from common.utils import refresh_time
 from common.utils import zero
 from common.data_access import data_access
 from views.base import BaseHtmlResource as BaseHtmlResource
@@ -130,6 +132,8 @@ class _BaseHtmlResource(BaseHtmlResource):
         resp_dict['err'] = get_err_msg(resp_dict['err'])
 
         resp_dict['as_list'] = as_list
+        resp_dict['countdown_time'] = countdown_time
+        resp_dict['refresh_time'] = refresh_time
         resp_dict['cur_symbol'] = cur_symbol
         resp_dict['format_amount'] = format_amount
         resp_dict['format_datetime'] = format_datetime

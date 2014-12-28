@@ -149,11 +149,15 @@ class Ports(BaseObj):
         self.first_pol = kwargs.get('first_pol', '')
         self.last_pod = kwargs.get('last_pod', '')
         self.ts_port = kwargs.get('ts_port', [])
+        self.por = kwargs.get('por', '')
+        self.fnd = kwargs.get('fnd', '')
 
 class ContainerInfo(BaseObj):
     def __init__(self, **kwargs):
         self.container = kwargs.get('container', '')
         self.shipment_cycle = [ContainerStatus(**one)
                                for one in kwargs.get('shipment_cycle', [])]
+        self.prv_shipment_cycle = [ContainerStatus(**one)
+                               for one in kwargs.get('prv_shipment_cycle', [])]
         self.ports = Ports(**kwargs.get('ports', {}))
 

@@ -104,15 +104,11 @@ class CosconAPI:
                                       number=container_num)
         end_time = self._get_endtime(soup)
         if end_time:
-            shipment_cycle = [{
+            result['shipment_cycle'] = [{
                 'status': 'Empty Equipment Returned',
                 'time': end_time,
             }]
-        else:
-            shipment_cycle = result['shipment_cycle']
-        return {'container': result['container'],
-                'ports': self._get_ports_info(soup, number_type),
-                'shipment_cycle': shipment_cycle}
+        return result
 
     def _get_endtime(self, soup):
         top = soup.find(id='containerInfoByBlNum')
@@ -121,11 +117,29 @@ class CosconAPI:
 
     def _parse_container_post_response(self, response, context,
                                        number_type, number, jsessionid):
-        from common.utils import format_datetime
         jsf_state = self._get_updated_value("javax.faces.ViewState", response)
         soup = gen_resp_soup(response)
+
         history = soup.find(id='cargoTrackingContainerHistory6')
         rows = history.find(name='tbody').findChildren(name='tr')
+        shipment_cycle = self._get_shipment_cycle_info(rows,
+                            jsf_state, context, number_type, number, jsessionid)
+
+        prv_rows = history.find(id='Cargohistory').find(name='tbody').findChildren(name='tr')
+        prv_shipment_cycle = self._get_shipment_cycle_info(prv_rows,
+                            jsf_state, context, number_type, number, jsessionid,
+                            current=False)
+
+        return {'container': self._get_container_info(soup, number_type),
+                'ports': self._get_ports_info(soup, number_type),
+                'shipment_cycle': shipment_cycle,
+                'prv_shipment_cycle': prv_shipment_cycle,
+                }
+
+    def _get_shipment_cycle_info(self, rows,
+                                 jsf_state, context, number_type, number, jsessionid,
+                                 current=True):
+        from common.utils import format_datetime
         shipment_cycle = []
         last_vessel_info = None
         for row in rows:
@@ -142,7 +156,7 @@ class CosconAPI:
                     'mode': mode,
                 }
                 a_tag = cols[3].find_parent(name='a')
-                if mode == 'Vessel' and a_tag:
+                if current and mode == 'Vessel' and a_tag:
                     a_id = a_tag.get('id')
                     data = self._get_common_post_data(number_type, number, jsf_state)
                     data['cntrNum'] = number
@@ -169,9 +183,7 @@ class CosconAPI:
 
                 shipment_cycle.append(shipment)
 
-        return {'container': self._get_container_info(soup, number_type),
-                'ports': self._get_ports_info(soup, number_type),
-                'shipment_cycle': shipment_cycle}
+        return shipment_cycle
 
     def _parse_vessel_info(self, html):
         soup = BeautifulSoup(html)
@@ -212,20 +224,15 @@ class CosconAPI:
         }
 
     def _get_ports_info(self, soup, number_type):
-        if number_type == 'CONTAINER':
-            tag_id = 'cargopic1'
-        else:
-            tag_id = 'Billkuang'
+        if number_type != 'CONTAINER': return {}
 
-        points = soup.find(id=tag_id)
+        points = soup.find(id='cargopic1')
         ports = {}
-        p = points.find(name='div', text='始发港')
-        if p and p.find_next():
-            ports['first_pol'] = self._get_valid_port_name(p.find_next().text)
-
-        p = points.find(name='div', text='目的港')
-        if p and p.find_next():
-            ports['last_pod'] = self._get_valid_port_name(p.find_next().text)
+        for _name, _text in [('por', '提空点'), ('fnd', '返空点'),
+                             ('first_pol', '始发港'), ('last_pod', '目的港')]:
+            p = points.find(name='div', text=_text)
+            if p and p.find_next():
+                ports[_name] = self._get_valid_port_name(p.find_next().text)
 
         ports['ts_port'] = []
         for p in points.findChildren(name='div', text='中转港'):

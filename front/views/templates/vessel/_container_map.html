@@ -24,14 +24,38 @@
                 <div class="right">
                     <div class="item-name">当前位置</div>
                     <div class="item-value">${c_info['location']}</div>
-                    <div class="item-name">最后更新时间</div>
-                    <div class="item-value">${format_datetime(c_info['datetime'])}</div>
                 </div>
                 <div class="left">
                     <div class="item-name">箱型尺寸</div>
                     <div class="item-value">${c_info['container_size']}</div>
                     <div class="item-name">预计到达时间</div>
                     <div class="item-value">--</div>
+                    <div class="item-name">最后更新时间</div>
+                    <div class="item-value">${format_datetime(c_info['datetime'])}</div>
+                </div>
+                <div class="bottom">
+                    <span>
+                    <div class="item-name">提空点</div>
+                    <div class="item-value">${c['ports']['por']}</div>
+                    </span>
+                    <span>
+                    <div class="item-name">始发港</div>
+                    <div class="item-value">${c['ports']['first_pol']}</div>
+                    </span>
+                    <span>
+                    <?py for p in c['ports']['ts_port']: ?>
+                    <div class="item-name">中转港</div>
+                    <div class="item-value">${p}</div>
+                    </span>
+                    <span>
+                    <?py #endfor ?>
+                    <div class="item-name">目的港</div>
+                    <div class="item-value">${c['ports']['last_pod']}</div>
+                    </span>
+                    <span>
+                    <div class="item-name">返空点</div>
+                    <div class="item-value">${c['ports']['fnd']}</div>
+                    </span>
                 </div>
             </div>
         </div>
@@ -56,6 +80,34 @@
                 </div>
             </div>
         <?py #endfor ?>
+        <div class="box-tabs">
+            <div class="tab3">
+                <span>(+)</span>
+                <span>上一周期历史动态</span>
+            </div>
+        </div>
+        <div class="box-tab3" style="display:none">
+            <?py for s_info in c.get('prv_shipment_cycle', []): ?>
+                <div class="box-title">
+                    <span class="status">状态</span>
+                    <span class="name">${s_info.get('status', '--')}</span>
+                </div>
+                <div class="box-content">
+                    <div class="left">
+                        <div class="item-name">地点</div>
+                        <div class="item-value">${s_info.get('location') or '--'}</div>
+                    </div>
+                    <div class="right">
+                        <div class="item-name">运输方式</div>
+                        <div class="item-value">${s_info.get('mode') or '--'}</div>
+                    </div>
+                    <div class="left">
+                        <div class="item-name">最后更新时间</div>
+                        <div class="item-value">${format_datetime(s_info.get('time')) or '--'}</div>
+                    </div>
+                </div>
+            <?py #endfor ?>
+        </div>
         <?py if v_info: ?>
             <?py include('_container_popup.html', v=v_info) ?>
         <?py #endif ?>
@@ -75,9 +127,9 @@ $(function() {
     view(map, 0, 0, 2);
 
     $('#containerlist .viewmap').each(function(){
-        var popup = $(this).parent().find(".popup-wrapper");
+        var popup = $(this).parent().find(".popup")[0];
         mark(map, $(this).attr('lat'), $(this).attr('lon'),
-             $(this).attr('heading'), popup.html());
+             $(this).attr('heading'), popup);
     });
 
     function _hide() {
@@ -117,6 +169,18 @@ $(function() {
             obj.find('.box-tab1').hide();
             obj.find('.box-tabs .splitter-tab1').attr('class', 'splitter-tab2');
         });
+        obj.find('.box-tabs .tab3').click(function(e){
+            if ($(".box-tab3:hidden").length == 0)
+                $('.box-tabs .tab3 span').first().text('(+)');
+            else
+                $('.box-tabs .tab3 span').first().text('(-)');
+            obj.find('.box-tab3').toggle();
+        });
+    });
+
+    $('.popup-wrapper .countdown-time').each(function(){
+        var obj = $(this);
+        setTimeout(function(){refresh_countdown(obj, 60);}, 60*1000);
     });
 });
 
