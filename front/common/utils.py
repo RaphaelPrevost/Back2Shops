@@ -775,3 +775,30 @@ def format_datetime(dt_str, tz_from='UTC', tz_to=settings.TIMEZONE):
     return localize_datetime(dt, tz_from, tz_to
                              ).strftime('%Y-%m-%d %H:%M')
 
+def countdown_time(dt_str):
+    dt = datetime.datetime.strptime(dt_str, '%Y-%m-%d %H:%M')
+    now = datetime.datetime.strptime(format_datetime(datetime.datetime.utcnow()),
+                                     '%Y-%m-%d %H:%M')
+    days = hours = mins = total_seconds = 0
+    if dt > now:
+        delta = dt - now
+        days = delta.days
+        hours = delta.seconds / 3600
+        mins = delta.seconds % 3600 / 60
+        total_seconds = delta.total_seconds()
+    return {'days': days, 'hours': hours, 'mins': mins,
+            'total_seconds': total_seconds}
+
+def refresh_time(dt_str):
+    dt = datetime.datetime.strptime(dt_str, '%Y-%m-%d %H:%M')
+    now = datetime.datetime.strptime(format_datetime(datetime.datetime.utcnow()),
+                                     '%Y-%m-%d %H:%M')
+    hours = mins = total_seconds = 0
+    if now > dt:
+        delta = now - dt
+        total_seconds = delta.total_seconds()
+        hours = delta.total_seconds() / 3600
+        mins = delta.total_seconds() % 3600 / 60
+    return {'hours': hours, 'mins': mins,
+            'total_seconds': total_seconds}
+

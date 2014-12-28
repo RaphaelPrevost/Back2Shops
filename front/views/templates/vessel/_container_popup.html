@@ -7,17 +7,20 @@
         <div class="left">
             <div class="countdown">
                 <span>距离目的港仅</span>
-                <span class="countdown-time">
-                    <span class="day">
-                        <span class="day-num">00</span>
+                <?py countdown = countdown_time(format_datetime(v['arrival_time'])) ?>
+                <span class="countdown-time" total_seconds="${countdown['total_seconds']}">
+                    <?py _show_day = "display" if countdown['days'] > 0 else "none" ?>
+                    <span class="day" style="display:${_show_day}">
+                        <span class="day-num">${countdown['days']}</span>
                         <span>天</span>
                     </span>
-                    <span class="hour">
-                        <span class="hour-num">00</span>
+                    <?py _show_hour = "display" if countdown['hours'] > 0 else "none" ?>
+                    <span class="hour" style="display:${_show_hour}">
+                        <span class="hour-num">${countdown['hours']}</span>
                         <span>小时</span>
                     </span>
                     <span class="minute">
-                        <span class="minute-num">00</span>
+                        <span class="minute-num">${countdown['mins']}</span>
                         <span>分钟</span>
                     </span>
                 </span>
@@ -38,7 +41,14 @@
             </div>
             <div>
                 <span class="update">更新时间:</span>
-                <span class="update-time">${format_datetime(pos['time'])}</span>
+                <span class="update-time">
+                    <?py time= refresh_time(format_datetime(pos['time'])) ?>
+                    <?py if time['hours'] > 0 : ?>
+                    ${time['hours']}小时前
+                    <?py else: ?>
+                    ${time['mins']}分钟前
+                    <?py #endif ?>
+                </span>
             </div>
             <div>
             </div>
