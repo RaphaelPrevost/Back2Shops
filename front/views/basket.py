@@ -129,4 +129,6 @@ class BasketAPIResource(BaseJsonResource):
 
         basket_data.update(basket_data)
         get_redis_cli().set(basket_key, ujson.dumps(basket_data))
-        return {}
+        cur_basket_qty = sum(basket_data.values())
+
+        return {'cur_basket_qty': cur_basket_qty}
