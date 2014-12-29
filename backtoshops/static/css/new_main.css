@@ -515,9 +515,9 @@ label {
 		-o-box-shadow: 0 0 4px rgba(0,0,0,0.5);
 		box-shadow: 0 0 4px rgba(0,0,0,0.5);
 	}
-	.blocHome.bloc1 { background-color: #0a5da3; }
-	.blocHome.bloc2 { background-color: #2396cc; }
-	.blocHome.bloc3 { background-color: #1fbba6; }
+	.blocHome.bloc1 { background-color: #f5f5f5; }
+	.blocHome.bloc2 { background-color: #f5f5f5; }
+	.blocHome.bloc3 { background-color: #f5f5f5; }
 	.blocHome.bloc4 { background-color: #436647; }
 
 	.blocHome h1 {
