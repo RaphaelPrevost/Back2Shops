@@ -3,44 +3,155 @@
     <!--CONTENU-->
     <div class="boxCenter"> 
         <!--MAP SHOPS-->
+        <div id="caligraphie"></div>
 
-        <div id="wrapCompte">
-            <h3 id="titleWish">Basket</h3>
 
-            <?py for item in basket: ?>
-            <!--Produit-->
-            <div class="prod">
-                <h1 class="titleProd"><strong><span><em class="prix">${item['price']} ${item['product']['currency']}</em></span></strong></h1>
-                <a class="visuel" href="${item['product']['link']}"><img src="${item['product']['img']}" alt="${item['product']['name']}"/></a>
-                <!--DESCRIPTION-->
-                <div class="descrProd">
-                    <p>
-                        <strong>${item['product']['name']}</strong>, ${item['item']}
-                    </p>
-                </div>
-                <!--//DESCRIPTION-->
-                <div class="bouton">
-                    <a>${item['quantity']}</a>
-                </div>
-                <a class="detail"  href="${item['product']['link']}">${_('Detail')}</a>
-            </div>
-            <!--//Produit-->
-            <?py #endfor ?>
+    <!--MAP SHOPS-->
+        <div id="wrapPanier">
 
-            <!--//DESCRIPTION-->
-            <div id="bouton">
-                <a href="javascript:checkout()">${_('Checkout')}</a>
-            </div>
+            <strong id="titlepanier">${_('Votre Commande')}</strong>
+            <ul>
+                <li class="li1 on"><a href="#"><span>1 </span>${_('Commande')}</a></li>
+                <li class="li2"><span>2 </span>${_('Identification')}</li>
+                <li class="li3"><span>3 </span>${_('Adresse de livraison')}</li>
+                <li class="li4"><span>4 </span>${_('Validation')}</li>
+            </ul>
+
+
+            <h1 id="titleH1">${_('Commande')} :</h1>
+            <p class="txtinfo">${_("Ceci est votre panier d'oeufs frais.")}</p>
+
+            <h2 class="titleLine table"><strong><span>${_('Last Orders Statuts')}</span></strong></h2>
+            <table class="tableCompte" cellpadding="0" cellspacing="0" border="0">
+                <thead>
+                    <tr>
+                        <th class="left">${_('Produit')}</th>
+                        <th class="left">${_('Description')}</th>
+                        <th>${_('Ref')}</th>
+                        <th>${_('Prix')}</th>
+                        <th>${_('Annulation')}</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <td colspan="5" class="right">
+                            ${_('Total produits TTC : ')}
+                            <span id="sum_amount"></span>
+                        </td>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    <?py for item in basket: ?>
+
+                    <tr data="${item['item']}">
+                        <td class="left">
+                            <a href="${item['product']['link']}">
+                                <img src="${item['product']['img']}"  width="150px" alt="${item['product']['name']}" />
+                            </a>
+                        </td>
+                        <td class="left"><h1>${item['product']['name']}</h1><strong>Nom du colori</strong></td>
+                        <td class="ref">${item['external_id']}</td>
+                        <td>
+                            <span id="price">${format_amount(item['price'] + item['tax'])}</span>
+                            <span id="currency">${cur_symbol(item['product']['currency'])}</span>
+                            <span id="amount" class="hidden">
+                                ${format_amount((item['price'] + item['tax']) * item['quantity'])}
+                            </span>
+                        </td>
+                        <td><a href="#" class="supprimer" title="${_('Supprimer')}">x</a></td>
+                    </tr>
+
+                    <?py #endfor ?>
+                </tbody>
+            </table>
+            <a class="btn purchase" href="javascript:next()">${_('Valider')}</a>
+
         </div>
         <!--//MAP SHOPS-->
         <div class="clear"></div>
+
     </div>
     <!--FIN CONTENU-->
 </div>
-<!--FIN CONTENEUR-->
+{#<!--FIN CONTENEUR-->#}
 
 <script type="text/javascript">
-function checkout() {
-     $("#dialog-login").dialog('open');
-}
+
+    function next() {
+        if ($('tr #amount').length == 0) return;
+
+        $.get('/ajax_basket',
+                function(data) {
+                    if (data['res'] == 'FAILURE') {
+                        $(".errwrapper").text(data['err']);
+                    } else {
+                        if (data['set_cookies_js']) {
+                            eval(data['set_cookies_js']);
+                        }
+                        //location = "${order_addr_url_format}";
+                    }
+                }
+        );
+    }
+
+    function calc_sum() {
+        var currency = "";
+        var diff_currency = false;
+        $('tr #currency').each(function(){
+            if (currency == "") {
+                currency = $(this).text();
+            } else if (currency != $(this).text()) {
+                // different currencies ??
+                diff_currency = true;
+            }
+        });
+        if (diff_currency) {
+            $('#sum_amount').hide().siblings().hide();
+            return;
+        }
+
+        var sum = 0;
+        $('tr #amount').each(function(){
+            sum += $(this).text() * 1;
+        });
+        $('#sum_amount').text(formatAmount(sum) + " " + currency);
+        $('#sum_amount').show().siblings().show();
+    };
+
+    jQuery("document").ready(function($){
+        var nav = $('#sidenav');
+        $(window).scroll(function () {
+            if ($(this).scrollTop() > 115) {
+                nav.addClass("f-moveTop");
+            } else {
+                nav.removeClass("f-moveTop");
+            }
+        });
+
+        $(window).scroll(function () {
+            if ($(this).scrollLeft() > 15) {
+                nav.addClass("f-static");
+            } else {
+                nav.removeClass("f-static");
+            }
+        });
+
+        calc_sum();
+
+        $('tr .supprimer').click(function(){
+            // remove item
+            var tr = $(this).parent().parent();
+            tr.remove();
+            calc_sum();
+
+            $.post('/ajax_basket', {
+                'cmd': 'del',
+                'sale': tr.attr('data')},
+                function(data) {
+                    $("#nb_prod").html(data['cur_basket_qty']);
+                }
+            );
+        });
+    });
+
 </script>
