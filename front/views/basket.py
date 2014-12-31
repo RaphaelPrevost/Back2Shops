@@ -38,6 +38,7 @@
 
 
 import logging
+import settings
 import ujson
 
 from B2SFrontUtils.constants import REMOTE_API_NAME
@@ -113,7 +114,10 @@ class BasketAPIResource(BaseJsonResource):
             chosen_item = unescape_string(chosen_item)
 
         if cmd == 'add':
-            if chosen_item in basket_data:
+            # for dragon dollar the quantity always 1
+            if settings.BRAND_NAME == 'DRAGONDOLLAR':
+                basket_data[chosen_item] = 1
+            elif chosen_item in basket_data:
                 basket_data[chosen_item] += quantity
             else:
                 basket_data[chosen_item] = quantity

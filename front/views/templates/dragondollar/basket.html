@@ -19,6 +19,7 @@
 
 
             <h1 id="titleH1">${_('Commande')} :</h1>
+            <div class="errwrapper">${err}</div>
             <p class="txtinfo">${_("Ceci est votre panier d'oeufs frais.")}</p>
 
             <h2 class="titleLine table"><strong><span>${_('Last Orders Statuts')}</span></strong></h2>
@@ -52,11 +53,8 @@
                         <td class="left"><h1>${item['product']['name']}</h1><strong>Nom du colori</strong></td>
                         <td class="ref">${item['external_id']}</td>
                         <td>
-                            <span id="price">${format_amount(item['price'] + item['tax'])}</span>
+                            <span id="amount">${format_amount(item['price'] + item['tax'])}</span>
                             <span id="currency">${cur_symbol(item['product']['currency'])}</span>
-                            <span id="amount" class="hidden">
-                                ${format_amount((item['price'] + item['tax']) * item['quantity'])}
-                            </span>
                         </td>
                         <td><a href="#" class="supprimer" title="${_('Supprimer')}">x</a></td>
                     </tr>
@@ -73,7 +71,7 @@
     </div>
     <!--FIN CONTENU-->
 </div>
-{#<!--FIN CONTENEUR-->#}
+<!--FIN CONTENEUR-->
 
 <script type="text/javascript">
 
@@ -88,7 +86,7 @@
                         if (data['set_cookies_js']) {
                             eval(data['set_cookies_js']);
                         }
-                        //location = "${order_addr_url_format}";
+                        location = "${order_addr_url_format}";
                     }
                 }
         );

@@ -1,0 +1,73 @@
+<!--CONTENEUR BOTTOM-->
+<div id="conteneurBottom">
+    <!--CONTENU-->
+    <div class="boxCenter">
+        <!--MAP SHOPS-->
+        <div id="caligraphie"></div>
+
+        <div id="wrapPanier">
+            <strong id="titlepanier">${_('Votre Commande')}</strong>
+            <ul>
+                <li class="li1 ok"><a href="${basket_url_format}"><span>1 </span>${_('Commande')}</a></li>
+                <li class="li2 on"><span>2 </span>${_('Identification')}</li>
+                <li class="li3"><span>3 </span>${_('Adresse de livraison')}</li>
+                <li class="li4"><span>4 </span>${_('Validation')}</li>
+            </ul>
+
+            <h1 id="titleH1">${_('Identification')} :</h1>
+
+            <?py include('_auth.html') ?>
+            <div id="btnline">
+                <a class="btn purchase" href="javascript:confirm()">${_('Valider')}</a>
+                <a class="btn back" href="javascript:history.go(-1)">${_('Etape précédente')}</a>
+            </div>
+
+        </div>
+        <!--//MAP SHOPS-->
+        <div class="clear"></div>
+
+    </div>
+    <!--FIN CONTENU-->
+</div>
+<!--FIN CONTENEUR-->
+
+<script type="text/javascript">
+function confirm() {
+    if ($('#registerForm input[name=email]').val().length > 0) {
+        register();
+    } else {
+        login();
+    }
+}
+function login() {
+    $.post('/ajax_login',
+        $("#loginForm").serializeArray(),
+        function(data) {
+            if (data['res'] == 'FAILURE') {
+                $("#loginForm .errwrapper").text(data['err']);
+            } else {
+                if (data['set_cookies_js']) {
+                    eval(data['set_cookies_js']);
+                }
+                location = "${succ_redirect_to}";
+            }
+        }
+    )
+}
+
+function register() {
+    $.post('/ajax_register',
+        $("#registerForm").serializeArray(),
+        function(data) {
+            if (data['res'] == 'FAILURE') {
+                $("#registerForm .errwrapper").text(data['err']);
+            } else {
+                if (data['set_cookies_js']) {
+                    eval(data['set_cookies_js']);
+                }
+                location = "${order_user_url_format}";
+            }
+        }
+    )
+}
+</script>
