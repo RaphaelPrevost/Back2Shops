@@ -41,6 +41,7 @@ from settings_local import *
 
 BRAND_ID = "1000002"
 BRAND_NAME = "DRAGONDOLLAR"
+SERVER_PORT = 9501
 
 TEMPLATE_PATH = ['views/templates/dragondollar', 'views/templates/breuer']
 

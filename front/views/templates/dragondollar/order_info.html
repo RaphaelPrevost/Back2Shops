@@ -1,0 +1,188 @@
+<!--CONTENEUR BOTTOM-->
+<div id="conteneurBottom">
+    <!--CONTENU-->
+    <div class="boxCenter">
+        <!--MAP SHOPS-->
+        <div id="caligraphie"></div>
+
+        <div id="wrapPanier">
+
+            <div class="errwrapper"></div>
+            <strong id="titlepanier">Votre Compte Breuer</strong>
+            <ul>
+                <li class="li1 ok"><a href="${basket_url_format}"><span>1 </span>${_("Commande")}</a></li>
+                <li class="li2 ok"><span>2 </span>${_("Identification")}</li>
+                <li class="li3 on"><span>3 </span>${_("Adresse de livraison")}</li>
+                <li class="li4"><span>4 </span>${_("Validation")}</li>
+            </ul>
+
+            <h1 id="titleH1">Récapitulatif de votre commande :</h1>
+            <p class="rappeladresse">Adresse de livraison : <strong>...</strong></p>
+            <p class="txtinfo recap">Des frais de livraisons peuvent s'ajouter à votre commande</p>
+
+            <h2 class="titleLine table"><strong><span>Votre commande</span></strong></h2>
+
+            <form id="shipping" method="post">
+                <input type="hidden" name="id_order" value="${order_id}">
+
+                <?py for shipment_id, shipping_lists in shipments.iteritems(): ?>
+                    <?py shipment_detail = shipments_detail.get(str(shipment_id)) or {} ?>
+                    <div class="recapLivraison">
+                        <span>Livraison n° ${shipment_id}</span>
+                        <?py if shipping_lists[0]['shipping_msg']: ?> | <span>${shipping_lists[0]['shipping_msg']}</span><?py #endif ?>
+                        <a class="suivi" href="#">Consultez le suivi de commande sur</a>
+                    </div>
+
+                    <table class="tableCompte" cellpadding="0" cellspacing="0" border="0">
+                        <thead>
+                        <tr>
+                            <th class="left">Produit</th>
+                            <th class="left">Description</th>
+                            <th>Ref</th>
+                            <th>Prix</th>
+                            <th>Annulation</th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                        <tr>
+                            <td class="sstotalline left" colspan="5">
+                                <!--<em class="infoChrono">Votre commande sera livrée sous 7 jours via <img src="/img/chronopost.png" alt="Chronopost" /></em>-->
+                                <p>
+                                    <span class="labelTotal">Total produits ttc</span>
+                                    <span class="priceTotal">200,00 €</span>
+                                    <span class="labelTotal">Frais de livraison</span>
+                                    <span class="priceTotal">10,00 €</span>
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="totalline left" colspan="5">
+                                <strong>
+                                    Total produits TTC
+                                    <span>210,00 €</span>
+                                </strong>
+                            </td>
+                        </tr>
+                        </tfoot>
+
+                        <tbody>
+                            <?py currency = cur_symbol(shipping_lists[0]['currency']) ?>
+                            <?py for shipping_list in shipping_lists: ?>
+                            <?py item = shipping_list['item'] ?>
+                            <tr>
+                                <td class="left">
+                                    <img width="150px" src="${get_thumbnail(item['picture'], 150)}"/>
+                                </td>
+                                <td class="left">
+                                    <h3 class="title">${item['product_name']}</h3>
+                                </td>
+                                <td class="ref">
+                                    <span class="ref">Ref : ${item['external_id']}</span>
+                                </td>
+
+                                <td class="price">
+                                    <span id="price">${format_amount(item['price'] + shipping_list['tax_per_item'])}</span><span id="currency">${currency}</span>
+                                </td>
+
+                                <td><a href="#" class="supprimer" title="Supprimer">x</a></td>
+                            </tr>
+                            <?py #endfor ?>
+                        </tbody>
+
+                    </table>
+                <?py #endfor ?>
+
+                <div id="infosCGV">
+                    <p class="txtinfo">En validant vous serez dirigé vers l’interface de paiement afin de régler votre commande</p>
+                    <p class="txtcgvin"><label for="cgvin">J'accepte les <a href="cgv.php" target="_blank">conditions générale de vente</a></label><input type="checkbox" name="cgvin" id="cgvin" /></p>
+
+                    <p class="errwrapper">Vous devez accepter les conditions générale de vente pour valider votre commande</p>
+                </div>
+
+                <div id="btnline">
+                    <a class="btn purchase" href="invoice.php">Valider</a>
+                    <a class="btn back" href="panier-c.php">Etape précédente</a>
+                </div>
+            </form>
+
+            <div id="btnline">
+                <?py if step == 'select': ?>
+                <a class="btn purchase" href="javascript:save()">Sauver</a><br/>
+                <?py #endif ?>
+                <?py if step == 'payment': ?>
+                <a class="btn purchase" href="${payment_url}">Valider</a><br/>
+                <?py #endif ?>
+            </div>
+        </div>
+
+        <!--//MAP SHOPS-->
+        <div class="clear"></div>
+
+    </div>
+    <!--FIN CONTENU-->
+</div>
+<!--FIN CONTENEUR-->
+
+<script>
+function calc_sum(obj) {
+    var currency = "";
+    var diff_currency = false;
+    obj.find('tr #currency').each(function(){
+        if (currency == "") {
+            currency = $(this).text();
+        } else if (currency != $(this).text()) {
+            // different currencies ??
+            diff_currency = true;
+        }
+    });
+    if (diff_currency) {
+        return;
+    }
+
+    var sum = 0;
+    obj.find('tr #amount').each(function(){
+        sum += $(this).attr('value') * 1;
+    });
+
+    var total = sum;
+    obj.find('tr.stotalline span.priceTotal').each(function(){
+        if ($(this).text())
+            total += $(this).text().split(' ')[0] * 1;
+    });
+
+    var tax = obj.find('#total_amount').attr('value') * 1 - total;
+    if (tax > 0)
+        obj.find('#tax').text(formatAmount(tax) + " " + currency);
+    else
+        obj.find('.tax').hide();
+    obj.find('#sum_amount').text(formatAmount(sum) + " " + currency);
+}
+$(function() {
+    $('table').each(function() {
+        calc_sum($(this));
+    });
+});
+
+function save() {
+    if ($("input:radio:checked").length == 0) {
+        return;
+    }
+    $.post('/ajax_shipping_conf',
+        $("#shipping").serializeArray(),
+        function(data) {
+            if (data['set_cookies_js']) {
+                eval(data['set_cookies_js']);
+            }
+            if (data['res'] == 'FAILURE') {
+                $("#formContainer .errwrapper").text(data['err']);
+                location = '#';
+            } else {
+                if (data['redirect_to'] != undefined)
+                    location = data['redirect_to'];
+                else
+                    location.reload();
+            }
+        }
+    )
+}
+</script>

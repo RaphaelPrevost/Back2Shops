@@ -2,7 +2,7 @@
     <div class="errwrapper"></div>
     <strong id="titlepanier">Votre Compte Breuer</strong>
     <h1 id="titleH1">${user_name}, voici le détail de votre commande :</h1>
-    
+
     <div id="numCommande">
         <h2>
             Commande effectuée le ${order_created}
@@ -39,7 +39,7 @@
                         <td class="left">
                             <div class="prod">
                                 <img width="60px" src="${get_thumbnail(item['picture'], 80)}"/>
-                                <h3 class="title">${item['product_name']}</h1>
+                                <h3 class="title">${item['product_name']}</h3>
                                 <strong class="type">
                                 <?py if item.get('type_name'): ?>Taille : ${item['type_name']}<?py #endif ?>
                                 <?py if item.get('variant_name') and item.get('type_name'): ?> - <?py #endif ?>
@@ -117,7 +117,7 @@
                     <tr>
                         <td colspan="5" class="totalline left">
                             <strong>
-                                Total produits TTC 
+                                Total produits TTC
                                 <span id="total_amount" value="${shipping_lists[0].get('total_amount') or 0}">${format_amount(shipping_lists[0].get('total_amount') or 0)} ${currency}</span>
                             </strong>
                         </td>

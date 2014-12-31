@@ -107,7 +107,7 @@ function addToBasket() {
             } else {
                 flyToElement($('#visuelXS'), $('#panier'), function(){
                     var qty = parseInt($("#nb_prod").text());
-                    $("#nb_prod").html(qty+1);
+                    $("#nb_prod").html(data['cur_basket_qty']);
                 });
             }
         }
