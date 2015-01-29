@@ -111,6 +111,8 @@ class BaseResource(object):
                 data = {'res': RESP_RESULT.F,
                         'err': 'SERVER_ERR'}
                 conn.rollback()
+
+            self.conn = conn
         return data
 
     def _on_get(self, req, resp, conn, **kwargs):
