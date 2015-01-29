@@ -1,0 +1,20 @@
+syntax: glob
+
+# temp files
+*.pyc
+*.pid
+*.swp
+*.log
+*~
+\#*\#
+.\#*
+.DS_Store
+
+# local files
+backtoshops/backtoshops.db
+backtoshops/settings_ghostwheel.py
+backtoshops/media
+
+assets/static/img/*/*
+
+front/views/templates/*/*.cache
