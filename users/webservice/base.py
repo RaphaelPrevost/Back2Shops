@@ -122,6 +122,8 @@ class BaseResource(object):
                 data = {'res': RESP_RESULT.F,
                         'err': 'SERVER_ERR'}
                 conn.rollback()
+
+            self.conn = None
         return data
 
     def _auth(self, conn, req, resp, **kwargs):
