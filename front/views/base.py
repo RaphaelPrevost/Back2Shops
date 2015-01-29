@@ -226,7 +226,7 @@ class BaseResource(object):
         data['set_cookies_js'] = ''
         if 'set-cookie' in resp._headers:
             cookie_header = resp._headers['set-cookie']
-            cookie_header = re.sub(r'expires=(.*);', r'expires="\1";', cookie_header)
+            cookie_header = re.sub(r'expires=(.*?);', r'expires="\1";', cookie_header)
             c = Cookie.SimpleCookie()
             c.load(cookie_header)
             for key in c:
