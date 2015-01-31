@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "new_base.html" %}
 {% load i18n %}
 {% load active %}
 
@@ -8,14 +8,17 @@
     <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
     <META HTTP-EQUIV="Expires" CONTENT="-1">
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.form.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.ui.autocomplete.html.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.ui.datepicker-fr.js"></script>
 {#  <script type="text/javascript" src="{{ STATIC_URL }}js/plupload/plupload.full.js"></script>#}
     <script type="text/javascript" src="{{ STATIC_URL }}js/fileupload/jquery.iframe-transport.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/fileupload/jquery.fileupload.js"></script>
     <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/add_sale.css" />
-    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/ui-lightness/jquery-ui-1.8.16.custom.css" />
+    <script>
+    $(function () {
+        $( ".tabs" ).tabs();
+    });
+    </script>
 {% endblock %}
 
 {% block navigation %}
@@ -26,42 +29,43 @@
     <!--Lien Haut de Page -->
     <a id="lienUP" href="#conteneur">{% trans "Page Top" %}</a>
 
-    <div id="content_Left">
-        <!--Title-->
-        <div id="title">
-            <span>{% trans "Add a new sale" %}</span>
-            <h2>
-                {% trans "Add a new sale" %}
-            </h2>
-        </div>
-
-        <form id="main_form" action="{% url 'add_sale' %}" enctype="multipart/form-data" method="post">{% csrf_token %}
-            <h3><span>{{ wizard.steps.step1 }}/{{ wizard.steps.count }}</span>{{ form_title }}</h3>
-            {% block form %}{% endblock %}
-            {% if wizard.steps.prev %}
-            <button class="navForm" id="btn_first_step" name="wizard_prev_step" value="{{ wizard.steps.first }}">{% trans "First step" %}</button>
-            <button class="navForm" id="btn_prev_step" name="wizard_prev_step" value="{{ wizard.steps.prev }}">{% trans "Back" %}</button>
-            {% endif %}
-            <button class="navForm" id="btn_cancel" name="wizard_cancel" value="{{ wizard.steps.current }}">{% trans "Cancel" %}</button>
-            {% if wizard.steps.current == "shop" %}
-            <input class="btn select" type="submit" value="{% trans "Next: Product" %}"/>
-            {% endif %}
-            {% if wizard.steps.current == "product" %}
-            <input class="btn select" type="submit" value="{% trans "Next: Stock Qty" %}"/>
-            {% endif %}
-            {% if wizard.steps.current == "stocks" %}
-            <input class="btn select" type="submit" value="{% trans "Next: Shipping" %}"/>
-            {% endif %}
-            {% if wizard.steps.current == "shipping" %}
-                <input class="btn select" type="submit" value="{% trans "Next: Target" %}"/>
-            {% endif %}
-            {% if wizard.steps.current == "target" %}
-            <input class="btn select" type="submit" value="{% trans "Create Sale" %}"/>
-            {% endif %}
-        </form>
-
-        {% block empty_forms %}{% endblock %}
+    <!--Title-->
+    <div id="title">
+        <span>{% trans "Add a new sale" %}</span>
+        <h2>
+            {% trans "Add a new sale" %}
+        </h2>
     </div>
+
+    <form id="main_form" action="{% url 'add_sale' %}" enctype="multipart/form-data" method="post">{% csrf_token %}
+        <ul class="arianne">
+            <li class="li1 {% if wizard.steps.current == "shop" %}on{% endif %}"><a href="#"><span>{% trans "Shops" %}</span>1</a></li>
+            <li class="li2 {% if wizard.steps.current == "product" %}on{% endif %}"><span>{% trans "Items" %}</span>2</li>
+            <li class="li3 {% if wizard.steps.current == "stocks" %}on{% endif %}"><span>{% trans "Stock" %}</span>3</li>
+            <li class="li4 {% if wizard.steps.current == "shipping" %}on{% endif %}"><span>{% trans "Shipping" %}</span>4</li>
+        </ul>
+                
+        {% block form %}{% endblock %}
+        {% if wizard.steps.prev %}
+        <button class="navForm" id="btn_first_step" name="wizard_prev_step" value="{{ wizard.steps.first }}">{% trans "First step" %}</button>
+        <button class="navForm" id="btn_prev_step" name="wizard_prev_step" value="{{ wizard.steps.prev }}">{% trans "Back" %}</button>
+        {% endif %}
+        <button class="navForm" id="btn_cancel" name="wizard_cancel" value="{{ wizard.steps.current }}">{% trans "Cancel" %}</button>
+        {% if wizard.steps.current == "shop" %}
+        <input class="btn select" type="submit" value="{% trans "Next: Product" %}"/>
+        {% endif %}
+        {% if wizard.steps.current == "product" %}
+        <input class="btn select" type="submit" value="{% trans "Next: Stock Qty" %}"/>
+        {% endif %}
+        {% if wizard.steps.current == "stocks" %}
+        <input class="btn select" type="submit" value="{% trans "Next: Shipping" %}"/>
+        {% endif %}
+        {% if wizard.steps.current == "shipping" %}
+            <input class="btn select" type="submit" value="{% trans "Create Sale" %}"/>
+        {% endif %}
+    </form>
+
+    {% block empty_forms %}{% endblock %}
 
     <script type="text/javascript">
         $("#btn_first_step,#btn_prev_step").click(function(event){
@@ -70,32 +74,5 @@
         });
     </script>
 
-    <!--content-right-->
-    <div id="content_Right">
-{#        {% include "add_sale_preview.html" %}#}
-        {% if preview_shop %}
-            {% if preview_shop == "blank" %}
-                {% include "add_sale_preview_shop.html" %}
-            {% else %}
-                {{ preview_shop }}
-            {% endif %}
-        {% endif %}
-        {% if preview_product %}
-            {% if preview_product == "blank" %}
-                {% include "add_sale_preview_product.html" %}
-            {% else %}
-                {{ preview_product }}
-            {% endif %}
-        {% endif %}
-        {% if preview_target %}
-            {% if preview_target == "blank" %}
-                {% include "add_sale_preview_target.html" %}
-            {% else %}
-                {{ preview_target }}
-            {% endif %}
-        {% endif %}
-
-    </div>
-    <!--FIN content-right-->
     <div class="clear"></div>
 {% endblock %}

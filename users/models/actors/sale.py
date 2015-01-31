@@ -154,8 +154,11 @@ class ActorSaleVariantPremium(BaseActor):
 class ActorSaleVariant(BaseActor):
     attrs_map = {'id': '@id',
                  'name': 'name',
-                 'thumb': 'thumb',
-                 'img': 'img'}
+                 'thumb': 'thumb'}
+
+    @property
+    def img(self):
+        return as_list(self.data.get('img', None))
 
     @property
     def premium(self):

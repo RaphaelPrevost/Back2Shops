@@ -37,14 +37,17 @@
 #############################################################################
 
 
+import json
 from datetime import date
 from itertools import chain
 
 from django import forms
+from django.forms.formsets import BaseFormSet
 from django.forms.formsets import formset_factory
 from django.forms.util import ErrorList
 from django.utils.encoding import force_text
 from django.utils.encoding import force_unicode
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.html import conditional_escape
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -75,6 +78,23 @@ TARGET_MARKET = (
     (TARGET_MARKET_TYPES.LOCAL, _("Local"))
 )
 
+@python_2_unicode_compatible
+class NoEmptyBaseFormSet(BaseFormSet):
+    def __init__(self, *args, **kwargs):
+        BaseFormSet.__init__(self, *args, **kwargs)
+        for form in self.forms:
+            form.empty_permitted = False
+
+def get_formset_extra(data, prefix):
+    if not data or prefix + '-TOTAL_FORMS' not in data:
+        return 0
+    init_forms_count = data[prefix + '-INITIAL_FORMS']
+    init_forms_count = init_forms_count[0] if type(init_forms_count) is list \
+                                           else init_forms_count
+    total_forms_count = data[prefix + '-TOTAL_FORMS']
+    total_forms_count = total_forms_count[0] if type(total_forms_count) is list \
+                                             else total_forms_count
+    return int(total_forms_count) - int(init_forms_count)
 
 class GroupedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
     def __init__(self, attrs=None, choices=(), render_attrs=None):
@@ -281,17 +301,54 @@ class ShopForm(forms.Form):
                             _("Please select shops within the same currency area."))
         return data
 
+class BrandAttributePreviewForm(forms.Form):
+    pk = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+    url = forms.CharField(widget=forms.HiddenInput(), required=False)
+    sort_order = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    def __init__(self, data=None, files=None,
+                 auto_id='id_%s', prefix=None, initial=None,
+                 error_class=ErrorList, label_suffix=':',
+                 empty_permitted=False):
+        super(BrandAttributePreviewForm, self).__init__(data, files, auto_id, prefix,
+                                          initial, error_class, label_suffix,
+                                          empty_permitted)
+
 class BrandAttributeForm(forms.Form):
     ba_id = forms.IntegerField(widget=forms.HiddenInput())
     name = forms.CharField(widget=forms.HiddenInput())
-    premium_type = forms.CharField(widget=forms.HiddenInput(), required=False)
-    premium_amount = forms.FloatField(widget=forms.HiddenInput(), required=False)
+    premium_type = forms.ChoiceField(choices=DISCOUNT_TYPE, required=False)
+    premium_amount = forms.FloatField(widget=forms.TextInput(attrs={'class': 'inputXS'}),
+                                      required=False)
     texture = forms.CharField(widget=forms.HiddenInput(), required=False)
-    # texture_thumb = forms.CharField(widget=forms.HiddenInput())
-    # preview_pk = forms.IntegerField(widget=forms.HiddenInput())
-    preview = forms.CharField(widget=forms.HiddenInput(), required=False)
-    preview_pk = forms.IntegerField(widget=forms.HiddenInput(), required=False)
-    # preview_thumb = forms.CharField(widget=forms.HiddenInput())
+
+    def __init__(self, data=None, files=None,
+                 auto_id='id_%s', prefix=None, initial=None,
+                 error_class=ErrorList, label_suffix=':',
+                 empty_permitted=False):
+        super(BrandAttributeForm, self).__init__(data, files, auto_id, prefix,
+                                          initial, error_class, label_suffix,
+                                          empty_permitted)
+        preview_prefix = "%s-previews" % prefix
+        formset = formset_factory(BrandAttributePreviewForm,
+                                  formset=NoEmptyBaseFormSet,
+                                  extra=get_formset_extra(data, preview_prefix),
+                                  can_delete=True)
+        if data and self.is_empty_ba(data, preview_prefix):
+            data.update({
+                '%s-TOTAL_FORMS' % preview_prefix: 0,
+                '%s-INITIAL_FORMS' % preview_prefix: 0,
+                '%s-MAX_NUM_FORMS' % preview_prefix: 1000,
+            })
+        if initial:
+            self.previews = formset(data=data,
+                                    initial=initial.get('previews', None),
+                                    prefix=preview_prefix)
+        else:
+            self.previews = formset(data=data, prefix=preview_prefix)
+
+    def is_empty_ba(self, data, preview_prefix):
+        return len([k for k in data if k.startswith(preview_prefix)]) == 0
 
 
 class TypeAttributePriceForm(forms.Form):
@@ -327,6 +384,10 @@ class ProductForm(forms.Form):
         label=_("Short Description"),
         required=False,
         max_length=240)
+    cover_pk = forms.IntegerField(widget=forms.HiddenInput())
+    cover_url = forms.CharField(
+        label=_("Cover picture"),
+        widget=forms.HiddenInput())
     description = forms.CharField(
         label=_("Description"),
         widget=forms.Textarea())
@@ -365,6 +426,7 @@ class ProductForm(forms.Form):
         label=_("To"),
         widget=forms.TextInput(attrs={'class': 'inputS'}),
         localize=True)
+    gender = forms.ChoiceField(choices=GENDERS, label=_("Target gender"))
 
     def __init__(self, mother_brand=None, data=None, files=None,
                  auto_id='id_%s', prefix=None, initial=None,
@@ -380,38 +442,89 @@ class ProductForm(forms.Form):
         if add_new:
             cat_queryset = cat_queryset.filter(valid=True)
         self.fields['category'].queryset = cat_queryset
-        formset = formset_factory(BrandAttributeForm, extra=0, can_delete=True)
-        if initial:
-            self.brand_attributes = formset(data=data, initial=initial.get('brand_attributes', None), prefix="brand_attributes")
-        else:
-            self.brand_attributes = formset(data=data, prefix="brand_attributes")
 
-        pictures_formset = formset_factory(ProductPictureForm, extra=0, can_delete=True)
+        b_attrs_prefix = "brand_attributes"
+        formset = formset_factory(BrandAttributeForm,
+                                  formset=NoEmptyBaseFormSet,
+                                  extra=get_formset_extra(data, b_attrs_prefix),
+                                  can_delete=True)
         if initial:
-            self.pictures = pictures_formset(data=data, initial=initial.get('pictures', None),
-                                             prefix="product_pictures")
+            self.brand_attributes = formset(data=data,
+                                            initial=initial.get('brand_attributes', None),
+                                            prefix=b_attrs_prefix)
         else:
-            self.pictures = pictures_formset(data=data, prefix="product_pictures")
+            self.brand_attributes = formset(data=data, prefix=b_attrs_prefix)
 
+        pictures_prefix = "product_pictures"
+        pictures_formset = formset_factory(ProductPictureForm,
+                                           formset=NoEmptyBaseFormSet,
+                                           extra=get_formset_extra(data, pictures_prefix),
+                                           can_delete=True)
+        if initial:
+            self.pictures = pictures_formset(data=data,
+                                             initial=initial.get('pictures', None),
+                                             prefix=pictures_prefix)
+        else:
+            self.pictures = pictures_formset(data=data, prefix=pictures_prefix)
+
+        type_attr_prices_prefix = "type_attribute_prices"
         TypeAttributePriceFormSet = formset_factory(TypeAttributePriceForm,
-                                                    extra=0, can_delete=True)
+                                                    formset=NoEmptyBaseFormSet,
+                                                    extra=get_formset_extra(data, type_attr_prices_prefix),
+                                                    can_delete=True)
         if initial:
             self.type_attribute_prices = TypeAttributePriceFormSet(
                 data=data, initial=initial.get('type_attribute_prices', None),
-                prefix="type_attribute_prices")
+                prefix=type_attr_prices_prefix)
         else:
             self.type_attribute_prices = TypeAttributePriceFormSet(
-                data=data, prefix="type_attribute_prices")
+                data=data, prefix=type_attr_prices_prefix)
 
+        type_attr_weights_prefix = "type_attribute_weights"
         TypeAttributeWeightFormSet = formset_factory(TypeAttributeWeightForm,
-                                                     extra=0, can_delete=True)
+                                                     formset=NoEmptyBaseFormSet,
+                                                     extra=get_formset_extra(data, type_attr_weights_prefix),
+                                                     can_delete=True)
         if initial:
             self.type_attribute_weights = TypeAttributeWeightFormSet(
                 data=data, initial=initial.get('type_attribute_weights', None),
-                prefix="type_attribute_weights")
+                prefix=type_attr_weights_prefix)
         else:
             self.type_attribute_weights = TypeAttributeWeightFormSet(
-                data=data, prefix="type_attribute_weights")
+                data=data, prefix=type_attr_weights_prefix)
+
+        barcodes_prefix = "barcodes"
+        BarcodeFormset = formset_factory(BarcodeForm,
+                                         formset=NoEmptyBaseFormSet,
+                                         extra=get_formset_extra(data, barcodes_prefix),
+                                         can_delete=True)
+        if initial.get('barcodes_initials', None):
+            self.barcodes = BarcodeFormset(data=data, prefix=barcodes_prefix,
+                                initial=initial.get('barcodes_initials', None))
+        else:
+            self.barcodes = BarcodeFormset(data=data, prefix=barcodes_prefix)
+
+        extrefs_prefix = "externalrefs"
+        ExternalRefFormset = formset_factory(ExternalRefForm,
+                                             formset=NoEmptyBaseFormSet,
+                                             extra=get_formset_extra(data, extrefs_prefix),
+                                             can_delete=True)
+        if initial.get('externalrefs_initials', None):
+            self.externalrefs = ExternalRefFormset(data=data, prefix=extrefs_prefix,
+                                initial=initial.get('externalrefs_initials', None))
+        else:
+            self.externalrefs = ExternalRefFormset(data=data, prefix=extrefs_prefix)
+
+        self.fields['shop_ids'] = forms.CharField(
+            widget=forms.HiddenInput(),
+            initial=initial.get('shop_ids'),
+            required=False,
+        )
+
+    def clean(self):
+        self._clean_barcodes()
+        self._clean_externalrefs()
+        return super(ProductForm, self).clean()
 
     def clean_valid_to(self):
         valid_from = self.cleaned_data['valid_from']
@@ -446,80 +559,17 @@ class ProductForm(forms.Form):
                 'least one type of item.'))
         return normal_price
 
-
-class BarcodeForm(forms.Form):
-    brand_attribute = forms.IntegerField(required=False)
-    common_attribute = forms.IntegerField(required=False)
-    upc = forms.CharField(label=_("Barcode"), required=False)
-
-BarcodeFormset = formset_factory(BarcodeForm, can_delete=True, extra=0)
-
-class ExternalRefForm(forms.Form):
-    brand_attribute = forms.IntegerField(required=False)
-    common_attribute = forms.IntegerField(required=False)
-    external_id = forms.CharField(label=_("External Ref"), required=False)
-
-ExternalRefFormset = formset_factory(ExternalRefForm, can_delete=True, extra=0)
-
-class StockForm(forms.Form):
-    brand_attribute = forms.IntegerField(required=False)
-    common_attribute = forms.IntegerField(required=False)
-    shop = forms.IntegerField(required=False)
-    stock = forms.IntegerField(label=_("Stock"), required=False)
-    def clean_stock(self):
-        data = self.cleaned_data['stock']
-        if not data:
-            return None
-        try:
-            int_data = int(data)
-        except:
-            raise forms.ValidationError(_('Invalid stock quantity.'))
-        return int_data
-
-StockFormset = formset_factory(StockForm, can_delete=True, extra=0)
-
-
-class StockStepForm(forms.Form):
-    def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None,
-                 initial=None, error_class=ErrorList, label_suffix=':',
-                 empty_permitted=False):
-        super(StockStepForm, self).__init__(data, files, auto_id, prefix, initial,
-                                            error_class, label_suffix, empty_permitted)
-        if initial.get('stocks_initials', None):
-            self.stocks = StockFormset(data=data, prefix="stocks", initial=initial.get('stocks_initials', None))
-        else:
-            self.stocks = StockFormset(data=data, prefix="stocks")
-
-        if initial.get('barcodes_initials', None):
-            self.barcodes = BarcodeFormset(data=data, prefix="barcodes", initial=initial.get('barcodes_initials', None))
-        else:
-            self.barcodes = BarcodeFormset(data=data, prefix="barcodes")
-
-        if initial.get('externalrefs_initials', None):
-            self.externalrefs = ExternalRefFormset(data=data, prefix="externalrefs",
-                                initial=initial.get('externalrefs_initials', None))
-        else:
-            self.externalrefs = ExternalRefFormset(data=data, prefix="externalrefs")
-
-    def clean(self):
-        if self.stocks.errors:
-            for form in self.stocks.forms:
-                if form.errors:
-                    raise forms.ValidationError(form.errors)
-        self._clean_barcodes()
-        self._clean_externalrefs()
-        return super(StockStepForm, self).clean()
-
     def _clean_barcodes(self):
-        shops = []
-        for stock in self.stocks:
-            if stock.cleaned_data['shop']:
-                shops.append(stock.cleaned_data['shop'])
+        shops = json.loads(self.cleaned_data['shop_ids'])
 
         # In one shop, cannot have 2 same product barcode for two sale items.
         upcs = []
         for barcode in self.barcodes:
             barcode.full_clean()
+            if not barcode.cleaned_data \
+                    or not barcode.cleaned_data['upc'] \
+                    or barcode.cleaned_data['DELETE']:
+                continue
             new_upc = barcode.cleaned_data['upc']
             old_upc = barcode.initial.get('upc')
             upcs.append(new_upc)
@@ -550,15 +600,16 @@ class StockStepForm(forms.Form):
                 raise forms.ValidationError(_("You cannot use two same product barcodes."))
 
     def _clean_externalrefs(self):
-        shops = []
-        for stock in self.stocks:
-            if stock.cleaned_data['shop']:
-                shops.append(stock.cleaned_data['shop'])
+        shops = json.loads(self.cleaned_data['shop_ids'])
 
         # In one shop, cannot have 2 same external id for two sale items.
         exids = []
         for externalref in self.externalrefs:
             externalref.full_clean()
+            if not externalref.cleaned_data \
+                    or not externalref.cleaned_data['external_id'] \
+                    or externalref.cleaned_data['DELETE']:
+                continue
             new_exid = externalref.cleaned_data['external_id']
             old_exid = externalref.initial.get('external_id')
             exids.append(new_exid)
@@ -588,8 +639,53 @@ class StockStepForm(forms.Form):
                 raise forms.ValidationError(_("You cannot use two same external refs."))
 
 
-class TargetForm(forms.Form):
-    gender = forms.ChoiceField(choices=GENDERS, label=_("Target gender"))
+class BarcodeForm(forms.Form):
+    brand_attribute = forms.IntegerField(required=False)
+    common_attribute = forms.IntegerField(required=False)
+    upc = forms.CharField(label=_("Barcode"), required=False)
+
+class ExternalRefForm(forms.Form):
+    brand_attribute = forms.IntegerField(required=False)
+    common_attribute = forms.IntegerField(required=False)
+    external_id = forms.CharField(label=_("External Ref"), required=False)
+
+class StockForm(forms.Form):
+    brand_attribute = forms.IntegerField(required=False)
+    common_attribute = forms.IntegerField(required=False)
+    shop = forms.IntegerField(required=False)
+    stock = forms.IntegerField(label=_("Stock"), required=False)
+    def clean_stock(self):
+        data = self.cleaned_data['stock']
+        if not data:
+            return None
+        try:
+            int_data = int(data)
+        except:
+            raise forms.ValidationError(_('Invalid stock quantity.'))
+        return int_data
+
+class StockStepForm(forms.Form):
+    def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None,
+                 initial=None, error_class=ErrorList, label_suffix=':',
+                 empty_permitted=False):
+        super(StockStepForm, self).__init__(data, files, auto_id, prefix, initial,
+                                            error_class, label_suffix, empty_permitted)
+        _prefix = "stocks"
+        StockFormset = formset_factory(StockForm, formset=NoEmptyBaseFormSet,
+                                       extra=get_formset_extra(data, _prefix),
+                                       can_delete=True)
+        if initial.get('stocks_initials', None):
+            self.stocks = StockFormset(data=data, prefix=_prefix, initial=initial.get('stocks_initials', None))
+        else:
+            self.stocks = StockFormset(data=data, prefix=_prefix)
+
+    def clean(self):
+        if self.stocks.errors:
+            for form in self.stocks.forms:
+                if form.errors:
+                    raise forms.ValidationError(form.errors)
+        return super(StockStepForm, self).clean()
+
 
 class ProductBrandFormModel(forms.ModelForm):
     class Meta:

@@ -53,6 +53,9 @@ from B2SProtocol.constants import RESP_RESULT
 def get_full_url(asset_name):
     return os.path.join(settings.ASSETS_CDN, asset_name)
 
+def get_asset_name(full_url):
+    return full_url.lstrip(settings.ASSETS_CDN)
+
 def upload(asset_name, content):
     remote_uri = os.path.join(settings.AST_SERVER,
                               "webservice/1.0/private/upload?name=%s"

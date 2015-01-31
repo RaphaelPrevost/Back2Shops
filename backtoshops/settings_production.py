@@ -239,6 +239,7 @@ INSTALLED_APPS = (
     'south',
     'form_utils',
     'formwizard',
+    'formfield',
     'sorl.thumbnail',
     'django_extensions',
     'formwizard',

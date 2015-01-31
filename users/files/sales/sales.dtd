@@ -53,7 +53,7 @@
 <!ATTLIST discount type (ratio | fixed) "ratio" >
 <!ELEMENT discount_price (#PCDATA) >
 
-<!ELEMENT variant (name, thumb, img, premium) >
+<!ELEMENT variant (name, thumb, img+, premium) >
 <!ATTLIST variant id CDATA #REQUIRED >
 <!ELEMENT thumb (#PCDATA) >
 <!ELEMENT premium (#PCDATA) >

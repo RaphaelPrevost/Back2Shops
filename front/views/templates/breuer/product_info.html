@@ -26,7 +26,7 @@
             <?py for variant in variants: ?>
             <li value="${variant.get('@id')}">
                 <?py if not variant.get('disabled', False): ?>
-                <a href="javascript:void(0)" src="${variant.get('img') or get_single_attribute(product_info, 'img')}">
+                <a href="javascript:void(0)" src="${get_single_attribute(variant, 'img') or get_single_attribute(product_info, 'img')}">
                     <img src="${get_thumbnail(variant.get('thumb'), 30)}"/>
                 </a>
                 <?py #endif ?>

@@ -1,0 +1,13 @@
+{% load i18n %}
+<span id="ba_preview_template_form" style="display: none;">
+    <li id="{{ ba.previews.empty_form.prefix }}-row" class="ba_preview_form">
+        {{ ba.previews.empty_form.pk }}
+        {{ ba.previews.empty_form.url }}
+        {{ ba.previews.empty_form.sort_order }}
+        <input style="display: none;" type="checkbox" name="{{ ba.previews.empty_form.DELETE.html_name }}" id="{{ ba.previews.empty_form.DELETE.auto_id }}">
+        <span>
+            <span class="delete">{% trans "Delete" %}</span>
+            <img id="{{ ba.previews.empty_form.prefix }}-img"/>
+        </span>
+    </li>
+</span>

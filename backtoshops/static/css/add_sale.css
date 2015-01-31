@@ -2,7 +2,7 @@
 /*  Ajouter une nouvelle vente  */
 /*------------------------------*/
 
-#menu_ico li a.link1 { background-color: #565656; }
+#menu_ico li a.link1 { background-color: #2B98EE; }
 #title span {    background-position: 0 0; }
 
 
@@ -12,29 +12,28 @@
 
 /*---------- FORM CSS Generales ----------*/
 #main_form { position: relative; }
-    #main_form h3 {
-        display: block;
-        position: absolute;
-        top: 2px;
-        left: 2px;
-        width: 491px;
-        height: 22px;
-        line-height: 22px;
-        padding-left: 5px;
-        background-color: #000;
-        color: #fff;
+
+    .centered { width: 460px; margin: 0 auto; }
+    .centered .main_form .formrow label { float: left; }
+    
+    .sstitle { 
+        padding-left: 10px;
+        height: 30px; line-height: 30px;
+        background-color: #C3E4FF;
+        margin-bottom: 30px;
     }
-    #main_form h3 span { float: right; margin-right: 5px; color: #fff; }
 
     #main_form fieldset {
-        padding: 40px 20px 20px 20px;
+        /*padding: 40px 20px 20px 20px;
         background-color: #fff;
-        border: 1px solid #c8c8c8;
+        padding: 15px; */
+        border: 0;
+         
     }
-
+    
     #main_form .formrow { min-height: 22px; margin-bottom: 10px; }
     #main_form .formrow.p_vide { height: 0; min-height: 0; margin: 0; }
-    #main_form .formrow.marge { margin-bottom: 30px; }
+    #main_form .formrow.marge { margin-bottom: 40px; }
     #main_form .formrow:after {
         content: ".";
         display: block;
@@ -52,10 +51,11 @@
         display: block;
         float: left;
     }
+    #main_form .formrow label { float: none; }
 
     #main_form .formrow span { height: 22px; line-height: 22px; margin: 0 5px; }
 
-    #main_form .formrow label { width: 165px; }
+    #main_form .formrow label { width: 130px; }
     #main_form .formrow select { width: 130px; }
     #main_form .formrow textarea,
     #main_form .formrow input { width: 271px; }
@@ -65,6 +65,8 @@
     #main_form .formrow .selectS { width: 70px; }
     #main_form .formrow .selectL { width: 190px; }
     #main_form .formrow .selectXL { width: 260px; }
+
+    #main_form .formrow.long label { width: 300px; }
 
     #main_form .formrow select.dubble { width: 95px; }
     #main_form .formrow #plus {
@@ -80,7 +82,7 @@
 
     #main_form .contForm,
     #main_form .formrow .contForm{
-        width: 283px;
+        width: 245px;
         height: auto;
         line-height: auto;
         margin: auto;
@@ -112,6 +114,7 @@
         background: url(../img/icon.png) no-repeat -10px -252px;
     }
     #main_form .btn { float: right; margin: 5px 0 0 5px; }
+    #main_form .add_ba { float: none;}
 
 
     /*Btn First Step, Prev Step, Cancel*/
@@ -170,37 +173,6 @@
         text-align: left;
         cursor: pointer;
     }
-
-    #pp_upload {
-        /*position: absolute;*/
-        width: 148px;
-        height: 47px;
-        line-height: 47px;
-        top: 0;
-        right: 0;
-        margin: 0;
-        border: solid transparent;
-        opacity: 0;
-        filter: alpha(opacity=0);
-        cursor: pointer;
-    }
-
-
-    #visuelProd .qq-upload-button{
-        display: block;
-            width: 140px;
-        height: 47px;
-        line-height: 47px;
-        padding: 0 0 0 8px;
-        background: url(../img/ico_upload-img.png) 0 0 #fff;
-        border: 0 none;
-            color: #555555;
-        text-align: left;
-        cursor: pointer;
-    }
-
-    #visuelProd .qq-upload-button:hover { background: url(../img/ico_upload-img.png) 0 -47px #fff; cursor: pointer; }
-    #visuelProd .qq-upload-button input, #visuelProd .qq-upload-button input:hover{ width: 148px; height: 47px; cursor: pointer; }
 
 
     /*---Upload Files Vignettes---*/
@@ -303,9 +275,9 @@
     #main_form #id_product-brand { width: 110px; margin: 1px 5px 0 0; }
     #add_new_brand,
     #add_new_custom_shipping_rate {
-        display: block;
-        float: right;
-        height: 14px;
+        display: inline-block;
+        /*float: right;*/
+        height: 24px;
         margin: 0 0 0 0;
         padding: 4px 28px 2px 5px;
         border: 1px solid #d1d1d1;
@@ -409,7 +381,7 @@
         width: 39px;
         height: 43px;
         overflow: hidden;
-        backgound: url(../img/empty_attr.png);
+        background: url(../img/empty_attr.png);
         background-color: #b1cee7;
         border: 1px solid #c9c9c9;
     }
@@ -426,20 +398,15 @@
         cursor: pointer;
         padding: 0;
     }
-    #main_form #brand_attributes .ba_preview_upload_change {
-        right: -48px;
-    }
+    #main_form #brand_attributes .ba_preview_upload_change { right: -48px; }
 
     /*-BOUTON AJOUT-*/
-    #add_ba,
     #add_taw,
     #add_tap {
         position: absolute;
         display: block;
-        top: 0;
-        right: 0;
-        width: 16px;
-        height: 16px;
+        top: 0; right: 0;
+        width: 20px; height: 20px;
         line-height: 12px;
         padding: 1px;
         cursor: pointer;
@@ -523,7 +490,29 @@
     }
 
 
-
+    
+    #main_form  #upload-coverfile {
+        display: inline-block; 
+        width: 187px;
+        height: 187px;
+        line-height: auto;
+        font-size: 13px;
+        text-align: center;
+        border: 1px dashed #555;
+        background: none;
+        background-color: #f8ffec;
+        cursor: pointer;
+    }
+    #main_form  #upload-coverfile div {
+        display: block;
+        height: 187px;
+        padding: 70px 0 0;
+    }
+    #main_form  #upload-coverfile img {
+        display: block;
+        width: 187px;
+        height: 187px;
+    }
 
 
 
@@ -604,11 +593,10 @@
     /*styles_debug_dev*/
     #main_form ul li label {
         display: block;
-            height: 24px;
-            line-height: 24px;
+        height: 24px;
+        line-height: 24px;
         margin-top: 4px;
-           padding-left: 0px;
-        background: none;
+        padding-left: 0px;
     }
 
     #main_form ul li label input {
@@ -647,7 +635,7 @@
     #physical_shops #check_shops,
     #carrier-services #check-services {
         display: block;
-        float: left;
+        
     }
 
     #physical_shops #check_shops .highlight,
@@ -677,6 +665,7 @@
         margin-top: 10px;
         padding: 10px 7px 8px 5px;
         border: 1px solid #dbdbdb;
+        background-color: #fff;
     }
     #check_shops #shopfolders li {
         width: 440px;
@@ -696,6 +685,8 @@
         padding-left: 5px;
         border-bottom: 1px solid #DEDEDE;
         background-color: #E6EDF4;
+        background-repeat: no-repeat;
+        background-position: 97% center;
     }
 
     #check_shops #shopfolders li ul,
@@ -1086,10 +1077,11 @@
 
 
 /*------------------- LES POINTS DE VENTE -------------------*/
+
+
 #googleMap {
-    width: 366px;
-    height: 335px;
-    margin: 15px 15px 30px 15px;
+    width: 366px; height: 335px;
+    margin: 30px 15px 15px 0px;
     border: 1px solid #a9bbdf;
     background-color: #f7faff;
 }
@@ -1102,7 +1094,7 @@
 
 #add_taw_form,
 #add_tap_form {
-    width: 283px;
+    width: 240px;
     height: 20px;
 }
 
@@ -1336,12 +1328,177 @@ div.add-new-csr-dialog p.between input {
     font-size: 12px;
 }
 
-#main_form .formrow input#pp_upload {
-    width: 100px;
-}
-
 #main_form .formrow .horizontal_pp {
     clear: both;
     padding-top: 8px;
     margin-left: 175px;
 }
+
+
+
+
+
+
+
+
+/*----------------------------------*/
+/*        BLOCK-PRODUIT-TABS        */
+/*----------------------------------*/
+#blocProd { margin-top: 20px; }
+
+#blocProd .visuelProd { background-color: #fff; }
+.visuelProd .title { 
+    display: inline-block;
+    margin: 20px 0 0 0; font-size: 13px; 
+    line-height: 45px; color: #000;
+    vertical-align: top;
+}
+.visuelProd input.title { min-width: 200px; }
+.visuelProd .texture { 
+    display: inline-block; 
+    width: 45px; height: 45px; 
+    margin: 5px 5px 5px 0; 
+    vertical-align: bottom;
+    background-color: #f8ffec;
+    border: 1px dashed #555;
+    
+    text-align: center; font-size: 10px;
+    line-height: 11px;
+    padding: 0;
+    cursor: pointer;
+}
+.visuelProd .texture img { display: block; width: 43px; height: 43px; }
+ 
+
+.visuelProd em { display: block; color: #28b0d7; font-size: 12px; }
+.visuelProd ul { margin: 20px 0 10px 0; overflow: auto; }
+.visuelProd ul li {
+    display: block; float: left;
+    margin: 0 10px 10px 0;
+}
+.visuelProd ul li span {
+    display: block; position: relative;
+    width: 187px; height: 187px;
+    background-color: #efefef;
+    border: 1px solid #dbdbdb;
+}
+.visuelProd ul li span img { width: 185px; height: 185px; }
+.visuelProd ul li span .delete {
+    display: none; position: absolute;
+    top: 7px; right: 7px;
+    width: 16px; height: 16px;
+    overflow: hidden;
+    text-indent: -1500px;
+    background: url(../img/out.gif) no-repeat scroll -1px -1px rgba(0, 0, 0, 0);
+    border: 1px solid #a4a4a4;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    -ms-border-radius: 2px;
+    -o-border-radius: 2px;
+    border-radius: 2px;
+    cursor: pointer;
+}
+.visuelProd ul li span:hover .delete { display: block; }
+
+
+
+.visuelProd ul li a.uploadfile {
+    display: block;
+    width: 187px; height: 187px;
+    background-color: #f8ffec;
+    border: 1px dashed #555;
+    text-align: center; font-size: 13px;
+    padding: 70px 0 0 0;
+}
+.visuelProd ul li a:hover { text-decoration: underline; }
+
+
+
+
+#blocProd .miniformProd { padding: 15px; background-color: #f8ffec; }
+#blocProd .miniformProd em { display: block; margin: 0 0 15px 0; color: #28b0d7; }
+#blocProd .miniformProd .formrow.small { float: left; max-width: 280px; margin-right: 20px; }
+#blocProd .miniformProd .formrow.big { float: left; max-width: 390px; }
+#blocProd .miniformProd .formrow label { float: none; background: none; padding: 0; }
+#blocProd .miniformProd .formrow.small label { max-width: 85px; }
+#blocProd .miniformProd .formrow.big label { max-width: 55px; }
+
+#blocProd .contForm, #blocProd .formrow .contForm { max-width: 253px; }
+
+
+
+
+
+#gallery .title { margin: 0; line-height: 25px; }
+#gallery table { width: 100%; margin-top: 15px; border-spacing: 10px; }
+#gallery table th {
+    width: 20px;
+    background-color: #fff5e3; color: #eb8f00;
+    padding: 15px 15px 0px 15px;
+    vertical-align: top;
+}
+#gallery table td {
+    background-color: #e3f6ff;
+    padding: 15px 15px 0px 15px;
+}
+#gallery table td div ul { margin: 10px 0 0 0; }
+#gallery table td div ul li img { width: 110px; border: 1px solid #dbdbdb; }
+#gallery table td div ul li h1 { margin: 0; }
+
+
+
+ 
+
+
+
+
+/* DESKTOP
+---------------------------------------------------------------------------------------------------------------*/
+
+@media screen and (min-width: 800px) {
+ 
+#main_form .colLeft,
+#main_form .colRight { 
+    width: 53%; min-height: 550px; 
+    float: left; padding: 20px;
+     
+    border-radius: 10px;
+    
+}
+#main_form .colRight { padding-left: 30px; width: 46%; margin-left: 1%; }
+
+ 
+#main_form .formrow label, 
+#main_form .formrow input, 
+#main_form .formrow select, 
+#main_form .formrow textarea, 
+#main_form .formrow span, 
+#main_form .contForm { float: left; }
+
+
+
+    
+}
+
+
+
+
+
+ul.tabs-header li.brand-attr .delete {
+    display: none;
+    position: absolute;
+    top: 4px; right: 4px;
+    width: 16px; height: 16px;
+    overflow: hidden;
+    text-indent: -1500px;
+    background: url(../img/out.gif) no-repeat scroll -1px -1px rgba(0, 0, 0, 0);
+    border: 1px solid #a4a4a4;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    -ms-border-radius: 2px;
+    -o-border-radius: 2px;
+    border-radius: 2px;
+    cursor: pointer;
+}
+ul.tabs-header li.brand-attr:hover .delete {display: block;}
+
