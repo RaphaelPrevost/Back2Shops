@@ -1,7 +1,5 @@
 {% extends base_template %}
 {% load i18n %}
-{% load thumbnail %}
-{% load static %}
 {% load get_ta_name %}
 {% load get_cur_name %}
 {% load calc_premium_price %}
@@ -10,271 +8,262 @@
 
 {% block form %}
     {{ wizard.management_form }}
+    {{ wizard.form.shop_ids }}
     <fieldset>
         <div class="p_vide formrow">
             {{ wizard.form.non_field_errors }}
         </div>
-        {{ wizard.form.category.errors }}
-        <div class="formrow">
-            <label for="{{ wizard.form.category.auto_id }}">{% trans wizard.form.category.label %}</label>
-            {{ wizard.form.category }}
-        </div>
-        {{ wizard.form.type.errors }}
-        <div class="marge formrow">
-            <label for="{{ wizard.form.type.auto_id }}">{% trans wizard.form.type.label %}</label>
-            {{ wizard.form.type }}
-            <select id="product_type_selector" name="product_type_selector" onchange="getItemTypeAttributeOptions(this.value)"></select>
-        </div>
-        <div class="marge formrow">
-            {{ wizard.form.pictures.management_form }}
-            <label for="visuel">{% trans "Product pictures" %}</label>
-            <div id="product_pictures" class="visuelProd">
-                <label id="pp_upload_btn" role="button">
-                    <input id="pp_upload" type="file" name="files[]" multiple>
-                </label>
-                <ul id="pp_queue"></ul>
-                <p id="existing_pp" />
+
+        <div class="colLeft bkcolor">
+            <h3 class="sstitle">Product informations</h3>
+
+            {{ wizard.form.name.errors }}
+            <div class="formrow">
+                <label for="{{ wizard.form.name.auto_id }}">{% trans wizard.form.name.label %}</label>
+                {{ wizard.form.name }}
             </div>
-        </div>
-        {{ wizard.form.brand.errors }}
-        <div class="formrow">
-            <label for="{{ wizard.form.brand.auto_id }}">{% trans "Brand name" %}</label>
-            {{ wizard.form.brand }} {% trans "or" %}  <a href="#" id="add_new_brand">{% trans "Add a new brand" %}</a>
-            <span id="brand_new_error" style="display:none"></span>
-        </div>
-        {{ wizard.form.name.errors }}
-        <div class="formrow">
-            <label for="{{ wizard.form.name.auto_id }}">{% trans wizard.form.name.label %}</label>
-            {{ wizard.form.name }}
-        </div>
-        {{ wizard.form.short_description.errors }}
-        <div class="marge formrow">
-            <label for="{{ wizard.form.short_description.auto_id }}">{% trans wizard.form.short_description.label %}</label>
-            {{ wizard.form.short_description }}
-        </div>
-        {{ wizard.form.description.errors }}
-        <div class="marge formrow">
-            <label for="{{ wizard.form.description.auto_id }}">{% trans wizard.form.description.label %}</label>
-            {{ wizard.form.description }}
-        </div>
 
-        {{ wizard.form.weight_unit.errors }}
-        <div class="formrow">
-            <label for="{{ wizard.form.weight_unit.auto_id }}">{% trans wizard.form.weight_unit.label %}</label>
-            <span>{{wizard.form.weight_unit }}</span>
-        </div>
+            {{ wizard.form.brand.errors }}
+            <div class="marge formrow">
+                <label for="{{ wizard.form.brand.auto_id }}">{% trans "Brand name" %}</label>
+                {{ wizard.form.brand }} {% trans "or" %}  <a href="#" id="add_new_brand">{% trans "Add a new brand" %}</a>
+                <span id="brand_new_error" style="display:none"></span>
+            </div>
 
-        {{ wizard.form.standard_weight.errors }}
-        <div class="marge formrow">
-            {{ wizard.form.type_attribute_weights.management_form }}
-            <label>{% trans "Weight" %}</label>
-            <span class="contForm" id="type_attribute_weights">
-                <div id="add_taw_form">
-                    <select id="type_attribute_weight_selector" name="type_attribute_weight_selector">
-                        <option value="0">{% trans "Standard Weight" %}</option>
-                    </select>
-                    <span class="raw">></span>
-                    <input id="type_attribute_weight_input" class="inputXS" type="text" name="type_attribute_weight_input"/>
-                    <span id="taw_weight_unit">{{ wizard.form.weight_unit.value }}</span>
-                    <a id="add_taw" href="#">{% trans "Add" %}</a>
-                </div>
+            {{ wizard.form.category.errors }}
+            <div class="formrow">
+                <label for="{{ wizard.form.category.auto_id }}">{% trans wizard.form.category.label %}</label>
+                {{ wizard.form.category }}
+            </div>
 
-                {{ wizard.form.standard_weight }}
-                {% if wizard.form.standard_weight.value %}
-                    <span class="standard_weight_form">
-                    <span class="standard_weight_name">{% trans "Standard Weight" %}</span>
-                    <span class="standard_weight">{{ wizard.form.standard_weight.value }}</span>
-                    <span class="standard_weight_unit">{{ wizard.form.weight_unit.value }}</span>
-                    <span class="remove_standard_weight">{% trans "Remove" %}</span>
-                </span>
-                {% endif %}
-                {% for f in wizard.form.type_attribute_weights %}
-                    <span id="{{ f.prefix }}-row" class="type_attribute_weight_form" {% if f.DELETE.value %}style="display: none;"{% endif %}>
-                    {{ f.taw_id }}
-                    {{ f.type_attribute }}
-                    {{ f.type_attribute_weight }}
-                    <input style="display: none;" type="checkbox" name="{{ f.DELETE.html_name }}" id="{{ f.DELETE.auto_id }}" {% if f.DELETE.value %}checked="checked"{% endif %}>
-                    <span id="{{ f.prefix }}-type_attribute" class="type_attribute_value">{{ f.type_attribute.value }}</span>
-                    <span id="{{ f.prefix }}-type_attribute_name" class="type_attribute_name">{% get_ta_name f.type_attribute.value %}</span>
-                    <span id="{{ f.prefix }}-type_attribute_weight" class="type_attribute_weight">{{ f.type_attribute_weight.value }}</span>
-                    <span id="{{ f.prefix }}-type_attribute_weight_unit" class="type_attribute_weight_unit">{{ wizard.form.weight_unit.value }}</span>
-                    <span class="remove_type_attribute_weight">{% trans "Remove" %}</span>
-                </span>
-                {% endfor %}
-            </span>
-        </div>
+            {{ wizard.form.type.errors }}
+            <div class="formrow">
+                <label for="{{ wizard.form.type.auto_id }}">{% trans wizard.form.type.label %}</label>
+                {{ wizard.form.type }}
+                <select id="product_type_selector" name="product_type_selector" onchange="getItemTypeAttributeOptions(this.value)"></select>
+            </div>
 
-        {{ wizard.form.currency.errors }}
-        <div class="formrow">
-            <label for="{{ wizard.form.currency.auto_id }}">{% trans wizard.form.currency.label %}</label>
-            <span>{{wizard.form.currency}}</span>
-            <input type="hidden" name="{{wizard.form.currency.html_name}}" value="{{wizard.form.currency.value}}" />
-        </div>
+            {{ wizard.form.gender.errors }}
+            <div class="marge formrow">
+                <label for={{ wizard.form.gender.auto_id }}>{% trans wizard.form.gender.label %}</label>
+                {{ wizard.form.gender }}
+            </div>
 
-        {{ wizard.form.normal_price.errors }}
-        <div class="marge formrow">
-            {{ wizard.form.type_attribute_prices.management_form }}
-            <label>{% trans "Price" %}</label>
-            <span class="contForm" id="type_attribute_prices">
-                <div id="add_tap_form">
-                    <select id="type_attribute_selector" name="type_attribute_selector">
-                        <option value="0">{% trans "Unified price" %}</option>
-                    </select>
-                    <span class="raw">></span>
-                    <input id="type_attribute_price_input" class="inputXS" type="text" name="type_attribute_price_input"/>
-                    <span id="tap_currency">EUR</span>
-                    <a id="add_tap" href="#">{% trans "Add" %}</a>
-                </div>
-
-            {{ wizard.form.preview_base_price }}
-
-            {{ wizard.form.normal_price }}
-            {% if wizard.form.normal_price.value %}
-                <span class="normal_price_form">
-                    <span class="normal_price_name">{% trans "Price" %}</span>
-                    <span class="normal_price_price">{{ wizard.form.normal_price.value }}</span>
-                    <span class="normal_price_currency">{% get_cur_name wizard.form.currency.value %}</span>
-                    <span class="remove_normal_price">{% trans "Remove" %}</span>
-                </span>
-            {% endif %}
-            {% for f in wizard.form.type_attribute_prices %}
-                <span id="{{ f.prefix }}-row" class="type_attribute_price_form" {% if f.DELETE.value %}style="display: none;"{% endif %}>
-                    {{ f.tap_id }}
-                    {{ f.type_attribute }}
-                    {{ f.type_attribute_price }}
-                    <input style="display: none;" type="checkbox" name="{{ f.DELETE.html_name }}" id="{{ f.DELETE.auto_id }}" {% if f.DELETE.value %}checked="checked"{% endif %}>
-                    <span id="{{ f.prefix }}-type_attribute" class="type_attribute_value">{{ f.type_attribute.value }}</span>
-                    <span id="{{ f.prefix }}-type_attribute_name" class="type_attribute_name">{% get_ta_name f.type_attribute.value %}</span>
-                    <span id="{{ f.prefix }}-type_attribute_price" class="type_attribute_price">{{ f.type_attribute_price.value }}</span>
-                    <span id="{{ f.prefix }}-type_attribute_price_cur" class="type_attribute_price_currency">{% get_cur_name wizard.form.currency.value %}</span>
-                    <span class="remove_type_attribute_price">{% trans "Remove" %}</span>
-                </span>
-            {% endfor %}
-            </span>
-        </div>
-
-        {{ wizard.form.discount.errors }}
-        {{ wizard.form.discount_type.errors }}
-        <div class="marge formrow">
-            <label for="prixBTS">{% trans "BackToShops Price" %}</label>
-            <span class="contForm" id="newPrice">
-                {{ wizard.form.discount_type }}
-                {{ wizard.form.preview_discount_price_str }}
-                <span class="raw">></span>{{ wizard.form.discount }}<span id="discount_marker" class="discount_marker">%</span>
-                <span id="result">{% trans "Discounted price" %} : <strong id="discount_price">{% trans "N/A" %}</strong> <strong id="id_discount_price_marker">&nbsp;</strong></span>
-            </span>
-        </div>
-        {{ wizard.form.valid_from.errors }}
-        {{ wizard.form.valid_to.errors }}
-        <div class="marge formrow">
-            <label>{% trans "Valid through" %}</label>
-            <span>{{ wizard.form.valid_from.label }}</span>{{ wizard.form.valid_from }}
-            <span>{{ wizard.form.valid_to.label }}</span>{{ wizard.form.valid_to }}
-        </div>
-        <ul id="ba_error" style="display:none;" class="errorlist"></ul>
-        <div class="marge formrow">
-            <label>{% trans "Brand attributes" %}</label>
-            {{ wizard.form.brand_attributes.management_form }}
-            <span class="contForm" id="brand_attributes">
-                <div id="add_ba_form">
-                    <div id="ba">
-                        <input id="ba_input" type="text" maxlength="50"/>
-
-                        <img id="ba_texture_btn" role="button">
-                        <input id="ba_texture_upload" type="file" name="texture_file"/>
-                    </div>
-                    <img id="ba_preview_btn" role="button" />
-                    <input id="ba_preview_upload" type="file" name="files[]"/>
-                    <a id="add_ba" href="#">{% trans "Add" %}</a>
-
-                    <span id="newPriceAttrib" class="contForm">
-                        <select id="premium_type" name="premium_type">
-                            <option value="percentage">{% trans "Percentage" %}</option>
-                            <option value="amount">{% trans "Amount" %}</option>
+            {{ wizard.form.weight_unit.errors }}
+            <div class="formrow small">
+                <label for="{{ wizard.form.weight_unit.auto_id }}">{% trans wizard.form.weight_unit.label %}</label>
+                <span>{{wizard.form.weight_unit}}</span>
+                <input type="hidden" name="{{wizard.form.weight_unit.html_name}}" value="{{wizard.form.weight_unit.value}}" />
+            </div>
+            
+            {{ wizard.form.standard_weight.errors }}
+            <div class="marge formrow">
+                {{ wizard.form.type_attribute_weights.management_form }}
+                <label>{% trans "Weight" %}</label>
+                <span class="contForm" id="type_attribute_weights">
+                    <div id="add_taw_form">
+                        <select id="type_attribute_weight_selector" name="type_attribute_weight_selector">
+                            <option value="0">{% trans "Standard Weight" %}</option>
                         </select>
                         <span class="raw">></span>
-                        <input id="premium_amount" class="inputXS" type="text" />
-                        <span id="premium_marker" class="premium_marker">%</span>
-                        <input style="display:none;" id="premium_price_val" type="hidden" />
-                        <span id="premium_result">Premium price : <strong id="premium_price">{% trans "N/A" %}</strong> <strong id="id_premium_price_marker">&nbsp;</strong></span>
+                        <input id="type_attribute_weight_input" class="inputXS" type="text" name="type_attribute_weight_input"/>
+                        <span id="taw_weight_unit">{{ wizard.form.weight_unit.value }}</span>
+                        <a id="add_taw" href="#">{% trans "Add" %}</a>
+                    </div>
+
+                    {{ wizard.form.standard_weight }}
+                    {% if wizard.form.standard_weight.value %}
+                        <span class="standard_weight_form">
+                        <span class="standard_weight_name">{% trans "Standard Weight" %}</span>
+                        <span class="standard_weight">{{ wizard.form.standard_weight.value }}</span>
+                        <span class="standard_weight_unit">{{ wizard.form.weight_unit.value }}</span>
+                        <span class="remove_standard_weight">{% trans "Remove" %}</span>
                     </span>
-                </div>
-                {% for f in wizard.form.brand_attributes %}
-                <span id="{{ f.prefix }}-row" class="brand_attribute_form brand_attribute_form_{{ f.ba_id.value }}" {% if f.DELETE.value == "on" %}style="display: none;"{% endif %}>
-                    {{ f.name }}
-                    {{ f.ba_id }}
-                    {{ f.texture }}
-                    {{ f.preview }}
-                    {{ f.preview_pk }}
-                    {{ f.premium_type }}
-                    {{ f.premium_amount }}
-                    <input style="display: none;" type="checkbox" name="{{ f.DELETE.html_name }}" id="{{ f.DELETE.auto_id }}" {% if f.DELETE.value == "on" %}checked="checked"{% endif %}>
-                    <span id="{{ f.prefix }}-name" class="brand_attribute_name">{{ f.name.value }}</span>
-                    <span id="{{ f.prefix }}-premium" class="brand_attributes-premium"
-                          data-premium_type={{ f.premium_type.value }}
-                          data-premium_amount={{ f.premium_amount.value }}>
-                        {% if wizard.form.normal_price.value %}
-                            <span>{% trans "Premium pricre" %}:</span>
-                            <span>{% calc_premium_price f.premium_type.value f.premium_amount.value wizard.form.normal_price.value %}</span>
-                            <span class="premium_currency_marker"></span>
-                        {% else %}
-                            <span>{% trans "Premium" %}:</span>
-                            {% if f.premium_type.value == 'percentage' %}
-                                {% if f.premium_amount.value  %}
-                                    <span>{{ f.premium_amount.value }}%</span>
-                                {% else %}
-                                    <span>0%</span>
-                                {% endif %}
-                            {% else %}
-                                {% if f.premium_amount.value  %}
-                                    <span>{{ f.premium_amount.value }}</span>
-                                {% else %}
-                                    <span>0</span>
-                                {% endif %}
-                                <span class="premium_currency_marker"></span>
-                            {% endif %}
-                        {% endif %}
-                    </span>
-                    <img class="classtex ba_texture_btn_change" role="button"
-                         id="ba_texture_btn_change_{{ f.ba_id.value }}"
-                         src="{% if f.texture.value %}{{ f.texture.value }}{% else %}{{ STATIC_URL }}/img/empty_attr.png{% endif %}"/>
-                    <input class="ba_texture_upload_change" type="file" name="texture_file"
-                           title="click to change brandattribute's texture image"
-                           data-ba_id="{{ f.ba_id.value }}" />
-                    <img class="classprod ba_preview_btn_change" role="button"
-                         id="ba_preview_btn_change_{{ f.ba_id.value }}"
-                         src="{% if f.preview.value %}{{ f.preview.value }}{% else %}{{ STATIC_URL }}/img/empty_attr.png{% endif %}"/>
-                    <input class="ba_preview_upload_change" type="file" name="files[]"
-                           title="{% trans "click to change brandattriibute's preview imgage." %}"
-                           data-ba_id="{{ f.ba_id.value }}"/>
-                    <a class="remove_brand_attribute" href="#">{% trans "Remove" %}</a>
+                    {% endif %}
+                    {% for f in wizard.form.type_attribute_weights %}
+                        <span id="{{ f.prefix }}-row" class="type_attribute_weight_form" {% if f.DELETE.value %}style="display: none;"{% endif %}>
+                            {{ f.taw_id }}
+                            {{ f.type_attribute }}
+                            {{ f.type_attribute_weight }}
+                            <input style="display: none;" type="checkbox" name="{{ f.DELETE.html_name }}" id="{{ f.DELETE.auto_id }}" {% if f.DELETE.value %}checked="checked"{% endif %}>
+                            <span id="{{ f.prefix }}-type_attribute" class="type_attribute_value">{{ f.type_attribute.value }}</span>
+                            <span id="{{ f.prefix }}-type_attribute_name" class="type_attribute_name">{% get_ta_name f.type_attribute.value %}</span>
+                            <span id="{{ f.prefix }}-type_attribute_weight" class="type_attribute_weight">{{ f.type_attribute_weight.value }}</span>
+                            <span id="{{ f.prefix }}-type_attribute_weight_unit" class="type_attribute_weight_unit">{{ wizard.form.weight_unit.value }}</span>
+                            <span class="remove_type_attribute_weight">{% trans "Remove" %}</span>
+                        </span>
+                    {% endfor %}
                 </span>
+            </div>
+
+            {{ wizard.form.currency.errors }}
+            <div class="formrow">
+                <label for="{{ wizard.form.currency.auto_id }}">{% trans wizard.form.currency.label %}</label>
+                <span>{{wizard.form.currency}}</span>
+                <input type="hidden" name="{{wizard.form.currency.html_name}}" value="{{wizard.form.currency.value}}" />
+            </div>
+
+            {{ wizard.form.preview_base_price }}
+            {{ wizard.form.normal_price.errors }}
+            <div class="marge formrow">
+                {{ wizard.form.type_attribute_prices.management_form }}
+                <label>{% trans "Price" %}</label>
+                <span class="contForm" id="type_attribute_prices">
+                    <div id="add_tap_form">
+                        <select id="type_attribute_selector" name="type_attribute_selector">
+                            <option value="0">{% trans "Unified price" %}</option>
+                        </select>
+                        <span class="raw">></span>
+                        <input id="type_attribute_price_input" class="inputXS" type="text" name="type_attribute_price_input"/>
+                        <span id="tap_currency">EUR</span>
+                        <a id="add_tap" href="#">{% trans "Add" %}</a>
+                    </div>
+
+                {{ wizard.form.normal_price }}
+                {% if wizard.form.normal_price.value %}
+                    <span class="normal_price_form">
+                        <span class="normal_price_name">{% trans "Price" %}</span>
+                        <span class="normal_price_price">{{ wizard.form.normal_price.value }}</span>
+                        <span class="normal_price_currency">{% get_cur_name wizard.form.currency.value %}</span>
+                        <span class="remove_normal_price">{% trans "Remove" %}</span>
+                    </span>
+                {% endif %}
+                {% for f in wizard.form.type_attribute_prices %}
+                    <span id="{{ f.prefix }}-row" class="type_attribute_price_form" {% if f.DELETE.value %}style="display: none;"{% endif %}>
+                        {{ f.tap_id }}
+                        {{ f.type_attribute }}
+                        {{ f.type_attribute_price }}
+                        <input style="display: none;" type="checkbox" name="{{ f.DELETE.html_name }}" id="{{ f.DELETE.auto_id }}" {% if f.DELETE.value %}checked="checked"{% endif %}>
+                        <span id="{{ f.prefix }}-type_attribute" class="type_attribute_value" data-value="{{ f.type_attribute.value }}">{{ f.type_attribute.value }}</span>
+                        <span id="{{ f.prefix }}-type_attribute_name" class="type_attribute_name">{% get_ta_name f.type_attribute.value %}</span>
+                        <span id="{{ f.prefix }}-type_attribute_price" class="type_attribute_price">{{ f.type_attribute_price.value }}</span>
+                        <span id="{{ f.prefix }}-type_attribute_price_cur" class="type_attribute_price_currency">{% get_cur_name wizard.form.currency.value %}</span>
+                        <span class="remove_type_attribute_price">{% trans "Remove" %}</span>
+                    </span>
                 {% endfor %}
-                <!-- <input id="ba_input" type="text"/><a id="add_ba" href="#">{% trans "Add" %}</a> -->
-            </span>
+                </span>
+            </div>
+
+            {{ wizard.form.discount.errors }}
+            {{ wizard.form.discount_type.errors }}
+            <div class="marge formrow">
+                <label for="prixBTS">{% trans "BackToShops Price" %}</label>
+                <span class="contForm" id="newPrice">
+                    {{ wizard.form.discount_type }}
+                    {{ wizard.form.preview_discount_price_str }}
+                    <span class="raw">></span>{{ wizard.form.discount }}<span id="discount_marker" class="discount_marker">%</span>
+                    <span id="result">{% trans "Discounted price" %} : <strong id="discount_price">{% trans "N/A" %}</strong> <strong id="id_discount_price_marker">&nbsp;</strong></span>
+                </span>
+            </div>
+
+            {{ wizard.form.valid_from.errors }}
+            {{ wizard.form.valid_to.errors }}
+            <div class="marge formrow">
+                <label>{% trans "Valid through" %}</label>
+                <span>{{ wizard.form.valid_from.label }}</span>{{ wizard.form.valid_from }}
+                <span>{{ wizard.form.valid_to.label }}</span>{{ wizard.form.valid_to }}
+            </div>
+
+            {{ wizard.form.barcodes.management_form }}
+            {{ wizard.form.barcodes.non_field_errors }}
+            {{ wizard.form.non_field_errors }}
+            <div class="formrow" id="barcodes_form">
+                <div id="barcode_accordion" class="accordion">
+                    {% with attributes=wizard.form.brand_attributes %}
+                    {% include "_stock_upc.html" %}
+                    {% endwith %}
+                </div>
+            </div>
+
+            {{ wizard.form.externalrefs.management_form }}
+            {{ wizard.form.externalrefs.non_field_errors }}
+            <div class="formrow" id="externalrefs_form">
+                <div id="externalref_accordion" class="accordion">
+                    {% with attributes=wizard.form.brand_attributes %}
+                    {% include "_stock_externalref.html" %}
+                    {% endwith %}
+                </div>
+            </div>
+
         </div>
+
+        <div class="colRight bkcolor">
+            <h3 class="sstitle">{% trans "Product description" %}</h3>
+                            
+            {{ wizard.form.cover_url.errors }}
+            <div class="marge formrow">
+                <label for="{{ wizard.form.cover_url.auto_id }}">{% trans wizard.form.cover_url.label %}</label>
+                <span id="upload-coverfile">
+                    <a class="uploadfile">
+                    {% if wizard.form.cover_url.value %}
+                        <img class="cover_btn" src="{{ wizard.form.cover_url.value }}" />
+                    {% else %}
+                        <div>{% trans "Click or drag a file here to upload the picture" %}</div>
+                        <img class="cover_btn" style="display:none"/>
+                    {% endif %}
+                    </a>
+                    <input class="cover_upload" style="display:none" type="file" name="files[]">
+                    {{ wizard.form.cover_url  }}
+                    {{ wizard.form.cover_pk }}
+                </span>
+            </div>
+
+            {{ wizard.form.short_description.errors }}
+            <div class="formrow">
+                <label for="{{ wizard.form.short_description.auto_id }}">{% trans wizard.form.short_description.label %}</label>
+                {{ wizard.form.short_description }}
+            </div>
+
+            {{ wizard.form.description.errors }}
+            <div class="marge formrow">
+                <label for="{{ wizard.form.description.auto_id }}">{% trans wizard.form.description.label %}</label>
+                {{ wizard.form.description }}
+            </div>
+        </div>
+
+        <div class="clear"></div>
+
+        <!--VISUELS PRODUITS-->
+        <div id="blocProd" class="tabs">
+            <ul class="tabs-header">
+                <li class="base-item">
+                    <a href="#base-item">{% trans "Product name" %}</a>
+                </li>
+                {% for ba in wizard.form.brand_attributes %}
+                {% if ba.ba_id.value %}
+                <li class="brand-attr">
+                    <span class="delete">{% trans "Delete" %}</span>
+                    <a href="#brand-attr-{{ ba.ba_id.value }}">{% trans "Add a product variant" %}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                <li class="add-attr">
+                    <a href="#brand-attr-0">{% trans "Add a product variant" %}</a>
+                </li>
+                <li class="gallery">
+                    <a href="#gallery">{% trans "Pictures Gallery" %}</a>
+                </li>
+            </ul>
+            
+            {% include "add_sale_product_base_item.html" %}
+            {{ wizard.form.brand_attributes.management_form }}
+            {% for ba in wizard.form.brand_attributes %}
+                {% if ba.ba_id.value %}
+                    {% include "add_sale_product_edit_attr.html" %}
+                {% endif %}
+            {% endfor %}
+            {% with ba=wizard.form.brand_attributes.empty_form %}
+                {% include "add_sale_product_new_attr.html" %}
+            {% endwith %}
+            {% include "add_sale_product_gallery.html" %}
+            
+        </div>
+        <!--//VISUELS PRODUITS-->
 
     </fieldset>
 {% endblock %}
 
 {% block empty_forms %}
-    <span id="brand_attribute_template_form" style="display: none;">
-        <span id="{{ wizard.form.brand_attributes.empty_form.prefix }}-row" class="brand_attribute_form">
-            {{ wizard.form.brand_attributes.empty_form.name }}
-            {{ wizard.form.brand_attributes.empty_form.ba_id }}
-            {{ wizard.form.brand_attributes.empty_form.texture }}
-            {{ wizard.form.brand_attributes.empty_form.preview }}
-            {{ wizard.form.brand_attributes.empty_form.preview_pk }}
-            {{ wizard.form.brand_attributes.empty_form.premium_type }}
-            {{ wizard.form.brand_attributes.empty_form.premium_amount }}
-            <input style="display: none;" type="checkbox" name="{{ wizard.form.brand_attributes.empty_form.DELETE.html_name }}" id="{{ wizard.form.brand_attributes.empty_form.DELETE.auto_id }}">
-            <span id="{{ wizard.form.brand_attributes.empty_form.prefix }}-name" class="brand_attribute_name"></span>
-            <span class="brand_attributes-premium" id="{{ wizard.form.brand_attributes.empty_form.prefix }}-premium"></span>
-            <img class="classtext" id="{{ wizard.form.brand_attributes.empty_form.texture.auto_id }}-img">
-            <img class="classprod" id="{{ wizard.form.brand_attributes.empty_form.preview.auto_id }}-img">
-            <a class="remove_brand_attribute" href="#">{% trans "Remove" %}</a>
-        </span>
-    </span>
     <span id="type_attribute_price_template_form" style="display: none;">
         {% with wizard.form.type_attribute_prices.empty_form as tap_empty %}
         <span id="{{ tap_empty.prefix }}-row" class="type_attribute_price_form">
@@ -317,14 +306,29 @@
         <span class="standard_weight_unit"></span>
         <span class="remove_standard_weight">{% trans "Remove" %}</span>
     </span>
+    <span id="barcode_template_form" style="display: none;">
+        {% with wizard.form.barcodes.empty_form as bac_empty %}
+            <label for="{{ bac_empty.upc.auto_id }}"></label>
+            <input id="{{ bac_empty.upc.auto_id }}" type="text"  name="{{ bac_empty.upc.html_name }}" maxlength="5" value="{% if bac_empty.upc.value %}{{ bac_empty.upc.value }}{% endif %}">
+            <span style="display: none;">
+                {{ bac_empty.common_attribute }}
+                {{ bac_empty.brand_attribute }}
+                <input type="checkbox" name="{{ bac_empty.DELETE.html_name }}" id="{{ bac_empty.DELETE.auto_id }}" checked="true">
+            </span>
+        {% endwith %}
+    </span>
     <span id="product_picture_template_form" style="display: none;">
-        <span id="{{ wizard.form.pictures.empty_form.prefix }}-row" class="product_picture_form visuelProd">
+        <li id="{{ wizard.form.pictures.empty_form.prefix }}-row" class="product_picture_form">
             {{ wizard.form.pictures.empty_form.pk }}
             {{ wizard.form.pictures.empty_form.thumb_url }}
             {{ wizard.form.pictures.empty_form.url }}
             {{ wizard.form.pictures.empty_form.sort_order }}
-            <a id="{{ wizard.form.pictures.empty_form.prefix }}-link"><img id="{{ wizard.form.pictures.empty_form.prefix }}-img"/></a>
-        </span>
+            <input style="display: none;" type="checkbox" name="{{ wizard.form.pictures.empty_form.DELETE.html_name }}" id="{{ ba.previews.empty_form.DELETE.auto_id }}">
+            <span>
+                <span class="delete">{% trans "Delete" %}</span>
+                <img id="{{ wizard.form.pictures.empty_form.prefix }}-img"/>
+            </span>
+        </li>
     </span>
     <div id="add_new_brand_dialog" style="display: none;">
         <form id="add_new_brand_form" action="{% url "add_new_brand" %}" method="post">{% csrf_token %}
@@ -384,6 +388,32 @@
     $(document).ready(function(){
         {# ready the currency mark #}
         currency_changed();
+        prod_name_changed();
+        sort_existing_pp($('#existing_pp'));
+        update_all_ba_premium();
+    });
+
+    /********************** Cover Picture ***********************/
+    $("#upload-coverfile").fileupload({
+        dataType: 'json',
+        url: "{% url 'upload_product_picture' %}",
+        dropZone: $('#upload-coverfile'),
+        namespace: 'coverfile',
+        formData: {is_cover: true},
+        add: function(e, data) {
+            if (_validate_max_file_size(data.files[0])) {
+                
+                _updateBackgroundImage($("#upload-coverfile .cover_btn"), "{{ STATIC_URL }}img/loading2.gif");
+                $("#upload-coverfile .cover_btn").show();
+                $("#upload-coverfile .cover_btn").siblings('div').hide();
+                data.submit();
+            }
+        },
+        done: function(e, data) {
+            _updateBackgroundImage($("#upload-coverfile .cover_btn"), data.result.thumb_url);
+            $("#{{ wizard.form.cover_pk.auto_id }}").val(data.result.pk);
+            $("#{{ wizard.form.cover_url.auto_id }}").val(data.result.thumb_url);
+        }
     });
 
     /********************** Product Picture ***********************/
@@ -395,24 +425,17 @@
         var thumb_url = "#{{ wizard.form.pictures.empty_form.thumb_url.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
         var url = "#{{ wizard.form.pictures.empty_form.url.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
         var sort_order = "#{{ wizard.form.pictures.empty_form.sort_order.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
-        var link = "#{{ wizard.form.pictures.empty_form.prefix }}-link".replace(/__prefix__/g, nb_of_forms.toString());
         var img = "#{{ wizard.form.pictures.empty_form.prefix }}-img".replace(/__prefix__/g, nb_of_forms.toString());
-        if (nb_of_forms >= 2 && !$("#existing_pp").hasClass("horizontal_pp")) {
-            $("#existing_pp").addClass("horizontal_pp");
-        }
-        $("#existing_pp").append(form);
+        $(form).insertBefore($("#existing_pp li.product_pictures_upload"));
         $("#existing_pp").sortable("refresh");
         $(picture_pk).val(result.pk);
         $(thumb_url).val(result.thumb_url);
         $(url).val(result.url);
-        $(sort_order).val($("#existing_pp").find("span.product_picture_form").length);
-        $(link).attr('href', result.url);
+        $(sort_order).val($("#existing_pp").find("li.product_picture_form").length);
         $(img).attr('src', result.thumb_url);
 
         nb_of_forms++;
         $("#{{ wizard.form.pictures.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
-
-        $("#preview-product-picture").html(result.preview_html);
     }
 
     var sale_img_upload_max_size = {{ sale_img_upload_max_size }};
@@ -427,14 +450,14 @@
     $("#pp_upload").fileupload({
         dataType: 'json',
         url: "{% url 'upload_product_picture' %}",
-        dropZone: $("#product_pictures"),
+        dropZone: $(".product_pictures_upload"),
         namespace: 'product_pictures',
         add: function(e, data) {
             if (_validate_max_file_size(data.files[0])) {
                 $.each(data.files, function(key, file) {
                     var id = file.name.replace(/\W+/g, '-');
                     var to_append = '<li id="pp_'+id+'">'+file.name+' <b></b></li>';
-                    $("#pp_queue").append(to_append);
+                    $(this).find(".pp_queue").append(to_append);
                 });
                 data.submit();
             }
@@ -464,30 +487,13 @@
         }
     });
 
-    var product_pictures = "";
-    {% for pp in wizard.form.pictures %}
-        product_pictures += ''+
-        '<span id="{{ pp.prefix }}-row" class="product_picture_form visuelProd">'+
-            '{{ pp.pk }}'+
-            '{{ pp.url }}'+
-            '{{ pp.thumb_url }}'+
-            '{{ pp.sort_order }}'+
-            '<input style="display: none;" type="checkbox" name="{{ pp.DELETE.html_name }}" id="{{ pp.DELETE.auto_id }}" {% if pp.DELETE.value == "on" %}checked="checked"{% endif %}>'+
-            '<a id="{{ pp.prefix }}-link" href="{{ pp.url.value }}"><img id="{{ pp.prefix }}-img" src="{{ pp.thumb_url.value }}"/></a>'+
-        '</span>';
-    {% endfor %}
-    if ({{ wizard.form.pictures|length }} > 2) {
-        $("p#existing_pp").addClass("horizontal_pp");
-    }
-    $("#existing_pp").append(product_pictures);
     $("#existing_pp").sortable({
         update: function(e, ui) {
-            var self = this;
-            var sort_order = $(self).sortable("toArray");
-            $(self).find("span.product_picture_form").each(function(){
-                $(this).find("input[id^=id_product_pictures][id$=-sort_order]").val(sort_order.indexOf($(this).attr("id")));
+            $(this).find("li.product_picture_form").each(function(idx){
+                $(this).find("input[id^=id_product_pictures][id$=-sort_order]").val(idx);
             });
-        }
+        },
+        cancel: ".product_pictures_upload",
     });
 
 
@@ -495,16 +501,9 @@
         $(selector).attr('src', url);
     }
 
-    {% if product_picture %}
-        {% thumbnail product_picture.picture "156x171" as im %}
-            $("#preview-product-picture").html('<img style="margin:{{ im|margin:"156x171" }}" src="{{ im.url }}" alt="{% trans "Product picture" %} {{ context.name }}" width="{{ im.x }}" height="{{ im.y }}"/>');
-        {% endthumbnail %}
-    {% endif %}
-
-
     /********************** Brand Attributes ***********************/
-    function _updateData(dic) {
-        var data = $("#add_ba_form").data("ba_data");
+    function _updateData(obj, dic) {
+        var data = obj.data("ba_data");
         if (data == undefined) {
             data = {};
         }
@@ -513,249 +512,266 @@
                 data[i] = dic[i];
             }
         }
-        $("#add_ba_form").data("ba_data", data);
+        obj.data("ba_data", data);
     }
 
-    function _getFromData(key) {
-        var data = $("#add_ba_form").data("ba_data");
+    function _getFromData(obj, key) {
+        var data = obj.data("ba_data");
         if (data == undefined) { return -1; }
         if (data[key] == undefined) { return -1; }
         return data[key];
     }
 
-    function _clearBaForm() {
-        $("#ba_input").val("");
-        $("#premium_type").val("percentage");
-        $("#premium_amount").val("");
+    function _clearBaForm(obj) {
+        obj.find(".ba_input").val("");
+        obj.find("select[id$=premium_type]").val("percentage");
+        obj.find("input[id$=premium_amount]").val("");
         calcDiscount();
-        $("#add_ba_form").data("ba_data", {});
-        _updateBackgroundImage($("#ba_preview_btn"), '{{ STATIC_URL }}img/empty_attr.png');
-        _updateBackgroundImage($("#ba_texture_btn"), '{{ STATIC_URL }}img/empty_attr.png');
+        obj.data("ba_data", {});
+        obj.find('.existing_pp li:last').siblings().remove();
+        $("#{{ wizard.form.brand_attributes.empty_form.previews.management_form.TOTAL_FORMS.auto_id }}").val(0);
+        _updateBackgroundImage(obj.find(".ba_texture_btn"), '');
     }
 
-    $("#ba_preview_upload").fileupload({
-        dataType: 'json',
-        url: "{% url 'upload_product_picture' %}",
-        dropZone: $("#ba_preview_upload"),
-        namespace: 'ba_preview',
-        formData: {is_brand_attribute: true},
-        add: function(e, data) {
-            if (_validate_max_file_size(data.files[0])) {
-                _updateBackgroundImage($("#ba_preview_btn"), "{{ STATIC_URL }}img/loading2.gif");
-                data.submit();
-            }
-        },
-        done: function(e, data) {
-            _updateBackgroundImage($("#ba_preview_btn"), data.result.thumb_url);
-            _updateData({preview_pk: data.result.pk})
-        }
-    });
+    function _getBaFormCount() {
+        return $("#{{ wizard.form.brand_attributes.management_form.TOTAL_FORMS.auto_id }}").val();
+    }
 
-    // change preview for existing brandattribue
-    $(".ba_preview_upload_change").fileupload({
-        dataType: 'json',
-        url: "{% url 'upload_product_picture' %}",
-        dropZone: $(this),
-        namespace: 'ba_preview',
-        formData: {is_brand_attribute: true},
-        add: function(e, data) {
-            if (_validate_max_file_size(data.files[0])) {
-                _updateBackgroundImage($("#ba_preview_btn_change_" + $(this).data("ba_id")), "{{ STATIC_URL }}img/loading2.gif");
-                data.submit();
-            }
-        },
-        done: function(e, data) {
-            _updateBackgroundImage($("#ba_preview_btn_change_" + $(this).data("ba_id")), data.result.thumb_url);
-            $(".brand_attribute_form_" + $(this).data("ba_id")).find("input[id$='preview_pk']").val(data.result.pk);
-        }
-    });
+    function _addBaFormCount() {
+        var nb_of_forms = _getBaFormCount();
+        nb_of_forms++;
+        $("#{{ wizard.form.brand_attributes.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
+        return nb_of_forms
+    }
 
-    $("#ba_texture_upload").fileupload({
-        dataType: 'json',
-        url: "{% url 'brand_attributes_view' %}",
-        dropZone: $("#ba"),
-        namespace: 'ba_texture',
-        formData: {pk: _getFromData("texture_pk")},
-        add: function(e, data) {
-            if (_validate_max_file_size(data.files[0])) {
-                _updateBackgroundImage($("#ba_texture_btn"), "{{ STATIC_URL }}img/loading2.gif");
-                data.submit();
-            }
-        },
-        done: function(e, data) {
-            _updateBackgroundImage($("#ba_texture_btn"), data.result.texture_thumb);
-            _updateData({ba_pk: -1, texture_pk: data.result.pk, type_pk: 'new'});
-        }
-    });
+    function addBaPreview(obj, result) {
+        var prefix = obj.find("input[name=ba_prefix]").val();
+        var nb_of_forms = obj.find("input[id^=id_" + prefix + "-previews-TOTAL_FORMS]").val();
+        var form = obj.find("#ba_preview_template_form").html();
+        var new_str = 'previews-' + nb_of_forms.toString();
+        form = form.replace(/previews-__prefix__/g, new_str); // counting start from 0, so just use nb_of_forms here
+        var picture_pk = "#{{ wizard.form.brand_attributes.empty_form.previews.empty_form.pk.auto_id }}".replace(/brand_attributes-__prefix__/g, prefix).replace(/previews-__prefix__/g, new_str);
+        var url = "#{{ wizard.form.brand_attributes.empty_form.previews.empty_form.url.auto_id }}".replace(/brand_attributes-__prefix__/g, prefix).replace(/previews-__prefix__/g, new_str);
+        var sort_order = "#{{ wizard.form.brand_attributes.empty_form.previews.empty_form.sort_order.auto_id }}".replace(/brand_attributes-__prefix__/g, prefix).replace(/previews-__prefix__/g, new_str);
+        var img = "#{{ wizard.form.brand_attributes.empty_form.previews.empty_form.prefix }}-img".replace(/brand_attributes-__prefix__/g, prefix).replace(/previews-__prefix__/g, new_str);
+        $(form).insertBefore(obj.find(".existing_pp li.ba_previews_upload"));
+        obj.find(".existing_pp").sortable("refresh");
+        obj.find(picture_pk).val(result.pk);
+        obj.find(sort_order).val(obj.find(".existing_pp li.ba_preview_form").length);
+        obj.find(img).attr('src', result.thumb_url);
 
-    // change texture for existing brandattribue
-    $(".ba_texture_upload_change").fileupload({
-        dataType: 'json',
-        url: "{% url 'brand_attributes_view' %}",
-        dropZone: $(this),
-        namespace: 'ba_texture',
-        add: function(e, data) {
-            if (_validate_max_file_size(data.files[0])) {
-                var img_el = $("#ba_texture_btn_change_" + $(this).data("ba_id"));
-                var old_src = img_el.attr("src");
-                _updateBackgroundImage(img_el, "{{ STATIC_URL }}img/loading2.gif");
-                if (confirm("{% trans "Are you sure you want to change the texture of this existing brand attribute?" %}" +
-                            "{% trans "(Note, the new texture will replace the old texture even you cancel the edit! )" %}")) {
-                    data.formData={pk: $(this).data("ba_id")};
+        nb_of_forms++;
+        obj.find("input[id^=id_" + prefix + "-previews-TOTAL_FORMS]").val(nb_of_forms);
+    }
+
+    function ba_events(attr_obj) {
+        var prefix = attr_obj.find("input[name=ba_prefix]").val();
+
+        attr_obj.find('.ba_input').change(function(){
+            var tab_id = $(this).parents('div .visuelProd').attr('id');
+            $('.tabs li.brand-attr a[href=#' + tab_id + ']').text($(this).val());
+        });
+        attr_obj.find('.ba_input').change();
+
+        attr_obj.find(".existing_pp").sortable({
+            update: function(e, ui) {
+                $(this).find("li.ba_preview_form").each(function(idx){
+                    $(this).find("input[id^=id_" + prefix + "-previews-][id$=-sort_order]").val(idx);
+                });
+            },
+            cancel: ".ba_previews_upload",
+        });
+
+        attr_obj.find(".ba_preview_upload").fileupload({
+            dataType: 'json',
+            url: "{% url 'upload_product_picture' %}",
+            formData: {is_brand_attribute: true},
+            dropZone: attr_obj.find('.ba_previews_upload'),
+            namespace: 'ba_preview',
+            add: function(e, data) {
+                if (_validate_max_file_size(data.files[0])) {
+                    $.each(data.files, function(key, file) {
+                        var id = file.name.replace(/\W+/g, '-');
+                        var to_append = '<li id="pp_'+id+'">'+file.name+' <b></b></li>';
+                        attr_obj.find(".pp_queue").append(to_append);
+                    });
                     data.submit();
-                } else {
-                    _updateBackgroundImage(img_el, old_src);
                 }
+            },
+            progress: function(e, data) {
+                $.each(data.files, function(key, file) {
+                    var id = file.name.replace(/\W+/g, '-');
+                    var percentage = parseInt(data.loaded/data.total*100, 10);
+                    $("#pp_"+id+" b").html(percentage+"%");
+                });
+            },
+            done: function(e, data) {
+                if (data.result.status == 'ok') {
+                    addBaPreview(attr_obj, data.result);
+                } else if (data.result.status == 'max_limit_error'){
+                    alert(sale_img_upload_max_size_err);
+                } else {
+                    alert("{% trans "Error happened when uploading, please try later, or contact system admin." %}");
+                }
+                $.each(data.files, function(key, file) {
+                    var id = file.name.replace(/\W+/g, '-');
+                    $("#pp_"+id).remove();
+                });
+                var previews_data = _getFromData(attr_obj, "previews");
+                if (previews_data == -1)
+                    previews_data = {};
+                previews_data[data.result.pk] = {'sort_order': attr_obj.find(".existing_pp").find("li.ba_preview_form").length};
+                _updateData(attr_obj, {previews: previews_data});
+            },
+            fail: function(e, data) {
+                alert("{% trans "Error happened when uploading, please try later, or contact system admin." %}");
             }
-        },
-        done: function(e, data) {
-            _updateBackgroundImage($("#ba_texture_btn_change_" + $(this).data("ba_id")), data.result.texture_thumb);
-        }
-    });
+        });
 
-    $("#ba_input").autocomplete({
-        autoFocus: true,
-        source: "{% url 'brand_attributes_view' %}",
-        min_length: 2,
-        html: true,
-        showTyping: true,
-        focus: function(event, ui) {
-            $(this).val(ui.item.name);
-            return false;
-        },
-        select: function(event, ui) {
-            _updateData({name: ui.item.name,
-                         ba_pk: ui.item.value,
-                         premium_type: ui.item.premium_type,
-                         premium_amount: ui.item.premium_amount,
-                         texture_pk: ui.item.value,
-                         type_pk: 'exist'});
-            $(this).val(ui.item.name);
-            $(this).siblings("#premium_amount").val(ui.item.premium_amount);
-            $(this).siblings("#premium_type").val(ui.item.premium_type);
-            calcDiscount();
-            $(this).focusout();
-            _updateBackgroundImage($("#ba_texture_btn"), ui.item.texture);
-            return false;
-        }
-    });
+        attr_obj.find(".ba_texture_upload").fileupload({
+            dataType: 'json',
+            url: "{% url 'brand_attributes_view' %}",
+            dropZone: attr_obj.find('.texture'),
+            namespace: 'ba_texture',
+            formData: {pk: _getFromData(attr_obj, "texture_pk")},
+            add: function(e, data) {
+                if (_validate_max_file_size(data.files[0])) {
+                    _updateBackgroundImage(attr_obj.find(".ba_texture_btn"), "{{ STATIC_URL }}img/loading2.gif");
+                    data.submit();
+                }
+            },
+            done: function(e, data) {
+                _updateBackgroundImage(attr_obj.find(".ba_texture_btn"), data.result.texture);
+                _updateData(attr_obj, {ba_pk: -1, texture_pk: data.result.pk, type_pk: 'new'});
+                attr_obj.find("input[id*=texture]").val(data.result.texture);
 
-    $("#ba").change(function(){
-        _updateData({name: $("#ba_input").val(),
-                     premium_type:$("#premium_type").val(),
-                     premium_amount:$("#premium_amount").val(),
-                     ba_pk: -1})
+            }
+        });
+
+        attr_obj.find(".ba_input.autocomplete").autocomplete({
+            autoFocus: true,
+            source: "{% url 'brand_attributes_view' %}",
+            min_length: 2,
+            html: true,
+            showTyping: true,
+            focus: function(event, ui) {
+                $(this).val(ui.item.name);
+                return false;
+            },
+            select: function(event, ui) {
+                if ($('#brand-attr-' + ui.item.value).length > 0) {
+                    alert('{% trans "This product variant is already added." %}');
+                    e.preventDefault();
+                    return false;
+                }
+
+                _updateData(attr_obj,
+                            {name: ui.item.name,
+                             ba_pk: ui.item.value,
+                             premium_type: ui.item.premium_type,
+                             premium_amount: ui.item.premium_amount,
+                             texture_pk: ui.item.value,
+                             type_pk: 'exist'});
+                $(this).val(ui.item.name);
+                $(this).siblings("#premium_amount").val(ui.item.premium_amount);
+                $(this).siblings("#premium_type").val(ui.item.premium_type);
+                calcDiscount();
+                $(this).focusout();
+                _updateBackgroundImage(attr_obj.find(".ba_texture_btn"), ui.item.texture);
+                return false;
+            }
+        });
+
+        attr_obj.find('.add_ba').click(function(e) {
+            var name = attr_obj.find(".ba_input").val();
+            if (!name) {
+                alert('{% trans "Attribute name can not be left blank." %}');
+                e.preventDefault();
+                return false;
+            }
+            var previews = [];
+            attr_obj.find(".existing_pp li.ba_preview_form").each(function(){
+                var pk = $(this).find("[id$=-pk]").val();
+                var val = $(this).find("[id$=-sort_order]").val();
+                previews.push({pk: pk, sort_order: val});
+            });
+            _updateData(attr_obj,
+                        {name: name,
+                         premium_type: attr_obj.find('select[id$=premium_type]').val(),
+                         premium_amount: attr_obj.find('input[id$=premium_amount]').val(),
+                         ba_pk: -1,
+                         previews: JSON.stringify(previews),
+                         ba_index: _getBaFormCount(),
+                        });
+            var data_send = attr_obj.data("ba_data");
+            if (data_send.ba_pk == -1 && data_send.texture_pk != undefined) {
+                data_send.pk = data_send.texture_pk;
+            } else if (data_send.ba_pk != undefined) {
+                data_send.pk = data_send.ba_pk;
+            } else {
+                data_send.pk = -1;
+            }
+
+            $.post("{% url 'brand_attributes_view' %}",
+                data_send,
+                function(data) {
+                    if (data.success) {
+                        attr_obj.find('#ba_error').hide().empty();
+                        new_tab($('.tabs'), 'brand-attr-' + data.pk,
+                                data.name, data.ba_html);
+                        var obj = $('.tabs-header li:last').insertBefore($("li.add-attr"));
+                        ba_events($('#brand-attr-' + data.pk));
+
+                        _addBaFormCount();
+                        _clearBaForm(attr_obj); 
+
+                        add_barcode_for_brand_attr(data.pk, data.name);
+                        add_extref_for_brand_attr(data.pk, data.name);
+                    } else {
+                        attr_obj.find('.ba_error').show().append("<li>" + data.err + "</li>");
+                    }
+                }
+            );
+        });
+
+        attr_obj.find('select[id$=premium_type]').change(function(){
+            var premium_type = $(this).val();
+            if (premium_type == 'amount') {
+                $(this).siblings(".premium_ratio_marker").hide();
+                $(this).siblings(".premium_currency_marker").show();
+            } else {
+                $(this).siblings(".premium_ratio_marker").show();
+                $(this).siblings(".premium_currency_marker").hide();
+            }
+            update_ba_premium($(this).parents('.brand_attributes-premium'));
+        });
+        attr_obj.find('select[id$=premium_type]').change();
+
+        attr_obj.find('input[id$=premium_amount]').change(function(){
+            update_ba_premium($(this).parents('.brand_attributes-premium'));
+        });
+
+    }
+    $("div[id^=brand-attr-]").each(function(){
+        var attr_obj = $(this);
+        ba_events(attr_obj);
     });
 
     function render_premium_result(premium_price_node, premium_type, premium_amount){
-        $(premium_price_node).fadeOut(function() {
-            premium_price_node.html("");
-            var selected_cur = $("#{{wizard.form.currency.auto_id}} option:selected").text();
-            var normal_price = parseFloat($("#{{ wizard.form.normal_price.auto_id }}").val());
-            premium_amount = parseFloat(premium_amount);
-            if (normal_price) {
-                $("<span>").html('{% trans "Premium price" %}:')
-                        .appendTo(premium_price_node);
-                $("<span>").html(_calc_premium_price(premium_type, premium_amount, normal_price))
-                        .appendTo(premium_price_node);
-                $("<span>").addClass("premium_currency_marker")
-                        .html(selected_cur)
-                        .appendTo(premium_price_node);
-            } else {
-                $("<span>").html('{% trans "Premium" %}:')
-                        .appendTo(premium_price_node);
-                premium_amount = premium_amount || 0;
-                if (premium_type == 'percentage') {
-                    $("<span>").html(premium_amount + "%")
-                            .appendTo(premium_price_node);
-                } else {
-                    $("<span>").html(premium_amount)
-                            .appendTo(premium_price_node);
-                    $("<span>").addClass("premium_currency_marker")
-                            .html(selected_cur)
-                            .appendTo(premium_price_node);
-                }
-            }
-            premium_price_node.attr('data-premium_type', premium_type);
-            premium_price_node.attr('data-premium_amount', premium_amount);
-
-        }).fadeIn();
-    };
-
-    $("#add_ba").click(function(e) {
-        if (!$("#ba_input").val()) {
-            alert('{% trans "Attribute name can not be left blank." %}');
-            e.preventDefault();
-            return false;
-        }
-        _updateData({name: $("#ba_input").val(),
-                     premium_type:$("#premium_type").val(),
-                     premium_amount:$("#premium_amount").val(),
-                     ba_pk: -1});
-        var nb_of_forms = $("#{{ wizard.form.brand_attributes.management_form.TOTAL_FORMS.auto_id }}").val();
-        var form = $("#brand_attribute_template_form").html();
-        form = form.replace(/__prefix__/g, nb_of_forms.toString()); // counting start from 0, so just use nb_of_forms here
-        var ba_id = "#{{ wizard.form.brand_attributes.empty_form.ba_id.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
-        var name = "#{{ wizard.form.brand_attributes.empty_form.name.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
-        var span_name = "#{{ wizard.form.brand_attributes.empty_form.prefix }}-name".replace(/__prefix__/g, nb_of_forms.toString());
-        var premium_type = "#{{ wizard.form.brand_attributes.empty_form.premium_type.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
-        var premium_amount = "#{{ wizard.form.brand_attributes.empty_form.premium_amount.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
-        var span_premium_price = "#{{ wizard.form.brand_attributes.empty_form.prefix }}-premium".replace(/__prefix__/g, nb_of_forms.toString());
-        var texture = "#{{ wizard.form.brand_attributes.empty_form.texture.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
-        var preview = "#{{ wizard.form.brand_attributes.empty_form.preview.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
-        var texture_img = "#{{ wizard.form.brand_attributes.empty_form.texture.auto_id }}-img".replace(/__prefix__/g, nb_of_forms.toString());
-        var preview_img = "#{{ wizard.form.brand_attributes.empty_form.preview.auto_id }}-img".replace(/__prefix__/g, nb_of_forms.toString());
-        var preview_pk = "#{{ wizard.form.brand_attributes.empty_form.preview_pk.auto_id }}".replace(/__prefix__/g, nb_of_forms.toString());
-        // if ($("#ba_input").attr('ba_id')) {
-        //     $("#brand_attributes").append(form);
-        //     $(ba_id).val($("#ba_input").attr('ba_id'));
-        //     $(name).val($("#ba_input").val());
-        //     $(span_name).html($("#ba_input").val());
-        //     $("#ba_input").val("");
-        //     $("#ba_input").removeAttr("ba_id");
-        //     nb_of_forms++;
-        //     $("#{{ wizard.form.brand_attributes.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
-        // } else if ($("#ba_input").val()) {
-
-        var data_send = $("#add_ba_form").data("ba_data");
-        if (data_send.ba_pk == -1 && data_send.texture_pk != undefined) {
-            data_send.pk = data_send.texture_pk;
-        } else if (data_send.ba_pk != undefined) {
-            data_send.pk = data_send.ba_pk;
+        var selected_cur = $("#{{wizard.form.currency.auto_id}} option:selected").text();
+        var normal_price = parseFloat($("#{{ wizard.form.normal_price.auto_id }}").val());
+        premium_amount = parseFloat(premium_amount);
+        premium_price_node.html('');
+        if (normal_price) {
+            $("<span>").html(_calc_premium_price(premium_type, premium_amount, normal_price))
+                    .appendTo(premium_price_node);
+            $("<span>").addClass("premium_currency_marker")
+                    .html(selected_cur)
+                    .appendTo(premium_price_node);
         } else {
-
-            data_send.pk = -1;
+            $("<span>").html('--').appendTo(premium_price_node);
         }
-
-        $.post("{% url 'brand_attributes_view' %}",
-            data_send,
-            function(data) {
-                if (data.success) {
-                    $('#ba_error').hide().empty();
-                    $("#brand_attributes").append(form);
-                    $(ba_id).val(data.pk);
-                    $(texture).val(data.texture_thumb);
-                    $(texture_img).attr('src', data.texture_thumb);
-                    $(preview).val(data.preview_thumb);
-                    $(preview_img).attr('src', data.preview_thumb);
-                    $(preview_pk).val(data.preview_pk);
-                    $(name).val($("#ba_input").val());
-                    $(span_name).html($("#ba_input").val());
-                    $(premium_type).val($("#premium_type").val());
-                    $(premium_amount).val($("#premium_amount").val());
-                    render_premium_result($(span_premium_price),
-                                          $('#premium_type').val(),
-                                          $('#premium_amount').val());
-                    nb_of_forms++;
-                    $("#{{ wizard.form.brand_attributes.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
-                    _clearBaForm();
-                } else {
-                    $('#ba_error').show().append("<li>" + data.err + "</li>");
-                }
-            }
-        );
-        return false;
-    });
+    };
 
     $(".remove_brand_attribute").live('click', function(){
         var ba = $(this).parents(".brand_attribute_form:first");
@@ -796,14 +812,6 @@
             }
         });
         return false;
-    });
-
-    $("#{{ wizard.form.brand.auto_id }}").change(function(elmt){
-        var brand_id = $("#{{ wizard.form.brand.auto_id }} :selected").val();
-        if (brand_id) {
-            $("#preview-{{ wizard.form.brand.auto_id }}").html("{% trans "Loading..." %}");
-            $("#preview-{{ wizard.form.brand.auto_id }}").load("{% url 'get_brand_logo' %}"+brand_id+'/');
-        }
     });
 
 
@@ -925,42 +933,15 @@
 
 
     /********************** Update Product Preveiw ***********************/
-    $("#main_form").change(function(elmt){
-        updateProductPreview(elmt);
-    });
-
-    function updateProductPreview(elmt) {
-        var name = $("#{{ wizard.form.name.auto_id }}").val();
-        var description = $("#{{ wizard.form.description.auto_id }}").val();
-        var valid_to = $("#{{ wizard.form.valid_to.auto_id }}").val();
-        var discount = $("#{{ wizard.form.discount.auto_id }}").val();
-        var discount_type = $("#{{ wizard.form.discount_type.auto_id }}").val();
-        var selected_cur = $("#{{wizard.form.currency.auto_id}} option:selected").text();
-        var discount_price = $("#{{ wizard.form.preview_discount_price_str.auto_id }}").val();
-        if (isNaN(discount_price) && !discount_price.toString().match("{% trans "Starting at" %}")) discount_price = "{% trans "N/A" %}";
-        var base_price = $("#{{ wizard.form.preview_base_price.auto_id }}").val();
-        if (isNaN(base_price)) base_price = "{% trans "N/A" %}";
-
-        $("#preview-{{ wizard.form.name.auto_id }}").html(name);
-        $("#preview-{{ wizard.form.description.auto_id }}").html(description);
-        if (valid_to) {
-            $("#preview-{{ wizard.form.valid_to.auto_id }}").html(valid_to).parents("span:first").show();
-        } else {
-            $("#preview-{{ wizard.form.valid_to.auto_id }}").html("").parents("span:first").hide();
-        }
-        $("#preview-{{ wizard.form.discount.auto_id }}").html(discount + (discount_type == "percentage" ? "%" : selected_cur));
-        $("#preview-{{ wizard.form.preview_discount_price_str.auto_id }}").html(discount_price + "&nbsp;" + selected_cur);
-        $("#preview-{{ wizard.form.preview_base_price.auto_id }}").html(base_price + "&nbsp;" + selected_cur);
+    function update_ba_premium(obj) {
+        var premium_type = obj.find("select[id$=premium_type]").val();
+        var premium_amount = obj.find("input[id$=premium_amount]").val() || 0;
+        var result_node = obj.parent().next().find('.brand_attributes-premium-result');
+        render_premium_result(result_node, premium_type, premium_amount);
     }
-
-    function update_ba_premium() {
+    function update_all_ba_premium() {
         $('.brand_attributes-premium').each(function (){
-            var premium_type = $(this).attr('data-premium_type');
-            var premium_amount = $(this).attr('data-premium_amount');
-
-            if (premium_type && premium_amount) {
-                render_premium_result($(this), premium_type, premium_amount);
-            }
+            update_ba_premium($(this));
         });
     }
 
@@ -994,7 +975,10 @@
             $("#{{ wizard.form.normal_price.auto_id }}").val(ta_price).change();
             $("#type_attribute_prices span.normal_price_price").text(ta_price);
             $("#type_attribute_prices span.normal_price_currency").text(select_cur);
-            update_ba_premium();
+            update_all_ba_premium();
+
+            add_barcode_for_common_attr("", $("#{{ wizard.form.name.auto_id }}").val());
+            add_extref_for_common_attr("", $("#{{ wizard.form.name.auto_id }}").val());
             return false;
         }
 
@@ -1002,7 +986,7 @@
         // TYPE ATTRIBUTE PRICE
         {% with wizard.form.type_attribute_prices.empty_form as tap_empty %}
         // this type attribute price has been added.
-        if ($("#type_attribute_prices span.type_attribute_price_form:visible span.type_attribute_value:[data-value="+select_ta+"]").length > 0) {
+        if ($("#type_attribute_prices span.type_attribute_price_form:visible span.type_attribute_value[data-value="+select_ta+"]").length > 0) {
             alert("The price of \"" + select_ta_name + "\" has been added!");
             return false;
         }
@@ -1025,6 +1009,7 @@
         $(tap_id_input).val(-1);
         $(type_attribute_input).val(select_ta);
         $(type_attribute_price_input).val(ta_price);
+        $(ta_span).text(select_ta);
         $(ta_span).attr("data-value", select_ta);
         $(ta_name_span).text(select_ta_name);
         $(tap_span).text(ta_price);
@@ -1037,8 +1022,10 @@
         $("#type_attribute_selector option[value=0]").remove();
         $("span.normal_price_form").remove();
         $("#{{ wizard.form.normal_price.auto_id }}").val("").change();
-        update_ba_premium();
+        update_all_ba_premium();
 
+        add_barcode_for_common_attr(select_ta, select_ta_name);
+        add_extref_for_common_attr(select_ta, select_ta_name);
         return false;
     });
 
@@ -1051,10 +1038,15 @@
             $("#type_attribute_selector").prepend($("<option>", {value: 0, text: "{% trans "Unified price" %}"}));
         }
         calcDiscount();
+        var attr_id = $(this).siblings('.type_attribute_value').text();
+        remove_barcode_for_common_attr(attr_id);
+        remove_extref_for_common_attr(attr_id);
     });
     $("span.remove_normal_price").live("click", function(){
         $("#{{ wizard.form.normal_price.auto_id }}").val("").change();
         $(this).parent().remove();
+        remove_barcode_for_common_attr("");
+        remove_extref_for_common_attr("");
     });
 
 
@@ -1093,7 +1085,7 @@
         // TYPE ATTRIBUTE WEIGHT
         {% with wizard.form.type_attribute_weights.empty_form as taw_empty %}
             // this type attribute weight has been added.
-            if ($("#type_attribute_weights span.type_attribute_weight_form:visible span.type_attribute_value:[data-value="+select_ta+"]").length > 0) {
+            if ($("#type_attribute_weights span.type_attribute_weight_form:visible span.type_attribute_value[data-value="+select_ta+"]").length > 0) {
                 alert("The weight of \"" + select_ta_name + "\" has been added!");
                 return false;
             }
@@ -1160,6 +1152,14 @@
     });
 
     /********************** Utils ***********************/
+    String.prototype.replaceAll = function(reallyDo, replaceWith, ignoreCase) {  
+        if (!RegExp.prototype.isPrototypeOf(reallyDo)) {  
+            return this.replace(new RegExp(reallyDo, (ignoreCase ? "gi": "g")), replaceWith);  
+        } else {  
+            return this.replace(reallyDo, replaceWith);  
+        }  
+    }
+
     // Get product types by selected product category
     function getTypeOptions(cat_id) {
         if (cat_id) {
@@ -1219,6 +1219,7 @@
                             $("#type_attribute_weight_selector").append($("<option>", {value: option.value, text: option.label}));
                         }
                     });
+
                 }
             });
         } else {
@@ -1236,6 +1237,19 @@
         l = l.join('_');
         return l;
     }
+
+    function prod_name_changed() {
+        var prod_name = $("#{{ wizard.form.name.auto_id }}").val();
+        if (prod_name == '') {
+            $('.tabs li.base-item a').text('{% trans "Product name" %}');
+        } else {
+            $('.tabs li.base-item a').text(prod_name);
+        }
+        $('#base-item .title').text(prod_name);
+    }
+    $("#{{ wizard.form.name.auto_id }}").change(function(e){
+        prod_name_changed();
+    });
 
     {# currency dropdown change event#}
     function currency_changed() {
@@ -1263,7 +1277,6 @@
     // Those will be called when page is reloaded, for example if data validation
     // fails or we clicked "prev" from next step
     calcDiscount();
-    updateProductPreview(null);
     $("#{{ wizard.form.brand.auto_id }}").change();
     if ("{{ wizard.form.category.value }}") {
         $("#{{ wizard.form.category.auto_id }}").change();
@@ -1275,5 +1288,259 @@
         }
     });
 
+    /********************** Gallery ***********************/
+    function render_gallery_row(name, imgs) {
+        var index = $('#gallery table tr').length + 1;
+        var _html = '<th>' + index + '</th>' + 
+                    '<td><div><h1></h1><ul></ul></div></td>';
+        var row = $('<tr>').html(_html);
+        row.find('h1').text(name);
+        for (var idx in imgs) {
+            row.find('ul').append($('<li><img orig_id="' + imgs[idx]['id']  + '" src="' + imgs[idx]['src'] + '"/></li>'));
+        }
+        return row
+    }
+    function render_gallery() {
+        var table = $('#gallery table');
+        table.html('');
+        
+        var prod_name = $("#{{ wizard.form.name.auto_id }}").val() || '';
+        var prod_imgs = [];
+        $("#existing_pp img").each(function(){
+            var del_node = $(this).parent().siblings('input:checkbox[id*=DELETE]')
+            if (del_node.attr("checked") != 'checked') {
+                var _id = $(this).attr('id');
+                var _src = $(this).attr('src');
+                prod_imgs.push({id: _id, src: _src})
+            }
+        });
+        $(render_gallery_row(prod_name, prod_imgs)).appendTo(table);
+
+        $("li.brand-attr:visible").each(function(){
+            var tab_id = $(this).find('a').attr('href');
+            var attr_name = $(this).find('a').text();
+            var attr_imgs = [];
+            $(tab_id + " .existing_pp img").each(function(){
+                var del_node = $(this).parent().siblings('input:checkbox[id*=DELETE]')
+                if (del_node.attr("checked") != 'checked') {
+                    var _id = $(this).attr('id');
+                    var _src = $(this).attr('src');
+                    attr_imgs.push({id: _id, src: _src})
+                }
+            });
+            $(render_gallery_row(attr_name, attr_imgs)).appendTo(table);
+        });
+
+        table.find('ul').each(function(){
+            $(this).sortable();
+        });
+    }
+    function save_gallery() {
+        var table = $('#gallery table');
+        table.find('ul').each(function(){
+            $(this).find('img').each(function(img_idx){
+                var img_row_id = $(this).attr('orig_id').replace('-img', '-row'); 
+                $('#' + img_row_id).find('[id$=-sort_order]').val(img_idx);
+            });
+        });
+    }
+    function sort_existing_pp(ul_obj) {
+        var li_objs = ul_obj.find('li');
+        var i = 0;
+        for (i=0; i< li_objs.length; i++) {
+            var li = li_objs.find('[id$=-sort_order][value=' + i + ']').parents('li');
+            ul_obj.append(li);
+            li.insertBefore(li_objs.last());
+        }
+    }
+
+    /********************** Tabs ***********************/
+    function new_tab(tabs, tabId, tabLabel, tabContentHtml) {
+         var header = "<li class='brand-attr'><span class='delete'>Delete</span><a href='#" + tabId + "'>" + tabLabel + "</a> </li>";
+         tabs.find(".ui-tabs-nav").append(header);
+         tabs.append("<div id='" + tabId + "' class='visuelProd'>" + tabContentHtml + "</div>");
+         tabs.tabs("refresh");
+    }
+
+    $(".tabs").on('tabsactivate', function(event, ui) {
+        var index = ui.newTab.index();
+        if (index === $('.tabs >ul >li').length - 1) {
+            // last tab
+            render_gallery();
+        } else {
+            save_gallery();
+            if (index == 0) {
+                sort_existing_pp($('#existing_pp'));
+            } else {
+                var attr_id = ui.newTab.find('a').attr('href');
+                if (attr_id != '#brand-attr-0')
+                    sort_existing_pp($(attr_id + ' .existing_pp'));
+            }
+        }
+    });
+
+    $(document).on("click", "ul.tabs-header li.brand-attr .delete", function(){
+        var tab_id = $(this).siblings('a').attr('href');
+        $(this).parents('.brand-attr').hide();
+        $(tab_id).hide();
+        $(tab_id).find("input:checkbox[id*=DELETE]:first").attr("checked", "checked");
+        $('.tabs-header li.base-item a').click();
+
+        remove_barcode_for_brand_attr(tab_id.replace('#brand-attr-', ''));
+        remove_extref_for_brand_attr(tab_id.replace('#brand-attr-', ''));
+    });
+
+    /********************** Upload files ***********************/
+    $(document).on("click", "a.uploadfile",function(){
+        $(this).siblings('input[type=file]').click();
+    });
+    $(document).on("click", ".visuelProd ul li span .delete",function(){
+        $(this).parents('li').hide(); 
+        $(this).parents('li').find('input:checkbox[id*=DELETE]').attr("checked", "checked");
+    });
+
+    /********************** Barcode ***********************/
+    function add_barcode_for_brand_attr(attr_id, attr_name) {
+        if ($('.barcodes-ba[data-ba="' + attr_id + '"]').length > 0) {
+            $('.barcodes-ba[data-ba="' + attr_id + '"]').show().prev().show();
+            var nodes = $('.barcodes-ba[data-ba="' + attr_id + '"] .barcodes-item:visible');
+            nodes.find("input:checkbox[id*=DELETE]").removeAttr("checked");
+        } else {
+            var nb_of_forms = $("#{{ wizard.form.barcodes.management_form.TOTAL_FORMS.auto_id }}").val();
+            $('.barcodes-ba:last').each(function() {
+                var newba = $(this).clone();
+                newba.attr('data-ba', attr_id);
+                newba.insertAfter($(this));
+                newba.show();
+                $('<strong>').text(attr_name).insertAfter($(this));
+
+                newba.find('.barcodes-item').each(function() {
+                    var node = $(this);
+                    var old_prefix = node.find("input[name*=-upc]").attr('name').replace('-upc', '');
+                    var new_prefix = 'barcodes-' + nb_of_forms;
+                    node.html(node.html().replaceAll(old_prefix, new_prefix));
+                    node.find("input[id*=upc]").val('');
+                    node.find("input[id*=brand-attribute]").val(attr_id);
+                    if (node.is(':visible'))
+                        node.find("input:checkbox[id*=DELETE]").removeAttr("checked");
+
+                    nb_of_forms++;
+                    $("#{{ wizard.form.barcodes.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
+                });
+            });
+        }
+    }
+    function remove_barcode_for_brand_attr(attr_id) {
+        $('.barcodes-ba[data-ba="' + attr_id + '"]').hide().prev().hide();
+        var nodes = $('.barcodes-ba[data-ba="' + attr_id + '"] .barcodes-item');
+        nodes.find("input:checkbox[id*=DELETE]").attr("checked", "checked");
+    }
+    function add_barcode_for_common_attr(attr_id, attr_name) {
+        if (attr_id && $('.barcodes-item[data-ca=""]').length > 0) {
+            $('.barcodes-item[data-ca=""]').hide();
+            var nodes = $('.barcodes-item[data-ca=""]:hidden');
+            nodes.find("input:checkbox[id*=DELETE]").attr("checked", "checked");
+        }
+        if ($('.barcodes-item[data-ca="' + attr_id + '"]').length > 0) {
+            $('.barcodes-item[data-ca="' + attr_id + '"]').show();
+            var nodes = $('.barcodes-item[data-ca="' + attr_id + '"]:visible');
+            nodes.find("input:checkbox[id*=DELETE]").removeAttr("checked");
+        } else {
+            var nb_of_forms = $("#{{ wizard.form.barcodes.management_form.TOTAL_FORMS.auto_id }}").val();
+            $('.barcodes-ba').find('.barcodes-item:last').each(function() {
+                var newnode = $(this).clone();
+                var old_prefix = newnode.find("input[name*=-upc]").attr('name').replace('-upc', '');
+                var new_prefix = 'barcodes-' + nb_of_forms;
+                newnode.html(newnode.html().replaceAll(old_prefix, new_prefix));
+                newnode.find('label').text(attr_name);
+                newnode.find("input[id*=upc]").val('');
+                newnode.find("input[id*=common-attribute]").val(attr_id);
+                newnode.insertAfter($(this));
+                newnode.show();
+                newnode.attr('data-ca', attr_id);
+                if (newnode.is(':visible'))
+                    newnode.find("input:checkbox[id*=DELETE]").removeAttr("checked");
+
+                nb_of_forms++;
+                $("#{{ wizard.form.barcodes.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
+            });
+        }
+    }
+    function remove_barcode_for_common_attr(attr_id) {
+        var nodes = $('.barcodes-item[data-ca="' + attr_id + '"]').hide();
+        nodes.find("input:checkbox[id*=DELETE]").attr("checked", "checked");
+    }
+
+    /********************** External Ref ***********************/
+    function add_extref_for_brand_attr(attr_id, attr_name) {
+        if ($('.extrefs-ba[data-ba="' + attr_id + '"]').length > 0) {
+            $('.extrefs-ba[data-ba="' + attr_id + '"]').show().prev().show();
+            var nodes = $('.extrefs-ba[data-ba="' + attr_id + '"] .barcode-item:visible');
+            nodes.find("input:checkbox[id*=DELETE]").removeAttr("checked");
+        } else {
+            var nb_of_forms = $("#{{ wizard.form.externalrefs.management_form.TOTAL_FORMS.auto_id }}").val();
+            $('.extrefs-ba:last').each(function() {
+                var newba = $(this).clone();
+                newba.attr('data-ba', attr_id);
+                newba.insertAfter($(this));
+                newba.show();
+                $('<strong>').text(attr_name).insertAfter($(this));
+
+                newba.find('.barcode-item').each(function() {
+                    var node = $(this);
+                    var old_prefix = node.find("input[name*=-external_id]").attr('name').replace('-external_id', '');
+                    var new_prefix = 'extrefs-' + nb_of_forms;
+                    node.html(node.html().replaceAll(old_prefix, new_prefix));
+                    node.find("input[id*=external_id]").val('');
+                    node.find("input[id*=brand-attribute]").val(attr_id);
+                    if (node.is(':visible'))
+                        node.find("input:checkbox[id*=DELETE]").removeAttr("checked");
+
+                    nb_of_forms++;
+                    $("#{{ wizard.form.externalrefs.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
+                });
+            });
+        }
+    }
+    function remove_extref_for_brand_attr(attr_id) {
+        $('.extrefs-ba[data-ba="' + attr_id + '"]').hide().prev().hide();
+        var nodes = $('.extrefs-ba[data-ba="' + attr_id + '"] .extrefs-item');
+        nodes.find("input:checkbox[id*=DELETE]").attr("checked", "checked");
+    }
+    function add_extref_for_common_attr(attr_id, attr_name) {
+        if (attr_id && $('.extrefs-item[data-ca=""]').length > 0) {
+            $('.extrefs-item[data-ca=""]').hide();
+            var nodes = $('.extrefs-item[data-ca=""]:hidden');
+            nodes.find("input:checkbox[id*=DELETE]").attr("checked", "checked");
+        }
+        if ($('.extrefs-item[data-ca="' + attr_id + '"]').length > 0) {
+            $('.extrefs-item[data-ca="' + attr_id + '"]').show();
+            var nodes = $('.extrefs-item[data-ca="' + attr_id + '"]:visible');
+            nodes.find("input:checkbox[id*=DELETE]").removeAttr("checked");
+        } else {
+            var nb_of_forms = $("#{{ wizard.form.externalrefs.management_form.TOTAL_FORMS.auto_id }}").val();
+            $('.extrefs-ba').find('.extrefs-item:last').each(function() {
+                var newnode = $(this).clone();
+                var old_prefix = newnode.find("input[name*=-external_id]").attr('name').replace('-external_id', '');
+                var new_prefix = 'extrefs-' + nb_of_forms;
+                newnode.html(newnode.html().replaceAll(old_prefix, new_prefix));
+                newnode.find('label').text(attr_name);
+                newnode.find("input[id*=external_id]").val('');
+                newnode.find("input[id*=common-attribute]").val(attr_id);
+                newnode.insertAfter($(this));
+                newnode.show();
+                newnode.attr('data-ca', attr_id);
+                if (newnode.is(':visible'))
+                    newnode.find("input:checkbox[id*=DELETE]").removeAttr("checked");
+
+                nb_of_forms++;
+                $("#{{ wizard.form.externalrefs.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
+            });
+        }
+    }
+    function remove_extref_for_common_attr(attr_id) {
+        var nodes = $('.extrefs-item[data-ca="' + attr_id + '"]').hide();
+        nodes.find("input:checkbox[id*=DELETE]").attr("checked", "checked");
+    }
 </script>
 {% endblock %}

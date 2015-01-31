@@ -70,6 +70,7 @@ from attributes.models import BrandAttribute
 from attributes.models import BrandAttributePreview
 from attributes.models import CommonAttribute
 from barcodes.models import Barcode
+from common.assets_utils import get_asset_name
 from common.cache_invalidation import send_cache_invalidation
 from common.constants import TARGET_MARKET_TYPES
 from common.constants import USERS_ROLE
@@ -82,13 +83,13 @@ from fouillis.views import ShopManagerUpperLoginRequiredMixin
 from fouillis.views import manager_upper_required
 from globalsettings import get_setting
 from promotion.utils import save_sale_promotion_handler
+from sales.forms import BrandAttributeForm
 from sales.forms import ListSalesForm
 from sales.forms import ProductBrandFormModel
 from sales.forms import ProductForm
 from sales.forms import ShippingForm
 from sales.forms import ShopForm
 from sales.forms import StockStepForm
-from sales.forms import TargetForm
 from sales.models import ExternalRef
 from sales.models import Product
 from sales.models import ProductBrand
@@ -134,13 +135,16 @@ class UploadProductPictureView(View, TemplateResponseMixin):
                 content = {'status': 'max_limit_error'}
                 return HttpResponse(json.dumps(content), mimetype='application/json')
 
+            is_cover = request.POST.get('is_cover', False)
             is_brand_attribute = request.POST.get('is_brand_attribute', False)
             new_media = ProductPicture(picture=request.FILES[u'files[]'])
             new_media.is_brand_attribute = is_brand_attribute
+            if is_cover:
+                new_media.sort_order = -1
             new_media.save()
-            thumb = get_thumbnail(new_media.picture, '40x43')
+            thumb = get_thumbnail(new_media.picture, '187x187')
             t = loader.get_template('_product_preview_thumbnail.html')
-            c = Context({ "picture": new_media.picture })
+            c = Context({"picture": new_media.picture })
             preview_html = t.render(c)
             to_ret = {'status': 'ok', 'url': new_media.picture.url, 'thumb_url': thumb.url,
                       'pk': new_media.pk, 'preview_html': preview_html}
@@ -279,7 +283,7 @@ class ListSalesView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin
                 sale.product.tax_rate = 0
 
             if sale.product.pictures.count() > 0:
-                sale.cover = sale.product.pictures.order_by('sort_order', 'id')[0]
+                sale.cover = sale.product.pictures.order_by('sort_order', 'id')[0].picture
         self.sales = list(self.sales)
 
         return
@@ -494,7 +498,6 @@ def add_sale(request, *args, **kwargs):
         (SaleWizardNew.STEP_PRODUCT, ProductForm),
         (SaleWizardNew.STEP_STOCKS, StockStepForm),
         (SaleWizardNew.STEP_SHIPPING, ShippingForm),
-        (SaleWizardNew.STEP_TARGET, TargetForm),
     ]
 
     initial_product = {
@@ -552,7 +555,6 @@ def edit_sale(request, *args, **kwargs):
         (SaleWizardNew.STEP_PRODUCT, ProductForm),
         (SaleWizardNew.STEP_STOCKS, StockStepForm),
         (SaleWizardNew.STEP_SHIPPING, ShippingForm),
-        (SaleWizardNew.STEP_TARGET, TargetForm),
     ]
 
     if not 'sale_id' in kwargs:
@@ -571,25 +573,43 @@ def edit_sale(request, *args, **kwargs):
     }
 
     pictures = []
+    cover_picture = None
     for pic in sale.product.pictures.exclude(is_brand_attribute=True).order_by('sort_order', 'id'):
-        pictures.append({
+        pp = {
             'pk': pic.pk,
             'url': pic.picture.url,
-            'thumb_url': get_thumbnail(pic.picture, '40x43').url,
+            'thumb_url': get_thumbnail(pic.picture, '187x187').url,
             'sort_order': pic.sort_order,
-        })
-    brand_attributes = []
+        }
+        if pic.sort_order == -1:
+            cover_picture = pp
+        else:
+            pictures.append(pp)
+
+    brand_attributes = {}
     for i in sale.product.brand_attributes.all():
-        bap = BrandAttributePreview.objects.get(brand_attribute=i, product=sale.product)
-        brand_attributes.append({
-            'name': i.name,
-            'ba_id': i.pk,
-            'texture': get_thumbnail(i.texture, "15x15").url if i.texture else None,
-            'preview': get_thumbnail(bap.preview.picture, "39x43").url if bap.preview else None,
-            'preview_pk': bap.preview.pk if bap.preview else None,
-            'premium_type': i.premium_type,
-            'premium_amount': i.premium_amount,
+        if i.pk in brand_attributes:
+            continue
+
+        previews = BrandAttributePreview.objects.filter(brand_attribute=i,
+                                                        product=sale.product)
+        bap = [{'url': get_thumbnail(p.preview.picture, "187x187").url
+                       if p.preview else None,
+                'pk': p.preview.pk if p.preview else None,
+                'sort_order': p.preview.sort_order if p.preview else None,
+               } for p in previews]
+        bap.sort(key=lambda i:i['sort_order'])
+        brand_attributes.update({
+            i.pk: {
+                'name': i.name,
+                'ba_id': i.pk,
+                'texture': i.texture.url,
+                'premium_type': i.premium_type,
+                'premium_amount': i.premium_amount,
+                'previews': bap,
+            }
         })
+    brand_attributes = brand_attributes.values()
 
     type_attribute_prices = []
     for i in TypeAttributePrice.objects.filter(sale=sale):
@@ -605,6 +625,22 @@ def edit_sale(request, *args, **kwargs):
             'taw_id': i.pk,
             'type_attribute': i.type_attribute.id,
             'type_attribute_weight': i.type_attribute_weight,
+        })
+
+    initial_barcodes = []
+    for i in Barcode.objects.filter(sale=sale):
+        initial_barcodes.append({
+            'brand_attribute': i.brand_attribute.pk if i.brand_attribute else None,
+            'common_attribute': i.common_attribute.pk if i.common_attribute else None,
+            'upc': i.upc
+        })
+
+    initial_externalrefs = []
+    for i in ExternalRef.objects.filter(sale=sale):
+        initial_externalrefs.append({
+            'brand_attribute': i.brand_attribute.pk if i.brand_attribute else None,
+            'common_attribute': i.common_attribute.pk if i.common_attribute else None,
+            'external_id': i.external_id,
         })
 
     initial_product = {
@@ -626,6 +662,11 @@ def edit_sale(request, *args, **kwargs):
         'type_attribute_prices': type_attribute_prices,
         'type_attribute_weights': type_attribute_weights,
         'short_description': sale.product.short_description,
+        'cover_pk': cover_picture['pk'] if cover_picture else None,
+        'cover_url': cover_picture['thumb_url'] if cover_picture else None,
+        'gender': sale.gender,
+        'barcodes_initials': initial_barcodes,
+        'externalrefs_initials': initial_externalrefs,
     }
 
     initial_stocks = []
@@ -637,30 +678,8 @@ def edit_sale(request, *args, **kwargs):
             'stock': i.rest_stock
         })
 
-    initial_barcodes = []
-    for i in Barcode.objects.filter(sale=sale):
-        initial_barcodes.append({
-            'brand_attribute': i.brand_attribute.pk if i.brand_attribute else None,
-            'common_attribute': i.common_attribute.pk if i.common_attribute else None,
-            'upc': i.upc
-        })
-
-    initial_externalrefs = []
-    for i in ExternalRef.objects.filter(sale=sale):
-        initial_externalrefs.append({
-            'brand_attribute': i.brand_attribute.pk if i.brand_attribute else None,
-            'common_attribute': i.common_attribute.pk if i.common_attribute else None,
-            'external_id': i.external_id,
-        })
-
     initial_stocks_step = {
         'stocks_initials': initial_stocks,
-        'barcodes_initials': initial_barcodes,
-        'externalrefs_initials': initial_externalrefs,
-    }
-
-    initial_target = {
-        'gender': sale.gender
     }
 
     initial_shipping = {}
@@ -696,7 +715,6 @@ def edit_sale(request, *args, **kwargs):
         SaleWizardNew.STEP_SHOP: initial_shop,
         SaleWizardNew.STEP_PRODUCT: initial_product,
         SaleWizardNew.STEP_STOCKS: initial_stocks_step,
-        SaleWizardNew.STEP_TARGET: initial_target,
         SaleWizardNew.STEP_SHIPPING: initial_shipping,
     }
 
@@ -718,16 +736,12 @@ def edit_sale(request, *args, **kwargs):
 class StocksInfos(object):
     def __init__(self):
         self.__dict__['stocks_expired'] = False
-        self.__dict__['barcodes_expired'] = False
-        self.__dict__['externalrefs_expired'] = False
         self.__dict__['shops'] = None
         self.__dict__['product_type'] = None
         self.__dict__['brand_attributes'] = None
         self.__dict__['stocks'] = None
         self.__dict__['barcodes'] = None
         self.__dict__['last_stocks_initials'] = None
-        self.__dict__['last_barcodes_initials'] = None
-        self.__dict__['last_externalrefs_initials'] = None
 
     def __setattr__(self, key, value):
         if key not in ('stocks', 'barcodes', 'externalrefs'):
@@ -735,16 +749,10 @@ class StocksInfos(object):
                 if self.__dict__[key] != value:
                     if key in ['shops', 'product_type', 'brand_attributes']:
                         self.__dict__['stocks_expired'] = True
-                    if key in ['product_type', 'brand_attributes']:
-                        self.__dict__['barcodes_expired'] = True
-                        self.__dict__['externalrefs_expired'] = True
             else:
                 if value:
                     if key in ['shops', 'product_type', 'brand_attributes']:
                         self.__dict__['stocks_expired'] = True
-                    if key in ['product_type', 'brand_attributes']:
-                        self.__dict__['barcodes_expired'] = True
-                        self.__dict__['externalrefs_expired'] = True
         self.__dict__[key] = value
 
 class SaleWizardNew(NamedUrlSessionWizardView):
@@ -752,7 +760,6 @@ class SaleWizardNew(NamedUrlSessionWizardView):
     STEP_PRODUCT = 'product'
     STEP_STOCKS = 'stocks'
     STEP_SHIPPING = 'shipping'
-    STEP_TARGET = 'target'
     file_storage = FileSystemStorage()
     base_template = "add_sale_base.html"
     edit_mode = False
@@ -762,10 +769,10 @@ class SaleWizardNew(NamedUrlSessionWizardView):
     @transaction.commit_on_success
     def done(self, form_list, **kwargs):
         if self.skip_shop_step:
-            product_form, stock_form, shipping_form, target_form = form_list
+            product_form, stock_form, shipping_form = form_list
             shop_form = None
         else:
-            shop_form, product_form, stock_form, shipping_form, target_form = form_list
+            shop_form, product_form, stock_form, shipping_form = form_list
 
         if self.edit_mode:
             sale = self.sale
@@ -781,6 +788,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             sale.mother_brand = self.request.user.get_profile().work_for
         sale.type_stock = shop_form and shop_form.cleaned_data['target_market'] or STOCK_TYPE_GLOBAL
         sale.save()
+
         if sale.type_stock == STOCK_TYPE_DETAILED:
             ShopsInSale.objects.filter(sale=sale).update(is_freezed=True)
             if shop_form:
@@ -815,50 +823,62 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         product.short_description = product_data['short_description']
         product.save()
 
+        sale.gender = product_data['gender']
+        sale.save()
+
         brand_attributes = product_form.brand_attributes
         ba_pks = []
-        for ba in brand_attributes.cleaned_data:
-            preview=None
-            if ba['preview_pk']:
-                preview=ProductPicture.objects.get(pk=ba['preview_pk'])
-            if not ba['DELETE']:
-                try:
-                    bap = BrandAttributePreview.objects.get(
-                        brand_attribute_id=ba['ba_id'],
-                        product=product)
-                except BrandAttributePreview.DoesNotExist:
-                    pass
-                else:
-                    if ba['preview_pk'] and bap.preview_id != ba['preview_pk']:
-                        bap.preview = preview
-                        bap.save()
+        for ba_form, ba in zip(brand_attributes, brand_attributes.cleaned_data):
+            if not ba: continue
 
-                (bap, created) = BrandAttributePreview.objects.get_or_create(
+            if ba['DELETE']:
+                baps = BrandAttributePreview.objects.filter(
                     brand_attribute=BrandAttribute.objects.get(pk=ba['ba_id']),
-                    product=product,
-                    preview=preview
-                )
-                bap.save()
-                ba_pks.append(ba['ba_id'])
+                    product=product)
+                [bap.delete() for bap in baps if bap]
+
             else:
-                try:
-                    bap = BrandAttributePreview.objects.get(
-                        brand_attribute=BrandAttribute.objects.get(pk=ba['ba_id']),
-                        product=product,
-                        preview=preview)
-                except BrandAttributePreview.DoesNotExist:
-                    pass
-                else:
-                    if bap:
-                        bap.delete()
+                ba_obj = BrandAttribute.objects.get(pk=ba['ba_id'])
+                ba_obj.name = ba['name']
+                ba_obj.premium_type = ba['premium_type']
+                ba_obj.premium_amount = ba['premium_amount']
+                ba_obj.texture = get_asset_name(ba['texture'])
+                ba_obj.save()
+
+                if not ba_form.previews.cleaned_data:
+                    self._save_ba_preview(ba['ba_id'], product, None, None)
+
+                for preview_data in ba_form.previews.cleaned_data:
+                    if not preview_data: continue
+
+                    preview = None
+                    preview_pk = preview_data['pk']
+                    if preview_pk:
+                        preview = ProductPicture.objects.get(pk=preview_pk)
+                    if not preview_data['DELETE']:
+                        self._save_ba_preview(ba['ba_id'], product, preview_pk, preview)
+                        ba_pks.append(ba['ba_id'])
+                    else:
+                        try:
+                            bap = BrandAttributePreview.objects.get(
+                                brand_attribute=BrandAttribute.objects.get(pk=ba['ba_id']),
+                                product=product,
+                                preview=preview)
+                        except BrandAttributePreview.DoesNotExist:
+                            pass
+                        else:
+                            if bap: bap.delete()
 
         for pp_data in product_form.pictures.cleaned_data:
-            if not pp_data['DELETE'] and pp_data['sort_order']:
+            if pp_data and not pp_data['DELETE'] and pp_data['sort_order']:
                 pp = ProductPicture.objects.get(pk=int(pp_data['pk']))
                 pp.sort_order = pp_data['sort_order']
                 pp.save()
 
-        pp_pks = [int(pp['pk']) for pp in product_form.pictures.cleaned_data if not pp['DELETE']]
+        pp_pks = [int(pp['pk']) for pp in product_form.pictures.cleaned_data
+                                if pp and not pp['DELETE']]
+        if product_form.cleaned_data['cover_pk']:
+            pp_pks.append(product_form.cleaned_data['cover_pk'])
         product.pictures = ProductPicture.objects.filter(pk__in=pp_pks)
         product.save()
 
@@ -892,27 +912,45 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         if sale.total_stock < sale.total_rest_stock:
             sale.total_stock = sale.total_rest_stock
 
-        for i in stock_form.barcodes:
-            if i.is_valid() and i.cleaned_data and i.cleaned_data['upc']:
-                ba_pk = i.cleaned_data['brand_attribute']
-                ca_pk = i.cleaned_data['common_attribute']
-                barcode, created = Barcode.objects.get_or_create(sale=sale,
-                    common_attribute=CommonAttribute.objects.get(pk=ca_pk) if ca_pk else None,
-                    brand_attribute=BrandAttribute.objects.get(pk=ba_pk) if ba_pk else None,
-                    )
-                barcode.upc = i.cleaned_data['upc']
-                barcode.save()
+        bc_ids = []
+        for i in product_form.barcodes:
+            if not i.is_valid() or not i.cleaned_data \
+                    or not i.cleaned_data['upc'] or i.cleaned_data['DELETE']:
+                continue
+            ba_pk = i.cleaned_data['brand_attribute']
+            ca_pk = i.cleaned_data['common_attribute']
+            barcode, created = Barcode.objects.get_or_create(sale=sale,
+                common_attribute=CommonAttribute.objects.get(pk=ca_pk) if ca_pk else None,
+                brand_attribute=BrandAttribute.objects.get(pk=ba_pk) if ba_pk else None,
+                )
+            barcode.upc = i.cleaned_data['upc']
+            barcode.save()
+            bc_ids.append(barcode.id)
+        if bc_ids:
+            Barcode.objects.filter(sale=sale).extra(
+                where=['id NOT IN (%s)' % ','.join(map(str, bc_ids))]).delete()
+        else:
+            Barcode.objects.filter(sale=sale).delete()
 
-        for i in stock_form.externalrefs:
-            if i.is_valid() and i.cleaned_data and i.cleaned_data['external_id']:
-                ba_pk = i.cleaned_data['brand_attribute']
-                ca_pk = i.cleaned_data['common_attribute']
-                externalref, created = ExternalRef.objects.get_or_create(sale=sale,
-                    common_attribute=CommonAttribute.objects.get(pk=ca_pk) if ca_pk else None,
-                    brand_attribute=BrandAttribute.objects.get(pk=ba_pk) if ba_pk else None,
-                    )
-                externalref.external_id = i.cleaned_data['external_id']
-                externalref.save()
+        ext_ids = []
+        for i in product_form.externalrefs:
+            if not i.is_valid() or not i.cleaned_data \
+                    or not i.cleaned_data['external_id'] or i.cleaned_data['DELETE']:
+                continue
+            ba_pk = i.cleaned_data['brand_attribute']
+            ca_pk = i.cleaned_data['common_attribute']
+            externalref, created = ExternalRef.objects.get_or_create(sale=sale,
+                common_attribute=CommonAttribute.objects.get(pk=ca_pk) if ca_pk else None,
+                brand_attribute=BrandAttribute.objects.get(pk=ba_pk) if ba_pk else None,
+                )
+            externalref.external_id = i.cleaned_data['external_id']
+            externalref.save()
+            ext_ids.append(barcode.id)
+        if ext_ids:
+            ExternalRef.objects.filter(sale=sale).extra(
+                where=['id NOT IN (%s)' % ','.join(map(str, ext_ids))]).delete()
+        else:
+            ExternalRef.objects.filter(sale=sale).delete()
 
 
         shipping_data = shipping_form.cleaned_data
@@ -974,7 +1012,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                         shipping=shipping, custom_shipping_rate_id=c_id)
 
             if int(shipping.shipping_calculation) == int(SC_FLAT_RATE):
-                fr_shipping, _  = FlatRateInShipping.objects.get_or_create(shipping=shipping)
+                fr_shipping, _ = FlatRateInShipping.objects.get_or_create(shipping=shipping)
                 fr_shipping.flat_rate = shipping_data['flat_rate']
                 fr_shipping.save()
 
@@ -996,8 +1034,6 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             sale.shippinginsale = ShippingInSale.objects.create(
                 sale=sale, shipping=shipping)
 
-        target = target_form.cleaned_data
-        sale.gender = target['gender']
         sale.complete = True
         sale.product = product
         sale.save()
@@ -1056,6 +1092,26 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         save_sale_promotion_handler(sale)
         return redirect("list_sales")
 
+    def _save_ba_preview(self, ba_pk, product, preview_pk, preview):
+        try:
+            bap = BrandAttributePreview.objects.get(
+                brand_attribute_id=ba_pk,
+                product=product,
+                preview=None)
+        except BrandAttributePreview.DoesNotExist:
+            pass
+        else:
+            if preview_pk and preview_pk != bap.preview_id:
+                bap.preview = preview
+                bap.save()
+
+        (bap, created) = BrandAttributePreview.objects.get_or_create(
+            brand_attribute=BrandAttribute.objects.get(pk=ba_pk),
+            product=product,
+            preview=preview
+        )
+        bap.save()
+
     def dispatch(self, request, *args, **kwargs):
         self.stocks_infos = request.session.get('stocks_infos', StocksInfos())
         return super(SaleWizardNew, self).dispatch(request, *args, **kwargs)
@@ -1074,7 +1130,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 self._reset_storage()
                 if self.request.session.get('abandoned_sale', None):
                     self.storage.data = self.request.session['abandoned_sale']
-        self.skip_shop_step = (self.steps.count == 4)  # hard code
+        self.skip_shop_step = (self.steps.count == 3)  # hard code
         return super(NamedUrlSessionWizardView, self).get(*args, **kwargs)
 
     def post(self, *args, **kwargs):
@@ -1110,13 +1166,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         elif self.steps.current == self.STEP_STOCKS:
             self.stocks_infos.stocks = form.stocks.cleaned_data
             #self.stocks_infos.stocks_expired = True
-            self.stocks_infos.barcodes = form.barcodes.cleaned_data
-            #self.stocks_infos.barcodes_expired = True
-            self.stocks_infos.externalrefs = form.externalrefs.cleaned_data
-            #self.stocks_infos.externalrefs_expired = True
-        if self.stocks_infos.stocks_expired \
-                or self.stocks_infos.barcodes_expired \
-                or getattr(self.stocks_infos, 'externalrefs_expired', None):
+        if self.stocks_infos.stocks_expired:
             self.storage.set_step_data(self.STEP_STOCKS, None)
             self.storage.set_step_files(self.STEP_STOCKS, None)
         return super(SaleWizardNew, self).process_step(form)
@@ -1154,22 +1204,6 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             'context': self.get_form(step, self.storage.get_step_data(step),
                                      self.storage.get_step_files(step))
         }
-        if step == self.STEP_PRODUCT:
-            if context['context'].is_valid():
-                picture = None
-                if len(context['context'].pictures.cleaned_data) > 0:
-                    sorted_pictures = context['context'].pictures.cleaned_data
-                    try:
-                        sorted_pictures = sorted(context['context'].pictures.cleaned_data, key=lambda x: (x['sort_order'], x['pk']))
-                    except KeyError, e:
-                        logging.error('KeyError Debug info, pictures.cleaned_data: %s, error: %s',
-                                      context['context'].pictures.cleaned_data, e)
-                        raise
-                    picture = ProductPicture.objects.get(pk=sorted_pictures[0]['pk'])
-                context.update({
-                    'brand_object': ProductBrand.objects.get(pk=context['context'].cleaned_data['brand'].pk),
-                    'product_picture': picture,
-                })
         t = loader.get_template("add_sale_preview_"+step+".html")
         c = Context(context)
         return t.render(c)
@@ -1196,29 +1230,15 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 'freezed_shops': ','.join([str(s.shop.pk) for s in ShopsInSale.objects.filter(sale=self.sale,is_freezed=True)]),
             })
         elif self.steps.current == self.STEP_PRODUCT:
-            product_picture = None
-            if self.edit_mode:
-                if self.sale.product.pictures.count() > 0:
-                    product_picture = self.sale.product.pictures.order_by('sort_order', 'id')[0]
-            else:
-                if form.pictures.is_valid():
-                    if len(form.pictures.cleaned_data) > 0:
-                        sorted_pictures = sorted(form.pictures.cleaned_data, key=lambda x: (x['sort_order'], x['pk']))
-                        product_picture = ProductPicture.objects.get(pk=sorted_pictures[0]['pk'])
             context.update({
-                'form_title': _("Sale Details"),
-                'preview_shop': self._render_preview(self.STEP_SHOP),
-                'preview_product': "blank",
-                'product_picture': product_picture,
                 'product_brand_form': ProductBrandFormModel,
                 'sale_img_upload_max_size': settings.SALE_IMG_UPLOAD_MAX_SIZE,
+                'common_attributes': getattr(self, 'common_attributes', []),
             })
         elif self.steps.current == self.STEP_STOCKS:
             context.update({
                 'form_title': _("Stock Allocation"),
                 'attributes': getattr(self, 'brand_attributes', []),
-                'preview_shop': self._render_preview(self.STEP_SHOP),
-                'preview_product': self._render_preview(self.STEP_PRODUCT),
                 'common_attributes': getattr(self, 'common_attributes', []),
                 'shops': getattr(self, 'shops', []),
                 'global_stock': getattr(self, 'target_market', '') == STOCK_TYPE_GLOBAL,
@@ -1227,19 +1247,10 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         elif self.steps.current == self.STEP_SHIPPING:
             context.update({
                 'form_title': _("Shipping"),
-                'preview_shop': self._render_preview(self.STEP_SHOP),
-                'preview_product': self._render_preview(self.STEP_PRODUCT),
                 'currency': self.currency,
                 'shipping_weight_unit': SHIPPING_WEIGHT_UNIT,
                 'shipping_currency': self.currency,
                 'custom_shipping_rate_form': CustomShippingRateFormModel,
-            })
-        elif self.steps.current == self.STEP_TARGET:
-            context.update({
-                'form_title': _("Target Demographics"),
-                'preview_shop': self._render_preview(self.STEP_SHOP),
-                'preview_product': self._render_preview(self.STEP_PRODUCT),
-                'preview_target': "blank",
             })
         return context
 
@@ -1278,7 +1289,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
 
     def _get_barcode(self, ba, ca):
         if self.edit_mode:
-            for i in self.initial_dict.get(self.STEP_STOCKS).get('barcodes_initials', None):
+            for i in self.initial_dict.get(self.STEP_PRODUCT).get('barcodes_initials', []):
                 if i['brand_attribute'] == ba:
                     if i['common_attribute'] == ca:
                         return i['upc']
@@ -1293,7 +1304,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
 
     def _get_external_id(self, ba, ca):
         if self.edit_mode:
-            for i in self.initial_dict.get(self.STEP_STOCKS).get('externalrefs_initials', None):
+            for i in self.initial_dict.get(self.STEP_PRODUCT).get('externalrefs_initials', []):
                 if i['brand_attribute'] == ba:
                     if i['common_attribute'] == ca:
                         return i['external_id']
@@ -1326,16 +1337,34 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                                            {'shop-target_market': STOCK_TYPE_GLOBAL})
             if not self.edit_mode:
                 shop_obj = self.get_form(self.STEP_SHOP,
-                                         data=self.storage.get_step_data(self.STEP_SHOP))
+                    data=self.storage.get_step_data(self.STEP_SHOP))
                 if not shop_obj.is_valid():
                     return {}
                 currency = get_sale_currency(self.request, shop_obj.cleaned_data)
                 initial_product.update({'currency':
                         ProductCurrency.objects.get(code=currency)})
+
+            initial_product['shop_ids'] = json.dumps(
+                    [s.id for s in self.stocks_infos.shops.get('shops', [])])
+
+            product_init_data = self.initial_dict.get(self.STEP_PRODUCT)
+            if product_init_data.get('normal_price'):
+                c_attrs = []
+            elif product_init_data.get('type_attribute_prices'):
+                c_attrs = []
+                for tap in product_init_data['type_attribute_prices']:
+                    c_attrs.append(CommonAttribute.objects.get(pk=tap['type_attribute']))
+            else:
+                c_attrs = []
+            self.common_attributes = c_attrs
+            b_attrs = product_init_data.get('brand_attributes', [])
+            initial_product.update(self._init_barcodes(b_attrs, c_attrs))
+            initial_product.update(self._init_externalrefs(b_attrs, c_attrs))
             return initial_product
 
         if step == self.STEP_STOCKS:
-            shop_obj = self.get_form(self.STEP_SHOP, data=self.storage.get_step_data(self.STEP_SHOP))
+            shop_obj = self.get_form(self.STEP_SHOP,
+                data=self.storage.get_step_data(self.STEP_SHOP))
             product_obj = self.get_form(self.STEP_PRODUCT,
                 data=self.storage.get_step_data(self.STEP_PRODUCT),
                 files=self.storage.get_step_files(self.STEP_PRODUCT)
@@ -1343,14 +1372,14 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             if not shop_obj.is_valid() or not product_obj.is_valid() or not product_obj.brand_attributes.is_valid():
                 return {}
             self.common_attributes = CommonAttribute.objects.filter(for_type=product_obj.cleaned_data['type'])
-            brand_attributes = [ba['ba_id'] for ba in product_obj.brand_attributes.cleaned_data if not ba['DELETE']]
+            brand_attributes = [ba['ba_id']
+                    for ba in product_obj.brand_attributes.cleaned_data
+                    if not ba['DELETE']]
             self.brand_attributes = BrandAttribute.objects.filter(pk__in=brand_attributes)
             self.shops = shop_obj.cleaned_data['shops'] or None
             self.target_market = shop_obj.cleaned_data['target_market']
             self.sale_title = product_obj.cleaned_data['name']
 
-            toret = {}
-            # if self.stocks_infos.stocks_expired:
             # Initializes the initials for stocks form
             initials = []
             if shop_obj.cleaned_data['target_market'] == STOCK_TYPE_GLOBAL: #National market
@@ -1387,83 +1416,8 @@ class SaleWizardNew(NamedUrlSessionWizardView):
 
             self.stocks_infos.stocks_expired = False
             self.stocks_infos.last_stocks_initials = {'stocks_initials': initials}
-            toret.update({'stocks_initials': initials})
-            # else:
-            #     toret.update(self.stocks_infos.last_stocks_initials)
+            return {'stocks_initials': initials}
 
-            # if self.stocks_infos.barcodes_expired:
-            # Initializes the initials for barcodes form
-            initials = []
-            if self.brand_attributes:
-                for ba in self.brand_attributes:
-                    if self.common_attributes:
-                        for ca in self.common_attributes:
-                            initials.append({
-                                'brand_attribute': ba.pk,
-                                'common_attribute': ca.pk,
-                                'upc': self._get_barcode(ba.pk, ca.pk),
-                            })
-                    else:
-                        initials.append({
-                            'brand_attribute': ba.pk,
-                            'common_attribute': None,
-                            'upc': self._get_barcode(ba.pk, None),
-                            })
-            else:
-                if self.common_attributes:
-                    for ca in self.common_attributes:
-                        initials.append({
-                            'brand_attribute': None,
-                            'common_attribute': ca.pk,
-                            'upc': self._get_barcode(None, ca.pk),
-                        })
-                else:
-                    initials.append({
-                        'brand_attribute': None,
-                        'common_attribute': None,
-                        'upc': self._get_barcode(None, None),
-                        })
-            self.stocks_infos.barcodes_expired = False
-            self.stocks_infos.last_barcodes_initials = {'barcodes_initials': initials}
-            toret.update({'barcodes_initials': initials})
-            # else:
-            #     toret.update(self.stocks_infos.last_barcodes_initials)
-
-            # Initializes the initials for externalrefs form
-            initials = []
-            if self.brand_attributes:
-                for ba in self.brand_attributes:
-                    if self.common_attributes:
-                        for ca in self.common_attributes:
-                            initials.append({
-                                'brand_attribute': ba.pk,
-                                'common_attribute': ca.pk,
-                                'external_id': self._get_external_id(ba.pk, ca.pk),
-                            })
-                    else:
-                        initials.append({
-                            'brand_attribute': ba.pk,
-                            'common_attribute': None,
-                            'external_id': self._get_external_id(ba.pk, None),
-                            })
-            else:
-                if self.common_attributes:
-                    for ca in self.common_attributes:
-                        initials.append({
-                            'brand_attribute': None,
-                            'common_attribute': ca.pk,
-                            'external_id': self._get_external_id(None, ca.pk),
-                        })
-                else:
-                    initials.append({
-                        'brand_attribute': None,
-                        'common_attribute': None,
-                        'external_id': self._get_external_id(None, None),
-                        })
-            self.stocks_infos.externalrefs_expired = False
-            self.stocks_infos.last_externalrefs_initials = {'externalrefs_initials': initials}
-            toret.update({'externalrefs_initials': initials})
-            return toret
         if step == self.STEP_SHIPPING:
             product_obj = self.get_form(self.STEP_PRODUCT,
                                         data=self.storage.get_step_data(self.STEP_PRODUCT),
@@ -1472,6 +1426,74 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             if product_obj.is_valid():
                 self.currency = product_obj.cleaned_data['currency']
         return super(SaleWizardNew, self).get_form_initial(step)
+
+    def _init_barcodes(self, brand_attributes, common_attributes):
+        # Initializes the initials for barcodes form
+        initials = []
+        if brand_attributes:
+            for ba in brand_attributes:
+                if common_attributes:
+                    for ca in common_attributes:
+                        initials.append({
+                            'brand_attribute': ba['ba_id'],
+                            'common_attribute': ca.pk,
+                            'upc': self._get_barcode(ba['ba_id'], ca.pk),
+                        })
+                else:
+                    initials.append({
+                        'brand_attribute': ba['ba_id'],
+                        'common_attribute': None,
+                        'upc': self._get_barcode(ba['ba_id'], None),
+                        })
+        else:
+            if common_attributes:
+                for ca in common_attributes:
+                    initials.append({
+                        'brand_attribute': None,
+                        'common_attribute': ca.pk,
+                        'upc': self._get_barcode(None, ca.pk),
+                    })
+            else:
+                initials.append({
+                    'brand_attribute': None,
+                    'common_attribute': None,
+                    'upc': self._get_barcode(None, None),
+                    })
+        return {'barcodes_initials': initials}
+
+    def _init_externalrefs(self, brand_attributes, common_attributes):
+        # Initializes the initials for externalrefs form
+        initials = []
+        if brand_attributes:
+            for ba in brand_attributes:
+                if common_attributes:
+                    for ca in common_attributes:
+                        initials.append({
+                            'brand_attribute': ba['ba_id'],
+                            'common_attribute': ca.pk,
+                            'external_id': self._get_external_id(ba['ba_id'], ca.pk),
+                        })
+                else:
+                    initials.append({
+                        'brand_attribute': ba['ba_id'],
+                        'common_attribute': None,
+                        'external_id': self._get_external_id(ba['ba_id'], None),
+                        })
+        else:
+            if common_attributes:
+                for ca in common_attributes:
+                    initials.append({
+                        'brand_attribute': None,
+                        'common_attribute': ca.pk,
+                        'external_id': self._get_external_id(None, ca.pk),
+                    })
+            else:
+                initials.append({
+                    'brand_attribute': None,
+                    'common_attribute': None,
+                    'external_id': self._get_external_id(None, None),
+                    })
+        return {'externalrefs_initials': initials}
 
 
 def get_product_types(request, *args, **kwargs):

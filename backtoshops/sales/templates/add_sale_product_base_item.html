@@ -1,0 +1,36 @@
+{% load i18n %}
+{% load thumbnail %}
+{% load static %}
+{% load get_ta_name %}
+
+<div id="base-item" class="visuelProd">
+    <ul style="display:none;" class="ba_error errorlist"></ul>
+    <strong class="title">{{ wizard.form.name.value }}</strong>
+    <em>{% trans "Please add pictures for this item below. Drag and drop pictures to arrange them in the desired order." %}</em>
+    {{ wizard.form.pictures.management_form }}
+    <div class="product_pictures listProd">
+        <ul id="existing_pp" class="horizontal_pp">
+        {% for pp in wizard.form.pictures %}
+            {% if pp.pk.value %}
+            <li id="{{ pp.prefix }}-row" class="product_picture_form">
+                {{ pp.pk }}
+                {{ pp.url }}
+                {{ pp.thumb_url }}
+                {{ pp.sort_order }}
+                <input style="display: none;" type="checkbox" name="{{ pp.DELETE.html_name }}" id="{{ pp.DELETE.auto_id }}" {% if pp.DELETE.value == "on" %}checked="checked"{% endif %}>
+                <span>
+                    <span class="delete">{% trans "Delete" %}</span>
+                    <img id="{{ pp.prefix }}-img" src="{{ pp.thumb_url.value }}"/>
+                </span>
+            </li>
+            {% endif %}
+        {% endfor %}
+            <li class="product_pictures_upload">
+                <a class="uploadfile">{% trans "Click or drag a file here to add a picture" %}</a>
+                <input id="pp_upload" style="display:none" type="file" name="files[]" multiple>
+            </li>
+        </ul>
+        <ul class="pp_queue"></ul>
+    </div>
+
+</div>

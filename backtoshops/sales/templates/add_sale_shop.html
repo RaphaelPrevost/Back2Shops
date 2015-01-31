@@ -6,33 +6,44 @@
 
 {% block form %}
     {{ wizard.management_form }}
-    <fieldset>
+    <fieldset class="bkcolor">
         <div>
-            {{ wizard.form.non_field_errors }}
-            {% if request.user|is_manager_upper %}
-            <div class="formrow">
-                <label for="{{ wizard.form.target_market.auto_id }}">{% trans wizard.form.target_market.label %}</label>
-                {{ wizard.form.target_market }}
-            </div>
-            {% endif %}
-            {% comment %}
-            <span  id="physical_shops">
+            <h3 class="sstitle">{{ form_title }}</h3>
+            <div class="centered">
+                {{ wizard.form.non_field_errors }}
+                {% if request.user|is_manager_upper %}
                 <div class="formrow">
-                    <label for="{{ wizard.form.shops.auto_id }}">{% trans wizard.form.shops.label %}</label>
-                    {{ wizard.form.shops }}
+                    <label for="{{ wizard.form.target_market.auto_id }}">{% trans wizard.form.target_market.label %}</label>
+                    {{ wizard.form.target_market }}
                 </div>
-            </span>
-            {% endcomment %}
-
-            <div id="physical_shops">
-                <div class="formrow">
-                    <div class="comments"> {% trans 'Please select shops within the same currency area.' %} </div>
-                    <label for="{{ wizard.form.shops.auto_id }}">{{ wizard.form.shops.label }}</label>
-                    <input type="text" id="shop_search" value="" name="shop_search" />
-                    <div id="check_shops">
+                {% endif %}
+                {% comment %}
+                <span  id="physical_shops">
+                    <div class="formrow">
+                        <label for="{{ wizard.form.shops.auto_id }}">{% trans wizard.form.shops.label %}</label>
                         {{ wizard.form.shops }}
                     </div>
-                    <div class="clear"></div>
+                </span>
+                {% endcomment %}
+
+                <div id="physical_shops">
+                    <div class="formrow">
+                        <div class="comments"> {% trans 'Please select shops within the same currency area.' %} </div>
+                        <label for="{{ wizard.form.shops.auto_id }}">{{ wizard.form.shops.label }}</label>
+                        <input type="text" id="shop_search" value="" name="shop_search" />
+                        <div class="clear"></div>
+                        {% if preview_shop %}
+                            {% if preview_shop == "blank" %}
+                                {% include "add_sale_preview_shop.html" %}
+                            {% else %}
+                                {{ preview_shop }}
+                            {% endif %}
+                        {% endif %}
+                        <div id="check_shops">
+                            {{ wizard.form.shops }}
+                        </div>
+                        <div class="clear"></div>
+                    </div>
                 </div>
             </div>
         </div>

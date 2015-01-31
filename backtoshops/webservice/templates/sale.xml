@@ -77,14 +77,14 @@
 
     <!-- if there is some variants for this product, list them here -->
     {% for variant in object.product.brand_attributes.all %}
-        {% with preview=variant|get_preview:object.product %}
         <variant id="{{ variant.pk }}">
             <name>{{ variant.name }}</name>
             <thumb>{% if variant.texture %}{{ variant.texture.url }}{% endif %}</thumb>
+            {% for preview in variant|get_preview:object.product %}
             <img>{{ preview.preview.picture.url }}</img>
+            {% endfor %}
             <premium type="{% if variant.premium_type == 'percentage' %}ratio{% else %}fixed{% endif %}">{% firstof variant.premium_amount "0" %}</premium>
         </variant>
-        {% endwith %}
     {% endfor %}
     <!-- end of the optional variants list -->
 

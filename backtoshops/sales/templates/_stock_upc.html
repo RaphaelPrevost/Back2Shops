@@ -2,25 +2,24 @@
 {% load thumbnail %}
 
 <div>
-    <h4 class="shopTitle done"><a href ="#">{% trans "Product Barcodes" %}</a></h4>
+    <h4 class="done">{% trans "Product Barcodes" %}</h4>
     <div>
         <p>
-            <em>{% trans "Product Barcodes" %}</em>
             <span class="contForm taille">
             {% for attribute in attributes %}
-                <strong>
-                    {% thumbnail attribute.texture "15x15" as im %}
-                        <img style='margin:{{ im|margin:"15x15" }}' src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}"/>
-                    {% endthumbnail %}
-                    {{ attribute.name }}
-                </strong>
-                {% with b_attr=attribute.id b_index=forloop.counter0 %}
+                <strong>{{ attribute.name.value }}</strong>
+                <span class="barcodes-ba" data-ba="{{attribute.ba_id.value}}">
+                {% with b_attr=attribute.ba_id.value b_index=forloop.counter0 %}
                     {% include "_stock_upc_block.html" %}
                 {% endwith %}
+                </span>
             {% empty %}
+                <span class="barcodes-ba" data-ba="">
+                <strong></strong>
                 {% with b_attr='' b_index=0 %}
                     {% include "_stock_upc_block.html" %}
                 {% endwith %}
+                </span>
             {% endfor %}
             </span>
         </p>

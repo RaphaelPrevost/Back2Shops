@@ -15,6 +15,6 @@ backtoshops/backtoshops.db
 backtoshops/settings_ghostwheel.py
 backtoshops/media
 
-assets/static/img/*/*
-
+assets/static/img/*
+front/static/img/*
 front/views/templates/*/*.cache

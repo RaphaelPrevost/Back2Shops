@@ -1,15 +1,19 @@
 {% load getform %}
 {% load multiply %}
 {% for c in common_attributes %}
+    <span class="barcodes-item" data-ca="{{ c.id }}">
     {% with formindex=b_index|multiply:common_attributes.count|add:forloop.counter0|add:1 %}
-        {% with curform=wizard.form.barcodes|getform:formindex cname=c.name%}
+        {% with curform=wizard.form.barcodes|getform:formindex cname=c.name %}
             {% include "_stock_upc_input.html" %}
         {% endwith %}
     {% endwith %}
+    </span>
 {% empty %}
+    <span class="barcodes-item" data-ca="">
     {% with formindex=b_index|add:1 %}
-        {% with curform=wizard.form.barcodes|getform:formindex cname=sale_title %}
+        {% with curform=wizard.form.barcodes|getform:formindex cname=""  %}
             {% include "_stock_upc_input.html" %}
         {% endwith %}
     {% endwith %}
+    </span>
 {% endfor %}

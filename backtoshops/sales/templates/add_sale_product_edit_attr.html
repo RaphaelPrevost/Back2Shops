@@ -1,0 +1,61 @@
+{% load i18n %}
+{% load thumbnail %}
+
+<div id="brand-attr-{{ ba.ba_id.value }}" class="visuelProd">
+    <ul style="display:none;" class="ba_error errorlist"></ul>
+    {{ ba.name }}
+    {{ ba.ba_id }}
+    {{ ba.texture }}
+    <input type="hidden" value="{{ ba.prefix }}" name="ba_prefix">
+    <span class="texture">
+        <a class="uploadfile">
+            <img class="ba_texture_btn" alt="{% trans "Add a texture" %}" {% if ba.texture.value %}src="{{ ba.texture.value }}"{% endif %}/>
+        </a>
+        <input class="ba_texture_upload" style="display:none" type="file" name="texture_file">
+    </span>
+
+    <input class="ba_input title" type="text" placeholder="{% trans 'Product variant' %}" maxlength="50" value="{{ ba.name.value }}"/>
+    <input style="display: none;" type="checkbox" name="{{ ba.DELETE.html_name }}" id="{{ ba.DELETE.auto_id }}" {% if ba.DELETE.value == "on" %}checked="checked"{% endif %}>
+
+    <em>{% trans "Please add pictures for this item below. Drag and drop pictures to arrange them in the desired order." %}</em>
+    {{ ba.previews.management_form }}
+    <div class="ba_previews listProd">
+        <ul class="existing_pp horizontal_pp">
+        {% for pp in ba.previews %}
+            {% if pp.pk.value %}
+            <li id="{{ pp.prefix }}-row" class="ba_preview_form">
+                {{ pp.pk }}
+                {{ pp.url }}
+                {{ pp.sort_order }}
+                <input style="display: none;" type="checkbox" name="{{ pp.DELETE.html_name }}" id="{{ pp.DELETE.auto_id }}" {% if pp.DELETE.value == "on" %}checked="checked"{% endif %}>
+                <span>
+                    <span class="delete">{% trans "Delete" %}</span>
+                    <img id="{{ pp.prefix }}-img" src="{{ pp.url.value }}"/>
+                </span>
+            </li>
+            {% endif %}
+        {% endfor %}
+            <li class="ba_previews_upload">
+                <a class="uploadfile">{% trans "Click or drag a file here to add a picture" %}</a>
+                <input class="ba_preview_upload" style="display:none" type="file" name="files[]" multiple>
+            </li>
+        </ul>
+        <ul class="pp_queue"></ul>
+    </div>
+
+    <div class="formrow">
+        <label>{% trans "Premium" %}</label>
+        <span class="brand_attributes-premium">
+            {{ ba.premium_type }}
+            {{ ba.premium_amount }}
+            <span class="premium_ratio_marker" style="display:none">%</span>
+            <span class="premium_currency_marker" style="display:none"></span>
+        </span>
+    </div>
+    <div class="formrow marge">
+        <label>{% trans "Premium price " %}</label>
+        <span class="brand_attributes-premium-result">
+        </span>
+    </div>
+    {% include "add_sale_product_ba_preview_template_form.html" %}
+</div>

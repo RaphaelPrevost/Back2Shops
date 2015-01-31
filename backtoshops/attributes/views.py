@@ -49,6 +49,7 @@ from attributes.models import CommonAttribute
 from fouillis.views import OperatorUpperLoginRequiredMixin
 from fouillis.views import manager_upper_required
 from sales.models import ProductPicture
+from sales.forms import BrandAttributeForm
 
 
 class BrandAttributeView(OperatorUpperLoginRequiredMixin,
@@ -73,7 +74,7 @@ class BrandAttributeView(OperatorUpperLoginRequiredMixin,
                 'premium_type': attr.premium_type,
                 'premium_amount': attr.premium_amount,
                 'name': attr.name,
-                'texture': get_thumbnail(attr.texture, "15x15").url if attr.texture else None
+                'texture': attr.texture.url if attr.texture else None,
             })
         return HttpResponse(json.dumps(ret_json), mimetype="application/json")
 
@@ -87,13 +88,16 @@ class BrandAttributeView(OperatorUpperLoginRequiredMixin,
         if pk:
             pk = int(pk)
         name = request.POST.get('name', None)
-        premium_type = request.POST.get('premium_type',None)
+        premium_type = request.POST.get('premium_type', None)
         try:
-            premium_amount = request.POST.get('premium_amount',None)
+            premium_amount = request.POST.get('premium_amount', None)
         except:
             premium_amount = None
         texture = request.FILES.get('texture_file', None)
-        preview_pk = request.POST.get('preview_pk', None)
+        ba_index = request.POST.get('ba_index', None)
+        previews = request.POST.get('previews', '[]')
+        if previews:
+            previews = json.loads(previews)
 
         success = False
         if pk != -1:
@@ -115,24 +119,44 @@ class BrandAttributeView(OperatorUpperLoginRequiredMixin,
         except Exception, e:
             success = False
             err = str(e)
-        texture_thumb = None
-        if ba.texture:
-            texture_thumb = get_thumbnail(ba.texture, "15x15").url
-        to_ret.update({'pk': pk,
-                       'success': success,
-                       'err': err,
-                       'premium_type': premium_type,
-                       'premium_amount': premium_amount,
-                       'texture_thumb': texture_thumb})
+        to_ret.update({
+            'success': success,
+            'err': err,
+            'pk': pk,
+            'name': name,
+            'premium_type': premium_type,
+            'premium_amount': premium_amount,
+            'texture': ba.texture.url if ba.texture else None,
+        })
+        prefix = "brand_attributes-%s" % ba_index
+        data = {
+            '%s-ba_id' % prefix: pk,
+            '%s-name' % prefix: name,
+            '%s-premium_type' % prefix: premium_type,
+            '%s-premium_amount' % prefix: premium_amount,
+            '%s-texture' % prefix: ba.texture.url if ba.texture else None,
+        }
 
-        if preview_pk:
-            p = ProductPicture.objects.get(pk=preview_pk)
-            to_ret.update({
-                'preview_thumb': get_thumbnail(p.picture, "39x43").url,
-                'preview_pk': p.pk})
+        preview_prefix = "%s-previews" % prefix
+        for index, p_data in enumerate(previews):
+            p = ProductPicture.objects.get(pk=p_data['pk'])
             p.brand_attribute = ba
+            p.sort_order = p_data['sort_order']
             p.save()
-
+            _prefix = "%s-%s" % (preview_prefix, index)
+            data.update({
+                "%s-pk" % _prefix: p.pk,
+                "%s-url" % _prefix: get_thumbnail(p.picture, "187x187").url,
+                "%s-sort_order" % _prefix: p.sort_order,
+            })
+        data.update({
+            '%s-TOTAL_FORMS' % preview_prefix: len(previews),
+            '%s-INITIAL_FORMS' % preview_prefix: 0,
+            '%s-MAX_NUM_FORMS' % preview_prefix: 1000,
+        })
+        t = loader.get_template("add_sale_product_edit_attr.html")
+        c = Context({'ba': BrandAttributeForm(data=data, prefix=prefix)})
+        to_ret['ba_html'] = t.render(c)
         return HttpResponse(json.dumps(to_ret), mimetype="application/json")
 
 

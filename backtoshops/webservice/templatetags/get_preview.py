@@ -44,5 +44,4 @@ register = template.Library()
 
 @register.filter
 def get_preview(value, arg):
-	toret = BrandAttributePreview.objects.get(brand_attribute=value, product=arg)
-	return toret
+    return BrandAttributePreview.objects.filter(brand_attribute=value, product=arg)

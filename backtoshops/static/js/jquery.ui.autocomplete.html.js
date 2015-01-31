@@ -32,17 +32,17 @@ $.extend( proto, {
 		var self = this;
 		if (this.options.showTyping == true) {
 			$( "<li></li>" )
-				.data( "item.autocomplete", { value: 0, name: this.term, label: this.term } )
+				.data( "ui-autocomplete-item", { value: 0, name: this.term, label: this.term } )
 				.append( $( "<a></a>" )[ this.options.html ? "html" : "text" ]( "<i>"+this.term+"</i>" ) )
 				.appendTo( ul );
 		}
 		$.each( items, function( index, item ) {
-			self._renderItem( ul, item );
+			self._renderItemData( ul, item );
 		});
 	},
 	_renderItem: function( ul, item) {
 		return $( "<li></li>" )
-			.data( "item.autocomplete", item )
+			.data( "ui-autocomplete-item", item )
 			.append( $( "<a></a>" )[ this.options.html ? "html" : "text" ]( item.label ) )
 			.appendTo( ul );
 	}

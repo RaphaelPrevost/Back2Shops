@@ -670,16 +670,18 @@ class ShippingInfoView(BaseCryptoWebService, ListView):
         if variant_id is None or int(variant_id) == 0:
             return
 
-        try:
-            br_attr_prev = BrandAttributePreview.objects.get(
-                product_id=sale.product.pk, brand_attribute_id=variant_id)
-        except ObjectDoesNotExist, e:
-            logging.error('shipping_info_brand_attr_check_failure:'
-                          '%s' % e, exc_info=True)
+        br_attr_prevs = BrandAttributePreview.objects.filter(
+            product_id=sale.product.pk, brand_attribute_id=variant_id)
+        if len(br_attr_prevs) > 0:
+            br_attr_prev = br_attr_prevs[0]
+        else:
             error = ("shipping_info_invlaid_brand_attr:"
                      "sale: %s, brand_attr: %s"
                      % (sale.pk, variant_id))
+            logging.error('shipping_info_brand_attr_check_failure:'
+                          '%s' % error)
             raise ParamsValidCheckError(error)
+
         return br_attr_prev.brand_attribute
 
     def typeAttributeWeightValidCheck(self, sale, type_attr):
