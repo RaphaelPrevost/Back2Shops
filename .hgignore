@@ -10,11 +10,19 @@ syntax: glob
 .\#*
 .DS_Store
 
+# deployment directory
+public_html
+*_src
+
 # local files
+docker/*image
+
+backtoshops.wsgi
 backtoshops/backtoshops.db
 backtoshops/settings_ghostwheel.py
 backtoshops/media
 
 assets/static/img/*
+
 front/static/img/*
 front/views/templates/*/*.cache

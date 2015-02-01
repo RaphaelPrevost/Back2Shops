@@ -2,7 +2,7 @@
 
 # This script assumes the following commands have been executed:
 # cd /home
-# svn co http://trac.lbga.fr/svn/backtoshops/
+# hg clone https://dragondollar.kilnhg.com/Code/Repositories/Group/Dragon-Dollar backtoshops
 # cd /home/backtoshops
 #
 # install docker

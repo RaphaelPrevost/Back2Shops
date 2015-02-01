@@ -3,6 +3,7 @@ Cython==0.19.1
 falcon==0.1.7
 ujson==1.33
 enum==0.4.4
+greenlet==0.3.2
 gevent==1.0.1
 redis==2.8.0
 hiredis==0.1.1

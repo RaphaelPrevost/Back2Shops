@@ -5,6 +5,7 @@ ujson==1.33
 enum==0.4.4
 psycopg2==2.5.1
 pypgwrap==0.1.4
+greenlet==0.3.2
 gevent==1.0.1
 gevent-psycopg2==0.0.3
 mechanize==0.2.5
