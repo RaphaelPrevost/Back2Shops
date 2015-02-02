@@ -1,6 +1,6 @@
 {% load i18n %}
 <label for="{{ curform.upc.auto_id }}">{{ cname }}</label>
-<input id="{{ curform.upc.auto_id }}" type="text"  name="{{ curform.upc.html_name }}" maxlength="5" value="{% if curform.upc.value %}{{ curform.upc.value }}{% endif %}">
+<input id="{{ curform.upc.auto_id }}" type="text"  name="{{ curform.upc.html_name }}" maxlength="50" value="{% if curform.upc.value %}{{ curform.upc.value }}{% endif %}">
 <span style="display: none;">
     {{ curform.common_attribute }}
     <input id="{{ curform.brand_attribute.auto_id }}" name="{{ curform.brand_attribute.html_name }}" type="text" value="{{b_attr}}" />

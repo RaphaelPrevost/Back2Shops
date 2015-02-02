@@ -1344,16 +1344,16 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 initial_product.update({'currency':
                         ProductCurrency.objects.get(code=currency)})
 
-            initial_product['shop_ids'] = json.dumps(
-                    [s.id for s in self.stocks_infos.shops.get('shops', [])])
+            if self.stocks_infos.shops:
+                initial_product['shop_ids'] = json.dumps(
+                        [s.id for s in self.stocks_infos.shops.get('shops', [])])
+            else:
+                initial_product['shop_ids'] = json.dumps([])
 
             product_init_data = self.initial_dict.get(self.STEP_PRODUCT)
-            if product_init_data.get('normal_price'):
-                c_attrs = []
-            elif product_init_data.get('type_attribute_prices'):
-                c_attrs = []
-                for tap in product_init_data['type_attribute_prices']:
-                    c_attrs.append(CommonAttribute.objects.get(pk=tap['type_attribute']))
+            if product_init_data.get('type'):
+                c_attrs = CommonAttribute.objects.filter(for_type=product_init_data['type'])
+                c_attrs = [c for c in c_attrs]
             else:
                 c_attrs = []
             self.common_attributes = c_attrs
@@ -1430,6 +1430,20 @@ class SaleWizardNew(NamedUrlSessionWizardView):
     def _init_barcodes(self, brand_attributes, common_attributes):
         # Initializes the initials for barcodes form
         initials = []
+        if common_attributes:
+            for ca in common_attributes:
+                initials.append({
+                    'brand_attribute': None,
+                    'common_attribute': ca.pk,
+                    'upc': self._get_barcode(None, ca.pk),
+                })
+        else:
+            initials.append({
+                'brand_attribute': None,
+                'common_attribute': None,
+                'upc': self._get_barcode(None, None),
+                })
+
         if brand_attributes:
             for ba in brand_attributes:
                 if common_attributes:
@@ -1445,25 +1459,25 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                         'common_attribute': None,
                         'upc': self._get_barcode(ba['ba_id'], None),
                         })
-        else:
-            if common_attributes:
-                for ca in common_attributes:
-                    initials.append({
-                        'brand_attribute': None,
-                        'common_attribute': ca.pk,
-                        'upc': self._get_barcode(None, ca.pk),
-                    })
-            else:
-                initials.append({
-                    'brand_attribute': None,
-                    'common_attribute': None,
-                    'upc': self._get_barcode(None, None),
-                    })
         return {'barcodes_initials': initials}
 
     def _init_externalrefs(self, brand_attributes, common_attributes):
         # Initializes the initials for externalrefs form
         initials = []
+        if common_attributes:
+            for ca in common_attributes:
+                initials.append({
+                    'brand_attribute': None,
+                    'common_attribute': ca.pk,
+                    'external_id': self._get_external_id(None, ca.pk),
+                })
+        else:
+            initials.append({
+                'brand_attribute': None,
+                'common_attribute': None,
+                'external_id': self._get_external_id(None, None),
+                })
+
         if brand_attributes:
             for ba in brand_attributes:
                 if common_attributes:
@@ -1479,20 +1493,6 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                         'common_attribute': None,
                         'external_id': self._get_external_id(ba['ba_id'], None),
                         })
-        else:
-            if common_attributes:
-                for ca in common_attributes:
-                    initials.append({
-                        'brand_attribute': None,
-                        'common_attribute': ca.pk,
-                        'external_id': self._get_external_id(None, ca.pk),
-                    })
-            else:
-                initials.append({
-                    'brand_attribute': None,
-                    'common_attribute': None,
-                    'external_id': self._get_external_id(None, None),
-                    })
         return {'externalrefs_initials': initials}
 
 

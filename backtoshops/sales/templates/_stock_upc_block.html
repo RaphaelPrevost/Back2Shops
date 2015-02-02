@@ -1,8 +1,9 @@
+{% load i18n %}
 {% load getform %}
 {% load multiply %}
 {% for c in common_attributes %}
     <span class="barcodes-item" data-ca="{{ c.id }}">
-    {% with formindex=b_index|multiply:common_attributes.count|add:forloop.counter0|add:1 %}
+    {% with formindex=common_attributes|length|multiply:b_index|add:forloop.counter %}
         {% with curform=wizard.form.barcodes|getform:formindex cname=c.name %}
             {% include "_stock_upc_input.html" %}
         {% endwith %}

@@ -45,3 +45,14 @@ register = template.Library()
 @register.filter
 def get_preview(value, arg):
     return BrandAttributePreview.objects.filter(brand_attribute=value, product=arg)
+
+@register.filter
+def get_distinct_brand_attributes(value):
+    ids = []
+    ba_objs = []
+    for ba in value:
+        if ba.pk in ids:
+            continue
+        ids.append(ba.pk)
+        ba_objs.append(ba)
+    return ba_objs

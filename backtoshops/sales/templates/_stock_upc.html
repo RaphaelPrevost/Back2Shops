@@ -1,27 +1,15 @@
-{% load i18n %}
-{% load thumbnail %}
-
-<div>
-    <h4 class="done">{% trans "Product Barcodes" %}</h4>
-    <div>
-        <p>
-            <span class="contForm taille">
-            {% for attribute in attributes %}
-                <strong>{{ attribute.name.value }}</strong>
-                <span class="barcodes-ba" data-ba="{{attribute.ba_id.value}}">
-                {% with b_attr=attribute.ba_id.value b_index=forloop.counter0 %}
-                    {% include "_stock_upc_block.html" %}
-                {% endwith %}
-                </span>
-            {% empty %}
-                <span class="barcodes-ba" data-ba="">
-                <strong></strong>
-                {% with b_attr='' b_index=0 %}
-                    {% include "_stock_upc_block.html" %}
-                {% endwith %}
-                </span>
-            {% endfor %}
-            </span>
-        </p>
-    </div>
-</div>
+<span class="contForm taille barcodes-block">
+{% if ba %}
+    <span class="barcodes-ba" data-ba="{{ba.ba_id.value}}">
+    {% with b_attr=ba.ba_id.value b_index=b_index %}
+        {% include "_stock_upc_block.html" %}
+    {% endwith %}
+    </span>
+{% else %}
+    <span class="barcodes-ba" data-ba="">
+    {% with b_attr='' b_index=0 %}
+        {% include "_stock_upc_block.html" %}
+    {% endwith %}
+    </span>
+{% endif %}
+</span>
