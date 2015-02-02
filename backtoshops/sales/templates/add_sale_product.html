@@ -158,7 +158,7 @@
 
             {{ wizard.form.valid_from.errors }}
             {{ wizard.form.valid_to.errors }}
-            <div class="marge formrow">
+            <div class="formrow">
                 <label>{% trans "Valid through" %}</label>
                 <span>{{ wizard.form.valid_from.label }}</span>{{ wizard.form.valid_from }}
                 <span>{{ wizard.form.valid_to.label }}</span>{{ wizard.form.valid_to }}
@@ -166,25 +166,9 @@
 
             {{ wizard.form.barcodes.management_form }}
             {{ wizard.form.barcodes.non_field_errors }}
-            {{ wizard.form.non_field_errors }}
-            <div class="formrow" id="barcodes_form">
-                <div id="barcode_accordion" class="accordion">
-                    {% with attributes=wizard.form.brand_attributes %}
-                    {% include "_stock_upc.html" %}
-                    {% endwith %}
-                </div>
-            </div>
-
             {{ wizard.form.externalrefs.management_form }}
             {{ wizard.form.externalrefs.non_field_errors }}
-            <div class="formrow" id="externalrefs_form">
-                <div id="externalref_accordion" class="accordion">
-                    {% with attributes=wizard.form.brand_attributes %}
-                    {% include "_stock_externalref.html" %}
-                    {% endwith %}
-                </div>
-            </div>
-
+            {{ wizard.form.non_field_errors }}
         </div>
 
         <div class="colRight bkcolor">
@@ -249,7 +233,9 @@
             {{ wizard.form.brand_attributes.management_form }}
             {% for ba in wizard.form.brand_attributes %}
                 {% if ba.ba_id.value %}
-                    {% include "add_sale_product_edit_attr.html" %}
+                    {% with b_index=forloop.counter %}
+                        {% include "add_sale_product_edit_attr.html" %}
+                    {% endwith %}
                 {% endif %}
             {% endfor %}
             {% with ba=wizard.form.brand_attributes.empty_form %}
@@ -390,6 +376,8 @@
         currency_changed();
         prod_name_changed();
         sort_existing_pp($('#existing_pp'));
+        update_barcodes();
+        update_extrefs();
         update_all_ba_premium();
     });
 
@@ -523,6 +511,7 @@
     }
 
     function _clearBaForm(obj) {
+        obj.find('#ba_error').hide().empty();
         obj.find(".ba_input").val("");
         obj.find("select[id$=premium_type]").val("percentage");
         obj.find("input[id$=premium_amount]").val("");
@@ -658,11 +647,20 @@
                 $(this).val(ui.item.name);
                 return false;
             },
-            select: function(event, ui) {
+            select: function(e, ui) {
                 if ($('#brand-attr-' + ui.item.value).length > 0) {
-                    alert('{% trans "This product variant is already added." %}');
-                    e.preventDefault();
-                    return false;
+                    if ($('#brand-attr-' + ui.item.value + ':not(.removed)').length > 0) {
+                        alert('{% trans "This product variant is already added." %}');
+                        e.preventDefault();
+                        return false;
+                    } else {
+                        alert('{% trans "This product variant was removed, will be activated." %}');
+                        e.preventDefault();
+                        active_removed_tab('#brand-attr-' + ui.item.value);
+                        add_barcode_for_brand_attr(ui.item.value);
+                        add_extref_for_brand_attr(ui.item.value);
+                        return false;
+                    }
                 }
 
                 _updateData(attr_obj,
@@ -716,17 +714,18 @@
                 data_send,
                 function(data) {
                     if (data.success) {
-                        attr_obj.find('#ba_error').hide().empty();
                         new_tab($('.tabs'), 'brand-attr-' + data.pk,
                                 data.name, data.ba_html);
+                        var new_attr_obj = $('#brand-attr-' + data.pk);
+                        ba_events(new_attr_obj);
+                        add_barcode_for_brand_attr(data.pk, data.name, new_attr_obj);
+                        add_extref_for_brand_attr(data.pk, data.name, new_attr_obj);
+
                         var obj = $('.tabs-header li:last').insertBefore($("li.add-attr"));
-                        ba_events($('#brand-attr-' + data.pk));
+                        obj.find('a').click();
 
                         _addBaFormCount();
                         _clearBaForm(attr_obj); 
-
-                        add_barcode_for_brand_attr(data.pk, data.name);
-                        add_extref_for_brand_attr(data.pk, data.name);
                     } else {
                         attr_obj.find('.ba_error').show().append("<li>" + data.err + "</li>");
                     }
@@ -1206,6 +1205,8 @@
                         if (option.valid) {
                             $("#type_attribute_selector").append($("<option>", {value: option.value, text: option.label}));
                         }
+                        add_barcode_for_common_attr(option.value, option.label);
+                        add_extref_for_common_attr(option.value, option.label);
                     });
 
                     // initialise weight selector
@@ -1382,13 +1383,20 @@
     $(document).on("click", "ul.tabs-header li.brand-attr .delete", function(){
         var tab_id = $(this).siblings('a').attr('href');
         $(this).parents('.brand-attr').hide();
-        $(tab_id).hide();
+        $(tab_id).addClass('removed').hide();
         $(tab_id).find("input:checkbox[id*=DELETE]:first").attr("checked", "checked");
         $('.tabs-header li.base-item a').click();
 
         remove_barcode_for_brand_attr(tab_id.replace('#brand-attr-', ''));
         remove_extref_for_brand_attr(tab_id.replace('#brand-attr-', ''));
     });
+
+    function active_removed_tab(tab_id) {
+        $(tab_id).removeClass('removed').show();
+        $(tab_id).find("input:checkbox[id*=DELETE]:first").removeAttr("checked");
+        $('.brand-attr a[href="' + tab_id + '"]').parents('.brand-attr').show();
+        $('.brand-attr a[href="' + tab_id + '"]').click();
+    }
 
     /********************** Upload files ***********************/
     $(document).on("click", "a.uploadfile",function(){
@@ -1400,19 +1408,64 @@
     });
 
     /********************** Barcode ***********************/
-    function add_barcode_for_brand_attr(attr_id, attr_name) {
+    function update_barcodes() {
+        var show_tabs = $('[id^=brand-attr-]');
+        var hide_tabs = $('#base-item');
+        if ($('[id^=brand-attr-]:not(.removed):not(.new)').length == 0) {
+            show_tabs = $('#base-item');
+            hide_tabs = $('[id^=brand-attr-]');
+        }
+
+        if (_is_use_item_type_price()) {
+            var ca_ids = [];
+            $('.type_attribute_price_form:visible .type_attribute_value').each(function() {
+                ca_ids.push($(this).text());
+            });
+            show_tabs.find('.barcodes-item').each(function() {
+                if (ca_ids.indexOf($(this).attr('data-ca')) == -1)
+                    $(this).hide();
+                else
+                    $(this).show();
+            });
+        } else {
+            var ca_ids = [];
+            $('#type_attribute_selector option').each(function() {
+                if ($(this).val() != "0")
+                    ca_ids.push($(this).val());
+            });
+            show_tabs.find('.barcodes-item').each(function() {
+                if (ca_ids.indexOf($(this).attr('data-ca')) == -1)
+                    $(this).hide();
+                else
+                    $(this).show();
+            });
+        }
+        show_tabs.find('.barcodes-block').show();
+        hide_tabs.find('.barcodes-block').hide();
+        _update_barcodes_delete();
+    }
+    function _update_barcodes_delete() {
+        $('.barcodes-block .barcodes-item').each(function(){
+            var node = $(this);
+            if (node.css('display') == 'none'
+                    || node.parents('.barcodes-ba').css('display') == 'none'
+                    || node.parents('.barcodes-block').css('display') == 'none')
+                node.find("input:checkbox[id$=DELETE]").attr("checked", "checked");
+            else
+                node.find("input:checkbox[id$=DELETE]").removeAttr("checked");
+        });
+    }
+
+    function add_barcode_for_brand_attr(attr_id, attr_name, attr_obj) {
         if ($('.barcodes-ba[data-ba="' + attr_id + '"]').length > 0) {
-            $('.barcodes-ba[data-ba="' + attr_id + '"]').show().prev().show();
-            var nodes = $('.barcodes-ba[data-ba="' + attr_id + '"] .barcodes-item:visible');
-            nodes.find("input:checkbox[id*=DELETE]").removeAttr("checked");
+            $('.barcodes-ba[data-ba="' + attr_id + '"]').show();
         } else {
             var nb_of_forms = $("#{{ wizard.form.barcodes.management_form.TOTAL_FORMS.auto_id }}").val();
             $('.barcodes-ba:last').each(function() {
                 var newba = $(this).clone();
                 newba.attr('data-ba', attr_id);
-                newba.insertAfter($(this));
+                newba.appendTo(attr_obj.find('.barcodes-block'));
                 newba.show();
-                $('<strong>').text(attr_name).insertAfter($(this));
 
                 newba.find('.barcodes-item').each(function() {
                     var node = $(this);
@@ -1421,30 +1474,24 @@
                     node.html(node.html().replaceAll(old_prefix, new_prefix));
                     node.find("input[id*=upc]").val('');
                     node.find("input[id*=brand-attribute]").val(attr_id);
-                    if (node.is(':visible'))
-                        node.find("input:checkbox[id*=DELETE]").removeAttr("checked");
 
                     nb_of_forms++;
                     $("#{{ wizard.form.barcodes.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
                 });
             });
         }
+        update_barcodes();
     }
     function remove_barcode_for_brand_attr(attr_id) {
-        $('.barcodes-ba[data-ba="' + attr_id + '"]').hide().prev().hide();
-        var nodes = $('.barcodes-ba[data-ba="' + attr_id + '"] .barcodes-item');
-        nodes.find("input:checkbox[id*=DELETE]").attr("checked", "checked");
+        $('.barcodes-ba[data-ba="' + attr_id + '"]').hide();
+        update_barcodes();
     }
     function add_barcode_for_common_attr(attr_id, attr_name) {
         if (attr_id && $('.barcodes-item[data-ca=""]').length > 0) {
             $('.barcodes-item[data-ca=""]').hide();
-            var nodes = $('.barcodes-item[data-ca=""]:hidden');
-            nodes.find("input:checkbox[id*=DELETE]").attr("checked", "checked");
         }
         if ($('.barcodes-item[data-ca="' + attr_id + '"]').length > 0) {
             $('.barcodes-item[data-ca="' + attr_id + '"]').show();
-            var nodes = $('.barcodes-item[data-ca="' + attr_id + '"]:visible');
-            nodes.find("input:checkbox[id*=DELETE]").removeAttr("checked");
         } else {
             var nb_of_forms = $("#{{ wizard.form.barcodes.management_form.TOTAL_FORMS.auto_id }}").val();
             $('.barcodes-ba').find('.barcodes-item:last').each(function() {
@@ -1458,33 +1505,77 @@
                 newnode.insertAfter($(this));
                 newnode.show();
                 newnode.attr('data-ca', attr_id);
-                if (newnode.is(':visible'))
-                    newnode.find("input:checkbox[id*=DELETE]").removeAttr("checked");
 
                 nb_of_forms++;
                 $("#{{ wizard.form.barcodes.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
             });
         }
+        update_barcodes();
     }
     function remove_barcode_for_common_attr(attr_id) {
-        var nodes = $('.barcodes-item[data-ca="' + attr_id + '"]').hide();
-        nodes.find("input:checkbox[id*=DELETE]").attr("checked", "checked");
+        $('.barcodes-item[data-ca="' + attr_id + '"]').hide();
+        update_barcodes();
     }
 
     /********************** External Ref ***********************/
-    function add_extref_for_brand_attr(attr_id, attr_name) {
+    function update_extrefs() {
+        var show_tabs = $('[id^=brand-attr-]');
+        var hide_tabs = $('#base-item');
+        if ($('[id^=brand-attr-]:not(.removed):not(.new)').length == 0) {
+            show_tabs = $('#base-item');
+            hide_tabs = $('[id^=brand-attr-]');
+        }
+
+        if (_is_use_item_type_price()) {
+            var ca_ids = [];
+            $('.type_attribute_price_form:visible .type_attribute_value').each(function() {
+                ca_ids.push($(this).text());
+            });
+            show_tabs.find('.extrefs-item').each(function() {
+                if (ca_ids.indexOf($(this).attr('data-ca')) == -1)
+                    $(this).hide();
+                else
+                    $(this).show();
+            });
+        } else {
+            var ca_ids = [];
+            $('#type_attribute_selector option').each(function() {
+                if ($(this).val() != "0")
+                    ca_ids.push($(this).val());
+            });
+            show_tabs.find('.extrefs-item').each(function() {
+                if (ca_ids.indexOf($(this).attr('data-ca')) == -1)
+                    $(this).hide();
+                else
+                    $(this).show();
+            });
+        }
+        show_tabs.find('.extrefs-block').show();
+        hide_tabs.find('.extrefs-block').hide();
+        _update_extrefs_delete();
+    }
+    function _update_extrefs_delete() {
+        $('.extrefs-block .extrefs-item').each(function(){
+            var node = $(this);
+            if (node.css('display') == 'none'
+                    || node.parents('.extrefs-ba').css('display') == 'none'
+                    || node.parents('.extrefs-block').css('display') == 'none')
+                node.find("input:checkbox[id$=DELETE]").attr("checked", "checked");
+            else
+                node.find("input:checkbox[id$=DELETE]").removeAttr("checked");
+        });
+    }
+
+    function add_extref_for_brand_attr(attr_id, attr_name, attr_obj) {
         if ($('.extrefs-ba[data-ba="' + attr_id + '"]').length > 0) {
-            $('.extrefs-ba[data-ba="' + attr_id + '"]').show().prev().show();
-            var nodes = $('.extrefs-ba[data-ba="' + attr_id + '"] .barcode-item:visible');
-            nodes.find("input:checkbox[id*=DELETE]").removeAttr("checked");
+            $('.extrefs-ba[data-ba="' + attr_id + '"]').show();
         } else {
             var nb_of_forms = $("#{{ wizard.form.externalrefs.management_form.TOTAL_FORMS.auto_id }}").val();
             $('.extrefs-ba:last').each(function() {
                 var newba = $(this).clone();
                 newba.attr('data-ba', attr_id);
-                newba.insertAfter($(this));
+                newba.appendTo(attr_obj.find('.extrefs-block'));
                 newba.show();
-                $('<strong>').text(attr_name).insertAfter($(this));
 
                 newba.find('.barcode-item').each(function() {
                     var node = $(this);
@@ -1493,19 +1584,17 @@
                     node.html(node.html().replaceAll(old_prefix, new_prefix));
                     node.find("input[id*=external_id]").val('');
                     node.find("input[id*=brand-attribute]").val(attr_id);
-                    if (node.is(':visible'))
-                        node.find("input:checkbox[id*=DELETE]").removeAttr("checked");
 
                     nb_of_forms++;
                     $("#{{ wizard.form.externalrefs.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
                 });
             });
         }
+        update_extrefs();
     }
     function remove_extref_for_brand_attr(attr_id) {
-        $('.extrefs-ba[data-ba="' + attr_id + '"]').hide().prev().hide();
-        var nodes = $('.extrefs-ba[data-ba="' + attr_id + '"] .extrefs-item');
-        nodes.find("input:checkbox[id*=DELETE]").attr("checked", "checked");
+        $('.extrefs-ba[data-ba="' + attr_id + '"]').hide();
+        update_extrefs();
     }
     function add_extref_for_common_attr(attr_id, attr_name) {
         if (attr_id && $('.extrefs-item[data-ca=""]').length > 0) {
@@ -1530,17 +1619,16 @@
                 newnode.insertAfter($(this));
                 newnode.show();
                 newnode.attr('data-ca', attr_id);
-                if (newnode.is(':visible'))
-                    newnode.find("input:checkbox[id*=DELETE]").removeAttr("checked");
 
                 nb_of_forms++;
                 $("#{{ wizard.form.externalrefs.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
             });
         }
+        update_extrefs();
     }
     function remove_extref_for_common_attr(attr_id) {
-        var nodes = $('.extrefs-item[data-ca="' + attr_id + '"]').hide();
-        nodes.find("input:checkbox[id*=DELETE]").attr("checked", "checked");
+        $('.extrefs-item[data-ca="' + attr_id + '"]').hide();
+        update_extrefs();
     }
 </script>
 {% endblock %}

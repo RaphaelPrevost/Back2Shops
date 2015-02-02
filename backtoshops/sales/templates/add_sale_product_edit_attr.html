@@ -57,5 +57,23 @@
         <span class="brand_attributes-premium-result">
         </span>
     </div>
+
+    <div class="formrow marge accordion">
+        <label>{% trans "Barcode" %}</label>
+        <span class="contForm taille barcodes-block">
+        {% if wizard.form.barcodes %}
+            {% include "_stock_upc.html" %}
+        {% endif %}
+        </span>
+    </div>
+    <div class="formrow marge accordion">
+        <label>{% trans "External Refs" %}</label>
+        <span class="contForm taille extrefs-block">
+        {% if wizard.form.externalrefs %}
+            {% include "_stock_externalref.html" %}
+        {% endif %}
+        </span>
+    </div>
+
     {% include "add_sale_product_ba_preview_template_form.html" %}
 </div>

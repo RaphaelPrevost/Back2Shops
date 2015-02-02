@@ -33,4 +33,12 @@
         <ul class="pp_queue"></ul>
     </div>
 
+    <div class="formrow marge accordion">
+        <label>{% trans "Barcode" %}</label>
+        {% include "_stock_upc.html" %}
+    </div>
+    <div class="formrow marge accordion">
+        <label>{% trans "External Refs" %}</label>
+        {% include "_stock_externalref.html" %}
+    </div>
 </div>
