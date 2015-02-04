@@ -2,7 +2,7 @@ uWSGI==2.0.4
 Cython==0.19.1
 falcon==0.1.7
 ujson==1.33
-greenlet==0.3.2
+greenlet==0.4.5
 gevent==1.0.1
 M2Crypto==0.21.1.B2S
 B2SCrypto==0.0.5

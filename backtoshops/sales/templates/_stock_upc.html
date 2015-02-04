@@ -1,15 +1,17 @@
 <span class="contForm taille barcodes-block">
-{% if ba %}
-    <span class="barcodes-ba" data-ba="{{ba.ba_id.value}}">
-    {% with b_attr=ba.ba_id.value b_index=b_index %}
-        {% include "_stock_upc_block.html" %}
-    {% endwith %}
-    </span>
-{% else %}
-    <span class="barcodes-ba" data-ba="">
-    {% with b_attr='' b_index=0 %}
-        {% include "_stock_upc_block.html" %}
-    {% endwith %}
-    </span>
+{% if wizard.form.barcodes %}
+    {% if ba_id %}
+        <span class="barcodes-ba" data-ba="{{ba_id}}">
+        {% with b_attr=ba_id b_index=b_index %}
+            {% include "_stock_upc_block.html" %}
+        {% endwith %}
+        </span>
+    {% else %}
+        <span class="barcodes-ba" data-ba="">
+        {% with b_attr='' b_index=0 %}
+            {% include "_stock_upc_block.html" %}
+        {% endwith %}
+        </span>
+    {% endif %}
 {% endif %}
 </span>

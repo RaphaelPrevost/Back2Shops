@@ -33,6 +33,7 @@
         <ul class="pp_queue"></ul>
     </div>
 
+    {% with ba_id=ba.ba_id.value %}
     <div class="formrow marge accordion">
         <label>{% trans "Barcode" %}</label>
         {% include "_stock_upc.html" %}
@@ -41,4 +42,5 @@
         <label>{% trans "External Refs" %}</label>
         {% include "_stock_externalref.html" %}
     </div>
+    {% endwith %}
 </div>

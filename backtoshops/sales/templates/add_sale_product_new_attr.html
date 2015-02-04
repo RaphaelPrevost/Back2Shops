@@ -38,6 +38,17 @@
         </span>
     </div>
     
+    {% with ba_id='NEW' %}
+    <div class="formrow marge accordion">
+        <label>{% trans "Barcode" %}</label>
+        {% include "_stock_upc.html" %}
+    </div>
+    <div class="formrow marge accordion">
+        <label>{% trans "External Refs" %}</label>
+        {% include "_stock_externalref.html" %}
+    </div>
+    {% endwith %}
+
     <input class="btn valider add_ba" type="button" value="{% trans "Add" %}"/>
 
     {% include "add_sale_product_ba_preview_template_form.html" %}

@@ -86,15 +86,21 @@ class NoEmptyBaseFormSet(BaseFormSet):
             form.empty_permitted = False
 
 def get_formset_extra(data, prefix):
-    if not data or prefix + '-TOTAL_FORMS' not in data:
+    if not data or prefix + '-INITIAL_FORMS' not in data:
         return 0
     init_forms_count = data[prefix + '-INITIAL_FORMS']
     init_forms_count = init_forms_count[0] if type(init_forms_count) is list \
                                            else init_forms_count
+    init_forms_count = int(init_forms_count)
     total_forms_count = data[prefix + '-TOTAL_FORMS']
     total_forms_count = total_forms_count[0] if type(total_forms_count) is list \
                                              else total_forms_count
-    return int(total_forms_count) - int(init_forms_count)
+    total_forms_count = int(total_forms_count)
+    extra = total_forms_count - init_forms_count
+    if extra > 0 and len([one for one in data
+            if one.startswith("%s-%s" % (prefix, total_forms_count-1))]) == 0:
+        extra = 0
+    return extra
 
 class GroupedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
     def __init__(self, attrs=None, choices=(), render_attrs=None):

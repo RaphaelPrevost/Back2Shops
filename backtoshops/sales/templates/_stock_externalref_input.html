@@ -1,4 +1,3 @@
-{% load i18n %}
 <label for="{{ curform.external_id.auto_id }}">{{ cname }}</label>
 <input id="{{ curform.external_id.auto_id }}" type="text"  name="{{ curform.external_id.html_name }}" maxlength="50" value="{% if curform.external_id.value %}{{ curform.external_id.value }}{% endif %}">
 <span style="display: none;">

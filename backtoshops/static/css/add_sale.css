@@ -53,7 +53,7 @@
     }
     #main_form .formrow label { float: none; }
 
-    #main_form .formrow span { height: 22px; line-height: 22px; margin: 0 5px; }
+    #main_form .formrow span { line-height: 22px; margin: 0 5px; }
 
     #main_form .formrow label { width: 130px; }
     #main_form .formrow select { width: 130px; }
@@ -82,7 +82,7 @@
 
     #main_form .contForm,
     #main_form .formrow .contForm{
-        width: 245px;
+        width: 345px;
         height: auto;
         line-height: auto;
         margin: auto;
@@ -510,8 +510,7 @@
     }
     #main_form  #upload-coverfile img {
         display: block;
-        width: 187px;
-        height: 187px;
+        width: 185px;
     }
 
 
@@ -836,7 +835,7 @@
     #main_form .accordion .taille input {
         display: block;
         float: left;
-        width: 40px;
+        width: 100px;
         height: 16px;
         line-height: 16px;
         padding: 1px 0 0 2px;
@@ -1382,7 +1381,7 @@ div.add-new-csr-dialog p.between input {
     background-color: #efefef;
     border: 1px solid #dbdbdb;
 }
-.visuelProd ul li span img { width: 185px; height: 185px; }
+.visuelProd ul li span img { width: 185px;}
 .visuelProd ul li span .delete {
     display: none; position: absolute;
     top: 7px; right: 7px;
@@ -1423,7 +1422,7 @@ div.add-new-csr-dialog p.between input {
 #blocProd .miniformProd .formrow.small label { max-width: 85px; }
 #blocProd .miniformProd .formrow.big label { max-width: 55px; }
 
-#blocProd .contForm, #blocProd .formrow .contForm { max-width: 253px; }
+#blocProd .contForm, #blocProd .formrow .contForm { max-width: 453px; }
 
 
 

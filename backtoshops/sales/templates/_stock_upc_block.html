@@ -1,20 +1,31 @@
-{% load i18n %}
 {% load getform %}
 {% load multiply %}
 {% for c in common_attributes %}
     <span class="barcodes-item" data-ca="{{ c.id }}">
-    {% with formindex=common_attributes|length|multiply:b_index|add:forloop.counter %}
-        {% with curform=wizard.form.barcodes|getform:formindex cname=c.name %}
+    {% if b_attr == 'NEW' %}
+        {% with curform=wizard.form.barcodes.empty_form cname=c.name %}
             {% include "_stock_upc_input.html" %}
         {% endwith %}
-    {% endwith %}
+    {% else %}
+        {% with formindex=common_attributes|length|multiply:b_index|add:forloop.counter %}
+            {% with curform=wizard.form.barcodes|getform:formindex cname=c.name %}
+                {% include "_stock_upc_input.html" %}
+            {% endwith %}
+        {% endwith %}
+    {% endif %}
     </span>
 {% empty %}
     <span class="barcodes-item" data-ca="">
-    {% with formindex=b_index|add:1 %}
-        {% with curform=wizard.form.barcodes|getform:formindex cname=""  %}
+    {% if b_attr == 'NEW' %}
+        {% with curform=wizard.form.barcodes.empty_form cname=c.name %}
             {% include "_stock_upc_input.html" %}
         {% endwith %}
-    {% endwith %}
+    {% else %}
+        {% with formindex=b_index|add:1 %}
+            {% with curform=wizard.form.barcodes|getform:formindex cname=""  %}
+                {% include "_stock_upc_input.html" %}
+            {% endwith %}
+        {% endwith %}
+    {% endif %}
     </span>
 {% endfor %}

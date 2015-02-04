@@ -517,6 +517,8 @@
         obj.find("input[id$=premium_amount]").val("");
         calcDiscount();
         obj.data("ba_data", {});
+        obj.find("input[id$=-upc]").val('');
+        obj.find("input[id$=-external_id]").val('');
         obj.find('.existing_pp li:last').siblings().remove();
         $("#{{ wizard.form.brand_attributes.empty_form.previews.management_form.TOTAL_FORMS.auto_id }}").val(0);
         _updateBackgroundImage(obj.find(".ba_texture_btn"), '');
@@ -1409,40 +1411,33 @@
 
     /********************** Barcode ***********************/
     function update_barcodes() {
-        var show_tabs = $('[id^=brand-attr-]');
-        var hide_tabs = $('#base-item');
-        if ($('[id^=brand-attr-]:not(.removed):not(.new)').length == 0) {
-            show_tabs = $('#base-item');
-            hide_tabs = $('[id^=brand-attr-]');
-        }
-
+        var ca_ids = _get_ca_ids();
+        _update_barcode_display($('#base-item'), ca_ids);
+        _update_barcode_display($('[id^=brand-attr-]'), ca_ids);
+        _update_barcodes_delete();
+    }
+    function _get_ca_ids() {
+        var ca_ids = [];
         if (_is_use_item_type_price()) {
-            var ca_ids = [];
             $('.type_attribute_price_form:visible .type_attribute_value').each(function() {
                 ca_ids.push($(this).text());
             });
-            show_tabs.find('.barcodes-item').each(function() {
-                if (ca_ids.indexOf($(this).attr('data-ca')) == -1)
-                    $(this).hide();
-                else
-                    $(this).show();
-            });
         } else {
-            var ca_ids = [];
             $('#type_attribute_selector option').each(function() {
                 if ($(this).val() != "0")
                     ca_ids.push($(this).val());
             });
-            show_tabs.find('.barcodes-item').each(function() {
-                if (ca_ids.indexOf($(this).attr('data-ca')) == -1)
-                    $(this).hide();
-                else
-                    $(this).show();
-            });
         }
+        return ca_ids;
+    }
+    function _update_barcode_display(show_tabs, ca_ids) {
+        show_tabs.find('.barcodes-item').each(function() {
+            if (ca_ids.length > 0 && ca_ids.indexOf($(this).attr('data-ca')) == -1)
+                $(this).hide();
+            else
+                $(this).show();
+        });
         show_tabs.find('.barcodes-block').show();
-        hide_tabs.find('.barcodes-block').hide();
-        _update_barcodes_delete();
     }
     function _update_barcodes_delete() {
         $('.barcodes-block .barcodes-item').each(function(){
@@ -1461,7 +1456,7 @@
             $('.barcodes-ba[data-ba="' + attr_id + '"]').show();
         } else {
             var nb_of_forms = $("#{{ wizard.form.barcodes.management_form.TOTAL_FORMS.auto_id }}").val();
-            $('.barcodes-ba:last').each(function() {
+            $('#brand-attr-0 .barcodes-ba').each(function() {
                 var newba = $(this).clone();
                 newba.attr('data-ba', attr_id);
                 newba.appendTo(attr_obj.find('.barcodes-block'));
@@ -1471,9 +1466,11 @@
                     var node = $(this);
                     var old_prefix = node.find("input[name*=-upc]").attr('name').replace('-upc', '');
                     var new_prefix = 'barcodes-' + nb_of_forms;
+                    var value = node.find("input[id$=-upc]").val();
                     node.html(node.html().replaceAll(old_prefix, new_prefix));
-                    node.find("input[id*=upc]").val('');
-                    node.find("input[id*=brand-attribute]").val(attr_id);
+                    node.find("input[id$=-upc]").val(value);
+                    node.find("input[id$=brand_attribute]").val(attr_id);
+                    node.find("input[id$=brand_attribute]").attr('value', attr_id);
 
                     nb_of_forms++;
                     $("#{{ wizard.form.barcodes.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
@@ -1500,8 +1497,9 @@
                 var new_prefix = 'barcodes-' + nb_of_forms;
                 newnode.html(newnode.html().replaceAll(old_prefix, new_prefix));
                 newnode.find('label').text(attr_name);
-                newnode.find("input[id*=upc]").val('');
-                newnode.find("input[id*=common-attribute]").val(attr_id);
+                newnode.find("input[id$=-upc]").val('');
+                newnode.find("input[id$=common_attribute]").val(attr_id);
+                newnode.find("input[id$=common_attribute]").attr('value', attr_id);
                 newnode.insertAfter($(this));
                 newnode.show();
                 newnode.attr('data-ca', attr_id);
@@ -1519,40 +1517,19 @@
 
     /********************** External Ref ***********************/
     function update_extrefs() {
-        var show_tabs = $('[id^=brand-attr-]');
-        var hide_tabs = $('#base-item');
-        if ($('[id^=brand-attr-]:not(.removed):not(.new)').length == 0) {
-            show_tabs = $('#base-item');
-            hide_tabs = $('[id^=brand-attr-]');
-        }
-
-        if (_is_use_item_type_price()) {
-            var ca_ids = [];
-            $('.type_attribute_price_form:visible .type_attribute_value').each(function() {
-                ca_ids.push($(this).text());
-            });
-            show_tabs.find('.extrefs-item').each(function() {
-                if (ca_ids.indexOf($(this).attr('data-ca')) == -1)
-                    $(this).hide();
-                else
-                    $(this).show();
-            });
-        } else {
-            var ca_ids = [];
-            $('#type_attribute_selector option').each(function() {
-                if ($(this).val() != "0")
-                    ca_ids.push($(this).val());
-            });
-            show_tabs.find('.extrefs-item').each(function() {
-                if (ca_ids.indexOf($(this).attr('data-ca')) == -1)
-                    $(this).hide();
-                else
-                    $(this).show();
-            });
-        }
-        show_tabs.find('.extrefs-block').show();
-        hide_tabs.find('.extrefs-block').hide();
+        var ca_ids = _get_ca_ids();
+        _update_extrefs_display($('#base-item'), ca_ids)
+        _update_extrefs_display($('[id^=brand-attr-]'), ca_ids)
         _update_extrefs_delete();
+    }
+    function _update_extrefs_display(show_tabs, ca_ids) {
+        show_tabs.find('.extrefs-item').each(function() {
+            if (ca_ids.length > 0 && ca_ids.indexOf($(this).attr('data-ca')) == -1)
+                $(this).hide();
+            else
+                $(this).show();
+        });
+        show_tabs.find('.extrefs-block').show();
     }
     function _update_extrefs_delete() {
         $('.extrefs-block .extrefs-item').each(function(){
@@ -1571,19 +1548,21 @@
             $('.extrefs-ba[data-ba="' + attr_id + '"]').show();
         } else {
             var nb_of_forms = $("#{{ wizard.form.externalrefs.management_form.TOTAL_FORMS.auto_id }}").val();
-            $('.extrefs-ba:last').each(function() {
+            $('#brand-attr-0 .extrefs-ba').each(function() {
                 var newba = $(this).clone();
                 newba.attr('data-ba', attr_id);
                 newba.appendTo(attr_obj.find('.extrefs-block'));
                 newba.show();
 
-                newba.find('.barcode-item').each(function() {
+                newba.find('.extrefs-item').each(function() {
                     var node = $(this);
                     var old_prefix = node.find("input[name*=-external_id]").attr('name').replace('-external_id', '');
                     var new_prefix = 'extrefs-' + nb_of_forms;
+                    var value = node.find("input[id$=-external_id]").val();
                     node.html(node.html().replaceAll(old_prefix, new_prefix));
-                    node.find("input[id*=external_id]").val('');
-                    node.find("input[id*=brand-attribute]").val(attr_id);
+                    node.find("input[id$=-external_id]").val(value);
+                    node.find("input[id$=brand_attribute]").val(attr_id);
+                    node.find("input[id$=brand_attribute]").attr('value', attr_id);
 
                     nb_of_forms++;
                     $("#{{ wizard.form.externalrefs.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
@@ -1614,8 +1593,9 @@
                 var new_prefix = 'extrefs-' + nb_of_forms;
                 newnode.html(newnode.html().replaceAll(old_prefix, new_prefix));
                 newnode.find('label').text(attr_name);
-                newnode.find("input[id*=external_id]").val('');
-                newnode.find("input[id*=common-attribute]").val(attr_id);
+                newnode.find("input[id$=-external_id]").val('');
+                newnode.find("input[id$=common_attribute]").val(attr_id);
+                newnode.find("input[id$=common_attribute]").attr('value', attr_id);
                 newnode.insertAfter($(this));
                 newnode.show();
                 newnode.attr('data-ca', attr_id);
