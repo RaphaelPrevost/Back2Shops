@@ -375,11 +375,22 @@
         {# ready the currency mark #}
         currency_changed();
         prod_name_changed();
+        set_default_option($('#{{ wizard.form.brand.auto_id }}'));
+        set_default_option($('#{{ wizard.form.category.auto_id }}'));
         sort_existing_pp($('#existing_pp'));
         update_barcodes();
         update_extrefs();
         update_all_ba_premium();
     });
+
+    function set_default_option(select_obj) {
+        if (select_obj.find('option').length == 2
+                && select_obj.find('option:selected').val() == ""
+            || select_obj.find('option').length == 1
+                && select_obj.find('option:selected').length == 0) {
+            select_obj.find('option[value!=""]').selected().change();
+        }
+    }
 
     /********************** Cover Picture ***********************/
     $("#upload-coverfile").fileupload({
@@ -1180,6 +1191,7 @@
                     if ("{{ wizard.form.type.value }}") {
                         $("#product_type_selector").val("{{ wizard.form.type.value }}").change();
                     }
+                    set_default_option($('#product_type_selector'));
                 }
             });
         } else {
