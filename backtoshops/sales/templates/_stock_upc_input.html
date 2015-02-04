@@ -1,4 +1,3 @@
-{% load i18n %}
 <label for="{{ curform.upc.auto_id }}">{{ cname }}</label>
 <input id="{{ curform.upc.auto_id }}" type="text"  name="{{ curform.upc.html_name }}" maxlength="50" value="{% if curform.upc.value %}{{ curform.upc.value }}{% endif %}">
 <span style="display: none;">

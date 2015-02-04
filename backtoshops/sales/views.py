@@ -603,7 +603,7 @@ def edit_sale(request, *args, **kwargs):
             i.pk: {
                 'name': i.name,
                 'ba_id': i.pk,
-                'texture': i.texture.url,
+                'texture': i.texture.url if i.texture else None,
                 'premium_type': i.premium_type,
                 'premium_amount': i.premium_amount,
                 'previews': bap,
@@ -945,7 +945,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 )
             externalref.external_id = i.cleaned_data['external_id']
             externalref.save()
-            ext_ids.append(barcode.id)
+            ext_ids.append(externalref.id)
         if ext_ids:
             ExternalRef.objects.filter(sale=sale).extra(
                 where=['id NOT IN (%s)' % ','.join(map(str, ext_ids))]).delete()
