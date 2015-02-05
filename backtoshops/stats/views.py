@@ -247,7 +247,7 @@ class StatsVisitorsView(BaseOrdersView):
             pong = cli.ping()
             if pong:
                 visitors_online = cli.get("VISITORS_ONLINE")
-            else:
+            if visitors_online is None:
                 visitors_online = self._remote_visitors_online()
         except ConnectionError, e:
             logging.error('Failed to connect stats redis server')

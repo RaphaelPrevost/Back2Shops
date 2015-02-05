@@ -345,6 +345,7 @@ function deploy_backoffice() {
     sync_adm
     adm_redis
     adm_gen_keys
+    restart_server "backoffice"
     adm_batch
     echo "(i) Deploy backoffice server finished"
 }
