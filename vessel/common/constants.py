@@ -41,6 +41,10 @@ from B2SProtocol.constants import CustomEnum
 
 
 class VESSEL_STATUS:
+    UNDER_WAY_USING_ENGINE = 'under way using engine'
+    NOT_UNDER_COMMAND = 'not under command'
+    AT_ANCHOR = 'At anchor'
+    SPECIAL_POS_REPORT = 'special position report'
     MOORED = 'moored'
 
 class CONTAINER_STATUS:
