@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<django-objects version="1.0">
+    <object pk="1" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">1</field>
+        <field type="CharField" name="name">email</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="1" model="events.event">
+        <field type="CharField" name="name">USR_REGISTRATION</field>
+        <field type="CharField" name="desc">New user account successfully registered</field>
+    </object>
+    <object pk="2" model="events.event">
+        <field type="CharField" name="name">USR_FRONT2FACTOR</field>
+        <field type="CharField" name="desc">One-time code requested (2 factor authentication)</field>
+    </object>
+    <object pk="3" model="events.event">
+        <field type="CharField" name="name">USR_LOSTPASSWORD</field>
+        <field type="CharField" name="desc">User requested to reset their password</field>
+    </object>
+    <object pk="4" model="events.event">
+        <field type="CharField" name="name">USR_INFOMODIFIED</field>
+        <field type="CharField" name="desc">User personal information modified</field>
+    </object>
+    <object pk="5" model="events.event">
+        <field type="CharField" name="name">USR_ORDERSUCCESS</field>
+        <field type="CharField" name="desc">New order successfully recorded</field>
+    </object>
+    <object pk="6" model="events.event">
+        <field type="CharField" name="name">USR_ORDERFAILURE</field>
+        <field type="CharField" name="desc">Error while processing a new order</field>
+    </object>
+    <object pk="7" model="events.event">
+        <field type="CharField" name="name">USR_PAYMENTVALID</field>
+        <field type="CharField" name="desc">Payment successfully processed</field>
+    </object>
+    <object pk="8" model="events.event">
+        <field type="CharField" name="name">USR_PAYMENTERROR</field>
+        <field type="CharField" name="desc">Payment failed</field>
+    </object>
+    <object pk="9" model="events.event">
+        <field type="CharField" name="name">USR_SHIPMENTSENT</field>
+        <field type="CharField" name="desc">Shipment sent</field>
+    </object>
+    <object pk="10" model="events.event">
+        <field type="CharField" name="name">USR_REFUNDACCEPT</field>
+        <field type="CharField" name="desc">Refund accepted</field>
+    </object>
+    <object pk="11" model="events.event">
+        <field type="CharField" name="name">USR_REFUNDREJECT</field>
+        <field type="CharField" name="desc">Refund rejected</field>
+    </object>
+    <object pk="12" model="events.event">
+        <field type="CharField" name="name">BO_LOWINVENTORY</field>
+        <field type="CharField" name="desc">Inventory running low</field>
+    </object>
+    <object pk="13" model="events.event">
+        <field type="CharField" name="name">BO_ADMIN2FACTOR</field>
+        <field type="CharField" name="desc">One-time code requested</field>
+    </object>
+    <object pk="14" model="events.event">
+        <field type="CharField" name="name">BO_LOGINSUCCESS</field>
+        <field type="CharField" name="desc">User successfully logged in</field>
+    </object>
+    <object pk="15" model="events.event">
+        <field type="CharField" name="name">BO_LOGINFAILURE</field>
+        <field type="CharField" name="desc">User failed to log in</field>
+    </object>
+</django-objects>

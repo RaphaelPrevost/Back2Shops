@@ -79,6 +79,7 @@ from common.error import ParamsValidCheckError
 from common.fees import compute_fee
 from common.transaction import remote_payment_init
 from common.utils import get_default_setting
+from events.models import Event
 from routes.models import Route
 from sales.models import ProductCategory
 from sales.models import ProductType
@@ -469,20 +470,54 @@ def apikey(dummy=None):
         f.close()
         return HttpResponse(key)
 
+
+@csrf_exempt
+def event_push(request, *args, **kwargs):
+    try:
+        event_id = request.POST.get('event')
+        if not event_id or not event_id.isdigit():
+            raise InvalidRequestError('missing event')
+
+        handler_params = {}
+        event = Event.objects.get(pk=event_id)
+        for param in event.event_handler_params.get_query_set():
+            handler_params[param.name] = request.POST.get(param.name, param.value)
+            if not handler_params[param.name]:
+                raise InvalidRequestError('missing handler param %s' % param.name)
+
+        #TODO add to event queue
+
+        content = {'result': 'SUCCESS'}
+    except Exception, e:
+        logging.error('event_push_failure: %s' % e, exc_info=True)
+        content = {'result': 'FAILURE'}
+
+    content = gen_encrypt_json_context(
+        ujson.dumps(content),
+        settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+        settings.PRIVATE_KEY_PATH
+    )
+    return HttpResponse(content, mimetype='application/json')
+
+
 class BaseCryptoWebService(BaseWebservice):
     from_ = SERVICES.USR
+
     def render_to_response(self, context, **response_kwargs):
         resp = super(BaseCryptoWebService, self).render_to_response(context, **response_kwargs)
         debugging = self.request.GET.get('debugging', False)
         if settings.CRYPTO_RESP_DEBUGING and debugging:
             return resp
         resp.render()
+        return self._get_crypto_resp(resp.content, **response_kwargs)
+
+    def _get_crypto_resp(self, content, **response_kwargs):
         if self.request.method == 'GET':
             self.from_ = self.request.GET.get('from', SERVICES.USR)
         elif self.request.method == 'POST':
             self.from_ = self.request.POST.get('from', SERVICES.USR)
         content = gen_encrypt_json_context(
-            resp.content,
+            content,
             settings.SERVER_APIKEY_URI_MAP[self.from_],
             settings.PRIVATE_KEY_PATH)
         response_kwargs.update({
@@ -490,6 +525,19 @@ class BaseCryptoWebService(BaseWebservice):
         })
 
         return HttpResponse(content, **response_kwargs)
+
+
+class EventListView(BaseCryptoWebService, ListView):
+    template_name = "event_list.xml"
+
+    def get_queryset(self):
+        queryset = Event.objects.all()
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(EventListView, self).get_context_data(**kwargs)
+        context['default_handler_url'] = '/webservice/1.0/private/event/push'
+        return context
 
 
 class RoutesListView(BaseCryptoWebService, ListView):
