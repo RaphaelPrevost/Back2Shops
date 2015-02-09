@@ -37,17 +37,19 @@
 #############################################################################
 
 
-import settings
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
-from common.m17n import gettext as _
-from common.utils import gen_html_body
-from B2SUtils.email_utils import send_email
 
-def send_new_user_email(to_addr, data):
-    if not settings.SEND_EMAILS:
-        return
-    subject = _('Your account was created %(brand)s') \
-              % {'brand': settings.BRAND_NAME}
-    content = gen_html_body('new_user_email.html', data, layout=None)
-    send_email(settings.SERVICE_EMAIL, to_addr, subject, content, settings)
+class Event(models.Model):
+    name = models.CharField(verbose_name=_("Name"), max_length=50)
+    desc = models.CharField(verbose_name=_("Description"), max_length=100)
+    handler_url = models.CharField(verbose_name=_("Handler URL"), blank=True, max_length=100)
+    handler_method = models.CharField(verbose_name=_("Handler method"), default='post', blank=True, max_length=10)
+    handler_is_private = models.BooleanField(default=True)
+
+class EventHandlerParam(models.Model):
+    event = models.ForeignKey(Event, related_name='event_handler_params')
+    name = models.CharField(verbose_name=_("Param Name"), max_length=50)
+    value = models.CharField(verbose_name=_("Param Value"), null=True, max_length=50)
 

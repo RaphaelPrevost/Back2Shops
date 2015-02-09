@@ -1,0 +1,16 @@
+<?xml version="1.0" standalone="yes"?>
+<!DOCTYPE events PUBLIC "-/BACKTOSHOPS//EVENTLIST" "events.dtd">
+
+<events version="1.0">
+{% for object in object_list %}
+    <event id="{{object.pk}}">
+        <name>{{object.name}}</name>
+        <desc>{{object.desc}}</desc>
+        <handler url="{{object.handler_url|default:default_handler_url}}" method="{{object.handler_method|default:'post'}}" private="{{object.handler_is_private|default:'False'|yesno:'true,false'}}">
+        {% for param in object.event_handler_params.all %}
+            <parameter name="{{param.name}}" value="{% if param.value %}{{ param.value }}{% endif %}"/>
+        {% endfor %}
+        </handler>
+    </event>
+{% endfor %}
+</events>

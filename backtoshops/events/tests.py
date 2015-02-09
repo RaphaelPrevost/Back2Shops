@@ -37,17 +37,19 @@
 #############################################################################
 
 
-import settings
+"""
+This file demonstrates writing tests using the unittest module. These will pass
+when you run "manage.py test".
 
-from common.m17n import gettext as _
-from common.utils import gen_html_body
-from B2SUtils.email_utils import send_email
+Replace this with more appropriate tests for your application.
+"""
 
-def send_new_user_email(to_addr, data):
-    if not settings.SEND_EMAILS:
-        return
-    subject = _('Your account was created %(brand)s') \
-              % {'brand': settings.BRAND_NAME}
-    content = gen_html_body('new_user_email.html', data, layout=None)
-    send_email(settings.SERVICE_EMAIL, to_addr, subject, content, settings)
+from django.test import TestCase
 
+
+class SimpleTest(TestCase):
+    def test_basic_addition(self):
+        """
+        Tests that 1 + 1 always equals 2.
+        """
+        self.assertEqual(1 + 1, 2)

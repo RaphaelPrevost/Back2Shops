@@ -365,17 +365,34 @@ def remote_xml_invoice(query):
     content = get_from_sale_server(uri, **query)
     return content
 
-def get_from_sale_server(uri, **query):
-    remote_uri = settings.SALES_SERVER_API_URL % {'api': uri}
+def remote_xml_eventlist():
+    uri = 'private/event/list'
+    content = get_from_sale_server(uri)
+    return content
+
+def push_event(uri, query):
+    content = get_from_sale_server(uri, method='post', **query)
+    return content
+
+def get_from_sale_server(uri, method='get', **query):
+    if not uri.startswith(settings.SALES_SERVER_API_URL):
+        remote_uri = settings.SALES_SERVER_API_URL % {'api': uri}
     if query:
         query_str = urllib.urlencode(query)
-        remote_uri = '?'.join([remote_uri, query_str])
+    else:
+        query_str = ''
 
     remote_server_name = SERVICES.ADM
     try:
-        content = get_from_remote(remote_uri,
-                                  settings.SERVER_APIKEY_URI_MAP[remote_server_name],
-                                  settings.PRIVATE_KEY_PATH)
+        if method.lower() == 'get':
+            content = get_from_remote('?'.join([remote_uri, query_str]),
+                                      settings.SERVER_APIKEY_URI_MAP[remote_server_name],
+                                      settings.PRIVATE_KEY_PATH)
+        else:
+            content = get_from_remote(remote_uri,
+                                      settings.SERVER_APIKEY_URI_MAP[remote_server_name],
+                                      settings.PRIVATE_KEY_PATH,
+                                      data=query_str)
     except Exception, e:
         logging.error('get_from_sale_server_error: %s', e, exc_info=True)
         raise

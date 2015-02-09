@@ -40,12 +40,13 @@
 import settings
 from django.conf.urls.defaults import patterns, url
 from fouillis.views import manager_required
-from webservice.views import SalesListView, BrandInfoView, BrandListView, SalesInfoView, ShopsInfoView, ShopsListView, TypesInfoView, TypesListView, \
-                             VicinityShopsListView, VicinitySalesListView, \
-                             authenticate, barcode_increment, barcode_decrement, barcode_returned, \
-                             BrandingsListView, apikey, SalesFindView, TaxesListView, ShippingInfoView, \
-                             ShippingFeesView, ShippingServicesInfoView, InvoiceView, \
-                             payment_init, RoutesListView, SuggestView
+from webservice.views import SalesListView, BrandInfoView, BrandListView, \
+    SalesInfoView, ShopsInfoView, ShopsListView, TypesInfoView, TypesListView, \
+    VicinityShopsListView, VicinitySalesListView, \
+    authenticate, barcode_increment, barcode_decrement, barcode_returned, \
+    BrandingsListView, apikey, SalesFindView, TaxesListView, ShippingInfoView, \
+    ShippingFeesView, ShippingServicesInfoView, InvoiceView, \
+    payment_init, RoutesListView, SuggestView, EventListView, event_push
 
 
 
@@ -65,7 +66,9 @@ urlpatterns = patterns(settings.SITE_NAME,
 
     url(r'1.0/protected/shipping/fees', ShippingFeesView.as_view()),
 
-    url(r'1.0/private/auth',      authenticate),
+    url(r'1.0/private/auth', authenticate),
+    url(r'1.0/private/event/list', EventListView.as_view()),
+    url(r'1.0/private/event/push', event_push),
     url(r'1.0/private/payment/init', payment_init),
     url(r'1.0/private/routes/list', RoutesListView.as_view()),
     url(r'1.0/private/stock/inc', barcode_increment),
@@ -76,6 +79,6 @@ urlpatterns = patterns(settings.SITE_NAME,
     url(r'1.0/private/shipping/services/info', ShippingServicesInfoView.as_view()),
     url(r'1.0/private/invoice/get', InvoiceView.as_view()),
     url(r'1.0/private/suggest', SuggestView.as_view()),
-    url(r'1.0/vicinity/shops',    VicinityShopsListView.as_view()),
-    url(r'1.0/vicinity/sales',    VicinitySalesListView.as_view()),
+    url(r'1.0/vicinity/shops', VicinityShopsListView.as_view()),
+    url(r'1.0/vicinity/sales', VicinitySalesListView.as_view()),
 )
