@@ -3,12 +3,13 @@
 <head>
     {% load i18n %}
     {% load aloha_editor %} 
-    {% include "aloha_editor/css.html" %}
-    {% include "aloha_editor_js.html" %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.1.6.2.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.11.1.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-migrate-1.2.1.min.js "></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/fileupload/jquery.iframe-transport.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/fileupload/jquery.fileupload.js"></script>
+    {% include "aloha_editor/css.html" %}
+    {% include "aloha_editor_js.html" %}
 
     <script type="text/javascript">
     var obj_id = "{{form.html_body.auto_id}}";

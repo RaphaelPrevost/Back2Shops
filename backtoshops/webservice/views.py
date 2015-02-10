@@ -74,6 +74,7 @@ from brandsettings.models import InvoiceNumber
 from common.cache_invalidation import send_cache_invalidation
 from common.filter_utils import get_filter, get_order_by
 from common.constants import USERS_ROLE
+from common.constants import SUCCESS, FAILURE
 from common.error import InvalidRequestError
 from common.error import ParamsValidCheckError
 from common.fees import compute_fee
@@ -487,10 +488,10 @@ def event_push(request, *args, **kwargs):
 
         #TODO add to event queue
 
-        content = {'result': 'SUCCESS'}
+        content = {'result': SUCCESS}
     except Exception, e:
         logging.error('event_push_failure: %s' % e, exc_info=True)
-        content = {'result': 'FAILURE'}
+        content = {'result': FAILURE}
 
     content = gen_encrypt_json_context(
         ujson.dumps(content),

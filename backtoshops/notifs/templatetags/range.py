@@ -37,3 +37,11 @@
 #############################################################################
 
 
+from django import template
+
+register = template.Library()
+
+@register.simple_tag
+@register.filter
+def range(start_index, end_index):
+    return range(start_index, end_index + 1)

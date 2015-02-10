@@ -39,14 +39,28 @@
 
 from django import forms
 from django.forms.formsets import formset_factory
-from emails.models import EmailTemplate
+from django.utils.translation import ugettext_lazy as _
+from common.constants import NOTIF_DELIVERY_METHOD
+from events.models import Event
+from notifs.models import Notif
 
-class EmailTemplateForm(forms.ModelForm):
+class NotifForm(forms.ModelForm):
     class Meta:
-        model = EmailTemplate
+        model = Notif
+        exclude = ('event', 'mother_brand')
 
-    def __init__(self, *args, **kwargs):
-        super(EmailTemplateForm, self).__init__(*args, **kwargs)
+    def __init__(self, request=None, *args, **kwargs):
+        super(NotifForm, self).__init__(*args, **kwargs)
+        self.request = request
+        initial = kwargs.get('initial') or {}
+
+        self.fields['event_id'] = forms.ChoiceField(
+                label=_("Event"),
+                choices=[(s.id, s.name) for s in Event.objects.all()])
+        self.fields['delivery_method'] = forms.ChoiceField(
+                label=_("Delivery"),
+                choices=[(v, k) for k, v in NOTIF_DELIVERY_METHOD.toDict().iteritems()],
+                initial=NOTIF_DELIVERY_METHOD.EMAIL)
 
         self.fields['html_head'] = forms.CharField(
                 widget=forms.Textarea(attrs={'rows': '20'}),
@@ -58,18 +72,25 @@ class EmailTemplateForm(forms.ModelForm):
                 widget=forms.HiddenInput(),
                 required=False)
 
-        formset = formset_factory(EmailTemplateImageForm, extra=0, can_delete=True)
-        initial = kwargs.get('initial') or {}
+        formset = formset_factory(NotifTemplateImageForm, extra=0, can_delete=True)
         if initial:
             self.images = formset(data=kwargs.get('data'),
                                   initial=initial.get('images', None),
-                                  prefix="email_images")
+                                  prefix="images")
         else:
             self.images = formset(data=kwargs.get('data'),
-                                  prefix="email_images")
+                                  prefix="images")
+
+    def save(self, commit=True):
+        notif = super(NotifForm, self).save(commit=False)
+        notif.mother_brand = self.request.user.get_profile().work_for
+        notif.event = Event.objects.get(pk=self.cleaned_data['event_id'])
+        if commit:
+            notif.save()
+        return notif
 
 
-class EmailTemplateImageForm(forms.Form):
+class NotifTemplateImageForm(forms.Form):
     pk = forms.IntegerField(widget=forms.HiddenInput())
     url = forms.CharField(widget=forms.HiddenInput())
     thumb_url = forms.CharField(widget=forms.HiddenInput())
