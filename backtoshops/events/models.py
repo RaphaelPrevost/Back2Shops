@@ -47,6 +47,7 @@ class Event(models.Model):
     handler_url = models.CharField(verbose_name=_("Handler URL"), blank=True, max_length=100)
     handler_method = models.CharField(verbose_name=_("Handler method"), default='post', blank=True, max_length=10)
     handler_is_private = models.BooleanField(default=True)
+    #TODO add predefined template
 
 class EventHandlerParam(models.Model):
     event = models.ForeignKey(Event, related_name='event_handler_params')

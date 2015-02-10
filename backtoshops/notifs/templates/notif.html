@@ -1,0 +1,115 @@
+{% extends "new_base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Notification" %}{% endblock %}
+{% block head %}
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/new-order-list.css" />
+    <style type="text/css">
+    .formrow input,
+    .formrow textarea {
+        width: 450px;
+    }
+    .formrow select {
+        width: 200px;
+    }
+    iframe {
+        width: 100%;
+        border:1px solid #c8c8c8;
+    }
+    </style>
+{% endblock %}
+
+{% block navigation %}
+    {% include "_quick_nav.html" %}
+{% endblock %}
+
+{% block content %}
+    <!--Lien Haut de Page -->
+    <a id="lienUP" href="#conteneur">{% trans "Page Top" %}</a>
+
+    <div id="content_Left">
+        <!--Title-->
+        <div id="title">
+            <h2><span></span>{% trans "Notification" %}</h2>
+        </div>
+            
+        <!--FORM-->
+        <form id="main_form" method="post">{% csrf_token %}
+            <!--MEGA-TAB-->
+            <fieldset>
+                {{ form.non_field_errors }}
+
+                {{ form.name.errors }}
+                <div class="formrow">
+                    <label for="{{form.name.auto_id}}" >{% trans form.name.label %}</label>
+                    {{form.name}}
+                </div>
+                {{ form.event_id.errors }}
+                <div class="formrow">
+                    <label for="{{form.event_id.auto_id}}" >{% trans form.event_id.label %}</label>
+                    {{form.event_id}}
+                </div>
+                {{ form.delivery_method.errors }}
+                <div class="formrow">
+                    <label for="{{form.delivery_method.auto_id}}" >{% trans form.delivery_method.label %}</label>
+                    {{form.delivery_method}}
+                </div>
+                {{ form.subject.errors }}
+                <div class="formrow">
+                    <label for="{{form.subject.auto_id}}" >{% trans form.subject.label %}</label>
+                    {{form.subject}}
+                </div>
+                {{ form.raw_text.errors }}
+                <div class="formrow">
+                    <label for="{{form.raw_text.auto_id}}" >{% trans form.raw_text.label %}</label>
+                    {{form.raw_text}}
+                </div>
+                <br/>
+                <a id="save_notif" href="javascript:void(0);" text-align="center" style="text-align: center; display: block; width: 120px; margin: 3px 5px 0 0px;  background-color: #0098c7; border-radius: 3px; color: #fff; height: 25px; line-height: 19px; padding: 3px 5px;">{% trans "Save" %}</a>
+                <br/><br/>
+                
+                {{ form.html_head.errors }}
+                <div class="formrow">
+                    <label for="{{form.html_head.auto_id}}" >{% trans form.html_head.label %}</label>
+                    {{form.html_head}}
+                </div>
+                <br/>
+
+                {{ form.html_body.errors }}
+                {{ form.html_body }}
+                {{ form.images.management_form }}
+                <label>{% trans "Write a notification" %}</label>
+                <iframe name="html_body_iframe" src= "{% url 'preview_template' %}"></iframe>
+
+            </fieldset>
+            <!--//MEGA-TAB-->
+        </form>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+    $("#save_notif").click(function() {
+        var form = $('#main_form')[0];
+        var body = html_body_iframe.window.getEditableContent();
+        $("#{{form.html_body.auto_id}}").val(body);
+        form.submit();
+    });
+    $("iframe").load(function() {
+        // set iframe height
+        var cwin=this;
+        if (document.getElementById) {
+            if (cwin && !window.opera) {
+                if (cwin.contentDocument && cwin.contentDocument.body.offsetHeight)
+                cwin.height = cwin.contentDocument.body.offsetHeight + 20; //FF NS
+                else if(cwin.Document && cwin.Document.body.scrollHeight)
+                cwin.height = cwin.Document.body.scrollHeight + 10;//IE
+            } else {
+                if(cwin.contentWindow.document && cwin.contentWindow.document.body.scrollHeight)
+                cwin.height = cwin.contentWindow.document.body.scrollHeight;//Opera
+            }
+            if (cwin.height < 400) cwin.height = 400;
+        }
+    });
+</script>
+{% endblock %}

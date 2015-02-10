@@ -1,0 +1,141 @@
+{% extends "new_base.html" %}
+{% load i18n %}
+{% load is_admin_upper %}
+{% load range %}
+
+{% block title %}{% trans "Notifications" %}{% endblock %}
+{% block head %}
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/new-order-list.css" />
+    <style type="text/css">
+        ul.paginate {
+            margin: 15px; text-align: center;
+        }
+        ul.paginate li {
+            display: inline-block;
+            background-color: #13ACDD; color: #fff;
+            padding: 4px 8px; margin-right: 0px;
+        }
+        ul.paginate li a {
+            color: #fff;
+        }
+    </style>
+{% endblock %}
+
+{% block navigation %}
+    {% include "_quick_nav.html" %}
+{% endblock %}
+
+{% block content %}
+    <!--Lien Haut de Page -->
+    <a id="lienUP" href="#conteneur">{% trans "Page Top" %}</a>
+
+    <div id="content_Left">
+        <!--Title-->
+        <div id="title">
+            <h2><span></span>{% trans "Module Notification" %}</h2>
+        </div>
+            
+        <!--FORM-->
+        <form id="main_form" method="post">{% csrf_token %}
+            <!--MEGA-TAB-->
+            <div>
+            <fieldset>
+                <!--MEGATABS1-->
+                <div id="megatabs1">
+                    <!--SELECT TRIER PAR-->
+                    <p id="triVente">
+                        <span class="left left1">
+                            <label>{% trans "Search" %}:</label>
+                            <input type="text" name="search" value="{{search}}" class="inputSearch" />
+                            <button class="find" type="submit">{% trans "Find" %}</button>
+                            <span class="clear"></span>
+                        </span>
+                    </p>
+                    <!--VENTE-->
+                    <div class="vente">
+                     
+                        <!--INFOS VENTE-->
+                        <div class="content">
+                            <!--<a style="display: block; clear:both;" class="delete" href="#">[X]</a>-->
+                            
+                            <table style="width: 97%; border: 1px solid #dbdbdb; margin: 15px; background-color: #fff; " cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td style="padding: 20px;" >Name</td>
+                                    <td style="padding: 20px;">Event</td>
+                                    <td style="padding: 20px;">Action</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 20px;" colspan="3">
+                                        <br /><strong>{% trans "Create a new notification" %}</strong><a href="{% url 'new_notif' %}">
+                                            <img align="right" style="margin-right: 10px; margin-bottom: 10px;" margin-right="10" width="25" src="/static/img/button-add-icon.png" />
+                                        </a><br />
+                                    </td>
+                                </tr>
+                                
+                                {% for notif in object_list %}
+                                <tr id="#notif_{{notif.id}}">
+                                    <td style="padding-left: 20px;">
+                                        <br /><img width="25" src="/static/img/{% if notif.delivery_method == 2 %}mobile-icon.png{% else %}email-icon.png{% endif %}" /><strong>{{notif.name}}</strong><br />
+                                    </td>
+                                    
+                                    <td style="padding-left: 20px;">
+                                         {{notif.event.name}}
+                                    </td>
+                                    <td style="padding-left: 20px;">
+                                        <a href="{% url 'edit_notif' notif.pk %}" target="_blank"><img valign="bottom" width="18" src="/static/img/composer-mail-icon.png" /></a>
+                                        <a class="delete_notif" href="{% url 'delete_notif' notif.pk %}"><img valign="bottom" width="18" src="/static/img/close-icon.png" /></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                        
+                        {% if is_paginated %}
+                        <ul class="paginate">
+                            {% if page_obj.has_previous %}
+                                {% for i in page_obj.start_index|range:page_obj.previous_page_number %}
+                                <li><a href="{% url 'notif_list' i %}">{{i}}</a></li>
+                                {% endfor %}
+                            {% endif %}
+                            <li><a>{{page_obj.number}}</a></li>
+                            {% if page_obj.has_next %}
+                                {% for i in page_obj.next_page_number|range:page_obj.end_index %}
+                                <li><a href="{% url 'notif_list' i %}">{{i}}</a></li>
+                                {% endfor %}
+                            {% endif %}
+                        </ul>
+                        {% endif %}
+                     
+                        <div class="clear"></div>
+                    </div>
+                    <!--FIN VENTE-->
+                    
+                </div>
+                <!--//MEGATABS1-->
+                 
+            </fieldset>
+            </div>
+            <!--//MEGA-TAB-->
+        </form>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+    $("a.delete_notif").click(function() {
+        if(confirm('{% trans "Are your sure you want to delete this notification ?" %}')) {
+            $.post(this.href, function(data){
+                $("#notif_"+data.pk).remove();
+            });
+        }
+        return false;
+    });
+    $("table tr").each(function(index) {
+        if (index%2 == 0) {
+            $(this).attr('style', 'background-color:#fff;');
+        } else {
+            $(this).attr('style', 'background-color:#EEF7FF;');
+        }
+    });
+</script>
+{% endblock %}

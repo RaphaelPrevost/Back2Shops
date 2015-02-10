@@ -58,6 +58,12 @@ class TARGET_MARKET_TYPES(CustomEnum):
     GLOBAL = 'N'
     LOCAL = 'L'
 
+class NOTIF_DELIVERY_METHOD(CustomEnum):
+    EMAIL = 1
+    SMS = 2
+
+
 # response
 SUCCESS = 'SUCCESS'
 FAILURE = 'FAILURE'
+
