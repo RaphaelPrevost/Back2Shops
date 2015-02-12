@@ -622,6 +622,7 @@ function deploy_vessel() {
 function restart_server() {
     case $1 in
             backoffice)
+                service memcached restart
                 service apache2 restart
                 ;;
             user)

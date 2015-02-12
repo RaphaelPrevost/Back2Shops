@@ -655,44 +655,6 @@ class ExternalRefForm(forms.Form):
     common_attribute = forms.IntegerField(required=False)
     external_id = forms.CharField(label=_("External Ref"), required=False)
 
-class StockForm(forms.Form):
-    brand_attribute = forms.IntegerField(required=False)
-    common_attribute = forms.IntegerField(required=False)
-    shop = forms.IntegerField(required=False)
-    stock = forms.IntegerField(label=_("Stock"), required=False)
-    def clean_stock(self):
-        data = self.cleaned_data['stock']
-        if not data:
-            return None
-        try:
-            int_data = int(data)
-        except:
-            raise forms.ValidationError(_('Invalid stock quantity.'))
-        return int_data
-
-class StockStepForm(forms.Form):
-    def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None,
-                 initial=None, error_class=ErrorList, label_suffix=':',
-                 empty_permitted=False):
-        super(StockStepForm, self).__init__(data, files, auto_id, prefix, initial,
-                                            error_class, label_suffix, empty_permitted)
-        _prefix = "stocks"
-        StockFormset = formset_factory(StockForm, formset=NoEmptyBaseFormSet,
-                                       extra=get_formset_extra(data, _prefix),
-                                       can_delete=True)
-        if initial.get('stocks_initials', None):
-            self.stocks = StockFormset(data=data, prefix=_prefix, initial=initial.get('stocks_initials', None))
-        else:
-            self.stocks = StockFormset(data=data, prefix=_prefix)
-
-    def clean(self):
-        if self.stocks.errors:
-            for form in self.stocks.forms:
-                if form.errors:
-                    raise forms.ValidationError(form.errors)
-        return super(StockStepForm, self).clean()
-
-
 class ProductBrandFormModel(forms.ModelForm):
     class Meta:
         model = ProductBrand
