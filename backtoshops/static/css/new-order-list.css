@@ -94,7 +94,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
 
 #triVente {
 	margin: 0px 0 0px 0; overflow: auto;
-    padding: 0px;
+    padding: 25px 0 15px;
 	/*background-color: #EEF9FF;*/
 	background-color: #ffffff;
 
@@ -102,6 +102,8 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
 #triVente .left { display: block; float: left; }
 #triVente .left1 { width: 32%; min-width: 350px; }
 #triVente .left2 { width: 68%; min-width: 500px; }
+#triVente .left3 { width: 20%; min-width: 200px; }
+#triVente .right { display: block; float: right; }
 
 #triVente label,
 #triVente select,
@@ -473,6 +475,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
 	margin: 0.5em 0 0em;
 	padding: 0;
     background-color: #ffffff!important;
+    font-weight: bold;
 }
 #order-status-tabs li {
     margin: 0; padding: 0;
@@ -485,6 +488,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
 	width: 19.8%; min-width: 175px;
 	margin: 5px 2px 0 0;
     background-color: #f2f2f2;
+    color: #1c94c4;
 
     border: 1px solid #cbcbcb;
     -webkit-border-radius: 10px 10px 0 0;
@@ -502,7 +506,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
 }
 #order-status-tabs a.selected {
     background-color: #e3f6ff;
-    font-weight: bold;
+    color: #eb8f00;
 }
 #order-status-tabs a.pending { background-image: url(../img/ico-pending.png); background-position: 5px 8px; float: left;}
 #order-status-tabs a.payment { background-image: url(../img/ico-awaiting-payment.png); background-position: 5px 8px; float: left;}
@@ -1176,6 +1180,21 @@ span.item_name {
 	background-color: #61A8F7;
 }
 
+
+ul.paginate {
+    margin: 15px; text-align: center;
+}
+ul.paginate li {
+    display: inline-block;
+    background-color: #13ACDD; color: #fff;
+    padding: 4px 8px; margin-right: 0px;
+}
+ul.paginate li.current {
+    background-color: #cbcbcb;
+}
+ul.paginate li a {
+    color: #fff;
+}
 
 
 

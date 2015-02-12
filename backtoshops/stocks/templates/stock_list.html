@@ -1,0 +1,232 @@
+{% extends "new_base.html" %}
+{% load i18n %}
+{% load range %}
+
+{% block title %}{% trans "Stock Management" %}{% endblock %}
+{% block head %}
+    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/new-order-list.css" />
+    <style type="text/css">
+    a.increment, a.decrement, a.alert,
+    a.exporter, a.importer, a.save {
+        display: block; float: left;
+        background-color: #0098c7; border-radius: 3px; color: #fff;
+        height: 25px; line-height: 19px; padding: 3px 5px; margin: 3px 0px 0 10px;
+    }
+    a.increment, a.decrement {
+        width: 27px;
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+    }
+    a.increment {
+        background-color: green;
+    }
+    a.decrement {
+        background-color: red;
+    }
+    a.alert {
+        background-color: #eb8f00;
+        font-weight: bold;
+    }
+    </style>
+{% endblock %}
+
+{% block navigation %}
+    {% include "_quick_nav.html" %}
+{% endblock %}
+
+{% block content %}
+    <div id="content_Left">
+        <!--Title-->
+        <div id="title">
+            <h2><span></span>{% trans "Stock Management" %}</h2>
+        </div>
+            
+        <!--FORM-->
+        <form id="main_form" method="post">{% csrf_token %}
+            <fieldset>
+                <ul id="order-status-tabs">
+                    {% for tab in shop_tabs %}
+                    <li style="float:left">
+                        <a href="{% url 'list_stocks' tab.shop_id page_obj.number %}" class="order_tab {% if current_tab == tab.shop_id %}selected{% endif %}">{{tab.name}}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+
+                <!--MEGATABS1-->
+                <div style="clear:both">
+                    <!--SELECT TRIER PAR-->
+                    <p id="triVente">
+                        <span class="left left1">
+                            <label>{% trans "Search" %}:</label>
+                            <input type="text" name="search" value="{{search}}" class="inputSearch" />
+                            <button class="find" type="submit">{% trans "Find" %}</button>
+                            <span class="clear"></span>
+                        </span>
+                        <span class="left left1">
+                            <label>{% trans "Shop stocks" %}</label>
+                            <a class="exporter" href="#">{% trans "Exporter" %}</a>
+                            <a class="importer" href="#">{% trans "Importer" %}</a>
+                        </span>
+                        <span class="left left3">
+                            <label>{% trans "Batch" %}</label>
+                            <input style="width:60px;float:left" type="text" name="delta_stock" class="inputSearch" />
+                            <a class="increment disable">+</a>
+                            <a class="decrement disable">-</a>
+                            <a class="alert disable">{% trans "Alert" %}</a>
+                        </span>
+                        <span class="right">
+                            <a class="save" href="javascript:void(0);">{% trans "Save" %}</a>
+                        </span>
+                    </p>
+                    <!--VENTE-->
+                    <div class="vente">
+                     
+                        <!--INFOS VENTE-->
+                        <div class="content">
+                            
+                            <table style="width: 97%; border: 1px solid #dbdbdb; margin: 15px; background-color: #fff; " cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td></td>
+                                    <td style="padding: 15px 13px;">{% trans "Name" %}</td>
+                                    <td>{% trans "SKU" %}</td>
+                                    <td>{% trans "Barcode" %}</td>
+                                    <td>{% trans "Quantity" %}</td>
+                                    <td>{% trans "Alert" %}</td>
+                                </tr>
+                                
+                                {{stocks_form.stocks.management_form}}
+                                {% for ss in stocks_form.stocks %}
+                                <tr>
+                                    <td><input type="checkbox" name="batch" /></td>
+                                    <td>
+                                        <div class="prodSail">
+                                            <a title="click to edit this sale" href="{% url 'edit_sale' ss.sale_id.value 'shop' %}" class="imgProd">
+                                                <img width="20" height="20" alt="{{ss.product_name.value}}" src="{{ss.sale_cover.value }}" style="margin:1px 0px 2px 0px">
+                                            </a>
+                                            <div>
+                                                <h5>{{ss.product_name.value}}</h5>
+                                                <span class="qt">{{ss.ba_name.value}} {{ss.ca_name.value}}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ss.sku.value}}</td>
+                                    <td>{{ss.barcode.value}}</td>
+                                    <td>{{ form.stock.errors }}
+                                    {{ss.stock}}
+                                    {{ss.sale_id}}
+                                    {{ss.shop_id}}
+                                    {{ss.ba_id}}
+                                    {{ss.ca_id}}
+                                    </td>
+                                    <td>{{ss.alert}}</td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                        
+                        {% if is_paginated %}
+                        <ul class="paginate">
+                            {% if page_obj.has_previous %}
+                                {% for i in 1|pagenum_range:page_obj.previous_page_number %}
+                                    {% if i == 0 %}
+                                        <li><a>...</a></li>
+                                    {% else %}
+                                        <li><a href="{% url 'list_stocks' current_tab i %}">{{i}}</a></li>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            <li class="current"><a>{{page_obj.number}}</a></li>
+                            {% if page_obj.has_next %}
+                                {% for i in page_obj.next_page_number|pagenum_range:paginator.num_pages%}
+                                    {% if i == 0 %}
+                                        <li><a>...</a></li>
+                                    {% else %}
+                                        <li><a href="{% url 'list_stocks' current_tab i %}">{{i}}</a></li>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </ul>
+                        {% endif %}
+                     
+                        <div class="clear"></div>
+                    </div>
+                    <!--FIN VENTE-->
+                </div>
+                <!--//MEGATABS1-->
+            </fieldset>
+        </form>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+$(function() {
+    var tabs_num = $('#order-status-tabs li').length;
+    $('#order-status-tabs li').css({'width': 100/tabs_num + '%'})
+    $('#order-status-tabs li a').css({'width': '99.5%'})
+    $("table tr").each(function(index) {
+        if (index%2 == 0) {
+            $(this).attr('style', 'background-color:#fff;');
+        } else {
+            $(this).attr('style', 'background-color:#EEF7FF;');
+        }
+    });
+
+    $("input[id$='-stock']").change(function() {
+        var val = $.trim($(this).val());
+        if (val.length > 0 && !/^\d+$/.test(val)) {
+            $(this).attr('style', 'color:red;');
+        } else {
+            $(this).removeAttr('style');
+        }
+    });
+
+    $("input[name=batch]").change(function() {
+        if ($("input[name=batch]:checked").length == 0) {
+            $("a.increment").removeAttr('href');
+            $("a.increment").attr('style', 'background-color:#cbcbcb;');
+            $("a.decrement").removeAttr('href');
+            $("a.decrement").attr('style', 'background-color:#cbcbcb;');
+            $("a.alert").removeAttr('href');
+            $("a.alert").attr('style', 'background-color:#cbcbcb;');
+        } else {
+            $("a.increment").attr('href', 'javascript:void(0);');
+            $("a.increment").removeAttr('style');
+            $("a.decrement").attr('href', 'javascript:void(0);');
+            $("a.decrement").removeAttr('style');
+            $("a.alert").attr('href', 'javascript:void(0);');
+            $("a.alert").removeAttr('style');
+        }
+    }).change();
+    $("a.increment").click(function() {
+        batch_update_stock(1);
+    });
+    $("a.decrement").click(function() {
+        batch_update_stock(-1);
+    });
+    $("a.alert").click(function() {
+        $("input[name=batch]:checked").parents('tr').each(function() {
+            $(this).find('input[name$=-alert]').attr('checked', 'checked');
+        });
+    });
+    $("a.save").click(function() {
+        var form = $('#main_form')[0];
+        form.submit();
+    });
+    function batch_update_stock(flag) {
+        var delta = $('input[name=delta_stock]').val();
+        if (parseInt(delta)) {
+            $("input[name=batch]:checked").parents('tr').each(function() {
+                var value = $(this).find('input[name$=-stock]').val();
+                var new_value = parseInt(value) + parseInt(delta) * flag;
+                new_value = new_value>=0 ? new_value : 0;
+                $(this).find('input[name$=-stock]').val(new_value);
+            });
+        } else {
+            $('input[name=delta_stock]').val(0);
+        }
+    }
+});
+</script>
+{% endblock %}

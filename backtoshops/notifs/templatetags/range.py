@@ -36,6 +36,7 @@
 #
 #############################################################################
 
+import settings
 
 from django import template
 
@@ -43,5 +44,10 @@ register = template.Library()
 
 @register.simple_tag
 @register.filter
-def range(start_index, end_index):
-    return range(start_index, end_index + 1)
+def pagenum_range(start_index, end_index):
+    if end_index - start_index >= settings.PAGE_NAV_SIZE/2:
+        return range(start_index, start_index + 2) + [0] \
+             + range(end_index - 1, end_index + 1)
+    else:
+        return range(start_index, end_index + 1)
+

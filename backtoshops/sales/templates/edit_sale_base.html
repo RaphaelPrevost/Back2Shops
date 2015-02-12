@@ -39,8 +39,7 @@
         <ul class="arianne">
             <li class="li1 {% if wizard.steps.current == "shop" %}on{% endif %}"><a href="#"><span>{% trans "Shops" %}</span>1</a></li>
             <li class="li2 {% if wizard.steps.current == "product" %}on{% endif %}"><span>{% trans "Items" %}</span>2</li>
-            <li class="li3 {% if wizard.steps.current == "stocks" %}on{% endif %}"><span>{% trans "Stock" %}</span>3</li>
-            <li class="li4 {% if wizard.steps.current == "shipping" %}on{% endif %}"><span>{% trans "Shipping" %}</span>4</li>
+            <li class="li3 {% if wizard.steps.current == "shipping" %}on{% endif %}"><span>{% trans "Shipping" %}</span>3</li>
         </ul>
 
         {% block form %}{% endblock %}
@@ -53,9 +52,6 @@
         <input class="btn select" type="submit" value="{% trans "Next: Product" %}"/>
         {% endif %}
         {% if wizard.steps.current == "product" %}
-        <input class="btn select" type="submit" value="{% trans "Next: Stock Qty" %}"/>
-        {% endif %}
-        {% if wizard.steps.current == "stocks" %}
         <input class="btn select" type="submit" value="{% trans "Next: Shipping" %}"/>
         {% endif %}
         {% if wizard.steps.current == "shipping" %}

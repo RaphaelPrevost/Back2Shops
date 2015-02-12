@@ -1,24 +1,10 @@
 {% extends "new_base.html" %}
 {% load i18n %}
-{% load is_admin_upper %}
 {% load range %}
 
 {% block title %}{% trans "Notifications" %}{% endblock %}
 {% block head %}
     <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/new-order-list.css" />
-    <style type="text/css">
-        ul.paginate {
-            margin: 15px; text-align: center;
-        }
-        ul.paginate li {
-            display: inline-block;
-            background-color: #13ACDD; color: #fff;
-            padding: 4px 8px; margin-right: 0px;
-        }
-        ul.paginate li a {
-            color: #fff;
-        }
-    </style>
 {% endblock %}
 
 {% block navigation %}
@@ -38,7 +24,6 @@
         <!--FORM-->
         <form id="main_form" method="post">{% csrf_token %}
             <!--MEGA-TAB-->
-            <div>
             <fieldset>
                 <!--MEGATABS1-->
                 <div id="megatabs1">
@@ -93,14 +78,22 @@
                         {% if is_paginated %}
                         <ul class="paginate">
                             {% if page_obj.has_previous %}
-                                {% for i in page_obj.start_index|range:page_obj.previous_page_number %}
-                                <li><a href="{% url 'notif_list' i %}">{{i}}</a></li>
+                                {% for i in 1|pagenum_range:page_obj.previous_page_number %}
+                                    {% if i == 0 %}
+                                        <li><a>...</a></li>
+                                    {% else %}
+                                        <li><a href="{% url 'notif_list' i %}">{{i}}</a></li>
+                                    {% endif %}
                                 {% endfor %}
                             {% endif %}
-                            <li><a>{{page_obj.number}}</a></li>
+                            <li class="current"><a>{{page_obj.number}}</a></li>
                             {% if page_obj.has_next %}
-                                {% for i in page_obj.next_page_number|range:page_obj.end_index %}
-                                <li><a href="{% url 'notif_list' i %}">{{i}}</a></li>
+                                {% for i in page_obj.next_page_number|pagenum_range:paginator.num_pages%}
+                                    {% if i == 0 %}
+                                        <li><a>...</a></li>
+                                    {% else %}
+                                        <li><a href="{% url 'notif_list' i %}">{{i}}</a></li>
+                                    {% endif %}
                                 {% endfor %}
                             {% endif %}
                         </ul>
@@ -114,7 +107,6 @@
                 <!--//MEGATABS1-->
                  
             </fieldset>
-            </div>
             <!--//MEGA-TAB-->
         </form>
     </div>

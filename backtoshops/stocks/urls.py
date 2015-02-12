@@ -38,27 +38,15 @@
 
 
 import settings
-from django.conf.urls import patterns, url
-from fouillis.views import admin_required
-from notifs.views import *
+from django.conf.urls.defaults import patterns, url
+from fouillis.views import operator_upper_required
 
-urlpatterns = patterns(settings.get_site_prefix() + 'notifs',
-   url(r'/images/new/$',
-       UploadImageView.as_view(), name="upload_email_image"),
+from stocks.views import *
 
-   url(r'/list/$',
-       admin_required(NotifListView.as_view()), name="notif_list"),
-   url(r'/list/(?P<page>\d+)$',
-       admin_required(NotifListView.as_view()), name="notif_list"),
-
-   url(r'/new$',
-       admin_required(NewNotifView.as_view()), name="new_notif"),
-   url(r'/(?P<pk>\d+)/edit$',
-       admin_required(EditNotifView.as_view()), name="edit_notif"),
-   url(r'/(?P<pk>\d+)/delete$',
-       admin_required(DeleteNotifView.as_view()), name="delete_notif"),
-
-   url(r'/preview$',
-       admin_required(PreviewTemplateContentView.as_view()), name="preview_template"),
-
+urlpatterns = patterns(settings.get_site_prefix()+'stocks',
+    url(r'/list/(?:shop/(?P<shop>\d+)/)?(?:page/(?P<page>\d+)/)?$',
+        operator_upper_required(ListStocksView.as_view(),
+                                login_url="bo_login",
+                                super_allowed=False),
+        name='list_stocks'),
 )
