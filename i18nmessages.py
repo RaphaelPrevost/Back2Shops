@@ -3,8 +3,8 @@
 
 #############################################################################
 #
-# Copyright © BGA SARL and Dragon Dollar Limited
-# contact: contact@lbga.fr, contact@dragondollar.com
+# Copyright © Dragon Dollar Limited
+# contact: contact@dragondollar.com
 #
 # This software is a collection of webservices designed to provide a secure
 # and scalable framework to build e-commerce websites.
