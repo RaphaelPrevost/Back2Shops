@@ -395,7 +395,7 @@ class ProductForm(forms.Form):
         label=_("Cover picture"),
         widget=forms.HiddenInput())
     description = forms.CharField(
-        label=_("Description"),
+        label=_("Full description"),
         widget=forms.Textarea())
     weight_unit = forms.ModelChoiceField(
         label=_("Weight Unit"),
