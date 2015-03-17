@@ -61,6 +61,7 @@ from B2SProtocol.constants import EXPIRY_FORMAT
 from B2SUtils.common import set_cookie, get_cookie
 from B2SUtils.errors import ValidationError
 from B2SUtils import db_utils
+from B2SProtocol.constants import PAYMENT_TYPES
 from B2SProtocol.constants import USER_AUTH_COOKIE_NAME
 
 phone_num_reexp = r'^[0-9]+$'
@@ -471,7 +472,8 @@ def remote_payment_form(cookie, id_processor, id_trans, **kwargs):
     query = {'cookie': cookie, 'processor': id_processor, }
     param = {'id_trans': id_trans}
 
-    if id_processor == '1':
+    id_processor = int(id_processor)
+    if id_processor == PAYMENT_TYPES.PAYPAL:
         query.update({
             'url_notify': settings.PAYMENT_PAYPAL_GATEWAY % param,
             'url_return': settings.PAYMENT_PAYPAL_RETURN % param,
@@ -479,7 +481,7 @@ def remote_payment_form(cookie, id_processor, id_trans, **kwargs):
 
         })
 
-    if id_processor == '4':
+    elif id_processor == PAYMENT_TYPES.PAYBOX:
         query.update({
             'url_success': settings.PAYMENT_PAYBOX_SUCCESS % param,
             'url_failure': settings.PAYMENT_PAYBOX_FAILURE % param,
@@ -487,6 +489,14 @@ def remote_payment_form(cookie, id_processor, id_trans, **kwargs):
             'url_waiting': settings.PAYMENT_PAYBOX_WAITING % param,
             'url_return': settings.PAYMENT_PAYBOX_GATEWAY % param,
             'user_email': kwargs.get('user_email', ''),
+        })
+
+    elif id_processor == PAYMENT_TYPES.STRIPE:
+        query.update({
+            'user_email': kwargs.get('user_email', ''),
+            'url_process': settings.PAYMENT_STRIPE_PROCESS % param,
+            'url_success': kwargs.get('url_success', ''),
+            'url_failure': kwargs.get('url_failure', ''),
         })
 
     try:

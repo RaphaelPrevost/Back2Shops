@@ -54,3 +54,22 @@ CREATE TABLE trans_paybox (
     FOREIGN KEY (id_internal_trans) REFERENCES transactions (id)
 );
 CREATE UNIQUE INDEX trans_paybox_by_pb_trans_id ON trans_paybox USING btree (pb_trans_id);
+
+
+CREATE TABLE trans_stripe (
+    id serial PRIMARY KEY,
+    id_internal_trans BIGINT not null,
+    sp_trans_id character varying(50) not null,
+    amount double precision not NULL,
+    currency character varying(3) NOT NULL,
+    paid boolean DEFAULT false NOT NULL,
+    refunded boolean DEFAULT false NOT NULL,
+    status character varying(20) not null,
+    create_time timestamp without time zone DEFAULT now()  NOT NULL,
+    update_time timestamp without time zone DEFAULT now()  NOT NULL,
+    content text,
+
+    FOREIGN KEY (id_internal_trans) REFERENCES transactions (id)
+);
+CREATE UNIQUE INDEX trans_stripe_by_sp_trans_id ON trans_stripe USING btree (sp_trans_id);
+

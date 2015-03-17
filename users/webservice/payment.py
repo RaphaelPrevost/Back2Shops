@@ -48,11 +48,11 @@ import urllib
 import urllib2
 from datetime import datetime
 
+from B2SProtocol.constants import PAYMENT_TYPES
 from B2SProtocol.constants import TRANS_PAYPAL_STATUS
 from B2SProtocol.constants import TRANS_STATUS
 from B2SProtocol.constants import INVOICE_STATUS
 from common.constants import PAYPAL_VERIFIED
-from common.constants import PAYMENT_TYPES
 from common.email_utils import send_order_email
 from common.email_utils import send_order_email_to_service
 from common.error import ErrorCode
@@ -74,6 +74,7 @@ from webservice.base import BaseJsonResource
 from webservice.base import BaseResource
 from webservice.base import BaseXmlResource
 from webservice.invoice import BaseInvoiceMixin
+
 
 class PaymentInitResource(BaseXmlResource, BaseInvoiceMixin):
     login_required = {'get': False, 'post': True}
@@ -188,7 +189,9 @@ class PaymentFormResource(BaseJsonResource):
 
             pm_form = remote_payment_form(
                 trans['cookie'], id_processor, id_trans,
-                user_email=get_user_email(conn, self.users_id))
+                user_email=get_user_email(conn, self.users_id),
+                url_success=url_success,
+                url_failure=url_failure)
             logging.info("payment_form_response: %s", pm_form)
             return {'form': pm_form}
         except UserError, e:
@@ -249,7 +252,8 @@ class BasePaymentHandlerResource(BaseResource):
                          where={'id': trans['id']})
 
         except UserError, e:
-            logging.error("%s_verified_error: %s", self.payment_type, e,
+            logging.error("%s_verified_error: %s",
+                          PAYMENT_TYPES.toReverseDict()[self.payment_type].lower(), e,
                           exc_info=True)
             raise
 
@@ -269,12 +273,15 @@ class BasePaymentHandlerResource(BaseResource):
         url = settings.FIN_PAYMENT_NOTIFY_URL.get(self.payment_type) % {
             'id_trans': fin_internal_trans
         }
-        req = urllib2.Request(url, data=urllib.urlencode(data))
+        if isinstance(data, (dict, list)):
+            data = urllib.urlencode(data)
+        req = urllib2.Request(url, data=data)
         resp = urllib2.urlopen(req)
         resp_code = resp.getcode()
         if resp_code != httplib.OK:
             logging.error('%s_trans_failure for %s got status: %s',
-                          self.payment_type, fin_internal_trans, resp_code)
+                          PAYMENT_TYPES.toReverseDict()[self.payment_type].lower(),
+                          fin_internal_trans, resp_code)
             raise UserError(*self._fin_handled_err_code())
 
 
@@ -482,4 +489,56 @@ class PayboxGatewayResource(BasePayboxHandlerResource):
     def gen_resp(self, resp, data):
         resp.status = falcon.HTTP_200
 
+
+class StripeProcessResource(BasePaymentHandlerResource):
+    id_trans = None
+    payment_type = PAYMENT_TYPES.STRIPE
+
+    def _on_post(self, req, resp, conn, **kwargs):
+        """
+        1. valid check
+        2. charge via finance server
+        3. handle complete stripe transaction.
+        4. notify finance server for stripe transaction.
+        5. redirect to front success/failure page.
+        """
+        super(StripeProcessResource, self)._on_post(req, resp, conn, **kwargs)
+        self.id_trans = kwargs['id_trans']
+        url_success = req.get_param('url_success')
+        url_failure = req.get_param('url_failure')
+        try:
+            trans = self._valid_check(conn)
+            charge_req = urllib2.Request(
+                    settings.FIN_PAYMENT_STRIPE_CHARGE_URL % {'id_trans': self.id_trans},
+                    data=urllib.urlencode(req._params))
+            charge_resp = urllib2.urlopen(charge_req).read()
+            data = ujson.loads(charge_resp)['resp_data']
+            if data.get('status') == 'succeeded':
+                self.handle_completed(conn, trans)
+                redirect_url = url_success
+            else:
+                redirect_url = url_failure
+                query = urllib.urlencode(data)
+                redirect_url = '?'.join([redirect_url, query])
+
+            gevent.spawn(self.fin_trans_notify, trans, charge_resp)
+            self.redirect(redirect_url % {'id_trans': self.id_trans})
+
+        except UserError, e:
+            conn.rollback()
+            logging.error("stripe_process_err: %s", e, exc_info=True)
+            url = url_failure % {'id_trans': self.id_trans}
+            query = urllib.urlencode({'error': e.code})
+            uri = '?'.join([url, query])
+            self.redirect(uri)
+
+    def _valid_check(self, conn):
+        trans = get_trans_by_id(conn, self.id_trans)
+        if len(trans) == 0:
+            logging.error('stripe_valid_err: trans(%s) not exist %s',
+                          self.id_trans, self.request.query_string,
+                          exc_info=True)
+            raise UserError(ErrorCode.PM_ERR_INVALID_REQ[0],
+                            ErrorCode.PM_ERR_INVALID_REQ[1])
+        return trans[0]
 

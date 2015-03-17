@@ -147,8 +147,9 @@ class OrderInfoResource(BaseHtmlResource):
         shipping_info = get_shipping_info(req, resp, id_order)
         if not shipping_info['need_select_carrier']:
             invoice_info, id_invoices = _get_invoices(req, resp, id_order)
-            if id_invoices and order_data['order_status'] == ORDER_STATUS.AWAITING_PAYMENT:
-                payment_url = get_payment_url(id_order, id_invoices)
+            if id_invoices:
+                if order_data['order_status'] == ORDER_STATUS.AWAITING_PAYMENT:
+                    payment_url = get_payment_url(id_order, id_invoices)
             else:
                 _req_invoices(req, resp, id_order)
                 invoice_info, id_invoices = _get_invoices(req, resp, id_order)

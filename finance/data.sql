@@ -8,6 +8,7 @@ COPY processor (id, name, img) FROM stdin;
 2	VISA/Mastercard	\N
 3	VISA/Mastercard with 3DSecure	\N
 4	Paybox	\N
+5	Stripe	\N
 \.
 
 
@@ -15,6 +16,6 @@ COPY processor (id, name, img) FROM stdin;
 -- Name: processor_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('processor_id_seq', 3, true);
+SELECT pg_catalog.setval('processor_id_seq', 5, true);
 
 COMMIT;

@@ -58,3 +58,6 @@
 
 == version 0.0.18 ==
 1. Add license header
+
+== version 0.0.19 ==
+1. Add constant PAYMENT_TYPES

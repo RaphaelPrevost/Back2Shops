@@ -44,6 +44,7 @@ import urllib
 import xmltodict
 
 from B2SFrontUtils.constants import REMOTE_API_NAME
+from B2SProtocol.constants import PAYMENT_TYPES
 from B2SUtils.base_actor import as_list
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
@@ -87,7 +88,9 @@ class PaymentResource(BaseHtmlResource):
             if (settings.BRAND_NAME == "BREUER" or
                 settings.BRAND_NAME == "DRAGONDOLLAR"):
                 #hardcode paybox for BREUER/DRAGONDOLLAR
-                processor = '4' if settings.BRAND_NAME == 'BREUER' else '1'
+                processor = (PAYMENT_TYPES.PAYBOX
+                             if settings.BRAND_NAME == 'BREUER'
+                             else PAYMENT_TYPES.PAYPAL)
                 return self._payment_form(req, resp,
                                           id_trans=id_trans,
                                           processor=processor,
@@ -108,22 +111,28 @@ class PaymentResource(BaseHtmlResource):
         processor = req.get_param('processor') or kwargs.get('processor')
         id_order = req.get_param('id_order') or kwargs.get('id_order')
         form = None
-        if processor in ['1', '4']:
+        if int(processor) in PAYMENT_TYPES.toReverseDict():
             trans = {'id_trans': id_trans}
             query = {'transaction': id_trans}
-            if processor == '1':
+            if int(processor) == PAYMENT_TYPES.PAYPAL:
                 query.update({
                     'processor': processor,
                     'success': settings.PP_SUCCESS % trans,
                     'failure': settings.PP_FAILURE % trans,
                 })
-            if processor == '4':
+            if int(processor) == PAYMENT_TYPES.PAYBOX:
                 query.update({
                     'processor': processor,
                     'success': settings.PB_SUCCESS % trans,
                     'failure': settings.PB_ERROR % trans,
                     'cancel': settings.PB_CANCEL % trans,
                     'waiting': settings.PB_WAITING % trans,
+                })
+            if int(processor) == PAYMENT_TYPES.STRIPE:
+                query.update({
+                    'processor': processor,
+                    'success': settings.SP_SUCCESS % trans,
+                    'failure': settings.SP_FAILURE % trans,
                 })
             form_resp = data_access(REMOTE_API_NAME.PAYMENT_FORM, req, resp,
                                     **query)
@@ -208,3 +217,24 @@ class PayboxWaitingResource(BaseHtmlResource):
         params = req._params
         params.update({'id_trans': kwargs['id_trans']})
         return {'result': params}
+
+
+class StripeSuccessResource(BaseHtmlResource):
+    template = "stripe_success.html"
+    show_products_menu = False
+
+    def _on_get(self, req, resp, **kwargs):
+        params = req._params
+        params.update({'id_trans': kwargs['id_trans']})
+        return {'result': params}
+
+
+class StripeFailureResource(BaseHtmlResource):
+    template = "stripe_failure.html"
+    show_products_menu = False
+
+    def _on_get(self, req, resp, **kwargs):
+        params = req._params
+        params.update({'id_trans': kwargs['id_trans']})
+        return {'result': params}
+

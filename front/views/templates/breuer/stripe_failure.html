@@ -1,0 +1,13 @@
+<div id="panier" role="main">
+    <strong id="titlepanier">Votre Commande</strong>
+    <ul>
+        <li class="li1 ok"><a href="${basket_url_format}"><span>1 </span>Commande</a></li>
+        <li class="li2 ok"><span>2 </span>Identification</li>
+        <li class="li3 ok"><span>3 </span>Adresse de livraison</li>
+        <li class="li4 on"><span>4 </span>Validation</li>
+    </ul>
+    <h1 id="congrat" class="rejected">Votre paiement a été rejeté.</h1>
+</div>
+<script>
+setTimeout("redirectTo('${my_account_url_format}')", 5000);
+</script>

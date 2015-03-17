@@ -69,6 +69,8 @@ from views.payment import PaymentResource
 from views.payment import PaypalCancelResource
 from views.payment import PaypalFailureResource
 from views.payment import PaypalSuccessResource
+from views.payment import StripeSuccessResource
+from views.payment import StripeFailureResource
 from views.product import ProductInfoResource
 from views.product import ProductListResource
 from views.product import TypeListResource
@@ -147,6 +149,8 @@ fixed_urlpatterns = {
     r'/paybox/{id_trans}/failure': PayboxFailureResource,
     r'/paybox/{id_trans}/cancel': PayboxCancelResource,
     r'/paybox/{id_trans}/waiting': PayboxWaitingResource,
+    r'/stripe/{id_trans}/success': StripeSuccessResource,
+    r'/stripe/{id_trans}/failure': StripeFailureResource,
     r'/webservice/1.0/pub/JSONAPI': AuxResource,
     r'/webservice/1.0/pub/apikey.pem': crypto.APIPubKey,
 
