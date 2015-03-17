@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Payment Form{% endblock %}
+
+{% block content %}
+<form method="POST" action="{{ object.post_action }}">
+    <script
+    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+    data-key="{{ object.api_key }}"
+    data-amount="{{ object.amount_due }}"
+    data-name="{{ object.name }}"
+    data-description="{{ object.desc }}"
+    data-image="{{ object.img }}">
+    </script>
+    <input type="hidden" name="url_success" value="{{ object.url_success }}">
+    <input type="hidden" name="url_failure" value="{{ object.url_failure }}">
+</form>
+{% endblock %}

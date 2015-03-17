@@ -107,6 +107,15 @@ class INVOICE_STATUS(CustomEnum):
     INVOICE_PAID = 4
     INVOICE_LATE = 5
 
+class PAYMENT_TYPES(CustomEnum):
+    # make it consistent with table processor in finance database
+    PAYPAL = 1
+    #VISA_MASTER = 2
+    #VISA_MASTER_WITH_3D = 3
+    PAYBOX = 4
+    STRIPE = 5
+
+
 FREE_SHIPPING_CARRIER = -1
 CUSTOM_SHIPPING_CARRIER = 0
 
@@ -173,3 +182,4 @@ EURO_UNION_COUNTRIES = (
 
 SESSION_COOKIE_NAME = 'SESSION'
 EXPIRY_FORMAT = '%a, %d %b %Y %H:%M:%S UTC'
+

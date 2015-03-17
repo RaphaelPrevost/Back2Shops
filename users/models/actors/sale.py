@@ -399,7 +399,7 @@ class ActorSale(BaseActor):
         if int(id_variant):
             v = self.get_variant(id_variant)
             if v.img:
-                img_path = v.img
+                img_path = v.img[0]
         elif self.img:
             img_path = self.img[0]
         if img_path:

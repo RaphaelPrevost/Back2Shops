@@ -42,6 +42,7 @@ import logging
 import settings
 import ujson
 from pytz import timezone
+import stripe
 
 from common.constants import CUR_CODE
 from common.error import ErrorCode
@@ -49,6 +50,7 @@ from common.error import UserError
 from common.utils import gen_hmac
 from models.paybox import update_or_create_trans_paybox
 from models.paypal import update_or_create_trans_paypal
+from models.stripe import update_or_create_trans_stripe
 from models.processor import get_processor
 from models.transaction import create_trans
 from models.transaction import get_trans_by_id
@@ -57,8 +59,10 @@ from webservice.base import BaseHtmlResource
 from webservice.base import BaseJsonResource
 from webservice.base import BaseResource
 
+from B2SUtils.db_utils import select
 from B2SCrypto.utils import decrypt_json_resp
 from B2SCrypto.constant import SERVICES
+from B2SProtocol.constants import PAYMENT_TYPES
 from B2SProtocol.constants import TRANS_PAYPAL_STATUS
 from B2SProtocol.constants import TRANS_STATUS
 from B2SRespUtils.generate import temp_content
@@ -124,12 +128,15 @@ class PaymentFormResource(BaseHtmlResource):
     def valid_check(self, conn, data):
         try:
             assert 'processor' in data, "Miss processor in request"
-            if data['processor'] == '1':
+            proc = int(data['processor'])
+            if proc == PAYMENT_TYPES.PAYPAL:
                 required_fields = ['cookie', 'url_notify', 'url_return',
                                    'url_cancel']
-            elif data['processor'] == '4':
+            elif proc == PAYMENT_TYPES.PAYBOX:
                 required_fields = ['cookie', 'url_success', 'url_failure',
                                    'url_cancel', 'url_waiting', 'url_return']
+            elif proc == PAYMENT_TYPES.STRIPE:
+                required_fields = ['cookie', 'url_success', 'url_failure']
 
             for field in required_fields:
                 assert field in data, "Miss %s in request" % field
@@ -183,8 +190,8 @@ class PaymentFormResource(BaseHtmlResource):
         return data
 
     def payment_form(self, query, trans):
-        processor = query['processor']
-        if int(processor) == 1:
+        processor = int(query['processor'])
+        if processor == PAYMENT_TYPES.PAYPAL:
             self.template = "paypal_form.html"
             url_return = query['url_return']
             url_cancel = query['url_cancel']
@@ -199,7 +206,7 @@ class PaymentFormResource(BaseHtmlResource):
                 'url_notify': url_notify
                 }}
 
-        if int(processor) == 4:
+        if processor == PAYMENT_TYPES.PAYBOX:
             self.template = "paybox_form.html"
             fields = ['PBX_SITE', 'PBX_RANG', 'PBX_IDENTIFIANT', 'PBX_TOTAL',
                       'PBX_DEVISE', 'PBX_CMD', 'PBX_PORTEUR', 'PBX_RETOUR',
@@ -219,6 +226,20 @@ class PaymentFormResource(BaseHtmlResource):
                 'post_action': settings.PAYBOX_REQUEST_URL,
                 'iv_numbers': trans['iv_numbers'],
             }}
+
+        if processor == PAYMENT_TYPES.STRIPE:
+            self.template = "stripe_form.html"
+            return {'object': {
+                'api_key': settings.STRIPE_API_KEY,
+                'post_action': query['url_process'],
+                'url_success': query['url_success'],
+                'url_failure': query['url_failure'],
+                'amount_due': int(trans['amount_due'] * 100),
+                'name': 'Payment',
+                'desc': '',
+                'img': '',
+            }}
+
 
 class PaypalTransResource(BaseResource):
     def _on_post(self, req, resp, conn, **kwargs):
@@ -266,4 +287,70 @@ class PayboxTransResource(BaseResource):
             conn.rollback()
             logging.error('paybox_verified_err: %s', e, exc_info=True)
             resp.status = falcon.HTTP_500
+
+
+class StripeChargeResource(BaseJsonResource):
+    def _on_post(self, req, resp, conn, **kwargs):
+        try:
+            req._params.update(kwargs)
+            id_trans = req.get_param('id_trans')
+            card_token = req.get_param('stripeToken')
+            data = self.charge(conn, id_trans, card_token)
+            logging.debug('stripe_charge_resp: %s' % data)
+            return {
+                'resp_code': falcon.HTTP_200,
+                'resp_data': data,
+            }
+        except stripe.error.StripeError, e:
+            body = e.json_body
+            msg = body['error']['message']
+            raise Exception(msg)
+
+        except Exception, e:
+            conn.rollback()
+            msg = str(e)
+            logging.error('stripe_charge_err: %s', e, exc_info=True)
+
+        return {
+            'resp_code': falcon.HTTP_500,
+            'resp_data': {'error': msg},
+        }
+
+    def charge(self, conn, id_trans, card_token):
+        trans = select(conn, "transactions",
+                       columns=['amount_due', 'currency', 'iv_numbers'],
+                       where={'id': id_trans})[0]
+        stripe.api_key = settings.STRIPE_API_KEY
+        resp = stripe.Charge.create(
+            amount=int(trans[0] * 100),
+            currency=trans[1],
+            source=card_token,
+            description="Charge for invoice num: %s" % trans[2],
+        )
+        return ujson.loads(resp)
+
+
+class StripeTransResource(BaseResource):
+    def _on_post(self, req, resp, conn, **kwargs):
+        """
+        1. Update transaction status to Paid for completed stripe transaction.
+        2. Update or create stripe transaction.
+        """
+        try:
+            id_trans = kwargs.get('id_trans')
+            data = ujson.loads(req.query_string)['resp_data']
+
+            if data.get('status') == 'succeeded':
+                update_trans(conn,
+                             values={'status': TRANS_STATUS.TRANS_PAID},
+                             where={'id': id_trans})
+
+            update_or_create_trans_stripe(conn, id_trans, data)
+            resp.status = falcon.HTTP_200
+
+        except Exception, e:
+            conn.rollback()
+            logging.error('stripe_trans_err: %s', e, exc_info=True)
+            resp.status = falcon.HTTP_500
+
 

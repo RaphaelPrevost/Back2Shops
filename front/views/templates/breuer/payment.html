@@ -195,7 +195,11 @@
         });
 
         $('#paymentBtn').click(function() {
-            $('#paymentForm form').submit();
+            if ($('button.stripe-button-el').length > 0) {
+                $('button.stripe-button-el').click();
+            } else {
+                $('#paymentForm form').submit();
+            }
         });
     });
     </script>

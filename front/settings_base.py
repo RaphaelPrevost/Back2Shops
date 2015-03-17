@@ -87,6 +87,9 @@ PB_ERROR = "http://localhost:9500/paybox/%(id_trans)s/error"
 PB_CANCEL = "http://localhost:9500/paybox/%(id_trans)s/cancel"
 PB_WAITING = "http://localhost:9500/paybox/%(id_trans)s/waiting"
 
+SP_SUCCESS = "http://localhost:9500/stripe/%(id_trans)s/success"
+SP_FAILURE = "http://localhost:9500/stripe/%(id_trans)s/failure"
+
 NUM_OF_RANDOM_SALES = 4
 
 SEND_EMAILS = False

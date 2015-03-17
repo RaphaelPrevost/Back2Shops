@@ -37,38 +37,23 @@
 #############################################################################
 
 
-# frontend settings
-from settings_local import *
+import datetime
+from common.db_utils import update_or_create_trans
 
-PRODUCTION = True
-LOG_CONFIG_FILE = 'product_logging.cfg'
 
-STATIC_FILES_PATH = '/var/local/assets/front_files'
+def update_or_create_trans_stripe(conn, id_trans, data):
+    sp_trans_id = data['id']
+    values = {
+        'id_internal_trans': id_trans,
+        'sp_trans_id': sp_trans_id,
+        'amount': data['amount'],
+        'currency': data['currency'],
+        'paid': data['paid'],
+        'refunded': data['refunded'],
+        'status': data['status'],
+        'update_time': datetime.datetime.now(),
+    }
 
-CENTRAL_REDIS = {
-    'HOST': 'user',
-    'PORT': 6379,
-    'TEST_PORT': 6279
-}
-
-USR_ROOT_URI = "http://92.222.30.2"
-SERVER_APIKEY_URI_MAP = {
-    'USR': os.path.join(USR_ROOT_URI,
-                        'webservice/1.0/pub/apikey.pem'),
-}
-
-FRONT_ROOT_URI = "http://92.222.30.5"
-PP_SUCCESS = "%s/paypal/%%(id_trans)s/success" % FRONT_ROOT_URI
-PP_FAILURE = "%s/paypal/%%(id_trans)s/failure" % FRONT_ROOT_URI
-
-PB_SUCCESS = "%s/paybox/%%(id_trans)s/success" % FRONT_ROOT_URI
-PB_ERROR = "%s/paybox/%%(id_trans)s/error" % FRONT_ROOT_URI
-PB_CANCEL = "%s/paybox/%%(id_trans)s/cancel" % FRONT_ROOT_URI
-PB_WAITING = "%s/paybox/%%(id_trans)s/waiting" % FRONT_ROOT_URI
-
-SP_SUCCESS = "%s/stripe/%(id_trans)s/success" % FRONT_ROOT_URI
-SP_FAILURE = "%s/stripe/%(id_trans)s/failure" % FRONT_ROOT_URI
-
-BRAND_ID = "1"
-
-SEND_EMAILS = True
+    return update_or_create_trans(conn, 'trans_stripe', data, values,
+                                  {'sp_trans_id': sp_trans_id},
+                                  data['status'])

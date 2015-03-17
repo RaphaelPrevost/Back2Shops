@@ -727,7 +727,8 @@ def get_order_detail(conn, order_id, brand_id, shops_id=None):
     order_items = _get_order_items(conn, order_id, brand_id, shops_id)
     details.update(order_items)
     details.update({
-        'thumbnail_img': order_items['order_items'][0][1]['picture'],
+        'thumbnail_img': order_items['order_items'][0][1]['picture']
+                         if len(order_items['order_items']) > 0 else '',
         'shipping_dest': get_user_dest_addr(conn, details['user_id'],
                                             details['id_shipaddr']),
         'order_status': get_order_status(conn, order_id, brand_id, shops_id)})

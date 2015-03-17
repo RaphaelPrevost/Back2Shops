@@ -65,17 +65,22 @@ PAYMENT_PAYPAL_GATEWAY = "%s/payment/%%(id_trans)s/gateway" % USR_ROOT_URI
 PAYMENT_PAYPAL_RETURN = "%s/payment/%%(id_trans)s/process" % USR_ROOT_URI
 PAYMENT_PAYPAL_CANCEL = "%s/paypal/%%(id_trans)s/cancel" % FRONT_ROOT_URI
 
+PAYPAL_SERVER = "https://www.sandbox.paypal.com/cgi-bin/webscr"
+FIN_PAYPAL_TRANS = '%s/webservice/1.0/pub/paypal/trans/%%(id_trans)s' % FIN_ROOT_URI
+
 PAYMENT_PAYBOX_SUCCESS = "%s/paybox/%%(id_trans)s/success" % FRONT_ROOT_URI
 PAYMENT_PAYBOX_FAILURE = "%s/paybox/%%(id_trans)s/failure" % FRONT_ROOT_URI
 PAYMENT_PAYBOX_CANCEL = "%s/paybox/%%(id_trans)s/cancel" % FRONT_ROOT_URI
 PAYMENT_PAYBOX_WAITING = "%s/paybox/%%(id_trans)s/waiting" % FRONT_ROOT_URI
 PAYMENT_PAYBOX_GATEWAY = "%s/payment/paybox/%%(id_trans)s/gateway" % USR_ROOT_URI
 
-PAYPAL_SERVER = "https://www.sandbox.paypal.com/cgi-bin/webscr"
+PAYMENT_STRIPE_PROCESS = "%s/payment/stripe/%%(id_trans)s/process" % USR_ROOT_URI 
+FIN_PAYMENT_STRIPE_CHARGE_URL = '%s/webservice/1.0/pub/stripe/trans/%%(id_trans)s/charge' % FIN_ROOT_URI
 
 FIN_PAYMENT_NOTIFY_URL = {
     PAYMENT_TYPES.PAYPAL: '%s/webservice/1.0/pub/paypal/trans/%%(id_trans)s' % FIN_ROOT_URI,
     PAYMENT_TYPES.PAYBOX: '%s/webservice/1.0/pub/paybox/trans/%%(id_trans)s' % FIN_ROOT_URI,
+    PAYMENT_TYPES.STRIPE: '%s/webservice/1.0/pub/stripe/trans/%%(id_trans)s' % FIN_ROOT_URI,
 }
 
 SELLER_EMAIL = 'business@infinite-code.com'

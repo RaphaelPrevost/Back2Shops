@@ -42,6 +42,8 @@ from webservice.payment import PayboxTransResource
 from webservice.payment import PaymentFormResource
 from webservice.payment import PaymentInitResource
 from webservice.payment import PaypalTransResource
+from webservice.payment import StripeChargeResource
+from webservice.payment import StripeTransResource
 
 urlpatterns = {
     '/webservice/1.0/pub/apikey.pem': ApiKeyResource,
@@ -49,4 +51,6 @@ urlpatterns = {
     '/webservice/1.0/private/payment/init': PaymentInitResource,
     '/webservice/1.0/pub/paypal/trans/{id_trans}': PaypalTransResource,
     '/webservice/1.0/pub/paybox/trans/{id_trans}': PayboxTransResource,
+    '/webservice/1.0/pub/stripe/trans/{id_trans}': StripeTransResource,
+    '/webservice/1.0/pub/stripe/trans/{id_trans}/charge': StripeChargeResource,
 }

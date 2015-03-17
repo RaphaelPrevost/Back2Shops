@@ -60,6 +60,7 @@ from webservice.payment import PaymentFormResource
 from webservice.payment import PaymentInitResource
 from webservice.payment import PaypalGatewayResource
 from webservice.payment import PaypalProcessResource
+from webservice.payment import StripeProcessResource
 from webservice.routes import RoutesResource
 from webservice.sales import SalesResource
 from webservice.shipment import ShipmentResource
@@ -146,4 +147,6 @@ urlpatterns = {
     r'/payment/paypal/{id_trans}/gateway': PaypalGatewayResource,
 
     r'/payment/paybox/{id_trans}/gateway': PayboxGatewayResource,
+
+    r'/payment/stripe/{id_trans}/process': StripeProcessResource,
 }
