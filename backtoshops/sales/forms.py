@@ -626,10 +626,9 @@ class ProductForm(forms.Form):
                 pro = Product.objects.get(sale=ref.sale)
                 if pro.valid_to and pro.valid_to < date.today():
                     continue
-                shops = ref.sale.shops.all()
                 # check: 1. the same external_id is in global shop when current sale in global shop.
                 #        2. the same external_id is in same shop.
-                shops_id = [s.id for s in shops]
+                shops_id = [s.id for s in ref.sale.shops.all()]
                 if len(shops_id) == 0 and len(shops) == 0:
                     raise forms.ValidationError(_("external refs %s already used in global market." % new_exid))
                 elif len(set(shops_id).intersection(set(shops))):
