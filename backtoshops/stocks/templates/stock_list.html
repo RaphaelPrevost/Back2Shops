@@ -6,8 +6,29 @@
 {% block head %}
     <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/new-order-list.css" />
     <style type="text/css">
+    table input[type=text] {
+        width: 100px;
+    }
+    table tr:nth-child(even){
+        background-color:#fff;
+    }
+    table tr:nth-child(odd){
+        background-color:#EEF7FF;
+    }
+    table td:nth-child(1), table td:nth-child(6) {
+        width: 50px;
+        text-align: center;
+    }
+    table td:nth-child(3), table td:nth-child(4) {
+        cursor: pointer;
+        width: 150px;
+    }
+    table td:nth-child(5) {
+        width: 150px;
+    }
     a.increment, a.decrement, a.alert,
-    a.exporter, a.importer, a.save {
+    a.exporter, a.importer, a.save,
+    a.confirm {
         display: block; float: left;
         background-color: #0098c7; border-radius: 3px; color: #fff;
         height: 25px; line-height: 19px; padding: 3px 5px; margin: 3px 0px 0 10px;
@@ -28,6 +49,21 @@
         background-color: #eb8f00;
         font-weight: bold;
     }
+    a.confirm {
+        background-color: green;
+        float: right;
+        position: relative;
+        top: -5px;
+        right: 20px;
+    }
+    td .error {
+        color: red;
+        min-height: 15px;
+    }
+    .empty-row td {
+        padding: 15px 13px;
+        font-weight: bold;
+    }
     </style>
 {% endblock %}
 
@@ -46,11 +82,13 @@
         <form id="main_form" method="post">{% csrf_token %}
             <fieldset>
                 <ul id="order-status-tabs">
+                    {% if shop_tabs|length > 1 %}
                     {% for tab in shop_tabs %}
                     <li style="float:left">
                         <a href="{% url 'list_stocks' tab.shop_id page_obj.number %}" class="order_tab {% if current_tab == tab.shop_id %}selected{% endif %}">{{tab.name}}</a>
                     </li>
                     {% endfor %}
+                    {% endif %}
                 </ul>
 
                 <!--MEGATABS1-->
@@ -86,7 +124,7 @@
                         <div class="content">
                             
                             <table style="width: 97%; border: 1px solid #dbdbdb; margin: 15px; background-color: #fff; " cellpadding="0" cellspacing="0">
-                                <tr>
+                                <tr style="background-color:#fff;">
                                     <td></td>
                                     <td style="padding: 15px 13px;">{% trans "Name" %}</td>
                                     <td>{% trans "SKU" %}</td>
@@ -94,7 +132,7 @@
                                     <td>{% trans "Quantity" %}</td>
                                     <td>{% trans "Alert" %}</td>
                                 </tr>
-                                
+
                                 {{stocks_form.stocks.management_form}}
                                 {% for ss in stocks_form.stocks %}
                                 <tr>
@@ -110,8 +148,8 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td>{{ss.sku.value}}</td>
-                                    <td>{{ss.barcode.value}}</td>
+                                    <td class="sku">{{ss.sku.value}}</td>
+                                    <td class="barcode">{{ss.barcode.value}}</td>
                                     <td>{{ form.stock.errors }}
                                     {{ss.stock}}
                                     {{ss.sale_id}}
@@ -120,6 +158,12 @@
                                     {{ss.ca_id}}
                                     </td>
                                     <td>{{ss.alert}}</td>
+                                </tr>
+                                {% empty %}
+                                <tr class="empty-row">
+                                    <td colspan="6">
+                                        <div>{% trans "Sorry, your search request did not match any items." %}</div>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </table>
@@ -165,12 +209,66 @@ $(function() {
     var tabs_num = $('#order-status-tabs li').length;
     $('#order-status-tabs li').css({'width': 100/tabs_num + '%'})
     $('#order-status-tabs li a').css({'width': '99.5%'})
-    $("table tr").each(function(index) {
-        if (index%2 == 0) {
-            $(this).attr('style', 'background-color:#fff;');
-        } else {
-            $(this).attr('style', 'background-color:#EEF7FF;');
+
+    $("td.sku").click(function() {
+        if ($(this).find('input').length == 0) {
+            var v = $(this).text();
+            $(this).attr('old_val', v);
+            $(this).html('<div class="error"></div><input type="text" value="' + v + '"/><a class="confirm">OK</a>');
         }
+    });
+    $(document).on("click", "td.sku .confirm", function(e){
+        var row = $(this).parents('tr');
+        var cell = $(this).parent();
+        var new_val = $(this).siblings().val();
+        var data_send = {
+            'sku': new_val,
+            'sale_id': row.find('input[name$=-sale_id]').val(),
+            'shop_id': row.find('input[name$=-shop_id]').val(),
+            'ba_id': row.find('input[name$=-ba_id]').val(),
+            'ca_id': row.find('input[name$=-ca_id]').val(),
+        };
+        $.post("{% url 'update_sku' %}",
+            data_send,
+            function(data) {
+                if (data.success) {
+                    cell.html(data.value);
+                } else {
+                    cell.html(cell.attr('old_val'));
+                }
+            }
+        );
+    });
+
+    $("td.barcode").click(function() {
+        if ($(this).find('input').length == 0) {
+            var v = $(this).text();
+            $(this).attr('old_val', v);
+            $(this).html('<div class="error"></div><input type="text" value="' + v + '"/><a class="confirm">OK</a>');
+        }
+    });
+    $(document).on("click", "td.barcode .confirm", function(e){
+        var row = $(this).parents('tr');
+        var cell = $(this).parent();
+        var new_val = $(this).prev().val();
+        var data_send = {
+            'barcode': new_val,
+            'sale_id': row.find('input[name$=-sale_id]').val(),
+            'shop_id': row.find('input[name$=-shop_id]').val(),
+            'ba_id': row.find('input[name$=-ba_id]').val(),
+            'ca_id': row.find('input[name$=-ca_id]').val(),
+        };
+        $.post("{% url 'update_barcode' %}",
+            data_send,
+            function(data) {
+                if (data.success == true) {
+                    cell.html(data.value);
+                } else {
+                    cell.find('.error').text(data.err);
+                    //cell.html(cell.attr('old_val'));
+                }
+            }
+        );
     });
 
     $("input[id$='-stock']").change(function() {

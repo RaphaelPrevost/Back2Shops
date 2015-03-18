@@ -212,10 +212,14 @@ $(function(){
     _calc_premium_price();
     _display_prices();
 
+    $("select[name=id_shop]").click(function(){
+        _display_price_after_tax();
+    });
+
     $("#selectColoris li").click(function(){
         $(this).attr('class', 'selected').siblings().attr('class', '');
     });
-
+    
     $("#selectColoris li a").click(function(){
         var img = $(this).attr('src');
         api.$link.attr("href", img);
