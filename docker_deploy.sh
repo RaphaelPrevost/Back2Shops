@@ -159,6 +159,7 @@ function docker_pull() {
 function docker_stop_container() {
     exist=$(docker ps -a | awk '{print $(NF)}' | grep $1 | wc -l)
     if [ $exist != "0" ]; then
+        docker exec -it $1 service postgresql stop || echo ""
         docker rm -f $1
     fi
 }
