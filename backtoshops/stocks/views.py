@@ -273,7 +273,8 @@ class UpdateSkuAjaxView(View):
         return HttpResponse(json.dumps(result), mimetype="application/json")
 
     def _valid(self, new_exid, shop_id):
-        shop_id = int(shop_id)
+        if isinstance(shop_id, str) and shop_id.isdigit():
+            shop_id = int(shop_id)
         # In one shop, cannot have 2 same external id for two sale items.
         refs_with_same_exid = ExternalRef.objects.filter(external_id=new_exid)
         for ref in refs_with_same_exid:
@@ -324,7 +325,8 @@ class UpdateBarcodeAjaxView(View):
         return HttpResponse(json.dumps(result), mimetype="application/json")
 
     def _valid(self, new_upc, shop_id):
-        shop_id = int(shop_id)
+        if isinstance(shop_id, str) and shop_id.isdigit():
+            shop_id = int(shop_id)
         # In one shop, cannot have 2 same product barcode for two sale items.
         brs_with_same_upc = Barcode.objects.filter(upc=new_upc)
         for br in brs_with_same_upc:

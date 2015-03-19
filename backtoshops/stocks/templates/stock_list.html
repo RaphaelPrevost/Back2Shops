@@ -220,7 +220,7 @@ $(function() {
     $(document).on("click", "td.sku .confirm", function(e){
         var row = $(this).parents('tr');
         var cell = $(this).parent();
-        var new_val = $(this).siblings().val();
+        var new_val = $(this).prev().val();
         var data_send = {
             'sku': new_val,
             'sale_id': row.find('input[name$=-sale_id]').val(),
