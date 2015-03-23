@@ -1,10 +1,10 @@
-<form id="loginForm" name="loginForm" method="POST">
+<form id="loginForm" name="loginForm" method="post">
     <div class="errwrapper">&nbsp;</div>
     <div>
-        <input type="text" name="email" id="email" placeholder="${_('Email')}" class="text ui-widget-content ui-corner-all">
+        <input type="text" name="email" id="email" placeholder="${_('Email')}" class="text ui-widget-content ui-corner-all" />
     </div>
     <div>
-        <input type="password" name="password" id="password" placeholder="${_('Password')}" class="text ui-widget-content ui-corner-all">
+        <input type="password" name="password" id="password" placeholder="${_('Password')}" class="text ui-widget-content ui-corner-all" />
     </div>
     <br/>
     <div>
@@ -12,7 +12,7 @@
     </div>
 </form>
 
-<script>
+<script type="text/javascript">
 function toRegister() {
     $("#dialog-login").dialog('close');
     $("#dialog-register").dialog('open');
