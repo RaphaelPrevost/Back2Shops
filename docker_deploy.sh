@@ -64,6 +64,7 @@ function set_deploy_settings() {
     read -p "Please input front server brand (breuer/vessel/dragon): " BRAND
     read -p "Please input front server domain: " FRT_DOMAIN
     read -p "Please input front server address: " FRT_ADDR
+    read -p "Please input dragon dollar blog ip address: " DRAGON_BLOG_IP
 
     cat > $CWD/deploy_settings.sh <<EOF
 export ADM_DOMAIN='$ADM_DOMAIN'
@@ -79,6 +80,7 @@ export VSL_ADDR='$VSL_ADDR'
 export MAIN_BRAND='$BRAND'
 export $(echo $BRAND)_FRT_DOMAIN='$FRT_DOMAIN'
 export $(echo $BRAND)_FRT_ADDR='$FRT_ADDR'
+export DRAGON_BLOG_IP='$DRAGON_BLOG_IP'
 EOF
 
     set_more_front
@@ -219,7 +221,7 @@ function prepare_bo_image() {
     docker exec -it $CONTAINER_NAME chown -R postgres:postgres /var/lib/container_pg
     docker exec -it $CONTAINER_NAME service postgresql restart
 
-    docker exec -it $CONTAINER_NAME /bin/bash -c "cd /home/backtoshops; RESETDB=$RESETDB bash container_deploy.sh backoffice"
+    docker exec -it $CONTAINER_NAME /bin/bash -c "cd /home/backtoshops; INITDB=$INITDB RESETDB=$RESETDB bash container_deploy.sh backoffice"
     docker commit $CONTAINER_NAME $SELF_IMG && docker save $SELF_IMG > docker/$SELF_IMG
 }
 
@@ -272,6 +274,7 @@ function prepare_user_image() {
            --volumes-from=$DB_CONTAINER_NAME \
            -v $CWD:/home/backtoshops \
            -v /tmp/logs:/tmp/logs \
+           -p 6379:6379 \
            -p 127.0.0.1:$PORT:$PORT --name=$CONTAINER_NAME $IMG)
 
     docker exec -it $CONTAINER_NAME chown -R postgres:postgres /var/lib/container_pg
@@ -527,7 +530,7 @@ function prepare_front_image() {
            -v $CWD:/home/backtoshops \
            -v /tmp/logs:/tmp/logs \
            -v /var/local/assets:/var/local/assets \
-           -p 127.0.0.1:$PORT:$PORT --name=$CONTAINER_NAME --link user:user $IMG)
+           -p 127.0.0.1:$PORT:$PORT --name=$CONTAINER_NAME $IMG)
 
     docker exec -it $CONTAINER_NAME /bin/bash -c "cd /home/backtoshops; BRAND=$BRAND bash container_deploy.sh front"
     docker commit $CONTAINER_NAME $SELF_IMG && docker save $SELF_IMG > docker/$SELF_IMG
@@ -545,7 +548,7 @@ function setup_front_server() {
     if [ $SITE_NAME=='dragon_front' ]; then
         COIN_PROXY="
         location /coins/ {
-            proxy_pass http://www.dragondollar.com/coins/;
+            proxy_pass http://$DRAGON_BLOG_IP/coins/;
             autoindex off;
         }"
     fi
@@ -607,13 +610,13 @@ function deploy_front() {
 }
 
 function deploy_all_fronts() {
-    if [ -n $breuer_FRT_ADDR ]; then
+    if [ $breuer_FRT_ADDR != '' ]; then
         deploy_front "breuer"
     fi
-    if [ -n $vessel_FRT_ADDR ]; then
+    if [ $vessel_FRT_ADDR != '' ]; then
         deploy_front "vessel"
     fi
-    if [ -n $dragon_FRT_ADDR ]; then
+    if [ $dragon_FRT_ADDR != '' ]; then
         deploy_front "dragon"
     fi
 }
@@ -631,21 +634,25 @@ case $1 in
             ;;
 
         backoffice)
+            start_db_container
             check_deploy_settings
             deploy_bo
             ;;
         
         user)
+            start_db_container
             check_deploy_settings
             deploy_user
             ;;
         
         finance)
+            start_db_container
             check_deploy_settings
             deploy_finance
             ;;
         
         vessel)
+            start_db_container
             check_deploy_settings
             deploy_vessel
             ;;

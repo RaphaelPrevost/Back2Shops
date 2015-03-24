@@ -22,7 +22,7 @@ RUN service postgresql stop
 RUN sed -i -e"s|^data_directory\s*=\s*'/var/lib/postgresql/9.1/main'|data_directory = '/var/lib/container_pg/9.1/main'|" /etc/postgresql/9.1/main/postgresql.conf
 RUN sed -i -e"s|^#listen_addresses\s*=\s*'localhost'|listen_addresses= '*'|" /etc/postgresql/9.1/main/postgresql.conf
 
-RUN echo -e "\
+RUN echo "\
 local   all             postgres                                trust\n\
 local   all             all                                     trust\n\
 host    all             all             127.0.0.1/32            trust\n\

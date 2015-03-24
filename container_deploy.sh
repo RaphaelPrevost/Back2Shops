@@ -46,6 +46,8 @@ function edit_product_settings() {
     SERVER_ADDR=$(echo $BRAND)_FRT_ADDR
     SERVER_ADDR=$(eval echo "\$${SERVER_ADDR}")
     sed -i -e "s|92.222.30.5|$SERVER_ADDR|g" $1
+
+    sed -i -e "s|203.135.134.165|$DRAGON_BLOG_IP|g" $1
 }
 
 function usage() {
@@ -173,13 +175,16 @@ function compile_i18n_labels() {
     )
 }
 
+function create_db_role() {
+    su postgres -c "psql postgres -tAc \"SELECT 1 FROM pg_roles WHERE rolname='bts'\" | grep -q 1 || createuser -s bts"
+}
 
 ########## adm related functions ##########
 
 function setup_adm_db() {
     if [ ! -z $RESETDB ]; then
         if [ ! -z $INITDB ]; then
-            su postgres -c "psql postgres -tAc \"SELECT 1 FROM pg_roles WHERE rolname='bts'\" | grep -q 1 || createuser -P bts"
+            create_db_role
         else
             su postgres -c "dropdb backtoshops"
         fi
@@ -219,7 +224,6 @@ function make_adm_logs_dir() {
         touch $CWD/logs/error.log
         chown -R root.www-data $CWD/logs
         chmod -R 2770 $CWD/logs
-        [ -d $CWD/public_html/logs ] && rm -rf $CWD/public_html/logs
     else
         echo "(i) Logs directory OK"
     fi
@@ -371,6 +375,8 @@ function setup_usr() {
     cd $CWD/users_src/
 
     # db
+    create_db_role
+
     if [ ! -z $RESETDB ]; then
         source ./dbconf.sh
         bash setupdb.sh $DBNAME
@@ -425,6 +431,8 @@ function setup_finance() {
     cd $CWD/finance_src/
 
     # db
+    create_db_role
+
     if [ ! -z $RESETDB ]; then
         source ./dbconf.sh
         bash setupdb.sh $DBNAME
@@ -535,6 +543,7 @@ function make_front_src_dir() {
         cp $settings_file $src_name/settings.py
         edit_product_settings $src_name/settings.py
         edit_product_settings $src_name/settings_product.py
+        edit_product_settings $src_name/settings_product_$(echo $BRAND).py
 
         chown -R backtoshops.www-data $src_name
         chmod -R 2750 $src_name
@@ -595,6 +604,8 @@ function setup_vsl() {
     cd $CWD/vessel_src/
 
     # db
+    create_db_role
+
     if [ ! -z $RESETDB ]; then
         source ./dbconf.sh
         bash setupdb.sh $DBNAME
