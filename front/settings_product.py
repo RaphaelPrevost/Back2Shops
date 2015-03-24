@@ -45,13 +45,15 @@ LOG_CONFIG_FILE = 'product_logging.cfg'
 
 STATIC_FILES_PATH = '/var/local/assets/front_files'
 
+USR_ROOT_URI = "http://92.222.30.2"
+
+import urlparse
 CENTRAL_REDIS = {
-    'HOST': 'user',
+    'HOST': urlparse.urlparse(USR_ROOT_URI).hostname,
     'PORT': 6379,
     'TEST_PORT': 6279
 }
 
-USR_ROOT_URI = "http://92.222.30.2"
 SERVER_APIKEY_URI_MAP = {
     'USR': os.path.join(USR_ROOT_URI,
                         'webservice/1.0/pub/apikey.pem'),
@@ -66,8 +68,8 @@ PB_ERROR = "%s/paybox/%%(id_trans)s/error" % FRONT_ROOT_URI
 PB_CANCEL = "%s/paybox/%%(id_trans)s/cancel" % FRONT_ROOT_URI
 PB_WAITING = "%s/paybox/%%(id_trans)s/waiting" % FRONT_ROOT_URI
 
-SP_SUCCESS = "%s/stripe/%(id_trans)s/success" % FRONT_ROOT_URI
-SP_FAILURE = "%s/stripe/%(id_trans)s/failure" % FRONT_ROOT_URI
+SP_SUCCESS = "%s/stripe/%%(id_trans)s/success" % FRONT_ROOT_URI
+SP_FAILURE = "%s/stripe/%%(id_trans)s/failure" % FRONT_ROOT_URI
 
 BRAND_ID = "1"
 

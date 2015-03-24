@@ -70,7 +70,7 @@ class HomepageResource(BaseHtmlResource):
             with open(settings.DRAGON_FEED_CACHE_PATH, 'r') as f:
                 data['coins'] = ujson.load(f)
         except IOError:
-            pass
+            data['coins'] = []
 
         return data
 

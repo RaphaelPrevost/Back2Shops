@@ -45,3 +45,4 @@ BRAND_NAME = "DRAGONDOLLAR"
 TEMPLATE_PATH = ['views/templates/dragondollar', 'views/templates/breuer']
 STATIC_FILES_PATH = '/var/local/assets/dragonfront_files'
 DRAGON_FEED_CACHE_PATH = "static/cache/DRAGON_FEED.json"
+DRAGON_BLOG_IP = '203.135.134.165'

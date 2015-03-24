@@ -15,3 +15,4 @@ export breuer_FRT_ADDR='92.222.30.5:80'
 export dragon_FRT_ADDR=''
 
 export MAIN_BRAND='breuer'
+export DRAGON_BLOG_IP='203.135.134.165'

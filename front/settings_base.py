@@ -107,3 +107,4 @@ TIMEZONE = 'Europe/Paris'
 
 
 DRAGON_FEED_CACHE_PATH = None
+DRAGON_BLOG_IP = None
