@@ -46,4 +46,3 @@ SERVER_PORT = 9501
 TEMPLATE_PATH = ['views/templates/dragondollar', 'views/templates/breuer']
 
 DRAGON_FEED_CACHE_PATH = "static/cache/DRAGON_FEED.json"
-DRAGON_BLOG_IP = '203.135.134.165'

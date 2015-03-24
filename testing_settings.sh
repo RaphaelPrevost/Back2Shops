@@ -17,4 +17,4 @@ export vessel_FRT_ADDR='37.187.80.24:19501'
 export dragon_FRT_ADDR='37.187.80.24:19502'
 
 export MAIN_BRAND='breuer'
-export DRAGON_BLOG_IP='203.135.134.165'
+export DRAGON_BLOG_IP='162.223.226.146'

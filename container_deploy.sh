@@ -46,8 +46,6 @@ function edit_product_settings() {
     SERVER_ADDR=$(echo $BRAND)_FRT_ADDR
     SERVER_ADDR=$(eval echo "\$${SERVER_ADDR}")
     sed -i -e "s|92.222.30.5|$SERVER_ADDR|g" $1
-
-    sed -i -e "s|203.135.134.165|$DRAGON_BLOG_IP|g" $1
 }
 
 function usage() {
