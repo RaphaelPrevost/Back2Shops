@@ -58,7 +58,7 @@ class FetchCoinFeed(object):
         try:
             logging.info('start fetch dragon dollar feed ...')
             feed = feedparser.parse("http://%s/coins/feed/"
-                                    % settings.DRAGON_BLOG_IP)
+                                    % settings.DRAGON_BLOG_ADDR)
             logging.info('fetched dragon dollar feed: %s', feed)
             coins = feed['entries'][:2]
             cache = []

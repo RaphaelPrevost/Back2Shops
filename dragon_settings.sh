@@ -17,5 +17,4 @@ export vessel_FRT_ADDR=''
 export dragon_FRT_ADDR='162.223.226.130:80'
 
 export MAIN_BRAND='dragon'
-#export DRAGON_BLOG_IP='203.135.134.165'
 export DRAGON_BLOG_IP='162.223.226.146'
