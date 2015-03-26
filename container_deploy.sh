@@ -49,14 +49,9 @@ function edit_product_settings() {
 }
 
 function usage() {
-    echo "Usage: $0 option"
-    echo "option: everything - Deploy all servers"
-    echo "        backoffice - Deploy only the backoffice server"
-    echo "        user       - Deploy only the user server"
-    echo "        finance    - Deploy only the finance server"
-    echo "        assets     - Deploy only the assets server"
-    echo "        front      - Deploy only the front server"
-    echo "        restart    - Restart server"
+    echo "Usage: $0 option [server]"
+    echo "option: deploy     - deploy specific server (backoffice, user, finance, vessel, assets, front)"
+    echo "        restart    - restart specific server (backoffice, user, finance, vessel, assets, front)"
     echo "        testdata   - Import backoffice test data into database"
     exit 1
 }
@@ -197,6 +192,7 @@ function make_adm_html_dir() {
     [ -d $CWD/backtoshops -a -d $CWD/public_html/locale ] && cp -r $CWD/public_html/locale $CWD/backtoshops/
     # make and compile po files
     compile_i18n_labels "backoffice"
+    compile_i18n_labels "front"
 
     # remove old sourcecode
     [ -d $CWD/backtoshops -a -d $CWD/public_html ] && rm -rf $CWD/public_html
@@ -340,16 +336,20 @@ function adm_gen_keys() {
 function deploy_backoffice() {
     sanity_checks $ADM_REQUIREMENT "${ADM_DEPS[*]}"
     create_python_env $ADM_REQUIREMENT
-    setup_adm_db
     make_adm_logs_dir
     make_adm_html_dir
     setup_adm_wsgi
+    echo "(i) Deploy backoffice server finished"
+}
+
+function setup_backoffice() {
+    setup_adm_db
     sync_adm
     adm_redis
     adm_gen_keys
-    restart_server "backoffice"
     adm_batch
-    echo "(i) Deploy backoffice server finished"
+    service memcached restart
+    service apache2 restart
 }
 
 
@@ -396,11 +396,10 @@ function setup_usr() {
     start_uwsgi $PORT $SERVER
 }
 
-function deploy_user() {
+function deploy_usr() {
     sanity_checks $USR_REQUIREMENT "${USR_DEPS[*]}"
     create_python_env $USR_REQUIREMENT
     make_usr_src_dir
-    setup_usr
     echo "(i) Deploy user server finished"
 }
 
@@ -450,7 +449,6 @@ function deploy_finance() {
     sanity_checks $FIN_REQUIREMENT "${FIN_DEPS[*]}"
     create_python_env $FIN_REQUIREMENT
     make_finance_src_dir
-    setup_finance
     echo "(i) Deploy finance server finished"
 }
 
@@ -469,7 +467,9 @@ function make_assets_src_dir() {
         chown -R backtoshops.www-data $CWD/assets_src
         chmod -R 2750 $CWD/assets_src
     fi
+}
 
+function make_assets_dir() {
     create_assets_dir
 
     if [ ! -d $AST/assets_files ]; then
@@ -486,8 +486,9 @@ function make_assets_src_dir() {
 }
 
 function setup_assets() {
-    cd $CWD/assets_src/
+    make_assets_dir
 
+    cd $CWD/assets_src/
     gen_keys "ast"
 
     # start server
@@ -503,7 +504,6 @@ function deploy_assets() {
     sanity_checks $AST_REQUIREMENT "${AST_DEPS[*]}"
     create_python_env $AST_REQUIREMENT
     make_assets_src_dir
-    setup_assets
     echo "(i) Deploy assets server finished"
 }
 
@@ -529,7 +529,7 @@ function make_front_src_dir() {
     # remove old sourcecode
     [ -d $CWD/front -a -d $src_name ] && rm -rf $src_name
     # make and compile po files
-    compile_i18n_labels "front"
+    #compile_i18n_labels "front"
 
     settings_file=$CWD/front/settings_product.py
     if [ -a $CWD/front/settings_product_$(echo $BRAND).py ]; then
@@ -541,12 +541,16 @@ function make_front_src_dir() {
         cp $settings_file $src_name/settings.py
         edit_product_settings $src_name/settings.py
         edit_product_settings $src_name/settings_product.py
-        edit_product_settings $src_name/settings_product_$(echo $BRAND).py
+        if [ -a $src_name/settings_product_$(echo $BRAND).py ]; then
+            edit_product_settings $src_name/settings_product_$(echo $BRAND).py
+        fi
 
         chown -R backtoshops.www-data $src_name
         chmod -R 2750 $src_name
     fi
+}
 
+function make_front_dir() {
     create_assets_dir
 
     if [ ! -d $AST/front_files ]; then
@@ -560,9 +564,10 @@ function make_front_src_dir() {
 }
 
 function setup_front() {
+    make_front_dir
+
     src_name=$CWD/front_$(echo $BRAND)_src
     cd $src_name
-
     #gen_keys "front"
 
     # start server
@@ -578,7 +583,6 @@ function deploy_front() {
     create_python_env $FRT_REQUIREMENT
     setup_geoip_database
     make_front_src_dir
-    setup_front
     echo "(i) Deploy front server finished"
 }
 
@@ -623,16 +627,39 @@ function deploy_vessel() {
     sanity_checks $VSL_REQUIREMENT "${VSL_DEPS[*]}"
     create_python_env $VSL_REQUIREMENT
     make_vsl_src_dir
-    setup_vsl
     echo "(i) Deploy vessel server finished"
 }
 
 
+########## ##########
+
+function deploy_server() {
+    case $1 in
+            backoffice)
+                deploy_backoffice
+                ;;
+            user)
+                deploy_usr
+                ;;
+            finance)
+                deploy_finance
+                ;;
+            vessel)
+                deploy_vsl
+                ;;
+            assets)
+                deploy_assets
+                ;;
+            front)
+                deploy_front
+                ;;
+    esac
+}
+
 function restart_server() {
     case $1 in
             backoffice)
-                service memcached restart
-                service apache2 restart
+                setup_backoffice
                 ;;
             user)
                 setup_usr
@@ -660,23 +687,8 @@ function start_uwsgi() {
 ########## main ##########
 [ $1 ] || usage
 case $1 in
-        backoffice)
-            deploy_backoffice
-            ;;
-        user)
-            deploy_user
-            ;;
-        finance)
-            deploy_finance
-            ;;
-        vessel)
-            deploy_vessel
-            ;;
-        assets)
-            deploy_assets
-            ;;
-        front)
-            deploy_front
+        deploy)
+            deploy_server $2
             ;;
         restart)
             restart_server $2

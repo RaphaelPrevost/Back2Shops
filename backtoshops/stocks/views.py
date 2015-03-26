@@ -246,8 +246,7 @@ class UpdateSkuAjaxView(View):
             params = request.POST
             for field in ('sale_id', 'ba_id', 'ca_id', 'shop_id', 'sku'):
                 if field not in params:
-                    raise forms.ValidationError(_('missing paramater %s: %s'
-                                                % (field, params)))
+                    raise forms.ValidationError(_('missing paramater %s' % field))
 
             sale = Sale.objects.get(pk=params['sale_id'])
             ba_id = params['ba_id']
@@ -297,8 +296,7 @@ class UpdateBarcodeAjaxView(View):
             params = request.POST
             for field in ('sale_id', 'ba_id', 'ca_id', 'shop_id', 'barcode'):
                 if field not in params:
-                    raise forms.ValidationError(_('missing paramater %s: %s'
-                                                % (field, params)))
+                    raise forms.ValidationError(_('missing paramater %s' % field))
 
             sale = Sale.objects.get(pk=params['sale_id'])
             ba_id = params['ba_id']
