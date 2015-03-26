@@ -21,15 +21,19 @@ RESETDB=${RESETDB:-"$INITDB"}
 
 
 function usage() {
-    echo "Usage: $0 option"
-    echo "option: everything - Deploy all servers"
-    echo "        backoffice - Deploy only the backoffice server"
+    echo "Usage: $0 option [action]"
+    echo "option: backoffice - Deploy only the backoffice server"
     echo "        user       - Deploy only the user server"
     echo "        finance    - Deploy only the finance server"
+    echo "        vessel     - Deploy only the vessel server"
     echo "        assets     - Deploy only the assets server"
     echo "        front      - Deploy only the front servers"
+    echo "        everything - Deploy all servers"
     echo "        baseimage  - Make a base image"
     echo "        db         - Start db container"
+    echo "action: N/A        - Make an image and run the specific server"
+    echo "        make       - Make an image for the specific server"
+    echo "        run        - Run the specific server"
     exit 1
 }
 
@@ -198,12 +202,70 @@ function start_db_container() {
     fi
 }
 
+function copy_src() {
+    CONTAINER_ID=$1
+    CONTAINER_ROOT_DIR=/var/lib/docker/devicemapper/mnt/$CONTAINER_ID/rootfs
+    cp -r $CWD $CONTAINER_ROOT_DIR/home
+    rm -rf $CONTAINER_ROOT_DIR/home/backtoshops/docker
+}
+
+function make_container_image() {
+    SERVER_NAME=$1
+    CONTAINER_NAME=$2
+    SELF_IMG=$3
+
+    if [ $SERVER_NAME == 'front' ]; then
+        BRAND=$4
+        docker exec -it $CONTAINER_NAME /bin/bash -c "cd /home/backtoshops; BRAND=$BRAND bash container_deploy.sh deploy $SERVER_NAME"
+    else
+        docker exec -it $CONTAINER_NAME /bin/bash -c "cd /home/backtoshops; bash container_deploy.sh deploy $SERVER_NAME"
+    fi
+
+    docker commit $CONTAINER_NAME $SELF_IMG && docker save $SELF_IMG > docker/$SELF_IMG
+}
+
+function run_container_server() {
+    SERVER_NAME=$1
+    CONTAINER_NAME=$2
+
+    if [ $SERVER_NAME == 'front' ]; then
+        BRAND=$3
+        docker exec -it $CONTAINER_NAME /bin/bash -c "cd /home/backtoshops; BRAND=$BRAND INITDB=$INITDB RESETDB=$RESETDB bash container_deploy.sh restart $SERVER_NAME"
+    else
+        docker exec -it $CONTAINER_NAME /bin/bash -c "cd /home/backtoshops; INITDB=$INITDB RESETDB=$RESETDB bash container_deploy.sh restart $SERVER_NAME"
+    fi
+}
+
+function make_or_run() {
+    SERVER_NAME=$1
+    SELF_IMG=$2
+    CONTAINER_NAME=$3
+    CONTAINER_ID=$4
+    STEP=$5
+    BRAND=$6
+
+    if [ $STEP == 'make' ]; then
+        copy_src $CONTAINER_ID
+        make_container_image $SERVER_NAME $CONTAINER_NAME $SELF_IMG $BRAND
+        docker_stop_container $CONTAINER_NAME
+
+    elif [ $STEP == 'run' ]; then
+        run_container_server $SERVER_NAME $CONTAINER_NAME $BRAND
+
+    else
+        copy_src $CONTAINER_ID
+        make_container_image $SERVER_NAME $CONTAINER_NAME $SELF_IMG $BRAND
+        run_container_server $SERVER_NAME $CONTAINER_NAME $BRAND
+    fi
+}
+
 ### backoffice ###
 
 function prepare_bo_image() {
     SELF_IMG=$1
     CONTAINER_NAME=$2
     PORT=$3
+    STEP=$4
     
     load_image $SELF_IMG
     docker_stop_container $CONTAINER_NAME
@@ -214,15 +276,13 @@ function prepare_bo_image() {
     fi
     CONTAINER_ID=$(docker run -itd \
            --volumes-from=$DB_CONTAINER_NAME \
-           -v $CWD:/home/backtoshops \
            -v /tmp/logs:/tmp/logs \
            -p 127.0.0.1:$PORT:$PORT --name=$CONTAINER_NAME $IMG)
 
     docker exec -it $CONTAINER_NAME chown -R postgres:postgres /var/lib/container_pg
     docker exec -it $CONTAINER_NAME service postgresql restart
 
-    docker exec -it $CONTAINER_NAME /bin/bash -c "cd /home/backtoshops; INITDB=$INITDB RESETDB=$RESETDB bash container_deploy.sh backoffice"
-    docker commit $CONTAINER_NAME $SELF_IMG && docker save $SELF_IMG > docker/$SELF_IMG
+    make_or_run "backoffice" $SELF_IMG $CONTAINER_NAME $CONTAINER_ID $STEP
 }
 
 function setup_bo_server() {
@@ -251,10 +311,21 @@ function deploy_bo() {
     SELF_IMG="backoffice-image"
     CONTAINER_NAME="backoffice"
     PORT=$(server_local_port backoffice)
+    STEP=${1:-""}
 
-    prepare_bo_image $SELF_IMG $CONTAINER_NAME $PORT
-    setup_bo_server $PORT
+    if [ $STEP == 'make' ]; then
+        prepare_bo_image $SELF_IMG $CONTAINER_NAME $PORT $STEP
+    elif [ $STEP == 'run' ]; then
+        start_db_container
+        prepare_bo_image $SELF_IMG $CONTAINER_NAME $PORT $STEP
+        setup_bo_server $PORT
+    else
+        start_db_container
+        prepare_bo_image $SELF_IMG $CONTAINER_NAME $PORT
+        setup_bo_server $PORT
+    fi
 }
+
 
 ### user ###
 
@@ -262,6 +333,7 @@ function prepare_user_image() {
     SELF_IMG=$1
     CONTAINER_NAME=$2
     PORT=$3
+    STEP=$4
     
     load_image $SELF_IMG
     docker_stop_container $CONTAINER_NAME
@@ -272,7 +344,6 @@ function prepare_user_image() {
     fi
     CONTAINER_ID=$(docker run -itd \
            --volumes-from=$DB_CONTAINER_NAME \
-           -v $CWD:/home/backtoshops \
            -v /tmp/logs:/tmp/logs \
            -p 6379:6379 \
            -p 127.0.0.1:$PORT:$PORT --name=$CONTAINER_NAME $IMG)
@@ -280,8 +351,7 @@ function prepare_user_image() {
     docker exec -it $CONTAINER_NAME chown -R postgres:postgres /var/lib/container_pg
     docker exec -it $CONTAINER_NAME service postgresql restart
 
-    docker exec -it $CONTAINER_NAME /bin/bash -c "cd /home/backtoshops; RESETDB=$RESETDB bash container_deploy.sh user"
-    docker commit $CONTAINER_NAME $SELF_IMG && docker save $SELF_IMG > docker/$SELF_IMG
+    make_or_run "user" $SELF_IMG $CONTAINER_NAME $CONTAINER_ID $STEP
 }
 
 function setup_user_server() {
@@ -312,9 +382,19 @@ function deploy_user() {
     SELF_IMG="user-image"
     CONTAINER_NAME="user"
     PORT=$(server_local_port user)
+    STEP=$1
 
-    prepare_user_image $SELF_IMG $CONTAINER_NAME $PORT
-    setup_user_server $PORT
+    if [ $STEP == 'make' ]; then
+        prepare_user_image $SELF_IMG $CONTAINER_NAME $PORT $STEP
+    elif [ $STEP == 'run' ]; then
+        start_db_container
+        prepare_user_image $SELF_IMG $CONTAINER_NAME $PORT $STEP
+        setup_user_server $PORT
+    else
+        start_db_container
+        prepare_user_image $SELF_IMG $CONTAINER_NAME $PORT
+        setup_user_server $PORT
+    fi
 }
 
 ### finance ###
@@ -323,6 +403,7 @@ function prepare_finance_image() {
     SELF_IMG=$1
     CONTAINER_NAME=$2
     PORT=$3
+    STEP=$4
     
     load_image $SELF_IMG
     docker_stop_container $CONTAINER_NAME
@@ -333,15 +414,13 @@ function prepare_finance_image() {
     fi
     CONTAINER_ID=$(docker run -itd \
            --volumes-from=$DB_CONTAINER_NAME \
-           -v $CWD:/home/backtoshops \
            -v /tmp/logs:/tmp/logs \
            -p 127.0.0.1:$PORT:$PORT --name=$CONTAINER_NAME $IMG)
 
     docker exec -it $CONTAINER_NAME chown -R postgres:postgres /var/lib/container_pg
     docker exec -it $CONTAINER_NAME service postgresql restart
 
-    docker exec -it $CONTAINER_NAME /bin/bash -c "cd /home/backtoshops; RESETDB=$RESETDB bash container_deploy.sh finance"
-    docker commit $CONTAINER_NAME $SELF_IMG && docker save $SELF_IMG > docker/$SELF_IMG
+    make_or_run "finance" $SELF_IMG $CONTAINER_NAME $CONTAINER_ID $STEP
 }
 
 function setup_finance_server() {
@@ -372,15 +451,26 @@ function deploy_finance() {
     SELF_IMG="finance-image"
     CONTAINER_NAME="finance"
     PORT=$(server_local_port finance)
+    STEP=$1
 
-    prepare_finance_image $SELF_IMG $CONTAINER_NAME $PORT
-    setup_finance_server $PORT
+    if [ $STEP == 'make' ]; then
+        prepare_finance_image $SELF_IMG $CONTAINER_NAME $PORT $STEP
+    elif [ $STEP == 'run' ]; then
+        start_db_container
+        prepare_finance_image $SELF_IMG $CONTAINER_NAME $PORT $STEP
+        setup_finance_server $PORT
+    else
+        start_db_container
+        prepare_finance_image $SELF_IMG $CONTAINER_NAME $PORT
+        setup_finance_server $PORT
+    fi
 }
 
 function prepare_vessel_image() {
     SELF_IMG=$1
     CONTAINER_NAME=$2
     PORT=$3
+    STEP=$4
     
     load_image $SELF_IMG
     docker_stop_container $CONTAINER_NAME
@@ -391,15 +481,13 @@ function prepare_vessel_image() {
     fi
     CONTAINER_ID=$(docker run -itd \
            --volumes-from=$DB_CONTAINER_NAME \
-           -v $CWD:/home/backtoshops \
            -v /tmp/logs:/tmp/logs \
            -p 127.0.0.1:$PORT:$PORT --name=$CONTAINER_NAME $IMG)
 
     docker exec -it $CONTAINER_NAME chown -R postgres:postgres /var/lib/container_pg
     docker exec -it $CONTAINER_NAME service postgresql restart
 
-    docker exec -it $CONTAINER_NAME /bin/bash -c "cd /home/backtoshops; RESETDB=$RESETDB bash container_deploy.sh vessel"
-    docker commit $CONTAINER_NAME $SELF_IMG && docker save $SELF_IMG > docker/$SELF_IMG
+    make_or_run "vessel" $SELF_IMG $CONTAINER_NAME $CONTAINER_ID $STEP
 }
 
 function setup_vessel_server() {
@@ -427,13 +515,24 @@ EOF
 }
 
 function deploy_vessel() {
+    STEP=$1
+
     if [ -n $VSL_ADDR ]; then
         SELF_IMG="vessel-image"
         CONTAINER_NAME="vessel"
         PORT=$(server_local_port vessel)
 
-        prepare_vessel_image $SELF_IMG $CONTAINER_NAME $PORT
-        setup_vessel_server $PORT
+        if [ $STEP == 'make' ]; then
+            prepare_vessel_image $SELF_IMG $CONTAINER_NAME $PORT $STEP
+        elif [ $STEP == 'run' ]; then
+            start_db_container
+            prepare_vessel_image $SELF_IMG $CONTAINER_NAME $PORT $STEP
+            setup_vessel_server $PORT
+        else
+            start_db_container
+            prepare_vessel_image $SELF_IMG $CONTAINER_NAME $PORT
+            setup_vessel_server $PORT
+        fi
     fi
 }
 
@@ -441,6 +540,7 @@ function prepare_assets_image() {
     SELF_IMG=$1
     CONTAINER_NAME=$2
     PORT=$3
+    STEP=$4
     
     load_image $SELF_IMG
     docker_stop_container $CONTAINER_NAME
@@ -450,13 +550,11 @@ function prepare_assets_image() {
         IMG=$BASE_IMG
     fi
     CONTAINER_ID=$(docker run -itd \
-           -v $CWD:/home/backtoshops \
            -v /tmp/logs:/tmp/logs \
            -v /var/local/assets:/var/local/assets \
            -p 127.0.0.1:$PORT:$PORT --name=$CONTAINER_NAME $IMG)
 
-    docker exec -it $CONTAINER_NAME /bin/bash -c "cd /home/backtoshops; bash container_deploy.sh assets"
-    docker commit $CONTAINER_NAME $SELF_IMG && docker save $SELF_IMG > docker/$SELF_IMG
+    make_or_run "assets" $SELF_IMG $CONTAINER_NAME $CONTAINER_ID $STEP
 }
 
 function setup_assets_server() {
@@ -504,11 +602,19 @@ function deploy_assets() {
     SELF_IMG="assets-image"
     CONTAINER_NAME="assets"
     PORT=$(server_local_port assets)
+    STEP=$1
 
     create_user
     create_assets_dir
-    prepare_assets_image $SELF_IMG $CONTAINER_NAME $PORT
-    setup_assets_server $PORT
+    if [ $STEP == 'make' ]; then
+        prepare_assets_image $SELF_IMG $CONTAINER_NAME $PORT $STEP
+    elif [ $STEP == 'run' ]; then
+        prepare_assets_image $SELF_IMG $CONTAINER_NAME $PORT $STEP
+        setup_assets_server $PORT
+    else
+        prepare_assets_image $SELF_IMG $CONTAINER_NAME $PORT
+        setup_assets_server $PORT
+    fi
 }
 
 ### front ###
@@ -518,6 +624,10 @@ function prepare_front_image() {
     BRAND=$4
     SELF_IMG=$4_$1
     CONTAINER_NAME=$4_$2
+    STEP=$5
+    if [ -z $STEP ]; then
+        STEP=all
+    fi
     
     load_image $SELF_IMG
     docker_stop_container $CONTAINER_NAME
@@ -527,13 +637,11 @@ function prepare_front_image() {
         IMG=$BASE_IMG
     fi
     CONTAINER_ID=$(docker run -itd \
-           -v $CWD:/home/backtoshops \
            -v /tmp/logs:/tmp/logs \
            -v /var/local/assets:/var/local/assets \
            -p 127.0.0.1:$PORT:$PORT --name=$CONTAINER_NAME $IMG)
 
-    docker exec -it $CONTAINER_NAME /bin/bash -c "cd /home/backtoshops; BRAND=$BRAND bash container_deploy.sh front"
-    docker commit $CONTAINER_NAME $SELF_IMG && docker save $SELF_IMG > docker/$SELF_IMG
+    make_or_run "front" $SELF_IMG $CONTAINER_NAME $CONTAINER_ID $STEP $BRAND
 }
 
 function setup_front_server() {
@@ -545,10 +653,10 @@ function setup_front_server() {
     SERVER_NAME=$(eval echo "\$${SERVER_NAME}")
 
     COIN_PROXY=''
-    if [ $SITE_NAME=='dragon_front' ]; then
+    if [ $SITE_NAME == 'dragon_front' ]; then
         COIN_PROXY="
         location /coins/ {
-            proxy_pass http://$DRAGON_BLOG_IP/coins/;
+            proxy_pass http://$DRAGON_BLOG_IP/;
             autoindex off;
         }"
     fi
@@ -560,25 +668,34 @@ function setup_front_server() {
 server {
     listen    $SERVER_ADDR;
     server_name    $SERVER_NAME;
+
     location /img/ {
         alias /var/local/assets/front_files/img/;
         autoindex off;
+        expires 720h;
+        add_header Pragma public;
+        add_header Cache-Control \"public, must-revalidate, proxy-revalidate\";
     }
     location /js/ {
         alias /var/local/assets/front_files/js/;
         autoindex off;
+        expires 720h;
+        add_header Pragma public;
+        add_header Cache-Control \"public, must-revalidate, proxy-revalidate\";
     }
     location /css/ {
         alias /var/local/assets/front_files/css/;
         autoindex off;
+        expires 720h;
+        add_header Pragma public;
+        add_header Cache-Control \"public, must-revalidate, proxy-revalidate\";
     }
     location /templates/ {
-        alias $CWD/front_$2_src/views/templates/;
+        alias $CWD/front_$2/views/templates/;
         autoindex off;
-    }
-    location /webservice/1.0/pub/apikey.pem {
-        alias $CWD/front_$2_src/static/keys/front_pub.key;
-        autoindex off;
+        expires 720h;
+        add_header Pragma public;
+        add_header Cache-Control \"public, must-revalidate, proxy-revalidate\";
     }
     $COIN_PROXY
     location / {
@@ -599,25 +716,33 @@ EOF
 
 function deploy_front() {
     BRAND=$1
+    STEP=$2
     SELF_IMG="front-image"
     CONTAINER_NAME="front"
     PORT=$(server_local_port front $BRAND)
 
     create_user
     create_assets_dir
-    prepare_front_image $SELF_IMG $CONTAINER_NAME $PORT $BRAND
-    setup_front_server $PORT $BRAND
+    if [ $STEP == 'make' ]; then
+        prepare_front_image $SELF_IMG $CONTAINER_NAME $PORT $BRAND $STEP
+    elif [ $STEP == 'run' ]; then
+        prepare_front_image $SELF_IMG $CONTAINER_NAME $PORT $BRAND $STEP
+        setup_front_server $PORT $BRAND
+    else
+        prepare_front_image $SELF_IMG $CONTAINER_NAME $PORT $BRAND
+        setup_front_server $PORT $BRAND
+    fi
 }
 
 function deploy_all_fronts() {
     if [ $breuer_FRT_ADDR != '' ]; then
-        deploy_front "breuer"
+        deploy_front "breuer" $1
     fi
     if [ $vessel_FRT_ADDR != '' ]; then
-        deploy_front "vessel"
+        deploy_front "vessel" $1
     fi
     if [ $dragon_FRT_ADDR != '' ]; then
-        deploy_front "dragon"
+        deploy_front "dragon" $1
     fi
 }
 
@@ -634,48 +759,43 @@ case $1 in
             ;;
 
         backoffice)
-            start_db_container
             check_deploy_settings
-            deploy_bo
+            deploy_bo $2
             ;;
         
         user)
-            start_db_container
             check_deploy_settings
-            deploy_user
+            deploy_user $2
             ;;
         
         finance)
-            start_db_container
             check_deploy_settings
-            deploy_finance
+            deploy_finance $2
             ;;
         
         vessel)
-            start_db_container
             check_deploy_settings
-            deploy_vessel
+            deploy_vessel $2
             ;;
         
         assets)
             check_deploy_settings
-            deploy_assets
+            deploy_assets $2
             ;;
 
         front)
             check_deploy_settings
-            deploy_all_fronts
+            deploy_all_fronts $2
             ;;
 
         everything)
             check_deploy_settings
-            start_db_container
-            deploy_bo
-            deploy_user
-            deploy_finance
-            deploy_assets
-            deploy_vessel
-            deploy_all_fronts
+            deploy_bo $2
+            deploy_user $2
+            deploy_finance $2
+            deploy_assets $2
+            deploy_vessel $2
+            deploy_all_fronts $2
             ;;
 
         *)

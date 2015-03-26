@@ -20,3 +20,4 @@ xmltodict==0.7.0
 incf.countryutils==1.0
 django-aloha-editor==1.0
 pytz==2014.4
+Tenjin==1.1.1
