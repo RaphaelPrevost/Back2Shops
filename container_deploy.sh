@@ -573,9 +573,10 @@ function make_front_dir() {
         chown -R backtoshops.www-data $AST/front_files
         chmod -R 2770 $AST/front_files
     fi
-    cp -r $CWD/front/static/css $AST/front_files/
-    cp -r $CWD/front/static/js $AST/front_files/
-    cp -r $CWD/front/static/img $AST/front_files/
+    src_name=$CWD/front_$(echo $BRAND)_src
+    cp -r $src_name/static/css $AST/front_files/
+    cp -r $src_name/static/js $AST/front_files/
+    cp -r $src_name/static/img $AST/front_files/
 }
 
 function setup_front() {
