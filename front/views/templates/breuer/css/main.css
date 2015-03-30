@@ -262,7 +262,7 @@ a { color: #1f244a; }
 	display: inline-block;
 	margin-top: 3px; padding: 2px 20px 2px 5px;
 	color: #ffffff;
-	background: url(../img/deconnection.png) no-repeat right 3px #338aeb;
+	background: url(/templates/breuer/img/deconnection.png) no-repeat right 3px #338aeb;
 }
 #linkHead #deco:hover { text-decoration: none; background-color: #046EEB; }
 
@@ -280,7 +280,7 @@ a { color: #1f244a; }
 	width: 291px; height: 215px;
 	overflow: hidden;
 	text-indent: -1000px;
-	background: url(../img/breuer.png) no-repeat 0 30px;
+	background: url(/templates/breuer/img/breuer.png) no-repeat 0 30px;
 }
 
 
@@ -328,7 +328,7 @@ a { color: #1f244a; }
 	float: right;
 	width: 785px; height: 498px;
 	margin-bottom: 15px;
-	background: url(../img/visuelhome.jpg) no-repeat 0 0;
+	background: url(/templates/breuer/img/visuelhome.jpg) no-repeat 0 0;
 }
 
 
@@ -549,7 +549,7 @@ a { color: #1f244a; }
 	height: 50px;
 	overflow: auto;
 	text-indent: -1000px;
-	background: url(../img/breuer-s.png) no-repeat center #012247;
+	background: url(/templates/breuer/img/breuer-s.png) no-repeat center #012247;
 }
 
 
@@ -637,7 +637,7 @@ a { color: #1f244a; }
 	margin: 0px 15px 0px 12px; padding: 0 0 0 12px;
 	color: #666666;
 	border: none;
-	background: url(../img/square-blue.gif) no-repeat 0 7px;
+	background: url(/templates/breuer/img/square-blue.gif) no-repeat 0 7px;
 }
 
 
@@ -649,7 +649,7 @@ a { color: #1f244a; }
 	margin: 15px 0 15px 15px; padding-right: 18px;
 	font-family: Arial, Helvetica, sans-serif; font-size: 12px;
 	text-decoration: underline;
-	background: url(../img/guide-taille.gif) no-repeat right 0;
+	background: url(/templates/breuer/img/guide-taille.gif) no-repeat right 0;
 }
 #infosProd #selectShop,
 #infosProd #selectTaille {
@@ -658,13 +658,13 @@ a { color: #1f244a; }
 	margin: 10px 0 13px 15px;
 	overflow: hidden;
 	border: 1px solid #e5e5e5;
-	background: url(../img/select.gif) no-repeat right 0 #f7f7f7;	
+	background: url(/templates/breuer/img/select.gif) no-repeat right 0 #f7f7f7;	
 }
 #infosProd #selectShop:hover,
 #infosProd #selectShop:focus,
 #infosProd #selectTaille:hover,
 #infosProd #selectTaille:focus {
-	background: url(../img/select.gif) no-repeat right bottom #fff;	
+	background: url(/templates/breuer/img/select.gif) no-repeat right bottom #fff;	
 }
 #infosProd #selectShop select,
 #infosProd #selectTaille select { 
@@ -770,7 +770,7 @@ a.right {
     height: 35px; line-height: 23px;
 	margin: 15px 0 0 3px; padding-left: 30px;
 	color: #75aeee; font-family: Arial, Helvetica, sans-serif; 
-	background: url(../img/sprite.png) no-repeat left -359px; 
+	background: url(/templates/breuer/img/sprite.png) no-repeat left -359px; 
 }
 
 
@@ -790,7 +790,7 @@ a.right {
 	font-family: georgia;
 	font-size: 14px;
 	color: #fff;
-	background: url(../img/sprite.png) no-repeat right -35px #6170A1; 
+	background: url(/templates/breuer/img/sprite.png) no-repeat right -35px #6170A1; 
 } 
 #panier ul li span {
 	margin-right: 5px;
@@ -881,7 +881,7 @@ a.right {
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
 	border: 1px solid #F9F8F8;
-	background: url(../img/sprite.png) no-repeat 3px -144px;
+	background: url(/templates/breuer/img/sprite.png) no-repeat 3px -144px;
 	-o-transition: all 0.2s ease;
 	-ms-transition: all 0.2s ease;
 	-moz-transition: all 0.2s ease;
@@ -950,7 +950,7 @@ a.right {
 	height: 32px; line-height: 32px;
 	font-family: Arial, Helvetica, sans-serif; color: #fff;
 	padding: 0 15px;
-	background-image: url(../img/sprite.png);
+	background-image: url(/templates/breuer/img/sprite.png);
 	background-repeat: no-repeat;
 }
 .btn.purchase { 
@@ -1036,7 +1036,7 @@ a.right {
 	height: 25px; line-height: 31px;
 	padding-right: 32px;
 	color: #161f48; font-size: 13px;
-	background: url(../img/sprite.png) no-repeat right -290px; 
+	background: url(/templates/breuer/img/sprite.png) no-repeat right -290px; 
 }
 #panier .floater.adresse .modifier:hover { text-decoration: underline; }
 
@@ -1146,7 +1146,7 @@ a.right {
 	margin: 0 5px 3px 25px;
 	font-size: 14px;
 	color: #3E5269; font-size: 14px;
-	background: url(../img/sprite.png) no-repeat -3px -335px; 
+	background: url(/templates/breuer/img/sprite.png) no-repeat -3px -335px; 
 }
 
 #formContainer p { margin: 10px 0px; }
@@ -1456,7 +1456,7 @@ a.right {
 #panier .txtinfo.recap {
 	margin-top: 5px; padding-left: 25px;
 	font-size: 12px; font-style: italic;
-	background: url(../img/sprite.png) no-repeat left -391px;  
+	background: url(/templates/breuer/img/sprite.png) no-repeat left -391px;  
 }
 
 
@@ -1642,7 +1642,7 @@ a.right {
 	padding: 0 20px 0 0;
 	color: #000; 
 	font-size: 11px;
-	background: url(../img/sprite.png) no-repeat right -420px; 
+	background: url(/templates/breuer/img/sprite.png) no-repeat right -420px; 
 }
 .commande .detailcommande:hover { text-decoration: underline; }
 
@@ -1693,7 +1693,7 @@ a.right {
 	margin-top: 5px;
 	padding: 0px 89px 0 0;
 	
-	background: url(../img/chronopost.png) no-repeat right 0; 
+	background: url(/templates/breuer/img/chronopost.png) no-repeat right 0; 
 }
 
 
@@ -1723,7 +1723,7 @@ a.right {
 	height: 25px; line-height: 31px;
 	padding-right: 32px;
 	color: #161f48; font-size: 13px;
-	background: url(../img/sprite.png) no-repeat right -290px; 
+	background: url(/templates/breuer/img/sprite.png) no-repeat right -290px; 
 }
 .blockinfo .modifier:hover { text-decoration: underline; }
 
@@ -1759,7 +1759,7 @@ a.right {
 }
 
 .suivi {
-    background: url(../img/chronopost.png) no-repeat scroll right 0 rgba(0, 0, 0, 0);
+    background: url(/templates/breuer/img/chronopost.png) no-repeat scroll right 0 rgba(0, 0, 0, 0);
     color: #639b0b;
     display: block;
     float: right;
@@ -1790,7 +1790,7 @@ a.right {
 	font-size: 13px;
 	text-transform: uppercase;
 	color: #000000;
-	background: url(../img/sprite.png) no-repeat right -450px #fff;
+	background: url(/templates/breuer/img/sprite.png) no-repeat right -450px #fff;
 }
 
 
@@ -1894,7 +1894,7 @@ a.right {
 	font-family: verdana;
 	font-size: 12px; font-weight: normal;
 	line-height: inherit;
-	background: url(../img/square-blue.gif) no-repeat 0 8px; 
+	background: url(/templates/breuer/img/square-blue.gif) no-repeat 0 8px; 
 }
 .contenuTxt dl dt { background: none; padding: 0; }
 .contenuTxt .retrait { display: block; margin: 20px 0 0 40px; }

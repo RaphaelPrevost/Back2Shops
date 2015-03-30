@@ -39,6 +39,8 @@
 
 from settings_product import *
 
+BRAND_NAME = "VESSEL"
+
 TEMPLATE_PATH = ['views/templates/vessel', 'views/templates/breuer']
 TIMEZONE = 'Hongkong'
 

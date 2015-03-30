@@ -74,6 +74,8 @@ from common.utils import get_normalized_name
 from common.utils import get_thumbnail
 from common.utils import get_url_format
 from common.utils import zero
+from minify_css_files import get_loader_css
+from minify_js_files import get_loader_js
 
 
 class BaseResource(object):
@@ -309,6 +311,8 @@ class BaseHtmlResource(BaseResource):
         if self.cur_tab_index != 0:
             self.show_products_menu = False
         resp_dict['show_products_menu'] = self.show_products_menu
+        resp_dict['css_loader'] = get_loader_css(settings.BRAND_NAME.lower())
+        resp_dict['js_loader'] = get_loader_js(settings.BRAND_NAME.lower())
 
         if self.show_products_menu:
             # navigation menu
