@@ -548,6 +548,21 @@ function make_front_src_dir() {
         chown -R backtoshops.www-data $src_name
         chmod -R 2750 $src_name
     fi
+
+    cd $src_name
+    case $BRAND in
+        breuer)
+            BRANDNAME=$BRAND
+            ;;
+        vessel)
+            BRANDNAME=$BRAND
+            ;;
+        dragon)
+            BRANDNAME=dragondollar
+            ;;
+    esac
+    python minify_js_files.py $BRANDNAME
+    python minify_css_files.py $BRANDNAME
 }
 
 function make_front_dir() {
@@ -623,7 +638,7 @@ function setup_vsl() {
     start_uwsgi $PORT $SERVER 1
 }
 
-function deploy_vessel() {
+function deploy_vsl() {
     sanity_checks $VSL_REQUIREMENT "${VSL_DEPS[*]}"
     create_python_env $VSL_REQUIREMENT
     make_vsl_src_dir

@@ -10,27 +10,15 @@
     <?py for n, v in route_args.get('meta', {}).iteritems(): ?>
         <meta name="${n}" content="${v}">
     <?py #endfor ?>
-    <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
     <script type="text/javascript">
         #{set_cookies_js}
     </script>
 
     <link rel="icon" type="image/x-icon" href="/templates/breuer/img/favicon.ico" />
-    <link rel="stylesheet" type="text/css" media="screen" href="/css/jquery-ui-1.10.4.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="/templates/breuer/css/flexslider.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="/templates/breuer/css/main.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="/templates/breuer/css/easyzoom.css" />
-
-    <script type="text/javascript" src="/js/jquery-1.10.2.js"></script>
-    <script type="text/javascript" src="/js/jquery-ui-1.10.4.js"></script>
-    <script type="text/javascript" src="/js/utils.js"></script>
+    #{css_loader}
+    #{js_loader}
 
     <!-- FlexSlider -->
-    <script defer type="text/javascript" src="/templates/breuer/js/jquery.flexslider-min.js"></script>
     <script type="text/javascript">
     $(window).load(function() {
         $('.flexslider').flexslider({
@@ -133,17 +121,12 @@
 
     </div>
     <!--//WRAPPER-->
-    <script src="/templates/breuer/js/easyzoom.js"></script>
-    <script src="/templates/breuer/js/jquery.simpleGal.js"></script>
     <script>
         // Instantiate EasyZoom plugin
         var $easyzoom = $('.easyzoom').easyZoom();
-
         // Get the instance API
         var api = $easyzoom.data('easyZoom');
-    </script>
 
-    <script>
         $(document).ready(function () {
             $('.thumbnails').simpleGal({
                 mainImage: '.custom'

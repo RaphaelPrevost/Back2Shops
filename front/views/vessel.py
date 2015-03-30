@@ -37,6 +37,7 @@
 #############################################################################
 
 
+import settings
 import copy
 import re
 from B2SUtils.base_actor import as_list
@@ -53,6 +54,8 @@ from common.utils import get_thumbnail
 from common.utils import refresh_time
 from common.utils import zero
 from common.data_access import data_access
+from minify_css_files import get_loader_css
+from minify_js_files import get_loader_js
 from views.base import BaseHtmlResource as BaseHtmlResource
 from views.base import BaseJsonResource
 
@@ -126,6 +129,8 @@ class _BaseHtmlResource(BaseHtmlResource):
         resp_dict['cur_tab_index'] = self.cur_tab_index
         if self.cur_tab_index >= 0:
             resp_dict['tabs'][self.cur_tab_index]['current'] = True
+        resp_dict['css_loader'] = get_loader_css(settings.BRAND_NAME.lower())
+        resp_dict['js_loader'] = get_loader_js(settings.BRAND_NAME.lower())
 
         if 'err' not in resp_dict:
             resp_dict['err'] = ''

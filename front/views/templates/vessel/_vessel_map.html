@@ -39,10 +39,11 @@
 </div>
 
 <script>
-var map = L.map('map');
-L.control.scale().addTo(map);
 
 $(function() {
+    var map = L.map('map');
+    L.control.scale().addTo(map);
+
     view(map, 0, 0, 2);
 
     $('#vessellist .viewmap').each(function(){

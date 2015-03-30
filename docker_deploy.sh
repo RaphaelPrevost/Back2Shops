@@ -163,7 +163,7 @@ function docker_pull() {
 }
 
 function docker_stop_container() {
-    exist=$(docker ps -a | awk '{print $(NF)}' | grep $1 | wc -l)
+    exist=$(docker ps -a | awk '{print $(NF)}' | grep ^$1$ | wc -l)
     if [ $exist != "0" ]; then
         docker exec -it $1 service postgresql stop || echo ""
         docker rm -f $1
@@ -194,7 +194,7 @@ function load_image() {
 }
 
 function start_db_container() {
-    exist=$(docker ps -a | awk '{print $(NF)}' | grep $DB_CONTAINER_NAME | wc -l)
+    exist=$(docker ps -a | awk '{print $(NF)}' | grep ^$DB_CONTAINER_NAME$ | wc -l)
     if [ $exist == "0" ]; then
         docker_pull debian
         docker_stop_container $DB_CONTAINER_NAME
@@ -205,8 +205,7 @@ function start_db_container() {
 function copy_src() {
     CONTAINER_ID=$1
     CONTAINER_ROOT_DIR=/var/lib/docker/devicemapper/mnt/$CONTAINER_ID/rootfs
-    cp -r $CWD $CONTAINER_ROOT_DIR/home
-    rm -rf $CONTAINER_ROOT_DIR/home/backtoshops/docker
+    rsync -a --exclude=docker/*-image $CWD $CONTAINER_ROOT_DIR/home
 }
 
 function make_container_image() {
