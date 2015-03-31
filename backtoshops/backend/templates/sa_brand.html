@@ -158,6 +158,9 @@
 {% block javascript %}
 
 <script type="text/javascript">
+function _emptyStates() {
+    $("#province_selector").empty().parent().hide();
+}
 function loadStates(selected_state) {
     if (selected_state) {
         $("#{{ form.province_code.auto_id }}").val(selected_state);
@@ -175,8 +178,11 @@ function loadStates(selected_state) {
             url: "/countries/get_states/" + country_id,
             dataType: "json",
             success: function(states, textState) {
-                province_selector.empty();
-                province_selector.append(empty_label);
+                if (states.length == 0) {
+                    _emptyStates();
+                    return;
+                }
+                province_selector.empty().append(empty_label).parent().show();
                 $.each(states, function(i, option) {
                     $('#province_selector').append(
                             $("<option>", {value: option.value, text: option.label}));
@@ -187,14 +193,10 @@ function loadStates(selected_state) {
                     $("#province_selector").val("");
                 }
             },
-            error: function(err) {
-                province_selector.empty();
-                province_selector.append(empty_label);
-            }
+            error: _emptyStates
         })
-    } else  {
-        province_selector.empty();
-        province_selector.append(empty_label);
+    } else {
+        _emptyStates();
     }
 }
 
