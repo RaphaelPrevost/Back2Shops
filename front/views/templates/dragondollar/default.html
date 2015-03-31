@@ -11,46 +11,7 @@
     <link rel="icon" type="image/png" href="/img/favicon.png" />
     #{css_loader}
     #{js_loader}
-
-<script type="text/javascript">
-    $(document).ready(function(){
-        $("#slider").easySlider({
-            auto: true,
-            continuous: true,
-            numeric: true,
-            speed: 	400,
-            pause: 4000
-        });
-
-        $("#filtreLink").click(function () {
-            $(".filtreform").toggleClass("on", 100);
-            return false;
-        });
-        $("#trieOk").click(function () {
-            $(".filtreform").toggleClass("on", 100);
-            return false;
-        });
-        $("#allProd").click(function () {
-            $(".filtreform").toggleClass("on", 100);
-            return false;
-        });
-
-
-        //Select header present sur toutes les pages
-        $("#city span").click(function () {
-            $(".ville").toggleClass("on", 100);
-            return false;
-        });
-        $("#listecity li label").click(function () {
-            $(".ville").toggleClass("on", 100);
-            return false;
-        });
-
-        $("#copyright").html($("#copyright").text());
-    });
-
-    #{set_cookies_js}
-</script>
+    <script>#{set_cookies_js}</script>
 
 <!--[if IE 6]>
     <script type="text/javascript">
@@ -110,10 +71,10 @@
     </div>
     <!--FIN HEADER-->
 
-    <div id="dialog-login" title="Login">
+    <div id="dialog-login" style="display:none" title="Login">
         <?py include('login.html') ?>
     </div>
-    <div id="dialog-register" title="Register">
+    <div id="dialog-register" style="display:none" title="Register">
         <?py include('registration.html') ?>
     </div>
 
@@ -136,5 +97,43 @@
     </div>
     </div>
 	<!--FIN FOOTER-->
+#{js_defer_loader}
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#slider").easySlider({
+            auto: true,
+            continuous: true,
+            numeric: true,
+            speed: 	400,
+            pause: 4000
+        });
+
+        $("#filtreLink").click(function () {
+            $(".filtreform").toggleClass("on", 100);
+            return false;
+        });
+        $("#trieOk").click(function () {
+            $(".filtreform").toggleClass("on", 100);
+            return false;
+        });
+        $("#allProd").click(function () {
+            $(".filtreform").toggleClass("on", 100);
+            return false;
+        });
+
+
+        //Select header present sur toutes les pages
+        $("#city span").click(function () {
+            $(".ville").toggleClass("on", 100);
+            return false;
+        });
+        $("#listecity li label").click(function () {
+            $(".ville").toggleClass("on", 100);
+            return false;
+        });
+
+        $("#copyright").html($("#copyright").text());
+    });
+</script>
 </body>
 </html>

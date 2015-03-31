@@ -47,6 +47,7 @@ sys.path.append('.')
 import settings
 
 LOCAL_STATIC_PATH = 'static'
+DEFER = 'defer'
 
 js_files = {
     'breuer': {
@@ -64,15 +65,15 @@ js_files = {
             '%s/js/jquery-1.10.2.js' % LOCAL_STATIC_PATH,
             '%s/js/jquery-ui-1.10.4.min.js' % LOCAL_STATIC_PATH,
             '%s/js/jquery-migrate-1.2.1.min.js' % LOCAL_STATIC_PATH,
-            '%s/js/easySlider1.7.js' % LOCAL_STATIC_PATH,
-            '%s/js/utils.js' % LOCAL_STATIC_PATH,
         ],
-        '2': [
+        '%s_1' % DEFER: [
+            '%s/js/easySlider1.7.js' % LOCAL_STATIC_PATH,
             '%s/js/jquery.touchSwipe.min.js' % LOCAL_STATIC_PATH,
             '%s/js/jquery.movingboxes.js' % LOCAL_STATIC_PATH,
             '%s/js/jquery.maphilight.js' % LOCAL_STATIC_PATH,
             '%s/js/fancybox/jquery.mousewheel-3.0.4.pack.js' % LOCAL_STATIC_PATH,
             '%s/js/fancybox/jquery.fancybox-1.3.4.pack.js' % LOCAL_STATIC_PATH,
+            '%s/js/utils.js' % LOCAL_STATIC_PATH,
         ],
     },
     'vessel': {
@@ -101,7 +102,7 @@ def _get_loader_js(src_path):
     return js % path
 
 suffix = None
-def get_loader_js(brand):
+def get_loader_js(brand, defer=False):
     global suffix
     if not suffix:
         _fname = _get_js_suffix_filename(brand)
@@ -113,6 +114,10 @@ def get_loader_js(brand):
 
     lines = []
     for section, src_paths in js_files[brand].iteritems():
+        if defer and not section.startswith(DEFER) \
+            or not defer and section.startswith(DEFER):
+                continue
+
         if suffix:
             min_path = _get_js_min_filename(brand, section, suffix)
             lines.append(_get_loader_js(min_path))
@@ -124,7 +129,7 @@ def get_loader_js(brand):
 
 
 def minify_func(src_text):
-    return minify(src_text, mangle=True)
+    return minify(src_text)
 
 def process_files(proc_func, src_paths, dest_path):
     print "Combining to %s" % dest_path

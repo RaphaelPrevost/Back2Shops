@@ -17,17 +17,6 @@
     <link rel="icon" type="image/x-icon" href="/templates/breuer/img/favicon.ico" />
     #{css_loader}
     #{js_loader}
-
-    <!-- FlexSlider -->
-    <script type="text/javascript">
-    $(window).load(function() {
-        $('.flexslider').flexslider({
-            animation: "slide",
-            prevText: "Précédant",
-            nextText: "Suivant"
-        });
-    });
-    </script>
 </head>
 <body>
     <!--WRAPPER-->
@@ -121,7 +110,15 @@
 
     </div>
     <!--//WRAPPER-->
-    <script>
+    #{js_defer_loader}
+    <script type="text/javascript">
+        $(window).load(function() {
+            $('.flexslider').flexslider({
+                animation: "slide",
+                prevText: "Précédant",
+                nextText: "Suivant"
+            });
+        });
         // Instantiate EasyZoom plugin
         var $easyzoom = $('.easyzoom').easyZoom();
         // Get the instance API

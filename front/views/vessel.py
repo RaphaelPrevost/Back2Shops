@@ -131,6 +131,7 @@ class _BaseHtmlResource(BaseHtmlResource):
             resp_dict['tabs'][self.cur_tab_index]['current'] = True
         resp_dict['css_loader'] = get_loader_css(settings.BRAND_NAME.lower())
         resp_dict['js_loader'] = get_loader_js(settings.BRAND_NAME.lower())
+        resp_dict['js_defer_loader'] = get_loader_js(settings.BRAND_NAME.lower(), True)
 
         if 'err' not in resp_dict:
             resp_dict['err'] = ''
