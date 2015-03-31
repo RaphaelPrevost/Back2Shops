@@ -357,70 +357,70 @@
     </object>
     <object pk="1000001" model="address.address">
         <field type="CharField" name="address">beijing qing nian hui</field>
-        <field type="IntegerField" name="zipcode">1000001</field>
+        <field type="CharField" name="zipcode">1000001</field>
         <field type="CharField" name="city">BEIJING</field>
         <field to="countries.country" name="country" rel="ManyToOneRel">CN</field>
         <field type="CharField" name="province_code"><None></None></field>
     </object>
     <object pk="1000002" model="address.address">
         <field type="CharField" name="address">beijing qing nian gong she</field>
-        <field type="IntegerField" name="zipcode">1000001</field>
+        <field type="CharField" name="zipcode">1000001</field>
         <field type="CharField" name="city">BEIJING</field>
         <field to="countries.country" name="country" rel="ManyToOneRel">CN</field>
         <field type="CharField" name="province_code"><None></None></field>
     </object>
     <object pk="1000003" model="address.address">
         <field type="CharField" name="address">qing nian lu</field>
-        <field type="IntegerField" name="zipcode">100002</field>
+        <field type="CharField" name="zipcode">100002</field>
         <field type="CharField" name="city">BEIJING</field>
         <field to="countries.country" name="country" rel="ManyToOneRel">CN</field>
         <field type="CharField" name="province_code"><None></None></field>
     </object>
     <object pk="1000004" model="address.address">
         <field type="CharField" name="address">tong zhou li yuan</field>
-        <field type="IntegerField" name="zipcode">100004</field>
+        <field type="CharField" name="zipcode">100004</field>
         <field type="CharField" name="city">BEIJING</field>
         <field to="countries.country" name="country" rel="ManyToOneRel">CN</field>
         <field type="CharField" name="province_code"><None></None></field>
     </object>
     <object pk="1000005" model="address.address">
         <field type="CharField" name="address">beijing qing nian hui</field>
-        <field type="IntegerField" name="zipcode">1000001</field>
+        <field type="CharField" name="zipcode">1000001</field>
         <field type="CharField" name="city">BEIJING</field>
         <field to="countries.country" name="country" rel="ManyToOneRel">CN</field>
         <field type="CharField" name="province_code"><None></None></field>
     </object>
     <object pk="1000006" model="address.address">
         <field type="CharField" name="address">Alabama center</field>
-        <field type="IntegerField" name="zipcode">112233</field>
+        <field type="CharField" name="zipcode">112233</field>
         <field type="CharField" name="city">ALABAMA</field>
         <field to="countries.country" name="country" rel="ManyToOneRel">US</field>
         <field type="CharField" name="province_code">AL</field>
     </object>
     <object pk="1000007" model="address.address">
         <field type="CharField" name="address">qing nian lu</field>
-        <field type="IntegerField" name="zipcode">100002</field>
+        <field type="CharField" name="zipcode">100002</field>
         <field type="CharField" name="city">BEIJING</field>
         <field to="countries.country" name="country" rel="ManyToOneRel">CN</field>
         <field type="CharField" name="province_code"><None></None></field>
     </object>
     <object pk="1000008" model="address.address">
         <field type="CharField" name="address">tong zhou li yuan</field>
-        <field type="IntegerField" name="zipcode">100004</field>
+        <field type="CharField" name="zipcode">100004</field>
         <field type="CharField" name="city">BEIJING</field>
         <field to="countries.country" name="country" rel="ManyToOneRel">CN</field>
         <field type="CharField" name="province_code"><None></None></field>
     </object>
     <object pk="1000009" model="address.address">
         <field type="CharField" name="address">Alabama center</field>
-        <field type="IntegerField" name="zipcode">100002</field>
+        <field type="CharField" name="zipcode">100002</field>
         <field type="CharField" name="city">ALABAMA</field>
         <field to="countries.country" name="country" rel="ManyToOneRel">US</field>
         <field type="CharField" name="province_code">AL</field>
     </object>
     <object pk="1000010" model="address.address">
         <field type="CharField" name="address">Alabama center</field>
-        <field type="IntegerField" name="zipcode">100004</field>
+        <field type="CharField" name="zipcode">100004</field>
         <field type="CharField" name="city">ALABAMA</field>
         <field to="countries.country" name="country" rel="ManyToOneRel">US</field>
         <field type="CharField" name="province_code">AL</field>
