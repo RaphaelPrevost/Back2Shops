@@ -205,6 +205,9 @@ function start_db_container() {
 function copy_src() {
     CONTAINER_ID=$1
     CONTAINER_ROOT_DIR=/var/lib/docker/devicemapper/mnt/$CONTAINER_ID/rootfs
+    if [ ! -d $CONTAINER_ROOT_DIR ]; then
+        CONTAINER_ROOT_DIR=/var/lib/docker/aufs/mnt/$CONTAINER_ID
+    fi
     rsync -a --exclude=docker/*-image $CWD $CONTAINER_ROOT_DIR/home
 }
 
