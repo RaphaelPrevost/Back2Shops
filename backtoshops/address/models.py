@@ -43,7 +43,7 @@ from countries.models import Country
 
 class Address(models.Model):
     address = models.CharField(verbose_name=_("Address"), max_length=250, blank=True, null=True)
-    zipcode = models.IntegerField(verbose_name=_("Postal code"), blank=True, null=True)
+    zipcode = models.CharField(verbose_name=_("Postal code"), max_length=50, blank=True, null=True)
     city = models.CharField(verbose_name=_("City"), max_length=100)
     country = models.ForeignKey(Country, verbose_name=_('Country'), blank=True, null=True)
     province_code = models.CharField(verbose_name=_('Province'), max_length=2, blank=True, null=True)
