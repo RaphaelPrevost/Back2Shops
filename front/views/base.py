@@ -313,6 +313,7 @@ class BaseHtmlResource(BaseResource):
         resp_dict['show_products_menu'] = self.show_products_menu
         resp_dict['css_loader'] = get_loader_css(settings.BRAND_NAME.lower())
         resp_dict['js_loader'] = get_loader_js(settings.BRAND_NAME.lower())
+        resp_dict['js_defer_loader'] = get_loader_js(settings.BRAND_NAME.lower(), True)
 
         if self.show_products_menu:
             # navigation menu
