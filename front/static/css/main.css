@@ -3,6 +3,7 @@
 	padding: 0px;
 	font-family: Verdana,Tahoma,Helvetica,Sans-Serif;
 	font-size: 11px;
+    color: #ffffff;
 }
 
 body { 
@@ -590,23 +591,65 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#9a070d', end
 #footer ul li a:hover { text-decoration: underline; color: #fff; }
 
 
-
-	
 /*Copyright*/		
 #copyright { display: block; float: right; }
 
 #blockSearch #chinaMap .totomaptest01  { background-color: rgba(116, 8, 58, 0.40); }
 
-
-
 .hidden {display: None;}
 
 
+/*-----------------------------------*/
+/*		 	 PAGES INFOS			 */
+/*-----------------------------------*/
 
+.contenuTxt {
+    clear: both;
+    overflow: auto; 
+    margin: auto;
+    padding-top: 30px;
+    width: 958px;
+}
+.contenuTxt h1 {
+	border-bottom: 1px solid #dbdbdb;
+	margin: 20px 0 50px 0;
+}
+.contenuTxt h1 span {
+	display: block;
+	margin: 0 auto;
+	font-size: 20px; font-weight: normal;
+	text-align: center;
+}
 
+.contenuTxt h2, 
+.contenuTxt h3,
+.contenuTxt h4 {
+	display: block; margin: 50px 110px 0 110px;
+	font-family: verdana;
+	font-size: 12px;
+	text-align: center;
+}
+.contenuTxt h3 { margin: 20px 110px 0 110px; color: #FFE481;}
+.contenuTxt h4 { margin: 20px 110px 0 110px; text-align: left; }
 
+.contenuTxt p {
+	margin: 12px 110px 0 110px;
+	font-family: verdana;
+	font-size: 12px; font-weight: normal;
+	line-height: inherit;
+} 
+.contenuTxt p strong { display: block; margin-top: 35px; }
 
+.contenuTxt ul, .contenuTxt dl { margin: 12px 150px 30px 130px; } 
+.contenuTxt ul li, .contenuTxt dl dt, .contenuTxt dl dd {
+	margin-top: 5px;
+	padding-left: 12px;
+	font-family: verdana;
+	font-size: 12px; font-weight: normal;
+	line-height: inherit;
+	background: url(/img/square-blue.gif) no-repeat 0 8px; 
+}
+.contenuTxt dl dt { background: none; padding: 0; }
 
-
-
-
+.contenuTxt a {color: #FFC900;}
+.contenuTxt .retrait { display: block; margin: 20px 0 0 110px; }
