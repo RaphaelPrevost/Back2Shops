@@ -103,7 +103,6 @@ class OrderListResource(BaseHtmlResource):
                              brand_id=settings.BRAND_ID,
                              limit=limit,
                              page=page)
-        all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
         order_list = []
         for order in orders:
             for order_id, order_data in order.iteritems():
@@ -137,7 +136,6 @@ class OrderInfoResource(BaseHtmlResource):
         if not id_order:
             raise ValidationError('ERR_ID')
 
-        all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
         order_resp = data_access(REMOTE_API_NAME.GET_ORDER_DETAIL, req, resp,
                                  id=id_order, brand_id=settings.BRAND_ID)
         order_data = get_order_table_info(id_order, order_resp)

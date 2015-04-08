@@ -76,6 +76,7 @@ from common.constants import TARGET_MARKET_TYPES
 from common.constants import USERS_ROLE
 from common.error import InvalidRequestError
 from common.utils import get_currency
+from common.utils import get_default_setting
 from common.utils import get_valid_sort_fields
 from fouillis.views import ManagerUpperLoginRequiredMixin
 from fouillis.views import OperatorUpperLoginRequiredMixin
@@ -241,6 +242,9 @@ class ListSalesView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin
 
         #put extra fields
         self.sales = self.sales.extra(select={'total_sold_stock':'total_stock-total_rest_stock'})
+        self.tax_flag = get_default_setting('use_after_tax_price', self.request.user) == 'True'
+        self.tax_price_label = _("Before-tax price:") if self.tax_flag \
+                          else _("After-tax price:")
         for sale in self.sales:
             type_attribute_prices = TypeAttributePrice.objects.filter(sale=sale)
             prices = [i.type_attribute_price for i in type_attribute_prices]
@@ -1175,6 +1179,10 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 'shipping_currency': self.currency,
                 'custom_shipping_rate_form': CustomShippingRateFormModel,
             })
+
+        context.update({'price_label': _("(after tax)")
+                if get_default_setting('use_after_tax_price',
+                                       self.request.user) == 'True' else ""})
         return context
 
     def get_form_kwargs(self, step=None):

@@ -58,6 +58,7 @@ from B2SFrontUtils.utils import get_thumbnail_url
 from B2SFrontUtils.utils import normalize_name
 from B2SProtocol.constants import EURO_UNION_COUNTRIES
 from B2SProtocol.constants import EXPIRY_FORMAT
+from B2SProtocol.constants import BRANDSETTING
 from B2SProtocol.constants import INVALIDATE_CACHE_LIST
 from B2SProtocol.constants import INVALIDATE_CACHE_OBJ
 from B2SProtocol.constants import ORDER_STATUS
@@ -177,6 +178,15 @@ def allowed_countries():
         return EURO_UNION_COUNTRIES
     return []
 
+def calc_before_tax_price():
+    val = get_redis_cli().get(
+            BRANDSETTING % (settings.BRAND_ID, 'use_after_tax_price'))
+    return val == 'True'
+
+def get_price_label(need_calc_before_tax=None):
+    if need_calc_before_tax is None:
+        need_calc_before_tax = calc_before_tax_price()
+    return _("Before tax") if need_calc_before_tax else _("After tax")
 
 def get_product_default_display_price(sale, type_attr=None):
     ori_price = sale.get('price', {}).get('#text') or ''
@@ -270,7 +280,10 @@ def get_brief_product(sale, req, resp, calc_price=True):
                 user_country_code, user_province_code,
                 _cate_id)
         product_info['price'] = price
-        product_info['tax'] = price * tax_info['rate'] / 100
+        if calc_before_tax_price():
+            product_info['price_with_tax_calc'] = price * (1 + tax_info['rate'] / 100.0)
+        else:
+            product_info['price_with_tax_calc'] = price / (1 + tax_info['rate'] / 100.0)
         product_info['show_final_price'] = tax_info['show_final_price']
 
     if not settings.PRODUCTION and not product_info['img']:
@@ -490,7 +503,11 @@ def get_basket_table_info(req, resp, basket_data, users_id):
                 country_code, province_code,
                 user_country_code, user_province_code,
                 _cate_id)
-        one['tax'] = price * tax_info['rate'] / 100
+        if calc_before_tax_price():
+            one['price_with_tax_calc'] = price / (1 + tax_info['rate'] / 100.0)
+        else:
+            one['price_with_tax_calc'] = price * (1 + tax_info['rate'] / 100.0)
+        one['tax'] = one['price_with_tax_calc'] - price
         one['show_final_price'] = tax_info['show_final_price']
 
         basket.append(one)

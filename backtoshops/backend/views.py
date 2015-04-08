@@ -62,11 +62,14 @@ from backend.forms import SACreateUserForm
 from backend.forms import SASettingsForm
 from backend.forms import SATaxForm
 from backend.forms import SAUserForm
+from common.cache_invalidation import send_cache_invalidation
 from common.constants import USERS_ROLE
+from common.orders import get_order_list
 from fouillis.views import super_admin_required
 from fouillis.views import manager_upper_required
 from globalsettings import get_setting
 from globalsettings.models import GlobalSettings
+from globalsettings.models import SETTING_KEY_CHOICES
 from shippings.models import Carrier
 from shippings.models import Service
 from taxes.models import Rate
@@ -345,10 +348,16 @@ def sa_settings(request):
     if request.method == 'POST':
         form = SASettingsForm(data=request.POST, user=request.user)
         if form.is_valid():
-            global_settings = GlobalSettings.objects.all()
-            for global_setting in global_settings:
-                global_setting.value = form.cleaned_data[global_setting.key]
-                global_setting.save()
+            for key, _ in SETTING_KEY_CHOICES:
+                if key in form.cleaned_data:
+                    try:
+                        global_setting = GlobalSettings.objects.get(key=key)
+                    except GlobalSettings.DoesNotExist:
+                        global_setting = GlobalSettings()
+                    global_setting.key = key
+                    global_setting.value = form.cleaned_data[key]
+                    global_setting.save()
+
             user = User.objects.get(pk=request.user.pk)
             user.username = form.cleaned_data['username']
             user.email = form.cleaned_data['email']
@@ -365,13 +374,18 @@ def sa_settings(request):
 @manager_upper_required
 def brand_settings(request):
     is_saved = False
+    brand_id = request.user.get_profile().work_for.pk
+    having_orders = len(get_order_list(brand_id)) > 0
     if request.method == 'POST':
-        form = SABrandSettingsForm(data=request.POST, user=request.user)
+        form = SABrandSettingsForm(data=request.POST, user=request.user,
+                                   having_orders=having_orders)
         if form.is_valid():
             form.save(request.user)
             is_saved = True
+            send_cache_invalidation("PUT", 'settings', brand_id)
     else:
-        form = SABrandSettingsForm(user=request.user)
+        form = SABrandSettingsForm(user=request.user,
+                                   having_orders=having_orders)
     return render_to_response('brand_settings.html',
                 {'form':form, 'is_saved':is_saved, 'request':request, },
                 context_instance=RequestContext(request))

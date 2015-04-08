@@ -53,7 +53,13 @@
                             <span id="price">${format_amount(item['price'] + shipping_list['tax_per_item'])}</span><span id="currency">${currency}</span>
                             <?py else: ?>
                             <span id="price">${format_amount(item['price'])}</span><span id="currency">${currency}</span>
-                            <?py if shipping_list['tax']: ?>(After tax:<span>${format_amount(item['price'] + shipping_list['tax_per_item'])}</span><span>${currency}</span>)<?py #endif ?>
+                                <?py if shipping_list['tax']: ?>
+                                    <?py if calc_before_tax_price: ?>
+                                    (${price_label}:<span>${format_amount(item['price'] - shipping_list['tax_per_item'])}</span><span>${currency}</span>)
+                                    <?py else: ?>
+                                    (${price_label}:<span>${format_amount(item['price'] + shipping_list['tax_per_item'])}</span><span>${currency}</span>)
+                                    <?py #endif ?>
+                                <?py #endif ?>
                             <?py #endif ?>
                         </td>
                         <td><input id="quantity" name="nb_product" type="text" value="${item['quantity']}" disabled/></td>

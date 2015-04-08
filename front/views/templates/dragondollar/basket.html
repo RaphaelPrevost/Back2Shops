@@ -30,12 +30,14 @@
                         <th class="left">${_('Description')}</th>
                         <th>${_('Ref')}</th>
                         <th>${_('Prix')}</th>
+                        <th>Quantité</th>
+                        <th>Total</th>
                         <th>${_('Annulation')}</th>
                     </tr>
                 </thead>
                 <tfoot>
                     <tr>
-                        <td colspan="5" class="right">
+                        <td colspan="7" class="right">
                             ${_('Total produits TTC : ')}
                             <span id="sum_amount"></span>
                         </td>
@@ -47,16 +49,25 @@
                     <tr data="${item['item']}">
                         <td class="left">
                             <a href="${item['product']['link']}">
-                                <img src="${item['product']['img']}"  width="150px" alt="${item['product']['name']}" />
+                                <img src="${get_single_attribute(item['product'], 'img')}"  width="150px" alt="${item['product']['name']}" />
                             </a>
                         </td>
                         <td class="left"><h1>${item['product']['name']}</h1><strong>Nom du colori</strong></td>
                         <td class="ref">${item['external_id']}</td>
-                        <td>
-                            <span id="amount">${format_amount(item['price'] + item['tax'])}</span>
-                            <span id="currency">${cur_symbol(item['product']['currency'])}</span>
+                        <td class="price">
+                        <?py if item['show_final_price']: ?>
+                            <span id="price_after_tax" value="${item['price_with_tax_calc']}">${format_amount(item['price_with_tax_calc'])}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span>
+                        <?py else: ?>
+                            <span id="price" value="${item['price']}">${format_amount(item['price'])}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span>
+                            <?py if item['tax']: ?>
+                            (${price_label}: <span id="price_after_tax" value="${item['price_with_tax_calc']}">${format_amount(item['price_with_tax_calc'])}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span>)
+                            <span class="tax" style="display:none" value="${item['tax']}"></span>
+                            <?py #endif ?>
+                        <?py #endif ?>
                         </td>
-                        <td><a href="#" class="supprimer" title="${_('Supprimer')}">x</a></td>
+                        <td><input id="quantity" name="nb_product" type="text" maxlength="4" value="${item['quantity']}" /></td>
+                        <td class="price"><span id="amount"></span><span>${cur_symbol(item['product']['currency'])}</span></td>
+                        <td><a href="javascript:void(0)" class="supprimer" title="${_('Supprimer')}">x</a></td>
                     </tr>
 
                     <?py #endfor ?>
@@ -92,6 +103,19 @@
         );
     }
 
+    function calc_row(tr) {
+        var count = tr.find("#quantity").val();
+        if (count > 0) {
+        } else {
+            count = 1;
+            tr.find("#quantity").val(count);
+        }
+        if (tr.find("#price_after_tax").length > 0 && tr.find(".tax").attr("value") * 1 > 0)
+            tr.find("#amount").text(formatAmount(tr.find("#price_after_tax").text() * count));
+        else
+            tr.find("#amount").text(formatAmount(tr.find("#price").text() * count));
+        tr.find(".tax").text(tr.find(".tax").attr("value") * count);
+    }
     function calc_sum() {
         var currency = "";
         var diff_currency = false;
@@ -116,25 +140,24 @@
         $('#sum_amount').show().siblings().show();
     };
 
-    jQuery("document").ready(function($){
-        var nav = $('#sidenav');
-        $(window).scroll(function () {
-            if ($(this).scrollTop() > 115) {
-                nav.addClass("f-moveTop");
-            } else {
-                nav.removeClass("f-moveTop");
-            }
+    $(function() {
+        $('tr #amount').each(function(){
+            calc_row($(this).parent().parent());
         });
-
-        $(window).scroll(function () {
-            if ($(this).scrollLeft() > 15) {
-                nav.addClass("f-static");
-            } else {
-                nav.removeClass("f-static");
-            }
-        });
-
         calc_sum();
+
+        $('tr #quantity').change(function(){
+            // update quantity
+            var tr = $(this).parent().parent();
+            calc_row(tr);
+            calc_sum();
+
+            $.post('/ajax_basket', {
+                'cmd': 'update',
+                'sale': tr.attr('data'),
+                'quantity': $(this).val(),
+            });
+        });
 
         $('tr .supprimer').click(function(){
             // remove item

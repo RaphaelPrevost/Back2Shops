@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load get_brand_currency %}
 {% load is_admin %}
+{% load is_shop_manager_upper %}
 
 {% block content %}
     <div id="content_Home">
@@ -40,15 +41,18 @@
 
 			<div class="blocHome bloc4">
 				<h1>{% trans "Settings" %}</h1>
-                {% if user|is_admin %}
                 <ul>
+                    {% if user|is_shop_manager_upper %}
+                    <li><a class="linkHome link12" href="{% url 'sa_settings' %}"><span>*</span>{% trans "Settings" %}</a></li>
+                    {% endif %}
+                    {% if user|is_admin %}
                     <li><a class="linkHome link12" href="{% url 'routes' %}"><span>*</span>{% trans "Content and presentation" %}</a></li>
                     <li><a class="linkHome link12" href="{% url 'notif_list' %}"><span>*</span>{% trans "Notifications" %}</a></li>
                     <li><a class="linkHome link12" href="{% url 'page_brandings' %}"><span>*</span>{% trans "Frontpage" %}</a></li>
                     <li><a class="linkHome link12" href="{% url 'list_categories' %}"><span>*</span>{% trans "Sales categories" %}</a></li>
                     <li><a class="linkHome link12" href="{% url 'page_producttypes' %}"><span>*</span>{% trans "Items" %}</a></li>
+                    {% endif %}
                 </ul>
-                {% endif %}
 				<a href="#" class="graph reglage">
 					<img src="static/img/reglages.png" alt="{% trans "Réglages" %}" />
 				</a>

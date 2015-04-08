@@ -61,3 +61,6 @@
 
 == version 0.0.19 ==
 1. Add constant PAYMENT_TYPES
+
+== version 0.0.20 ==
+1. Add constants for brand settings redis key

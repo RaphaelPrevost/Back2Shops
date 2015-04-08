@@ -56,7 +56,7 @@
 #infosProd .titleLine { width: 545px; }
 #infosProd .titleLine strong { width: 545px; }
 #infosProd .titleLine strong span { width: 526px; }
-#infosProd .titleLine #prix {
+#infosProd .titleLine .prix {
 	display: block; float: right;
 	margin-right: 15px;
 	font-style: normal; font-size: 18px;

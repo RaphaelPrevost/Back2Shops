@@ -63,6 +63,7 @@ from common.utils import get_basket
 from common.m17n import get_locale
 from common.m17n import set_locale
 from common.redis_utils import get_redis_cli
+from common.utils import calc_before_tax_price
 from common.utils import cur_symbol
 from common.utils import format_amount
 from common.utils import format_datetime
@@ -71,6 +72,7 @@ from common.utils import gen_cookie_expiry
 from common.utils import gen_SID
 from common.utils import get_err_msg
 from common.utils import get_normalized_name
+from common.utils import get_price_label
 from common.utils import get_thumbnail
 from common.utils import get_url_format
 from common.utils import zero
@@ -336,6 +338,10 @@ class BaseHtmlResource(BaseResource):
             resp_dict['err'] = ''
         resp_dict['err'] = get_err_msg(resp_dict['err'])
         resp_dict['route_args'] = self.route_args
+
+        need_calc_before_tax = calc_before_tax_price()
+        resp_dict['calc_before_tax_price'] = need_calc_before_tax
+        resp_dict['price_label'] = get_price_label(need_calc_before_tax)
 
         resp_dict['format_datetime'] = format_datetime
         resp_dict['as_list'] = as_list

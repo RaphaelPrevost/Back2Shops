@@ -5,7 +5,7 @@
     <ul id="slider-one">
         <?py for p in product_list: ?>
         <li style="width: 250px;">
-            <a href="${p['link']}"><img src="${p['img']}" alt="${p['name']}" /></a>
+            <a href="${p['link']}"><img src="${get_single_attribute(p, 'img')}" alt="${p['name']}" /></a>
             <p>
                 <a class="linkProd" href="${p['link']}">
                     <span><strong>${p['name']}</strong>, ${p['desc']}</span>

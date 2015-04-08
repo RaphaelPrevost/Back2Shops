@@ -50,6 +50,7 @@ import gevent
 from gevent.pywsgi import WSGIServer
 
 import settings
+from common.cache import settings_cache_proxy
 from urls import urlpatterns
 from webservice.sales import import_sales_list
 from webservice.shops import import_shops_list
@@ -73,6 +74,7 @@ def init_db():
 def load_redis_data():
     gevent.spawn(import_sales_list)
     gevent.spawn(import_shops_list)
+    gevent.spawn(settings_cache_proxy.refresh)
 
 init_db()
 load_redis_data()

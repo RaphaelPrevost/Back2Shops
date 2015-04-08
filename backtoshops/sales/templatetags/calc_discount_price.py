@@ -43,15 +43,18 @@ from django import template
 register = template.Library()
 
 @register.simple_tag
-def calc_discount_price(discount_type, discount, base_price):
+def calc_discount_price(discount_type, discount, base_price, rounding=True):
     try:
         discount = float(discount)
         base_price = float(base_price)
         if discount_type == "percentage":
             tmp = base_price - (base_price * (discount / 100))
-            return round(int(tmp * 100) + (int(tmp * 1000 % 10) > 4 and 1 or 0)) / 100
         else:
-            return base_price - discount
+            tmp = base_price - discount
+
+        if not rounding:
+            return tmp
+        return round(int(tmp * 100) + (int(tmp * 1000 % 10) > 4 and 1 or 0)) / 100
     except Exception, e:
         logging.warn('Error happened when calculating discount price, '
                      'discount_type: %s, discount: %s, base_price: %s, '
@@ -59,12 +62,16 @@ def calc_discount_price(discount_type, discount, base_price):
     return None
 
 @register.simple_tag
-def calc_price_after_tax(price, tax_rate):
-    tmp = price + float(price * tax_rate / 100.0)
+def calc_price_with_tax(price, tax_rate, input_after_tax_price=False):
+    if input_after_tax_price:
+        tmp = price / float(1 + tax_rate / 100.0)
+    else:
+        tmp = price * float(1 + tax_rate / 100.0)
     return round(int(tmp * 100) + (int(tmp * 1000 % 10) > 4 and 1 or 0)) / 100
 
 @register.simple_tag
-def calc_discount_price_after_tax(discount_type, discount, base_price, tax_rate):
-    price = calc_discount_price(discount_type, discount, base_price)
-    return calc_price_after_tax(price, tax_rate)
+def calc_discount_price_with_tax(discount_type, discount, base_price, tax_rate,
+                                 input_after_tax_price=False):
+    price = calc_discount_price(discount_type, discount, base_price, rounding=False)
+    return calc_price_with_tax(price, tax_rate, input_after_tax_price)
 

@@ -48,6 +48,7 @@ SETTING_KEY_CHOICES = (
                        ('default_shipment_period', 'default shipment period'),
                        ('default_payment_period', 'default payment period'),
                        ('starting_invoice_number', 'starting invoice number'),
+                       ('use_after_tax_price', 'use after tax price'),
                        )
 
 # Create your models here.

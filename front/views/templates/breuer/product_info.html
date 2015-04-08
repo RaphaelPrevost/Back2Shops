@@ -8,8 +8,8 @@
         <?py #endfor ?>
     </span>
     <?py display=product_info.get('display',{}) ?>
-    <span id="discounted_price" class="prix1">${format_amount(display.get('price'))} ${cur_symbol(product_info.get('price',{}).get('@currency'))}( _{_('without tax')})</span>
-    <span id="price_after_tax" class="prix3" style="display:none">(After tax: <span></span>)</span>
+    <span id="discounted_price" class="prix1">${format_amount(display.get('price'))} ${cur_symbol(product_info.get('price',{}).get('@currency'))}</span>
+    <span id="price_after_tax" class="prix3" style="display:none">(<span></span><span></span>)</span>
 
     <?py if product_info.get('discount'): ?>
     <em class="prix2">au lieu de <span id="ori_price">${format_amount(display.get('ori_price'))} ${cur_symbol(product_info.get('price', {}).get('@currency'))}</span></em>
@@ -110,6 +110,7 @@ $(function(){
     var discounted_price = parseFloat(${product_info.get("display", {}).get("price", 99999999)});
     var currency = "${cur_symbol(product_info.get('price', {}).get('@currency'))}";
     var show_final_price = "${show_final_price}";
+    var calc_before_tax_price = "${calc_before_tax_price}";
     var rates = #{taxes_rate};
 
     var type_attr_prices = {};
@@ -186,8 +187,15 @@ $(function(){
 
     function _display_prices() {
         $("#ori_price").text(formatAmount(ori_price) + " " + currency);
-        $("#discounted_price").text(formatAmount(discounted_price) + " " + currency + " (${_('without tax')})");
+        $("#discounted_price").text(formatAmount(discounted_price) + " " + currency);
         _display_price_after_tax();
+    }
+
+    function _calc_price_with_tax(price, rate) {
+        if (calc_before_tax_price == 'True')
+            return formatAmount(price / (1 + rate / 100))
+        else
+            return formatAmount(price * (1 + rate / 100))
     }
 
     function _display_price_after_tax() {
@@ -199,12 +207,13 @@ $(function(){
             rate = rates[form.id_shop.value];
         rate = parseFloat(rate);
         if (show_final_price== 'True') {
-            $("#ori_price ").text(formatAmount(ori_price + ori_price * rate / 100) + " " + currency);
-            $("#discounted_price").text(formatAmount(discounted_price + discounted_price * rate / 100) + " " + currency + " (${_('after tax')})");
+            $("#ori_price ").text(_calc_price_with_tax(ori_price, rate) + " " + currency);
+            $("#discounted_price").text(_calc_price_with_tax(discounted_price, rate) + " " + currency + " (${price_label})");
         } else {
             if (rate > 0) {
                 $("#price_after_tax").show();
-                $("#price_after_tax span").text(formatAmount(discounted_price + discounted_price * rate / 100) + " " + currency);
+                $("#price_after_tax span").first().text("${price_label}: ");
+                $("#price_after_tax span").last().text(_calc_price_with_tax(discounted_price, rate) + " " + currency);
             }
         }
     }
