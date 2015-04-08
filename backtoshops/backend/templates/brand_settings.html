@@ -68,6 +68,14 @@
             </div>
             {% endif %}
 
+            {% if user|is_admin %}
+            {{ form.use_after_tax_price.errors }}
+            <div class="formrow">
+                <label for="{{ form.use_after_tax_price.auto_id }}">{% trans form.use_after_tax_price.label %}</label>
+                {{ form.use_after_tax_price}}
+            </div>
+            {% endif %}
+
         </fieldset>
         <!--BOUTONS-->
         <input class="btn valider" type="submit" value='{% trans "Save" %}'/>

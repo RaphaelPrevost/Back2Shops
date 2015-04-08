@@ -39,11 +39,11 @@
                 </td>
                 <td class="price">
                 <?py if item['show_final_price']: ?>
-                    <span id="price_after_tax" value="${item['price']+ item['tax']}">${format_amount(item['price']+ item['tax'])}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span>
+                    <span id="price_after_tax" value="${item['price_with_tax_calc']}">${format_amount(item['price_with_tax_calc'])}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span>
                 <?py else: ?>
                     <span id="price" value="${item['price']}">${format_amount(item['price'])}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span>
                     <?py if item['tax']: ?>
-                    (After tax: <span id="price_after_tax" value="${item['price'] + item['tax']}">${format_amount(item['price'] + item['tax'])}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span>)
+                    (${price_label}: <span id="price_after_tax" value="${item['price_with_tax_calc']}">${format_amount(item['price_with_tax_calc'])}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span>)
                     <span class="tax" style="display:none" value="${item['tax']}"></span>
                     <?py #endif ?>
                 <?py #endif ?>
@@ -95,7 +95,7 @@ function calc_row(tr) {
         count = 1;
         tr.find("#quantity").val(count);
     }
-    if (tr.find("#price_after_tax").length > 0)
+    if (tr.find("#price_after_tax").length > 0 && tr.find(".tax").attr("value") * 1 > 0)
         tr.find("#amount").text(formatAmount(tr.find("#price_after_tax").text() * count));
     else
         tr.find("#amount").text(formatAmount(tr.find("#price").text() * count));

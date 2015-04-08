@@ -1,0 +1,8 @@
+<?xml version="1.0" standalone="yes"?>
+<!DOCTYPE globalsettings PUBLIC "-/BACKTOSHOPS//GLOBALSETTINGS" "globalsettings.dtd">
+
+<settings version="1.0">
+{% for object in object_list %}
+	<setting brand="{{object.brand_id}}" name="{{object.key}}">{{object.value}}</setting>
+{% endfor %}
+</settings>

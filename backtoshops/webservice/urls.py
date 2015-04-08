@@ -45,7 +45,7 @@ from webservice.views import SalesListView, BrandInfoView, BrandListView, \
     VicinityShopsListView, VicinitySalesListView, \
     authenticate, barcode_increment, barcode_decrement, barcode_returned, \
     BrandingsListView, apikey, SalesFindView, TaxesListView, ShippingInfoView, \
-    ShippingFeesView, ShippingServicesInfoView, InvoiceView, \
+    ShippingFeesView, ShippingServicesInfoView, InvoiceView, BrandSettingsView, \
     payment_init, RoutesListView, SuggestView, EventListView, event_push
 
 
@@ -58,6 +58,7 @@ urlpatterns = patterns(settings.SITE_NAME,
     url(r'1.0/pub/brand/list', BrandListView.as_view()),
     url(r'1.0/pub/brand/home/slideshow/(?P<brand>\d+)', BrandingsListView.as_view()),
     url(r'1.0/pub/brand/info/(?P<pk>\d+)', BrandInfoView.as_view()),
+    url(r'1.0/pub/brand/settings/list', BrandSettingsView.as_view()),
     url(r'1.0/pub/sales/info/(?P<pk>\d+)', SalesInfoView.as_view()),
     url(r'1.0/pub/shops/info/(?P<pk>\d+)', ShopsInfoView.as_view()),
     url(r'1.0/pub/types/info/(?P<pk>\d+)', TypesInfoView.as_view()),

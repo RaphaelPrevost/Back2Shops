@@ -82,6 +82,8 @@ from B2SProtocol.constants import BARCODE_VARIANT_ID
 from B2SProtocol.constants import SHOP_WITH_BARCODE
 from B2SProtocol.constants import INVALIDATE_CACHE_LIST
 from B2SProtocol.constants import INVALIDATE_CACHE_OBJ
+from B2SProtocol.constants import BRANDSETTING
+from B2SProtocol.constants import BRANDSETTINGS_VERSION
 from common.error import ServerError
 from common.redis_utils import get_redis_cli
 from models.actors.sale import ActorSale
@@ -634,6 +636,40 @@ class RoutesCacheProxy(CacheProxy):
                                 ujson.dumps(data))
 
 
+class SettingsCacheProxy(CacheProxy):
+    list_api = "pub/brand/settings/list?%s"
+    obj_key = BRANDSETTING
+
+    def refresh(self, obj_id=None):
+        self._get_from_server()
+
+    def parse_xml(self, xml, is_entire_result, **kw):
+        logging.info('parse brandsettings xml: %s, is_entire_result:%s',
+                     xml, is_entire_result)
+        data = xmltodict.parse(xml)
+        data = data.get('settings', {})
+        version = data['@version']
+        g_settings = as_list(data.get('setting', None))
+        try:
+            self._refresh_redis(version, g_settings, is_entire_result)
+        except (RedisError, ConnectionError), e:
+            logging.error('Redis Error: %s', (e,), exc_info=True)
+        return dict([(g['@name'], g) for g in g_settings])
+
+    def _refresh_redis(self, version, g_settings, is_entire_result):
+        self._set_to_redis(BRANDSETTINGS_VERSION, version)
+        self._save_objs_to_redis(g_settings)
+
+    def _save_objs_to_redis(self, data_list):
+        if not data_list:
+            return
+        pipe = get_redis_cli().pipeline()
+        for data in data_list:
+            name = self.obj_key % (data['@brand'], data['@name'])
+            pipe.set(name, data['#text'])
+        pipe.execute()
+
+
 class SalesFindProxy:
     find_api = "pub/sales/find?%s"
     def get(self, query):
@@ -682,3 +718,4 @@ type_cache_proxy = TypesCacheProxy()
 cate_cache_proxy = CatesCacheProxy()
 tax_cache_proxy = TaxesCacheProxy()
 route_cache_proxy = RoutesCacheProxy()
+settings_cache_proxy = SettingsCacheProxy()

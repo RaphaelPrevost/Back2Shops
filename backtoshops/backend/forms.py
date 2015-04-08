@@ -233,7 +233,7 @@ class SACarrierForm(forms.ModelForm):
 class SASettingsForm(forms.Form):
     error_css_class = 'error'
     required_css_class = 'required'
-    
+
     default_language = forms.ChoiceField(
         choices=[(k, _(v)) for k, v in settings.LANGUAGES_2],
         label=_('Default language'))
@@ -245,6 +245,7 @@ class SASettingsForm(forms.Form):
         choices=[(s, s) for s in
                  WeightUnit.objects.all().values_list('key', flat=True)],
         label=_('Default weight unit'))
+
     password = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
     username = forms.CharField(label=_('Administrator login'))
     email = forms.EmailField(label=_('Administrator e-mail'))
@@ -255,11 +256,11 @@ class SASettingsForm(forms.Form):
         label=_('Confirm new password'),
         widget=forms.PasswordInput,
         required=False)
-    
+
     def __init__(self, user=None, *args, **kwargs):
         initial = kwargs.get('initial', {})
         global_settings = GlobalSettings.objects.all()
-        for global_setting in global_settings: 
+        for global_setting in global_settings:
             initial[global_setting.key] = global_setting.value
         if user is not None:
             initial['username'] = user.__dict__.get('username', '')
@@ -294,8 +295,11 @@ class SABrandSettingsForm(forms.Form):
     starting_invoice_number = forms.IntegerField(
         label=_('Starting Invoice Number'),
         required=False)
+    use_after_tax_price = forms.CharField(
+        widget=forms.CheckboxInput(),
+        label=_('Use After-Tax retail prices'))
 
-    def __init__(self, user=None, *args, **kwargs):
+    def __init__(self, user=None, having_orders=False, *args, **kwargs):
         initial = kwargs.get('initial', {})
         if user is not None:
             initial = get_ba_settings(user).copy()
@@ -303,7 +307,14 @@ class SABrandSettingsForm(forms.Form):
                                        or get_setting('default_currency')
             initial['starting_invoice_number'] = initial.get('starting_invoice_number') \
                                        or get_setting('starting_invoice_number')
+            initial['use_after_tax_price'] = initial.get('use_after_tax_price') \
+                                       or get_setting('use_after_tax_price')
+            initial['use_after_tax_price'] = (initial['use_after_tax_price'] == 'True')
+
         super(SABrandSettingsForm, self).__init__(initial=initial, *args, **kwargs)
+        if having_orders:
+            self.fields['use_after_tax_price'].widget = \
+                    forms.CheckboxInput({'disabled': 'true'})
 
     def clean_default_payment_period(self):
         data = self.cleaned_data

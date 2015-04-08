@@ -43,6 +43,7 @@ SETTING_KEY_CHOICES = (
                        ('default_language', 'default language'),
                        ('default_currency', 'default currency'),
                        ('default_weight_unit', 'default weight unit'),
+                       ('use_after_tax_price', 'use after tax price'),
                        ('default_shipment_period', 'default shipment period'),
                        ('default_payment_period', 'default payment period'),
                        ('starting_invoice_number', 'starting invoice number'),

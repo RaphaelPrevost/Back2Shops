@@ -107,7 +107,7 @@
             {{ wizard.form.normal_price.errors }}
             <div class="marge formrow">
                 {{ wizard.form.type_attribute_prices.management_form }}
-                <label>{% trans "Price" %}</label>
+                <label>{% trans "Price" %} {{ price_label }}</label>
                 <span class="contForm" id="type_attribute_prices">
                     <div id="add_tap_form">
                         <select id="type_attribute_selector" name="type_attribute_selector">
@@ -147,7 +147,7 @@
             {{ wizard.form.discount.errors }}
             {{ wizard.form.discount_type.errors }}
             <div class="marge formrow">
-                <label for="prixBTS">{% trans "BackToShops Price" %}</label>
+                <label for="prixBTS">{% trans "Discount" %} {{ price_label }}</label>
                 <span class="contForm" id="newPrice">
                     {{ wizard.form.discount_type }}
                     {{ wizard.form.preview_discount_price_str }}

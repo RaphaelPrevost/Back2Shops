@@ -117,22 +117,22 @@
                             &euro;
                             </em>
                         </span>
-                        <span>{% trans "After tax price:" %} <em{% if not sale.product.normal_price %} class="type-attr-prices"{% endif %}>
+                        <span>{{ tax_price_label }} <em{% if not sale.product.normal_price %} class="type-attr-prices"{% endif %}>
                             {% if sale.product.normal_price %}
                                 {% if sale.product.discount %}
-                                    {% calc_discount_price_after_tax sale.product.discount_type sale.product.discount sale.product.normal_price sale.product.tax_rate %}
+                                    {% calc_discount_price_with_tax sale.product.discount_type sale.product.discount sale.product.normal_price sale.product.tax_rate tax_flag %}
                                 {% else %}
-                                    {% calc_price_after_tax sale.product.normal_price sale.product.tax_rate %}
+                                    {% calc_price_with_tax sale.product.normal_price sale.product.tax_rate tax_flag %}
                                 {% endif %}
                             {% else %}
                                 {% if sale.product.discount %}
-                                    {% calc_discount_price_after_tax sale.product.discount_type sale.product.discount sale.min_type_attribute_price sale.product.tax_rate %}
+                                    {% calc_discount_price_with_tax sale.product.discount_type sale.product.discount sale.min_type_attribute_price sale.product.tax_rate tax_flag %}
                                     {% trans "to" %}
-                                    {% calc_discount_price_after_tax sale.product.discount_type sale.product.discount sale.max_type_attribute_price sale.product.tax_rate %}
+                                    {% calc_discount_price_with_tax sale.product.discount_type sale.product.discount sale.max_type_attribute_price sale.product.tax_rate tax_flag %}
                                 {% else %}
-                                    {% calc_price_after_tax sale.min_type_attribute_price sale.product.tax_rate %}
+                                    {% calc_price_with_tax sale.min_type_attribute_price sale.product.tax_rate tax_flag %}
                                     {% trans "to" %}
-                                    {% calc_price_after_tax sale.max_type_attribute_price sale.product.tax_rate %}
+                                    {% calc_price_with_tax sale.max_type_attribute_price sale.product.tax_rate tax_flag %}
                                 {% endif %}
                             {% endif %}
                             &euro;

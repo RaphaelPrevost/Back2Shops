@@ -70,6 +70,7 @@ from attributes.models import CommonAttribute
 from accounts.models import Brand
 from barcodes.models import Barcode
 from brandings.models import Branding
+from brandsettings.models import BrandSettings
 from brandsettings.models import InvoiceNumber
 from common.cache_invalidation import send_cache_invalidation
 from common.filter_utils import get_filter, get_order_by
@@ -81,6 +82,7 @@ from common.fees import compute_fee
 from common.transaction import remote_payment_init
 from common.utils import get_default_setting
 from events.models import Event
+from globalsettings import get_setting
 from routes.models import Route
 from sales.models import ProductCategory
 from sales.models import ProductType
@@ -115,8 +117,10 @@ class BaseWebservice(View):
         })
         return super(BaseWebservice, self).render_to_response(context, **response_kwargs)
 
-    def get_context_data(self,**kwargs):
-        kwargs.update({"settings":settings, })
+    def get_context_data(self, **kwargs):
+        kwargs.update({
+            "settings": settings,
+        })
         return kwargs
 
 #
@@ -180,6 +184,11 @@ class TypesListView(BaseWebservice, ListView):
         })
         return kwargs
 
+class BrandSettingsView(BaseWebservice, ListView):
+    template_name = "brandsettings_list.xml"
+
+    def get_queryset(self):
+        return BrandSettings.objects.filter(shopowner=None)
 
 class BrandListView(BaseWebservice, ListView):
     template_name = "brand_list.xml"
@@ -929,6 +938,7 @@ class InvoiceView(BaseCryptoWebService, ListView):
         content = self.request.GET.get('content')
         id_shop = int(self.request.GET.get('shop'))
         id_brand = int(self.request.GET.get('brand'))
+        self.id_brand = id_brand
 
         seller = self.get_seller(id_shop, id_brand)
         buyer = self.get_buyer(customer_name, dest)
@@ -949,7 +959,9 @@ class InvoiceView(BaseCryptoWebService, ListView):
 
         gross = items_gross + shipping_gross
         tax = items_tax + shipping_tax
-        total = gross + tax
+        total = gross
+        if not self.get_use_after_tax_price():
+            total += tax
         invoice = {
             'number': self.invoice_number(id_brand, id_shop),
             'date': datetime.now().date().strftime('%Y-%m-%d'),
@@ -961,10 +973,19 @@ class InvoiceView(BaseCryptoWebService, ListView):
             'total': {'gross': gross,
                       'tax': tax,
                       'total': total},
-            'payment': self.get_payment(id_brand, id_shop)
+            'payment': self.get_payment(id_brand, id_shop),
         }
 
         return [invoice]
+
+    def get_use_after_tax_price(self):
+        try:
+            val = BrandSettings.objects.get(key='use_after_tax_price',
+                                            brand_id=self.id_brand,
+                                            shopowner=None).value
+            return val == 'True'
+        except BrandSettings.DoesNotExist:
+            return False
 
     def brand_seller(self, id_brand):
         brand = Brand.objects.get(pk=id_brand)
@@ -1014,6 +1035,7 @@ class InvoiceView(BaseCryptoWebService, ListView):
         gross = 0.0
         total_tax = 0.0
         currency = None
+        use_after_tax_price = self.get_use_after_tax_price()
         for item in content:
             sale = Sale.objects.get(pk=item['id_sale'])
             orig_price = get_sale_orig_price(sale, item['id_price_type'])
@@ -1022,7 +1044,7 @@ class InvoiceView(BaseCryptoWebService, ListView):
                 sale, orig_price=orig_price)
             premium = get_sale_premium(discounted_price, item.get('id_variant'))
 
-            price = to_round(discounted_price + premium)
+            price = discounted_price + premium
             items_taxes = self.get_tax(price,
                                        sale.product.category.id,
                                        from_address,
@@ -1048,7 +1070,8 @@ class InvoiceView(BaseCryptoWebService, ListView):
 
             subtotal = price * qty
             for tax in items_taxes:
-                subtotal += tax['tax']
+                if not use_after_tax_price:
+                    subtotal += tax['tax']
                 total_tax += tax['tax']
 
             item_info['subtotal'] = subtotal
@@ -1159,18 +1182,25 @@ class InvoiceView(BaseCryptoWebService, ListView):
                      (Q(applies_to_id=None) |
                       Q(applies_to_id=pro_category)))
 
+        use_after_tax_price = self.get_use_after_tax_price()
         rates = Rate.objects.filter(query).order_by('-apply_after')
         taxes = {}
         taxes_list = []
         for rate in rates:
             tax = {'name': rate.name}
             amount = price
+
             if rate.apply_after:
                 pre_tax = taxes[rate.apply_after]
                 amount = pre_tax['amount'] + pre_tax['tax']
-            tax['amount'] = amount
+            if use_after_tax_price:
+                tax['amount'] = to_round(amount / (1 + rate.rate / 100.0))
+                tax['tax'] = amount - tax['amount']
+            else:
+                tax['amount'] = amount
+                tax['tax'] = to_round(amount * (1 + rate.rate / 100.0)) - amount
+
             tax['rate'] = rate.rate
-            tax['tax'] = to_round(amount * (1 + rate.rate / 100.0)) - amount
             tax['to_worldwide'] = rate.shipping_to_region_id is None
             tax['show'] = rate.display_on_front is True
             taxes[rate.id] = tax
@@ -1197,6 +1227,8 @@ class InvoiceView(BaseCryptoWebService, ListView):
         if shipping_fee:
             shipping['shipping_fee'] = shipping_fee
             fee += float(shipping_fee)
+
+        use_after_tax_price = self.get_use_after_tax_price()
         subtotal = fee
         total_tax = 0.0
         if fee:
@@ -1204,7 +1236,8 @@ class InvoiceView(BaseCryptoWebService, ListView):
                                      shipping_tax=True)
             shipping['taxes'] = fee_taxes
             for tax in fee_taxes:
-                subtotal += tax['tax']
+                if not use_after_tax_price:
+                    subtotal += tax['tax']
                 total_tax += tax['tax']
 
         shipping['subtotal'] = subtotal

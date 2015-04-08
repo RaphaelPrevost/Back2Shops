@@ -8,24 +8,19 @@
         <div id="wrapPanier">
 
             <div class="errwrapper"></div>
-            <strong id="titlepanier">Votre Compte Breuer</strong>
-            <ul>
-                <li class="li1 ok"><a href="${basket_url_format}"><span>1 </span>${_("Commande")}</a></li>
-                <li class="li2 ok"><span>2 </span>${_("Identification")}</li>
-                <li class="li3 on"><span>3 </span>${_("Adresse de livraison")}</li>
-                <li class="li4"><span>4 </span>${_("Validation")}</li>
-            </ul>
-
-            <h1 id="titleH1">Récapitulatif de votre commande :</h1>
-            <p class="rappeladresse">Adresse de livraison : <strong>...</strong></p>
-            <p class="txtinfo recap">Des frais de livraisons peuvent s'ajouter à votre commande</p>
-
-            <h2 class="titleLine table"><strong><span>Votre commande</span></strong></h2>
-
+            <h1 id="titleH1">${user_name}, voici le détail de votre commande :</h1>
+            <div id="numCommande">
+                <h2>
+                    Commande effectuée le ${order_created}
+                    <span class="ref">N° de commande : ${order_id}</span>
+                </h2>
+                ${status_name}
+            </div>
             <form id="shipping" method="post">
                 <input type="hidden" name="id_order" value="${order_id}">
 
                 <?py for shipment_id, shipping_lists in shipments.iteritems(): ?>
+                    <?py currency = cur_symbol(shipping_lists[0]['currency']) ?>
                     <?py shipment_detail = shipments_detail.get(str(shipment_id)) or {} ?>
                     <div class="recapLivraison">
                         <span>Livraison n° ${shipment_id}</span>
@@ -40,26 +35,35 @@
                             <th class="left">Description</th>
                             <th>Ref</th>
                             <th>Prix</th>
-                            <th>Annulation</th>
+                            <th>Quantité</th>
+                            <th>Total</th>
                         </tr>
                         </thead>
                         <tfoot>
                         <tr>
-                            <td class="sstotalline left" colspan="5">
+                            <td class="sstotalline left" colspan="6">
                                 <!--<em class="infoChrono">Votre commande sera livrée sous 7 jours via <img src="/img/chronopost.png" alt="Chronopost" /></em>-->
                                 <p>
                                     <span class="labelTotal">Total produits ttc</span>
-                                    <span class="priceTotal">200,00 €</span>
+                                    <span class="priceTotal" id="sum_amount"></span>
+                                    <?py handling_fee = shipment_detail.get('fees', {}).get('handling') or {} ?>
+                                    <?py if not zero(handling_fee.get('#text')): ?>
+                                    <span class="labelTotal">Frais de manutention</span>
+                                    <span class="priceTotal">${format_amount(handling_fee.get('#text'))} ${cur_symbol(handling_fee.get('@currency'))}</span>
+                                    <?py #endif ?>
+                                    <?py shipping_fee = shipment_detail.get('fees', {}).get('shipping') or {} ?>
                                     <span class="labelTotal">Frais de livraison</span>
-                                    <span class="priceTotal">10,00 €</span>
+                                    <span class="priceTotal">${format_amount(shipping_fee.get('#text'))} ${cur_symbol(shipping_fee.get('@currency'))}</span>
+                                    <span class="labelTotal tax">Taxe</span>
+                                    <span class="priceTotal tax" id="tax">0 ${currency}</span>
                                 </p>
                             </td>
                         </tr>
                         <tr>
-                            <td class="totalline left" colspan="5">
+                            <td class="totalline left" colspan="6">
                                 <strong>
                                     Total produits TTC
-                                    <span>210,00 €</span>
+                                    <span id="total_amount" value="${shipping_lists[0].get('total_amount') or 0}">${format_amount(shipping_lists[0].get('total_amount') or 0)} ${currency}</span>
                                 </strong>
                             </td>
                         </tr>
@@ -75,34 +79,42 @@
                                 </td>
                                 <td class="left">
                                     <h3 class="title">${item['product_name']}</h3>
+                                    <strong class="type">
+                                    <?py if item.get('type_name'): ?>Taille : ${item['type_name']}<?py #endif ?>
+                                    <?py if item.get('variant_name') and item.get('type_name'): ?> - <?py #endif ?>
+                                    <?py if item.get('variant_name'): ?>Coloris : ${item['variant_name']}<?py #endif ?>
+                                    </strong>
                                 </td>
                                 <td class="ref">
-                                    <span class="ref">Ref : ${item['external_id']}</span>
+                                    <span class="ref">Ref: ${item['external_id']}</span>
                                 </td>
 
                                 <td class="price">
+                                    <?py if shipping_list['show_final_price']: ?>
                                     <span id="price">${format_amount(item['price'] + shipping_list['tax_per_item'])}</span><span id="currency">${currency}</span>
+                                    <?py else: ?>
+                                    <span id="price">${format_amount(item['price'])}</span><span id="currency">${currency}</span>
+                                        <?py if shipping_list['tax']: ?>
+                                            <?py if calc_before_tax_price: ?>
+                                            (${price_label}:<span>${format_amount(item['price'] - shipping_list['tax_per_item'])}</span><span>${currency}</span>)
+                                            <?py else: ?>
+                                            (${price_label}:<span>${format_amount(item['price'] + shipping_list['tax_per_item'])}</span><span>${currency}</span>)
+                                            <?py #endif ?>
+                                        <?py #endif ?>
+                                    <?py #endif ?>
                                 </td>
-
-                                <td><a href="#" class="supprimer" title="Supprimer">x</a></td>
+                                <td><input id="quantity" name="nb_product" type="text" value="${item['quantity']}" disabled/></td>
+                                <?py if shipping_list['show_final_price']: ?>
+                                <td class="price"><span id="amount" value="${item['price'] * item['quantity'] + shipping_list['tax']}">${format_amount(item['price'] * item['quantity'] + shipping_list['tax'])}</span><span>${currency}</span></td>
+                                <?py else: ?>
+                                <td class="price"><span id="amount" value="${item['price'] * item['quantity']}">${format_amount(item['price'] * item['quantity'])}</span><span>${currency}</span></td>
+                                <?py #endif ?>
                             </tr>
                             <?py #endfor ?>
                         </tbody>
 
                     </table>
                 <?py #endfor ?>
-
-                <div id="infosCGV">
-                    <p class="txtinfo">En validant vous serez dirigé vers l’interface de paiement afin de régler votre commande</p>
-                    <p class="txtcgvin"><label for="cgvin">J'accepte les <a href="cgv.php" target="_blank">conditions générale de vente</a></label><input type="checkbox" name="cgvin" id="cgvin" /></p>
-
-                    <p class="errwrapper">Vous devez accepter les conditions générale de vente pour valider votre commande</p>
-                </div>
-
-                <div id="btnline">
-                    <a class="btn purchase" href="invoice.php">Valider</a>
-                    <a class="btn back" href="panier-c.php">Etape précédente</a>
-                </div>
             </form>
 
             <div id="btnline">

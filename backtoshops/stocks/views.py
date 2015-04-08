@@ -52,6 +52,7 @@ from fouillis.views import OperatorUpperLoginRequiredMixin
 from attributes.models import BrandAttribute
 from attributes.models import CommonAttribute
 from barcodes.models import Barcode
+from common.cache_invalidation import send_cache_invalidation
 from common.error import UsersServerError
 from common.error import ParamsValidCheckError
 from orders.views import _get_req_user_shops
@@ -64,6 +65,12 @@ from stocks.models import ProductStock
 from stocks.forms import StockForm
 from stocks.forms import StockListForm
 
+
+def need_invalidate_cache(old_stock, new_stock):
+    old_stock = old_stock or 0
+    new_stock = new_stock or 0
+    return old_stock <= 0 and new_stock > 0 \
+        or old_stock > 0 and new_stock <= 0
 
 class ListStocksView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin):
     template_name = 'stock_list.html'
@@ -95,6 +102,7 @@ class ListStocksView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
             )
         if stock.rest_stock == input_stock:
             return
+        invalid_cache = need_invalidate_cache(stock.rest_stock, input_stock)
         stock.rest_stock = input_stock or 0
         if stock.stock < stock.rest_stock:
             stock.stock = stock.rest_stock
@@ -102,11 +110,17 @@ class ListStocksView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
 
         sale_stock_sum = sale.detailed_stock.aggregate(stock_sum=Sum('stock'),
                                                        rest_stock_sum=Sum('rest_stock'))
+        invalid_cache = invalid_cache or \
+                        need_invalidate_cache(sale.total_rest_stock,
+                                              sale_stock_sum['rest_stock_sum'])
         sale.total_stock = sale_stock_sum['stock_sum'] or 0
         sale.total_rest_stock = sale_stock_sum['rest_stock_sum'] or 0
         if sale.total_stock < sale.total_rest_stock:
             sale.total_stock = sale.total_rest_stock
         sale.save()
+
+        if invalid_cache:
+            send_cache_invalidation("PUT", 'sale', sale.id)
 
     def _handle_req(self, req_params, *args, **kwargs):
         shops_id = _get_req_user_shops(self.request.user)

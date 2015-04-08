@@ -5,17 +5,24 @@
         <!--VISUEL PROD-->
         <div id="visuelsProd">
             <div id="visuelXL">
-                <img src="${product_info.get('img')}" alt="${product_info.get('name')}" />
+                <img src="${get_single_attribute(product_info, 'img')}" alt="${product_info.get('name')}" />
             </div>
             <ul id="visuelXS">
-                <li><a href="#"><img src="${product_info.get('img')}" alt="${product_info.get('name')}" /></a></li>
+                <li><a href="#"><img src="${get_single_attribute(product_info, 'img')}" alt="${product_info.get('name')}" /></a></li>
             </ul>
         </div>
         <!--//VISUEL PROD-->
         
         <!--INFOS PROD-->
         <div id="infosProd">
-            <h1 class="titleLine"><strong><span>${product_info.get('name')}<em id="prix">${product_info['price'].get('#text')} ${product_info['price'].get('@currency')}</em></span></strong></h1>
+            <h1 class="titleLine">
+                <strong>
+                    <span>${product_info.get('name')}
+                        <?py display=product_info.get('display',{}) ?>
+                        <em id="discounted_price" class="prix">${format_amount(display.get('price'))} ${cur_symbol(product_info.get('price',{}).get('@currency'))}</em>
+                    </span>
+                </strong>
+            </h1>
             <!--left-->
             <div id="recapLeft">
                 <form id="addForm" method="post" action="${basket_url_format}">
@@ -24,10 +31,55 @@
                     <!--DESCRIPTION-->
                     <div id="descrProd">
                         <p>
-                            <strong>${product_info.get('name')}</strong>, ${product_info.get('desc')}
+                            <?py for _line in product_info.get('desc'): ?>
+                                ${_line} <br/>
+                            <?py #endfor ?>
                         </p>
                     </div>
                     <!--//DESCRIPTION-->
+
+                    <?py if product_info.get('variant'): ?>
+                    <strong class="coloris">Coloris</strong>
+                    <ul id="selectColoris">
+                        <?py variants = as_list(product_info.get('variant'))?>
+                        <?py for variant in variants: ?>
+                        <li value="${variant.get('@id')}">
+                            <?py if not variant.get('disabled', False): ?>
+                            <a href="javascript:void(0)" src="${get_single_attribute(variant, 'img') or get_single_attribute(product_info, 'img')}">
+                                <img src="${get_thumbnail(variant.get('thumb'), 30)}"/>
+                            </a>
+                            <?py #endif ?>
+                         </li>
+                        <?py #endfor ?>
+                    </ul>
+                    <input type="hidden" name="id_variant" value="" />
+                    <?py #endif ?>
+
+                    <?py if product_info.get('type',{}).get('attribute'): ?>
+                    <div id="selectTaille">
+                        <select name="id_attr" id="type_attribute_selector">
+                            <option value="">Selectionner la taille</option>
+                            <?py attributes = as_list(product_info.get('type',{}).get('attribute')) ?>
+                            <?py for type_attr in attributes: ?>
+                                <?py if not type_attr.get('disabled', False): ?>
+                                <option value="${type_attr.get('@id')}">${type_attr.get('name')}</option>
+                                <?py #endif ?>
+                            <?py #endfor ?>
+                        </select>
+                    </div>
+                    <?py #endif ?>
+
+                    <?py if product_info.get('shop',{}): ?>
+                    <div id="selectShop">
+                        <select name="id_shop">
+                            <?py shops = as_list(product_info.get('shop')) ?>
+                            <?py for shop in shops: ?>
+                            <option value="${shop.get('@id')}">${shop.get('name')}</option>
+                            <?py #endfor ?>
+                        </select>
+                    </div>
+                    <?py #endif ?>
+
                     <div id="bouton">
                         <a href="javascript:addToBasket()">${_('Buy')}</a>
                     </div>
@@ -113,4 +165,157 @@ function addToBasket() {
         }
     );
 }
+$(function(){
+    $("#type_attribute_selector").val("");
+    var discount = ${product_info.get("discount", {}).get("#text", 0)};
+    var ori_price = parseFloat(${product_info.get("display", {}).get("ori_price", 99999999)});
+    var discounted_price = parseFloat(${product_info.get("display", {}).get("price", 99999999)});
+    var currency = "${cur_symbol(product_info.get('price', {}).get('@currency'))}";
+    var show_final_price = "${show_final_price}";
+    var calc_before_tax_price = "${calc_before_tax_price}";
+    var rates = #{taxes_rate};
+
+    var type_attr_prices = {};
+    var type_attr_discount_prices = {};
+    var _price = null;
+    <?py if product_info.get('type',{}).get('attribute'): ?>
+        <?py for attr in as_list(product_info.get('type',{}).get('attribute')): ?>
+            _price = parseFloat(${attr.get("price", {}).get("#text", 0)});
+            _discount_price = parseFloat(${attr.get("discount_price", {}).get("#text", 0)});
+            if (_price) {
+                type_attr_prices[${attr.get("@id")}] = _price;
+            }
+            if (_discount_price) {
+                type_attr_discount_prices[${attr.get("@id")}] = _discount_price;
+            }
+        <?py #endfor ?>
+    <?py #endif ?>
+
+    var variants = {};
+    var p_type = null;
+    var p_amount = null;
+    <?py if product_info.get('variant'): ?>
+        <?py for variant in as_list(product_info.get('variant')): ?>
+            p_type = "${variant.get("premium", {}).get('@type', '')}";
+            p_amount = ${variant.get("premium", {}).get("#text", 0)};
+            if (p_type) {
+                variants[${variant.get('@id')}] = {"premium_amount": p_amount,
+                                                   "premium_type": p_type};
+            }
+        <?py #endfor ?>
+    <?py #endif ?>
+
+    function _calc_ori_price() {
+        var type_attr_id = $("#type_attribute_selector").val();
+        if (type_attr_id && type_attr_prices[type_attr_id]) {
+            ori_price = type_attr_prices[type_attr_id];
+        } else {
+            ori_price = parseFloat(${product_info.get("display", {}).get("ori_price", 99999999)});
+        }
+    }
+
+    function _calc_discounted_price() {
+        _calc_ori_price();
+        if (discount) {
+            var type_attr_id = $("#type_attribute_selector").val();
+            if (type_attr_id && type_attr_discount_prices[type_attr_id]) {
+                discounted_price = type_attr_discount_prices[type_attr_id];
+            } else {
+                discounted_price = parseFloat(${product_info.get("display", {}).get("price", 99999999)});
+            }
+        } else {
+            discounted_price = ori_price;
+        }
+    }
+
+    function _calc_premium_price(variant_id) {
+        _calc_discounted_price();
+        variant_id = variant_id || $("#selectColoris li.selected:first").attr("value")
+                     || $("#selectColoris li:first").attr("value");
+        if (variant_id) {
+            var _price = variants[variant_id]["premium_amount"];
+            if (_price) {
+                var _type = variants[variant_id]["premium_type"];
+                if (_type == "fixed") {
+                    ori_price += _price;
+                    discounted_price += _price;
+                } else if (_type == "ratio") {
+                    ori_price *= (1+_price/100);
+                    discounted_price *= (1+_price/100);
+                }
+            }
+        }
+    }
+
+    function _display_prices() {
+        $("#ori_price").text(formatAmount(ori_price) + " " + currency);
+        $("#discounted_price").text(formatAmount(discounted_price) + " " + currency);
+        _display_price_after_tax();
+    }
+
+    function _calc_price_with_tax(price, rate) {
+        if (calc_before_tax_price == 'True')
+            return formatAmount(price / (1 + rate / 100))
+        else
+            return formatAmount(price * (1 + rate / 100))
+    }
+
+    function _display_price_after_tax() {
+        var form = $("#addForm")[0];
+        var rate = 0;
+        if (form.id_shop == undefined)
+            rate = rates['0'];
+        else
+            rate = rates[form.id_shop.value];
+        rate = parseFloat(rate);
+        if (show_final_price== 'True') {
+            $("#ori_price ").text(_calc_price_with_tax(ori_price, rate) + " " + currency);
+            $("#discounted_price").text(_calc_price_with_tax(discounted_price, rate) + " " + currency + " (${price_label})");
+        } else {
+            if (rate > 0) {
+                $("#price_after_tax").show();
+                $("#price_after_tax span").first().text("${price_label}: ");
+                $("#price_after_tax span").last().text(_calc_price_with_tax(discounted_price, rate) + " " + currency);
+            }
+        }
+    }
+
+    _calc_premium_price();
+    _display_prices();
+
+    $("select[name=id_shop]").click(function(){
+        _display_price_after_tax();
+    });
+
+    $("#selectColoris li").click(function(){
+        $(this).attr('class', 'selected').siblings().attr('class', '');
+    });
+    
+    $("#selectColoris li a").click(function(){
+        var img = $(this).attr('src');
+        api.$link.attr("href", img);
+        api.$image.attr("src", img);
+        if (api.$zoom) {
+            api.$zoom.remove();
+            api.isReady = false;
+        }
+        _calc_premium_price($(this).parents("li:first").attr("value"));
+        _display_prices();
+    });
+
+    $("#visuelProd .thumbnails li a").click(function(){
+        $(this).parent().attr('class', 'on').siblings().attr('class', '');
+        var img = $(this).attr('href');
+        api.$link.attr("href", img);
+        if (api.$zoom) {
+            api.$zoom.remove();
+            api.isReady = false;
+        }
+    });
+
+    $("#type_attribute_selector").change(function(){
+        _calc_premium_price();
+        _display_prices();
+    });
+});
 </script>
