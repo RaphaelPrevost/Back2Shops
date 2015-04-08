@@ -44,6 +44,7 @@ from B2SFrontUtils.constants import REMOTE_API_NAME
 from B2SUtils.base_actor import as_list
 from common.constants import FRT_ROUTE_ROLE
 from common.data_access import data_access
+from views import dragondollar
 from views import error
 from views import email
 from views import homepage
@@ -51,8 +52,6 @@ from views import vessel
 from views.basket import BasketAPIResource
 from views.basket import BasketResource
 from views.homepage import HomepageResource
-from views.homepage import EShopResource
-from views.homepage import LookbookResource
 from views.invoice import InvoiceResource
 from views.order import OrderAPIResource
 from views.order import OrderAddressResource
@@ -167,27 +166,39 @@ fixed_urlpatterns = {
     r'/templates/{theme}/{file_type}/{folder}/{name}': download.AssetItem,
 
     # static html
-    r'/mention_legal': homepage.MentionLegalResource,
-    r'/cgv': homepage.CGVResource,
-    r'/commands_deliveries': homepage.CommandsAndDeliveriesResource,
-    r'/e-shop': homepage.EShopResource,
-    r'/lookbook': homepage.LookbookResource,
-    r'/la-saga': homepage.LaSagaResource,
     r'/error': error.GeneralErrorResource,
 
     r'/new_user_email': email.NewUserEmailResource,
     r'/orders/{id_order}/email': email.OrderEmailResource,
     r'/reset_password_email': email.ResetPwdEmailResource,
 
-    r'/vessel': vessel.VesselHomepageResource,
-    r'/vessel/myfleets': vessel.MyFleetsResource,
-    r'/vessel/container': vessel.ContainerResource,
-    r'/vessel/quick_search': vessel.VesselQuickSearchResource,
-    r'/vessel/get_vessel_navpath': vessel.VesselNavPathResource,
-    r'/vessel/update_user_fleet': vessel.UserFleetResource,
-    r'/vessel/update_vessel_reminder': vessel.VesselArrivalReminderResource,
-    r'/vessel/update_container_reminder': vessel.ContainerArrivalReminderResource,
 }
+
+if settings.BRAND_NAME == 'BREUER':
+    fixed_urlpatterns.update({
+        r'/mention_legal': homepage.MentionLegalResource,
+        r'/cgv': homepage.CGVResource,
+        r'/commands_deliveries': homepage.CommandsAndDeliveriesResource,
+        r'/e-shop': homepage.EShopResource,
+        r'/lookbook': homepage.LookbookResource,
+        r'/la-saga': homepage.LaSagaResource,
+    })
+if settings.BRAND_NAME == 'DRAGONDOLLAR':
+    fixed_urlpatterns.update({
+        r'/terms.html': dragondollar.TermsResource,
+        r'/privacy.html': dragondollar.PrivacyResource,
+    })
+if settings.BRAND_NAME == 'VESSEL':
+    fixed_urlpatterns.update({
+        r'/vessel': vessel.VesselHomepageResource,
+        r'/vessel/myfleets': vessel.MyFleetsResource,
+        r'/vessel/container': vessel.ContainerResource,
+        r'/vessel/quick_search': vessel.VesselQuickSearchResource,
+        r'/vessel/get_vessel_navpath': vessel.VesselNavPathResource,
+        r'/vessel/update_user_fleet': vessel.UserFleetResource,
+        r'/vessel/update_vessel_reminder': vessel.VesselArrivalReminderResource,
+        r'/vessel/update_container_reminder': vessel.ContainerArrivalReminderResource,
+    })
 
 
 param_pattern = re.compile(r'\(.+?\)')
