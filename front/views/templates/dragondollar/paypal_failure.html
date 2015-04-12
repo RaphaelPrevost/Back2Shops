@@ -1,2 +1,28 @@
-Your transaction failed.
-${result}
+<!--CONTENEUR BOTTOM-->
+<div id="conteneurBottom">  
+    <!--CONTENU-->
+    <div class="boxCenter"> 
+        <!--MAP SHOPS-->
+        <div id="wrapPanier">
+            <strong id="titlepanier">Votre Commande</strong>
+            <ul>
+                <li class="li1 ok"><a href="#"><span>1 </span>${_('Commande')}</a></li>
+                <li class="li2 ok"><span>2 </span>${_('Identification')}</li>
+                <li class="li3 ok"><span>3 </span>${_('Adresse de livraison')}</li>
+                <li class="li4 on"><span>4 </span>${_('Validation')}</li>
+            </ul>
+            <h1 id="congrat" class="rejected">
+                Votre paiement a été rejeté.
+                <?py if result.get('error'): ?>
+                    (${result.get('error')})
+                <?py #endif ?>
+            </h1>
+        </div>
+        <!--//MAP SHOPS-->
+    </div>
+    <!--FIN CONTENU-->
+</div>
+<!--FIN CONTENEUR-->
+<script>
+setTimeout("redirectTo('${my_account_url_format}')", 5000);
+</script>

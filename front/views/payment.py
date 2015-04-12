@@ -85,17 +85,16 @@ class PaymentResource(BaseHtmlResource):
                 err = "Error Message: %s" % err
             processors = as_list(payment.get('payment', {}).get('processor'))
             id_trans = payment.get('payment', {}).get('@transaction')
-            if (settings.BRAND_NAME == "BREUER" or
-                settings.BRAND_NAME == "DRAGONDOLLAR"):
-                #hardcode paybox for BREUER/DRAGONDOLLAR
-                processor = (PAYMENT_TYPES.PAYBOX
-                             if settings.BRAND_NAME == 'BREUER'
-                             else PAYMENT_TYPES.PAYPAL)
+            if settings.BRAND_NAME == "DRAGONDOLLAR":
+                processors = [p for p in processors
+                              if int(p['@id']) in (PAYMENT_TYPES.PAYPAL,
+                                                   PAYMENT_TYPES.STRIPE)]
+            if settings.BRAND_NAME == "BREUER":
+                processor = PAYMENT_TYPES.PAYBOX
                 return self._payment_form(req, resp,
                                           id_trans=id_trans,
                                           processor=processor,
                                           id_order=id_order)
-
         data = {'step': 'init',
                 'err': err,
                 'id_trans': id_trans,

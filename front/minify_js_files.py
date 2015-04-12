@@ -73,6 +73,8 @@ js_files = {
             '%s/js/jquery.maphilight.js' % LOCAL_STATIC_PATH,
             '%s/js/fancybox/jquery.mousewheel-3.0.4.pack.js' % LOCAL_STATIC_PATH,
             '%s/js/fancybox/jquery.fancybox-1.3.4.pack.js' % LOCAL_STATIC_PATH,
+            '%s/js/easyzoom.js' % LOCAL_STATIC_PATH,
+            '%s/js/jquery.simpleGal.js' % LOCAL_STATIC_PATH,
             '%s/js/utils.js' % LOCAL_STATIC_PATH,
         ],
     },

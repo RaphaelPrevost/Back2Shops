@@ -6,6 +6,10 @@
     color: #ffffff;
 }
 
+input, select, option{
+    color: #000;
+}
+
 body { 
 	min-width: 1083px; padding-top: 115px;  
 	background: url(../img/motif.jpg) repeat 0 0;
@@ -598,6 +602,10 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#9a070d', end
 
 .hidden {display: None;}
 
+.errwrapper {
+	margin: 12px 20px;
+	color: #5b2910;
+}
 
 /*-----------------------------------*/
 /*		 	 PAGES INFOS			 */
@@ -653,3 +661,4 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#9a070d', end
 
 .contenuTxt a {color: #FFC900;}
 .contenuTxt .retrait { display: block; margin: 20px 0 0 110px; }
+

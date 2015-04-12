@@ -314,4 +314,5 @@ CREATE TABLE bought_history (
     id serial PRIMARY KEY,
     id_sale BIGINT NOT NULL,
     users_id BIGINT NOT NULL
-)
+);
+

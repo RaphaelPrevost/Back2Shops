@@ -71,13 +71,6 @@
     </div>
     <!--FIN HEADER-->
 
-    <div id="dialog-login" style="display:none" title="Login">
-        <?py include('login.html') ?>
-    </div>
-    <div id="dialog-register" style="display:none" title="Register">
-        <?py include('registration.html') ?>
-    </div>
-
     <!--content-->
     <div id="content" role="main">
     #{_content}
@@ -107,6 +100,9 @@
             speed: 	400,
             pause: 4000
         });
+        $('.thumbnails').simpleGal({
+            mainImage: '.custom'
+        });
 
         $("#filtreLink").click(function () {
             $(".filtreform").toggleClass("on", 100);
@@ -134,6 +130,12 @@
 
         $("#copyright").html($("#copyright").text());
     });
+
+    // Instantiate EasyZoom plugin
+    var $easyzoom = $('.easyzoom').easyZoom();
+    // Get the instance API
+    var api = $easyzoom.data('easyZoom');
+
 </script>
 </body>
 </html>

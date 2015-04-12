@@ -33,13 +33,13 @@
             {% if shipment.shipping_carrier != None %}
                 <shipping_carrier>{{ shipment.shipping_carrier }}</shipping_carrier>
             {% endif %}
-            {% if shipment.fee_info %}
+            {% if shipment.fee_info and shipment.shipping_list|length > 0 %}
                 <fees>
-                    <handling currency="{{ shipping_currency }}">
+                    <handling currency="{{ shipment.shipping_list[0].sale_item.currency }}">
                         {{ shipment.fee_info.handling_fee }}
                     </handling>
                     {% if shipment.fee_info.shipping_fee != None %}
-                        <shipping currency="{{ shipping_currency }}">
+                        <shipping currency="{{ shipment.shipping_list[0].sale_item.currency }}">
                             {{ shipment.fee_info.shipping_fee }}
                         </shipping>
                     {% endif %}

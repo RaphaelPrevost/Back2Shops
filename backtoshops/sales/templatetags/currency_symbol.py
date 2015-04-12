@@ -37,33 +37,15 @@
 #############################################################################
 
 
-# users.backtoshops.com settings
-from settings_base import *
+from django import template
 
-SELLER_EMAIL = 'business@infinite-code.com'
+register = template.Library()
 
-### Paybox
-PAYBOX_REQUEST_URL = 'https://preprod-tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi'
+@register.simple_tag
+def currency_symbol(curr_obj):
+    code = curr_obj.code
+    return {
+        'EUR': '€',
+        'USD': '$',
+    }.get(code, code)
 
-# no-3D
-PAYBOX_SITE = '1999888'
-PAYBOX_RANG = '32'
-PAYBOX_IDENTIFIANT = '1686319'
-
-#3D
-# PAYBOX_SITE = '1999888'
-# PAYBOX_RANG = '43'
-# PAYBOX_IDENTIFIANT = '107975626'
-
-#
-# PAYBOX_SITE = '7830331'
-# PAYBOX_RANG = '16'
-# PAYBOX_IDENTIFIANT = '537370176'
-
-PAYBOX_HMAC_KEY = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'
-# PAYBOX_HMAC_KEY = '11E83FB4C0D2DA9458A7B67463B7A478771CDA3403DBBAB3A871018F78A0DC7DE2939966F4EB1894C550AF236A1A40CFF888E21A1BA5BE60A073F913E226AD2A'
-
-
-### Stripe
-STRIPE_PUBLISH_API_KEY = 'pk_test_MmEgOJaC6wytcwAqoX8IFxnF'
-STRIPE_SECRET_API_KEY = 'sk_test_uS50BVM0fmdsxxJyDcWqeyAB'

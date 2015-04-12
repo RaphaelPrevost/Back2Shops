@@ -61,6 +61,7 @@ css_files = {
         '1': [
             '%s/css/jquery-ui-1.10.4.css' % LOCAL_STATIC_PATH,
             '%s/css/fancymoves.css' % LOCAL_STATIC_PATH,
+            '%s/css/easyzoom.css' % LOCAL_STATIC_PATH,
             '%s/css/main.css' % LOCAL_STATIC_PATH,
             '%s/css/home.css' % LOCAL_STATIC_PATH,
             '%s/css/ficheProd.css' % LOCAL_STATIC_PATH,

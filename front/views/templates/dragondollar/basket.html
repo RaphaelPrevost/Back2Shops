@@ -3,10 +3,7 @@
     <!--CONTENU-->
     <div class="boxCenter"> 
         <!--MAP SHOPS-->
-        <div id="caligraphie"></div>
 
-
-    <!--MAP SHOPS-->
         <div id="wrapPanier">
 
             <strong id="titlepanier">${_('Votre Commande')}</strong>
@@ -52,7 +49,13 @@
                                 <img src="${get_single_attribute(item['product'], 'img')}"  width="150px" alt="${item['product']['name']}" />
                             </a>
                         </td>
-                        <td class="left"><h1>${item['product']['name']}</h1><strong>Nom du colori</strong></td>
+                        <td class="left"><h1>${item['product']['name']}</h1>
+                            <strong class="type">
+                            <?py if item['type']: ?>Taille : ${item['type']['name']}<?py #endif ?>
+                            <?py if item['variant'] and item['type']: ?> - <?py #endif ?>
+                            <?py if item['variant']: ?>Coloris : ${item['variant']['name']}<?py #endif ?>
+                            </strong>
+                        </td>
                         <td class="ref">${item['external_id']}</td>
                         <td class="price">
                         <?py if item['show_final_price']: ?>

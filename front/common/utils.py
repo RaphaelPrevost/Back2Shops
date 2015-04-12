@@ -138,6 +138,7 @@ def valid_int(value, non_zero=True):
 def cur_symbol(cur_code):
     return {
         'EUR': '€',
+        'USD': '$',
     }.get(cur_code, cur_code)
 
 def zero(amount):

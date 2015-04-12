@@ -198,8 +198,8 @@
 /*-----------------------------*/
 
 
-#wrapCompte { float: right; position: relative; z-index: 1; width: 710px; margin: 0; }
-#wrapPanier { position: relative; z-index: 1; width: 100%; margin: 0; }
+#wrapCompte { float: right; position: relative; z-index: 1; width: 710px; margin: 0; overflow-y: auto; overflow-x: hidden;}
+#wrapPanier { position: relative; z-index: 1; width: 100%; margin: 0; overflow-y: auto; overflow-x: hidden;}
 #wrapCompte h1, #wrapPanier h1 { font-weight: normal; font-size: 16px; color: #fff6c8; }
 #wrapCompte p, #wrapPanier p { margin: 10px 0 40px 0; font-size: 12px; color: #fff6c8; text-align: justify; }
 
@@ -421,8 +421,8 @@
 /*		 	 COMPTE-ACCUEIL			 */
 /*-----------------------------------*/
 
-#compte { margin-top: 30px; }
-
+#wrapPanier .leftPart { display: block; float: left; width: 570px; }
+#wrapPanier .rightPart { display: block; float: right; width: 380px; }
 
 .commande {
 	position: relative;
@@ -529,6 +529,35 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#9c070d', end
 	
 	background: url(/breuer/img/chronopost.png) no-repeat right 0; 
 }
+
+/*--BLOCK-INFOS--*/
+.blockinfo {
+	position: relative;
+	margin-bottom: 15px; padding: 15px 20px;
+	font-family: Arial, Helvetica, sans-serif;
+	border-top: 1px solid #715c21;
+	background-color: #302008;
+    color: #aa7e48;
+}
+.blockinfo strong { 
+	text-transform: uppercase;
+	/*font-weight: normal;*/
+}
+.blockinfo p { 
+	margin-top: 15px;
+	font-size: 12px;
+	color: #000;
+}
+
+.blockinfo .modifier {
+	display: block; position: absolute;
+	top: 12px; right: 8px;
+	height: 25px; line-height: 31px;
+	padding-right: 32px;
+	color: #aa7e48; font-size: 13px;
+	background: url(/templates/breuer/img/sprite.png) no-repeat right -290px; 
+}
+.blockinfo .modifier:hover { text-decoration: underline; }
 
 
 .pagination { text-align: right; }
@@ -760,7 +789,14 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#9a070d', end
 	margin: 35px auto 0px auto; 
 } 
 
-
+#congrat.success { 
+	color: #9C5C00; 
+	background-color: #F9F8F8; 
+}
+#congrat.rejected {
+    color: #dd330b;
+    background-color: #FFF4F2;
+}
 
 
 /*-----------------------------------------------*/
