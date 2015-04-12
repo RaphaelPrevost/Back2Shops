@@ -3,6 +3,7 @@
 {% load l10n %}
 {% load thumbnail %}
 {% load calc_discount_price %}
+{% load currency_symbol %}
 {% load is_shop_manager_upper %}
 {% load is_admin_upper %}
 {% load is_local_sale %}
@@ -92,20 +93,20 @@
                                 {% if sale.product.normal_price %}
                                     <strong>
                                         {% calc_discount_price sale.product.discount_type sale.product.discount sale.product.normal_price %}
-                                        &euro;
+                                        {% currency_symbol sale.product.currency %}
                                     </strong>
                                 {% else %}
                                     <strong class="type-attr-prices">
                                         {% calc_discount_price sale.product.discount_type sale.product.discount sale.min_type_attribute_price %}
                                         {% trans "to" %}
                                         {% calc_discount_price sale.product.discount_type sale.product.discount sale.max_type_attribute_price %}
-                                        &euro;
+                                        {% currency_symbol sale.product.currency %}
                                     </strong>
                                 {% endif %}
                             </span>
                             <span>{% trans "Discount:" %} <strong>
                                 {{ sale.product.discount|floatformat:-2 }}
-                                {% if sale.product.discount_type == "percentage" %}%{% else %}&euro;{% endif %}
+                                {% if sale.product.discount_type == "percentage" %}%{% else %}{% currency_symbol sale.product.currency %}{% endif %}
                             </strong></span>
                         {% endif %}
                         <span>{% trans "Item price:" %} <em{% if not sale.product.normal_price %} class="type-attr-prices"{% endif %}>
@@ -114,7 +115,7 @@
                             {% else %}
                                 {{ sale.min_type_attribute_price|floatformat:-2 }} {% trans "to" %} {{ sale.max_type_attribute_price|floatformat:-2 }}
                             {% endif %}
-                            &euro;
+                            {% currency_symbol sale.product.currency %}
                             </em>
                         </span>
                         <span>{{ tax_price_label }} <em{% if not sale.product.normal_price %} class="type-attr-prices"{% endif %}>
@@ -135,7 +136,7 @@
                                     {% calc_price_with_tax sale.max_type_attribute_price sale.product.tax_rate tax_flag %}
                                 {% endif %}
                             {% endif %}
-                            &euro;
+                            {% currency_symbol sale.product.currency %}
                             </em>
                         </span>
                     </div>

@@ -512,14 +512,18 @@ class StripeProcessResource(BasePaymentHandlerResource):
                     settings.FIN_PAYMENT_STRIPE_CHARGE_URL % {'id_trans': self.id_trans},
                     data=urllib.urlencode(req._params))
             charge_resp = urllib2.urlopen(charge_req).read()
-            data = ujson.loads(charge_resp)['resp_data']
+            data = ujson.loads(charge_resp).get('resp_data') or {}
             if data.get('status') == 'succeeded':
                 self.handle_completed(conn, trans)
                 redirect_url = url_success
             else:
                 redirect_url = url_failure
-                query = urllib.urlencode(data)
+                query = urllib.urlencode({'error': data['error'].get('message') or ''})
                 redirect_url = '?'.join([redirect_url, query])
+
+                if data['error'].get('decline_code') == 'fraudulent':
+                    logging.error('fraud payment: trans(id=%s), cookie%s',
+                                  self.id_trans, trans['cookie'])
 
             gevent.spawn(self.fin_trans_notify, trans, charge_resp)
             self.redirect(redirect_url % {'id_trans': self.id_trans})

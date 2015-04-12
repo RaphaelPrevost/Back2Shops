@@ -5,42 +5,42 @@
 
 
 /*---------VISUEL PROD---------*/
-#visuelsProd {
+#visuelProd {
 	float: left;
 	width: 395px;
 	margin: 10px 8px 25px 0;
 }
 
-/*visuel_XL*/
-#visuelXL {
+/*main-image*/
+.main-image {
 	position: relative;
 	width: 395px; height: 395px;
 	margin: 0; overflow: hidden;
 	background-color: #000000;
 }
-#visuelXL img { width: 395px; }
+.main-image img { width: 395px; }
 
-/*visuel_S*/
-#visuelXS {
+/*thumbnails*/
+.thumbnails {
 	height: 52px; margin-top: 5px;
 	padding: 5px;
 	background-color: #000000;
     border: 1px solid rgba(255, 228, 126, 0.4);
 }
-#visuelXS li {
+.thumbnails li {
     display: block; float: left;
     width: 52px; height: 52px;
     margin: 0 5px 0 0;
 	overflow: hidden; 
 }
-#visuelXS li a {
+.thumbnails li a {
 	display: block; overflow: hidden;
 	width: 50px; height: 50px;
 	border: 1px solid #2A2A2A;
 }
-#visuelXS li a:hover { border: 1px solid #444444; }
+.thumbnails li a:hover { border: 1px solid #444444; }
 
-#visuelXS li a img { width: 50px; }
+.thumbnails li a img { width: 50px; }
 
 
 /*---------INFOS PROD---------*/

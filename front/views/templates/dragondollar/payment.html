@@ -2,9 +2,6 @@
 <div id="conteneurBottom">
     <!--CONTENU-->
     <div class="boxCenter">
-        <!--MAP SHOPS-->
-        <div id="caligraphie"></div>
-
 
         <!--MAP SHOPS-->
         <div id="wrapPanier">
@@ -89,6 +86,8 @@
                                         <?py #endif ?>
                                         <span class="labelTotal">Frais de port</span>
                                         <span class="priceTotal">${format_amount(shipping_lists[0]['shipping_fee'])} ${currency}</span>
+                                        <span class="labelTotal tax">TVA</span>
+                                        <span class="priceTotal tax" id="tax">0 ${currency}</span>
                                     </p>
                                 </td>
                             </tr>
@@ -175,10 +174,21 @@
                 }
 
                 var sum = 0;
-                obj.find('tr #price').each(function(){
-                    sum += $(this).text();
+                obj.find('tr #amount').each(function(){
+                    sum += $(this).attr('value') * 1;
                 });
 
+                var total = sum;
+                obj.find('span.priceTotal').each(function(){
+                    if ($(this).text())
+                        total += $(this).text().split(' ')[0] * 1;
+                });
+
+                var tax = obj.find('#total_amount').attr('value') * 1 - total;
+                if (tax > 0)
+                    obj.find('#tax').text(formatAmount(tax) + " " + currency);
+                else
+                    obj.find('.tax').hide();
                 obj.find('#sum_amount').text(formatAmount(sum) + " " + currency);
             }
 

@@ -1,0 +1,64 @@
+<!--CONTENEUR BOTTOM-->
+<div id="conteneurBottom">  
+    <!--CONTENU-->
+    <div class="boxCenter"> 
+        <div id="wrapPanier">
+            <strong id="titlepanier">Votre Compte</strong>
+            <h1 id="titleH1">${user_name}, voici le récapitulatif de vos commandes :</h1>
+
+            <div id="wrapCompte" class="leftPart">
+                <?py include('_order_list.html') ?>
+                <?py if len(order_list) > 0: ?>
+                <a class="link middle" href="${order_list_url_format}">See All Orders</a>
+                <?py #endif ?>
+            </div>
+                
+            <div class="rightPart">
+                <div class="blockinfo">
+                    <strong>Vos informations : </strong>
+                    <p>
+                        ${user_name}
+                        <br />
+                        <br />${user_info['birthday']}
+                        <br />${user_info['email']}
+                    </p>
+                    <a href="${user_url_format}" class="modifier">Modifier</a>
+                </div>
+                
+                <div class="blockinfo">
+                    <strong>Adresse de facturation :</strong>
+                    <p>
+                        <?py if billing_address: ?>
+                        <input type="hidden" name="id_billaddr" value="${billing_address['id']}" />
+                        ${billing_address['address_desp']}<br />
+                        ${billing_address['address']}<br />
+                        ${billing_address.get('address2', '')}<br />
+                        ${billing_address['postal_code']} ${billing_address['city']}<br />
+                        ${billing_address['country_code']}
+                        <?py #endif ?>
+                    </p>
+                    <a href="${user_url_format}" class="modifier">Modifier</a>
+                </div>
+                
+                
+                <div class="blockinfo">
+                    <strong>Adresse de livraison :</strong>
+                    <p>
+                        <?py if shipping_address: ?>
+                        <input type="hidden" name="id_shipaddr" value="${shipping_address['id']}" />
+                        ${shipping_address['full_name']}<br />
+                        ${shipping_address['address_desp']}<br />
+                        ${shipping_address['address']}<br />
+                        ${shipping_address.get('address2', '')}<br />
+                        ${shipping_address['postal_code']} ${shipping_address['city']}<br />
+                        ${shipping_address['country_code']}
+                        <?py #endif ?>
+                    </p>
+                    <a href="${user_url_format}" class="modifier">Modifier</a>
+                </div>  
+            </div>
+        </div>
+    </div>
+    <!--FIN CONTENU-->
+</div>
+<!--FIN CONTENEUR-->

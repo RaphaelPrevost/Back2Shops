@@ -3,12 +3,19 @@
     <!--WRAPPER-->
     <div class="boxCenter">
         <!--VISUEL PROD-->
-        <div id="visuelsProd">
-            <div id="visuelXL">
-                <img src="${get_single_attribute(product_info, 'img')}" alt="${product_info.get('name')}" />
+        <div id="visuelProd">
+            <div class="main-image">
+                <div class="easyzoom easyzoom--overlay">
+                    <a href="${get_single_attribute(product_info, 'img')}" >
+                        <img src="${get_single_attribute(product_info, 'img')}" class="custom"/>
+                    </a>
+                </div>
             </div>
-            <ul id="visuelXS">
-                <li><a href="#"><img src="${get_single_attribute(product_info, 'img')}" alt="${product_info.get('name')}" /></a></li>
+            <ul class="thumbnails">
+                <?py for index, img in enumerate(as_list(product_info.get('img'))): ?>
+                <?py _clazz = 'on' if index == 0 else '' ?>
+                <li class="${_clazz}"><a href="${img}"><img src="${get_thumbnail(img, 80)}" alt="${product_info.get('name')}" /></a></li>
+                <?py #endfor ?>
             </ul>
         </div>
         <!--//VISUEL PROD-->
@@ -83,6 +90,7 @@
                     <div id="bouton">
                         <a href="javascript:addToBasket()">${_('Buy')}</a>
                     </div>
+                    <div class="errwrapper"></div>
                 </form>
             </div>
             <!--//left-->
@@ -147,6 +155,43 @@
 <script type="text/javascript" src="/js/flying.js"></script>
 <script type="text/javascript">
 function addToBasket() {
+    var form = $("#addForm")[0];
+
+    if ($("#selectColoris li").length > 0) {
+        var id_variant = $("#selectColoris li[class=selected]");
+        if ($("#selectColoris li[class=selected]").length == 0) {
+            $("#addForm .errwrapper").text('Please choose coloris.');
+            return;
+        }
+        form.id_variant.value = id_variant.attr('value');
+    }
+
+    if ($('#selectTaille').length > 0 && form.id_attr.value == "") {
+        $("#addForm .errwrapper").text('Please choose taille.');
+        return;
+    }
+
+
+    // check stock
+    var stocks = #{as_list(product_info.get('available', {}).get('stocks'))};
+    for (var i=0; i< stocks.length; i++) {
+        var stock = stocks[i];
+        if ((form.id_variant == undefined || form.id_variant.value == stock['@variant']) &&
+            (form.id_attr == undefined || form.id_attr.value == stock['@attribute'])) {
+            for (var j=0; j<stock['stock'].length; j++) {
+                var ss = stock['stock'][j];
+                if (form.id_shop == undefined || form.id_shop.value == ss['@shop']) {
+                    if (parseInt(ss['#text']) > 0) {
+                        break
+                    } else {
+                        $("#addForm .errwrapper").text('Sorry, no stock for your choice');
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     $("#addForm .errwrapper").text('');
     $.post('/ajax_basket',
         $("#addForm").serializeArray(),
@@ -157,10 +202,11 @@ function addToBasket() {
             if (data['res'] == 'FAILURE') {
                 $("#addForm .errwrapper").text(data['err']);
             } else {
-                flyToElement($('#visuelXS'), $('#panier'), function(){
-                    var qty = parseInt($("#nb_prod").text());
-                    $("#nb_prod").html(data['cur_basket_qty']);
-                });
+                var flyer = $('#visuelProd .thumbnails li.on img');
+                if (flyer.length == 0)
+                    flyer = $('#visuelProd .thumbnails img').first();
+                flyToElement(flyer, $('#panier'));
+                $("#nb_prod").html($("#nb_prod").text() * 1 + 1);
             }
         }
     );
@@ -303,7 +349,7 @@ $(function(){
         _display_prices();
     });
 
-    $("#visuelProd .thumbnails li a").click(function(){
+    $("#visuelProd .thumbnails li a").click(function(event){
         $(this).parent().attr('class', 'on').siblings().attr('class', '');
         var img = $(this).attr('href');
         api.$link.attr("href", img);

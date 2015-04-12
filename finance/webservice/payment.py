@@ -230,7 +230,7 @@ class PaymentFormResource(BaseHtmlResource):
         if processor == PAYMENT_TYPES.STRIPE:
             self.template = "stripe_form.html"
             return {'object': {
-                'api_key': settings.STRIPE_API_KEY,
+                'api_key': settings.STRIPE_PUBLISH_API_KEY,
                 'post_action': query['url_process'],
                 'url_success': query['url_success'],
                 'url_failure': query['url_failure'],
@@ -296,38 +296,42 @@ class StripeChargeResource(BaseJsonResource):
             id_trans = req.get_param('id_trans')
             card_token = req.get_param('stripeToken')
             data = self.charge(conn, id_trans, card_token)
-            logging.debug('stripe_charge_resp: %s' % data)
+            logging.debug('trans(id=%s) stripe_charge_resp: %s',
+                          id_trans, data)
             return {
                 'resp_code': falcon.HTTP_200,
                 'resp_data': data,
             }
         except stripe.error.StripeError, e:
             body = e.json_body
-            msg = body['error']['message']
-            raise Exception(msg)
+            data = body['error']
+            conn.rollback()
+            logging.error('trans(id=%s) stripe_charge_err: %s',
+                          id_trans, data, exc_info=True)
 
         except Exception, e:
             conn.rollback()
-            msg = str(e)
-            logging.error('stripe_charge_err: %s', e, exc_info=True)
+            data = {'message': str(e)}
+            logging.error('trans(id=%s) stripe_charge_err: %s',
+                          id_trans, e, exc_info=True)
 
         return {
             'resp_code': falcon.HTTP_500,
-            'resp_data': {'error': msg},
+            'resp_data': {'error': data},
         }
 
     def charge(self, conn, id_trans, card_token):
         trans = select(conn, "transactions",
                        columns=['amount_due', 'currency', 'iv_numbers'],
                        where={'id': id_trans})[0]
-        stripe.api_key = settings.STRIPE_API_KEY
+        stripe.api_key = settings.STRIPE_SECRET_API_KEY
         resp = stripe.Charge.create(
             amount=int(trans[0] * 100),
             currency=trans[1],
             source=card_token,
             description="Charge for invoice num: %s" % trans[2],
         )
-        return ujson.loads(resp)
+        return resp
 
 
 class StripeTransResource(BaseResource):
@@ -338,14 +342,15 @@ class StripeTransResource(BaseResource):
         """
         try:
             id_trans = kwargs.get('id_trans')
-            data = ujson.loads(req.query_string)['resp_data']
+            data = ujson.loads(req.query_string).get('resp_data') or {}
 
             if data.get('status') == 'succeeded':
                 update_trans(conn,
                              values={'status': TRANS_STATUS.TRANS_PAID},
                              where={'id': id_trans})
 
-            update_or_create_trans_stripe(conn, id_trans, data)
+            if 'id' in data:
+                update_or_create_trans_stripe(conn, id_trans, data)
             resp.status = falcon.HTTP_200
 
         except Exception, e:
