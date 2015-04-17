@@ -371,7 +371,8 @@ def remote_xml_eventlist():
     content = get_from_sale_server(uri)
     return content
 
-def push_event(uri, query):
+def push_event(query):
+    uri = 'private/event/push'
     content = get_from_sale_server(uri, method='post', **query)
     return content
 

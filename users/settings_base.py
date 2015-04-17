@@ -81,6 +81,7 @@ ADM_ROOT_URI = "http://localhost:8000"
 USR_ROOT_URI = "http://localhost:8100"
 FIN_ROOT_URI = "http://localhost:9000"
 VSL_ROOT_URI = "http://localhost:8700"
+AST_ROOT_URI = "http://localhost:9300"
 FRONT_ROOT_URI = "http://localhost:9500"
 
 SALES_SERVER_API_URL = "%s/webservice/1.0/%%(api)s" % ADM_ROOT_URI
@@ -90,6 +91,7 @@ SERVER_APIKEY_URI_MAP = {
     'FIN': os.path.join(FIN_ROOT_URI, 'webservice/1.0/pub/apikey.pem'),
     'VSL': os.path.join(VSL_ROOT_URI, 'webservice/1.0/pub/apikey.pem'),
     'FRO': os.path.join(FRONT_ROOT_URI, 'webservice/1.0/pub/apikey.pem'),
+    'AST': os.path.join(AST_ROOT_URI, 'webservice/1.0/pub/apikey.pem'),
 }
 
 FRONT_RESET_PASSWORD_URL = "%s/reset_password" % FRONT_ROOT_URI

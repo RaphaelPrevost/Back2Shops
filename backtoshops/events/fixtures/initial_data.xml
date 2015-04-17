@@ -65,4 +65,8 @@
         <field type="CharField" name="name">BO_LOGINFAILURE</field>
         <field type="CharField" name="desc">User failed to log in</field>
     </object>
+    <object pk="16" model="events.event">
+        <field type="CharField" name="name">TICKETPOSTED</field>
+        <field type="CharField" name="desc">A new ticket has been posted</field>
+    </object>
 </django-objects>

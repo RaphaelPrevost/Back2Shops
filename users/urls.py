@@ -37,6 +37,8 @@
 #############################################################################
 
 
+from webservice import ticket
+from webservice import ticket_attachment
 from webservice.accounts import UserResource
 from webservice.auth import UserLoginResource
 from webservice.auth import UserVerifyResource
@@ -110,6 +112,11 @@ urlpatterns = {
     '/webservice/1.0/pub/invoice/request': InvoiceResource,
     '/webservice/1.0/pub/suggest': SuggestResource,
     '/webservice/1.0/pub/brand/home/slideshow': SlideShowResource,
+    r'/webservice/1.0/pub/tickets/post': ticket.TicketPost4FUserResource,
+    r'/webservice/1.0/pub/tickets/list': ticket.TicketList4FUserResource,
+    r'/webservice/1.0/pub/tickets/upload': ticket_attachment.TicketAttachUploadResource,
+    r'/webservice/1.0/pub/tickets/read': ticket_attachment.TicketAttachRead4FUserResource,
+    r'/webservice/1.0/pub/tickets/rate': ticket.TicketRateResource,
 
     '/webservice/protected/invalidate': InvalidationResource,
     '/webservice/protected/shipping/fee': ShippingFeeResource,
@@ -123,13 +130,19 @@ urlpatterns = {
     '/webservice/1.0/private/invoice/get': InvoiceGetResource,
     '/webservice/1.0/private/invoice/send': InvoiceSendResource,
 
+    r'/webservice/1.0/private/tickets/post': ticket.TicketPostResource,
+    r'/webservice/1.0/private/tickets/list': ticket.TicketListResource,
+    r'/webservice/1.0/private/tickets/read': ticket_attachment.TicketAttachReadResource,
+    r'/webservice/1.0/private/tickets/prio': ticket.TicketPriorityResource,
+    r'/webservice/1.0/private/tickets/lock': ticket.TicketLockResource,
+    r'/webservice/1.0/private/tickets/rel': ticket.TicketRelResource,
+
     '/webservice/1.0/private/sensor/visits': SensorVisitorsResource,
     '/webservice/1.0/private/sensor/income': SensorIncomesResource,
     '/webservice/1.0/private/sensor/orders': SensorOrdersResource,
     '/webservice/1.0/private/sensor/bought_history': SensorBoughtHistoryResource,
     '/webservice/1.0/private/sensor/visitors_online': SensorVisitorsOnlineResource,
     '/webservice/1.0/private/sensor/visitors/log': SensorVisitorsLogResource,
-
 
     '/webservice/1.0/protected/shipping/list': ShippingListResource,
     '/webservice/1.0/protected/shipment': ShipmentResource,
