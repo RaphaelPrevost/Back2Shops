@@ -75,6 +75,17 @@ class RETURN_STATUS(CustomEnum):
     RETURN_PROPOSAL_ACCEPT = 1024 #1 << 10
     RETURN_PROPOSAL_REJECT = 2048 #1 << 11
 
+class TICKET_PRIORITY(CustomEnum):
+    IMPORTANT = 1
+    MAJOR = 2
+    NORMAL = 3
+    MINOR = 4
+    TRIVIAL = 5
+
+class TICKET_FEEDBACK(CustomEnum):
+    USEFUL = 1
+    USELESS = 2
+
 HASH_ALGORITHM_NAME = {
     HASH_ALGORITHM.WHIRLPOOL: "whirlpool",
     HASH_ALGORITHM.SHA256: "sha256",

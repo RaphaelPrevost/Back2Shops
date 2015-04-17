@@ -50,8 +50,10 @@ PRIVATE_KEY_PATH = 'static/keys/ast_pri.key'
 PUB_KEY_PATH = 'static/keys/ast_pub.key'
 
 ADM_ROOT_URI = "http://localhost:8000"
+USR_ROOT_URI = "http://localhost:8100"
 SERVER_APIKEY_URI_MAP = {
     'ADM': os.path.join(ADM_ROOT_URI, 'webservice/1.0/pub/apikey.pem'),
+    'USR': os.path.join(USR_ROOT_URI, 'webservice/1.0/pub/apikey.pem'),
 }
 
 LOG_CONFIG_FILE = 'logging.cfg'

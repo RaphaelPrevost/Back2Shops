@@ -39,6 +39,7 @@
 
 import os
 import falcon
+import itertools
 import ujson
 
 import settings
@@ -51,30 +52,44 @@ from B2SUtils.errors import ValidationError
 
 
 class Collection(BaseJsonResource):
+    service = SERVICES.ADM
 
     def _on_post(self, req, resp, **kwargs):
-        filename = req.get_param('name', required=True)
-        storage_path = os.path.join(settings.STATIC_FILES_PATH, filename)
-
-        directory = os.path.dirname(storage_path)
-        if not os.path.exists(directory):
-            os.makedirs(directory)
+        file_name = req.get_param('name', required=True)
+        storage_path = os.path.join(settings.STATIC_FILES_PATH, file_name)
+        storage_path = self.get_available_name(storage_path)
+        dir_name, file_name = os.path.split(storage_path)
+        if not os.path.exists(dir_name):
+            os.makedirs(dir_name)
 
         content = decrypt_json_resp(req.stream,
-                                 settings.SERVER_APIKEY_URI_MAP[SERVICES.ADM],
+                                 settings.SERVER_APIKEY_URI_MAP[self.service],
                                  settings.PRIVATE_KEY_PATH)
         with open(storage_path, 'wb') as _f:
             _f.write(content)
 
         resp.status = falcon.HTTP_201
         return {'res': RESP_RESULT.S,
-                'location': filename}
+                'location': file_name}
 
     def gen_resp(self, resp, data_dict):
         resp.content_type = "application/json"
         resp.body = gen_encrypt_json_context(
                             ujson.dumps(data_dict),
-                            settings.SERVER_APIKEY_URI_MAP[SERVICES.ADM],
+                            settings.SERVER_APIKEY_URI_MAP[self.service],
                             settings.PRIVATE_KEY_PATH)
         return resp
+
+    def get_available_name(self, name):
+        dir_name, file_name = os.path.split(name)
+        file_root, file_ext = os.path.splitext(file_name)
+        count = itertools.count(1)
+        while os.path.exists(name):
+            # file_ext includes the dot.
+            name = os.path.join(dir_name, "%s_%s%s" % (file_root, count.next(), file_ext))
+        return name
+
+
+class AttachmentCollection(BaseJsonResource):
+    service = SERVICES.USR
 
