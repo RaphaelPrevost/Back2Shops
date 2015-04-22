@@ -62,7 +62,7 @@ class TestUserAuth(BaseTestCase):
         self.pass_auth_verification(self.email)
 
         values = {
-            "id_brand": "1",
+            "id_brand": "1000001",
             "subject": "how to find the most expensive dollar ?",
             "message": "see subject",
         }
@@ -71,7 +71,7 @@ class TestUserAuth(BaseTestCase):
         t1_id = resp_data['id']
 
         values = {
-            "id_brand": "1",
+            "id_brand": "1000001",
             "parent_id": t1_id,
             "subject": "additional questions",
             "message": "wow",
@@ -81,7 +81,7 @@ class TestUserAuth(BaseTestCase):
         t2_id = resp_data['id']
 
         values = {
-            "id_brand": "1",
+            "id_brand": "1000001",
             "subject": "another question",
             "message": "wow",
         }

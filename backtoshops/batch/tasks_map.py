@@ -37,6 +37,7 @@
 #############################################################################
 
 
+from batch.tasks.events import HandleEventQueue
 from batch.tasks.stats import CalcSalesSim
 from batch.tasks.stats import StatsBoughtHistory
 from batch.tasks.stats import StatsIncomes
@@ -51,5 +52,6 @@ map = {
               StatsIncomes,
               StatsOrders,
               StatsVisitors,
-              StatsVisitorsOnline]
+              StatsVisitorsOnline],
+    'events': [HandleEventQueue],
 }

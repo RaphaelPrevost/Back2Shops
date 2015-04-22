@@ -82,6 +82,7 @@ from common.fees import compute_fee
 from common.transaction import remote_payment_init
 from common.utils import get_default_setting
 from events.models import Event
+from events.models import EventQueue
 from globalsettings import get_setting
 from routes.models import Route
 from sales.models import ProductCategory
@@ -495,7 +496,10 @@ def event_push(request, *args, **kwargs):
             if not handler_params[param.name]:
                 raise InvalidRequestError('missing handler param %s' % param.name)
 
-        #TODO add to event queue
+        new = EventQueue()
+        new.event_id = event_id
+        new.param_values = json.dumps(handler_params)
+        new.save()
 
         content = {'result': SUCCESS}
     except Exception, e:

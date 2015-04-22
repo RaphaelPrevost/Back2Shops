@@ -38,15 +38,30 @@
 
 import settings
 import cgi
+import gevent
 from datetime import datetime, timedelta
+
 from B2SProtocol.constants import RESP_RESULT
 from B2SUtils import db_utils
 from B2SUtils.common import parse_ts
 from B2SUtils.errors import ValidationError
 from common.constants import TICKET_FEEDBACK
 from common.constants import TICKET_PRIORITY
+from common.utils import get_event_configs
+from common.utils import push_event
 from webservice.base import BaseJsonResource
 
+
+def push_ticket_event(**params):
+    actor_event = get_event_configs('TICKETPOSTED')
+    uri = actor_event.handler.url
+    valid_params = {'event': actor_event.id}
+    for p in actor_event.handler.parameter:
+        if p.name not in params and not p.value:
+            raise ValidationError('MISSING_PARAM')
+        valid_params[p.name] = params.get(p.name) or p.value
+
+    push_event(uri, **valid_params)
 
 class BaseTicketPostResource(BaseJsonResource):
 
@@ -57,6 +72,11 @@ class BaseTicketPostResource(BaseJsonResource):
             self._update_ticket(conn, ticket_id)
         else:
             self._update_parent_ticket(conn, values['parent_id'])
+            gevent.spawn(push_ticket_event,
+                         email=self.get_user_email(values.get('fo_author')
+                                                or values.get('fo_recipient')),
+                         service_email=settings.SERVICE_EMAIL,
+                         brand=values['id_brand'])
         return {"res": RESP_RESULT.S,
                 "err": "",
                 "id": ticket_id}
@@ -144,6 +164,12 @@ class BaseTicketPostResource(BaseJsonResource):
         if len(result) == 0:
             raise ValidationError('INVALID_PARAM_%s' % fname.upper())
         return result[0]
+
+    def get_user_email(self, id_user):
+        row = db_utils.select(self.conn, 'users',
+                              columns=('email',),
+                              where={'id': id_user})[0]
+        return row[0]
 
 class TicketPostResource(BaseTicketPostResource):
     encrypt = True

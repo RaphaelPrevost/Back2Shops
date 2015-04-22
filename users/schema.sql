@@ -339,6 +339,8 @@ CREATE TABLE ticket (
     escalation_time timestamp without time zone
 );
 CREATE INDEX ticket_by_thread_id ON ticket USING btree (thread_id);
+CREATE INDEX ticket_by_created ON ticket USING btree (created);
+CREATE INDEX ticket_by_priority ON ticket USING btree (priority);
 
 CREATE TABLE ticket_attachment (
     id serial PRIMARY KEY,

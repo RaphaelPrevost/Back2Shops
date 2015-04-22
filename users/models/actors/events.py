@@ -37,27 +37,42 @@
 #############################################################################
 
 
-from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from B2SUtils.base_actor import as_list
+from B2SUtils.base_actor import BaseActor
 
 
-class Event(models.Model):
-    name = models.CharField(verbose_name=_("Name"), max_length=50)
-    desc = models.CharField(verbose_name=_("Description"), max_length=100)
-    handler_url = models.CharField(verbose_name=_("Handler URL"), blank=True, max_length=100)
-    handler_method = models.CharField(verbose_name=_("Handler method"), default='post', blank=True, max_length=10)
-    handler_is_private = models.BooleanField(default=True)
-    predefined_template = models.TextField(blank=True, default='')
+class ActorParam(BaseActor):
+    attrs_map = {
+        "name": "@name",
+        "value": "@value",
+    }
 
-class EventHandlerParam(models.Model):
-    event = models.ForeignKey(Event, related_name='event_handler_params')
-    name = models.CharField(verbose_name=_("Param Name"), max_length=50)
-    value = models.CharField(verbose_name=_("Param Value"), null=True, max_length=50)
+class ActorEventHandler(BaseActor):
+    attrs_map = {
+        'url': '@url',
+        'method': '@method',
+        'private': '@private',
+    }
 
-class EventQueue(models.Model):
-    event = models.ForeignKey(Event)
-    param_values = models.TextField()
-    created = models.DateTimeField(auto_now_add=True)
-    handled = models.BooleanField(default=False)
-    error = models.TextField()
+    @property
+    def parameter(self):
+        params = as_list(self.data.get('parameter'))
+        return [ActorParam(data=p) for p in params]
+
+class ActorEvent(BaseActor):
+    attrs_map = {
+        "id": "@id",
+        "name": "name",
+        "desc": "desc",
+    }
+
+    @property
+    def handler(self):
+        return ActorEventHandler(data=self.data.get('handler'))
+
+class ActorEvents(BaseActor):
+    @property
+    def events(self):
+        events = as_list(self.data.get('event'))
+        return [ActorEvent(data=item) for item in events]
 

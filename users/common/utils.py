@@ -49,6 +49,7 @@ import re
 import string
 import ujson
 import urllib
+import xmltodict
 
 
 from common.constants import HASH_ALGORITHM
@@ -63,6 +64,7 @@ from B2SUtils.errors import ValidationError
 from B2SUtils import db_utils
 from B2SProtocol.constants import PAYMENT_TYPES
 from B2SProtocol.constants import USER_AUTH_COOKIE_NAME
+from models.actors.events import ActorEvents
 
 phone_num_reexp = r'^[0-9]+$'
 postal_code_reexp = r'^.+$'
@@ -371,8 +373,16 @@ def remote_xml_eventlist():
     content = get_from_sale_server(uri)
     return content
 
-def push_event(query):
-    uri = 'private/event/push'
+def get_event_configs(event_name):
+    xml_eventlist = remote_xml_eventlist()
+    eventlist = xmltodict.parse(xml_eventlist)
+    actor_events = ActorEvents(data=eventlist['events'])
+    for actor_event in actor_events.events:
+        if actor_event.name == event_name:
+            return actor_event
+    raise ValidationError('EVENT_NOT_FOUND')
+
+def push_event(uri, **query):
     content = get_from_sale_server(uri, method='post', **query)
     return content
 

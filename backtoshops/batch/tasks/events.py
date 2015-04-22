@@ -37,27 +37,27 @@
 #############################################################################
 
 
-from django.db import models
-from django.utils.translation import ugettext_lazy as _
+import logging
+
+from batch.tasks.base import Task
+from django.core import management
 
 
-class Event(models.Model):
-    name = models.CharField(verbose_name=_("Name"), max_length=50)
-    desc = models.CharField(verbose_name=_("Description"), max_length=100)
-    handler_url = models.CharField(verbose_name=_("Handler URL"), blank=True, max_length=100)
-    handler_method = models.CharField(verbose_name=_("Handler method"), default='post', blank=True, max_length=10)
-    handler_is_private = models.BooleanField(default=True)
-    predefined_template = models.TextField(blank=True, default='')
+class _BaseEventsTask(Task):
+    cmd = None
+    cmd_args = []
+    cmd_options = {}
+    def handle(self):
+        try:
+            management.call_command(self.cmd,
+                                    *self.cmd_args,
+                                    **self.cmd_options)
+        except Exception, e:
+            logging.error("task_running_err: %s", e, exc_info=True)
 
-class EventHandlerParam(models.Model):
-    event = models.ForeignKey(Event, related_name='event_handler_params')
-    name = models.CharField(verbose_name=_("Param Name"), max_length=50)
-    value = models.CharField(verbose_name=_("Param Value"), null=True, max_length=50)
+class HandleEventQueue(_BaseEventsTask):
+    help = "handle event queue"
+    interval = 5 * 60
+    cmd = "handle_event_queue"
 
-class EventQueue(models.Model):
-    event = models.ForeignKey(Event)
-    param_values = models.TextField()
-    created = models.DateTimeField(auto_now_add=True)
-    handled = models.BooleanField(default=False)
-    error = models.TextField()
 
