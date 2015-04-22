@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <django-objects version="1.0">
     <object pk="1" model="events.eventhandlerparam">
-        <field to="events.event" name="event" rel="ManyToOneRel">1</field>
+        <field to="events.event" name="event" rel="ManyToOneRel">16</field>
         <field type="CharField" name="name">email</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="2" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">16</field>
+        <field type="CharField" name="name">service_email</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="3" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">16</field>
+        <field type="CharField" name="name">brand</field>
         <field type="CharField" name="value"></field>
     </object>
     <object pk="1" model="events.event">
@@ -68,5 +78,6 @@
     <object pk="16" model="events.event">
         <field type="CharField" name="name">TICKETPOSTED</field>
         <field type="CharField" name="desc">A new ticket has been posted</field>
+        <field type="TextField" name="predefined_template">Your ticket has new replies.</field>
     </object>
 </django-objects>
