@@ -44,7 +44,7 @@ from webservice import upload
 urlpatterns = {
     r'/webservice/1.0/pub/apikey.pem': crypto.APIPubKey,
     r'/webservice/1.0/private/upload': upload.Collection,
-    r'/webservice/1.0/private/upload/attachment': upload.AttachmentCollection,
+    r'/webservice/1.0/private/upload_attachment': upload.AttachmentCollection,
 
     r'/js/{name}': download.JsItem,
     r'/js/{subpath}/{name}': download.JsItem,

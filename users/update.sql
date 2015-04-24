@@ -129,4 +129,36 @@ ALTER TABLE shipping_supported_services ADD COLUMN supported_services_details te
 -- ALTER TABLE order_items ALTER COLUMN weight_unit set not NULL;
 -- ALTER TABLE order_items ALTER COLUMN item_detail set not NULL;
 
+CREATE TABLE ticket (
+    id serial PRIMARY KEY,
+    thread_id BIGINT,
+    parent_id BIGINT NOT NULL,
+    subject character varying(128) NOT NULL,
+    message text NOT NULL,
+    priority smallint NOT NULL,
+    feedback smallint,
+    fo_author integer,
+    bo_author integer,
+    fo_recipient integer,
+    bo_recipient integer,
+    id_brand BIGINT NOT NULL,
+    id_order BIGINT,
+    id_shipment BIGINT,
+    replied boolean DEFAULT false NOT NULL,
+    created timestamp without time zone NOT NULL,
+    locked boolean DEFAULT false NOT NULL,
+    lock_time timestamp without time zone,
+    escalation boolean DEFAULT false NOT NULL,
+    escalation_time timestamp without time zone
+);
+CREATE INDEX ticket_by_thread_id ON ticket USING btree (thread_id);
+CREATE INDEX ticket_by_created ON ticket USING btree (created);
+CREATE INDEX ticket_by_priority ON ticket USING btree (priority);
+
+CREATE TABLE ticket_attachment (
+    id serial PRIMARY KEY,
+    location character varying(128) NOT NULL,
+    random_key character varying(128) NOT NULL,
+    id_ticket BIGINT
+);
 COMMIT;

@@ -41,10 +41,6 @@ import falcon
 import logging
 import os
 import settings
-from B2SCrypto.constant import SERVICES
-from B2SCrypto.utils import CBCCipher
-from B2SCrypto.utils import gen_encrypt_json_context
-from B2SCrypto.utils import get_key_from_remote
 
 class Item(object):
     storage_path = settings.STATIC_FILES_PATH + '/'
@@ -96,14 +92,6 @@ class HtmlItem(Item):
 class AttachmentItem(Item):
     storage_path = settings.STATIC_FILES_PATH + '/attachment/'
 
-    def gen_resp(self, resp, path, name):
-        try:
-            pub_key = get_key_from_remote(settings.SERVER_APIKEY_URI_MAP[SERVICES.USR])
-            content = open(path, 'rb').read()
-            resp.body = CBCCipher(pub_key).encrypt(content)
-            resp.content_type = "text/plain"
-        except IOError, e:
-            logging.error("%s", e, exc_info=True)
-            resp.status = falcon.HTTP_404
-
+    def _get_media_type(self, name):
+        return 'text/plain'
 
