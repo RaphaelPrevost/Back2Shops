@@ -55,8 +55,8 @@ class Collection(BaseJsonResource):
     service = SERVICES.ADM
 
     def _on_post(self, req, resp, **kwargs):
-        file_name = req.get_param('name', required=True)
-        storage_path = os.path.join(settings.STATIC_FILES_PATH, file_name)
+        rel_path = req.get_param('name', required=True)
+        storage_path = os.path.join(settings.STATIC_FILES_PATH, rel_path)
         storage_path = self.get_available_name(storage_path)
         dir_name, file_name = os.path.split(storage_path)
         if not os.path.exists(dir_name):
@@ -69,8 +69,9 @@ class Collection(BaseJsonResource):
             _f.write(content)
 
         resp.status = falcon.HTTP_201
+        new_rel_path = "%s/%s" % (os.path.dirname(rel_path), file_name)
         return {'res': RESP_RESULT.S,
-                'location': file_name}
+                'location': new_rel_path}
 
     def gen_resp(self, resp, data_dict):
         resp.content_type = "application/json"
@@ -90,6 +91,6 @@ class Collection(BaseJsonResource):
         return name
 
 
-class AttachmentCollection(BaseJsonResource):
+class AttachmentCollection(Collection):
     service = SERVICES.USR
 

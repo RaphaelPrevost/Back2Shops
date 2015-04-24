@@ -37,26 +37,28 @@
 #############################################################################
 
 import settings
+import logging
 import magic
 import os
+from base64 import b64encode
 import ujson
 import urllib2
 from B2SCrypto.constant import SERVICES
 from B2SCrypto.utils import CBCCipher
 from B2SCrypto.utils import gen_encrypt_json_context
-from B2SCrypto.utils import get_from_remote, get_key_from_local
+from B2SCrypto.utils import get_from_remote
 from B2SProtocol.constants import RESP_RESULT
 from B2SUtils import db_utils
 from B2SUtils.errors import ValidationError
 from webservice.base import BaseJsonResource
 
 def upload(asset_name, content):
-    remote_uri = os.path.join(settings.AST_SERVER,
-                              "webservice/1.0/private/upload?name=%s"
+    remote_uri = os.path.join(settings.AST_ROOT_URI,
+                              "webservice/1.0/private/upload_attachment?name=%s"
                               % urllib2.quote(asset_name))
     try:
         data = gen_encrypt_json_context(
-            content.read(),
+            content,
             settings.SERVER_APIKEY_URI_MAP[SERVICES.AST],
             settings.PRIVATE_KEY_PATH)
 
@@ -75,14 +77,19 @@ class TicketAttachUploadResource(BaseJsonResource):
 
     def _on_post(self, req, resp, conn, **kwargs):
         filename = req.get_param('name', required=True)
-        result = upload(filename, req.stream)
+        random_key = b64encode(os.urandom(64)).decode('utf-8')
+        content = req.stream.read()
+        content = CBCCipher(random_key).encrypt(content)
+
+        result = upload(filename, content)
         if result.get('res') == RESP_RESULT.F:
             raise Exception(result['err'])
         location = result['location']
 
         attach_id = db_utils.insert(conn, "ticket_attachment",
-                                    values={'location': location},
-                                    returning='id')
+                                    values={'location': location,
+                                            'random_key': random_key},
+                                    returning='id')[0]
         return {"res": RESP_RESULT.S,
                 "err": "",
                 "id": attach_id}
@@ -91,12 +98,12 @@ class BaseTicketAttachReadResource(BaseJsonResource):
     def _on_get(self, req, resp, conn, **kwargs):
         _id = req.get_param('attachment_id')
         rows = db_utils.select(self.conn, 'ticket_attachment',
-                               columns=('id_ticket', 'location'),
+                               columns=('id_ticket', 'location', 'random_key'),
                                where={'id': _id},
                                limit=1)
         if not rows or len(rows) == 0:
             raise ValidationError('INVALID_REQUEST')
-        id_ticket, location = rows[0]
+        id_ticket, location, random_key = rows[0]
         self._check_ticket(id_ticket)
 
         try:
@@ -108,8 +115,7 @@ class BaseTicketAttachReadResource(BaseJsonResource):
                           _id, e, uri, exc_info=True)
             raise
 
-        pub_key = get_key_from_local(settings.PUB_KEY_PATH)
-        return CBCCipher(pub_key).decrypt(content)
+        return CBCCipher(random_key).decrypt(content)
 
     def _check_ticket(self, id_ticket):
         pass

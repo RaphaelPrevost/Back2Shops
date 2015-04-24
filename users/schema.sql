@@ -345,5 +345,6 @@ CREATE INDEX ticket_by_priority ON ticket USING btree (priority);
 CREATE TABLE ticket_attachment (
     id serial PRIMARY KEY,
     location character varying(128) NOT NULL,
+    random_key character varying(128) NOT NULL,
     id_ticket BIGINT
 );

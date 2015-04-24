@@ -23,6 +23,7 @@ backtoshops/settings_ghostwheel.py
 backtoshops/media
 
 assets/static/img/*
+assets/static/attachment/*
 
 front/static/img/*
 front/views/templates/*/*.cache
