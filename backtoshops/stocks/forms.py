@@ -56,6 +56,7 @@ class StockForm(forms.Form):
     sku = forms.CharField(required=False)
     barcode = forms.CharField(required=False)
     alert = forms.CharField(widget=forms.CheckboxInput(attrs={'class': 'is_required'}))
+    order_require_confirm = forms.CharField(widget=forms.CheckboxInput(attrs={'class': 'is_required'}))
 
     def clean_stock(self):
         data = self.cleaned_data['stock']

@@ -70,6 +70,7 @@ from attributes.models import BrandAttribute
 from attributes.models import BrandAttributePreview
 from attributes.models import CommonAttribute
 from barcodes.models import Barcode
+from brandsettings import get_ba_settings
 from common.assets_utils import get_asset_name
 from common.cache_invalidation import send_cache_invalidation
 from common.constants import TARGET_MARKET_TYPES
@@ -91,6 +92,7 @@ from sales.forms import ProductForm
 from sales.forms import ShippingForm
 from sales.forms import ShopForm
 from sales.models import ExternalRef
+from sales.models import OrderConfirmSetting
 from sales.models import Product
 from sales.models import ProductBrand
 from sales.models import ProductCategory
@@ -644,6 +646,14 @@ def edit_sale(request, *args, **kwargs):
             'external_id': i.external_id,
         })
 
+    initial_ordersettings = []
+    for i in OrderConfirmSetting.objects.filter(sale=sale):
+        initial_ordersettings.append({
+            'brand_attribute': i.brand_attribute.pk if i.brand_attribute else None,
+            'common_attribute': i.common_attribute.pk if i.common_attribute else None,
+            'require_confirm': i.require_confirm,
+        })
+
     initial_product = {
         'brand': sale.product.brand.pk,
         'type': sale.product.type.pk,
@@ -668,6 +678,7 @@ def edit_sale(request, *args, **kwargs):
         'gender': sale.gender,
         'barcodes_initials': initial_barcodes,
         'externalrefs_initials': initial_externalrefs,
+        'ordersettings_initials': initial_ordersettings,
     }
 
     initial_shipping = {}
@@ -894,6 +905,25 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         else:
             ExternalRef.objects.filter(sale=sale).delete()
 
+        os_ids = []
+        for i in product_form.ordersettings:
+            if not i.is_valid() or not i.cleaned_data \
+                    or not i.cleaned_data['require_confirm'] or i.cleaned_data['DELETE']:
+                continue
+            ba_pk = i.cleaned_data['brand_attribute']
+            ca_pk = i.cleaned_data['common_attribute']
+            os, created = OrderConfirmSetting.objects.get_or_create(sale=sale,
+                common_attribute=CommonAttribute.objects.get(pk=ca_pk) if ca_pk else None,
+                brand_attribute=BrandAttribute.objects.get(pk=ba_pk) if ba_pk else None,
+                )
+            os.require_confirm = i.cleaned_data['require_confirm']
+            os.save()
+            os_ids.append(os.id)
+        if os_ids:
+            OrderConfirmSetting.objects.filter(sale=sale).extra(
+                where=['id NOT IN (%s)' % ','.join(map(str, os_ids))]).delete()
+        else:
+            OrderConfirmSetting.objects.filter(sale=sale).delete()
 
         shipping_data = shipping_form.cleaned_data
         shipping.sale = sale
@@ -1231,6 +1261,21 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                                 return i['external_id']
         return None
 
+    def _get_require_confirm(self, ba, ca):
+        if self.edit_mode:
+            for i in self.initial_dict.get(self.STEP_PRODUCT).get('ordersettings_initials', []):
+                if i['brand_attribute'] == ba:
+                    if i['common_attribute'] == ca:
+                        return i['require_confirm']
+        else:
+            if getattr(self.stocks_infos, 'ordersettings', None):
+                for i in self.stocks_infos.ordersettings:
+                    if i:
+                        if i['brand_attribute'] == ba:
+                            if i['common_attribute'] == ca:
+                                return i['require_confirm']
+        return get_ba_settings(self.request.user).get('order_require_confirmation') == 'True'
+
     def _get_stock_initial(self, ba, ca, sh, st):
         return {
             'brand_attribute': ba,
@@ -1274,6 +1319,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             b_attrs = product_init_data.get('brand_attributes', [])
             initial_product.update(self._init_barcodes(b_attrs, c_attrs))
             initial_product.update(self._init_externalrefs(b_attrs, c_attrs))
+            initial_product.update(self._init_ordersettings(b_attrs, c_attrs))
             return initial_product
 
         if step == self.STEP_SHIPPING:
@@ -1352,6 +1398,40 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                         'external_id': self._get_external_id(ba['ba_id'], None),
                         })
         return {'externalrefs_initials': initials}
+
+    def _init_ordersettings(self, brand_attributes, common_attributes):
+        # Initializes the initials for ordersettings form
+        initials = []
+        if common_attributes:
+            for ca in common_attributes:
+                initials.append({
+                    'brand_attribute': None,
+                    'common_attribute': ca.pk,
+                    'require_confirm': self._get_require_confirm(None, ca.pk),
+                })
+        else:
+            initials.append({
+                'brand_attribute': None,
+                'common_attribute': None,
+                'require_confirm': self._get_require_confirm(None, None),
+                })
+
+        if brand_attributes:
+            for ba in brand_attributes:
+                if common_attributes:
+                    for ca in common_attributes:
+                        initials.append({
+                            'brand_attribute': ba['ba_id'],
+                            'common_attribute': ca.pk,
+                            'require_confirm': self._get_require_confirm(ba['ba_id'], ca.pk),
+                        })
+                else:
+                    initials.append({
+                        'brand_attribute': ba['ba_id'],
+                        'common_attribute': None,
+                        'require_confirm': self._get_require_confirm(ba['ba_id'], None),
+                        })
+        return {'ordersettings_initials': initials}
 
 
 def get_product_types(request, *args, **kwargs):

@@ -60,6 +60,7 @@ from common.utils import get_currency
 from sales.models import DISCOUNT_TYPE
 from sales.models import ExternalRef
 from sales.models import GENDERS
+from sales.models import OrderConfirmSetting
 from sales.models import Product
 from sales.models import ProductBrand
 from sales.models import ProductCategory
@@ -521,6 +522,17 @@ class ProductForm(forms.Form):
         else:
             self.externalrefs = ExternalRefFormset(data=data, prefix=extrefs_prefix)
 
+        _prefix = "ordersettings"
+        OrderSettingFormset = formset_factory(OrderSettingForm,
+                                             formset=NoEmptyBaseFormSet,
+                                             extra=get_formset_extra(data, _prefix),
+                                             can_delete=True)
+        if initial.get('ordersettings_initials', None):
+            self.ordersettings = OrderSettingFormset(data=data, prefix=_prefix,
+                                initial=initial.get('ordersettings_initials', None))
+        else:
+            self.ordersettings = OrderSettingFormset(data=data, prefix=_prefix)
+
         self.fields['shop_ids'] = forms.CharField(
             widget=forms.HiddenInput(),
             initial=initial.get('shop_ids'),
@@ -653,6 +665,11 @@ class ExternalRefForm(forms.Form):
     brand_attribute = forms.IntegerField(required=False)
     common_attribute = forms.IntegerField(required=False)
     external_id = forms.CharField(label=_("External Ref"), required=False)
+
+class OrderSettingForm(forms.Form):
+    brand_attribute = forms.IntegerField(required=False)
+    common_attribute = forms.IntegerField(required=False)
+    require_confirm = forms.BooleanField(label=_("Order require confirmation"))
 
 class ProductBrandFormModel(forms.ModelForm):
     class Meta:

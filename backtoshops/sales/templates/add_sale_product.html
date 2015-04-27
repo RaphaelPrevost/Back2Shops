@@ -168,6 +168,8 @@
             {{ wizard.form.barcodes.non_field_errors }}
             {{ wizard.form.externalrefs.management_form }}
             {{ wizard.form.externalrefs.non_field_errors }}
+            {{ wizard.form.ordersettings.management_form }}
+            {{ wizard.form.ordersettings.non_field_errors }}
             {{ wizard.form.non_field_errors }}
         </div>
 
@@ -292,17 +294,6 @@
         <span class="standard_weight_unit"></span>
         <span class="remove_standard_weight">{% trans "Remove" %}</span>
     </span>
-    <span id="barcode_template_form" style="display: none;">
-        {% with wizard.form.barcodes.empty_form as bac_empty %}
-            <label for="{{ bac_empty.upc.auto_id }}"></label>
-            <input id="{{ bac_empty.upc.auto_id }}" type="text"  name="{{ bac_empty.upc.html_name }}" maxlength="5" value="{% if bac_empty.upc.value %}{{ bac_empty.upc.value }}{% endif %}">
-            <span style="display: none;">
-                {{ bac_empty.common_attribute }}
-                {{ bac_empty.brand_attribute }}
-                <input type="checkbox" name="{{ bac_empty.DELETE.html_name }}" id="{{ bac_empty.DELETE.auto_id }}" checked="true">
-            </span>
-        {% endwith %}
-    </span>
     <span id="product_picture_template_form" style="display: none;">
         <li id="{{ wizard.form.pictures.empty_form.prefix }}-row" class="product_picture_form">
             {{ wizard.form.pictures.empty_form.pk }}
@@ -380,6 +371,7 @@
         sort_existing_pp($('#existing_pp'));
         update_barcodes();
         update_extrefs();
+        update_ordersettings();
         update_all_ba_premium();
     });
 
@@ -672,6 +664,7 @@
                         active_removed_tab('#brand-attr-' + ui.item.value);
                         add_barcode_for_brand_attr(ui.item.value);
                         add_extref_for_brand_attr(ui.item.value);
+                        add_ordersetting_for_brand_attr(ui.item.value);
                         return false;
                     }
                 }
@@ -733,6 +726,7 @@
                         ba_events(new_attr_obj);
                         add_barcode_for_brand_attr(data.pk, data.name, new_attr_obj);
                         add_extref_for_brand_attr(data.pk, data.name, new_attr_obj);
+                        add_ordersetting_for_brand_attr(data.pk, data.name, new_attr_obj);
 
                         var obj = $('.tabs-header li:last').insertBefore($("li.add-attr"));
                         obj.find('a').click();
@@ -991,6 +985,7 @@
 
             add_barcode_for_common_attr("", $("#{{ wizard.form.name.auto_id }}").val());
             add_extref_for_common_attr("", $("#{{ wizard.form.name.auto_id }}").val());
+            add_ordersetting_for_common_attr("", $("#{{ wizard.form.name.auto_id }}").val());
             return false;
         }
 
@@ -1038,6 +1033,7 @@
 
         add_barcode_for_common_attr(select_ta, select_ta_name);
         add_extref_for_common_attr(select_ta, select_ta_name);
+        add_ordersetting_for_common_attr(select_ta, select_ta_name);
         return false;
     });
 
@@ -1053,12 +1049,14 @@
         var attr_id = $(this).siblings('.type_attribute_value').text();
         remove_barcode_for_common_attr(attr_id);
         remove_extref_for_common_attr(attr_id);
+        remove_ordersetting_for_common_attr(attr_id);
     });
     $("span.remove_normal_price").live("click", function(){
         $("#{{ wizard.form.normal_price.auto_id }}").val("").change();
         $(this).parent().remove();
         remove_barcode_for_common_attr("");
         remove_extref_for_common_attr("");
+        remove_ordersetting_for_common_attr("");
     });
 
 
@@ -1221,6 +1219,7 @@
                         }
                         add_barcode_for_common_attr(option.value, option.label);
                         add_extref_for_common_attr(option.value, option.label);
+                        add_ordersetting_for_common_attr(option.value, option.label);
                     });
 
                     // initialise weight selector
@@ -1403,6 +1402,7 @@
 
         remove_barcode_for_brand_attr(tab_id.replace('#brand-attr-', ''));
         remove_extref_for_brand_attr(tab_id.replace('#brand-attr-', ''));
+        remove_ordersetting_for_brand_attr(tab_id.replace('#brand-attr-', ''));
     });
 
     function active_removed_tab(tab_id) {
@@ -1621,6 +1621,102 @@
     function remove_extref_for_common_attr(attr_id) {
         $('.extrefs-item[data-ca="' + attr_id + '"]').hide();
         update_extrefs();
+    }
+
+    /********************** Order require confirmation ***********************/
+    function update_ordersettings() {
+        var ca_ids = _get_ca_ids();
+        _update_ordersettings_display($('#base-item'), ca_ids)
+        _update_ordersettings_display($('[id^=brand-attr-]'), ca_ids)
+        _update_ordersettings_delete();
+    }
+    function _update_ordersettings_display(show_tabs, ca_ids) {
+        show_tabs.find('.ordersettings-item').each(function() {
+            if (ca_ids.length > 0 && ca_ids.indexOf($(this).attr('data-ca')) == -1)
+                $(this).hide();
+            else
+                $(this).show();
+        });
+        show_tabs.find('.ordersettings-block').show();
+    }
+    function _update_ordersettings_delete() {
+        $('.ordersettings-block .ordersettings-item').each(function(){
+            var node = $(this);
+            if (node.css('display') == 'none'
+                    || node.parents('.ordersettings-ba').css('display') == 'none'
+                    || node.parents('.ordersettings-block').css('display') == 'none')
+                node.find("input:checkbox[id$=DELETE]").attr("checked", "checked");
+            else
+                node.find("input:checkbox[id$=DELETE]").removeAttr("checked");
+        });
+    }
+
+    function add_ordersetting_for_brand_attr(attr_id, attr_name, attr_obj) {
+        if ($('.ordersettings-ba[data-ba="' + attr_id + '"]').length > 0) {
+            $('.ordersettings-ba[data-ba="' + attr_id + '"]').show();
+        } else {
+            var nb_of_forms = $("#{{ wizard.form.ordersettings.management_form.TOTAL_FORMS.auto_id }}").val();
+            $('#brand-attr-0 .ordersettings-ba').each(function() {
+                var newba = $(this).clone();
+                newba.attr('data-ba', attr_id);
+                newba.appendTo(attr_obj.find('.ordersettings-block'));
+                newba.show();
+
+                newba.find('.ordersettings-item').each(function() {
+                    var node = $(this);
+                    var old_prefix = node.find("input[name*=-require_confirm]").attr('name').replace('-require_confirm', '');
+                    var new_prefix = 'ordersettings-' + nb_of_forms;
+                    var value = node.find("input[id$=-require_confirm]").val();
+                    node.html(node.html().replaceAll(old_prefix, new_prefix));
+                    node.find("input[id$=-require_confirm]").val(value);
+                    node.find("input[id$=brand_attribute]").val(attr_id);
+                    node.find("input[id$=brand_attribute]").attr('value', attr_id);
+
+                    nb_of_forms++;
+                    $("#{{ wizard.form.ordersettings.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
+                });
+            });
+        }
+        update_ordersettings();
+    }
+    function remove_ordersetting_for_brand_attr(attr_id) {
+        $('.ordersettings-ba[data-ba="' + attr_id + '"]').hide();
+        update_ordersettings();
+    }
+    function add_ordersetting_for_common_attr(attr_id, attr_name) {
+        if (attr_id && $('.ordersettings-item[data-ca=""]').length > 0) {
+            $('.ordersettings-item[data-ca=""]').hide();
+            var nodes = $('.ordersettings-item[data-ca=""]:hidden');
+            nodes.find("input:checkbox[id*=DELETE]").attr("checked", "checked");
+        }
+        if ($('.ordersettings-item[data-ca="' + attr_id + '"]').length > 0) {
+            $('.ordersettings-item[data-ca="' + attr_id + '"]').show();
+            var nodes = $('.ordersettings-item[data-ca="' + attr_id + '"]:visible');
+            nodes.find("input:checkbox[id*=DELETE]").removeAttr("checked");
+        } else {
+            var nb_of_forms = $("#{{ wizard.form.ordersettings.management_form.TOTAL_FORMS.auto_id }}").val();
+            $('.ordersettings-ba').find('.ordersettings-item:last').each(function() {
+                var newnode = $(this).clone();
+                var old_prefix = newnode.find("input[name*=-require_confirm]").attr('name').replace('-require_confirm', '');
+                var new_prefix = 'ordersettings-' + nb_of_forms;
+                newnode.html(newnode.html().replaceAll(old_prefix, new_prefix));
+                newnode.find('label').text(attr_name);
+                newnode.find("input[id$=-require_confirm]").val('');
+                newnode.find("input[id$=common_attribute]").val(attr_id);
+                newnode.find("input[id$=common_attribute]").attr('value', attr_id);
+                newnode.insertAfter($(this));
+                newnode.show();
+                newnode.attr('data-ca', attr_id);
+
+                nb_of_forms++;
+                $("#{{ wizard.form.ordersettings.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
+            });
+        }
+        update_ordersettings();
+    }
+    function remove_ordersetting_for_common_attr(attr_id) {
+        $('.ordersettings-item[data-ca="' + attr_id + '"]').hide();
+        update_ordersettings();
     }
 </script>
 {% endblock %}

@@ -243,3 +243,10 @@ class ExternalRef(models.Model):
     brand_attribute = models.ForeignKey(BrandAttribute, null=True, blank=True)
     common_attribute = models.ForeignKey(CommonAttribute, null=True, blank=True)
 
+class OrderConfirmSetting(models.Model):
+    from attributes.models import BrandAttribute, CommonAttribute
+    require_confirm = models.BooleanField(default=False)
+    sale = models.ForeignKey(Sale, related_name="orderconfirmsettings", on_delete=models.CASCADE)
+    brand_attribute = models.ForeignKey(BrandAttribute, null=True, blank=True)
+    common_attribute = models.ForeignKey(CommonAttribute, null=True, blank=True)
+

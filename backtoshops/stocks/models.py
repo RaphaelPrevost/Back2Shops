@@ -49,7 +49,8 @@ class ProductStock(models.Model):
     shop = models.ForeignKey(Shop, null=True, blank=True)
     stock = models.IntegerField(default=0)
     rest_stock = models.IntegerField(default=0)
+    alert = models.BooleanField(default=False)
 
     def __unicode__(self):
-        return '%d:%d:%s'%(self.stock,self.rest_stock,self.sale)
+        return '%d:%d:%s' % (self.stock, self.rest_stock, self.sale)
 

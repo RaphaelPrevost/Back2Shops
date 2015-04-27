@@ -67,6 +67,10 @@
         <label>{% trans "External Refs" %}</label>
         {% include "_stock_externalref.html" %}
     </div>
+    <div class="formrow marge accordion">
+        <label>{% trans "Order Require Confirmation" %}</label>
+        {% include "_stock_ordersetting.html" %}
+    </div>
     {% endwith %}
 
     {% include "add_sale_product_ba_preview_template_form.html" %}
