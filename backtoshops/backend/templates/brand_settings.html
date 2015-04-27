@@ -74,6 +74,11 @@
                 <label for="{{ form.use_after_tax_price.auto_id }}">{% trans form.use_after_tax_price.label %}</label>
                 {{ form.use_after_tax_price}}
             </div>
+            {{ form.order_require_confirmation.errors }}
+            <div class="formrow">
+                <label for="{{ form.order_require_confirmation.auto_id }}">{% trans form.order_require_confirmation.label %}</label>
+                {{ form.order_require_confirmation}}
+            </div>
             {% endif %}
 
         </fieldset>

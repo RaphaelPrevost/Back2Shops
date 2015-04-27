@@ -49,6 +49,7 @@ SETTING_KEY_CHOICES = (
                        ('default_payment_period', 'default payment period'),
                        ('starting_invoice_number', 'starting invoice number'),
                        ('use_after_tax_price', 'use after tax price'),
+                       ('order_require_confirmation', 'order require confirmation'),
                        )
 
 # Create your models here.

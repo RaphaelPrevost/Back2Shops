@@ -19,6 +19,10 @@
         width: 50px;
         text-align: center;
     }
+    table td:nth-child(7) {
+        width: 100px;
+        text-align: center;
+    }
     table td:nth-child(3), table td:nth-child(4) {
         cursor: pointer;
         width: 150px;
@@ -26,7 +30,7 @@
     table td:nth-child(5) {
         width: 150px;
     }
-    a.increment, a.decrement, a.alert,
+    a.increment, a.decrement, a.alert, a.order_require_confirm,
     a.exporter, a.importer, a.save,
     a.confirm {
         display: block; float: left;
@@ -45,7 +49,11 @@
     a.decrement {
         background-color: red;
     }
-    a.alert {
+    a.alert, a.order_require_confirm {
+        background-color: #eb8f00;
+        font-weight: bold;
+    }
+    a.order_require_confirm {
         background-color: #eb8f00;
         font-weight: bold;
     }
@@ -101,17 +109,18 @@
                             <button class="find" type="submit">{% trans "Find" %}</button>
                             <span class="clear"></span>
                         </span>
-                        <span class="left left1">
+                        <span class="left left3">
                             <label>{% trans "Shop stocks" %}</label>
                             <a class="exporter" href="#">{% trans "Exporter" %}</a>
                             <a class="importer" href="#">{% trans "Importer" %}</a>
                         </span>
-                        <span class="left left3">
+                        <span class="left left1">
                             <label>{% trans "Batch" %}</label>
                             <input style="width:60px;float:left" type="text" name="delta_stock" class="inputSearch" />
                             <a class="increment disable">+</a>
                             <a class="decrement disable">-</a>
                             <a class="alert disable">{% trans "Alert" %}</a>
+                            <a class="order_require_confirm disable">{% trans "OrderConfirmation" %}</a>
                         </span>
                         <span class="right">
                             <a class="save" href="javascript:void(0);">{% trans "Save" %}</a>
@@ -131,6 +140,7 @@
                                     <td>{% trans "Barcode" %}</td>
                                     <td>{% trans "Quantity" %}</td>
                                     <td>{% trans "Alert" %}</td>
+                                    <td>{% trans "Order require confirmation" %}</td>
                                 </tr>
 
                                 {{stocks_form.stocks.management_form}}
@@ -158,6 +168,7 @@
                                     {{ss.ca_id}}
                                     </td>
                                     <td>{{ss.alert}}</td>
+                                    <td>{{ss.order_require_confirm}}</td>
                                 </tr>
                                 {% empty %}
                                 <tr class="empty-row">
@@ -288,6 +299,8 @@ $(function() {
             $("a.decrement").attr('style', 'background-color:#cbcbcb;');
             $("a.alert").removeAttr('href');
             $("a.alert").attr('style', 'background-color:#cbcbcb;');
+            $("a.order_require_confirm").removeAttr('href');
+            $("a.order_require_confirm").attr('style', 'background-color:#cbcbcb;');
         } else {
             $("a.increment").attr('href', 'javascript:void(0);');
             $("a.increment").removeAttr('style');
@@ -295,6 +308,8 @@ $(function() {
             $("a.decrement").removeAttr('style');
             $("a.alert").attr('href', 'javascript:void(0);');
             $("a.alert").removeAttr('style');
+            $("a.order_require_confirm").attr('href', 'javascript:void(0);');
+            $("a.order_require_confirm").removeAttr('style');
         }
     }).change();
     $("a.increment").click(function() {
@@ -305,7 +320,20 @@ $(function() {
     });
     $("a.alert").click(function() {
         $("input[name=batch]:checked").parents('tr').each(function() {
-            $(this).find('input[name$=-alert]').attr('checked', 'checked');
+            var cb =  $(this).find('input[name$=-alert]');
+            if (cb.is(':checked'))
+                cb.attr('checked', false);
+            else
+                cb.attr('checked', true);
+        });
+    });
+    $("a.order_require_confirm").click(function() {
+        $("input[name=batch]:checked").parents('tr').each(function() {
+            var cb =  $(this).find('input[name$=-order_require_confirm]');
+            if (cb.is(':checked'))
+                cb.attr('checked', false);
+            else
+                cb.attr('checked', true);
         });
     });
     $("a.save").click(function() {

@@ -52,11 +52,13 @@ from fouillis.views import OperatorUpperLoginRequiredMixin
 from attributes.models import BrandAttribute
 from attributes.models import CommonAttribute
 from barcodes.models import Barcode
+from brandsettings import get_ba_settings
 from common.cache_invalidation import send_cache_invalidation
 from common.error import UsersServerError
 from common.error import ParamsValidCheckError
 from orders.views import _get_req_user_shops
 from sales.models import ExternalRef
+from sales.models import OrderConfirmSetting
 from sales.models import Product
 from sales.models import Sale
 from shops.models import Shop
@@ -83,29 +85,36 @@ class ListStocksView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
         req_params = request.POST
         for f in StockListForm(data=req_params).stocks:
             if f.is_valid():
-                self._save_stock(f)
+                self._save_row(f)
         return self._handle_req(req_params, *args, **kwargs)
+
+    def _save_row(self, stock_form):
+        self._save_stock(stock_form)
+        self._save_order_confirm_setting(stock_form)
 
     def _save_stock(self, stock_form):
         sale = Sale.objects.get(pk=stock_form.cleaned_data['sale_id'])
         ba_id = stock_form.cleaned_data['ba_id']
         ca_id = stock_form.cleaned_data['ca_id']
         shop_id = stock_form.cleaned_data['shop_id']
-        #TODO add alert
-        alert = stock_form.cleaned_data['alert']
         input_stock = stock_form.cleaned_data['stock']
+        alert = stock_form.cleaned_data['alert'] == 'True'
 
         stock, created = ProductStock.objects.get_or_create(sale=sale,
             shop=Shop.objects.get(pk=shop_id) if shop_id else None,
             common_attribute=CommonAttribute.objects.get(pk=ca_id) if ca_id else None,
             brand_attribute=BrandAttribute.objects.get(pk=ba_id) if ba_id else None,
             )
+
         if stock.rest_stock == input_stock:
-            return
-        invalid_cache = need_invalidate_cache(stock.rest_stock, input_stock)
-        stock.rest_stock = input_stock or 0
-        if stock.stock < stock.rest_stock:
-            stock.stock = stock.rest_stock
+            invalid_cache = False
+        else:
+            invalid_cache = need_invalidate_cache(stock.rest_stock, input_stock)
+            stock.rest_stock = input_stock or 0
+            if stock.stock < stock.rest_stock:
+                stock.stock = stock.rest_stock
+        if stock.alert != alert:
+            stock.alert = alert
         stock.save()
 
         sale_stock_sum = sale.detailed_stock.aggregate(stock_sum=Sum('stock'),
@@ -121,6 +130,19 @@ class ListStocksView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
 
         if invalid_cache:
             send_cache_invalidation("PUT", 'sale', sale.id)
+
+    def _save_order_confirm_setting(self, stock_form):
+        sale = Sale.objects.get(pk=stock_form.cleaned_data['sale_id'])
+        ba_id = stock_form.cleaned_data['ba_id']
+        ca_id = stock_form.cleaned_data['ca_id']
+        order_require_confirm = stock_form.cleaned_data['order_require_confirm'] == 'True'
+
+        ocs, created = OrderConfirmSetting.objects.get_or_create(sale=sale,
+            common_attribute=CommonAttribute.objects.get(pk=ca_id) if ca_id else None,
+            brand_attribute=BrandAttribute.objects.get(pk=ba_id) if ba_id else None,
+            )
+        ocs.require_confirm = order_require_confirm
+        ocs.save()
 
     def _handle_req(self, req_params, *args, **kwargs):
         shops_id = _get_req_user_shops(self.request.user)
@@ -203,11 +225,14 @@ class ListStocksView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
 
     def _get_row(self, shop_id, sale, ba, ca):
         try:
-            stock = ProductStock.objects.get(sale=sale, shop_id=shop_id,
+            stock_obj = ProductStock.objects.get(sale=sale, shop_id=shop_id,
                                              brand_attribute=ba,
-                                             common_attribute=ca).rest_stock
+                                             common_attribute=ca)
+            stock = stock_obj.rest_stock
+            alert = stock_obj.alert
         except ProductStock.DoesNotExist:
             stock = 0
+            alert = False
 
         try:
             barcode = Barcode.objects.get(sale=sale,
@@ -223,9 +248,17 @@ class ListStocksView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
         except ExternalRef.DoesNotExist:
             sku = ''
 
+        try:
+            require_confirm = OrderConfirmSetting.objects.get(sale=sale,
+                                          brand_attribute=ba,
+                                          common_attribute=ca).require_confirm
+        except OrderConfirmSetting.DoesNotExist:
+            require_confirm = get_ba_settings(self.request.user).get('order_require_confirmation') == 'True'
+
         sale_cover = None
         if sale.product.pictures.count() > 0:
             sale_cover = sale.product.pictures.order_by('sort_order', 'id')[0].picture
+
         row_data = {
             'sale_id': sale.id,
             'shop_id': shop_id,
@@ -238,7 +271,8 @@ class ListStocksView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
             'stock': stock,
             'barcode': barcode,
             'sku': sku,
-            'alert': False, #TODO get alert status
+            'alert': alert,
+            'order_require_confirm': require_confirm,
         }
         return row_data
 

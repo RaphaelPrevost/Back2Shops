@@ -58,7 +58,7 @@
     #main_form .formrow label { width: 130px; }
     #main_form .formrow select { width: 130px; }
     #main_form .formrow textarea,
-    #main_form .formrow input { width: 271px; }
+    #main_form .formrow input[type!=checkbox] { width: 271px; }
     #main_form .formrow .inputXS { width: 40px; }
     #main_form .formrow .inputS { width: 70px; }
     #main_form .formrow .inputM { width: 180px; }

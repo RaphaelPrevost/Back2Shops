@@ -1,0 +1,17 @@
+<span class="contForm taille ordersettings-block">
+{% if wizard.form.ordersettings %}
+    {% if ba_id %}
+        <span class="ordersettings-ba" data-ba="{{ba_id}}">
+        {% with b_attr=ba_id b_index=b_index %}
+            {% include "_stock_ordersetting_block.html" %}
+        {% endwith %}
+        </span>
+    {% else %}
+        <span class="ordersettings-ba" data-ba="">
+        {% with b_attr='' b_index=0 %}
+            {% include "_stock_ordersetting_block.html" %}
+        {% endwith %}
+        </span>
+    {% endif %}
+{% endif %}
+</span>
