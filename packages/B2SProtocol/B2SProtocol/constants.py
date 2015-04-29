@@ -66,6 +66,7 @@ class RESP_RESULT(CustomEnum):
     F = FAILURE
 
 class SHIPMENT_STATUS(CustomEnum):
+    CONFIRMING = 6
     PACKING = 1
     DELAYED = 2
     DELIVER = 3

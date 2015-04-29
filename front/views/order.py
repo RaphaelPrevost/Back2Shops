@@ -277,8 +277,7 @@ class OrderAPIResource(BaseJsonResource):
             try:
                 _req_invoices(req, resp, id_order)
                 invoice_info, id_invoices = _get_invoices(req, resp, id_order)
-                if (settings.BRAND_NAME == "BREUER" or
-                    settings.BRAND_NAME == "DRAGONDOLLAR"):
+                if settings.BRAND_NAME == "BREUER":
                     redirect_to = get_payment_url(id_order, id_invoices)
             except Exception, e:
                 pass

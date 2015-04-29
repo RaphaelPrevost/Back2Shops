@@ -128,7 +128,6 @@ class BaseWebservice(View):
 # Public webservices
 #
 
-
 class SalesListView(BaseWebservice, ListView):
     template_name = "sales_list.xml"
 

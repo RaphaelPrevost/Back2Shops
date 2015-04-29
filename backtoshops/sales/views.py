@@ -318,7 +318,7 @@ class ListSalesView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin
         self.page_nav = self.page.paginator.page_range[self.range_start:self.range_start+settings.PAGE_NAV_SIZE]
 
     def get(self, request, sales_type=None):
-        self.set_sales_list(request,sales_type)
+        self.set_sales_list(request, sales_type)
         self.form = ListSalesForm()
         self.make_page()
         return self.render_to_response(self.__dict__)

@@ -445,6 +445,18 @@ def _get_order_invoice_status(conn, id_order, id_brand=None, id_shops=None):
     rst = query(conn, query_str, where_v)
     return [item[0] for item in rst]
 
+def _order_need_confirmation(conn, id_order, id_brand=None, id_shops=None):
+    query_str = "select 1 from shipments where id_order=%s and status=%s"
+    params = [id_order, SHIPMENT_STATUS.CONFIRMING]
+    if id_brand:
+        query_str += " and id_brand=%s"
+        params.append(id_brand)
+    if id_shops:
+        query_str += 'and id_shop in %s '
+        params.append(tuple(id_shops))
+    confirming_items = query(conn, query_str, params=params)
+    return confirming_items and len(confirming_items) > 0
+
 def _all_order_items_packed(conn, id_order, id_brand=None, id_shops=None):
     item_qtt_sql = ("SELECT sum(quantity) "
                       "FROM order_details as od ")
@@ -493,6 +505,8 @@ def get_order_status(conn, order_id, id_brand=None, id_shops=None):
     if id_shops and not isinstance(id_shops, list):
         id_shops = [id_shops]
 
+    if _order_need_confirmation(conn, order_id, id_brand, id_shops):
+        return ORDER_STATUS.PENDING
     if not _all_order_items_packed(conn, order_id, id_brand, id_shops):
         return ORDER_STATUS.PENDING
 

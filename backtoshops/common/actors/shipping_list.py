@@ -42,6 +42,7 @@ from B2SUtils.base_actor import BaseActor
 from B2SProtocol.constants import SHIPMENT_STATUS
 
 st_desc_map = {
+    SHIPMENT_STATUS.CONFIRMING: 'CONFIRMING',
     SHIPMENT_STATUS.PACKING: 'PACKING',
     SHIPMENT_STATUS.DELAYED: 'DELAYED',
     SHIPMENT_STATUS.DELIVER: 'DELIVER',

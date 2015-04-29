@@ -37,4 +37,18 @@
 #############################################################################
 
 
-__version__ = '0.0.21'
+from django import template
+from brandsettings.models import BrandSettings
+
+register = template.Library()
+
+@register.filter
+def get_default_orderconfirm(value):
+    try:
+        val = BrandSettings.objects.get(key='order_require_confirmation',
+                                        brand_id=value,
+                                        shopowner=None).value
+        return val == 'True'
+    except BrandSettings.DoesNotExist:
+        return False
+

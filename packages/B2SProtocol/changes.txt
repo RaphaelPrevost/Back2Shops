@@ -64,3 +64,6 @@
 
 == version 0.0.20 ==
 1. Add constants for brand settings redis key
+
+== version 0.0.21 ==
+1. Add CONFIRMING to SHIPMENT_STATUS

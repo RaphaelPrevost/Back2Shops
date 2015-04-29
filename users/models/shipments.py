@@ -70,7 +70,7 @@ from models.user import get_user_dest_addr
 DEFAULT_WEIGHT_UNIT = 'kg'
 
 def create_shipment(conn, id_order, id_brand, id_shop,
-                    status = SHIPMENT_STATUS.PACKING,
+                    status=SHIPMENT_STATUS.PACKING,
                     handling_fee=None,
                     shipping_fee=None,
                     supported_services=None,
@@ -388,12 +388,14 @@ class ShipmentsHandler(object):
         self.orig_addr = None
         self.id_brand = id_brand
         self.id_shop = id_shop
+        self.init_status = SHIPMENT_STATUS.PACKING
 
     def _create_shipment(self, **kwargs):
         return create_shipment(self.conn,
                                self.id_order,
                                self.id_brand,
                                self.id_shop,
+                               status=self.init_status,
                                **kwargs)
 
     def handleFlatRateShippingSales(self, sales):
@@ -469,9 +471,24 @@ class ShipmentsHandler(object):
                                      id_shipment=id_shipment,
                                      free_shipping=True)
 
+    def _init_status(self, sales):
+        for sale in sales:
+            order_need_confirm = sale.orderconfirmsettings.default == 'True'
+            _variant = sale.order_props['id_variant'] or ""
+            _type = sale.order_props['id_type'] or ""
+            for c in sale.orderconfirmsettings.requireconfirm:
+                if c.variant == _variant and c.attribute == _type:
+                    order_need_confirm = c.value == 'True'
+                    break
+            if order_need_confirm:
+                self.init_status = SHIPMENT_STATUS.CONFIRMING
+                break
+
     def handle(self, sales):
         if not sales:
             return
+
+        self._init_status(sales)
 
         free_sales = []
         free_sales_group = []
