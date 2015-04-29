@@ -213,6 +213,19 @@ class ActorExternalRef(BaseActor):
                  'attribute': '@attribute',
                  'external_id': '#text'}
 
+class ActorOrderConfirmSettings(BaseActor):
+    attrs_map = {'default': '@default'}
+
+    @property
+    def requireconfirm(self):
+        ll = as_list(self.data.get('requireconfirm', None))
+        return [ActorRequireConfirm(data=s) for s in ll]
+
+class ActorRequireConfirm(BaseActor):
+    attrs_map = {'variant': '@variant',
+                 'attribute': '@attribute',
+                 'value': '#text'}
+
 class ActorStock(BaseActor):
     attrs_map = {'shop': '@shop',
                  'available': '@available'}
@@ -306,6 +319,10 @@ class ActorSale(BaseActor):
     def externals(self):
         external_list = as_list(self.data.get('external', None))
         return [ActorExternalRef(data=item) for item in external_list]
+
+    @property
+    def orderconfirmsettings(self):
+        return ActorOrderConfirmSettings(data=self.data.get('orderconfirmsettings'))
 
     @property
     def available(self):

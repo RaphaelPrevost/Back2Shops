@@ -28,7 +28,7 @@
 <!ELEMENT id (#PCDATA) >
 <!ATTLIST id type (business | tax | personal) "business" >
 
-<!ELEMENT sale (category, type, name, desc, short_desc, img*, brand, weight?, price?, discount?, discount_price?, variant*, shop*, external*, available) >
+<!ELEMENT sale (category, type, name, desc, short_desc, img*, brand, weight?, price?, discount?, discount_price?, variant*, shop*, external*, orderconfirmsettings, available) >
 <!ATTLIST sale id CDATA #REQUIRED >
 
 <!ELEMENT category (name, thumb, img) >
@@ -72,6 +72,12 @@
 <!ATTLIST external variant CDATA #REQUIRED >
 <!ATTLIST external attribute CDATA #REQUIRED >
 
+<!ELEMENT orderconfirmsettings (requireconfirm*)>
+<!ATTLIST orderconfirmsettings default CDATA #REQUIRED >
+<!ELEMENT requireconfirm (#PCDATA)>
+<!ATTLIST requireconfirm variant CDATA #REQUIRED >
+<!ATTLIST requireconfirm attribute CDATA #REQUIRED >
+
 <!ELEMENT available (stocks*) >
 <!ATTLIST available from CDATA #REQUIRED >
 <!ATTLIST available to CDATA #IMPLIED >
@@ -80,3 +86,4 @@
 <!ATTLIST stocks attribute CDATA #IMPLIED >
 <!ELEMENT stock (#PCDATA) >
 <!ATTLIST stock shop CDATA #REQUIRED >
+<!ATTLIST stock alert CDATA #REQUIRED >

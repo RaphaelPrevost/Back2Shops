@@ -651,6 +651,8 @@ class OrderPacking(BaseOrderPacking, TemplateResponseMixin):
     def get(self, request, order_id):
         packing = {'order_id': order_id,
                    'shipment_status': [
+                       {'label': _("CONFIRMING"),
+                        'value': str(SHIPMENT_STATUS.CONFIRMING)},
                        {'label': _("PACKING"),
                         'value': str(SHIPMENT_STATUS.PACKING)},
                        {'label': _("DELIVER"),

@@ -3,6 +3,7 @@
 {% load get_typeattributeweight %}
 {% load get_typeattributeprice %}
 {% load get_discount_price %}
+{% load get_default_orderconfirm %}
 
 <sale id="{{ object.pk }}">
     <!-- item category -->
@@ -116,6 +117,12 @@
         <external variant="{{ exr.brand_attribute.pk }}" attribute="{{ exr.common_attribute.pk }}">{{ exr.external_id }}</external>
     {% endfor %}
 
+    <orderconfirmsettings default="{{ object.mother_brand.pk|get_default_orderconfirm }}">
+        {% for ocs in object.orderconfirmsettings.all %}
+            <requireconfirm variant="{{ ocs.brand_attribute.pk }}" attribute="{{ ocs.common_attribute.pk }}">{{ ocs.require_confirm }}</requireconfirm>
+        {% endfor %}
+    </orderconfirmsettings>
+
     <available from="{{ object.product.valid_from|date:"c" }}"
             {% if object.product.valid_to %}
                to="{{ object.product.valid_to|date:"c" }}"
@@ -131,7 +138,7 @@
             {% endfor %}
             {% for stock in object.detailed_stock.all %}
                 {% if stock.brand_attribute == ba and stock.common_attribute == ca %}
-                <stock shop="{% if stock.shop %}{{ stock.shop.pk }}{% endif %}">{{ stock.rest_stock }}</stock>
+                <stock shop="{% if stock.shop %}{{ stock.shop.pk }}{% endif %}" alert="{{stock.alert}}">{{ stock.rest_stock }}</stock>
                 {% endif %}
             {% endfor %}
         </stocks>
@@ -146,7 +153,7 @@
                 {% endfor %}
                 {% for stock in object.detailed_stock.all %}
                     {% if stock.common_attribute == ca %}
-                    <stock shop="{% if stock.shop %}{{ stock.shop.pk }}{% endif %}">{{ stock.rest_stock }}</stock>
+                    <stock shop="{% if stock.shop %}{{ stock.shop.pk }}{% endif %}" alert="{{stock.alert}}">{{ stock.rest_stock }}</stock>
                     {% endif %}
                 {% endfor %}
             </stocks>
