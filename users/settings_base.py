@@ -119,6 +119,7 @@ SALES_VALIDATE_PATH = 'files/sales/sales.dtd'
 SALEINFO_VALIDATE_PATH = 'files/sales/sale_info.dtd'
 SHOPS_VALIDATE_PATH = 'files/shops/shops.dtd'
 SHOPINFO_VALIDATE_PATH = 'files/shops/shop_info.dtd'
+ORDER_XSLT_PATH = 'files/order/order.%s.xsl'
 
 SEND_EMAILS = False
 SERVICE_EMAIL = 'serviceclients@breuer.fr'

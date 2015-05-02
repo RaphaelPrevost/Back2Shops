@@ -1,0 +1,16 @@
+<?xml version="1.0" standalone="yes"?>
+<order version="1.0">
+    {% for item in order_items %}
+        <item id="{{item['item_id']}}">
+            <name>{{item['name']}}</name>
+            <picture>{{item['picture']}}</picture>
+            <type id="{{item['id_type']}}">{{item['type_name']}}</type>
+            <variant id="{{item['id_variant']}}"/>
+            <barcode>{{item['barcode']}}</barcode>
+            <external_id>{{item['external_id']}}</external_id>
+            <price>{{item['price']}}</price>
+            <currency>{{item['currency']}}</currency>
+            <quantity>{{item['quantity']}}</quantity>
+        </item>
+    {% endfor %}
+</order>

@@ -36,5 +36,25 @@
 #
 #############################################################################
 
+import json
+from django.http import HttpResponse
+from django.views.generic import View
+from django.views.generic.base import TemplateResponseMixin
+from events.models import Event
 
-# Create your views here.
+class EventView(TemplateResponseMixin, View):
+    template_name = ""
+
+    def get(self, request, *args, **kwargs):
+        event_id = kwargs.get('pk')
+        event = Event.objects.get(pk=event_id)
+        to_ret = {
+            'id': event_id,
+            'subject': event.predefined_subject,
+            'text': event.predefined_template,
+            'html': event.predefined_template.replace('\n', '<br/>\n'),
+            'params': dict([(p.name, p.value)
+                            for p in event.event_handler_params.get_query_set()]),
+        }
+        return HttpResponse(json.dumps(to_ret), mimetype="application/json")
+

@@ -68,6 +68,7 @@ urlpatterns += patterns('',
 )
 
 urlpatterns += patterns('',
+    url(r'^events', include(settings.get_site_prefix()+'events.urls')),
     url(r'^notifs', include(settings.get_site_prefix()+'notifs.urls')),
     url(r'^routes', include(settings.get_site_prefix()+'routes.urls')),
     url(r'^webservice', include(settings.get_site_prefix()+'webservice.urls')),

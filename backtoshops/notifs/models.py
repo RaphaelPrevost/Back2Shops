@@ -55,6 +55,7 @@ class Notif(models.Model):
     raw_text = models.TextField(blank=True)
     html_head = models.TextField(blank=True)
     html_body = models.TextField(blank=True)
+    params = models.TextField(null=True)
 
 class NotifTemplateImage(models.Model):
     notif = models.ForeignKey(Notif, related_name="template_images", null=True, blank=True)

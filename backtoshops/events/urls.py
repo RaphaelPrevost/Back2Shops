@@ -37,28 +37,12 @@
 #############################################################################
 
 
-from django.db import models
-from django.utils.translation import ugettext_lazy as _
+import settings
+from django.conf.urls import patterns, url
+from fouillis.views import admin_required
+from events.views import *
 
-
-class Event(models.Model):
-    name = models.CharField(verbose_name=_("Name"), max_length=50)
-    desc = models.CharField(verbose_name=_("Description"), max_length=100)
-    handler_url = models.CharField(verbose_name=_("Handler URL"), blank=True, max_length=100)
-    handler_method = models.CharField(verbose_name=_("Handler method"), default='post', blank=True, max_length=10)
-    handler_is_private = models.BooleanField(default=True)
-    predefined_subject = models.TextField(blank=True, default='')
-    predefined_template = models.TextField(blank=True, default='')
-
-class EventHandlerParam(models.Model):
-    event = models.ForeignKey(Event, related_name='event_handler_params')
-    name = models.CharField(verbose_name=_("Param Name"), max_length=50)
-    value = models.CharField(verbose_name=_("Param Value"), null=True, max_length=50)
-
-class EventQueue(models.Model):
-    event = models.ForeignKey(Event)
-    param_values = models.TextField()
-    created = models.DateTimeField(auto_now_add=True)
-    handled = models.BooleanField(default=False)
-    error = models.TextField()
-
+urlpatterns = patterns(settings.get_site_prefix() + 'events',
+   url(r'/(?P<pk>\d+)$',
+       admin_required(EventView.as_view()), name="get_event"),
+)

@@ -43,6 +43,7 @@ import ujson
 
 from collections import defaultdict
 from common.error import NotExistError
+from common.utils import push_order_confirming_event
 from datetime import datetime
 from B2SProtocol.constants import ORDER_STATUS
 from B2SProtocol.constants import SHIPMENT_STATUS
@@ -254,6 +255,10 @@ def create_order(conn, users_id, telephone_id, order_items,
                           users_id).create()
 
     up_order_log(conn, order_id, sellers)
+
+    for brand, shops in sellers.iteritems():
+        if _order_need_confirmation(conn, order_id, brand):
+            push_order_confirming_event(conn, order_id, brand)
 
     return order_id
 
