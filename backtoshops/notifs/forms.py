@@ -47,16 +47,23 @@ from notifs.models import Notif
 class NotifForm(forms.ModelForm):
     class Meta:
         model = Notif
-        exclude = ('event', 'mother_brand')
+        exclude = ('event', 'mother_brand', )
 
     def __init__(self, request=None, *args, **kwargs):
         super(NotifForm, self).__init__(*args, **kwargs)
         self.request = request
         initial = kwargs.get('initial') or {}
+        instance = kwargs.get('instance') or None
 
-        self.fields['event_id'] = forms.ChoiceField(
-                label=_("Event"),
-                choices=[(s.id, s.name) for s in Event.objects.all()])
+        if instance:
+            self.fields['event_id'] = forms.ChoiceField(
+                    label=_("Event"),
+                    choices=[(s.id, s.name)
+                             for s in Event.objects.filter(pk=instance.event.id)])
+        else:
+            self.fields['event_id'] = forms.ChoiceField(
+                    label=_("Event"),
+                    choices=[(s.id, s.name) for s in Event.objects.all()])
         self.fields['delivery_method'] = forms.ChoiceField(
                 label=_("Delivery"),
                 choices=[(v, k) for k, v in NOTIF_DELIVERY_METHOD.toDict().iteritems()],
@@ -69,6 +76,9 @@ class NotifForm(forms.ModelForm):
             '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>\n'
             '<meta content="width=device-width"/>')
         self.fields['html_body'] = forms.CharField(
+                widget=forms.HiddenInput(),
+                required=False)
+        self.fields['params'] = forms.CharField(
                 widget=forms.HiddenInput(),
                 required=False)
 

@@ -44,13 +44,16 @@ import ujson
 
 from B2SProtocol.constants import SUCCESS
 from B2SProtocol.constants import FAILURE
+from B2SProtocol.constants import ORDER_STATUS
 from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
 from common.error import UserError
 from common.error import ErrorCode as E_C
+from common.utils import push_order_confirmed_event
 from webservice.base import BaseJsonResource
 from models.order import order_exist
 from models.order import order_item_quantity
+from models.order import _order_need_confirmation
 from models.shipments import create_shipment
 from models.shipments import create_shipping_list
 from models.shipments import order_item_grouped_quantity
@@ -335,6 +338,11 @@ class ShipmentResource(BaseJsonResource):
         try:
             shipment = get_shipment_by_id(conn, id_shipment)
             self.shipment_check(shipment)
+            cur_status = shipment['status']
+            new_status = self.request.get_param('status')
+            shipment_confirmed = (cur_status == SHIPMENT_STATUS.CONFIRMING
+                              and new_status not in (SHIPMENT_STATUS.DELETED,
+                                                     SHIPMENT_STATUS.CONFIRMING))
 
             if int(shipment['status']) == SHIPMENT_STATUS.DELIVER:
                 self._update_delivered_shipment(conn)
@@ -348,6 +356,11 @@ class ShipmentResource(BaseJsonResource):
 
                 # update status, shipping fee, handling fee
                 self._update_shipment(conn)
+
+            order_need_confirm = _order_need_confirmation(conn,
+                                 shipment['id_order'], id_brand)
+            if shipment_confirmed and not order_need_confirm:
+                push_order_confirmed_event(conn, shipment['id_order'], id_brand)
 
             return {'res': SUCCESS,
                     'id_shipment': id_shipment}

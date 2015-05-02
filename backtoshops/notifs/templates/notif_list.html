@@ -58,7 +58,7 @@
                                 </tr>
                                 
                                 {% for notif in object_list %}
-                                <tr id="#notif_{{notif.id}}">
+                                <tr id="notif_{{notif.id}}">
                                     <td style="padding-left: 20px;">
                                         <br /><img width="25" src="/static/img/{% if notif.delivery_method == 2 %}mobile-icon.png{% else %}email-icon.png{% endif %}" /><strong>{{notif.name}}</strong><br />
                                     </td>

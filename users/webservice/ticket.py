@@ -47,21 +47,9 @@ from B2SUtils.common import parse_ts
 from B2SUtils.errors import ValidationError
 from common.constants import TICKET_FEEDBACK
 from common.constants import TICKET_PRIORITY
-from common.utils import get_event_configs
-from common.utils import push_event
+from common.utils import push_ticket_event
 from webservice.base import BaseJsonResource
 
-
-def push_ticket_event(**params):
-    actor_event = get_event_configs('TICKETPOSTED')
-    uri = actor_event.handler.url
-    valid_params = {'event': actor_event.id}
-    for p in actor_event.handler.parameter:
-        if p.name not in params and not p.value:
-            raise ValidationError('MISSING_PARAM')
-        valid_params[p.name] = params.get(p.name) or p.value
-
-    push_event(uri, **valid_params)
 
 class BaseTicketPostResource(BaseJsonResource):
 
@@ -76,7 +64,7 @@ class BaseTicketPostResource(BaseJsonResource):
                          email=self.get_user_email(values.get('fo_author')
                                                 or values.get('fo_recipient')),
                          service_email=settings.SERVICE_EMAIL,
-                         brand=values['id_brand'])
+                         id_brand=values['id_brand'])
         return {"res": RESP_RESULT.S,
                 "err": "",
                 "id": ticket_id}
@@ -233,7 +221,7 @@ class BaseTicketListResource(BaseJsonResource):
             if row_dict['fo_author']:
                 if row_dict['fo_author'] not in cached_user_dict:
                     cached_user_dict[row_dict['fo_author']] = \
-                            self.get_user_info(row_dict['fo_author'])
+                            get_user_info(self.conn, row_dict['fo_author'])
                 extra_user_info = cached_user_dict[row_dict['fo_author']]
                 row_dict.update(extra_user_info)
 
@@ -247,20 +235,6 @@ class BaseTicketListResource(BaseJsonResource):
                                columns=('id', ),
                                where={'id': ticket_id})
         return [{'id': r[0]} for r in rows]
-
-    def get_user_info(self, id_user):
-        sql = ("select first_name || ' ' || last_name as fo_author_name,"
-               "       email as fo_auther_email,"
-               "       calling_code || '' || phone_num as fo_auther_phone"
-               "  from users"
-               "  left join users_profile on (users.id = users_profile.users_id)"
-               "  left join users_phone_num on (users.id = users_phone_num.users_id)"
-               "  left join country_calling_code on (users_phone_num.country_num = country_calling_code.country_code)"
-               " where users.id=%s")
-        row = db_utils.query(self.conn, sql, [id_user])[0]
-        row_dict = dict(zip(("fo_author_name", "fo_auther_email",
-                             "fo_auther_phone"), row))
-        return row_dict
 
     def _filter(self, req, sql, params):
         pass

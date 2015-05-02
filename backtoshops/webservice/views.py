@@ -492,8 +492,6 @@ def event_push(request, *args, **kwargs):
         event = Event.objects.get(pk=event_id)
         for param in event.event_handler_params.get_query_set():
             handler_params[param.name] = request.POST.get(param.name, param.value)
-            if not handler_params[param.name]:
-                raise InvalidRequestError('missing handler param %s' % param.name)
 
         new = EventQueue()
         new.event_id = event_id

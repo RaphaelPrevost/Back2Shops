@@ -56,9 +56,12 @@ class Command(BaseCommand):
                 try:
                     event = q.event
                     param_values = json.loads(q.param_values)
-                    brand = param_values['brand']
+                    brand = param_values['id_brand']
                     for n in event.notifs.get_query_set():
                         if int(brand) == n.mother_brand.id:
+                            if n.params:
+                                for k, v in json.loads(n.params).iteritems():
+                                    if v: param_values[k] = v
                             self._handle_notif(n, param_values)
                     q.handled = True
                     q.save()
@@ -76,8 +79,7 @@ class Command(BaseCommand):
             email = param_values['email']
             subject = notif.subject % param_values
             content = ("<html><header>%s</header><body>%s</body></html>"
-                       % (notif.html_head,
-                          notif.html_body or notif.event.predefined_template))
+                       % (notif.html_head, notif.html_body))
             content = content % param_values
             send_email(service_email, email, subject, content, None)
         else:

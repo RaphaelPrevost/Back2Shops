@@ -65,6 +65,13 @@
         }
         return content;
     }
+    function setEditableContent(content){
+        if (isPreviewMode()) {
+            Aloha.getEditableById(obj_id).setContents(content);
+        } else {
+            $('#src-' + obj_id).val(content);
+        }
+    }
     </script>
 </head>
 <body>

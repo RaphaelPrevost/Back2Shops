@@ -41,7 +41,7 @@ import settings
 import json
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.generic import View, ListView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.base import TemplateResponseMixin
@@ -136,6 +136,11 @@ class EditNotifView(AdminLoginRequiredMixin, UpdateView):
         kwargs = super(EditNotifView, self).get_form_kwargs()
         kwargs.update({'request': self.request})
         return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(EditNotifView, self).get_context_data(**kwargs)
+        context['pk'] = self.kwargs.get('pk', None)
+        return context
 
 
 class PreviewTemplateContentView(AdminLoginRequiredMixin, CreateView):

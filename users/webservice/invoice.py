@@ -51,6 +51,7 @@ from B2SProtocol.constants import SUCCESS
 from B2SUtils.errors import ValidationError
 from common.email_utils import send_html_email
 from common.error import ServerError
+from common.utils import invoice_xslt
 from common.utils import remote_xml_invoice
 from models.actors.invoices import ActorInvoices
 from models.actors.shop import CachedShop
@@ -259,18 +260,7 @@ class BaseInvoiceMixin:
         return rst
 
     def invoice_xslt(self, content):
-        try:
-            xml_input = etree.fromstring(content)
-            xslt_root = etree.parse(settings.INVOICE_XSLT_PATH % self.language)
-            transform = etree.XSLT(xslt_root)
-            return str(transform(xml_input))
-        except Exception, e:
-            logging.error("invoice_xslt_err with content: %s, "
-                          "error: %s",
-                          content,
-                          str(e),
-                          exc_info=True)
-            raise ServerError("Invoice xslt error")
+        return invoice_xslt(content, self.language)
 
 
 class InvoiceResource(BaseXmlResource, BaseInvoiceMixin):

@@ -50,6 +50,7 @@ import string
 import ujson
 import urllib
 import xmltodict
+from lxml import etree
 
 
 from common.constants import HASH_ALGORITHM
@@ -64,6 +65,7 @@ from B2SUtils.errors import ValidationError
 from B2SUtils import db_utils
 from B2SProtocol.constants import PAYMENT_TYPES
 from B2SProtocol.constants import USER_AUTH_COOKIE_NAME
+from B2SRespUtils.generate import _temp_content as render_content
 from models.actors.events import ActorEvents
 
 phone_num_reexp = r'^[0-9]+$'
@@ -595,3 +597,123 @@ def to_unicode(data):
     else:
         result = data
     return result
+
+def invoice_xslt(content, language=settings.DEFAULT_LANGUAGE):
+    try:
+        xml_input = etree.fromstring(content)
+        xslt_root = etree.parse(settings.INVOICE_XSLT_PATH % language)
+        transform = etree.XSLT(xslt_root)
+        return str(transform(xml_input))
+    except Exception, e:
+        logging.error("invoice_xslt_err with content: %s, "
+                      "error: %s",
+                      content,
+                      str(e),
+                      exc_info=True)
+        raise ServerError("Invoice xslt error")
+
+def order_xslt(content, language=settings.DEFAULT_LANGUAGE):
+    try:
+        xml_input = etree.fromstring(content)
+        xslt_root = etree.parse(settings.ORDER_XSLT_PATH % language)
+        transform = etree.XSLT(xslt_root)
+        return str(transform(xml_input))
+    except Exception, e:
+        logging.error("order_xslt_err with content: %s, "
+                      "error: %s",
+                      content,
+                      str(e),
+                      exc_info=True)
+        raise ServerError("Invoice xslt error")
+
+def get_user_info(conn, id_user):
+    sql = ("select first_name || ' ' || last_name as fo_user_name,"
+           "       email as fo_user_email,"
+           "       calling_code || '' || phone_num as fo_user_phone"
+           "  from users"
+           "  left join users_profile on (users.id = users_profile.users_id)"
+           "  left join users_phone_num on (users.id = users_phone_num.users_id)"
+           "  left join country_calling_code on (users_phone_num.country_num = country_calling_code.country_code)"
+           " where users.id=%s")
+    row = db_utils.query(conn, sql, [id_user])[0]
+    row_dict = dict(zip(("fo_user_name", "fo_user_email",
+                         "fo_user_phone"), row))
+    return row_dict
+
+def _push_specific_event(event_name, **params):
+    for n in ('email', 'service_email', 'id_brand'):
+        assert n in params, "missing param %s" % n
+
+    actor_event = get_event_configs(event_name)
+    uri = actor_event.handler.url
+    valid_params = {'event': actor_event.id}
+    for p in actor_event.handler.parameter:
+        valid_params[p.name] = params.get(p.name) or p.value or ""
+    push_event(uri, **valid_params)
+
+def push_ticket_event(**params):
+    _push_specific_event('TICKETPOSTED', **params)
+
+def push_order_confirming_event(conn, id_order, id_brand):
+    id_user, confirmation_time = db_utils.select(conn, "orders",
+                                         columns=("id_user", "confirmation_time"),
+                                         where={'id': id_order})[0]
+    user_info = get_user_info(conn, id_user)
+    month, day = confirmation_time.strftime('%b|%d').split('|')
+    params = {
+        'email': user_info['fo_user_email'],
+        'service_email': settings.SERVICE_EMAIL,
+        'id_brand': id_brand,
+        'id_order': id_order,
+        'fo_user_name': user_info['fo_user_name'],
+        'order_created_month': month,
+        'order_created_day': day,
+    }
+
+    from models.order import get_order_items
+    items = [item for item in get_order_items(conn, id_order)
+             if item['brand_id'] == int(id_brand)]
+    order_xml = render_content('order_details.xml',
+                                **to_unicode({'order_items': items}))
+    _xslt = order_xslt(order_xml)
+    params['order_xslt'] = _xslt
+    _push_specific_event('USR_ORDER_CONFIRMING', **params)
+
+def push_order_confirmed_event(conn, id_order, id_brand, id_shops):
+    id_user, confirmation_time = db_utils.select(conn, "orders",
+                                         columns=("id_user", "confirmation_time"),
+                                         where={'id': id_order})[0]
+    user_info = get_user_info(conn, id_user)
+    month, day = confirmation_time.strftime('%b|%d').split('|')
+    params = {
+        'email': user_info['fo_user_email'],
+        'service_email': settings.SERVICE_EMAIL,
+        'id_brand': id_brand,
+        'id_order': id_order,
+        'fo_user_name': user_info['fo_user_name'],
+        'order_created_month': month,
+        'order_created_day': day,
+        'order_url': os.path.join(settings.FRONT_ROOT_URI,
+                                  'orders/%s' % id_order),
+    }
+
+    from models.invoice import get_invoice_by_order
+    from models.shipments import get_shipments_by_order
+    shipments = get_shipments_by_order(conn, id_order)
+    spm_dict = dict([(spm['id'], spm) for spm in shipments])
+    invoices = get_invoice_by_order(conn, id_order)
+    _xslts = []
+    for iv in invoices:
+        id_shipment = iv['id_shipment']
+        spm = spm_dict.get(id_shipment)
+        if not spm:
+            continue
+        if str(spm['id_brand']) != id_brand:
+            continue
+        if id_shops and str(spm['id_shop']) not in id_shops:
+            continue
+        _xslts.append(invoice_xslt(iv['invoice_xml']))
+
+    params['invoices_xslt'] = ''.join(_xslts)
+    _push_specific_event('USR_ORDER_CONFIRMED', **params)
+

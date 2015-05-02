@@ -12,9 +12,117 @@
     </object>
     <object pk="3" model="events.eventhandlerparam">
         <field to="events.event" name="event" rel="ManyToOneRel">16</field>
-        <field type="CharField" name="name">brand</field>
+        <field type="CharField" name="name">id_brand</field>
         <field type="CharField" name="value"></field>
     </object>
+
+    <object pk="4" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">17</field>
+        <field type="CharField" name="name">email</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="5" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">17</field>
+        <field type="CharField" name="name">service_email</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="6" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">17</field>
+        <field type="CharField" name="name">id_brand</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="7" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">17</field>
+        <field type="CharField" name="name">id_order</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="8" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">17</field>
+        <field type="CharField" name="name">fo_user_name</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="9" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">17</field>
+        <field type="CharField" name="name">order_created_month</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="10" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">17</field>
+        <field type="CharField" name="name">order_created_day</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="11" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">17</field>
+        <field type="CharField" name="name">order_xslt</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="12" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">17</field>
+        <field type="CharField" name="name">company</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="13" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">17</field>
+        <field type="CharField" name="name">signature</field>
+        <field type="CharField" name="value"></field>
+    </object>
+
+    <object pk="14" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">18</field>
+        <field type="CharField" name="name">email</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="15" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">18</field>
+        <field type="CharField" name="name">service_email</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="16" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">18</field>
+        <field type="CharField" name="name">id_brand</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="17" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">18</field>
+        <field type="CharField" name="name">id_order</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="18" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">18</field>
+        <field type="CharField" name="name">fo_user_name</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="19" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">18</field>
+        <field type="CharField" name="name">order_created_month</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="20" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">18</field>
+        <field type="CharField" name="name">order_created_day</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="21" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">18</field>
+        <field type="CharField" name="name">invoices_xslt</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="22" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">18</field>
+        <field type="CharField" name="name">company</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="23" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">18</field>
+        <field type="CharField" name="name">signature</field>
+        <field type="CharField" name="value"></field>
+    </object>
+    <object pk="24" model="events.eventhandlerparam">
+        <field to="events.event" name="event" rel="ManyToOneRel">18</field>
+        <field type="CharField" name="name">order_url</field>
+        <field type="CharField" name="value"></field>
+    </object>
+
     <object pk="1" model="events.event">
         <field type="CharField" name="name">USR_REGISTRATION</field>
         <field type="CharField" name="desc">New user account successfully registered</field>
@@ -79,5 +187,45 @@
         <field type="CharField" name="name">TICKETPOSTED</field>
         <field type="CharField" name="desc">A new ticket has been posted</field>
         <field type="TextField" name="predefined_template">Your ticket has new replies.</field>
+    </object>
+    <object pk="17" model="events.event">
+        <field type="CharField" name="name">USR_ORDER_CONFIRMING</field>
+        <field type="CharField" name="desc">User's order waiting for confirmation </field>
+        <field type="TextField" name="predefined_subject">[%(company)s] Order #%(id_order)s - acknowledgement</field>
+        <field type="TextField" name="predefined_template">Dear %(fo_user_name)s,
+
+We are pleased to have received your order of %(order_created_month)s %(order_created_day)s.
+
+We will send you a confirmation e-mail with your invoice as soon as your purchase has been approved.
+
+Meanwhile, please review the details of your order and inform us of any mistakes.
+
+%(order_xslt)s
+
+Thank you for your interest in %(company)s!
+
+Yours sincerely,
+
+%(signature)s</field>
+    </object>
+    <object pk="18" model="events.event">
+        <field type="CharField" name="name">USR_ORDER_CONFIRMED</field>
+        <field type="CharField" name="desc">User's order confirmed</field>
+        <field type="TextField" name="predefined_subject">[%(company)s] Order #%(id_order)s - confirmation</field>
+        <field type="TextField" name="predefined_template">Dear %(fo_user_name)s,
+
+We are delighted to inform you that your order of %(order_created_month)s %(order_created_day)s has been approved.
+
+We have enclosed a copy of your invoice for your convenience:
+
+%(invoices_xslt)s
+
+Please log in to your account or directly follow this link: %(order_url)s to view and pay your invoice securely online.
+
+We are grateful for your business!
+
+Yours sincerely,
+
+%(signature)s</field>
     </object>
 </django-objects>
