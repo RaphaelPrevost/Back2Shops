@@ -64,7 +64,7 @@ class HomepageResource(BaseHtmlResource):
         data = {}
         slides = data_access(REMOTE_API_NAME.GET_SLIDE_SHOW,
                              req, resp, **req._params)
-        
+
         try:
             data['slides'] = slides.get('slideshow', {}).get('slide', [])
         except AttributeError:
