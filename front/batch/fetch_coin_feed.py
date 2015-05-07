@@ -44,7 +44,6 @@ import logging
 import settings
 import HTMLParser
 
-from bs4 import BeautifulSoup
 
 
 class FetchCoinFeed(object):
@@ -65,16 +64,13 @@ class FetchCoinFeed(object):
             for coin in coins:
                 content = coin.content[0].value
                 summary = HTMLParser.HTMLParser().unescape(coin.summary)
-                soup = BeautifulSoup(content)
-                img = soup.find_all('img')[0]
-
 
                 cache.append(
                     {'title': coin.title,
                      'link': coin.link,
                      'summary': summary,
-                     'img': {'src': img.attrs['src'],
-                             'alt': img.attrs['alt']}
+                     'media': {'url': coin.media_content[0]['url'],
+                               'medium': coin.media_content[0]['medium']}
                      }
                 )
 
