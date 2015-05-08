@@ -196,9 +196,9 @@ function load_image() {
 function start_db_container() {
     exist=$(docker ps -a | awk '{print $(NF)}' | grep ^$DB_CONTAINER_NAME$ | wc -l)
     if [ $exist == "0" ]; then
-        docker_pull debian
+        docker_pull debian:wheezy
         docker_stop_container $DB_CONTAINER_NAME
-        docker run --name $DB_CONTAINER_NAME -v /var/lib/postgresql/:/var/lib/container_pg/ debian true
+        docker run --name $DB_CONTAINER_NAME -v /var/lib/postgresql/:/var/lib/container_pg/ debian:wheezy true
     fi
 }
 
@@ -676,28 +676,28 @@ server {
         autoindex off;
         expires 720h;
         add_header Pragma public;
-        add_header Cache-Control \"public, must-revalidate, proxy-revalidate\";
+        add_header Cache-Control "public, must-revalidate, proxy-revalidate";
     }
     location /js/ {
         alias /var/local/assets/front_files/js/;
         autoindex off;
         expires 720h;
         add_header Pragma public;
-        add_header Cache-Control \"public, must-revalidate, proxy-revalidate\";
+        add_header Cache-Control "public, must-revalidate, proxy-revalidate";
     }
     location /css/ {
         alias /var/local/assets/front_files/css/;
         autoindex off;
         expires 720h;
         add_header Pragma public;
-        add_header Cache-Control \"public, must-revalidate, proxy-revalidate\";
+        add_header Cache-Control "public, must-revalidate, proxy-revalidate";
     }
     location /templates/ {
         alias $CWD/front_$2/views/templates/;
         autoindex off;
         expires 720h;
         add_header Pragma public;
-        add_header Cache-Control \"public, must-revalidate, proxy-revalidate\";
+        add_header Cache-Control "public, must-revalidate, proxy-revalidate";
     }
     $COIN_PROXY
     location / {
@@ -752,7 +752,7 @@ function deploy_all_fronts() {
 [ $1 ] || usage
 case $1 in
         baseimage)
-            docker_pull debian
+            docker_pull debian:wheezy
             make_image $BASE_IMG
             ;;
 
