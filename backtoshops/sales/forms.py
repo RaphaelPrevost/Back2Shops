@@ -500,6 +500,17 @@ class ProductForm(forms.Form):
             self.type_attribute_weights = TypeAttributeWeightFormSet(
                 data=data, prefix=type_attr_weights_prefix)
 
+        varattr_prefix = "varattrs"
+        VarattrFormset = formset_factory(ProductTypeVarAttrForm,
+                                         formset=NoEmptyBaseFormSet,
+                                         extra=get_formset_extra(data, varattr_prefix),
+                                         can_delete=True)
+        if initial.get('varattrs_initials', None):
+            self.varattrs = VarattrFormset(data=data, prefix=varattr_prefix,
+                                initial=initial.get('varattrs_initials', None))
+        else:
+            self.varattrs = VarattrFormset(data=data, prefix=varattr_prefix)
+
         barcodes_prefix = "barcodes"
         BarcodeFormset = formset_factory(BarcodeForm,
                                          formset=NoEmptyBaseFormSet,
@@ -655,6 +666,11 @@ class ProductForm(forms.Form):
             if len(exids) > len(set(exids)):
                 raise forms.ValidationError(_("You cannot use two same external refs."))
 
+class ProductTypeVarAttrForm(forms.Form):
+    type = forms.IntegerField(required=False)
+    attr = forms.IntegerField(required=False)
+    name = forms.CharField(required=False)
+    value = forms.CharField(required=False)
 
 class BarcodeForm(forms.Form):
     brand_attribute = forms.IntegerField(required=False)

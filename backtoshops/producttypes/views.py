@@ -49,8 +49,10 @@ from django.views.generic.edit import UpdateView
 from common.admin_view import BaseAdminView
 
 from attributes.models import CommonAttribute
+from attributes.models import VariableAttribute
 from producttypes.forms import ProductTypeForm
-from backend.forms import SACommonAttributeForm
+from producttypes.forms import SACommonAttributeForm
+from producttypes.forms import SAVariableAttributeForm
 from sales.models import ProductType
 
 class BaseProductTypeView(BaseAdminView):
@@ -59,17 +61,23 @@ class BaseProductTypeView(BaseAdminView):
     model = ProductType
     formset = inlineformset_factory(ProductType, CommonAttribute,
                                     form=SACommonAttributeForm, extra=0)
+    formset_var = inlineformset_factory(ProductType, VariableAttribute,
+                                    form=SAVariableAttributeForm, extra=0)
 
     def get_queryset(self):
         qs = super(BaseProductTypeView, self).get_queryset()
         return qs.filter(brand=self.brand()).order_by('sort_order')
 
     def get_context_data(self, **kwargs):
-        kwargs.update({"formset": self.formset})
+        kwargs.update({
+            "formset": self.formset,
+            "formset_var": self.formset_var,
+        })
         return super(BaseProductTypeView, self).get_context_data(**kwargs)
 
     def get_initial(self):
         return {'brand': self.brand()}
+
 
 class CreateProductTypeView(BaseProductTypeView, CreateView):
     def get_success_url(self):
@@ -80,22 +88,25 @@ class CreateProductTypeView(BaseProductTypeView, CreateView):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         if form.is_valid():
-            product_type=form.save(commit=False)
+            product_type = form.save(commit=False)
             formset = self.formset(data=self.request.POST, instance=product_type)
-            if formset.is_valid():
+            formset_var = self.formset_var(data=self.request.POST, instance=product_type)
+            if formset.is_valid() and formset_var.is_valid():
                 form.save(commit=True)
                 formset.save()
+                formset_var.save()
                 return self.form_valid(form)
         return self.form_invalid(form)
 
 class EditProductTypeView(BaseProductTypeView, UpdateView):
     def get_success_url(self):
         pk = self.kwargs.get('pk', None)
-        return reverse("edit_producttype",args=[pk])
+        return reverse("edit_producttype", args=[pk])
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         self.formset = self.formset(instance=self.get_object())
+        self.formset_var = self.formset_var(instance=self.get_object())
         return super(EditProductTypeView, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -104,7 +115,7 @@ class EditProductTypeView(BaseProductTypeView, UpdateView):
         form = self.get_form(form_class)
         if form.is_valid():
             product_type = form.save(commit=False)
-            formset = self.formset(data=self.request.POST, instance=product_type)
+            formset = self.formset_var(data=self.request.POST, instance=product_type)
             if formset.is_valid():
                 form.save(commit=True)
                 formset.save()

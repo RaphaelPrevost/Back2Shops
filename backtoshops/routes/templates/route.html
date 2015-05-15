@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "new_base.html" %}
 {% load i18n %}
 {% load is_admin %}
 {% load is_admin_upper %}
@@ -12,10 +12,8 @@
 {% endblock %}
 
 {% block head %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.ui.autocomplete.html.js"></script>
     <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/add_route.css" />
-    <link type="text/css" rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/ui-lightness/jquery-ui-1.8.16.custom.css" />
 {% endblock %}
 
 {% block navigation %}

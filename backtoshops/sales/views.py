@@ -69,6 +69,7 @@ from B2SProtocol.settings import SHIPPING_WEIGHT_UNIT
 from attributes.models import BrandAttribute
 from attributes.models import BrandAttributePreview
 from attributes.models import CommonAttribute
+from attributes.models import VariableAttribute
 from barcodes.models import Barcode
 from brandsettings import get_ba_settings
 from common.assets_utils import get_asset_name
@@ -99,6 +100,7 @@ from sales.models import ProductCategory
 from sales.models import ProductCurrency
 from sales.models import ProductPicture
 from sales.models import ProductType
+from sales.models import ProductTypeVarAttr
 from sales.models import CategoryTypeMap
 from sales.models import STOCK_TYPE_DETAILED
 from sales.models import STOCK_TYPE_GLOBAL
@@ -630,6 +632,13 @@ def edit_sale(request, *args, **kwargs):
             'type_attribute_weight': i.type_attribute_weight,
         })
 
+    initial_varattrs = []
+    for i in ProductTypeVarAttr.objects.filter(sale=sale):
+        initial_varattrs.append({
+            'attr': i.attr.id,
+            'value': i.value,
+        })
+
     initial_barcodes = []
     for i in Barcode.objects.filter(sale=sale):
         initial_barcodes.append({
@@ -679,6 +688,7 @@ def edit_sale(request, *args, **kwargs):
         'barcodes_initials': initial_barcodes,
         'externalrefs_initials': initial_externalrefs,
         'ordersettings_initials': initial_ordersettings,
+        'varattrs_initials': initial_varattrs,
     }
 
     initial_shipping = {}
@@ -864,6 +874,22 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             pp_pks.append(product_form.cleaned_data['cover_pk'])
         product.pictures = ProductPicture.objects.filter(pk__in=pp_pks)
         product.save()
+
+        varattr_ids = []
+        for i in product_form.varattrs:
+            if not i.is_valid() or not i.cleaned_data \
+                    or not i.cleaned_data['value'] or i.cleaned_data['DELETE']:
+                continue
+            varattr, created = ProductTypeVarAttr.objects.get_or_create(sale=sale,
+                    attr=VariableAttribute.objects.get(pk=i.cleaned_data['attr']))
+            varattr.value = i.cleaned_data['value']
+            varattr.save()
+            varattr_ids.append(varattr.id)
+        if varattr_ids:
+            ProductTypeVarAttr.objects.filter(sale=sale).extra(
+                where=['id NOT IN (%s)' % ','.join(map(str, varattr_ids))]).delete()
+        else:
+            ProductTypeVarAttr.objects.filter(sale=sale).delete()
 
         bc_ids = []
         for i in product_form.barcodes:
@@ -1231,6 +1257,13 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             return kwargs
         return super(SaleWizardNew, self).get_form_kwargs(step)
 
+    def _get_varattr(self, attr_id):
+        if self.edit_mode:
+            for i in self.initial_dict.get(self.STEP_PRODUCT).get('varattrs_initials', []):
+                if i['attr'] == attr_id:
+                    return i['value']
+        return None
+
     def _get_barcode(self, ba, ca):
         if self.edit_mode:
             for i in self.initial_dict.get(self.STEP_PRODUCT).get('barcodes_initials', []):
@@ -1311,6 +1344,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
 
             product_init_data = self.initial_dict.get(self.STEP_PRODUCT)
             if product_init_data.get('type'):
+                initial_product.update(self._init_varattrs(product_init_data['type']))
                 c_attrs = CommonAttribute.objects.filter(for_type=product_init_data['type'])
                 c_attrs = [c for c in c_attrs]
             else:
@@ -1330,6 +1364,17 @@ class SaleWizardNew(NamedUrlSessionWizardView):
             if product_obj.is_valid():
                 self.currency = product_obj.cleaned_data['currency']
         return super(SaleWizardNew, self).get_form_initial(step)
+
+    def _init_varattrs(self, type_id):
+        initials = []
+        for v in VariableAttribute.objects.filter(for_type_id=type_id):
+            initials.append({
+                'type': type_id,
+                'attr': v.id,
+                'name': v.name,
+                'value': self._get_varattr(v.id),
+            })
+        return {'varattrs_initials': initials}
 
     def _init_barcodes(self, brand_attributes, common_attributes):
         # Initializes the initials for barcodes form
@@ -1463,4 +1508,18 @@ def get_product_types(request, *args, **kwargs):
     return HttpResponse(json.dumps(product_types_list),
                         mimetype='application/json')
 
+
+def get_item_varattr_values(request, *args, **kwargs):
+    keyword = request.GET.get('term', '').strip()
+    attrs = ProductTypeVarAttr.objects.filter(
+        attr_id=kwargs.get('aid', None),
+        value__contains=keyword)
+
+    values = []
+    for attr in attrs:
+        if attr in values:
+            continue
+        values.append(attr.value)
+    return HttpResponse(json.dumps(values),
+                        mimetype='application/json')
 

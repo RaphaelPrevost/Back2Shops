@@ -5,11 +5,23 @@
 #menu_ico li a.link5 { background-color: #565656; }
 #title span { background-position: 0 -475px; }
 
+#main_form fieldset {
+    background-color: #fff;
+    border: 1px solid #c8c8c8;
+    padding: 5px;
+    margin: 5px;
+}
 
-#main_form #subform { position: relative; margin-top: 10px; }
-#main_form #subform h3 { top: 1px; left: 1px; }
-#main_form .formrow label { width: 105px; }
-
+#main_form .subform { position: relative;}
+#main_form .subform h3 { top: 1px; left: 1px; }
+#main_form .formrow {
+    width: 250px;
+    margin-bottom: 5px;
+}
+#main_form .formrow label {
+    width: 105px;
+}
+#main_form .formrow #add_va,
 #main_form .formrow #add_ca {
     display: block;
     width: 22px; height: 22px;
@@ -19,7 +31,9 @@
     border: 1px solid #E3E3E3;
     cursor: pointer;
 	background: url(../img/btn_navForm.png) no-repeat -303px 0;
+    float: right;
 } 
+#main_form .formrow .del_va,
 #main_form .formrow .del_ca {
     display: block;
     width: 22px; height: 22px;
@@ -29,11 +43,104 @@
     border: 1px solid #E3E3E3;
     cursor: pointer;
 	background: url(../img/btn_navForm.png) no-repeat -303px -120px;
+    float: right;
 }   
 
+#main_form .btn {
+    float: right;
+    margin: 5px 0 0 5px;
+}
 
 
+/*------------------------------------------------------ */
+/*                       content-right                   */
+/*------------------------------------------------------ */
+
+.titleRight {
+    height: 27px;
+    line-height: 27px;
+    margin: 0 0 7px 0;
+    padding: 0 5px 0 7px;
+}
+.boxRight {
+    margin: 0 0 30px 0;
+    background-color: #fff;
+    border: 1px solid #c4c4c4;
+}
+
+/*------------------- Liste Boutique -------------------*/
+#listeAttribute {
+    max-height: 600px;
+    overflow: auto;
+    margin-bottom: 10px;
+}
 
 
+/*--Table--*/
+#listeAttribute table tr {
+    height: 28px;
+    line-height: 28px;
+    background-color: #F7F7F7;
+}
+#listeAttribute table tr.new { background: url(../img/back_flag.png) repeat-x 0 -1px; }
+#listeAttribute table tr.noshop td { text-align: center; font-weight: bold; }
 
+
+#listeAttribute table tr th { background-color: #fff; }
+#listeAttribute table tr td,
+#listeAttribute table tr th {
+    text-align: left;
+    padding: 0 5px;
+    font-size: 11px;
+    border-bottom: 1px solid #dbdbdb;
+}
+
+
+#listeAttribute table tr th.nom { width: 280px; }
+#listeAttribute table tr th.action { width: 68px; text-align: right; }
+#listeAttribute table tr th.action a { margin-right: 0; padding-right: 0; }
+
+
+#listeAttribute table tr th a {
+    display: block;
+    height: 25px;
+    line-height: 25px;
+    margin-right: 10px;
+    padding: 0 15px 0 0;
+    font-size: 11px;
+}
+    #listeAttribute table tr th.on a { background: url(../img/trie_on-off.gif) no-repeat 45px 1px; }
+    #listeAttribute table tr th.off a { background: url(../img/trie_on-off.gif) no-repeat 45px -24px; }
+
+#listeAttribute table tr td a {
+    display: block;
+    width: 118px;
+    height: 28px;
+    line-height: 28px;
+    overflow: hidden;
+    font-size: 11px;
+    font-weight: bold;
+}
+    #listeAttribute table tr td a:hover { text-decoration: underline; }
+
+#listeAttribute table tr td .out{
+    display: block;
+    float: left;
+    width: 16px;
+    height: 16px;
+    overflow: hidden; text-indent: -1500px;
+    background: url(../img/out.gif) no-repeat 0 0;
+}
+    #listeAttribute table tr td .out:hover{ background-position: 0 -16px; }
+
+#listeAttribute table tr td .modif {
+    display: block;
+    float: left;
+    width: 16px;
+    height: 16px;
+    overflow: hidden; text-indent: -1500px;
+    margin:  0 5px 0 20px;
+    background: url(../img/modif.gif) no-repeat 0 0;
+}
+    #listeAttribute table tr td .modif:hover{ background-position: 0 -16px; }
 

@@ -90,3 +90,12 @@ class CommonAttribute(models.Model):
             self.save()
         else:
             super(CommonAttribute, self).delete(using)
+
+class VariableAttribute(models.Model):
+    for_type = models.ForeignKey(ProductType, related_name="variable_attributes")
+    name = models.CharField(max_length=50)
+    valid = models.BooleanField(default=True)
+
+    def __unicode__(self):
+        return self.name
+

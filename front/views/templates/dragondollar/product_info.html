@@ -42,6 +42,15 @@
                                 ${_line} <br/>
                             <?py #endfor ?>
                         </p>
+                        <br/>
+                        <?py if product_info.get('type',{}).get('variable_attribute'): ?>
+                        <?py varattrs = as_list(product_info.get('type',{}).get('variable_attribute')) ?>
+                        <?py for attr in varattrs: ?>
+                            <p>
+                                ${attr['name']}: ${attr.get('desc')}
+                            </p>
+                        <?py #endfor ?>
+                        <?py #endif ?>
                     </div>
                     <!--//DESCRIPTION-->
 
