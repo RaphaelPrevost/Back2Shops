@@ -205,6 +205,20 @@
                 <label for="{{ wizard.form.description.auto_id }}">{% trans wizard.form.description.label %}</label>
                 {{ wizard.form.description }}
             </div>
+
+            <div id="varattrs">
+            {{ wizard.form.varattrs.management_form }}
+            {% for vform in wizard.form.varattrs %}
+                <div class="formrow" data-type="{{ vform.type.value }}">
+                    <label for="{{ vform.value.auto_id }}">{{ vform.name.value }}</label>
+                    {{ vform.value }}
+                    <span style="display:none;">
+                        {{ vform.attr }}
+                        <input type="checkbox" name="{{ vform.DELETE.html_name }}" id="{{ vform.DELETE.auto_id }}">
+                    </span>
+                </div>
+            {% endfor %}
+            </div>
         </div>
 
         <div class="clear"></div>
@@ -306,6 +320,18 @@
                 <img id="{{ wizard.form.pictures.empty_form.prefix }}-img"/>
             </span>
         </li>
+    </span>
+    <span id="varattr_template_form" style="display: none;">
+        {% with wizard.form.varattrs.empty_form as vform %}
+        <div class="formrow">
+            <label for="{{ vform.value.auto_id }}">{{ vform.name.value }}</label>
+            {{ vform.value }}
+            <span style="display:none;">
+                {{ vform.attr }}
+                <input type="checkbox" name="{{ vform.DELETE.html_name }}" id="{{ vform.DELETE.auto_id }}">
+            </span>
+        </div>
+        {% endwith %}
     </span>
     <div id="add_new_brand_dialog" style="display: none;">
         <form id="add_new_brand_form" action="{% url "add_new_brand" %}" method="post">{% csrf_token %}
@@ -1201,6 +1227,8 @@
     // Get item type attributes by selected product type
     function getItemTypeAttributeOptions(type_id) {
         $("#{{ wizard.form.type.auto_id }}").val(type_id);
+        get_desc_attrs(type_id);
+
         if (type_id) {
             $.ajax({
                 type: "GET",
@@ -1242,6 +1270,48 @@
             $("#type_attribute_weight_selector").empty();
             $("#type_attribute_weight_selector").append($("<option>", {value: 0, text: "{% trans "Standard Weight" %}"}));
         }
+    }
+
+    function get_desc_attrs(type_id) {
+        if (type_id) {
+            clear_varattrs();
+            if ($("#varattrs .formrow[data-type=" + type_id + "]").length > 0) {
+                var rows = $("#varattrs .formrow[data-type=" + type_id + "]");
+                rows.show();
+                rows.find("input:checkbox[id*=DELETE]").removeAttr("checked");
+                return;
+            }
+
+            $.ajax({
+                type: "GET",
+                url: "/attributes/get_var_item_attrs/" + type_id,
+                dataType: "json",
+                success: function(data, textStatus){
+                    var nb_of_forms = $("#{{ wizard.form.varattrs.management_form.TOTAL_FORMS.auto_id }}").val();
+                    $.each(data, function(i, option){
+                        if (!option.valid) return;
+                        var nb_of_forms_str = nb_of_forms.toString();
+                        var form = $("#varattr_template_form").html();
+                        form = replace_form_prefix(form, nb_of_forms_str);
+                        $("#varattrs").append(form);
+
+                        $("#varattrs .formrow").last().attr('data-type', type_id);
+                        var attr = replace_form_prefix("{{ wizard.form.varattrs.empty_form.attr.auto_id }}", nb_of_forms);
+                        $("#" + attr).val(option.value);
+                        var value = replace_form_prefix("{{ wizard.form.varattrs.empty_form.value.auto_id }}", nb_of_forms);
+                        $("label[for=" + value + "]").text(option.label);
+                        nb_of_forms++;
+                    });
+                    $("#{{ wizard.form.varattrs.management_form.TOTAL_FORMS.auto_id }}").val(nb_of_forms);
+                }
+            });
+        } else {
+            clear_varattrs();
+        }
+    }
+    function clear_varattrs() {
+        $("#varattrs .formrow").hide();
+        $("#varattrs input:checkbox[id*=DELETE]").attr("checked", "checked");
     }
 
     function _get_datepicker_locale(s) {
@@ -1718,5 +1788,19 @@
         $('.ordersettings-item[data-ca="' + attr_id + '"]').hide();
         update_ordersettings();
     }
+
+    function varattr_autocomplete(attr_obj, attr_id) {
+        attr_obj.autocomplete({
+            autoFocus: true,
+            source: "/sales/get_item_varattr_values/" + attr_id,
+            min_length: 0,
+            html: true,
+            showTyping: true
+        });
+    }
+    $("#varattrs input[name$=-value]").live('focus', function(){
+        var attr_id = $(this).parent().find("input[name$=-attr]").val();
+        varattr_autocomplete($(this), attr_id);
+    });
 </script>
 {% endblock %}

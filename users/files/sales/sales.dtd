@@ -34,10 +34,12 @@
 <!ELEMENT category (name, thumb, img) >
 <!ATTLIST category id CDATA #REQUIRED >
 
-<!ELEMENT type (name, attribute*) >
+<!ELEMENT type (name, attribute*, variable_attribute*) >
 <!ATTLIST type id CDATA #REQUIRED >
 <!ELEMENT attribute (name, weight?, price?, discount_price?) >
 <!ATTLIST attribute id CDATA #REQUIRED >
+<!ELEMENT variable_attribute (name, desc) >
+<!ATTLIST variable_attribute id CDATA #REQUIRED >
 
 <!ELEMENT brand (name, img, address?, id*) >
 <!ATTLIST brand id CDATA #REQUIRED >

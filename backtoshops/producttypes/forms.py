@@ -65,3 +65,36 @@ class ProductTypeForm(forms.ModelForm):
         self.instance.brand_id = self.brand.pk
         self.instance.save()
         return self.instance
+
+
+class SACommonAttributeForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(SACommonAttributeForm, self).__init__(*args, **kwargs)
+        common_attr = kwargs.get('instance', None)
+        if common_attr:
+            if not common_attr.valid:
+                for field in self.fields.iterkeys():
+                    self.fields[field].widget.attrs.update(DISABLED_WIDGET_ATTRS)
+
+    class Meta:
+        from attributes.models import CommonAttribute
+        model = CommonAttribute
+        exclude = ['valid', ]
+
+
+class SAVariableAttributeForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(SAVariableAttributeForm, self).__init__(*args, **kwargs)
+        attr = kwargs.get('instance', None)
+        if attr:
+            if not attr.valid:
+                for field in self.fields.iterkeys():
+                    self.fields[field].widget.attrs.update(DISABLED_WIDGET_ATTRS)
+
+    class Meta:
+        from attributes.models import VariableAttribute
+        model = VariableAttribute
+        exclude = ['valid', ]
+

@@ -54,6 +54,7 @@ from sales.views import UploadProductPictureView
 from sales.views import add_sale
 from sales.views import edit_sale
 from sales.views import get_product_types
+from sales.views import get_item_varattr_values
 
 
 urlpatterns = patterns(settings.get_site_prefix()+'sales',
@@ -96,4 +97,7 @@ urlpatterns = patterns(settings.get_site_prefix()+'sales',
     url(r'/get_product_types/(?P<cat_id>\d+)',
         manager_upper_required(get_product_types, login_url="/"),
         name='get_product_types'),
+    url(r'/get_item_varattr_values/(?P<aid>\d+)',
+        manager_upper_required(get_item_varattr_values, login_url="/"),
+        name='get_item_varattr_values'),
 )

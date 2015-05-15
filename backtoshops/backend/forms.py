@@ -207,20 +207,6 @@ class CategoryTypeForm(forms.ModelForm):
         from sales.models import CategoryTypeMap
         model = CategoryTypeMap
 
-class SACommonAttributeForm(forms.ModelForm):
-
-    def __init__(self, *args, **kwargs):
-        super(SACommonAttributeForm, self).__init__(*args, **kwargs)
-        common_attr = kwargs.get('instance', None)
-        if common_attr:
-            if not common_attr.valid:
-                for field in self.fields.iterkeys():
-                    self.fields[field].widget.attrs.update(DISABLED_WIDGET_ATTRS)
-
-    class Meta:
-        from attributes.models import CommonAttribute
-        model = CommonAttribute
-        exclude = ['valid', ]
 
 class SACarrierForm(forms.ModelForm):
     error_css_class = 'error'

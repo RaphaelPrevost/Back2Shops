@@ -4,6 +4,7 @@
 {% load get_typeattributeprice %}
 {% load get_discount_price %}
 {% load get_default_orderconfirm %}
+{% load get_varattr_value %}
 
 <sale id="{{ object.pk }}">
     <!-- item category -->
@@ -17,6 +18,7 @@
     <type id="{{ object.product.type.pk }}">
         <name>{{ object.product.type.name }}</name>
         {% for ca in object.product.type.common_attributes.all %}
+        {% if ca.valid %}
         <attribute id="{{ca.pk}}">
             <name>{{ca.name}}</name>
             {% with typeattributeweight=object|get_typeattributeweight:ca %}
@@ -33,6 +35,16 @@
             {% endif %}
             {% endwith %}
         </attribute>
+        {% endif %}
+        {% endfor %}
+
+        {% for va in object.product.type.variable_attributes.all %}
+        {% if va.valid %}
+        <variable_attribute id="{{va.pk}}">
+            <name>{{va.name}}</name>
+            <desc>{{object.pk|get_varattr_value:va.pk}}</desc>
+        </variable_attribute>
+        {% endif %}
         {% endfor %}
     </type>
     

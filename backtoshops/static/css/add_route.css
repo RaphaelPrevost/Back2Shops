@@ -216,15 +216,12 @@
 /*------------------------------------------------------ */
 
 .titleRight {
-    width: 388px;
     height: 27px;
     line-height: 27px;
     margin: 0 0 7px 0;
     padding: 0 5px 0 7px;
-    background: url(../img/pix_title.gif) repeat-x 0 0 #FFFFFF;
 }
 .boxRight {
-    width: 398px;
     margin: 0 0 30px 0;
     background-color: #fff;
     border: 1px solid #c4c4c4;
@@ -242,7 +239,6 @@
 
 
 /*--Table--*/
-#listeShop table { margin: 20px; }
 #listeShop table tr {
     height: 28px;
     line-height: 28px;

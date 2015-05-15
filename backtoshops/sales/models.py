@@ -176,6 +176,11 @@ class ProductType(models.Model):
             from django.db import models
             models.Model.delete(self, using)
 
+class ProductTypeVarAttr(models.Model):
+    from attributes.models import VariableAttribute
+    sale = models.ForeignKey(Sale, related_name="type_varattrs", on_delete=models.CASCADE)
+    attr = models.ForeignKey(VariableAttribute)
+    value = models.CharField(max_length=50)
 
 class CategoryTypeMap(models.Model):
     category = models.ForeignKey(ProductCategory, verbose_name='category')

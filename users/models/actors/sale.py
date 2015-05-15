@@ -79,6 +79,11 @@ class ActorSaleCommonAttr(BaseActor):
         if pr:
             return ActorPrice(data=pr)
 
+class ActorSaleVarAttr(BaseActor):
+    attrs_map = {'id': '@id',
+                 'name': 'name',
+                 'desc': 'desc'}
+
 class ActorSaleType(BaseActor):
     attrs_map = {'id': '@id',
                  'name': 'name'}
@@ -87,6 +92,11 @@ class ActorSaleType(BaseActor):
     def attributes(self):
         attrs = as_list(self.data.get('attribute', None))
         return [ActorSaleCommonAttr(data=attr) for attr in attrs]
+
+    @property
+    def variable_attribute(self):
+        attrs = as_list(self.data.get('variable_attribute', None))
+        return [ActorSaleVarAttr(data=attr) for attr in attrs]
 
     def get_attr(self, id_attr):
         for attr in self.attributes:
