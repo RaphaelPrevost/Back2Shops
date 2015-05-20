@@ -214,6 +214,8 @@
                     {{ vform.value }}
                     <span style="display:none;">
                         {{ vform.attr }}
+                        {{ vform.name }}
+                        {{ vform.type }}
                         <input type="checkbox" name="{{ vform.DELETE.html_name }}" id="{{ vform.DELETE.auto_id }}">
                     </span>
                 </div>
@@ -328,6 +330,8 @@
             {{ vform.value }}
             <span style="display:none;">
                 {{ vform.attr }}
+                {{ vform.name }}
+                {{ vform.type }}
                 <input type="checkbox" name="{{ vform.DELETE.html_name }}" id="{{ vform.DELETE.auto_id }}">
             </span>
         </div>
@@ -1295,10 +1299,14 @@
                         form = replace_form_prefix(form, nb_of_forms_str);
                         $("#varattrs").append(form);
 
-                        $("#varattrs .formrow").last().attr('data-type', type_id);
+                        var type = replace_form_prefix("{{ wizard.form.varattrs.empty_form.type.auto_id }}", nb_of_forms);
                         var attr = replace_form_prefix("{{ wizard.form.varattrs.empty_form.attr.auto_id }}", nb_of_forms);
-                        $("#" + attr).val(option.value);
+                        var name = replace_form_prefix("{{ wizard.form.varattrs.empty_form.name.auto_id }}", nb_of_forms);
                         var value = replace_form_prefix("{{ wizard.form.varattrs.empty_form.value.auto_id }}", nb_of_forms);
+                        $("#varattrs .formrow").last().attr('data-type', type_id);
+                        $("#" + type).val(type_id);
+                        $("#" + attr).val(option.value);
+                        $("#" + name).val(option.label);
                         $("label[for=" + value + "]").text(option.label);
                         nb_of_forms++;
                     });
