@@ -42,15 +42,6 @@
                                 ${_line} <br/>
                             <?py #endfor ?>
                         </p>
-                        <br/>
-                        <?py if product_info.get('type',{}).get('variable_attribute'): ?>
-                        <?py varattrs = as_list(product_info.get('type',{}).get('variable_attribute')) ?>
-                        <?py for attr in varattrs: ?>
-                            <p>
-                                ${attr['name']}: ${attr.get('desc')}
-                            </p>
-                        <?py #endfor ?>
-                        <?py #endif ?>
                     </div>
                     <!--//DESCRIPTION-->
 
@@ -105,27 +96,25 @@
             <!--//left-->
             <!--right-->
             <div id="recapRight">
-                 
+                <?py varattrs = as_list(product_info.get('type',{}).get('variable_attribute', [])) ?>
+                <?py cert_no = '' ?>
                 <table cellpadding="0" cellspacing="0">
+                    <?py for attr in varattrs: ?>
+                    <?py if attr['name'] == 'PCGS Cert. No.': ?>
+                        <?py cert_no = attr.get('desc') ?>
+                    <?py #endif ?>
                     <tr>
-                        <td class="label">${_('Catalog ref')} :</td>
-                        <td>?????</td>
+                        <td class="label">${attr['name']}:</td>
+                        <td>${attr.get('desc')}</td>
                     </tr>
+                    <?py #endfor ?>
                     <tr>
-                        <td class="label">${_('Weight')} :</td>
+                        <td class="label">${_('Weight')}:</td>
                         <td>${product_info['weight'].get('#text')}${product_info['weight'].get('@unit')}</td>
-                    </tr>
-                    <tr>
-                        <td class="label">${_('Condition')} : </td>
-                        <td>?????</td>
-                    </tr>
-                    <tr>
-                        <td class="label">${_('Cert')} # :</td>
-                        <td>?????</td>
                     </tr>
                 </table>
                 
-                <a href="#" class="btnCertificate"><strong><span>${_('Check Certificate')}</span></strong></a>
+                <a href="http://www.pcgs.com/cert/${cert_no}" rel="nofollow" target="_blank" class="btnCertificate"><strong><span>${_('Check Certificate')}</span></strong></a>
             </div>
             <!--//right-->
             <div id="btnbox">
