@@ -261,6 +261,36 @@ function make_or_run() {
     fi
 }
 
+function setup_nginx() {
+    if [ ! -f /etc/nginx/nginx.conf ]; then
+        apt-get install -y nginx
+    fi
+
+    sed -i -e's|[^#]gzip_disable \"msie6\"\;|\
+    #gzip_disable \"msie6\"\;\
+    ##CHANGES START \
+    gzip_disable \"MSIE [1-6]\.(?!.*SV1)\";\
+    gzip_vary on;\
+    gzip_proxied any;\
+    gzip_comp_level 9;\
+    gzip_buffers 16 8k;\
+    gzip_http_version 1.1;\
+    gzip_types text/plain text/html text/xml text/css text/javascript application/javascript application/xml application/xml+rss application/json application/x-javascript;\
+    \
+    large_client_header_buffers 4 16k;\
+    client_max_body_size 5m;\
+    client_body_buffer_size 128k;\
+    proxy_connect_timeout 300;\
+    proxy_read_timeout 300;\
+    proxy_send_timeout 300;\
+    proxy_buffer_size 64k;\
+    proxy_buffers   4 32k;\
+    proxy_busy_buffers_size 64k;\
+    proxy_temp_file_write_size 64k;\
+    ##CHANGES END \
+    |' /etc/nginx/nginx.conf
+}
+
 ### backoffice ###
 
 function prepare_bo_image() {
@@ -290,6 +320,7 @@ function prepare_bo_image() {
 function setup_bo_server() {
     PORT=$1
 
+    setup_nginx()
     # nginx
     if [ ! -r /etc/nginx/sites-available/backoffice ]; then
         echo "(-) Creating Nginx Site..."
@@ -359,6 +390,7 @@ function prepare_user_image() {
 function setup_user_server() {
     PORT=$1
 
+    setup_nginx()
     # nginx
     if [ ! -r /etc/nginx/sites-available/users ]; then
         echo "(-) Creating Nginx Site..."
@@ -427,6 +459,8 @@ function prepare_finance_image() {
 
 function setup_finance_server() {
     PORT=$1
+
+    setup_nginx()
     # nginx
     if [ ! -r /etc/nginx/sites-available/finance ]; then
         echo "(-) Creating Nginx Site..."
@@ -495,6 +529,7 @@ function prepare_vessel_image() {
 function setup_vessel_server() {
     PORT=$1
 
+    setup_nginx()
     # nginx
     if [ ! -r /etc/nginx/sites-available/vessel ]; then
         echo "(-) Creating Nginx Site..."
@@ -562,6 +597,7 @@ function prepare_assets_image() {
 function setup_assets_server() {
     PORT=$1
 
+    setup_nginx()
     # nginx
     if [ ! -r /etc/nginx/sites-available/assets ]; then
         echo "(-) Creating Nginx Site..."
@@ -663,6 +699,7 @@ function setup_front_server() {
         }"
     fi
 
+    setup_nginx()
     # nginx
     if [ ! -r /etc/nginx/sites-available/$SITE_NAME ]; then
         echo "(-) Creating Nginx Site..."
