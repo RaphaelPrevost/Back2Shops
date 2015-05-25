@@ -679,7 +679,7 @@ def push_order_confirming_event(conn, id_order, id_brand):
     params['order_xslt'] = _xslt
     _push_specific_event('USR_ORDER_CONFIRMING', **params)
 
-def push_order_confirmed_event(conn, id_order, id_brand, id_shops):
+def push_order_confirmed_event(conn, id_order, id_brand, id_shops=None):
     id_user, confirmation_time = db_utils.select(conn, "orders",
                                          columns=("id_user", "confirmation_time"),
                                          where={'id': id_order})[0]

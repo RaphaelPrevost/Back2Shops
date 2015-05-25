@@ -40,6 +40,7 @@
 import settings
 from django.conf.urls.defaults import patterns, url
 
+from fouillis.views import admin_upper_required
 from fouillis.views import operator_upper_required
 from fouillis.views import shop_manager_upper_required
 from orders.views import CreateShippingView
@@ -81,7 +82,7 @@ urlpatterns = patterns(settings.get_site_prefix()+'orders',
                                 super_allowed=False),
         name='order_details'),
     url(r'/delete/(?P<order_id>\d+)$',
-        operator_upper_required(OrderDelete.as_view(),
+        admin_upper_required(OrderDelete.as_view(),
                                 login_url="bo_login",
                                 super_allowed=False),
         name='order_delete'),

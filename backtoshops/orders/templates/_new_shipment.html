@@ -3,6 +3,7 @@
 {% load is_flat_rate %}
 {% load is_free_shipping %}
 {% load is_order_completed %}
+{% load confirming %}
 {% load has_delivered %}
 {% load is_shop_manager_upper %}
 {% load thumbnail %}
@@ -48,7 +49,7 @@
                                     </div>
 
                                         <!--PACKING-INFOS-->
-                                        <div class="packing_info">
+                                        <div class="packing_info" {% ifequal shipment.delivery.status '6' %} style="display:none" {% endifequal %}>
                                             {% if not shipment.method|is_flat_rate %}
                                                 <div class="auto_shipping_carrier formrow">
                                                     <label>{% trans "Carrier" %} : </label>
@@ -192,10 +193,14 @@
 
 
                     <div class="formrow rowbtn">
+                    {% if shipment.delivery.status|confirming %}
+                        <button class="seefacture update confirm_shipment" for_shipment="{{ shipment.id }}" name="confirm_shipment" type="button">{% trans "Confirm" %}</button>
+                    {% else %}
                         {% if not packing.order_status|is_order_completed %}
                             <button class="seefacture update update_shipment" for_shipment="{{ shipment.id }}" name="update_shipment" type="button">{% trans "Update" %}</button>
                         {% endif %}
                         <a class="seefacture invoice" href="{% url 'order_invoices_list' packing.order_id shipment.id %}" target="_blank">{% trans "Invoice" %}</a>
+                    {% endif %}
 
                         {% if not packing.order_status|is_order_completed %}
                         {% if user|is_shop_manager_upper %}
@@ -313,6 +318,7 @@
             var id_shipment = "{{ shipment.id }}";
             var sp_carrier = $('#shipping_carrier_for_shipment_' + id_shipment);
             var packing_status = $('#packing_status_for_shipment_' + id_shipment);
+
             carrier_selector_change(sp_carrier);
             packing_status_change(packing_status);
         }

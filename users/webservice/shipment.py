@@ -51,6 +51,7 @@ from common.error import UserError
 from common.error import ErrorCode as E_C
 from common.utils import push_order_confirmed_event
 from webservice.base import BaseJsonResource
+from models.order import get_order_status
 from models.order import order_exist
 from models.order import order_item_quantity
 from models.order import _order_need_confirmation
@@ -363,7 +364,10 @@ class ShipmentResource(BaseJsonResource):
                 push_order_confirmed_event(conn, shipment['id_order'], id_brand)
 
             return {'res': SUCCESS,
-                    'id_shipment': id_shipment}
+                    'id_shipment': id_shipment,
+                    'id_order': shipment['id_order'],
+                    'order_status': get_order_status(conn,
+                                    shipment['id_order'], id_brand)}
         except UserError, e:
             conn.rollback()
             logging.error('SPM_CREATE_ERR_%s, order: %s',

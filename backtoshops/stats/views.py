@@ -219,7 +219,8 @@ class StatsOrdersView(BaseOrdersView):
             orders.append(order_status)
             ticks.append(date.strftime(DT_FORMAT))
 
-        obj = {'pending': orders[-1][ORDER_STATUS.AWAITING_SHIPPING],
+        obj = {'pending': orders[-1][ORDER_STATUS.PENDING]
+                        + orders[-1][ORDER_STATUS.AWAITING_SHIPPING],
                'lines': [item[ORDER_STATUS.COMPLETED] + item[ORDER_STATUS.AWAITING_SHIPPING]
                             for item in orders],
                'ticks': ticks}
