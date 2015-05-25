@@ -9,6 +9,46 @@
 <script type="text/javascript">
 
 $(document).ready(function(){
+    $(".confirm_shipment").off('click').on('click', function(){
+        var shipment_id = $(this).attr('for_shipment');
+        var form = $("#formLivr_for_" + shipment_id);
+
+        var data = form.serialize();
+        $("[disabled=true]", form).each(function(){
+            var p = {};
+            var name = $(this).attr('name');
+            p[name] = $(this).val();
+            data += "&" + $.param(p);
+        });
+
+        var prod = $("#prodLivr_for_" + shipment_id);
+        $(".prod_sail_form", prod).each(function(){
+            var prod = $(this).serialize();
+            data += "&" + $.param({'content': prod});
+
+        });
+
+        $.ajax({
+            type: 'POST',
+            url: "/orders/update/packing",
+            data: data,
+            success: function(data, status) {
+                if (data.res == 'SUCCESS') {
+                    var curr_tab_status = $('.order-status-tabs .selected').attr('status_code');
+                    if (data.order_status != parseInt(curr_tab_status)) {
+                        $('#vente_' + data.id_order).remove();
+                    } else {
+                        packing_reload(data.id_order, shipment_id);
+                        var tab = $("a[href=#tabs1-" + shipment_id + "]");
+                        if (tab) tab.click();
+                    }
+                } else {
+                    alert('{% trans "Error:" %}' + data.err);
+                }
+            }
+        });
+        return false;
+    });
 
     $(".update_shipment").off('click').on('click', function(){
         var shipment_id = $(this).attr('for_shipment');
@@ -57,7 +97,7 @@ $(document).ready(function(){
             data: data,
             success: function(data, status) {
                 if (data.res == 'SUCCESS') {
-                    packing_reload({{ packing.order_id }}, shipment_id);
+                    packing_reload(data.id_order, shipment_id);
                     var tab = $("a[href=#tabs1-" + shipment_id + "]");
                     if (tab) {
                         tab.click();
