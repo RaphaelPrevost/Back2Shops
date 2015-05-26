@@ -515,9 +515,9 @@ class StripeProcessResource(BasePaymentHandlerResource):
             data = ujson.loads(charge_resp).get('resp_data') or {}
             if data.get('status') == 'succeeded':
                 self.handle_completed(conn, trans)
-                redirect_url = url_success
+                redirect_url = url_success % {'id_trans': self.id_trans}
             else:
-                redirect_url = url_failure
+                redirect_url = url_failure % {'id_trans': self.id_trans}
                 query = urllib.urlencode({'error': data['error'].get('message') or ''})
                 redirect_url = '?'.join([redirect_url, query])
 
@@ -526,7 +526,7 @@ class StripeProcessResource(BasePaymentHandlerResource):
                                   self.id_trans, trans['cookie'])
 
             gevent.spawn(self.fin_trans_notify, trans, charge_resp)
-            self.redirect(redirect_url % {'id_trans': self.id_trans})
+            self.redirect(redirect_url)
 
         except UserError, e:
             conn.rollback()
