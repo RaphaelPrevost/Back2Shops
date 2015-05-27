@@ -145,22 +145,26 @@ class ListStocksView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
         ocs.save()
 
     def _handle_req(self, req_params, *args, **kwargs):
-        shops_id = _get_req_user_shops(self.request.user)
-        shops_id.reverse()
-        shop_id = self.kwargs.get('shop') or shops_id[0]
-        shop_id = int(shop_id)
+        sale_id = self.kwargs.get('sale')
         search = req_params.get('search') or ''
-
-        shop_tabs = []
-        for _shop_id in shops_id:
-            if _shop_id:
-                shop_tabs.append({'name': Shop.objects.get(pk=_shop_id).name,
-                                  'shop_id': _shop_id})
+        if sale_id:
+            sale = Sale.objects.get(pk=sale_id)
+            sales_list = [sale]
+            if sale.shops.count() == 0:
+                shops_id = [0]
             else:
-                shop_tabs.append({'name': _("Global"),
-                                  'shop_id': 0})
+                shops_id = [s.id for s in sale.shops.all()]
+            shop_id = self.kwargs.get('shop') or shops_id[0]
+            shop_id = int(shop_id)
+        else:
+            shops_id = _get_req_user_shops(self.request.user)
+            shops_id.reverse()
+            shop_id = self.kwargs.get('shop') or shops_id[0]
+            shop_id = int(shop_id)
+            sales_list = self.get_sales_list(shop_id, search)
 
-        stocks_list = self.get_stocks_list(shop_id, search)
+        shop_tabs = self.get_tabs(shops_id)
+        stocks_list = self.get_stocks_list(shop_id, sales_list)
         paginator, page_obj, object_list, is_paginated = self.make_page(stocks_list)
 
         data = {
@@ -171,10 +175,25 @@ class ListStocksView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
             'page_obj': page_obj,
             'paginator': paginator,
             'is_paginated': is_paginated,
+            'sale_id': sale_id,
         }
         return self.render_to_response(data)
 
-    def _get_sales(self, shop_id, search):
+    def get_tabs(self, shops_id):
+        shop_tabs = []
+        for _shop_id in shops_id:
+            if _shop_id:
+                shop_tabs.append({'name': Shop.objects.get(pk=_shop_id).name,
+                                  'shop_id': _shop_id})
+            else:
+                shop_tabs.append({'name': _("Global"),
+                                  'shop_id': 0})
+        return shop_tabs
+
+    def get_sales_list(self, shop_id, search):
+        if shop_id in (0, '0'):
+            shop_id = None
+
         if self.request.user.is_superuser:
             sales = Sale.objects.all()
         else:
@@ -195,11 +214,10 @@ class ListStocksView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
             ).distinct()
         return sales.order_by('id')
 
-    def get_stocks_list(self, shop_id, search):
+    def get_stocks_list(self, shop_id, sales):
         if shop_id in (0, '0'):
             shop_id = None
 
-        sales = self._get_sales(shop_id, search)
         stocks_list = []
         for sale in sales:
             br_attrs = sale.product.brand_attributes.all().distinct()

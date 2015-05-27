@@ -287,6 +287,9 @@ class SABrandSettingsForm(forms.Form):
     order_require_confirmation = forms.CharField(
         widget=forms.CheckboxInput(),
         label=_('Order Require Confirmation'))
+    unique_items = forms.CharField(
+        widget=forms.CheckboxInput(),
+        label=_('Unique Items'))
 
     def __init__(self, user=None, having_orders=False, *args, **kwargs):
         initial = kwargs.get('initial', {})
@@ -298,8 +301,9 @@ class SABrandSettingsForm(forms.Form):
                                        or get_setting('starting_invoice_number')
             initial['use_after_tax_price'] = initial.get('use_after_tax_price') \
                                        or get_setting('use_after_tax_price')
-            initial['use_after_tax_price'] = (initial['use_after_tax_price'] == 'True')
+            initial['use_after_tax_price'] = initial['use_after_tax_price'] == 'True'
             initial['order_require_confirmation'] = initial.get('order_require_confirmation') == 'True'
+            initial['unique_items'] = initial.get('unique_items') == 'True'
 
         super(SABrandSettingsForm, self).__init__(initial=initial, *args, **kwargs)
         if having_orders:

@@ -821,6 +821,8 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         sale.gender = product_data['gender']
         sale.save()
 
+        ca_ids = [c.id for c in CommonAttribute.objects.filter(for_type=product.type)]
+        ba_ids = []
         brand_attributes = product_form.brand_attributes
         for ba_form, ba in zip(brand_attributes, brand_attributes.cleaned_data):
             if not ba: continue
@@ -838,6 +840,7 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 ba_obj.premium_amount = ba['premium_amount']
                 ba_obj.texture = get_asset_name(ba['texture'])
                 ba_obj.save()
+                ba_ids.append(ba_obj.id)
 
                 if not ba_form.previews.cleaned_data:
                     self._save_ba_preview(ba['ba_id'], product, None, None)
@@ -1085,10 +1088,42 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                 self.request.session.get('abandoned_sale', None)):
             del(self.request.session['abandoned_sale'])
 
+        is_unique_items = get_ba_settings(self.request.user).get('unique_items') == 'True'
+        if not self.edit_mode and is_unique_items:
+            self._save_unique_item_stock(sale, ba_ids, ca_ids)
+
         send_cache_invalidation(self.edit_mode and "PUT" or "POST",
                                 'sale', sale.id)
         save_sale_promotion_handler(sale)
+
+        if not self.edit_mode and not is_unique_items:
+            return redirect("sale_list_stocks", sale=sale.id)
         return redirect("list_sales")
+
+    def _save_unique_item_stock(self, sale, ba_ids, ca_ids):
+        if sale.shops.count() == 0:
+            shop_ids = [None]
+        else:
+            shop_ids = [s.id for s in sale.shops.all()]
+
+        for shop_id in shop_ids:
+            for ba_id in ba_ids or [None]:
+                for ca_id in ca_ids or [None]:
+                    stock, created = ProductStock.objects.get_or_create(sale=sale,
+                        shop_id=shop_id,
+                        common_attribute_id=ca_id,
+                        brand_attribute_id=ba_id,
+                        stock=1,
+                        rest_stock=1,
+                        )
+
+        sale_stock_sum = sale.detailed_stock.aggregate(stock_sum=Sum('stock'),
+                                                       rest_stock_sum=Sum('rest_stock'))
+        sale.total_stock = sale_stock_sum['stock_sum'] or 0
+        sale.total_rest_stock = sale_stock_sum['rest_stock_sum'] or 0
+        if sale.total_stock < sale.total_rest_stock:
+            sale.total_stock = sale.total_rest_stock
+        sale.save()
 
     def _save_ba_preview(self, ba_pk, product, preview_pk, preview):
         try:

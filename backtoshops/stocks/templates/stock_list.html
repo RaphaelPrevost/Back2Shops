@@ -93,7 +93,11 @@
                     {% if shop_tabs|length > 1 %}
                     {% for tab in shop_tabs %}
                     <li style="float:left">
+                        {% if sale_id %}
+                        <a href="{% url 'sale_list_stocks' sale_id tab.shop_id page_obj.number %}" class="order_tab {% if current_tab == tab.shop_id %}selected{% endif %}">{{tab.name}}</a>
+                        {% else %}
                         <a href="{% url 'list_stocks' tab.shop_id page_obj.number %}" class="order_tab {% if current_tab == tab.shop_id %}selected{% endif %}">{{tab.name}}</a>
+                        {% endif %}
                     </li>
                     {% endfor %}
                     {% endif %}
@@ -187,7 +191,11 @@
                                     {% if i == 0 %}
                                         <li><a>...</a></li>
                                     {% else %}
+                                        {% if sale_id %}
+                                        <li><a href="{% url 'sale_list_stocks' sale_id current_tab i %}">{{i}}</a></li>
+                                        {% else %}
                                         <li><a href="{% url 'list_stocks' current_tab i %}">{{i}}</a></li>
+                                        {% endif %}
                                     {% endif %}
                                 {% endfor %}
                             {% endif %}
@@ -197,7 +205,11 @@
                                     {% if i == 0 %}
                                         <li><a>...</a></li>
                                     {% else %}
+                                        {% if sale_id %}
+                                        <li><a href="{% url 'sale_list_stocks' sale_id current_tab i %}">{{i}}</a></li>
+                                        {% else %}
                                         <li><a href="{% url 'list_stocks' current_tab i %}">{{i}}</a></li>
+                                        {% endif %}
                                     {% endif %}
                                 {% endfor %}
                             {% endif %}

@@ -50,6 +50,7 @@ SETTING_KEY_CHOICES = (
                        ('starting_invoice_number', 'starting invoice number'),
                        ('use_after_tax_price', 'use after tax price'),
                        ('order_require_confirmation', 'order require confirmation'),
+                       ('unique_items', 'unique items'),
                        )
 
 # Create your models here.

@@ -79,6 +79,11 @@
                 <label for="{{ form.order_require_confirmation.auto_id }}">{% trans form.order_require_confirmation.label %}</label>
                 {{ form.order_require_confirmation}}
             </div>
+            {{ form.unique_items.errors }}
+            <div class="formrow">
+                <label for="{{ form.unique_items.auto_id }}">{% trans form.unique_items.label %}</label>
+                {{ form.unique_items }}
+            </div>
             {% endif %}
 
         </fieldset>
