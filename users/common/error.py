@@ -55,6 +55,12 @@ class UserError(Exception):
 
 class ErrorCode:
 
+    # Order error
+    OUT_OF_STOCK = (
+        100, "OUT_OF_STOCK_%s"
+    )
+
+
     # Sale shipping fee error
     SSF_MISS_PARAM = (
         101, "SSF Invalid Request: "

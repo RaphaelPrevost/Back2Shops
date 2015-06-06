@@ -83,6 +83,7 @@
 <!ELEMENT available (stocks*) >
 <!ATTLIST available from CDATA #REQUIRED >
 <!ATTLIST available to CDATA #IMPLIED >
+<!ATTLIST available total CDATA #REQUIRED >
 <!ELEMENT stocks (upc*, stock*) >
 <!ATTLIST stocks variant CDATA #IMPLIED >
 <!ATTLIST stocks attribute CDATA #IMPLIED >

@@ -62,17 +62,71 @@ from sales.models import OrderConfirmSetting
 from sales.models import Product
 from sales.models import Sale
 from shops.models import Shop
+from sales.models import ShopsInSale
 from sales.models import STOCK_TYPE_GLOBAL
 from stocks.models import ProductStock
 from stocks.forms import StockForm
 from stocks.forms import StockListForm
 
 
+class OutOfStockError(Exception):
+    pass
+
 def need_invalidate_cache(old_stock, new_stock):
     old_stock = old_stock or 0
     new_stock = new_stock or 0
     return old_stock <= 0 and new_stock > 0 \
         or old_stock > 0 and new_stock <= 0
+
+def update_stock(sale_id, ba_id, ca_id, shop_id,
+                 input_stock=None, delta_stock=None, alert=None):
+    sale = Sale.objects.get(pk=sale_id)
+
+    if shop_id and ShopsInSale.objects.get(shop_id=shop_id, sale=sale).is_freezed:
+        raise Exception('this shop is frozen, can\'t update stocks')
+
+    stock, created = ProductStock.objects.get_or_create(sale=sale,
+        shop=Shop.objects.get(pk=shop_id) if shop_id else None,
+        common_attribute=CommonAttribute.objects.get(pk=ca_id) if ca_id else None,
+        brand_attribute=BrandAttribute.objects.get(pk=ba_id) if ba_id else None,
+        )
+
+    if input_stock is not None and stock.rest_stock == input_stock:
+        invalid_cache = False
+    else:
+        if input_stock is None:
+            input_stock = stock.rest_stock + delta_stock
+            if input_stock < 0:
+                raise OutOfStockError({'id_sale': sale_id, 'id_variant': ba_id,
+                                       'id_type': ca_id, 'id_shop': shop_id,
+                                       'quantity': stock.rest_stock})
+        invalid_cache = need_invalidate_cache(stock.rest_stock, input_stock)
+        stock.rest_stock = input_stock or 0
+        if stock.rest_stock < 0:
+            stock.rest_stock = 0
+        if stock.stock < stock.rest_stock:
+            stock.stock = stock.rest_stock
+    if alert is not None and stock.alert != alert:
+        stock.alert = alert
+    stock.save()
+
+    sale_stock_sum = sale.detailed_stock.aggregate(stock_sum=Sum('stock'),
+                                                   rest_stock_sum=Sum('rest_stock'))
+    invalid_cache = invalid_cache or \
+                    need_invalidate_cache(sale.total_rest_stock,
+                                          sale_stock_sum['rest_stock_sum'])
+    sale.total_stock = sale_stock_sum['stock_sum'] or 0
+    sale.total_rest_stock = sale_stock_sum['rest_stock_sum'] or 0
+    if sale.total_rest_stock < 0:
+        sale.total_rest_stock = 0
+    if sale.total_stock < sale.total_rest_stock:
+        sale.total_stock = sale.total_rest_stock
+    sale.save()
+
+    if invalid_cache:
+        send_cache_invalidation("PUT", 'sale', sale.id)
+    return sale
+
 
 class ListStocksView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin):
     template_name = 'stock_list.html'
@@ -93,43 +147,17 @@ class ListStocksView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
         self._save_order_confirm_setting(stock_form)
 
     def _save_stock(self, stock_form):
-        sale = Sale.objects.get(pk=stock_form.cleaned_data['sale_id'])
+        sale_id = stock_form.cleaned_data['sale_id']
         ba_id = stock_form.cleaned_data['ba_id']
         ca_id = stock_form.cleaned_data['ca_id']
         shop_id = stock_form.cleaned_data['shop_id']
         input_stock = stock_form.cleaned_data['stock']
         alert = stock_form.cleaned_data['alert'] == 'True'
-
-        stock, created = ProductStock.objects.get_or_create(sale=sale,
-            shop=Shop.objects.get(pk=shop_id) if shop_id else None,
-            common_attribute=CommonAttribute.objects.get(pk=ca_id) if ca_id else None,
-            brand_attribute=BrandAttribute.objects.get(pk=ba_id) if ba_id else None,
-            )
-
-        if stock.rest_stock == input_stock:
-            invalid_cache = False
-        else:
-            invalid_cache = need_invalidate_cache(stock.rest_stock, input_stock)
-            stock.rest_stock = input_stock or 0
-            if stock.stock < stock.rest_stock:
-                stock.stock = stock.rest_stock
-        if stock.alert != alert:
-            stock.alert = alert
-        stock.save()
-
-        sale_stock_sum = sale.detailed_stock.aggregate(stock_sum=Sum('stock'),
-                                                       rest_stock_sum=Sum('rest_stock'))
-        invalid_cache = invalid_cache or \
-                        need_invalidate_cache(sale.total_rest_stock,
-                                              sale_stock_sum['rest_stock_sum'])
-        sale.total_stock = sale_stock_sum['stock_sum'] or 0
-        sale.total_rest_stock = sale_stock_sum['rest_stock_sum'] or 0
-        if sale.total_stock < sale.total_rest_stock:
-            sale.total_stock = sale.total_rest_stock
-        sale.save()
-
-        if invalid_cache:
-            send_cache_invalidation("PUT", 'sale', sale.id)
+        try:
+            update_stock(sale_id, ba_id, ca_id, shop_id,
+                         input_stock=input_stock, alert=alert)
+        except Exception:
+            pass
 
     def _save_order_confirm_setting(self, stock_form):
         sale = Sale.objects.get(pk=stock_form.cleaned_data['sale_id'])

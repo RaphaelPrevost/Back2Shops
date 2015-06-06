@@ -49,6 +49,7 @@ import re
 import string
 import ujson
 import urllib
+import urllib2
 import xmltodict
 from lxml import etree
 
@@ -56,6 +57,7 @@ from lxml import etree
 from common.constants import HASH_ALGORITHM
 from common.constants import HASH_ALGORITHM_NAME
 from common.error import ServerError
+from B2SCrypto.utils import decrypt_json_resp
 from B2SCrypto.utils import gen_encrypt_json_context
 from B2SCrypto.utils import get_from_remote
 from B2SCrypto.constant import SERVICES
@@ -370,6 +372,16 @@ def remote_xml_invoice(query):
     content = get_from_sale_server(uri, **query)
     return content
 
+def remote_increase_stock(params):
+    uri = 'protected/stock/inc'
+    content = post_to_sale_server(uri, ujson.dumps(params))
+    return ujson.loads(content)
+
+def remote_decrease_stock(params):
+    uri = 'protected/stock/dec'
+    content = post_to_sale_server(uri, ujson.dumps(params))
+    return ujson.loads(content)
+
 def remote_xml_eventlist():
     uri = 'private/event/list'
     content = get_from_sale_server(uri)
@@ -385,32 +397,60 @@ def get_event_configs(event_name):
     raise ValidationError('EVENT_NOT_FOUND')
 
 def push_event(uri, **query):
-    content = get_from_sale_server(uri, method='post', **query)
-    return content
+    if query:
+        data = urllib.urlencode(query)
+    else:
+        data = None
 
-def get_from_sale_server(uri, method='get', **query):
+    return post_to_sale_server(uri, data)
+
+def get_from_sale_server(uri, **query):
     if not uri.startswith(settings.SALES_SERVER_API_URL):
         remote_uri = settings.SALES_SERVER_API_URL % {'api': uri}
+    else:
+        remote_uri = uri
     if query:
         query_str = urllib.urlencode(query)
     else:
         query_str = ''
 
-    remote_server_name = SERVICES.ADM
     try:
-        if method.lower() == 'get':
-            content = get_from_remote('?'.join([remote_uri, query_str]),
-                                      settings.SERVER_APIKEY_URI_MAP[remote_server_name],
-                                      settings.PRIVATE_KEY_PATH)
-        else:
-            content = get_from_remote(remote_uri,
-                                      settings.SERVER_APIKEY_URI_MAP[remote_server_name],
-                                      settings.PRIVATE_KEY_PATH,
-                                      data=query_str)
+        content = get_from_remote('?'.join([remote_uri, query_str]),
+                                  settings.SERVER_APIKEY_URI_MAP[SERVICES.ADM],
+                                  settings.PRIVATE_KEY_PATH)
     except Exception, e:
         logging.error('get_from_sale_server_error: %s', e, exc_info=True)
         raise
     return content
+
+def post_to_sale_server(uri, data=None):
+    if not uri.startswith(settings.SALES_SERVER_API_URL):
+        remote_uri = settings.SALES_SERVER_API_URL % {'api': uri}
+    else:
+        remote_uri = uri
+
+    try:
+        encrypt = re.search('/(private|protected)/', remote_uri)
+        if encrypt and data:
+            data = gen_encrypt_json_context(data,
+                    settings.SERVER_APIKEY_URI_MAP[SERVICES.ADM],
+                    settings.PRIVATE_KEY_PATH)
+
+        req = urllib2.Request(remote_uri, data=data)
+        remote_resp = urllib2.urlopen(req)
+
+        if encrypt:
+            content = decrypt_json_resp(remote_resp,
+                    settings.SERVER_APIKEY_URI_MAP[SERVICES.ADM],
+                    settings.PRIVATE_KEY_PATH)
+        else:
+            content = remote_resp.read()
+        return content
+
+    except Exception, e:
+        logging.error('post_to_sale_server_error: %s', e, exc_info=True)
+        raise
+
 
 
 OZ_GRAM_CONVERSION = 28.3495231

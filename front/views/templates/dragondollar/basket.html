@@ -27,7 +27,7 @@
                         <th class="left">${_('Description')}</th>
                         <th>${_('Ref')}</th>
                         <th>${_('Prix')}</th>
-                        <th>Quantité</th>
+                        <th></th>
                         <th>Total</th>
                         <th>${_('Annulation')}</th>
                     </tr>
@@ -68,7 +68,14 @@
                             <?py #endif ?>
                         <?py #endif ?>
                         </td>
-                        <td><input id="quantity" name="nb_product" type="text" maxlength="4" value="${item['quantity']}" /></td>
+                        <td>
+                            <?py if item['out_of_stock']: ?>
+                            <span style="color:red">
+                                (${_('Temporarily out of stock')})
+                            </span>
+                            <?py #endif ?>
+                            <input hidden id="quantity" name="nb_product" type="text" maxlength="4" value="${item['quantity']}" />
+                        </td>
                         <td class="price"><span id="amount"></span><span>${cur_symbol(item['product']['currency'])}</span></td>
                         <td><a href="javascript:void(0)" class="supprimer" title="${_('Supprimer')}">x</a></td>
                     </tr>

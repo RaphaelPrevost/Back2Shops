@@ -38,6 +38,7 @@
 
 
 import base64
+import cgi
 import logging
 import json
 import math
@@ -105,6 +106,8 @@ from shippings.models import FlatRateInShipping
 from shippings.models import ServiceInShipping
 from shippings.models import Carrier, Service
 from shops.models import Shop
+from stocks.views import OutOfStockError
+from stocks.views import update_stock
 from taxes.models import Rate
 
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS
@@ -318,16 +321,48 @@ def authenticate(request):
 
 def get_sale(shop_upc, item):
     try:
-        barcodes = Barcode.objects.filter(upc=item)
+        barcode = Barcode.objects.get(upc=item)
         shop = Shop.objects.get(upc=shop_upc)
-        sales = Sale.objects.filter(barcodes__in=barcodes, shops__in=[shop])
+        sales = Sale.objects.filter(barcodes__in=[barcode], shops__in=[shop])
         if sales.count() > 0:
-            return sales[0]
-        return None
+            return sales[0], barcode
+        return None, None
     except Exception, ex:
-        return None
+        return None, None
 
-def stock_setter(request,val):
+def _stock_setter(request, flag):
+    data = decrypt_json_resp(
+        request,
+        settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+        settings.PRIVATE_KEY_PATH)
+    data = json.loads(data)
+    try:
+        content = {'success': True}
+        for params in data:
+            update_stock(params['id_sale'], params['id_variant'],
+                         params['id_type'], params['id_shop'],
+                         delta_stock=params['quantity'] * flag)
+    except OutOfStockError, e:
+        logging.error('Failed to update stock due to out of stock: %s',
+                      e.args[0], exc_info=True)
+        content = {'success': False,
+                   'errmsg': e.args[0]}
+
+    except Exception, e:
+        logging.error('Failed to update stock: %s, data: %s',
+                      e, data, exc_info=True)
+        content = {'success': False}
+
+    content = json.dumps(content)
+    content = gen_encrypt_json_context(
+        content,
+        settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+        settings.PRIVATE_KEY_PATH
+    )
+    return HttpResponse(content, mimetype='application/json')
+
+
+def _stock_setter_by_barcode(request, val):
     token = request.META['HTTP_AUTHORIZATION'].replace('Basic ', '')
     username, password = base64.decodestring(token).split(':')
     user = _authenticate(username=username, password=password)
@@ -338,69 +373,58 @@ def stock_setter(request,val):
     except:
         return fail('shop upc must be given')
 
-    sale = get_sale(shop_upc, request.REQUEST['item'])
-
-    if sale is None:
+    sale, barcode = get_sale(shop_upc, request.REQUEST['item'])
+    if sale is None or barcode is None:
         return fail('sale not found with given shop and item')
+
+    if not user.is_staff or shop not in user.get_profile().shops.all():
+        #this operator can't touch this shop.
+        return fail('no access to this shop''s stock')
 
     #if shop is frozen.
     try:
-        if ShopsInSale.objects.get(shop=shop,sale=sale).is_freezed:
+        if ShopsInSale.objects.get(shop=shop, sale=sale).is_freezed:
             return fail("this shop is frozen, can't update stocks")
     except:
          return fail('shop is not found in this sale')
 
-    invalid_cache = need_invalidate_cache(sale.total_rest_stock, val)
+    try:
+        update_stock(sale.id,
+                     barcode.brand_attribute_id,
+                     barcode.common_attribute_id,
+                     shop.id,
+                     delta_stock=val)
+    except:
+        return fail('stock of the given shop is invalid.')
 
-    if sale.type_stock == STOCK_TYPE_GLOBAL: #stocks at global level
-        pass
-    else: #stocks at shops level
-        if user.is_staff or shop in user.get_profile().shops.all(): # can update
-            try:
-                stock = sale.detailed_stock.get(shop=shop)
-                if not invalid_cache:
-                    invalid_cache = need_invalidate_cache(stock.rest_stock, val)
-                stock.rest_stock += val
-                if stock.rest_stock < 0:
-                    stock.rest_stock = 0
-                if stock.stock < stock.rest_stock:
-                    stock.stock = stock.rest_stock
-                stock.save()
-            except:
-                return fail('stock of the given shop is invalid.')
-        else: #this operator can't touch this shop.
-            return fail('no access to this shop''s stock')
+    return HttpResponse(json.dumps({
+            'success': True,
+            'total_stock': sale.total_stock,
+            'total_rest_stock': sale.total_rest_stock
+        }), mimetype='text/json')
 
-    sale.total_rest_stock += val
-    if sale.total_rest_stock < 0:
-        sale.total_rest_stock = 0
-    if sale.total_stock < sale.total_rest_stock:
-        sale.total_stock = sale.total_rest_stock
-    sale.save()
+@csrf_exempt
+def stock_increment(request):
+    return _stock_setter(request, 1)
 
-    if invalid_cache:
-        send_cache_invalidation("PUT", 'sale', sale.id)
-
-    return HttpResponse(json.dumps({'success': True, 'total_stock': sale.total_stock, 'total_rest_stock': sale.total_rest_stock}), mimetype='text/json')
-
-def need_invalidate_cache(stock, val):
-    return stock <= 0 and stock + val > 0 \
-        or stock > 0 and stock + val <= 0
+@csrf_exempt
+def stock_decrement(request):
+    return _stock_setter(request, -1)
 
 @csrf_exempt
 @basic_auth
 def barcode_increment(request):
-    return stock_setter(request, 1)
+    return _stock_setter_by_barcode(request, 1)
 
 @csrf_exempt
 @basic_auth
 def barcode_decrement(request):
-    return stock_setter(request, -1)
+    return _stock_setter_by_barcode(request, -1)
 
 @csrf_exempt
 @basic_auth
 def barcode_returned(request):
-    return stock_setter(request, 1)
+    return _stock_setter_by_barcode(request, 1)
 
 
 EARTH_MEAN_RADIUS = 6371 * 1000 * 1000 # 6371 km
@@ -484,14 +508,19 @@ def apikey(dummy=None):
 @csrf_exempt
 def event_push(request, *args, **kwargs):
     try:
-        event_id = request.POST.get('event')
+        query = decrypt_json_resp(
+            request,
+            settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+            settings.PRIVATE_KEY_PATH)
+        args = cgi.parse_qs(query)
+        event_id = args.get('event', [''])[0]
         if not event_id or not event_id.isdigit():
             raise InvalidRequestError('missing event')
 
         handler_params = {}
         event = Event.objects.get(pk=event_id)
         for param in event.event_handler_params.get_query_set():
-            handler_params[param.name] = request.POST.get(param.name, param.value)
+            handler_params[param.name] = args.get(param.name, [param.value])[0]
 
         new = EventQueue()
         new.event_id = event_id

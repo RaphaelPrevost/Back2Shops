@@ -184,6 +184,11 @@ def calc_before_tax_price():
             BRANDSETTING % (settings.BRAND_ID, 'use_after_tax_price'))
     return val == 'True'
 
+def use_unique_items():
+    val = get_redis_cli().get(
+            BRANDSETTING % (settings.BRAND_ID, 'unique_items'))
+    return val == 'True'
+
 def get_price_label(need_calc_before_tax=None):
     if need_calc_before_tax is None:
         need_calc_before_tax = calc_before_tax_price()
@@ -292,7 +297,9 @@ def get_brief_product(sale, req, resp, calc_price=True):
     return product_info
 
 def get_brief_product_list(sales, req, resp):
-    return [get_brief_product(s, req, resp) for s in sales.itervalues()]
+    return [get_brief_product(s, req, resp)
+            for s in sales.itervalues()
+            if int(s.get('available', {}).get('@total', 0)) > 0]
 
 def get_random_products(sales, req, resp, count=settings.NUM_OF_RANDOM_SALES):
     random_sales = {}
@@ -510,9 +517,25 @@ def get_basket_table_info(req, resp, basket_data, users_id):
             one['price_with_tax_calc'] = price * (1 + tax_info['rate'] / 100.0)
         one['tax'] = one['price_with_tax_calc'] - price
         one['show_final_price'] = tax_info['show_final_price']
+        one['out_of_stock'] = _out_of_stock(sale_info,
+                                id_variant, id_type, id_shop, quantity)
 
         basket.append(one)
     return basket
+
+def _out_of_stock(sale_info, id_variant, id_type, id_shop, quantity):
+    if not id_variant: id_variant = ''
+    if not id_type: id_type = ''
+    if not id_shop or id_shop == '0': id_shop = ''
+    for stock in as_list(sale_info['available'].get('stocks')):
+        if stock['@attribute'] == str(id_type) and stock['@variant'] == str(id_variant):
+            for s in as_list(stock.get('stock')):
+                if s['@shop'] == str(id_shop):
+                    if int(s['#text']) < quantity:
+                        return True
+                    break
+            break
+    return False
 
 def get_shipping_info(req, resp, order_id):
     from common.data_access import data_access
@@ -587,6 +610,8 @@ def get_order_table_info(order_id, order_resp, all_sales=None):
             'picture': item_info['picture'],
             'external_id': item_info['external_id'],
         }
+
+        sale_info = None
         if all_sales and id_sale in all_sales:
             sale_info = all_sales[id_sale]
             _type = sale_info.get('type', {})
@@ -600,6 +625,8 @@ def get_order_table_info(order_id, order_resp, all_sales=None):
                                                  'sale_name',
                                                  sale_info.get('name', '')),
             }
+
+        one['out_of_stock'] = False #TODO get from user server
         order_items.append(one)
 
         item_invoice_info = {}

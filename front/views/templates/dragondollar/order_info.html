@@ -33,7 +33,7 @@
                             <th class="left">Description</th>
                             <th>Ref</th>
                             <th>Prix</th>
-                            <th>Quantité</th>
+                            <th></th>
                             <th>Total</th>
                         </tr>
                         </thead>
@@ -101,7 +101,14 @@
                                         <?py #endif ?>
                                     <?py #endif ?>
                                 </td>
-                                <td><input id="quantity" name="nb_product" type="text" value="${item['quantity']}" disabled/></td>
+                                <td>
+                                    <?py if item['out_of_stock']: ?>
+                                    <span style="color:red">
+                                        (${_('Temporarily out of stock')})
+                                    </span>
+                                    <?py #endif ?>
+                                    <input hidden id="quantity" name="nb_product" type="text" value="${item['quantity']}" disabled/>
+                                </td>
                                 <?py if shipping_list['show_final_price']: ?>
                                 <td class="price"><span id="amount" value="${item['price'] * item['quantity'] + shipping_list['tax']}">${format_amount(item['price'] * item['quantity'] + shipping_list['tax'])}</span><span>${currency}</span></td>
                                 <?py else: ?>

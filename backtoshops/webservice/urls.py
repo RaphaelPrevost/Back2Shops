@@ -46,7 +46,8 @@ from webservice.views import SalesListView, BrandInfoView, BrandListView, \
     authenticate, barcode_increment, barcode_decrement, barcode_returned, \
     BrandingsListView, apikey, SalesFindView, TaxesListView, ShippingInfoView, \
     ShippingFeesView, ShippingServicesInfoView, InvoiceView, BrandSettingsView, \
-    payment_init, RoutesListView, SuggestView, EventListView, event_push
+    payment_init, RoutesListView, SuggestView, EventListView, event_push, \
+    stock_decrement, stock_increment
 
 
 
@@ -66,6 +67,8 @@ urlpatterns = patterns(settings.SITE_NAME,
     url(r'1.0/pub/apikey.pem', apikey),
 
     url(r'1.0/protected/shipping/fees', ShippingFeesView.as_view()),
+    url(r'1.0/protected/stock/inc', stock_increment),
+    url(r'1.0/protected/stock/dec', stock_decrement),
 
     url(r'1.0/private/auth', authenticate),
     url(r'1.0/private/event/list', EventListView.as_view()),

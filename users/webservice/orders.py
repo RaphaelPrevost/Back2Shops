@@ -117,14 +117,18 @@ class OrderResource(BaseJsonResource):
         if int(order_status) > ORDER_STATUS.AWAITING_PAYMENT:
             logging.warn('The order %s can not be modified because its status '
                          'is %s', id_order, order_satus)
-            return 0
+            return {'res': RESP_RESULT.F,
+                    'err': '',
+                    'id': 0}
 
         ## return id_order directly if no changes.
         order = get_order(conn, id_order)
         if int(order['id_shipaddr']) == int(shipaddr) and \
                 int(order['id_billaddr']) == int(billaddr) and \
                 int(order['id_phone']) == int(telephone):
-            return int(id_order)
+            return {'res': RESP_RESULT.S,
+                    'err': '',
+                    'id': int(id_order)}
 
         order_items = get_order_items(conn, id_order)
         items = []
@@ -138,8 +142,11 @@ class OrderResource(BaseJsonResource):
                 'id_weight_type': item['id_weight_type'],
                 'id_price_type': item['id_price_type']
             })
-        return modify_order(conn, self.users_id, id_order, telephone, items,
-                            shipaddr, billaddr)
+        id_order = modify_order(conn, self.users_id, id_order, telephone, items,
+                                shipaddr, billaddr)
+        return {'res': RESP_RESULT.S,
+                'err': '',
+                'id': int(id_order)}
 
     def order_create(self, req, resp, conn):
         try:
@@ -149,12 +156,16 @@ class OrderResource(BaseJsonResource):
                 id_order = self._posOrder(upc_shop, req, resp, conn)
             else:
                 id_order = self._wwwOrder(req, resp, conn)
-            return id_order
+            return {'res': RESP_RESULT.S,
+                    'err': '',
+                    'id': id_order}
         except Exception, e:
             conn.rollback()
             logging.error('Create order for %s failed for error: %s',
                           req.query_string, e, exc_info=True)
-            return 0
+            return {'res': RESP_RESULT.F,
+                    'err': str(e),
+                    'id': 0}
 
     def _posOrder(self, upc_shop, req, resp, conn):
         """ posOrder: CSV string with format
@@ -181,6 +192,7 @@ class OrderResource(BaseJsonResource):
         """ wwwOrder: an urlencoded json array:
         [{ "id_sale": xxx,
            "id_variant": xxx,
+           "id_type": xxx,
            "quantity": xxx,
            "id_shop": xxx,
            "id_weight_type": xxx,
@@ -188,6 +200,7 @@ class OrderResource(BaseJsonResource):
            },
          { "id_sale": xxx,
            "id_variant": xxx,
+           "id_type": xxx,
            "quantity": xxx,
            "id_shop": xxx,
            "id_weight_type": xxx,
@@ -234,7 +247,7 @@ class OrderResource(BaseJsonResource):
         if not barcode or not quantity.isdigit():
             raise ValidationError('ORDER_ERR_WRONG_POS_FORMAT')
         id_sale, id_variant = get_sale_by_barcode(barcode, id_shop)
-        self._saleValidCheck(id_sale, id_variant, id_shop, quantity)
+        self._saleValidCheck(id_sale, id_variant, id_price_type, id_shop, quantity)
         return {'id_sale': id_sale,
                 'id_variant': id_variant,
                 'id_price_type': int(id_price_type),
@@ -250,6 +263,7 @@ class OrderResource(BaseJsonResource):
                 assert order.get('id_sale') is not None, 'id_sale'
                 assert order.get('id_variant') is not None, 'id_variant'
                 assert order.get('quantity') is not None, 'quantity'
+                assert order.get('id_type') is not None, 'id_type'
                 assert order.get('id_weight_type') is not None, 'id_weight_type'
                 assert order.get('id_price_type') is not None, 'id_price_type'
             except AssertionError, e:
@@ -257,6 +271,7 @@ class OrderResource(BaseJsonResource):
 
             self._saleValidCheck(order['id_sale'],
                                  order['id_variant'],
+                                 order['id_type'],
                                  order['id_shop'],
                                  order['quantity'])
         except AssertionError, e:
@@ -285,13 +300,15 @@ class OrderResource(BaseJsonResource):
         except AssertionError, e:
             raise NotExistError('ORDER_ERR_SHOP_%s_NOT_EXIST' % e)
 
-    def _saleValidCheck(self, id_sale, id_variant, id_shop, quantity):
+    def _saleValidCheck(self, id_sale, id_variant, id_type, id_shop, quantity):
         sale = CachedSale(id_sale)
 
         if not sale.valid():
             raise ValidationError('ORDER_ERR_INVALID_SALE_ITEM_%s' % id_sale)
         elif int(id_variant) and not sale.valid_variant(id_variant):
             raise ValidationError('ORDER_ERR_INVALID_SALE_VARIANT_%s' % id_variant)
+        elif int(id_type) and not sale.valid_type(id_type):
+            raise ValidationError('ORDER_ERR_INVALID_SALE_ATTR_%s' % id_type)
         elif not sale.valid_shop(id_shop):
             raise ValidationError('ORDER_ERR_INVALID_SALE_SHOP_%s' % id_shop)
         elif int(quantity) <= 0:

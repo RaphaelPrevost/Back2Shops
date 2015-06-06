@@ -42,7 +42,9 @@ import gevent
 import ujson
 
 from collections import defaultdict
+from common.error import ErrorCode as E_C
 from common.error import NotExistError
+from common.error import UserError
 from common.utils import push_order_confirming_event
 from datetime import datetime
 from B2SProtocol.constants import ORDER_STATUS
@@ -58,8 +60,11 @@ from models.actors.sale import CachedSale
 from models.actors.shop import get_shop_id
 from models.invoice import iv_to_sent_qty
 from models.invoice import order_iv_sent_status
+from models.shipments import decrease_stock
 from models.shipments import get_shipments_by_order
+from models.shipments import out_of_stock_errmsg
 from models.shipments import posOrderShipments
+from models.shipments import stock_req_params
 from models.shipments import wwwOrderShipments
 from models.stats_log import gen_bought_history
 from models.user import get_user_dest_addr
@@ -256,10 +261,25 @@ def create_order(conn, users_id, telephone_id, order_items,
 
     up_order_log(conn, order_id, sellers)
 
-    for brand, shops in sellers.iteritems():
-        if _order_need_confirmation(conn, order_id, brand):
-            push_order_confirming_event(conn, order_id, brand)
+    if not _order_need_confirmation(conn, order_id):
+        params = []
+        shipments = get_shipments_by_order(conn, order_id)
+        for s in shipments:
+            params += stock_req_params(conn, s['id'])
+        success, errmsg = decrease_stock(params)
+        if not success:
+            raise UserError(E_C.OUT_OF_STOCK[0],
+                            out_of_stock_errmsg(errmsg))
 
+    for brand, shops in sellers.iteritems():
+        try:
+            if _order_need_confirmation(conn, order_id, brand):
+                push_order_confirming_event(conn, order_id, brand)
+        except Exception, e:
+            logging.error('confirming_event_err: %s, '
+                          'order_id: %s, '
+                          'brand: %s',
+                          e, order_id, brand, exc_info=True)
     return order_id
 
 def delete_order(conn, order_id, brand_id, shops_id):
