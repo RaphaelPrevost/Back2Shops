@@ -835,7 +835,7 @@ class OrderUpdatePacking(BaseOrderPacking):
         content = self.packing_items_content(post)
         sp_date = post.get('shipping_date') or None
 
-        return send_update_shipment(
+        remote_resp = send_update_shipment(
             id_shipment,
             id_shop,
             id_brand,
@@ -847,6 +847,8 @@ class OrderUpdatePacking(BaseOrderPacking):
             shipping_date=sp_date,
             tracking_name=tracking_name,
             shipping_carrier=shipping_carrier)
+
+        return remote_resp
 
 
 class OrderDeletePacking(BaseOrderPacking):

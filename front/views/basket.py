@@ -49,6 +49,7 @@ from common.utils import get_basket
 from common.utils import get_basket_table_info
 from common.utils import get_valid_attr
 from common.utils import unescape_string
+from common.utils import use_unique_items
 from views.base import BaseHtmlResource
 from views.base import BaseJsonResource
 
@@ -114,8 +115,7 @@ class BasketAPIResource(BaseJsonResource):
             chosen_item = unescape_string(chosen_item)
 
         if cmd == 'add':
-            # for dragon dollar the quantity always 1
-            if settings.BRAND_NAME == 'DRAGONDOLLAR':
+            if use_unique_items():
                 basket_data[chosen_item] = 1
             elif chosen_item in basket_data:
                 basket_data[chosen_item] += quantity
@@ -123,7 +123,10 @@ class BasketAPIResource(BaseJsonResource):
                 basket_data[chosen_item] = quantity
 
         elif cmd == 'update':
-            basket_data[chosen_item] = quantity
+            if use_unique_items():
+                basket_data[chosen_item] = 1
+            else:
+                basket_data[chosen_item] = quantity
 
         elif cmd == 'del':
             if chosen_item in basket_data:

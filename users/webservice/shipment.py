@@ -38,6 +38,7 @@
 
 
 import datetime
+import gevent
 import logging
 import settings
 import ujson
@@ -57,10 +58,13 @@ from models.order import order_item_quantity
 from models.order import _order_need_confirmation
 from models.shipments import create_shipment
 from models.shipments import create_shipping_list
+from models.shipments import decrease_stock
+from models.shipments import out_of_stock_errmsg
 from models.shipments import order_item_grouped_quantity
 from models.shipments import order_item_packing_quantity
 from models.shipments import shipping_list_item_quantity
 from models.shipments import shipping_list_item_packing_quantity
+from models.shipments import stock_req_params
 from models.shipments import get_shipment_by_id
 from models.shipments import update_shipping_list
 from models.shipments import update_shipment
@@ -358,16 +362,30 @@ class ShipmentResource(BaseJsonResource):
                 # update status, shipping fee, handling fee
                 self._update_shipment(conn)
 
+            order_status = get_order_status(conn, shipment['id_order'], id_brand)
+
             order_need_confirm = _order_need_confirmation(conn,
                                  shipment['id_order'], id_brand)
+            if shipment_confirmed:
+                params = stock_req_params(conn, id_shipment)
+                success, errmsg = decrease_stock(params)
+                if not success:
+                    raise UserError(E_C.OUT_OF_STOCK[0],
+                                    out_of_stock_errmsg(errmsg))
+
             if shipment_confirmed and not order_need_confirm:
-                push_order_confirmed_event(conn, shipment['id_order'], id_brand)
+                try:
+                    push_order_confirmed_event(conn, shipment['id_order'], id_brand)
+                except Exception, e:
+                    logging.error('confirmed_event_err: %s, '
+                                  'order_id: %s, '
+                                  'brand: %s',
+                                  e, order_id, brand, exc_info=True)
 
             return {'res': SUCCESS,
                     'id_shipment': id_shipment,
                     'id_order': shipment['id_order'],
-                    'order_status': get_order_status(conn,
-                                    shipment['id_order'], id_brand)}
+                    'order_status': order_status}
         except UserError, e:
             conn.rollback()
             logging.error('SPM_CREATE_ERR_%s, order: %s',

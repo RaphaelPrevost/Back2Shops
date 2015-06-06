@@ -143,12 +143,10 @@ class PaymentResource(BaseHtmlResource):
                 'form': form,
                 'order_id': id_order,
                 'processor': processor}
-        user_info = data_access(REMOTE_API_NAME.GET_USERINFO,
-                                req, resp)
+        all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
         order_resp = data_access(REMOTE_API_NAME.GET_ORDER_DETAIL, req, resp,
                                  id=id_order, brand_id=settings.BRAND_ID)
-
-        order_data = get_order_table_info(id_order, order_resp)
+        order_data = get_order_table_info(id_order, order_resp, all_sales)
         data.update(order_data)
         return data
 

@@ -238,7 +238,8 @@ class ActorRequireConfirm(BaseActor):
 
 class ActorStock(BaseActor):
     attrs_map = {'shop': '@shop',
-                 'available': '@available'}
+                 'alert': '@alert',
+                 'available': '#text'}
 
 class ActorStocks(BaseActor):
     attrs_map = {'variant': '@variant',
@@ -247,15 +248,13 @@ class ActorStocks(BaseActor):
 
     @property
     def stock(self):
-        s = self.data.get('stock', None)
-        if s:
-            return
-        return ActorStock(data=s)
-
+        s_list = as_list(self.data.get('stock', None))
+        return [ActorStock(data=s) for s in s_list]
 
 class ActorSaleAvailable(BaseActor):
     attrs_map = {'from': '@from',
-                 'to': '@to'}
+                 'to': '@to',
+                 'total': '@total'}
 
     @property
     def stocks(self):
@@ -464,6 +463,19 @@ class CachedSale:
 
         try:
             self.sale.get_variant(id_variant)
+        except NotExistError:
+            return False
+        return True
+
+    def valid_type(self, id_type):
+        if not self.valid():
+            return False
+        id_type = int(id_type)
+        if not id_type:
+            return True
+
+        try:
+            self.sale.get_weight_attr(id_type)
         except NotExistError:
             return False
         return True

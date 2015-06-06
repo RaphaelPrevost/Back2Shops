@@ -44,6 +44,7 @@ import xmltodict
 
 from B2SFrontUtils.constants import REMOTE_API_NAME
 from B2SProtocol.constants import ORDER_STATUS
+from B2SProtocol.constants import RESP_RESULT
 from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
 from B2SUtils.base_actor import as_list
@@ -60,6 +61,7 @@ from common.utils import get_shipping_info
 from common.utils import get_url_format
 from common.utils import get_user_contact_info
 from common.utils import get_valid_attr
+from common.utils import use_unique_items
 from common.utils import valid_int
 from common.utils import valid_int_param
 from views.base import BaseHtmlResource
@@ -136,9 +138,10 @@ class OrderInfoResource(BaseHtmlResource):
         if not id_order:
             raise ValidationError('ERR_ID')
 
+        all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
         order_resp = data_access(REMOTE_API_NAME.GET_ORDER_DETAIL, req, resp,
                                  id=id_order, brand_id=settings.BRAND_ID)
-        order_data = get_order_table_info(id_order, order_resp)
+        order_data = get_order_table_info(id_order, order_resp, all_sales)
 
         invoice_info = {}
         payment_url = ""
@@ -240,6 +243,7 @@ class OrderAPIResource(BaseJsonResource):
             all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
             orders = []
             basket_key, basket_data = get_basket(req, resp)
+            is_unique = use_unique_items()
             for item, quantity in basket_data.iteritems():
                 try:
                     item_info = ujson.loads(item)
@@ -252,7 +256,7 @@ class OrderAPIResource(BaseJsonResource):
                 orders.append({
                     'id_sale': item_info['id_sale'],
                     'id_shop': item_info.get('id_shop'),
-                    'quantity': quantity,
+                    'quantity': 1 if is_unique else quantity,
                     'id_variant': item_info.get('id_variant') or 0,
                     'id_type': item_info.get('id_attr') or 0,
                     'id_weight_type': item_info.get('id_weight_type') or 0,
@@ -268,10 +272,18 @@ class OrderAPIResource(BaseJsonResource):
 
         order_resp = data_access(REMOTE_API_NAME.CREATE_ORDER,
                                  req, resp, **data)
-        if isinstance(order_resp, int) and order_resp > 0:
+        if order_resp.get('res') == RESP_RESULT.F:
+            errmsg = order_resp['err']
+            redirect_url = get_url_format(FRT_ROUTE_ROLE.BASKET)
+            if 'OUT_OF_STOCK' in errmsg:
+                errmsg = errmsg[errmsg.index('OUT_OF_STOCK'):]
+            else:
+                errmsg = 'FAILED_PLACE_ORDER'
+            redirect_to = "%s?err=%s" % (redirect_url, errmsg)
+        else:
             if basket_key and basket_data:
                 clear_basket(req, resp, basket_key, basket_data)
-            id_order = order_resp
+            id_order = order_resp['id']
             redirect_to = get_url_format(FRT_ROUTE_ROLE.ORDER_INFO) % {
                 'id_order': id_order}
             try:
@@ -282,9 +294,6 @@ class OrderAPIResource(BaseJsonResource):
             except Exception, e:
                 pass
 
-        else:
-            redirect_to = "%s?err=%s" % (get_url_format(FRT_ROUTE_ROLE.BASKET),
-                                         'FAILED_PLACE_ORDER')
         return {'redirect_to': redirect_to}
 
 

@@ -139,6 +139,7 @@
             {% if object.product.valid_to %}
                to="{{ object.product.valid_to|date:"c" }}"
             {% endif %}
+            total="{{ object.total_rest_stock }}"
             >
     {% for ba in object.product.brand_attributes.all %}
         {% for ca in object.product.type.common_attributes.all %}

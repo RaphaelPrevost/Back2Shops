@@ -55,7 +55,10 @@ from B2SUtils.db_utils import query
 from B2SUtils.db_utils import update
 from B2SProtocol.constants import INVOICE_STATUS
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
+from common.error import ErrorCode as E_C
 from common.utils import get_from_sale_server
+from common.utils import remote_decrease_stock
+from common.utils import remote_increase_stock
 from common.utils import remote_xml_shipping_fee
 from common.utils import remote_xml_shipping_services
 from common.utils import weight_convert
@@ -214,6 +217,37 @@ def create_shipping_list(conn, id_item, quantity, packing_quantity,
 
     insert(conn, 'shipping_list', values=shipping_value)
     logging.info('shipping_list create: %s', shipping_value)
+
+def stock_req_params(conn, id_shipment):
+    shipping_list = get_shipping_list(conn, id_shipment)
+    params = []
+    for shipping in shipping_list:
+        params.append({
+            'id_sale': shipping['id_sale'],
+            'id_variant': shipping['id_variant'],
+            'id_type': shipping['id_type'],
+            'id_shop': shipping['id_shop'],
+            'quantity': shipping['packing_quantity'],
+        })
+    return params
+
+def out_of_stock_errmsg(params):
+    suffix = '-'.join(map(str, [
+        params['id_sale'],
+        params['id_variant'],
+        params['id_type'],
+        params['id_shop'],
+        params['quantity'],
+    ]))
+    return E_C.OUT_OF_STOCK[1] % suffix
+
+def decrease_stock(params):
+    remote_json = remote_decrease_stock(params)
+    return remote_json.get('success', False), remote_json.get('errmsg')
+
+def increase_stock(params):
+    remote_json = remote_increase_stock(params)
+    return remote_json.get('success', False), remote_json.get('errmsg')
 
 
 class BaseShipments:
@@ -1078,7 +1112,7 @@ def update_shipping_list(conn, where, values):
                  "where: %s ",
                  values, where)
     spl_items = []
-    for item  in r:
+    for item in r:
         spl_items.append(dict(zip(SPL_ITEM_FIELDS, item)))
     return spl_items
 

@@ -256,7 +256,9 @@ class SalesCacheProxy(BaseCacheProxy):
                 type_id = resp_dict[_id].get('type', {}).get('@id')
                 cate_id = resp_dict[_id].get('category', {}).get('@id')
                 if type_id and type_id not in types:
-                    types[type_id] = ujson.loads(self.redis_cli.get(TYPE % type_id))
+                    t_obj = self.redis_cli.get(TYPE % type_id)
+                    if t_obj:
+                        types[type_id] = ujson.loads(t_obj)
                 if cate_id and cate_id not in categories:
                     categories[cate_id] = ujson.loads(self.redis_cli.get(CATEGORY % cate_id) or "{}")
 
@@ -284,7 +286,7 @@ class SalesCacheProxy(BaseCacheProxy):
 
             type_id = sale.get('type', {}).get('@id')
             category_id = sale.get('category', {}).get('@id')
-            if type_id and types[type_id]:
+            if type_id and type_id in types:
                 # update type name
                 sale['type']['name'] = types[type_id].get('name', '')
             # update category info
