@@ -1,6 +1,7 @@
 {% extends "new_base.html" %}
 {% load i18n %}
 {% load range %}
+{% load show_step_shop %}
 
 {% block title %}{% trans "Stock Management" %}{% endblock %}
 {% block head %}
@@ -153,7 +154,7 @@
                                     <td><input type="checkbox" name="batch" /></td>
                                     <td>
                                         <div class="prodSail">
-                                            <a title="click to edit this sale" href="{% url 'edit_sale' ss.sale_id.value 'shop' %}" class="imgProd">
+                                            <a title="click to edit this sale" href="{% url 'edit_sale' sale_id=ss.sale_id.value step=ss.sale_id.value|show_step_shop:request.user|yesno:"shop,product" %}" class="imgProd">
                                                 <img width="20" height="20" alt="{{ss.product_name.value}}" src="{{ss.sale_cover.value }}" style="margin:1px 0px 2px 0px">
                                             </a>
                                             <div>

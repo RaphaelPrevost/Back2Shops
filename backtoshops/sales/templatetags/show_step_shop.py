@@ -39,6 +39,7 @@
 
 from django import template
 from common.constants import USERS_ROLE
+from sales.models import Sale
 from shops.models import Shop
 
 register = template.Library()
@@ -46,6 +47,9 @@ register = template.Library()
 @register.simple_tag
 @register.filter
 def show_step_shop(sale, user):
+    if isinstance(sale, (str, int)):
+        sale = Sale.objects.get(pk=sale)
+
     if sale.shops.all():
         return True
 
