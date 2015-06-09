@@ -204,6 +204,7 @@ class ListStocksView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
             'paginator': paginator,
             'is_paginated': is_paginated,
             'sale_id': sale_id,
+            'request': self.request,
         }
         return self.render_to_response(data)
 
