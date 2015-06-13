@@ -62,6 +62,6 @@ def remote_payment_init(data):
             headers={'Content-Type': 'application/json'})
         return resp
     except Exception, e:
-        logging.error("Failed to send shipping fee %s" % data,
+        logging.error("Failed to init payment %s" % data,
                       exc_info=True)
         raise

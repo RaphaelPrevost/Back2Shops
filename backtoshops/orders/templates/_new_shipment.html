@@ -29,8 +29,8 @@
                     <div class="packing">
                         <em>
                             {% if packing.deadline %}
-                                <span class="deadline">
-                                    {% trans "Deadline:" %}{{ packing.deadline.0 }} ({{ packing.deadline.1 }} {% trans 'working days left' %})
+                                <span class="deadline" {% if packing.deadline.2 %}style="color:red"{% endif %}>
+                                    {% trans "Deadline:" %}{{ packing.deadline.0 }} ({{ packing.deadline.1 }})
                                 </span>
                             {% endif %}
                         </em>
@@ -321,6 +321,10 @@
 
             carrier_selector_change(sp_carrier);
             packing_status_change(packing_status);
+
+            {% if shipment.delivery.status|confirming %}
+            $('#prodLivr_for_' + id_shipment).parents(".vente").find("button.order.pending").show();
+            {% endif %}
         }
 
         init();

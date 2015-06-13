@@ -59,10 +59,12 @@ def log_incomes(conn, iv_id):
         r = query(conn, q, (id_order,))
         id_user = r[0][0]
 
-        insert(conn, 'incomes_log',
-               values={'order_id': id_order,
-                       'users_id': id_user,
-                       'up_time': datetime.utcnow()})
+        results = select(conn, 'incomes_log', where={'order_id': id_order})
+        if len(results) == 0:
+            insert(conn, 'incomes_log',
+                   values={'order_id': id_order,
+                           'users_id': id_user,
+                           'up_time': datetime.utcnow()})
 
     except Exception, e:
         logging.error('log_incomes_err: %s', e, exc_info=True)

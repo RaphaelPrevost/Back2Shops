@@ -43,6 +43,7 @@ from django.conf.urls.defaults import patterns, url
 from fouillis.views import admin_upper_required
 from fouillis.views import operator_upper_required
 from fouillis.views import shop_manager_upper_required
+from orders.views import change_order_status
 from orders.views import CreateShippingView
 from orders.views import EditShippingView
 from orders.views import ListOrdersView
@@ -121,5 +122,10 @@ urlpatterns = patterns(settings.get_site_prefix()+'orders',
                                 login_url="bo_login",
                                 super_allowed=False),
         name='packing_fee'),
+    url(r'/status',
+        operator_upper_required(change_order_status,
+                                login_url="bo_login",
+                                super_allowed=False),
+        ),
 )
 

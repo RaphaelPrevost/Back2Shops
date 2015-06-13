@@ -551,7 +551,8 @@ def get_order_status(conn, order_id, id_brand=None, id_shops=None):
             shipment_status_set != set([SHIPMENT_STATUS.DELIVER])):
         return ORDER_STATUS.AWAITING_SHIPPING
 
-    if invoice_status_set != set([INVOICE_STATUS.INVOICE_PAID]):
+    if (len(invoice_status_set) > 0
+            and invoice_status_set != set([INVOICE_STATUS.INVOICE_PAID])):
         return ORDER_STATUS.AWAITING_PAYMENT
 
     return ORDER_STATUS.PENDING

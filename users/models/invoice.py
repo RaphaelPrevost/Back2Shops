@@ -94,11 +94,18 @@ def create_invoice(conn, id_order, id_shipment, amount_due,
     up_order_log(conn, id_order, seller)
     return invoice_id[0]
 
-def get_invoice_by_order(conn, id_order):
+def get_invoice_by_order(conn, id_order, id_brand=None):
     sql = """SELECT *
                FROM invoices
               WHERE id_order = %s"""
-    r = query(conn, sql, (id_order,))
+    params = [id_order]
+    if id_brand:
+        sql += (" AND EXISTS ("
+            " select 1 from shipments"
+            " where shipments.id_order = %s and shipments.id=id_shipment)"
+        )
+        params.append(id_order)
+    r = query(conn, sql, params)
     return r
 
 def get_invoice_by_id(conn, id_iv):
