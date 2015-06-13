@@ -56,6 +56,7 @@ from webservice.orders import OrderListResource
 from webservice.orders import OrderList4FUserResource
 from webservice.orders import OrderResource
 from webservice.orders import OrderStatusResource
+from webservice.orders import OrderStatusHandleResource
 from webservice.orders import ShippingFeeResource
 from webservice.payment import PayboxGatewayResource
 from webservice.payment import PaymentFormResource
@@ -146,6 +147,7 @@ urlpatterns = {
 
     '/webservice/1.0/protected/shipping/list': ShippingListResource,
     '/webservice/1.0/protected/shipment': ShipmentResource,
+    '/webservice/1.0/protected/order_status': OrderStatusHandleResource,
 
     '/webservice/1.0/protected/container/search': SearchContainerResource,
     '/webservice/1.0/protected/port/search': SearchPortResource,

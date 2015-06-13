@@ -50,12 +50,15 @@
                         <strong class="pays {{ order.shipping_dest.country_iso|lower }}">{{ order.shipping_dest.country_name }}</strong>
                     </div>
 
-                    <span class="phone_num {{ order.shipping_dest.country_iso|lower }}">
+                    <div class="phone_num {{ order.shipping_dest.country_iso|lower }}">
+                        <div>
                         {% if order.shipping_dest.calling_code %}
                             (+ {{ order.shipping_dest.calling_code }})
                         {% endif %}
-                        {{ order.contact_phone.phone_num }} </span>
-
+                        {{ order.contact_phone.phone_num }}
+                        </div>
+                        <button type="button" class="seefacture order" style="display:none"></button>
+                    </div>
                 </div>
 
 
@@ -198,7 +201,7 @@
 
             $.ajax({
                 type: 'GET',
-                url: '/orders/vente',
+                url: '/orders/vente/',
                 data: data,
                 beforeSend: function(){
                     $("#order_vente").loadingOverlay({
@@ -207,14 +210,16 @@
                     });
                 },
                 success: function(content, status) {
-                    $('#order_vente').html(content);
+                    $('#order_vente .order_list').html(content);
+                    $(".disable_popup").attr('checked', null);
                 }
             }).done(function(){
-                        $("#order_vente").loadingOverlay('remove', {
-                            iconClass: 'big_flower_loading',
-                            spinnerClass: 'loading_spinner'
-                        })
-                    });
+                $("#order_vente").loadingOverlay('remove', {
+                    iconClass: 'big_flower_loading',
+                    spinnerClass: 'loading_spinner'
+                });
+                initOrderBtn();
+            });
 
         };
 

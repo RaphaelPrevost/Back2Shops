@@ -897,15 +897,20 @@ SHIPMENT_FIELDS = ['id', 'id_order', 'mail_tracking_number',
                    'id_brand', 'id_shop', 'shipping_date',
                    'shipping_carrier', 'tracking_name',
                    'update_time']
-def get_shipments_by_order(conn, id_order):
+def get_shipments_by_order(conn, id_order, id_brand=None):
     query_str = ("SELECT %s "
                    "FROM shipments "
                   "WHERE id_order=%%s "
-                    "AND status <> %%s"
-                 % ", ".join(SHIPMENT_FIELDS))
-    r = query(conn,
-              query_str,
-              (id_order, SHIPMENT_STATUS.DELETED))
+                    "AND status <> %%s")
+    if id_brand:
+        query_str += " AND id_brand = %%s"
+    query_str = query_str % ", ".join(SHIPMENT_FIELDS)
+
+    params = [id_order, SHIPMENT_STATUS.DELETED]
+    if id_brand:
+        params.append(id_brand)
+
+    r = query(conn, query_str, params)
     shipment_list = []
     for item in r:
         shipment_list.append(dict(zip(SHIPMENT_FIELDS, item)))

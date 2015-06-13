@@ -39,6 +39,7 @@
 
 import datetime
 import logging
+import os
 import settings
 import ujson
 import urlparse
@@ -49,6 +50,7 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View, TemplateResponseMixin
 from django.views.generic.edit import CreateView, UpdateView
 from fouillis.views import OperatorUpperLoginRequiredMixin
@@ -91,6 +93,9 @@ from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
 
 from B2SUtils.base_actor import actor_to_dict
+from B2SCrypto.constant import SERVICES
+from B2SCrypto.utils import gen_encrypt_json_context
+from B2SCrypto.utils import get_from_remote
 
 
 
@@ -580,8 +585,12 @@ class BaseOrderPacking(OperatorUpperLoginRequiredMixin, View):
                     deadline = sp_deadline
 
         if deadline:
-            return (deadline.date().strftime("%Y-%m-%d"),
-                    (deadline.date() - datetime.datetime.now().date()).days)
+            days_left = (deadline.date() - datetime.datetime.now().date()).days
+            if days_left > 0:
+                msg = _("%s working days left" % days_left)
+            else:
+                msg = _("%s working days late" % -days_left)
+            return (deadline.date().strftime("%Y-%m-%d"), msg, days_left <= 0)
 
     def shop_match_check(self, sale, id_shop):
         if int(id_shop) == 0:
@@ -906,7 +915,6 @@ class OrderInvoices(View, TemplateResponseMixin):
                 resp['iv_id'] = invoice['id']
                 break
 
-
         self.obj = resp
         self.order_id = order_id
         return self.render_to_response(self.__dict__)
@@ -948,3 +956,28 @@ class OrderDelete(OperatorUpperLoginRequiredMixin, View):
         return HttpResponse(ujson.dumps(resp_dict),
                             mimetype="application/json")
 
+@csrf_exempt
+def change_order_status(request, *args, **kwargs):
+    data = {'id_order': request.POST.get('id_order', ''),
+            'action': request.POST.get('action', ''),
+            'id_brand': request.user.get_profile().work_for.pk}
+
+    uri = 'webservice/1.0/protected/order_status'
+    remote_uri = os.path.join(settings.USR_SERVER, uri)
+    try:
+        data = gen_encrypt_json_context(
+            ujson.dumps(data),
+            settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+            settings.PRIVATE_KEY_PATH)
+
+        content = get_from_remote(
+            remote_uri,
+            settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],
+            settings.PRIVATE_KEY_PATH,
+            data=data,
+            headers={'Content-Type': 'application/json'})
+    except Exception, e:
+        logging.error("Failed to send shipping fee %s" % data,
+                      exc_info=True)
+        raise
+    return HttpResponse(content, mimetype='application/json')

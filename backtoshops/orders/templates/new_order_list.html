@@ -59,6 +59,8 @@
             </div>
             <!--//MEGATABS1-->
 
+            <input type="checkbox" class="disable_popup" style="height:18px;"/>
+            <label>{% trans "Disable confirmation messages" %}</label>
             <div class="order-status-tabs">
                 <ul id="order-status-tabs">
                     {% for tab in status_tabs %}
@@ -84,6 +86,8 @@
         <div class="order_list">
             {% include "order_vente.html" %}
         </div>
+        <input type="checkbox" class="disable_popup" style="height:18px;"/>
+        <label>{% trans "Disable confirmation messages" %}</label>
     </div>
 
 <div class="clear"></div>
@@ -121,6 +125,9 @@
                 $("#{{ form.status.auto_id }}").val(status);
             }
 
+            initOrderBtn();
+            $(".disable_popup").attr('checked', null);
+
             $(".order_base_tab").click(function(){
                 var tab = $(this);
                 var code = $(this).attr("status_code");
@@ -132,7 +139,7 @@
 
                 $.ajax({
                     type: 'GET',
-                    url: '/orders/vente',
+                    url: '/orders/vente/',
                     data: data,
                     beforeSend: function(){
                         var loading_overlay = $("#big_flower_loading_overlay").html();
@@ -142,14 +149,16 @@
                     },
                     success: function(content, status) {
                         $('#order_vente .order_list').html(content);
+                        $(".disable_popup").attr('checked', null);
                     }
                 }).done(function(){
-                            $("#order_vente .loading-overlay").fadeOut(function(){
-                                $(this).remove();
-                            });
-                            tab.addClass('selected');
-                            $("#order_vente .order_list").fadeIn();
+                    $("#order_vente .loading-overlay").fadeOut(function(){
+                        $(this).remove();
                     });
+                    tab.addClass('selected');
+                    $("#order_vente .order_list").fadeIn();
+                    initOrderBtn();
+                });
             });
 
             $(".find").click(function(){
@@ -174,26 +183,97 @@
 
                 $.ajax({
                     type: 'GET',
-                    url: '/orders/vente',
+                    url: '/orders/vente/',
                     data: data,
                     beforeSend: function(){
-
                         var loading_overlay = $("#big_flower_loading_overlay").html();
                         $("#order_vente").prepend(loading_overlay);
                         $("#order_vente .order_list").fadeOut();
                     },
                     success: function(content, status) {
                         $('#order_vente .order_list').html(content);
+                        $(".disable_popup").attr('checked', null);
                     }
                 }).done(function(){
-                            $("#order_vente .loading-overlay").fadeOut(function(){
-                                $(this).remove();
-                            });
-                            search_tab.addClass('selected');
-                            $("#order_vente .order_list").fadeIn();
-                        });
+                    $("#order_vente .loading-overlay").fadeOut(function(){
+                        $(this).remove();
+                    });
+                    search_tab.addClass('selected');
+                    $("#order_vente .order_list").fadeIn();
+                    initOrderBtn();
+                });
+            });
+
+            $(".disable_popup").live('click', function() {
+                var new_val = $(this).attr('checked');
+                if (new_val === undefined) new_val = null;
+                $(".disable_popup").attr('checked', new_val);
+            });
+
+            $(".vente button.order.pending").live('click', function() {
+                var order_id = $(this).parents(".vente").attr("order");
+                if (!$(".disable_popup").attr('checked') && !confirm("The customer will be notified that their full order is in stock and ready to be processed. Do you want to continue ?"))
+                    return;
+
+                //$(".packing_detail[order='" + order_id + "'] .confirm_shipment").click();
+                $.ajax({
+                    type: 'POST',
+                    url: "/orders/status",
+                    data: 'action=confirm&id_order=' + order_id,
+                    success: function(data, status) {
+                        if (data.res == 'SUCCESS') {
+                            $('#vente_' + order_id).remove();
+                        } else {
+                            alert('{% trans "Error:" %}' + data.err);
+                        }
+                    }
+                });
+            });
+
+            $(".vente button.order.waitpayment").live('click', function() {
+                var order_id = $(this).parents(".vente").attr("order");
+                if (!$(".disable_popup").attr('checked') && !confirm("This will record Order #" + order_id + " as Paid in Full, do you want to continue ?"))
+                    return;
+
+                $.ajax({
+                    type: 'POST',
+                    url: "/orders/status",
+                    data: 'action=markpaid&id_order=' + order_id,
+                    success: function(data, status) {
+                        if (data.res == 'SUCCESS') {
+                            $('#vente_' + order_id).remove();
+                        } else {
+                            alert('{% trans "Error:" %}' + data.err);
+                        }
+                    }
+                });
+            });
+
+            $(".vente button.order.waitshipment").live('click', function() {
+                var packing_detail = $(this).parents(".vente").find(".packing_detail");
+                packing_detail.find('ul li a').first().click()
+                packing_detail.find(".tabs1 .packing_status").val("3").change();
             });
         });
+
+        function initOrderBtn() {
+            var status = $('#order-status-tabs .selected').attr('status_code');
+            var btntext = "";
+            var classname = "";
+            if (status == "1") {
+                classname = "pending";
+                btntext = '{% trans "Confirm this Order" %}';
+                $(".vente button.order").text(btntext).addClass(classname).hide();
+            } else if (status == "2") {
+                classname = "waitpayment";
+                btntext = '{% trans "Mark as (Paid in Full)" %}';
+                $(".vente button.order").text(btntext).addClass(classname).show();
+            } else if (status == "3") {
+                classname = "waitshipment";
+                btntext = '{% trans "Send Shipment" %}';
+                $(".vente button.order").text(btntext).addClass(classname).show();
+            }
+        }
 
     </script>
 {% endblock %}

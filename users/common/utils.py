@@ -632,7 +632,7 @@ def to_unicode(data):
         for value in data:
             value = to_unicode(value)
             result.append(value)
-    elif isinstance(data, basestring):
+    elif isinstance(data, basestring) and not isinstance(data, unicode):
         result = unicode(data, 'utf-8')
     else:
         result = data

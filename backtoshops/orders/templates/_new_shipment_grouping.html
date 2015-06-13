@@ -2,7 +2,7 @@
 {% load is_order_completed %}
 
 {% for shipment in packing.shipments.packing_shipments %}
-    <div id="tabs1-{{ shipment.id }}" class="tabs1">
+    <div id="tabs1-{{ shipment.id }}" class="tabs1" data="{{ shipment.id }}">
         {% include "_new_shipment.html" %}
     </div>
 {% endfor %}
@@ -176,7 +176,7 @@ $(document).ready(function(){
         var shipping_date = $("#shipping_date_for_shipment_" + id_shipment);
         var tracking_number = $("#tracking_num_for_shipment_" + id_shipment);
 
-        var content_confirm = "Please Confirm: \n";
+        var content_confirm = "Please Confirm: \n\n";
         if (shipping_carrier.length > 0 & !shipping_carrier.prop('disabled')) {
             content_confirm += "Carrier: " + "\t" + shipping_carrier.find("option:selected").text().trim() + "\n";
         }
@@ -201,7 +201,7 @@ $(document).ready(function(){
 
         content_confirm += "{% trans 'Packing list or sale item \n' %}";
         $.each(content, function(k, v) {
-            content_confirm += "\t" + "{% trans 'name:' %}" + v.name + '\n';
+            content_confirm += "\t " + "{% trans 'name:' %}" + v.name + '\n';
             content_confirm += '\t {% trans "packing count" %}: ';
             content_confirm += v.packing_count;
             content_confirm += '\n';

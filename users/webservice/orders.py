@@ -46,16 +46,24 @@ import urllib2
 from B2SCrypto.constant import SERVICES
 from B2SCrypto.utils import decrypt_json_resp
 from B2SCrypto.utils import gen_encrypt_json_context
+from B2SProtocol.constants import INVOICE_STATUS
 from B2SProtocol.constants import ORDER_STATUS
 from B2SProtocol.constants import RESP_RESULT
+from B2SProtocol.constants import SHIPMENT_STATUS
 from B2SRespUtils.generate import gen_json_resp
 from B2SUtils import db_utils
 from B2SUtils.db_utils import select
 from B2SUtils.errors import ValidationError
 from common.error import NotExistError
+from common.error import ErrorCode as E_C
+from common.utils import push_order_confirming_event
+from common.email_utils import send_order_email
+from common.email_utils import send_order_email_to_service
 from models.actors.sale import CachedSale
 from models.actors.sale import get_sale_by_barcode
 from models.actors.shop import CachedShop
+from models.invoice import get_invoice_by_order
+from models.invoice import update_invoice
 from models.order import create_order
 from models.order import delete_order
 from models.order import get_order
@@ -66,6 +74,13 @@ from models.order import get_orders_list
 from models.order import modify_order
 from models.order import update_shipping_fee
 from models.order import user_accessable_order
+from models.shipments import get_shipments_by_order
+from models.shipments import update_shipment
+from models.shipments import decrease_stock
+from models.shipments import out_of_stock_errmsg
+from models.shipments import stock_req_params
+from models.stats_log import log_incomes
+from models.transaction import update_trans
 from webservice.base import BaseJsonResource
 
 
@@ -441,3 +456,75 @@ class OrderStatusResource(BaseOrderResource):
         return gen_json_resp(resp,
                              {'res': RESP_RESULT.F,
                              'err': 'INVALID_REQUEST'})
+
+class OrderStatusHandleResource(BaseJsonResource):
+    encrypt = True
+
+    post_action_func_map = {
+        'confirm': 'confirm_order',
+        'markpaid': 'mark_order_paid',
+    }
+
+    def _on_post(self, req, resp, conn, **kwargs):
+        data = decrypt_json_resp(req.stream,
+                                 settings.SERVER_APIKEY_URI_MAP[SERVICES.ADM],
+                                 settings.PRIVATE_KEY_PATH)
+        data = ujson.loads(data)
+        action = data.get('action')
+        if action is None or action not in self.post_action_func_map:
+            return {'res': RESP_RESULT.F,
+                    'err': E_C.ERR_EREQ[1]}
+        func = getattr(self, self.post_action_func_map[action], None)
+        assert hasattr(func, '__call__')
+        try:
+            func(req, resp, conn,
+                 data.get('id_order'), data.get('id_brand'))
+        except Exception, e:
+            logging.error("Failed to change order status: %s" % e, exc_info=True)
+            return {'res': RESP_RESULT.F,
+                    'err': str(e)}
+
+        return {'res': RESP_RESULT.S,
+                'err': ''}
+
+    def confirm_order(self, req, resp, conn, id_order, id_brand):
+        shipments = get_shipments_by_order(conn, id_order, id_brand)
+        params = []
+        for s in shipments:
+            update_shipment(conn, s['id'], {'status': SHIPMENT_STATUS.PACKING})
+            params += stock_req_params(conn, s['id'])
+        success, errmsg = decrease_stock(params)
+        if not success:
+            raise Exception(out_of_stock_errmsg(errmsg))
+
+        try:
+            push_order_confirming_event(conn, id_order, id_brand)
+        except Exception, e:
+            logging.error('confirmed_event_err: %s, '
+                          'order_id: %s, '
+                          'brand: %s',
+                          e, id_order, id_brand, exc_info=True)
+
+    def mark_order_paid(self, req, resp, conn, id_order, id_brand):
+        invoices = get_invoice_by_order(conn, id_order, id_brand)
+        for iv in invoices:
+            values = {'amount_paid': iv['amount_due'],
+                      'status': INVOICE_STATUS.INVOICE_PAID}
+            update_invoice(conn, iv['id'], values, iv=iv)
+
+        conn.commit()
+
+        # need update trans ??
+
+        for iv in invoices:
+            log_incomes(conn, iv['id'])
+
+        try:
+            send_order_email_to_service()
+        except Exception, e:
+            logging.error("Failed to send order email: %s", e, exc_info=True)
+        try:
+            send_order_email(conn, id_order)
+        except Exception, e:
+            logging.error("Failed to send order email: %s", e, exc_info=True)
+

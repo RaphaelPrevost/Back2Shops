@@ -271,7 +271,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
 
 	.content .address_area .pays { margin: 4px 0 0 0; padding-left: 23px; font-size: 13px; background-repeat: no-repeat; background-position: 0 3px; }
 
-
+	.content button {position: relative; left: 0px;}
 
 
 
@@ -439,6 +439,8 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', end
 	.seefacture.delete { background: url(../img/ico-delete.png) no-repeat 90px 5px #D9534F; }
 	.seefacture.delete:hover { background-color: #C9302C; }
 
+	.seefacture.order { background-color: #5CB85C; padding: 0 10px; width: 150px;}
+	.seefacture.order:hover { background-color: #449D44; }
 
 	.ui-widget #detail input, .ui-widget #detail select, .ui-widget #detail textarea, .ui-widget #detail button {
 		font-family: Verdana, Trebuchet MS,Tahoma,Arial,sans-serif!important;
