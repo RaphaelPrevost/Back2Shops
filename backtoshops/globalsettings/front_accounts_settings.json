@@ -1,0 +1,3 @@
+[{"pk": "front_business_account_allowed", "model": "globalsettings.globalsettings", "fields": {"value": "True"}},
+ {"pk": "front_personal_account_allowed", "model": "globalsettings.globalsettings", "fields": {"value": "True"}}
+ ]

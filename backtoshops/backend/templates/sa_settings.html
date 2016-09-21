@@ -50,6 +50,17 @@
                 {{ form.default_weight_unit}}
             </div>
             <hr />
+            {{ form.front_personal_account_allowed.errors }}
+            <div class="formrow">
+                <label for="{{ form.front_personal_account_allowed.auto_id }}">{% trans form.front_personal_account_allowed.label %}</label>
+                {{ form.front_personal_account_allowed}}
+            </div>
+            {{ form.front_business_account_allowed.errors }}
+            <div class="formrow">
+                <label for="{{ form.front_business_account_allowed.auto_id }}">{% trans form.front_business_account_allowed.label %}</label>
+                {{ form.front_business_account_allowed}}
+            </div>
+            <hr />
             {{ form.username.errors }}
             <div class="formrow">
                 <label for="{{ form.username.auto_id }}">{% trans form.username.label %}</label>

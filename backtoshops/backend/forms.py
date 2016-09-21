@@ -231,6 +231,14 @@ class SASettingsForm(forms.Form):
         choices=[(s, s) for s in
                  WeightUnit.objects.all().values_list('key', flat=True)],
         label=_('Default weight unit'))
+    front_business_account_allowed = forms.CharField(
+        label=_("Allow front users to register Business Accounts"),
+        widget=forms.CheckboxInput(),
+        required=True)
+    front_personal_account_allowed = forms.CharField(
+        label=_("Allow front users to register Personal Accounts"),
+        widget=forms.CheckboxInput(),
+        required=True)
 
     password = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
     username = forms.CharField(label=_('Administrator login'))
@@ -247,7 +255,11 @@ class SASettingsForm(forms.Form):
         initial = kwargs.get('initial', {})
         global_settings = GlobalSettings.objects.all()
         for global_setting in global_settings:
-            initial[global_setting.key] = global_setting.value
+            key = global_setting.key
+            initial[key] = global_setting.value
+            if key in ('front_personal_account_allowed',
+                       'front_business_account_allowed'):
+                initial[key] = initial.get(key) == 'True'
         if user is not None:
             initial['username'] = user.__dict__.get('username', '')
             initial['email'] = user.__dict__.get('email', '')
@@ -260,6 +272,17 @@ class SASettingsForm(forms.Form):
             raise forms.ValidationError(
                 _("The two password fields didn't match."))
         return new_password2
+
+    def clean_front_personal_account_allowed(self):
+        data = super(SASettingsForm, self).clean()
+        p_account_allowed = data.get('front_personal_account_allowed')
+        b_account_allowed = data.get('front_business_account_allowed')
+        if p_account_allowed != 'True' and b_account_allowed != 'True':
+            raise forms.ValidationError(
+                    {'front_personal_account_allowed':
+                        [_("At least one of user account should be allowed.")]})
+        return p_account_allowed
+
 
 class SABrandSettingsForm(forms.Form):
     error_css_class = 'error'
@@ -352,12 +375,18 @@ class SATaxForm(forms.ModelForm):
             'apply_after': forms.Select,
             'display_on_front': forms.CheckboxInput,
             'taxable': forms.CheckboxInput,
+            'applies_to_personal_accounts': forms.CheckboxInput,
+            'applies_to_business_accounts': forms.CheckboxInput,
         }
 
     def __init__(self, *args, **kwargs):
         super(SATaxForm, self).__init__(*args, **kwargs)
         self.fields['applies_to'].empty_label = _('Everything')
         self.fields['shipping_to_region'].empty_label = _('Worldwide')
+        if get_setting('front_personal_account_allowed') != 'True':
+            self.fields['applies_to_personal_accounts'].widget = forms.HiddenInput()
+        if get_setting('front_business_account_allowed') != 'True':
+            self.fields['applies_to_business_accounts'].widget = forms.HiddenInput()
 
     def clean(self):
         if self.cleaned_data['shipping_to_region']:
