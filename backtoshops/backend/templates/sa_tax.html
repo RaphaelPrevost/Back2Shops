@@ -98,6 +98,23 @@
                 {{ form.taxable }}
                 <span class="taxable-msg">({% trans "Shipping and delivery charges are subject to tax" %})</span>
             </div>
+            {% if form.applies_to_personal_accounts.field.widget.input_type != 'hidden' %}
+                {{ form.applies_to_personal_accounts.errors }}
+                <div class="formrow">
+                    <label for="{{form.applies_to_personal_accounts.auto_id}}">{% trans form.applies_to_personal_accounts.label %}</label>
+                    {{ form.applies_to_personal_accounts }}
+                </div>
+            {% endif  %}
+            {% if form.applies_to_business_accounts.field.widget.input_type != 'hidden' %}
+                {{ form.applies_to_business_accounts.errors }}
+                <div class="formrow">
+                    <label for="{{form.applies_to_business_accounts.auto_id}}">{% trans form.applies_to_business_accounts.label %}</label>
+                    {{ form.applies_to_business_accounts }}
+                </div>
+            {% endif  %}
+            {% for field in form.hidden_fields %}
+                {{ field }}
+            {% endfor  %}
         </fieldset>
         <!--BOUTONS-->
 
