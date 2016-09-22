@@ -76,15 +76,17 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': 1,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
-        item1_handling_fee= 12.0
+        item1_handling_fee = 12.0
         item1_shipping_fee = 1.05*2
-        carrier_shipping_item2 ={
+        carrier_shipping_item2 = {
             'id_sale': 1000007,
             'id_variant': 0,
             'quantity': 1,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
         item2_handling_fee = 23.0
@@ -94,6 +96,7 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': 1,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
         flat_rate_shipping_item4 = {
@@ -101,6 +104,7 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': 1,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
         item4_handling_fee = 21.0
@@ -110,6 +114,7 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': 1,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
         item5_fake_fee = 9.0 * 2
@@ -118,6 +123,7 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': 1,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
         item6_handling_fee = 23.0
@@ -182,13 +188,15 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': 1,
             'id_shop': 1000005,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
-        item2_in_shop6 ={
+        item2_in_shop6 = {
             'id_sale': 1000028,
             'id_variant': 0,
             'quantity': 1,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
         wwwOrder = [item1_in_shop5,
@@ -214,6 +222,7 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': 1,
             'id_shop': 0,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
 
@@ -222,6 +231,7 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': 1,
             'id_shop': 0,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
 
@@ -257,6 +267,7 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': item1_quantity,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
         item1_handling_fee = 11.0
@@ -268,6 +279,7 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': item2_quantity,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
         item2_weight = 2.0
@@ -279,6 +291,7 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': item3_quantity,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
         item3_weight = 3.0
@@ -290,6 +303,7 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': item4_quantity,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
         item4_weight = 4.0
@@ -344,6 +358,7 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': 3,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
         item1_handling_fee = 17.0
@@ -353,6 +368,7 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': 2,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
         item2_handling_fee = 18.0
@@ -362,6 +378,7 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': 2,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
         item3_handling_fee = 19.0
@@ -371,6 +388,7 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': 2,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
         item4_handling_fee = 20.0
@@ -420,6 +438,7 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': 2,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
 
@@ -428,6 +447,7 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': 3,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
 
@@ -436,6 +456,7 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': 2,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
 
@@ -444,6 +465,7 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': 3,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
 
@@ -452,6 +474,7 @@ class TestShipment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': 2,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
 
@@ -473,6 +496,7 @@ class TestShippingList(BaseShipmentTestCase):
             'id_variant': 1000011,
             'quantity': 2,
             'id_shop': 1000002,
+            'id_type': 1000003,
             'id_price_type': 1000003,
             'id_weight_type': 1000003}
 
@@ -557,6 +581,7 @@ class TestShippingFee(BaseShipmentTestCase):
             'id_variant': 1000012,
             'quantity': 2,
             'id_shop': 1000002,
+            'id_type': 1000003,
             'id_price_type': 1000003,
             'id_weight_type': 1000003}
 
@@ -699,6 +724,7 @@ class TestShippingConf(BaseShipmentTestCase):
             'id_variant': 1000012,
             'quantity': 2,
             'id_shop': 1000002,
+            'id_type': 1000003,
             'id_price_type': 1000003,
             'id_weight_type': 1000003}
         item1_weight = 2.0
@@ -709,6 +735,7 @@ class TestShippingConf(BaseShipmentTestCase):
             'id_variant': 1000013,
             'quantity': 1,
             'id_shop': 1000002,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
         item2_weight = 3.3
@@ -719,6 +746,7 @@ class TestShippingConf(BaseShipmentTestCase):
             'id_variant': 1000014,
             'quantity': 2,
             'id_shop': 1000002,
+            'id_type': 1000003,
             'id_price_type': 1000003,
             'id_weight_type': 1000003}
         item3_weight = 3

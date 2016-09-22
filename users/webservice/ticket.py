@@ -47,6 +47,7 @@ from B2SUtils.common import parse_ts
 from B2SUtils.errors import ValidationError
 from common.constants import TICKET_FEEDBACK
 from common.constants import TICKET_PRIORITY
+from common.utils import get_user_info
 from common.utils import push_ticket_event
 from webservice.base import BaseJsonResource
 

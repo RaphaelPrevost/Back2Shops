@@ -42,6 +42,7 @@ from B2SProtocol.constants import CustomEnum
 class FIELD_TYPE(CustomEnum):
     TEXT = "text"
     SELECT = "select"
+    CHECKBOX = "checkbox"
     RADIO = "radio"
     FIELDSET = "fieldset"
     AJAX = "ajax"

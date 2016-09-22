@@ -58,6 +58,10 @@ CREATE TABLE users_profile (
     last_name character varying(64) NOT NULL,
     gender character varying(8),
     birthday timestamp without time zone,
+    is_business_account boolean DEFAULT false NOT NULL,
+    company_name text,
+    company_position text,
+    company_tax_id text,
     FOREIGN KEY (locale, title) REFERENCES title (locale, title)
 );
 
