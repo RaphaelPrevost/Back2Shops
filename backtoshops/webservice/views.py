@@ -193,13 +193,13 @@ class BrandSettingsView(BaseWebservice, ListView):
 
     def get_queryset(self):
         settings = []
-        for s in GlobalSettings.objects.all()
+        for s in GlobalSettings.objects.all():
             settings.append({
                 'brand_id': '',
                 'key': s.key,
                 'value': s.value
             })
-        for s in BrandSettings.objects.filter(shopowner=None)
+        for s in BrandSettings.objects.filter(shopowner=None):
             settings.append({
                 'brand_id': s.brand_id,
                 'key': s.key,
