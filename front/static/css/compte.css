@@ -1195,7 +1195,8 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#9a070d', end
 #formContainer p { margin: 10px 0 ; }
 #formContainer p label {
 	display: inline-block;
-	width: 85px; height: 18px;
+	width: 185px;
+    height: 18px;
 	line-height: 18px;
 	margin: 0 5px 3px 0;
 	color: #ffffff; font-size: 12px;

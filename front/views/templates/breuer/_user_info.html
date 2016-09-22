@@ -44,6 +44,22 @@ function getTemplate(name, item)
                 });
             });
         }
+
+        if (typeof item.show !== 'undefined' && item.show) {
+            delayCallbacks.push(function() {
+                $("#" + item.show.depends_field).change(function() {
+                    var field_val = $("#" + item.show.depends_field).val();
+                    if ($("#" + item.show.depends_field).attr('type') == 'checkbox')
+                        field_val = $("#" + item.show.depends_field).attr('checked')
+
+                    if (field_val == item.show.depends_value) {
+                        $("#" + name).parent().show();
+                    } else {
+                        $("#" + name).parent().hide();
+                    }
+                }).change();
+            });
+        }
         result.template = tpl;
     } break;
 
@@ -105,6 +121,17 @@ function getTemplate(name, item)
         }
 
         result.template = tpl;
+    } break;
+
+    case 'checkbox': {
+        var tpl = '';
+
+        tpl += '<label for="' + name + '">' + utf8_decode(item.name) + '</label>' +
+               '<input type="checkbox" id="' + name + '" ' +
+               'name="' + name + '" ' + item.value;
+        tpl += '/>';
+
+        result.template = '<p>' + tpl + '</p>';
     } break;
 
     case 'fieldset': {
@@ -192,6 +219,11 @@ function getTemplate(name, item)
 
     }
 
+    if (typeof item.show !== 'undefined' && item.show && item.show.init == 'hide') {
+        delayCallbacks.push(function() {
+            $("#" + name).parent().hide();
+        });
+    }
     return result;
 }
 

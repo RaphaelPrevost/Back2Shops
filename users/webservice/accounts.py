@@ -44,6 +44,7 @@ import gevent
 import urllib
 import uuid
 
+from B2SProtocol.constants import BRANDSETTING
 from B2SProtocol.constants import RESP_RESULT
 from B2SUtils import db_utils
 from B2SUtils.errors import ValidationError
@@ -81,7 +82,9 @@ class UserResource(BaseJsonResource):
         users_id = kwargs.get("users_id", None)
         assert users_id is not None
         sql = """select email, locale, title,
-                        first_name, last_name, gender, birthday
+                        first_name, last_name, gender, birthday,
+                        is_business_account, company_name,
+                        company_position, company_tax_id
                  from users
                  left join users_profile
                     on (users.id=users_profile.users_id)
@@ -95,6 +98,10 @@ class UserResource(BaseJsonResource):
         last_name = users_profile[4] or ''
         gender = users_profile[5] or ''
         birthday = users_profile[6] or datetime.datetime(_this_year - 18, 1, 1)
+        is_business_account = users_profile[7] or False
+        company_name = users_profile[8] or ''
+        company_position = users_profile[9] or ''
+        company_tax_id = users_profile[10] or ''
 
         fields_dict = {}
         # email
@@ -131,9 +138,47 @@ class UserResource(BaseJsonResource):
                     ['%s-%s-%s' % (_this_year - 100, 1, 1),
                      '%s-%s-%s' % (_this_year, 12, 31)])
 
+        # business account
+        front_personal_account_allowed = get_redis_cli().get(
+            BRANDSETTING % ('', 'front_personal_account_allowed')) == 'True'
+        front_business_account_allowed = get_redis_cli().get(
+            BRANDSETTING % ('', 'front_business_account_allowed')) == 'True'
+        show = None
+        if front_personal_account_allowed and \
+                not front_business_account_allowed:
+            is_business_account = False
+            show = {'init': 'hide'}
+        if not front_personal_account_allowed and \
+                front_business_account_allowed:
+            is_business_account = True
+            show = {'init': 'hide'}
+        fields_dict['is_business_account'] = field_utils.CheckboxFieldType(
+                "Business Account", is_business_account, show=show)
+
+        # company name
+        fields_dict['company_name'] = field_utils.TextFieldType(
+                    "Company name", company_name, '',
+                    show={'depends_field': 'is_business_account',
+                          'depends_value': 'checked'})
+
+        # company position
+        fields_dict['company_position'] = field_utils.TextFieldType(
+                    "Position within the company", company_position, '',
+                    show={'depends_field': 'is_business_account',
+                          'depends_value': 'checked'})
+
+        # company tax id or registration number
+        fields_dict['company_tax_id'] = field_utils.TextFieldType(
+                    "Company's Tax Identification or Registration Number",
+                    company_tax_id, '',
+                    show={'depends_field': 'is_business_account',
+                          'depends_value': 'checked'})
+
         # combine general fields
-        general_fields_order = ['first_name', 'last_name', 'locale', 'title',
-                                'gender', 'birthday', 'email']
+        general_fields_order = ['is_business_account', 'company_name',
+                                'first_name', 'last_name', 'company_position',
+                                'locale', 'title', 'gender', 'birthday',
+                                'email', 'company_tax_id']
         general_fields_value = dict([
             (f_name, fields_dict.get(f_name, {}).value)
             for f_name in fields_dict])
@@ -264,6 +309,10 @@ class UserResource(BaseJsonResource):
         if not req.get_param('birthday') \
                 or not re.match(date_reexp, req.get_param('birthday')):
             raise ValidationError('INVALID_BIRTHDAY')
+        is_business_account = req.get_param('is_business_account') == 'on'
+        if is_business_account:
+            if not req.get_param('company_tax_id'):
+                raise ValidationError('INVALID_COMPANY_TAX_ID')
         values = {
             'users_id': users_id,
             'locale': req.get_param('locale') or '',
@@ -272,7 +321,18 @@ class UserResource(BaseJsonResource):
             'last_name': req.get_param('last_name') or '',
             'gender': req.get_param('gender') or '',
             'birthday': req.get_param('birthday') or '',
+            'is_business_account': is_business_account,
+            'company_name': '',
+            'company_position': '',
+            'company_tax_id': '',
         }
+        if is_business_account:
+            values.update({
+                'company_name': req.get_param('company_name') or '',
+                'company_position': req.get_param('company_position') or '',
+                'company_tax_id': req.get_param('company_tax_id') or '',
+            })
+
         result = db_utils.update(conn, "users_profile", values=values,
                         where={'users_id': users_id})
         if result == 0:

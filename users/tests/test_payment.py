@@ -105,13 +105,15 @@ class TestPayment(BaseShipmentTestCase):
             'id_variant': 0,
             'quantity': item1_quantity,
             'id_shop': 1000005,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
-        item2_in_shop6 ={
+        item2_in_shop6 = {
             'id_sale': 1000028,
             'id_variant': 0,
             'quantity': item2_quantity,
             'id_shop': 1000006,
+            'id_type': 0,
             'id_price_type': 0,
             'id_weight_type': 0}
 

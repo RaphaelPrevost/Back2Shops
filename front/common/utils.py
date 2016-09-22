@@ -714,6 +714,8 @@ def get_err_msg(err):
         'ERR_LOGIN': _('Invalid email or password.'),
         'INVALID_FIRST_NAME': _('Invalid first name.'),
         'INVALID_LAST_NAME': _('Invalid last name.'),
+        'INVALID_COMPANY_TAX_ID': _('Invalid Company\'s Tax Identification '
+                                    'or Registration Number'),
         'INVALID_PHONE_NUMBER': _('Invalid phone number.'),
         'INVALID_ADDRESS': _('Invalid address.'),
         'INVALID_CITY': _('Invalid city.'),

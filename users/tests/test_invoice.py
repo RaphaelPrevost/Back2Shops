@@ -63,6 +63,7 @@ class TestInvoice(BaseOrderTestCase):
             'id_variant': 1000012,
             'quantity': qty,
             'id_shop': 1000002,
+            'id_type': 1000003,
             'id_price_type': 1000003,
             'id_weight_type': 1000003}
 
@@ -105,6 +106,7 @@ class TestInvoice(BaseOrderTestCase):
             'id_variant': 1000012,
             'quantity': qty,
             'id_shop': 1000002,
+            'id_type': 1000003,
             'id_price_type': 1000003,
             'id_weight_type': 1000003}
 
@@ -152,6 +154,7 @@ class TestInvoice(BaseOrderTestCase):
             'id_variant': 1000012,
             'quantity': qty,
             'id_shop': 1000002,
+            'id_type': 1000003,
             'id_price_type': 1000003,
             'id_weight_type': 1000003}
 

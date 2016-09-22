@@ -50,28 +50,43 @@ class TextFieldType(FieldType):
     field_type = FIELD_TYPE.TEXT
     value = None
     accept_condition = None
+    show = None
 
-    def __init__(self, name, value, accept_condition):
+    def __init__(self, name, value, accept_condition, show=None):
         FieldType.__init__(self, name)
         self.value = value
         self.accept_condition = accept_condition
+        self.show = show
 
     def toDict(self):
-        return {"name": self.name,
-                "value": self.value,
-                "type": self.field_type,
-                "accept": self.accept_condition,
-                }
+        d = {
+            "name": self.name,
+            "value": self.value,
+            "type": self.field_type,
+            "accept": self.accept_condition,
+        }
+        if self.show:
+            d['show'] = self.show
+        return d
 
 class SelectFieldType(TextFieldType):
     field_type = FIELD_TYPE.SELECT
 
-    def __init__(self, name, value, accept_condition):
+    def __init__(self, name, value, accept_condition, show=None):
         assert type(accept_condition) is list
-        TextFieldType.__init__(self, name, value, accept_condition)
+        TextFieldType.__init__(self, name, value, accept_condition,
+                               show=show)
 
 class RadioFieldType(SelectFieldType):
     field_type = FIELD_TYPE.RADIO
+
+class CheckboxFieldType(TextFieldType):
+    field_type = FIELD_TYPE.CHECKBOX
+
+    def __init__(self, name, value, accept_condition='', show=''):
+        value = 'checked' if value else ''
+        TextFieldType.__init__(self, name, value, accept_condition,
+                               show=show)
 
 class AjaxFieldType(FieldType):
     field_type = FIELD_TYPE.AJAX

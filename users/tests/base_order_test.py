@@ -171,13 +171,17 @@ class BaseOrderTestCase(BaseTestCase):
 
     def success_posOrder(self, telephone, upc_shop, posOrder):
         r = self.b.do_posOrder(telephone, upc_shop, posOrder)
-        self.assertTrue(r.isdigit() and int(r) > 0, r)
-        return int(r)
+        r = ujson.loads(r)
+        self.assertTrue(r['res'] == 'SUCCESS', r)
+        self.assertTrue(r['id'] > 0, r)
+        return r['id']
 
     def success_wwwOrder(self, telephone, shipaddr, billaddr, wwwOrder):
         r = self.b.do_wwwOrder(telephone, shipaddr, billaddr, wwwOrder)
-        self.assertTrue(r.isdigit() and int(r) > 0, r)
-        return int(r)
+        r = ujson.loads(r)
+        self.assertTrue(r['res'] == 'SUCCESS', r)
+        self.assertTrue(r['id'] > 0, r)
+        return r['id']
 
     def get_user_info(self, users_id):
         browser = self.b

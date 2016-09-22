@@ -511,10 +511,12 @@ INSERT INTO locale VALUES ('en-US');
 
 INSERT INTO title VALUES ('先生', 'zh-CN');
 INSERT INTO title VALUES ('女士', 'zh-CN');
+INSERT INTO title VALUES ('其他', 'zh-CN');
 INSERT INTO title VALUES ('Mr', 'en-US');
 INSERT INTO title VALUES ('Mrs', 'en-US');
 INSERT INTO title VALUES ('Miss', 'en-US');
 INSERT INTO title VALUES ('Ms', 'en-US');
+INSERT INTO title VALUES ('Other', 'en-US');
 
 --
 -- Data for Name: province; Type: TABLE DATA; Schema: public

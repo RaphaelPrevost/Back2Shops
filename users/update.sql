@@ -161,4 +161,9 @@ CREATE TABLE ticket_attachment (
     random_key character varying(128) NOT NULL,
     id_ticket BIGINT
 );
+
+ALTER TABLE users_profile ADD COLUMN is_business_account boolean DEFAULT false NOT NULL;
+ALTER TABLE users_profile ADD COLUMN company_name text;
+ALTER TABLE users_profile ADD COLUMN company_position text;
+ALTER TABLE users_profile ADD COLUMN company_tax_id text;
 COMMIT;

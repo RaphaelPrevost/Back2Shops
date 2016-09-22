@@ -85,6 +85,7 @@ from common.utils import get_default_setting
 from events.models import Event
 from events.models import EventQueue
 from globalsettings import get_setting
+from globalsettings.models import GlobalSettings
 from routes.models import Route
 from sales.models import ProductCategory
 from sales.models import ProductType
@@ -191,7 +192,20 @@ class BrandSettingsView(BaseWebservice, ListView):
     template_name = "brandsettings_list.xml"
 
     def get_queryset(self):
-        return BrandSettings.objects.filter(shopowner=None)
+        settings = []
+        for s in GlobalSettings.objects.all()
+            settings.append({
+                'brand_id': '',
+                'key': s.key,
+                'value': s.value
+            })
+        for s in BrandSettings.objects.filter(shopowner=None)
+            settings.append({
+                'brand_id': s.brand_id,
+                'key': s.key,
+                'value': s.value
+            })
+        return settings
 
 class BrandListView(BaseWebservice, ListView):
     template_name = "brand_list.xml"
