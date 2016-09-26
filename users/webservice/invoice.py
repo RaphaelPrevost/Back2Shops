@@ -101,7 +101,6 @@ class BaseInvoiceMixin:
 
         # customer
         user = get_user_profile(conn, id_user)
-        customer = ' '.join([user['first_name'], user['last_name']])
 
         if id_shipments is not None:
             shipments = get_shipments_by_id(conn, id_shipments)
@@ -110,7 +109,7 @@ class BaseInvoiceMixin:
 
         invoices = {}
         for sp in shipments:
-            invoice_xml = self.get_shipment_invoice(conn, dest, customer, sp)
+            invoice_xml = self.get_shipment_invoice(conn, dest, user, sp)
             if invoice_xml is None:
                 continue
             invoices[sp['id']] = invoice_xml
@@ -160,8 +159,9 @@ class BaseInvoiceMixin:
 
         return invoices
 
-    def get_shipment_invoice(self, conn, dest, customer, shipment):
+    def get_shipment_invoice(self, conn, dest, user, shipment):
         id_shipment = shipment['id']
+        customer = ' '.join([user['first_name'], user['last_name']])
 
         # get from database
         iv_from_db = get_invoices_by_shipments(conn, [id_shipment])
@@ -173,10 +173,16 @@ class BaseInvoiceMixin:
         id_shop = shipment['id_shop']
         id_brand = shipment['id_brand']
         id_order = shipment['id_order']
-        query = {'customer': customer,
-                 'dest': dest,
-                 'shop': id_shop,
-                 'brand': id_brand}
+        query = {
+            'customer': customer,
+            'dest': dest,
+            'shop': id_shop,
+            'brand': id_brand,
+            'is_business_account': user.get('is_business_account'),
+            'company_name': user.get('company_name') or '',
+            'company_position': user.get('company_position') or '',
+            'company_tax_id': user.get('company_tax_id') or '',
+        }
 
         if cal_method in [SCM.CARRIER_SHIPPING_RATE,
                           SCM.CUSTOM_SHIPPING_RATE]:

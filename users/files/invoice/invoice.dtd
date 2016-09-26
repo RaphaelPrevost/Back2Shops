@@ -32,7 +32,10 @@
 <!ATTLIST country province CDATA #IMPLIED >
 
 <!-- buyer -->
-<!ELEMENT buyer (name, address) >
+<!ELEMENT buyer (name, company_name?, company_position?, company_tax_id?, address) >
+<!ELEMENT company_name (#PCDATA) >
+<!ELEMENT company_position (#PCDATA) >
+<!ELEMENT company_tax_id (#PCDATA) >
 
 <!-- items -->
 <!ATTLIST item id CDATA #REQUIRED >

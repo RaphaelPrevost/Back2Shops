@@ -40,11 +40,18 @@
                 <td class="price">
                 <?py if item['show_final_price']: ?>
                     <span id="price_after_tax" value="${item['price_with_tax_calc']}">${format_amount(item['price_with_tax_calc'])}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span>
+                    <?py if item['tax']: ?>
+                    <span class="tax" style="display:none" value="${item['tax']}"></span>
+                    <?py else: ?>
+                    <span class="tax" style="display:none" value="0"></span>
+                    <?py #endif ?>
                 <?py else: ?>
                     <span id="price" value="${item['price']}">${format_amount(item['price'])}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span>
                     <?py if item['tax']: ?>
                     (${price_label}: <span id="price_after_tax" value="${item['price_with_tax_calc']}">${format_amount(item['price_with_tax_calc'])}</span><span id="currency">${cur_symbol(item['product']['currency'])}</span>)
                     <span class="tax" style="display:none" value="${item['tax']}"></span>
+                    <?py else: ?>
+                    <span class="tax" style="display:none" value="0"></span>
                     <?py #endif ?>
                 <?py #endif ?>
                 </td>

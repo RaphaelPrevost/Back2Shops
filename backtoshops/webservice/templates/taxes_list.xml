@@ -14,6 +14,8 @@
     <shipping country="{{ object.shipping_to_region_id }}" {% if object.shipping_to_province %}province="{{ object.shipping_to_province }}"{% endif %} taxable="{{ object.taxable }}"/>
     <rate>{{ object.rate }}</rate>
     <display_on_front>{{ object.display_on_front }}</display_on_front>
+    <applies_to_personal_accounts>{{ object.applies_to_personal_accounts }}</applies_to_personal_accounts>
+    <applies_to_business_accounts>{{ object.applies_to_business_accounts }}</applies_to_business_accounts>
 </tax>
 	{% endfor %}
 </taxes>
