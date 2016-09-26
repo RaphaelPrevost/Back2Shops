@@ -24,6 +24,15 @@
             <!-- buyer -->
             <buyer>
                 <name>{{ object.buyer.name }}</name>
+                {% if object.buyer.company_name %}
+                    <company_name>{{ object.buyer.company_name }}</company_name>
+                {% endif %}
+                {% if object.buyer.company_position %}
+                    <company_position>{{ object.buyer.company_position }}</company_position>
+                {% endif %}
+                {% if object.buyer.company_tax_id %}
+                    <company_tax_id>{{ object.buyer.company_tax_id }}</company_tax_id>
+                {% endif %}
                 <address>
                     <addr>{{ object.buyer.address.address }} {{ object.buyer.address.address2 }}</addr>
                     <zip>{{ object.buyer.address.postalcode }}</zip>

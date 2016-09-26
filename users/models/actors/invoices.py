@@ -71,7 +71,10 @@ class ActorSeller(BaseActor):
 
 
 class ActorBuyer(BaseActor):
-    attrs_map = {'name': 'name'}
+    attrs_map = {'name': 'name',
+                 'company_name': 'company_name',
+                 'company_position': 'company_position',
+                 'company_tax_id': 'company_tax_id'}
 
     @property
     def address(self):

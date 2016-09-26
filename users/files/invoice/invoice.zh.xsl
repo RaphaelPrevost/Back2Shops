@@ -150,8 +150,19 @@
 
     <xsl:template match="buyer">
         <div id="buyer">
-            <span id="buyerName"><xsl:value-of select="name" /></span>
-            <xsl:apply-templates select="address" />
+            <xsl:if test="company_name">
+                <div><xsl:value-of select="company_name" /></div>
+            </xsl:if>
+            <div id="buyerName"><xsl:value-of select="name" /></div>
+            <xsl:if test="company_position">
+                <div><xsl:value-of select="company_position" /></div>
+            </xsl:if>
+            <div>
+                <xsl:apply-templates select="address" />
+            </div>
+            <xsl:if test="company_tax_id">
+                <div><xsl:value-of select="company_tax_id" /></div>
+            </xsl:if>
         </div>
     </xsl:template>
 

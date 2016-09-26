@@ -54,6 +54,7 @@ from common.utils import get_type_from_sale
 from common.utils import get_url_format
 from common.utils import is_routed_template
 from common.utils import user_country_province
+from common.utils import user_is_business_account
 from views.base import BaseHtmlResource
 
 
@@ -94,7 +95,8 @@ class TypeListResource(BaseHtmlResource):
 
         return {'cur_type_id': type_id,
                 'category': get_category_from_sales(sales),
-                'product_list': get_brief_product_list(sales, req, resp)}
+                'product_list':
+                    get_brief_product_list(sales, req, resp, self.users_id)}
 
 
 class ProductListResource(BaseHtmlResource):
@@ -105,7 +107,8 @@ class ProductListResource(BaseHtmlResource):
         sales = data_access(REMOTE_API_NAME.GET_SALES,
                             req, resp, **req._params)
         return {'category': dict(),
-                'product_list': get_random_products(sales, req, resp)}
+                'product_list':
+                    get_random_products(sales, req, resp, self.users_id)}
 
 
 class ProductInfoResource(BaseHtmlResource):
@@ -222,18 +225,21 @@ class ProductInfoResource(BaseHtmlResource):
                 province_code = addr.get("@province")
                 user_country_code, user_province_code = \
                         user_country_province(req, resp, self.users_id)
+                is_business_account = \
+                        user_is_business_account(req, resp, self.users_id)
                 category_tax_info = get_category_tax_info(
                         req, resp,
                         country_code, province_code,
                         user_country_code, user_province_code,
-                        _cate_id)
+                        _cate_id, is_business_account)
                 taxes_rate[_id] = category_tax_info['rate']
                 show_final_price = category_tax_info['show_final_price']
 
         return {
             'cur_type_id': type_id,
             'product_info': product_info,
-            'product_list': get_random_products(all_sales, req, resp),
+            'product_list':
+                get_random_products(all_sales, req, resp, self.users_id),
             'taxes_rate': taxes_rate,
             'show_final_price': show_final_price,
         }

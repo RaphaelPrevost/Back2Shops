@@ -52,7 +52,8 @@ class HomepageResource(BaseHtmlResource):
         sales = data_access(REMOTE_API_NAME.GET_SALES,
                             req, resp, **req._params)
 
-        data = {'product_list': get_brief_product_list(sales, req, resp)}
+        data = {'product_list':
+            get_brief_product_list(sales, req, resp, self.users_id)}
 
         if settings.BRAND_NAME == 'DRAGONDOLLAR':
             dd_data = self.dragondollar_data(req, resp)

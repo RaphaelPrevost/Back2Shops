@@ -973,7 +973,18 @@ class InvoiceView(BaseCryptoWebService, ListView):
     template_name = "invoice.xml"
 
     def get_queryset(self):
+        is_business_account = \
+                self.request.GET.get('is_business_account') == 'True'
+        if is_business_account is None:
+            is_business_account = False
+            if get_setting('front_personal_account_allowed') == 'False' and \
+                    get_setting('front_business_account_allowed') == 'True':
+                is_business_account = True
+
         customer_name = self.request.GET.get('customer')
+        company_name = self.request.GET.get('company_name') or ''
+        company_position = self.request.GET.get('company_position') or ''
+        company_tax_id = self.request.GET.get('company_tax_id') or ''
         dest = self.request.GET.get('dest')
         shipping_fee = self.request.GET.get('shipping_fee')
         handling_fee = self.request.GET.get('handling_fee')
@@ -985,20 +996,23 @@ class InvoiceView(BaseCryptoWebService, ListView):
         self.id_brand = id_brand
 
         seller = self.get_seller(id_shop, id_brand)
-        buyer = self.get_buyer(customer_name, dest)
+        buyer = self.get_buyer(customer_name, is_business_account,
+            company_name, company_position, company_tax_id, dest)
         from_address = seller['address']
         to_address = buyer['address']
         items, items_gross, items_tax, currency = self.get_items(
             content,
             from_address,
-            to_address)
+            to_address,
+            is_business_account)
         shipping, shipping_gross, shipping_tax = self.get_shipping(
             handling_fee,
             shipping_fee,
             carrier,
             service,
             from_address,
-            to_address)
+            to_address,
+            is_business_account)
         shipping.update(self.get_shipping_period(id_brand, id_shop))
 
         gross = items_gross + shipping_gross
@@ -1066,13 +1080,22 @@ class InvoiceView(BaseCryptoWebService, ListView):
         else:
             return self.shop_seller(id_shop)
 
-    def get_buyer(self, customer_name, dest):
+    def get_buyer(self, customer_name, is_business_account,
+                  company_name, company_position, company_tax_id, dest):
         dest = json.loads(dest)
 
-        return {'name': dest['full_name'] or customer_name,
-                'address': dest}
+        buyer = {'name': dest['full_name'] or customer_name,
+                 'address': dest}
+        if is_business_account:
+            buyer.update({
+                'company_name': company_name,
+                'company_position': company_position,
+                'company_tax_id': company_tax_id,
+            })
+        return buyer
 
-    def get_items(self, content, from_address, to_address):
+    def get_items(self, content, from_address, to_address,
+                  is_business_account):
         content = json.loads(content)
 
         item_list = []
@@ -1092,7 +1115,8 @@ class InvoiceView(BaseCryptoWebService, ListView):
             items_taxes = self.get_tax(price,
                                        sale.product.category.id,
                                        from_address,
-                                       to_address)
+                                       to_address,
+                                       is_business_account=is_business_account)
             for tax in items_taxes:
                 tax['tax'] = tax['tax'] * qty
                 tax['amount'] = tax['amount'] * qty
@@ -1125,7 +1149,7 @@ class InvoiceView(BaseCryptoWebService, ListView):
         return item_list, gross, total_tax, currency
 
     def get_tax(self, price, pro_category, from_address, to_address,
-                shipping_tax=False):
+                shipping_tax=False, is_business_account=False):
         f_ctry = from_address['country']
         f_prov = from_address['province']
         t_ctry = to_address['country']
@@ -1226,6 +1250,11 @@ class InvoiceView(BaseCryptoWebService, ListView):
                      (Q(applies_to_id=None) |
                       Q(applies_to_id=pro_category)))
 
+        if is_business_account:
+            query = query & Q(applies_to_business_accounts=True)
+        else:
+            query = query & Q(applies_to_personal_accounts=True)
+
         use_after_tax_price = self.get_use_after_tax_price()
         rates = Rate.objects.filter(query).order_by('-apply_after')
         taxes = {}
@@ -1255,7 +1284,8 @@ class InvoiceView(BaseCryptoWebService, ListView):
     def get_shipping(self,
                      handling_fee, shipping_fee,
                      id_carrier, id_service,
-                     from_address, to_address):
+                     from_address, to_address,
+                     is_business_account):
         shipping = {}
         if id_carrier and int(id_carrier) and id_service and int(id_service):
             service = Service.objects.get(pk=id_service)
@@ -1277,7 +1307,8 @@ class InvoiceView(BaseCryptoWebService, ListView):
         total_tax = 0.0
         if fee:
             fee_taxes = self.get_tax(fee, None, from_address, to_address,
-                                     shipping_tax=True)
+                                     shipping_tax=True,
+                                     is_business_account=is_business_account)
             shipping['taxes'] = fee_taxes
             for tax in fee_taxes:
                 if not use_after_tax_price:

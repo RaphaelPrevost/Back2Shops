@@ -179,6 +179,23 @@ def allowed_countries():
         return EURO_UNION_COUNTRIES
     return []
 
+def user_is_business_account(req, resp, users_id):
+    is_b_account = False
+    if users_id:
+        from common.data_access import data_access
+        user_info = data_access(REMOTE_API_NAME.GET_USERINFO, req, resp)
+        general_user_values = user_info['general']['values'][0]
+        is_b_account = general_user_values.get('is_business_account', False)
+    else:
+        front_personal_account_allowed = get_redis_cli().get(
+            BRANDSETTING % ('', 'front_personal_account_allowed')) == 'True'
+        front_business_account_allowed = get_redis_cli().get(
+            BRANDSETTING % ('', 'front_business_account_allowed')) == 'True'
+        if not front_personal_account_allowed and \
+                front_business_account_allowed:
+            is_b_account = True
+    return is_b_account
+
 def calc_before_tax_price():
     val = get_redis_cli().get(
             BRANDSETTING % (settings.BRAND_ID, 'use_after_tax_price'))
@@ -243,7 +260,8 @@ def _get_shop_addr(sale_info, id_shop=None):
         break
     return country_code, province_code
 
-def get_brief_product(sale, req, resp, calc_price=True):
+def get_brief_product(sale, req, resp, calc_price=True,
+                      is_business_account=False):
     id_sale = sale['@id']
     _type = sale.get('type', {})
     short_desc = sale.get('short_desc') or ''
@@ -284,7 +302,7 @@ def get_brief_product(sale, req, resp, calc_price=True):
         tax_info = get_category_tax_info(req, resp,
                 country_code, province_code,
                 user_country_code, user_province_code,
-                _cate_id)
+                _cate_id, is_business_account)
         product_info['price'] = price
         if calc_before_tax_price():
             product_info['price_with_tax_calc'] = price * (1 + tax_info['rate'] / 100.0)
@@ -296,18 +314,21 @@ def get_brief_product(sale, req, resp, calc_price=True):
         product_info['img'] = '/img/dollar-example.jpg'
     return product_info
 
-def get_brief_product_list(sales, req, resp):
-    return [get_brief_product(s, req, resp)
+def get_brief_product_list(sales, req, resp, users_id):
+    is_business_account = user_is_business_account(req, resp, users_id)
+    return [get_brief_product(s, req, resp,
+                is_business_account=is_business_account)
             for s in sales.itervalues()
             if int(s.get('available', {}).get('@total', 0)) > 0]
 
-def get_random_products(sales, req, resp, count=settings.NUM_OF_RANDOM_SALES):
+def get_random_products(sales, req, resp, users_id,
+                        count=settings.NUM_OF_RANDOM_SALES):
     random_sales = {}
     if len(sales) < count:
         count = len(sales)
     map(lambda k: random_sales.update({k: sales[k]}),
         random.sample(sales, count))
-    return get_brief_product_list(random_sales, req, resp)
+    return get_brief_product_list(random_sales, req, resp, users_id)
 
 def get_category_from_sales(sales):
     if len(sales) > 0:
@@ -419,7 +440,7 @@ def user_country_province(req, resp, users_id):
 def get_category_tax_info(req, resp,
                      from_country_code, from_province_code,
                      to_country_code, to_province_code,
-                     category_id):
+                     category_id, is_business_account):
     from common.data_access import data_access
     taxes = data_access(REMOTE_API_NAME.GET_TAXES, req, resp,
                         fromCountry=from_country_code,
@@ -430,9 +451,16 @@ def get_category_tax_info(req, resp,
     rate = 0
     show_final_price = False
     for t in taxes.itervalues():
+        if (is_business_account and
+                t.get('applies_to_personal_accounts') == 'True' or
+           not is_business_account and
+                t.get('applies_to_business_accounts') == 'True'):
+            continue
+
         rate = float(t['rate'])
         show_final_price = t.get('display_on_front') == 'True'
         break
+
     return {'rate': rate, 'show_final_price': show_final_price}
 
 def get_basket_table_info(req, resp, basket_data, users_id):
@@ -445,6 +473,7 @@ def get_basket_table_info(req, resp, basket_data, users_id):
     all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
     user_country_code, user_province_code = \
             user_country_province(req, resp, users_id)
+    is_business_account = user_is_business_account(req, resp, users_id)
     basket = []
     for item, quantity in basket_data.iteritems():
         try:
@@ -484,7 +513,9 @@ def get_basket_table_info(req, resp, basket_data, users_id):
             'quantity': quantity,
             'variant': variant,
             'type': type,
-            'product': get_brief_product(sale_info, req, resp, False),
+            'product': get_brief_product(sale_info, req, resp,
+                calc_price=False,
+                is_business_account=is_business_account),
             'link': get_url_format(FRT_ROUTE_ROLE.PRDT_INFO) % {
                 'id_type': _type.get('@id', 0),
                 'type_name': get_normalized_name(FRT_ROUTE_ROLE.PRDT_INFO,
@@ -510,7 +541,7 @@ def get_basket_table_info(req, resp, basket_data, users_id):
         tax_info = get_category_tax_info(req, resp,
                 country_code, province_code,
                 user_country_code, user_province_code,
-                _cate_id)
+                _cate_id, is_business_account)
         if calc_before_tax_price():
             one['price_with_tax_calc'] = price / (1 + tax_info['rate'] / 100.0)
         else:

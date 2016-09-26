@@ -79,7 +79,7 @@ class TestUserAuth(BaseTestCase):
         auth_cookie = self.login()
         old_data = _parse_auth_cookie(auth_cookie.value.strip('"'))
 
-        # csrf updated every request
+        # csrf updated after post requests
         self.pass_auth_verification()
         new_auth_cookie = self.b.get_cookies().get(USER_AUTH_COOKIE_NAME)
         new_data = _parse_auth_cookie(new_auth_cookie.value.strip('"'))
