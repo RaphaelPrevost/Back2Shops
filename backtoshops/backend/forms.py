@@ -261,8 +261,8 @@ class SASettingsForm(forms.Form):
                        'front_business_account_allowed'):
                 initial[key] = initial.get(key) == 'True'
         if user is not None:
-            initial['username'] = user.__dict__.get('username', '')
-            initial['email'] = user.__dict__.get('email', '')
+            initial['username'] = getattr(user, 'username', '')
+            initial['email'] = getattr(user, 'email', '')
         super(SASettingsForm, self).__init__(initial=initial, *args, **kwargs)
 
     def clean_new_password2(self):
