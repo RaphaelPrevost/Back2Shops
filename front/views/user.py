@@ -149,10 +149,22 @@ class UserResource(BaseHtmlResource):
                         f['accept'] = filter(lambda x:x[1]
                                              in white_countries, f['accept'])
 
-            # give geolocation country/province if no address values.
-            if not all(int(addr['id']) for addr in user_profile['address']['values']):
+            set_default_addr_country = not all(
+                int(addr['id']) for addr in user_profile['address']['values'])
+            set_default_phone_country = not all(
+                int(p['id']) for p in user_profile['phone']['values'])
+            if set_default_addr_country or set_default_phone_country:
                 geolocation = get_location_by_ip(get_client_ip(req))
 
+            # give geolocation country calling code if no values
+            if set_default_phone_country:
+                for p in user_profile['phone']['values']:
+                    if not int(p['id']):
+                        country_code = geolocation['country']['iso_code']
+                        p['country_num'] = unicode2utf8(country_code)
+
+            # give geolocation country/province if no address values.
+            if set_default_addr_country:
                 for address in user_profile['address']['values']:
                     if not int(address['id']):
                         country_code = geolocation['country']['iso_code']
