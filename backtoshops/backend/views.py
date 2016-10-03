@@ -140,7 +140,7 @@ class BaseUserView(SARequiredMixin):
     system uses create form and edit form and save method is overridden in the form.   
     """
     template_name = "sa_user.html"
-    
+
     def get_context_data(self, **kwargs):
         if 'users' not in self.__dict__:
             self.users = User.objects.filter(
@@ -174,21 +174,21 @@ class BaseUserView(SARequiredMixin):
                            })
             if 'search_brand' in self.__dict__:
                 kwargs.update({'search_brand': self.search_brand,})
-        
+
         return kwargs
-    
+
     def get_form_kwargs(self):
         """
         overriding this for avoid any form binding during search post.
         """
         if 'is_search' in self.__dict__ and self.is_search:
-            kwargs = {'initial': self.get_initial(),} 
+            kwargs = {'initial': self.get_initial()}
             if 'object' in self.__dict__:
-                kwargs.update({'instance': self.object,})
+                kwargs.update({'instance': self.object})
             return kwargs
         else:
             return super(BaseUserView,self).get_form_kwargs()
-    
+
     def post(self, request, *args, **kwargs):
         self.is_search = request.POST.get('search',False)
         if self.is_search: #search case
@@ -214,12 +214,12 @@ class BaseUserView(SARequiredMixin):
 
 class CreateUserView(BaseUserView, CreateView):
     form_class = SACreateUserForm
-    
+
     def get_success_url(self):
-        return reverse('sa_edit_user',args=[self.object.user.pk])
-    
+        return reverse('sa_edit_user', args=[self.object.user.pk])
+
     def get_initial(self):
-        initials = super(CreateUserView,self).get_initial()
+        initials = super(CreateUserView, self).get_initial()
         initials.update({"language": get_setting('default_language')})
         return initials
 
@@ -231,14 +231,15 @@ class EditUserView(BaseUserView, UpdateView):
     """
     form_class = SAUserForm
     queryset = User.objects.all()
-    
+
     def get_object(self):
-        user = super(EditUserView,self).get_object()
-        self.object, created = UserProfile.objects.get_or_create(user=user, defaults={"language": get_setting('default_language')})
+        user = super(EditUserView, self).get_object()
+        self.object, created = UserProfile.objects.get_or_create(user=user,
+            defaults={"language": get_setting('default_language')})
         return self.object
-    
+
     def get_success_url(self):
-        return reverse("sa_edit_user",args=[self.object.user.pk])
+        return reverse("sa_edit_user", args=[self.object.user.pk])
 
 
 class DeleteUserView(BaseUserView, DeleteView):

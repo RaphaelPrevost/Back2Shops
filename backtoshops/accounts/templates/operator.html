@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load full_name %}
 
 {% block title %}
 {% if user_pk %}
@@ -50,6 +51,16 @@
                     <label for="{{form.username.auto_id}}">{% trans form.username.label %}</label>
                     {{ form.username }}
                 </div>
+                {{ form.first_name.errors }}
+                <div class="formrow">
+                    <label for="{{form.first_name.auto_id}}">{% trans form.first_name.label %}</label>
+                    {{ form.first_name }}
+                </div>
+                {{ form.last_name.errors }}
+                <div class="formrow">
+                    <label for="{{form.last_name.auto_id}}">{% trans form.last_name.label %}</label>
+                    {{ form.last_name }}
+                </div>
                 {{ form.email.errors }}
                 <div class="formrow">
                     <label for="{{ form.email.auto_id }}">{% trans form.email.label %}</label>
@@ -95,6 +106,16 @@
                 <div class="formrow">
                     <label for="{{form.username.auto_id}}">{% trans form.username.label %}</label>
                     {{ form.username }}
+                </div>
+                {{ form.first_name.errors }}
+                <div class="formrow">
+                    <label for="{{ form.first_name.auto_id }}">{% trans form.first_name.label %}</label>
+                    {{ form.first_name }}
+                </div>
+                {{ form.last_name.errors }}
+                <div class="formrow">
+                    <label for="{{ form.last_name.auto_id }}">{% trans form.last_name.label %}</label>
+                    {{ form.last_name }}
                 </div>
                 {{ form.password1.errors }}
                 <div class="formrow">
@@ -173,7 +194,7 @@
             </tr>
             {% for user in users.object_list %}
             <tr id="user_{{ user.pk }}"><!-- class=new -->
-                <td><a href="{% url 'edit_operator' user.pk %}">{{ user.username }}</a></td>
+                <td><a href="{% url 'edit_operator' user.pk %}">{% username_and_fullname user %}</a></td>
                 <td><a class="modif" href="{% url 'edit_operator' user.pk %}">{% trans "Edit" %}</a><a class="out delete_user" href="{% url 'delete_operator' user.pk %}">{% trans "Delete" %}</a></td>
             </tr>
             {% empty %}

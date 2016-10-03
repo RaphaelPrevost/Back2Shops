@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load full_name %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -81,13 +82,17 @@
 		<!--NAV-->
 		<div id="nav">
 			<div id="etiquette">
-				<h3>{% trans "You're logged in as a super admin" %}</h3>
+            	{% if user.is_superuser %}
+				    <h3>{% trans "You're logged in as a super admin" %}</h3>
+                {% else %}
+				    <img src="{{ user.get_profile.work_for.logo.url }}" alt="{{ user.get_profile.work_for.name }}" />
+                {% endif %}
 			</div>
             {% if user.is_authenticated %}
         	<form id="language_form" method="POST" action="/setlang/">
             	{% csrf_token %}
             	<input id="language_next" name="next" type="hidden" value="/" />
-                {% trans 'Welcome' %} <span id="userName">{{ user.username }}</span>
+                {% trans 'Welcome' %} <span id="userName">{% fullname_and_rank user %}</span>
                 {{ default_language }}
             	{% if LANGUAGES %}
             		<select id="language" name="language">

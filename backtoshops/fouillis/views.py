@@ -39,6 +39,7 @@
 
 import logging
 import urlparse
+from django.contrib.auth import get_user_model
 from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
@@ -288,7 +289,6 @@ logger = logging.getLogger('django')
 def login_staff(request):
     if request.method == "POST":
         redirect_to = request.REQUEST.get(REDIRECT_FIELD_NAME, '')
-        print redirect_to
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
             username = request.POST['username']
@@ -301,7 +301,7 @@ def login_staff(request):
                         request.session['django_language'] = user.get_profile().language
                     except:
                         request.session['django_language'] = get_setting('default_language')
-                        
+
                     netloc = urlparse.urlparse(redirect_to)[1]
 
                     # Use default setting if redirect_to is empty
@@ -316,3 +316,24 @@ def login_staff(request):
     else:
         form = AuthenticationForm(request)
     return render(request, 'login.html', locals())
+
+
+class EmailLoginBackend(object):
+    def authenticate(self, username=None, password=None, **kwargs):
+        user_cls = get_user_model()
+        try:
+            user = user_cls.objects.get(email=username)
+            if user.check_password(password):
+                return user
+        except user_cls.DoesNotExist:
+            return None
+        except:
+            return None
+
+    def get_user(self, user_id):
+        user_cls = get_user_model()
+        try:
+            return user_cls.objects.get(pk=user_id)
+        except user_cls.DoesNotExist:
+            return None
+
