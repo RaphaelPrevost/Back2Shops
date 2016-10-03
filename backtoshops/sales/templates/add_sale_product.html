@@ -3,6 +3,7 @@
 {% load get_ta_name %}
 {% load get_cur_name %}
 {% load calc_premium_price %}
+{% load tips %}
 
 {#Form to add product#}
 
@@ -32,6 +33,9 @@
 
             {{ wizard.form.category.errors }}
             <div class="formrow">
+                {% if wizard.form.category|show_sale_uncategorized_tip %}
+                    {% sale_uncategorized_tip user %}
+                {% endif %}
                 <label for="{{ wizard.form.category.auto_id }}">{% trans wizard.form.category.label %}</label>
                 {{ wizard.form.category }}
             </div>
@@ -1212,7 +1216,7 @@
                     $.each(data, function(i, option){
                         if (option.valid) {
                             $("#product_type_selector").append($("<option>", {value: option.value, text: option.label}));
-                        } else if ("{{ wizard.form.type.value }}" != "None" && option.value == {{ wizard.form.type.value }}) {
+                        } else if ("{{ wizard.form.type.value }}" != "None" && option.value == "{{ wizard.form.type.value }}") {
                             $("#product_type_selector").append($("<option>", {value: option.value, text: "({% trans "invalid" %})" + option.label}));
                         }
                     });
