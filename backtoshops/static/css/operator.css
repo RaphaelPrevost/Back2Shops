@@ -182,12 +182,14 @@
 
 #listeUser table tr td a {
     display: block;
-    width: 118px;
+    width: 278px;
     height: 28px;
     line-height: 28px;
     overflow: hidden;
     font-size: 11px;
     font-weight: bold;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 #listeUser table tr td a:hover { text-decoration: underline; }
 

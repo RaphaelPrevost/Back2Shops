@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load get_lang_iso %}
 {% load brand_ico %}
+{% load full_name %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -129,7 +130,7 @@
 			<!--FIN NAV-->
 
 			<div id="welcome">
-				{% trans "Welcome " %}<span id="userName">{{ user.username }}</span>
+				{% trans "You are logged in as " %}<span id="userName">{% fullname_and_rank user %}</span>
 			</div>
 
 			<a id="logout" href="/logout?next=/">Logout</a>

@@ -392,3 +392,8 @@ SALES_SIM_COUNT = 5
 FIXTURE_DIRS = (
    'fixtures/',
 )
+
+AUTHENTICATION_BACKENDS = (
+    'fouillis.views.EmailLoginBackend',
+    'django.contrib.auth.backends.ModelBackend'
+)

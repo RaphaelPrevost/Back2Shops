@@ -36,8 +36,8 @@
 .listeRight table tr th.company { width: 110px; }
 .listeRight table tr th.on a { background: url(../img/trie_on-off.gif) no-repeat 125px 1px transparent; }
 
-.listeRight table tr td a { width: 160px; }
-
-
-
-
+.listeRight table tr td a {
+    width: 160px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

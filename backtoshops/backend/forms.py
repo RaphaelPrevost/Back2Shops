@@ -115,6 +115,8 @@ class BaseUserForm(forms.ModelForm):
     error_css_class = 'error'
     required_css_class = 'required'
     username = forms.CharField(label=_("Username"))
+    first_name = forms.CharField(label=_("First name"), required=False)
+    last_name = forms.CharField(label=_("Last name"), required=False)
     email = forms.EmailField(label=_("E-mail"))
     role = forms.IntegerField(widget=forms.HiddenInput(), required=False)
     language = forms.ChoiceField(
@@ -165,9 +167,13 @@ class SACreateUserForm(BaseUserForm):
 
     def save(self, commit=True):
         user_profile = super(SACreateUserForm, self).save(commit=False)
-        user = User.objects.create_user(self.cleaned_data["username"],
-                                        self.cleaned_data["email"],
-                                        self.cleaned_data["password1"])
+        user = User.objects.create_user(
+            self.cleaned_data["username"],
+            email=self.cleaned_data["email"],
+            password=self.cleaned_data["password1"],
+            first_name=self.cleaned_data['first_name'],
+            last_name=self.cleaned_data['last_name'],
+        )
         user.is_staff = True
 #        user.is_superuser = self.cleaned_data['is_superuser']
         user.is_superuser = False
@@ -187,12 +193,16 @@ class SAUserForm(BaseUserForm):
         self.fields['username'].initial = self.instance.user.username
         self.fields['username'].widget.attrs['readonly'] = True
         self.fields['email'].initial = self.instance.user.email
+        self.fields['first_name'].initial = self.instance.user.first_name
+        self.fields['last_name'].initial = self.instance.user.last_name
 #        self.fields['is_superuser'].initial = self.instance.user.is_superuser
         self.fields['is_active'].initial = self.instance.user.is_active
 
     def save(self, commit=True):
         self.instance = super(SAUserForm, self).save(commit=False)
         self.instance.user.email = self.cleaned_data['email']
+        self.instance.user.first_name = self.cleaned_data['first_name']
+        self.instance.user.last_name = self.cleaned_data['last_name']
 #        self.instance.user.is_superuser = self.cleaned_data['is_superuser']
         self.instance.user.is_active = self.cleaned_data['is_active']
         self.instance.user.save()

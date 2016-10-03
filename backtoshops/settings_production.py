@@ -364,3 +364,8 @@ SALES_SIM_REDIS = {'HOST': '127.0.0.1',
                    'PORT': 8001,
                    'TIMEOUT': 1}
 SALES_SIM_COUNT = 5
+
+AUTHENTICATION_BACKENDS = (
+    'fouillis.views.EmailLoginBackend',
+    'django.contrib.auth.backends.ModelBackend'
+)
