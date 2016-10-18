@@ -57,7 +57,7 @@ def username_and_fullname(user):
     text = user.username
     full = full_name(user)
     if full:
-       text = '{} ({})'.format(user.username, full)
+       text = u'{} ({})'.format(user.username, full)
     return text
 
 @register.simple_tag
@@ -71,5 +71,5 @@ def fullname_and_rank(user):
         elif user.get_profile().role == USERS_ROLE.MANAGER:
             rank = 'manager'
     if rank:
-       text = '{} ({})'.format(text, rank)
+       text = u'{} ({})'.format(text, rank)
     return text
