@@ -37,6 +37,7 @@
 #############################################################################
 
 
+from webservice import coupon
 from webservice import ticket
 from webservice import ticket_attachment
 from webservice.accounts import UserResource
@@ -144,6 +145,8 @@ urlpatterns = {
     '/webservice/1.0/private/sensor/bought_history': SensorBoughtHistoryResource,
     '/webservice/1.0/private/sensor/visitors_online': SensorVisitorsOnlineResource,
     '/webservice/1.0/private/sensor/visitors/log': SensorVisitorsLogResource,
+    '/webservice/1.0/private/coupon': coupon.CouponCreateResource,
+    '/webservice/1.0/private/coupon/list': coupon.CouponListResource,
 
     '/webservice/1.0/protected/shipping/list': ShippingListResource,
     '/webservice/1.0/protected/shipment': ShipmentResource,

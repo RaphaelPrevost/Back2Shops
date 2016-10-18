@@ -97,3 +97,33 @@ PAYPAL_INVALID = 'INVALID'
 
 RESET_PASSWORD_REDIS_KEY = 'RESET_PWD:%s'
 
+
+class COUPON_CONDITION_IDTYPE(CustomEnum):
+    SALE = 1
+    SHOP = 2
+    BRAND = 3 # product brand
+    GROUP = 4 # promotion group
+
+class COUPON_CONDITION_OPERATION(CustomEnum):
+    NONE = 1
+    SUM_ITEMS = 2
+    SUM_PRICE = 3
+
+class COUPON_CONDITION_COMPARISON(CustomEnum):
+    LT = 1
+    LTE = 2
+    EQ = 3
+    GT = 4
+    GTE = 5
+
+class COUPON_REWARD_TYPE(CustomEnum):
+    COUPON_CURRENCY = 1
+    COUPON_DISCOUNT = 2
+    COUPON_GIVEAWAY = 3
+
+class COUPON_DISCOUNT_APPLIES(CustomEnum):
+    VALUE_CHEAPEST = 1
+    VALUE_MATCHING = 2
+    VALUE_INVOICED = 3
+    VALUE_SHIPPING = 4
+
