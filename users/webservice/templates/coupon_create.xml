@@ -1,0 +1,3 @@
+<coupons version="1.0">
+    <coupon id="{{id_coupon}}"></coupon>
+</coupons>

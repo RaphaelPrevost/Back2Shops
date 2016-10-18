@@ -1,0 +1,81 @@
+<coupons version="1.0">
+    {% for coupon in coupons %}
+    <coupon id="{{coupon['id']}}" issuer="{{coupon['id_brand']}}" stackable="{{coupon['stackable']}}" author="{{coupon['author']}}">
+        <type>{{coupon['coupon_type']}}</type>
+        <desc>{{coupon['desc']}}</desc>
+        <password>{{coupon['password']}}</password>
+        <valid from="{{coupon['creation_time']}}" to="{{coupon['expiration_time']}}" />
+        <redeemable {%if coupon['max_redeemable'] %}max="{{coupon['max_redeemable']}}"{% endif %} always="{{coupon['redeemable_always']}}">
+            <!-- redeemable by whom ? -->
+            {% for id_user in coupon.get('id_users', []) %}
+            <beneficiary>{{id_user}}</beneficiary>
+            {% endfor %}
+            <!-- redeemable where ? -->
+            {% for shop in coupon.get('shops', []) %}
+            <shop id="{{ shop['@id'] }}">
+                <!-- brand responsible for the shop -->
+                <brand id="{{ shop['brand']['@id'] }}">
+                    <name>{{ shop['brand']['name'] }}</name>
+                    <img>{% if shop['brand']['img'] %}{{ shop['brand']['img'] }}{% endif %}</img>
+                    <!-- corporate account address -->
+                    <address id="{{ shop['brand']['address']['@id'] }}">
+                        <addr>{{ shop['brand']['address']['addr'] }}</addr>
+                        <zip>{{ shop['brand']['address']['zip'] }}</zip>
+                        <city>{{ shop['brand']['address']['city'] }}</city>
+                        <country province="{{ shop['brand']['address']['country']['@province']}}">
+                            {{ shop['brand']['address']['country']['#text'] }}
+                        </country>
+                    </address>
+                    <!-- business registration details -->
+                    {% for id_ in shop['brand']['id'] %}
+                    <id type="{{ id_['@type'] }}">{{ id_['#text'] }}</id>
+                    {% endfor %}
+                </brand>
+                <name>{{ shop['name'] }}</name>
+                {% for id_ in shop['id'] %}
+                <id type="{{ id_['@type'] }}">{{ id_['#text'] }}</id>
+                {% endfor %}
+                <desc>{% if shop['desc'] %}{{ shop['desc'] }}{% endif %}</desc>
+                <caption>{% if shop['caption'] %}{{ shop['caption'] }}{% endif %}</caption>
+                <img>{% if shop['img'] %}{{ shop['img'] }}{% endif %}</img>
+                <!-- shop address -->
+                <address id="{{ shop['address']['@id'] }}">
+                    <addr>{{ shop['address']['addr'] }}</addr>
+                    <zip>{{ shop['address']['zip'] }}</zip>
+                    <city>{{ shop['address']['city'] }}</city>
+                    <country province="{{ shop['address']['country']['@province']}}">
+                        {{ shop['address']['country']['#text'] }}
+                    </country>
+                </address>
+                <upc>{% if shop['upc'] %}{{ shop['upc'] }}{% endif %}</upc>
+                <location lat="{{ shop['@lat'] }}" long="{{ shop['@long'] }}" />
+                <hours>{% if shop['hours'] %}{{ shop['hours'] }}{% endif %}</hours>
+            </shop>
+            {% endfor %}
+        </redeemable>
+        {% if coupon.get('require') %}
+        <require order="{{coupon['require']['order']}}">
+            {% if coupon['require'].get('match') %}
+            {% for match in coupon['require']['match'] %}
+            <order match="{{match['type']}}" id="{{match['id']}}" />
+            {% endfor %}
+            {% endif %}
+            {% if coupon['require'].get('operation') %}
+            <threshold sum="{{coupon['require']['operation']}}" must="{{coupon['require']['comparison']}}">{{coupon['require']['threshold']}}</threshold>
+            {% endif %}
+        </require>
+        {% endif %}
+        <reward>
+            {% if coupon['reward'].get('discount') %}
+            <rebate type="{{coupon['reward']['discount'].get('type')}}">{{coupon['reward']['discount'].get('discount')}}</rebate>
+            {% endif %}
+            {% for gift in coupon['reward']['gifts'] %}
+            <gift quantity="{{gift['quantity']}}">{{gift['item_id']}}</gift>
+            {% endfor %}
+            {% if coupon['reward'].get('credit') %}
+            <credit currency="{{coupon['reward']['credit'].get('currency')}}">{{coupon['reward']['credit'].get('amount')}}</credit>
+            {% endif %}
+        </reward>
+    </coupon>
+    {% endfor %}
+</coupons>
