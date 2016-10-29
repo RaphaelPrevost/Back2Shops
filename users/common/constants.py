@@ -127,3 +127,8 @@ class COUPON_DISCOUNT_APPLIES(CustomEnum):
     VALUE_INVOICED = 3
     VALUE_SHIPPING = 4
 
+class ORDER_STATUS_FOR_COUPON(CustomEnum):
+    PENDING = 1
+    PAID = 2
+    CANCELLED = 3
+
