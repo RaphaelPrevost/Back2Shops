@@ -37,12 +37,14 @@
 #############################################################################
 
 
+import cgi
 from datetime import datetime
 import logging
 import ujson
 import xmltodict
 
 from B2SCrypto.constant import SERVICES
+from B2SProtocol.constants import RESP_RESULT
 from B2SProtocol.constants import SHOP
 from B2SUtils import db_utils
 from B2SUtils.errors import ValidationError
@@ -52,20 +54,36 @@ from common.constants import COUPON_CONDITION_OPERATION
 from common.constants import COUPON_CONDITION_COMPARISON
 from common.constants import COUPON_DISCOUNT_APPLIES
 from common.constants import COUPON_REWARD_TYPE
+from common.constants import ORDER_STATUS_FOR_COUPON
 from common.redis_utils import get_redis_cli
 from common.utils import to_unicode
+from models.coupon import apply_password_coupon
+from models.coupon import check_coupon_with_password
+from models.coupon import check_order_for_coupon
+from models.coupon import get_coupon_condition_data
+from models.coupon import get_coupon_shop_data
+from models.coupon import get_coupon_user_data
+from models.coupon import get_user_info
+from models.coupon import match_comparison
+from models.coupon import order_item_match_cond
+from models.order import get_order_items
 from webservice.base import BaseJsonResource
 from webservice.base import BaseXmlResource
 
 
 class CouponListResource(BaseXmlResource):
     template = "coupons.xml"
-    encrypt = False#True
+    encrypt = True
     service = SERVICES.ADM
 
     def _on_get(self, req, resp, conn, **kwargs):
         id_brand = req.get_param('id_brand')
-        id_shop = req.get_param('id_shop')
+        if not id_brand:
+            raise ValidationError('COUPON_ERR_INVALID_ID_BRAND')
+
+        params = cgi.parse_qs(req.query_string)
+        id_shops = params.get('id_shop') or []
+
         id_item = req.get_param('id_item')
         id_promotion_group = req.get_param('promotion_group')
         id_product_brand = req.get_param('item_brand')
@@ -74,8 +92,8 @@ class CouponListResource(BaseXmlResource):
             conn, 'coupons', columns=('id',),
             where={'id_brand': id_brand})
         id_coupons = [v[0] for v in id_coupons]
-        if id_shop:
-            id_coupons = self._filter_by_shop(conn, id_brand, id_shop, id_coupons)
+        if id_shops:
+            id_coupons = self._filter_by_shops(conn, id_brand, id_shops, id_coupons)
         if id_item:
             id_coupons = self._filter_by_id(conn, COUPON_CONDITION_IDTYPE.SALE,
                                             id_item, id_coupons)
@@ -107,12 +125,18 @@ class CouponListResource(BaseXmlResource):
             }
 
             coupon_data.update({
-                'id_users': self._get_coupon_user_data(conn, id_coupon),
+                'id_users': get_coupon_user_data(conn, id_coupon),
             })
             coupon_data.update({
-                'shops': self._get_coupon_shop_data(conn, id_coupon),
+                'shops': [self._get_shop_details(id_shop)
+                    for id_shop in get_coupon_shop_data(conn, id_coupon)]
             })
-            require = self._get_condition_data(conn, id_coupon)
+            conds, threshold = get_coupon_condition_data(conn, id_coupon)
+            require = {}
+            if threshold:
+                require.update(threshold)
+            if conds:
+                require['match'] = conds
             if require:
                 require.update({
                     'order': 'first' if c_values['first_order_only'] else 'any',
@@ -126,16 +150,17 @@ class CouponListResource(BaseXmlResource):
             data.append(coupon_data)
         return {'coupons': to_unicode(data)}
 
-    def _filter_by_shop(self, conn, id_brand, id_shop, id_coupons):
-        results = db_utils.query(conn,
-        """select id from coupons
+    def _filter_by_shops(self, conn, id_brand, id_shops, id_coupons):
+        query = """select id from coupons
         where id_brand=%s and not exists (
             select 1 from coupon_accepted_at where id_coupon = coupons.id)
         union
-        select id_coupon from coupon_accepted_at where id_shop = %s
+        select id_coupon from coupon_accepted_at where id_shop in (%s)
         union
-        select id_coupon from coupon_condition where id_value = %s and id_type= %s
-        """ % (id_brand, id_shop, id_shop, COUPON_CONDITION_IDTYPE.SHOP))
+        select id_coupon from coupon_condition where id_value in (%s) and id_type= %s
+        """ % (id_brand, ','.join(id_shops), ','.join(id_shops),
+               COUPON_CONDITION_IDTYPE.SHOP)
+        results = db_utils.query(conn, query)
         results = [v[0] for v in results]
         if results:
             return set(id_coupons).intersection(results)
@@ -153,23 +178,7 @@ class CouponListResource(BaseXmlResource):
         else:
             return id_coupons
 
-    def _get_coupon_user_data(self, conn, id_coupon):
-        id_users = db_utils.select(
-            conn, 'coupon_given_to',
-            columns=('id_user',),
-            where={'id_coupon': id_coupon})
-        if id_users:
-            id_users = [v[0] for v in id_users]
-        return id_users
-
-    def _get_coupon_shop_data(self, conn, id_coupon):
-        id_shops = db_utils.select(
-            conn, 'coupon_accepted_at',
-            columns=('id_shop',),
-            where={'id_coupon': id_coupon})
-        return [self._getShopData(id_shop[0]) for id_shop in id_shops]
-
-    def _getShopData(self, id_shop):
+    def _get_shop_details(self, id_shop):
         shop = get_redis_cli().get(SHOP % id_shop)
         if not shop:
             raise ValidationError('COUPON_ERR_INVALID_SHOP')
@@ -203,47 +212,10 @@ class CouponListResource(BaseXmlResource):
                 }
         return reward
 
-    def _get_condition_data(self, conn, id_coupon):
-        match = []
-        threshold = None
-        cond_values = db_utils.select_dict(
-            conn, 'coupon_condition', 'id',
-            where={'id_coupon': id_coupon})
-        if cond_values:
-            for cond_value in cond_values.itervalues():
-                if cond_value['id_value'] and cond_value['id_type']:
-                    match.append({
-                        'id': cond_value['id_value'],
-                        'id_type': COUPON_CONDITION_IDTYPE.toReverseDict()[
-                            cond_value['id_type']].lower(),
-                    })
-                if cond_value['operation'] in (
-                            COUPON_CONDITION_OPERATION.SUM_ITEMS,
-                            COUPON_CONDITION_OPERATION.SUM_PRICE,
-                        ):
-                    _threshold = {
-                        'operation': 'items' if cond_value['operation'] ==
-                            COUPON_CONDITION_OPERATION.SUM_ITEMS else 'price',
-                        'comparison': COUPON_CONDITION_COMPARISON.toReverseDict()[
-                                      cond_value['comparison']],
-                        'threshold': cond_value['threshold'],
-                    }
-                    if threshold:
-                        assert threshold == _threshold
-                    else:
-                        threshold = _threshold
-
-        require = {}
-        if threshold:
-            require.update(threshold)
-        if match:
-            require['match'] = match
-        return require
-
 
 class CouponCreateResource(BaseXmlResource):
     template = "coupon_create.xml"
-    encrypt = False#True
+    encrypt = True
     service = SERVICES.ADM
 
     post_action_func_map = {'create': 'coupon_create'}
@@ -286,6 +258,14 @@ class CouponCreateResource(BaseXmlResource):
                 except ValueError, e:
                     raise ValidationError('COUPON_ERR_INVALID_PARAM_expiration_time')
 
+            password = req.get_param('password') or ''
+            if password:
+                results = db_utils.select(
+                    conn, 'coupons', columns=('id',),
+                    where={'password': password})
+                if len(results) > 0:
+                    raise ValidationError('COUPON_ERR_INVALID_PARAM_password')
+
             redeemable_always = True
             if req.get_param('redeemable') and \
                     req.get_param('redeemable') == 'once':
@@ -300,7 +280,7 @@ class CouponCreateResource(BaseXmlResource):
                 'stackable': req.get_param('stackable') == 'True',
                 'redeemable_always': redeemable_always,
                 'first_order_only': req.get_param('first_order_only') == 'True',
-                'password': req.get_param('password') or '',
+                'password': password,
                 'description': req.get_param('description') or '',
             }
             if max_redeem:
@@ -411,11 +391,9 @@ class CouponCreateResource(BaseXmlResource):
             else:
                 assert operation == COUPON_CONDITION_OPERATION.NONE, 'operation'
 
-            if operation == COUPON_CONDITION_OPERATION.NONE:
-                cond_value = {}
-            else:
+            cond_value = {'operation': operation}
+            if operation != COUPON_CONDITION_OPERATION.NONE:
                 cond_value = {
-                    'operation': operation,
                     'comparison': comparison,
                     'threshold': threshold,
                 }
@@ -503,4 +481,27 @@ class CouponCreateResource(BaseXmlResource):
                'discount': discount,
             }
         return discount_values, gift_values_list
+
+
+class CouponRedeemResource(BaseJsonResource):
+    login_required = {'get': False, 'post': True}
+    users_id = None
+
+    def _on_post(self, req, resp, conn, **kwargs):
+        self.users_id = kwargs.get('users_id')
+        id_order = req.get_param('id_order')
+        password = req.get_param('password')
+
+        if not id_order:
+            raise ValidationError('COUPON_ERR_INVALID_IDORDER')
+        if not password:
+            raise ValidationError('COUPON_ERR_INVALID_PASSWORD')
+        user_info = get_user_info(conn, self.users_id)
+        user_info['user_agent'] = req.get_header('User-Agent')
+        coupon = check_coupon_with_password(
+            conn, password, self.users_id, id_order, user_info)
+        all_order_items = get_order_items(conn, id_order)
+        check_order_for_coupon(conn, coupon, id_order, all_order_items)
+        apply_password_coupon(conn, coupon, self.users_id, id_order, user_info)
+        return {"res": RESP_RESULT.S, "err": ""}
 

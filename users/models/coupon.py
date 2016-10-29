@@ -1,0 +1,470 @@
+# -*- coding: utf-8 -*-
+
+#############################################################################
+#
+# Copyright © Dragon Dollar Limited
+# contact: contact@dragondollar.com
+#
+# This software is a collection of webservices designed to provide a secure
+# and scalable framework to build e-commerce websites.
+#
+# This software is governed by the CeCILL-B license under French law and
+# abiding by the rules of distribution of free software. You can use,
+# modify and/ or redistribute the software under the terms of the CeCILL-B
+# license as circulated by CEA, CNRS and INRIA at the following URL
+# " http://www.cecill.info".
+#
+# As a counterpart to the access to the source code and rights to copy,
+# modify and redistribute granted by the license, users are provided only
+# with a limited warranty and the software's author, the holder of the
+# economic rights, and the successive licensors have only limited
+# liability.
+#
+# In this respect, the user's attention is drawn to the risks associated
+# with loading, using, modifying and/or developing or reproducing the
+# software by the user in light of its specific status of free software,
+# that may mean that it is complicated to manipulate, and that also
+# therefore means that it is reserved for developers and experienced
+# professionals having in-depth computer knowledge. Users are therefore
+# encouraged to load and test the software's suitability as regards their
+# requirements in conditions enabling the security of their systems and/or
+# data to be ensured and, more generally, to use and operate it in the
+# same conditions as regards security.
+#
+# The fact that you are presently reading this means that you have had
+# knowledge of the CeCILL-B license and that you accept its terms.
+#
+#############################################################################
+
+from datetime import datetime
+
+from B2SUtils import db_utils
+from B2SUtils.common import to_round
+from B2SUtils.errors import ValidationError
+from common.constants import ADDR_TYPE
+from common.constants import COUPON_CONDITION_IDTYPE
+from common.constants import COUPON_CONDITION_OPERATION
+from common.constants import COUPON_CONDITION_COMPARISON
+from common.constants import COUPON_DISCOUNT_APPLIES
+from common.constants import COUPON_REWARD_TYPE
+from common.constants import ORDER_STATUS_FOR_COUPON
+from models.order import get_order_items
+
+
+COUPON_FIELDS_COLUMNS = [
+    ('id', 'coupons.id'),
+    ('id_brand', 'id_brand'),
+    ('id_bo_user', 'id_bo_user'),
+    ('coupon_type', 'coupon_type'),
+    ('creation_time', 'creation_time'),
+    ('expiration_time', 'expiration_time'),
+    ('stackable', 'stackable'),
+    ('redeemable_always', 'redeemable_always'),
+    ('max_redeemable', 'max_redeemable'),
+    ('first_order_only', 'first_order_only'),
+    ('password', 'password'),
+    ('description', 'description'),
+]
+
+def get_coupon_user_data(conn, id_coupon):
+    id_users = db_utils.select(
+        conn, 'coupon_given_to',
+        columns=('id_user',),
+        where={'id_coupon': id_coupon})
+    if id_users:
+        id_users = [v[0] for v in id_users]
+    return id_users
+
+def get_coupon_shop_data(conn, id_coupon):
+    id_shops = db_utils.select(
+        conn, 'coupon_accepted_at',
+        columns=('id_shop',),
+        where={'id_coupon': id_coupon})
+    if id_shops:
+        id_shops = [id_shop[0] for id_shop in id_shops]
+    return id_shops
+
+def get_coupon_condition_data(conn, id_coupon):
+    match = []
+    threshold = None
+    cond_values = db_utils.select_dict(
+        conn, 'coupon_condition', 'id',
+        where={'id_coupon': id_coupon})
+    if cond_values:
+        for cond_value in cond_values.itervalues():
+            if cond_value['id_value'] and cond_value['id_type']:
+                match.append({
+                    'id': cond_value['id_value'],
+                    'id_type': cond_value['id_type'],
+                    'type_name': COUPON_CONDITION_IDTYPE.toReverseDict()[
+                        cond_value['id_type']].lower(),
+                })
+            if cond_value['operation'] in (
+                        COUPON_CONDITION_OPERATION.SUM_ITEMS,
+                        COUPON_CONDITION_OPERATION.SUM_PRICE,
+                    ):
+                _threshold = {
+                    'operation': cond_value['operation'],
+                    'operation_name': 'items' if cond_value['operation'] ==
+                        COUPON_CONDITION_OPERATION.SUM_ITEMS else 'price',
+                    'comparison': COUPON_CONDITION_COMPARISON.toReverseDict()[
+                                  cond_value['comparison']],
+                    'threshold': cond_value['threshold'],
+                }
+                if threshold:
+                    assert threshold == _threshold
+                else:
+                    threshold = _threshold
+    return match, threshold
+
+def match_comparison(comparison, threshold, value):
+    if comparison == COUPON_CONDITION_COMPARISON.LT:
+        return value < threshold
+    elif comparison == COUPON_CONDITION_COMPARISON.LTE:
+        return value <= threshold
+    elif comparison == COUPON_CONDITION_COMPARISON.EQ:
+        return value == threshold
+    elif comparison == COUPON_CONDITION_COMPARISON.GT:
+        return value > threshold
+    elif comparison == COUPON_CONDITION_COMPARISON.GTE:
+        return value >= threshold
+
+def order_item_match_cond(order_item, conds, id_brand, id_shops):
+    if order_item['brand_id'] != id_brand:
+        return False
+    if id_shops and order_item['shop_id'] in id_shops:
+        return False
+
+    match = True
+    for m in conds:
+        if m['id_type'] == COUPON_CONDITION_IDTYPE.SALE \
+                and m['id'] == order_item['id_sale']:
+            continue
+        elif m['id_type'] == COUPON_CONDITION_IDTYPE.SHOP \
+                and m['id'] == order_item['id_shop']:
+            continue
+        elif m['id_type'] == COUPON_CONDITION_IDTYPE.BRAND:
+            pass #TODO check product item
+        elif m['id_type'] == COUPON_CONDITION_IDTYPE.GROUP:
+            pass #TODO check promotion group
+        else:
+            match = False
+            break
+    return match
+
+def check_coupon_with_password(conn, password, users_id, id_order, user_info):
+    coupons = db_utils.select_dict(
+        conn, 'coupons', 'id', where={'password': password}).values()
+    if len(coupons) == 0:
+        raise ValidationError('COUPON_ERR_INVALID_PASSWORD')
+    coupon = coupons[0]
+
+    id_users = get_coupon_user_data(conn, coupon['id'])
+    if id_users and users_id not in id_users:
+        raise ValidationError('COUPON_ERR_INVALID_COUPON')
+
+    if coupon['expiration_time'] and \
+            coupon['expiration_time'] < datetime.now():
+        raise ValidationError('COUPON_ERR_INVALID_COUPON')
+
+    results = db_utils.query(conn,
+        "select 1 from coupon_redeemed "
+        "where id_order=%s and id_coupon=%s and order_status in (%s,%s) "
+        "union "
+        "select 1 from store_credit_redeemed "
+        "where id_order=%s and id_coupon=%s and order_status in (%s,%s) ",
+        [id_order, coupon['id'],
+         ORDER_STATUS_FOR_COUPON.PENDING,
+         ORDER_STATUS_FOR_COUPON.PAID] * 2)
+    if len(results) >= 0:
+        raise ValidationError('COUPON_ERR_APPLIED_COUPON')
+
+    if not coupon['stackable']:
+        results = db_utils.query(conn,
+            "select 1 from coupon_redeemed "
+            "where id_order=%s and order_status in (%s, %s) "
+            "union "
+            "select 1 from store_credit_redeemed "
+            "where id_order=%s and order_status in (%s, %s) ",
+            [id_order,
+             ORDER_STATUS_FOR_COUPON.PENDING,
+             ORDER_STATUS_FOR_COUPON.PAID] * 2)
+        if len(results) >= 0:
+            raise ValidationError('COUPON_ERR_NOT_STACKABLE_COUPON')
+
+    if coupon['max_redeemable']:
+        if _get_redeemed_times(conn, coupon['id']) >= coupon['max_redeemable']:
+            raise ValidationError('COUPON_ERR_USED_COUPON')
+
+    if not coupon['redeemable_always']:
+        if _once_coupon_limited(conn, id_coupon, users_id,
+            user_info['fo_user_phone'],
+            user_info['fo_user_addr'],
+            user_info['user_agent'],
+        ):
+            raise ValidationError('COUPON_ERR_USED_COUPON')
+
+    return coupon
+
+def get_user_info(conn, id_user):
+    sql = ("select users_address.country_code || ' ' || address || '' || address2 as fo_user_addr,"
+           "       calling_code || '' || phone_num as fo_user_phone"
+           "  from users"
+           "  left join users_address "
+           "    on (users.id = users_address.users_id and users_address.addr_type in (%s,%s))"
+           "  left join users_phone_num on (users.id = users_phone_num.users_id)"
+           "  left join country_calling_code on (users_phone_num.country_num = country_calling_code.country_code)"
+           " where users.id=%s")
+    row = db_utils.query(conn, sql,
+        [ADDR_TYPE.Both, ADDR_TYPE.Shipping, id_user])[0]
+    row_dict = dict(zip(("fo_user_addr", "fo_user_phone"), row))
+    return row_dict
+
+def check_order_for_coupon(conn, coupon, id_order, all_order_items):
+    if len(all_order_items) == 0:
+        raise ValidationError('COUPON_ERR_INVALID_ORDER')
+    id_shops = get_coupon_shop_data(conn, coupon['id'])
+    conds, threshold = get_coupon_condition_data(conn, coupon['id'])
+    order_match = any([order_item_match_cond(o_item, conds,
+                                             coupon['id_brand'], id_shops)
+                       for o_item in all_order_items])
+    if not order_match:
+        raise ValidationError('COUPON_ERR_INVALID_COUPON')
+
+    if id_shops:
+        order_items = [o for o in all_order_items if o['shop_id'] in id_shops]
+    else:
+        order_items = [o for o in all_order_items]
+    if threshold:
+        if threshold['operation'] == COUPON_CONDITION_OPERATION.SUM_ITEMS:
+            value = sum([o['quantity'] for o in order_items])
+            if not match_comparison(threshold['comparison'],
+                    threshold['threshold'], value):
+                raise ValidationError('COUPON_ERR_INVALID_COUPON')
+        elif threshold['operation'] == COUPON_CONDITION_OPERATION.SUM_PRICE:
+            value = sum([o.get('discount_price', o['price']) * o['quantity']
+                         for o in order_items])
+            if not match_comparison(threshold['comparison'],
+                    threshold['threshold'], value):
+                raise ValidationError('COUPON_ERR_INVALID_COUPON')
+    return order_items
+
+def apply_appliable_coupons(conn, id_user, id_order, user_info):
+    fields, columns = zip(*COUPON_FIELDS_COLUMNS)
+    results = db_utils.query(conn, """
+    select %s from coupons
+    where password is null
+      and (expiration_time is null or expiration_time > now())
+      and (exists (
+        select 1 from coupon_given_to where id_coupon=coupons.id and id_user=%%s
+      ) or not exists (
+        select 1 from coupon_given_to where id_coupon=coupons.id
+      ))
+    order by creation_time
+    """ % ','.join(columns), [id_user])
+    results = [dict(zip(fields, result)) for result in results]
+
+    all_order_items = get_order_items(conn, id_order)
+    appliable_coupons = []
+    for coupon in results:
+        if len(appliable_coupons) > 0 and not coupon['stackable']:
+            continue
+        if _get_redeemed_times(conn, coupon['id']) >= coupon['max_redeemable']:
+            continue
+        if not coupon['redeemable_always']:
+            user_info = get_user_info(conn, id_user)
+            if _once_coupon_limited(conn, coupon['id'], id_user,
+                user_info['fo_user_phone'],
+                user_info['fo_user_addr'],
+                user_info['user_agent'],
+            ):
+                continue
+        try:
+            match_order_items = \
+                check_order_for_coupon(conn, coupon, id_order, all_order_items)
+        except ValidationError:
+            continue
+
+        reward_type = coupon['coupon_type']
+        if reward_type == COUPON_REWARD_TYPE.COUPON_CURRENCY:
+            credit_amount, currency = _calc_currency_credit(
+                conn, coupon['id'], all_order_items)
+            if credit_amount <= 0:
+                continue
+            db_utils.insert(conn, 'store_credit_redeemed', values={
+                'id_coupon': coupon['id'],
+                'id_user': id_user,
+                'id_order': id_order,
+                'order_status': ORDER_STATUS_FOR_COUPON.PENDING,
+                'currency': currency,
+                'amount': credit_amount,
+            })
+
+        else:
+            _calc_discount_result(conn, coupon['id'], all_order_items, match_order_items)
+
+            db_utils.insert(conn, 'coupon_redeemed', values={
+                'id_coupon': coupon['id'],
+                'id_user': id_user,
+                'id_order': id_order,
+                'order_status': ORDER_STATUS_FOR_COUPON.PENDING,
+                'account_address': user_info['fo_user_addr'],
+                'account_phone': user_info['fo_user_phone'],
+                'user_agent': user_info['user_agent'],
+            })
+
+        appliable_coupons.append(coupon)
+
+
+def apply_password_coupon(conn, pwd_coupon, id_user, id_order, user_info):
+    fields, columns = zip(*COUPON_FIELDS_COLUMNS)
+    results = db_utils.query(conn, """
+    select %s from coupons
+    where password is null
+      and (exists (
+            select 1 from coupon_redeemed where id_order=%%s
+          ) or exists (
+            select 1 from store_credit_redeemed where id_order=%%s
+          )
+      )
+    order by creation_time
+    """ % ','.join(columns), [id_order, id_order])
+    internal_coupons = [dict(zip(fields, result)) for result in results]
+
+    results = db_utils.query(conn, """
+    select %s from coupons
+      join coupon_redeemed
+        on coupon_redeemed.id_coupon = coupons.id
+    where password is not null
+    order by redeemed_time
+    """ % ','.join(columns), [id_order])
+    public_coupons = [dict(zip(fields, result)) for result in results]
+
+    all_order_items = get_order_items(conn, id_order)
+    for coupon in internal_coupons + public_coupons + [pwd_coupon]:
+        try:
+            match_order_items = \
+                check_order_for_coupon(conn, coupon, id_order, all_order_items)
+        except ValidationError:
+            continue
+
+        reward_type = coupon['coupon_type']
+        if reward_type == COUPON_REWARD_TYPE.COUPON_CURRENCY:
+            _calc_currency_credit(conn, coupon['id'], all_order_items)
+        else:
+            _calc_discount_result(conn, coupon['id'], all_order_items, match_order_items)
+
+        if coupon == pwd_coupon:
+            db_utils.insert(conn, 'coupon_redeemed', values={
+                'id_coupon': coupon['id'],
+                'id_user': id_user,
+                'id_order': id_order,
+                'order_status': ORDER_STATUS_FOR_COUPON.PENDING,
+                'account_address': user_info['fo_user_addr'],
+                'account_phone': user_info['fo_user_phone'],
+                'user_agent': user_info['user_agent'],
+            })
+
+
+def _calc_currency_credit(conn, id_coupon, all_order_items):
+    credit_value = db_utils.select_dict(
+        conn, 'store_credit', 'id_coupon',
+        where={'id_coupon': id_coupon}).values()[0]
+    if credit_value['redeemed_in_full']:
+        return 0, credit_value['currency']
+    redeemed_amount = db_utils.query(conn,
+        "select sum(redeemed_amount) from store_credit_redeemed"
+        "where id_coupon=%s and order_status in (%s, %s) "
+        [id_coupon,
+         ORDER_STATUS_FOR_COUPON.PENDING,
+         ORDER_STATUS_FOR_COUPON.PAID])[0][0]
+    total_amount = sum([o.get('discount_price', o['price']) * o['quantity']
+                        for o in order_items
+                        if o['currency'] == credit_value['currency']])
+    credit_amount = min(total_amount,
+                        credit_value['amount'] - redeemed_amount)
+    for o_item in all_order_items:
+        if o['currency'] != credit_value['currency']:
+            continue
+        price = o.get('discount_price', o['price'])
+        o['discount_price'] = \
+                to_round(price * (1 - credit_amount / total_amount))
+    return credit_amount, credit_value['currency']
+
+
+def _calc_discount_result(conn, id_coupon,
+                          all_order_items, match_order_items):
+    results = db_utils.select_dict(
+        conn, 'coupon_discount', 'id_coupon',
+        where={'id_coupon': id_coupon}).values()
+    if results:
+        discount_value = results[0]
+        if discount_value['discount_type'] == COUPON_DISCOUNT_APPLIES.VALUE_CHEAPEST:
+            min_price_item = min_price = match_order_items[0]
+            for o_item in match_order_items[1:]:
+                if o_item['price'] < min_price_item['price']:
+                    min_price_item = o_item
+            for o_item in all_order_items:
+                if o_item == min_price_item:
+                    o_item['discount_price'] = _calc_discount_price(
+                        o.get('discount_price', o['price']),
+                        discount_value['discount'])
+                    break
+
+        elif discount_value['discount_type'] == COUPON_DISCOUNT_APPLIES.VALUE_MATCHING:
+            for o_item in all_order_items:
+                if o_item in match_order_items:
+                    o_item['discount_price'] = _calc_discount_price(
+                        o.get('discount_price', o['price']),
+                        discount_value['discount'])
+
+        elif discount_value['discount_type'] == COUPON_DISCOUNT_APPLIES.VALUE_INVOICED:
+            for o_item in all_order_items:
+                o_item['discount_price'] = _calc_discount_price(
+                    o_item.get('discount_price', o_item['price']),
+                    discount_value['discount'])
+    else:
+        # give gifts
+        pass
+
+
+def _calc_discount_price(price, discount):
+    return to_round(price * (1 - discount * 0.01))
+
+def _get_redeemed_times(conn, id_coupon):
+    results = db_utils.query(conn,
+        "select 1 from coupon_redeemed "
+        "where id_coupon=%s and order_status in (%s, %s) "
+        "union "
+        "select 1 from store_credit_redeemed "
+        "where id_coupon=%s and order_status in (%s, %s) ",
+        [id_coupon,
+         ORDER_STATUS_FOR_COUPON.PENDING,
+         ORDER_STATUS_FOR_COUPON.PAID] * 2)
+    return len(results)
+
+def _once_coupon_limited(conn, id_coupon, id_users,
+                         fo_user_phone, fo_user_addr, user_agent):
+    same_user_cond = """
+        id_user=%s or account_phone=%s or account_address=%s or user_agent=%s
+    """
+    params = [
+        id_coupon,
+        ORDER_STATUS_FOR_COUPON.PENDING,
+        ORDER_STATUS_FOR_COUPON.PAID,
+        id_users,
+        fo_user_phone,
+        fo_user_addr
+    ]
+    if user_agent:
+        params.append(user_agent)
+    results = db_utils.query(conn,
+        "select 1 from coupon_redeemed "
+        "where id_coupon=%%s and order_status in (%%s, %%s) "
+        "and (%s) "
+        "union "
+        "select 1 from store_credit_redeemed "
+        "where id_coupon=%%s and order_status in (%%s, %%s) "
+        "and (%s) " % (same_user_cond, same_user_conf),
+        params * 2)
+    return len(results) > 0

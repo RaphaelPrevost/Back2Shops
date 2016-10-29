@@ -407,7 +407,9 @@ CREATE TABLE coupon_redeemed (
     id serial PRIMARY KEY,
     id_coupon bigint NOT NULL REFERENCES coupons(id),
     id_user integer NOT NULL,
+    id_order BIGINT NOT NULL,
     id_invoice BIGINT,
+    order_status smallint NOT NULL,
     redeemed_time timestamp without time zone DEFAULT now() NOT NULL,
     account_address text,
     account_phone character varying(32),
@@ -422,9 +424,12 @@ CREATE TABLE store_credit (
 );
 
 CREATE TABLE store_credit_redeemed (
-    id_coupon_redeemed bigint NOT NULL REFERENCES coupon_redeemed(id),
+    id serial PRIMARY KEY,
+    id_coupon bigint NOT NULL REFERENCES coupons(id),
     id_user integer NOT NULL,
+    id_order BIGINT NOT NULL,
     id_invoice BIGINT,
+    order_status smallint NOT NULL,
     currency character varying(3) REFERENCES currency(code),
     redeemed_amount double precision NOT NULL
 );

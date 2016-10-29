@@ -57,11 +57,11 @@
         <require order="{{coupon['require']['order']}}">
             {% if coupon['require'].get('match') %}
             {% for match in coupon['require']['match'] %}
-            <order match="{{match['type']}}" id="{{match['id']}}" />
+            <order match="{{match['type_name']}}" id="{{match['id']}}" />
             {% endfor %}
             {% endif %}
             {% if coupon['require'].get('operation') %}
-            <threshold sum="{{coupon['require']['operation']}}" must="{{coupon['require']['comparison']}}">{{coupon['require']['threshold']}}</threshold>
+            <threshold sum="{{coupon['require']['operation_name']}}" must="{{coupon['require']['comparison']}}">{{coupon['require']['threshold']}}</threshold>
             {% endif %}
         </require>
         {% endif %}

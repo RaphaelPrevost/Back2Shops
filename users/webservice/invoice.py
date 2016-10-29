@@ -379,7 +379,7 @@ class InvoiceSendResource(BaseJsonResource, BaseInvoiceMixin):
 
     def _on_post(self, req, resp, conn, **kwargs):
         try:
-            params= req.stream.read()
+            params = req.stream.read()
             params = ujson.loads(params)
             req._params.update(params)
 
