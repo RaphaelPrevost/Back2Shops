@@ -118,7 +118,8 @@ CREATE TABLE order_items (
     weight_unit character varying(2) NOT NULL,
     weight_type_detail text,
     variant_detail text,
-    item_detail text not NULL
+    item_detail text not NULL,
+    modified_by_coupon BIGINT
 );
 
 CREATE TABLE order_details (

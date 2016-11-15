@@ -353,6 +353,8 @@ def _stock_setter(request, flag):
     try:
         content = {'success': True}
         for params in data:
+            if params['fake_for_coupon']:
+                continue
             update_stock(params['id_sale'], params['id_variant'],
                          params['id_type'], params['id_shop'],
                          delta_stock=params['quantity'] * flag)
@@ -1102,18 +1104,44 @@ class InvoiceView(BaseCryptoWebService, ListView):
         gross = 0.0
         total_tax = 0.0
         currency = None
+        cate_id = None
         use_after_tax_price = self.get_use_after_tax_price()
         for item in content:
-            sale = Sale.objects.get(pk=item['id_sale'])
-            orig_price = get_sale_orig_price(sale, item['id_price_type'])
             qty = item['quantity']
-            discounted_price = get_sale_discounted_price(
-                sale, orig_price=orig_price)
-            premium = get_sale_premium(discounted_price, item.get('id_variant'))
+            item_info = {
+                'id_item': item['id_item'],
+                'name': item['name'],
+                'type_name': item['type_name'],
+                'qty': qty,
+                'promo': item['promo'],
+                'free': item['price'] == 0,
+            }
+            if item['promo'] and item['price'] < 0:
+                orig_price = discounted_price = price = item['price']
+                premium = 0
+                external_id = ''
+                desc = item['desc']
+                # use last item's cate_id
+            else:
+                sale = Sale.objects.get(pk=item['id_sale'])
+                if item['promo'] and item['price'] == 0:
+                    orig_price = discounted_price = price = item['price']
+                    premium = 0
+                else:
+                    orig_price = get_sale_orig_price(sale, item['id_price_type'])
+                    discounted_price = get_sale_discounted_price(
+                        sale, orig_price=orig_price)
+                    premium = get_sale_premium(discounted_price, item.get('id_variant'))
+                    price = discounted_price + premium
 
-            price = discounted_price + premium
+                external_id = get_sale_external_id(item['id_sale'],
+                                                   item.get('id_variant'),
+                                                   item.get('id_type'))
+                desc = sale.product.description
+                cate_id = sale.product.category.id
+
             items_taxes = self.get_tax(price,
-                                       sale.product.category.id,
+                                       cate_id,
                                        from_address,
                                        to_address,
                                        is_business_account=is_business_account)
@@ -1121,20 +1149,16 @@ class InvoiceView(BaseCryptoWebService, ListView):
                 tax['tax'] = tax['tax'] * qty
                 tax['amount'] = tax['amount'] * qty
 
-            external_id = get_sale_external_id(item['id_sale'],
-                                               item.get('id_variant'),
-                                               item.get('id_type'))
-            item_info = {'id_item': item['id_item'],
-                         'external_id': external_id,
-                         'name': item['name'],
-                         'type_name': item['type_name'],
-                         'desc': sale.product.description,
-                         'qty': qty,
-                         'price': {'original': orig_price,
-                                   'discounted': discounted_price,
-                                   },
-                         'premium': premium,
-                         'taxes': items_taxes}
+            item_info.update({
+                'external_id': external_id,
+                'desc': desc,
+                'price': {
+                    'original': orig_price,
+                    'discounted': discounted_price,
+                },
+                'premium': premium,
+                'taxes': items_taxes,
+            })
 
             subtotal = price * qty
             for tax in items_taxes:

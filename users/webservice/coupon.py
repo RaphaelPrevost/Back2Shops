@@ -500,8 +500,10 @@ class CouponRedeemResource(BaseJsonResource):
         user_info['user_agent'] = req.get_header('User-Agent')
         coupon = check_coupon_with_password(
             conn, password, self.users_id, id_order, user_info)
+
         all_order_items = get_order_items(conn, id_order)
-        check_order_for_coupon(conn, coupon, id_order, all_order_items)
-        apply_password_coupon(conn, coupon, self.users_id, id_order, user_info)
+        match_order_items = check_order_for_coupon(conn, coupon, all_order_items)
+        apply_password_coupon(conn, coupon, all_order_items, match_order_items,
+                              self.users_id, id_order, user_info)
         return {"res": RESP_RESULT.S, "err": ""}
 

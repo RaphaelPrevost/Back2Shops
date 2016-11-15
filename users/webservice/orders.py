@@ -62,6 +62,7 @@ from common.email_utils import send_order_email_to_service
 from models.actors.sale import CachedSale
 from models.actors.sale import get_sale_by_barcode
 from models.actors.shop import CachedShop
+from models.coupon import get_user_info
 from models.invoice import get_invoice_by_order
 from models.invoice import update_invoice
 from models.order import create_order
@@ -198,8 +199,11 @@ class OrderResource(BaseJsonResource):
     def _createPosOrder(self, conn, req, resp, order_items):
         upc_shop = req.get_param('upc_shop')
         telephone = req.get_param('telephone')
+        user_info = get_user_info(conn, self.users_id)
+        user_info['user_agent'] = req.get_header('User-Agent')
         order_id = create_order(conn, self.users_id, telephone,
-                                order_items, upc_shop=upc_shop)
+                                order_items, upc_shop=upc_shop,
+                                user_info=user_info)
         return order_id
 
 
@@ -234,9 +238,11 @@ class OrderResource(BaseJsonResource):
         shipaddr = req.get_param('shipaddr')
         billaddr = req.get_param('billaddr')
         telephone = req.get_param('telephone')
+        user_info = get_user_info(conn, self.users_id)
+        user_info['user_agent'] = req.get_header('User-Agent')
         order_id = create_order(conn, self.users_id, telephone,
-                                    order_items, shipaddr=shipaddr,
-                                    billaddr=billaddr)
+                                order_items, shipaddr=shipaddr,
+                                billaddr=billaddr, user_info=user_info)
         return order_id
 
     def _requestValidCheck(self, conn, req):

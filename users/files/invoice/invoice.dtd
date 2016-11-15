@@ -39,7 +39,7 @@
 
 <!-- items -->
 <!ATTLIST item id CDATA #REQUIRED >
-<!ELEMENT item (external_id?, name?, type_name?, desc, price, qty, premium, tax*, subtotal, detail?) >
+<!ELEMENT item (external_id?, name?, type_name?, desc, price, qty, premium, tax*, subtotal, detail?, promo?, free?) >
 <!ELEMENT external_id (#PCDATA) >
 <!ELEMENT type_name (#PCDATA) >
 <!ELEMENT desc (#PCDATA) >
@@ -54,6 +54,8 @@
               to_worldwide CDATA #REQUIRED
               show CDATA #REQUIRED>
 <!ELEMENT subtotal (#PCDATA) >
+<!ELEMENT promo (#PCDATA) >
+<!ELEMENT free (#PCDATA) >
 <!ELEMENT detail (subitem+) >
 <!ELEMENT subitem (desc, qty) >
 

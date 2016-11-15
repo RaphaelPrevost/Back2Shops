@@ -519,7 +519,7 @@ class BaseOrderPacking(OperatorUpperLoginRequiredMixin, View):
         if int(spm_shop_id):
             spm['shop_name'] = Shop.objects.get(pk=spm_shop_id).name
             spm['shop_currency'] = Shop.objects.get(pk=spm_shop_id).default_currency
-        spm['packing_list'] = [actor_to_dict(item) for item in spm_actor.items]
+        spm['packing_list'] = [actor_to_dict(item) for item in spm_actor.valid_items]
         sp_carriers = spm_actor.delivery.carriers
         if (len(sp_carriers) > 1 or
             len(sp_carriers) == 1 and len(sp_carriers[0].services) > 1):

@@ -236,18 +236,41 @@ class BaseInvoiceMixin:
     def shipment_content(self, conn, id_shipment):
         shipping_list = get_shipping_list(conn, id_shipment)
 
-        content = []
+        normal_items = []
+        discount_lines = {}
+        def _item_key(item):
+            return ujson.dumps({
+                'id_sale': item['id_sale'],
+                "id_variant": item["id_variant"],
+                "id_price_type": item["id_price_type"],
+                "id_type": item["id_type"],
+            })
+
         for shipping in shipping_list:
-            content.append({"id_item": shipping["id_item"],
-                            "id_sale": shipping["id_sale"],
-                            "id_variant": shipping["id_variant"],
-                            "quantity": shipping["quantity"],
-                            "id_price_type": shipping["id_price_type"],
-                            "id_type": shipping["id_type"],
-                            "name": shipping["name"] or '',
-                            "type_name": shipping["type_name"] or '',
-                            "external_id": shipping["external_id"] or '',
-                            })
+            item = {
+                "id_item": shipping["id_item"],
+                "id_sale": shipping["id_sale"],
+                "id_variant": shipping["id_variant"],
+                "quantity": shipping["quantity"],
+                "id_price_type": shipping["id_price_type"],
+                "id_type": shipping["id_type"],
+                "name": shipping["name"] or '',
+                "type_name": shipping["type_name"] or '',
+                "external_id": shipping["external_id"] or '',
+                'promo': shipping["modified_by_coupon"] is not None,
+                'price': shipping['price'],
+                'desc': shipping["description"],
+            }
+            if shipping['id_sale'] and shipping['price'] < 0:
+                discount_lines[_item_key(item)] = item
+            else:
+                normal_items.append(item)
+
+        content = []
+        for item in normal_items:
+            content.append(item)
+            if _item_key(item) in discount_lines:
+                content.append(discount_lines[_item_key(item)])
 
         return ujson.dumps(content)
 

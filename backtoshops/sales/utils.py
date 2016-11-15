@@ -42,7 +42,7 @@ from sales.models import ExternalRef
 from sales.models import TypeAttributePrice
 
 def get_sale_orig_price(sale, type_attribute_id):
-    if int(type_attribute_id) == 0:
+    if not type_attribute_id or int(type_attribute_id) == 0:
         return sale.product.normal_price
     else:
         attr_price = TypeAttributePrice.objects.get(

@@ -228,6 +228,7 @@ def stock_req_params(conn, id_shipment):
             'id_type': shipping['id_type'],
             'id_shop': shipping['id_shop'],
             'quantity': shipping['packing_quantity'],
+            'fake_for_coupon': shipping['price'] <= 0,
         })
     return params
 
@@ -1054,6 +1055,9 @@ SHIPPING_ITEM_FIELDS = [
     ('external_id', 'oi.external_id'),
     ('barcode', 'oi.barcode'),
     ('picture', 'oi.picture'),
+    ('modified_by_coupon', 'oi.modified_by_coupon'),
+    ('price', 'oi.price'),
+    ('description', 'oi.description'),
     ]
 
 def get_shipping_list(conn, id_shipment):

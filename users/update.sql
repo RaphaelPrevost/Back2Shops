@@ -166,4 +166,6 @@ ALTER TABLE users_profile ADD COLUMN is_business_account boolean DEFAULT false N
 ALTER TABLE users_profile ADD COLUMN company_name text;
 ALTER TABLE users_profile ADD COLUMN company_position text;
 ALTER TABLE users_profile ADD COLUMN company_tax_id text;
+
+ALTER TABLE order_items ADD COLUMN modified_by_coupon BIGINT;
 COMMIT;
