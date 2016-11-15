@@ -55,6 +55,8 @@
                         <tax name="{{ tax.name }}" amount="{{ tax.amount }}" rate="{{ tax.rate }}" to_worldwide="{{ tax.to_worldwide }}" show="{{ tax.show }}">{{ tax.tax }}</tax>
                     {% endfor %}
                     <subtotal>{{ item.subtotal }}</subtotal>
+                    <promo>{{ item.promo }}</promo>
+                    <free>{{ item.free }}</free>
                 </item>
             {% endfor %}
 

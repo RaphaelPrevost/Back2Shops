@@ -185,6 +185,12 @@ class ActorShipment(BaseActor):
         return ActorFees(data=fees_data)
 
     @property
+    def valid_items(self):
+        items_data = as_list(self.data.get('item'))
+        return [ActorItem(data=item) for item in items_data
+                if item['name']]
+
+    @property
     def items(self):
         items_data = as_list(self.data.get('item'))
         return [ActorItem(data=item) for item in items_data]

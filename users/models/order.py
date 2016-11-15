@@ -219,7 +219,8 @@ def up_order_log(conn, id_order, sellers):
 
 
 def create_order(conn, users_id, telephone_id, order_items,
-                 upc_shop=None, shipaddr=None, billaddr=None):
+                 upc_shop=None, shipaddr=None, billaddr=None,
+                 user_info=None):
     order_id = _create_order(conn, users_id)
     _create_order_shipment_detail(conn, order_id, shipaddr,
                                   billaddr, telephone_id)
@@ -280,6 +281,10 @@ def create_order(conn, users_id, telephone_id, order_items,
                           'order_id: %s, '
                           'brand: %s',
                           e, order_id, brand, exc_info=True)
+
+    from models.coupon import apply_appliable_coupons
+    apply_appliable_coupons(conn, users_id, order_id, user_info)
+
     return order_id
 
 def delete_order(conn, order_id, brand_id, shops_id):
@@ -380,6 +385,7 @@ ORDER_ITEM_FIELDS_COLUMNS = [('item_id', 'order_items.id'),
                              ('sel_variant', 'order_items.variant_detail'),
                              ('sel_weight_type', 'order_items.weight_type_detail'),
                              ('item_detail', 'order_items.item_detail'),
+                             ('modified_by_coupon', 'order_items.modified_by_coupon'),
                              ]
 
 
