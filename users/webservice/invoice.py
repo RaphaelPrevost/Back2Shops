@@ -45,10 +45,12 @@ import settings
 from StringIO import StringIO
 from lxml import etree
 
+from B2SUtils import db_utils
 from B2SProtocol.constants import FAILURE
 from B2SProtocol.constants import SHIPPING_CALCULATION_METHODS as SCM
 from B2SProtocol.constants import SUCCESS
 from B2SUtils.errors import ValidationError
+from common.constants import COUPON_REWARD_TYPE
 from common.email_utils import send_html_email
 from common.error import ServerError
 from common.utils import invoice_xslt
@@ -247,6 +249,15 @@ class BaseInvoiceMixin:
             })
 
         for shipping in shipping_list:
+            promo = shipping["modified_by_coupon"] is not None
+            promo_type = None
+            manufacturer_promo = False
+            if promo:
+                coupons = db_utils.select_dict(
+                    conn, 'coupons', 'id', where={'id': shipping['modified_by_coupon']}).values()
+                if len(coupons) > 0:
+                    promo_type = COUPON_REWARD_TYPE.toReverseDict()[coupons[0]['coupon_type']]
+                    manufacturer_promo = coupons[0]['manufacturer']
             item = {
                 "id_item": shipping["id_item"],
                 "id_sale": shipping["id_sale"],
@@ -257,7 +268,9 @@ class BaseInvoiceMixin:
                 "name": shipping["name"] or '',
                 "type_name": shipping["type_name"] or '',
                 "external_id": shipping["external_id"] or '',
-                'promo': shipping["modified_by_coupon"] is not None,
+                'promo': promo,
+                'promo_type': promo_type,
+                'manufacturer_promo': manufacturer_promo,
                 'price': shipping['price'],
                 'desc': shipping["description"],
             }

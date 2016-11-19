@@ -168,4 +168,5 @@ ALTER TABLE users_profile ADD COLUMN company_position text;
 ALTER TABLE users_profile ADD COLUMN company_tax_id text;
 
 ALTER TABLE order_items ADD COLUMN modified_by_coupon BIGINT;
+ALTER TABLE coupons ADD COLUMN manufacturer boolean NOT NULL DEFAULT false;
 COMMIT;
