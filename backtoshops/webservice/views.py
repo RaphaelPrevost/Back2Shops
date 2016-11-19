@@ -1106,6 +1106,7 @@ class InvoiceView(BaseCryptoWebService, ListView):
         currency = None
         cate_id = None
         use_after_tax_price = self.get_use_after_tax_price()
+
         for item in content:
             qty = item['quantity']
             item_info = {
@@ -1116,6 +1117,9 @@ class InvoiceView(BaseCryptoWebService, ListView):
                 'promo': item['promo'],
                 'free': item['price'] == 0,
             }
+            is_free_item = item['promo'] and item['price'] == 0
+            free_item_price = 0
+
             if item['promo'] and item['price'] < 0:
                 orig_price = discounted_price = price = item['price']
                 premium = 0
@@ -1124,15 +1128,15 @@ class InvoiceView(BaseCryptoWebService, ListView):
                 # use last item's cate_id
             else:
                 sale = Sale.objects.get(pk=item['id_sale'])
-                if item['promo'] and item['price'] == 0:
+                orig_price = get_sale_orig_price(sale, item['id_price_type'])
+                discounted_price = get_sale_discounted_price(
+                    sale, orig_price=orig_price)
+                premium = get_sale_premium(discounted_price, item.get('id_variant'))
+                price = discounted_price + premium
+                if is_free_item:
+                    free_item_price = price
                     orig_price = discounted_price = price = item['price']
                     premium = 0
-                else:
-                    orig_price = get_sale_orig_price(sale, item['id_price_type'])
-                    discounted_price = get_sale_discounted_price(
-                        sale, orig_price=orig_price)
-                    premium = get_sale_premium(discounted_price, item.get('id_variant'))
-                    price = discounted_price + premium
 
                 external_id = get_sale_external_id(item['id_sale'],
                                                    item.get('id_variant'),
@@ -1144,7 +1148,13 @@ class InvoiceView(BaseCryptoWebService, ListView):
                                        cate_id,
                                        from_address,
                                        to_address,
-                                       is_business_account=is_business_account)
+                                       is_business_account=is_business_account,
+                                       promo_type=(item['promo_type']
+                                           if item['promo'] and item['price'] < 0
+                                           else None),
+                                       is_free_item=is_free_item,
+                                       free_item_price=free_item_price,
+                                       is_manufacturer_promo=item['manufacturer_promo'])
             for tax in items_taxes:
                 tax['tax'] = tax['tax'] * qty
                 tax['amount'] = tax['amount'] * qty
@@ -1166,14 +1176,16 @@ class InvoiceView(BaseCryptoWebService, ListView):
                     subtotal += tax['tax']
                 total_tax += tax['tax']
 
-            item_info['subtotal'] = subtotal
+            item_info['subtotal'] = to_round(subtotal)
             item_list.append(item_info)
             gross += price * qty
             currency = sale.product.currency.code
         return item_list, gross, total_tax, currency
 
     def get_tax(self, price, pro_category, from_address, to_address,
-                shipping_tax=False, is_business_account=False):
+                shipping_tax=False, is_business_account=False,
+                promo_type=None, is_free_item=False, free_item_price=0,
+                is_manufacturer_promo=False):
         f_ctry = from_address['country']
         f_prov = from_address['province']
         t_ctry = to_address['country']
@@ -1264,11 +1276,11 @@ class InvoiceView(BaseCryptoWebService, ListView):
 
 
         # shipping tax condition:
-        #      taxable = True & applies_to = everything
+        #      applies_to_delivery = True & applies_to = everything
         # sale's tax condition:
         #      (applies_to = everything or sale's category type)
         if shipping_tax:
-            query = query & Q(taxable=True) & Q(applies_to_id=None)
+            query = query & Q(applies_to_delivery=True) & Q(applies_to_id=None)
         else:
             query = (query &
                      (Q(applies_to_id=None) |
@@ -1279,10 +1291,17 @@ class InvoiceView(BaseCryptoWebService, ListView):
         else:
             query = query & Q(applies_to_personal_accounts=True)
 
+        if is_free_item:
+            query = query & Q(applies_to_free_items=True)
+
+        if is_manufacturer_promo:
+            query = query & Q(applies_to_manufacturer_promos=True)
+
         use_after_tax_price = self.get_use_after_tax_price()
         rates = Rate.objects.filter(query).order_by('-apply_after')
         taxes = {}
         taxes_list = []
+        price = free_item_price if is_free_item else price
         for rate in rates:
             tax = {'name': rate.name}
             amount = price
@@ -1290,7 +1309,10 @@ class InvoiceView(BaseCryptoWebService, ListView):
             if rate.apply_after:
                 pre_tax = taxes[rate.apply_after]
                 amount = pre_tax['amount'] + pre_tax['tax']
-            if use_after_tax_price:
+            if promo_type == 'COUPON_CURRENCY' and not rate.applies_after_promos:
+                tax['amount'] = amount
+                tax['tax'] = 0
+            elif use_after_tax_price:
                 tax['amount'] = to_round(amount / (1 + rate.rate / 100.0))
                 tax['tax'] = amount - tax['amount']
             else:
@@ -1300,6 +1322,9 @@ class InvoiceView(BaseCryptoWebService, ListView):
             tax['rate'] = rate.rate
             tax['to_worldwide'] = rate.shipping_to_region_id is None
             tax['show'] = rate.display_on_front is True
+            tax['applies_after_promos'] = rate.applies_after_promos
+            tax['applies_to_free_items'] = rate.applies_to_free_items
+            tax['applies_to_manufacturer_promos'] = rate.applies_to_manufacturer_promos
             taxes[rate.id] = tax
             taxes_list.append(tax)
 

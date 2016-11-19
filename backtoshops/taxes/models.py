@@ -60,7 +60,15 @@ class Rate(models.Model):
     apply_after = models.IntegerField(null=True, blank=True)
     enabled = models.BooleanField()
     display_on_front = models.NullBooleanField(null=True, blank=True)
-    taxable = models.NullBooleanField(null=True, blank=True)
+    applies_after_promos = models.NullBooleanField(
+        null=True, blank=True, default=True)
+    applies_to_free_items = models.NullBooleanField(
+        null=True, blank=True, default=False)
+    applies_to_manufacturer_promos = models.NullBooleanField(
+        null=True, blank=True, default=True)
+    applies_to_delivery = models.NullBooleanField(
+        null=True, blank=True)
+
     applies_to_personal_accounts = models.NullBooleanField(
         null=True, blank=True, default=True)
     applies_to_business_accounts = models.NullBooleanField(

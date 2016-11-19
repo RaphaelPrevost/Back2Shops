@@ -11,11 +11,14 @@
     {% if object.applies_to_id or object.apply_after %}
         <apply {% if object.applies_to_id %}to="{{ object.applies_to_id }}"{% endif %} {% if object.apply_after %}after="{{ object.apply_after }}"{% endif %}/>
     {% endif %}
-    <shipping country="{{ object.shipping_to_region_id }}" {% if object.shipping_to_province %}province="{{ object.shipping_to_province }}"{% endif %} taxable="{{ object.taxable }}"/>
+    <shipping country="{{ object.shipping_to_region_id }}" {% if object.shipping_to_province %}province="{{ object.shipping_to_province }}"{% endif %} applies_to_delivery="{{ object.applies_to_delivery }}"/>
     <rate>{{ object.rate }}</rate>
     <display_on_front>{{ object.display_on_front }}</display_on_front>
     <applies_to_personal_accounts>{{ object.applies_to_personal_accounts }}</applies_to_personal_accounts>
     <applies_to_business_accounts>{{ object.applies_to_business_accounts }}</applies_to_business_accounts>
+    <applies_after_promos>{{ object.applies_after_promos }}</applies_after_promos>
+    <applies_to_free_items>{{ object.applies_to_free_items }}</applies_to_free_items>
+    <applies_to_manufacturer_promos>{{ object.applies_to_manufacturer_promos }}</applies_to_manufacturer_promos>
 </tax>
 	{% endfor %}
 </taxes>

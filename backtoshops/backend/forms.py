@@ -384,7 +384,10 @@ class SATaxForm(forms.ModelForm):
             'shipping_to_province': forms.Select,
             'apply_after': forms.Select,
             'display_on_front': forms.CheckboxInput,
-            'taxable': forms.CheckboxInput,
+            'applies_after_promos': forms.CheckboxInput,
+            'applies_to_free_items': forms.CheckboxInput,
+            'applies_to_manufacturer_promos': forms.CheckboxInput,
+            'applies_to_delivery': forms.CheckboxInput,
             'applies_to_personal_accounts': forms.CheckboxInput,
             'applies_to_business_accounts': forms.CheckboxInput,
         }
@@ -393,6 +396,10 @@ class SATaxForm(forms.ModelForm):
         super(SATaxForm, self).__init__(*args, **kwargs)
         self.fields['applies_to'].empty_label = _('Everything')
         self.fields['shipping_to_region'].empty_label = _('Worldwide')
+        self.fields['applies_after_promos'].label = _("Applies after Coupons and Promotions")
+        self.fields['applies_to_free_items'].label = _("Applies to Free Items")
+        self.fields['applies_to_manufacturer_promos'].label = _("Applies to Manufacturer Coupons and Promotions")
+        self.fields['applies_to_delivery'].label = _("Applies to Shipping and Delivery charges")
         if get_setting('front_personal_account_allowed') != 'True':
             self.fields['applies_to_personal_accounts'].widget = forms.HiddenInput()
         if get_setting('front_business_account_allowed') != 'True':
@@ -402,5 +409,5 @@ class SATaxForm(forms.ModelForm):
         if self.cleaned_data['shipping_to_region']:
             self.cleaned_data['display_on_front'] = None
         if self.cleaned_data['applies_to']:
-            self.cleaned_data['taxable'] = None
+            self.cleaned_data['applies_to_delivery'] = None
         return self.cleaned_data

@@ -365,6 +365,7 @@ CREATE TABLE coupons (
     redeemable_always boolean NOT NULL,
     max_redeemable integer,
     first_order_only boolean NOT NULL,
+    manufacturer boolean NOT NULL DEFAULT false,
     password character varying(256),
     description text
 );

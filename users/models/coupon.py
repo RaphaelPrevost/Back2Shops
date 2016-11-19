@@ -38,7 +38,6 @@
 
 from datetime import datetime
 import logging
-import random
 
 from B2SUtils import db_utils
 from B2SUtils.common import to_round
@@ -183,7 +182,7 @@ def check_coupon_with_password(conn, password, users_id, id_order, user_info):
         [id_order, coupon['id'],
          ORDER_STATUS_FOR_COUPON.PENDING,
          ORDER_STATUS_FOR_COUPON.PAID] * 2)
-    if len(results) >= 0:
+    if len(results) > 0:
         raise ValidationError('COUPON_ERR_APPLIED_COUPON')
 
     if not coupon['stackable']:
@@ -196,7 +195,7 @@ def check_coupon_with_password(conn, password, users_id, id_order, user_info):
             [id_order,
              ORDER_STATUS_FOR_COUPON.PENDING,
              ORDER_STATUS_FOR_COUPON.PAID] * 2)
-        if len(results) >= 0:
+        if len(results) > 0:
             raise ValidationError('COUPON_ERR_NOT_STACKABLE_COUPON')
 
     if coupon['max_redeemable']:
@@ -467,13 +466,11 @@ def _calc_discount_result(conn, id_coupon, coupon, id_order,
             conn, 'coupon_gift', columns=('id_sale', 'quantity'),
             where={'id_coupon': id_coupon})
         if gift_values:
-            # give one of gifts
-            gift = random.choice([{'item_id': gift[0], 'quantity': gift[1]}
-                                  for gift in gift_values])
-            _create_free_order_item(conn, id_order, gift['item_id'],
-                match_order_items[0]['item_id'],
-                {'price': 0, 'modified_by_coupon': id_coupon},
-                quantity=gift['quantity'])
+            for gift in gift_values:
+                _create_free_order_item(conn, id_order, gift['id_sale'],
+                    match_order_items[0]['item_id'],
+                    {'price': 0, 'modified_by_coupon': id_coupon},
+                    quantity=gift['quantity'])
 
 
 def _create_fake_order_item(conn, id_order, orig_id_item,
