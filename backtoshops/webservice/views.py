@@ -990,6 +990,7 @@ class InvoiceView(BaseCryptoWebService, ListView):
         dest = self.request.GET.get('dest')
         shipping_fee = self.request.GET.get('shipping_fee')
         handling_fee = self.request.GET.get('handling_fee')
+        fee_details = self.request.GET.get('fee_details')
         carrier = self.request.GET.get('carrier')
         service = self.request.GET.get('service')
         content = self.request.GET.get('content')
@@ -1014,7 +1015,8 @@ class InvoiceView(BaseCryptoWebService, ListView):
             service,
             from_address,
             to_address,
-            is_business_account)
+            is_business_account,
+            fee_details)
         shipping.update(self.get_shipping_period(id_brand, id_shop))
 
         gross = items_gross + shipping_gross
@@ -1334,7 +1336,8 @@ class InvoiceView(BaseCryptoWebService, ListView):
                      handling_fee, shipping_fee,
                      id_carrier, id_service,
                      from_address, to_address,
-                     is_business_account):
+                     is_business_account,
+                     fee_details):
         shipping = {}
         if id_carrier and int(id_carrier) and id_service and int(id_service):
             service = Service.objects.get(pk=id_service)
@@ -1354,10 +1357,21 @@ class InvoiceView(BaseCryptoWebService, ListView):
         use_after_tax_price = self.get_use_after_tax_price()
         subtotal = fee
         total_tax = 0.0
-        if fee:
+
+        fee_details = ujson.loads(fee_details) if fee_details else {}
+        is_free_fee = fee_details.get('free_fee', False)
+        if fee or is_free_fee:
+            is_manufacturer_promo = fee_details.get('manufacturer_promo', False)
+            free_item_price = 0
+            if is_free_fee:
+                free_item_price = fee_details.get('shipping_fee', 0) \
+                                + fee_details.get('handling_fee', 0)
             fee_taxes = self.get_tax(fee, None, from_address, to_address,
                                      shipping_tax=True,
-                                     is_business_account=is_business_account)
+                                     is_business_account=is_business_account,
+                                     is_free_item=is_free_fee,
+                                     free_item_price=free_item_price,
+                                     is_manufacturer_promo=is_manufacturer_promo)
             shipping['taxes'] = fee_taxes
             for tax in fee_taxes:
                 if not use_after_tax_price:

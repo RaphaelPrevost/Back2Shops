@@ -259,7 +259,7 @@ class ShipmentResource(BaseJsonResource):
             values['mail_tracking_number'] = tracking
         if shipping_date:
             if "/" in shipping_date:
-                format_ = '%m/%d/%Y'
+                format_ = '%d/%m/%Y'
             else:
                 format_ = '%Y-%m-%d'
             sp_date = datetime.datetime.strptime(shipping_date, format_)

@@ -1015,7 +1015,7 @@ def remote_get_supported_services(conn, id_shipment):
     return remote_xml_shipping_services(carrier_services)
 
 SHIPMENT_FEE_FIELDS = [
-    'id', 'id_shipment', 'handling_fee', 'shipping_fee'
+    'id', 'id_shipment', 'handling_fee', 'shipping_fee', 'details',
 ]
 def get_shipping_fee(conn, id_shipment):
     query_str = ("SELECT %s "

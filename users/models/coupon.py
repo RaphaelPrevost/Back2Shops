@@ -38,6 +38,7 @@
 
 from datetime import datetime
 import logging
+import ujson
 
 from B2SUtils import db_utils
 from B2SUtils.common import to_round
@@ -55,6 +56,8 @@ from models.order import _create_order_details
 from models.order import _create_order_item
 from models.shipments import get_shipments_by_order
 from models.shipments import get_shipping_list
+from models.shipments import get_shipping_fee
+from models.shipments import update_shipping_fee
 
 
 COUPON_FIELDS_COLUMNS = [
@@ -70,6 +73,7 @@ COUPON_FIELDS_COLUMNS = [
     ('first_order_only', 'first_order_only'),
     ('password', 'password'),
     ('description', 'description'),
+    ('manufacturer', 'manufacturer'),
 ]
 
 def get_coupon_user_data(conn, id_coupon):
@@ -443,8 +447,20 @@ def _calc_discount_result(conn, id_coupon, coupon, id_order,
                     o_item['price'], discount_value['discount'])
 
         elif discount_value['discount_type'] == COUPON_DISCOUNT_APPLIES.VALUE_SHIPPING:
-            # TODO handle free shipping+handling fee
-            pass
+            shipments = get_shipments_by_order(conn, id_order)
+            for shipment in shipments:
+                fee = get_shipping_fee(conn, shipment['id'])
+                update_values = {
+                    'shipping_fee': 0,
+                    'handling_fee': 0,
+                    'details': ujson.dumps({
+                        'free_fee': True,
+                        'shipping_fee': fee['shipping_fee'] or 0,
+                        'handling_fee': fee['handling_fee'] or 0,
+                        'manufacturer_promo': coupon['manufacturer'],
+                    })
+                }
+                update_shipping_fee(conn, shipment['id'], update_values)
 
         for o_item in all_order_items:
             if 'discount' not in o_item:
