@@ -214,6 +214,8 @@ class BaseInvoiceMixin:
                     query['shipping_fee'] = fee['shipping_fee']
                 if fee['handling_fee'] is not None:
                     query['handling_fee'] = fee['handling_fee']
+                if fee['details']:
+                    query['fee_details'] = fee['details']
             except AssertionError:
                 pass
 

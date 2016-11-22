@@ -165,6 +165,7 @@ CREATE TABLE shipping_fee (
     id_shipment bigint,
     handling_fee double precision,
     shipping_fee double precision,
+    details text,
     FOREIGN KEY (id_shipment) REFERENCES shipments (id)
 );
 
