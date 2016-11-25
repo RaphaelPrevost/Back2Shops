@@ -313,6 +313,10 @@ def delete_order(conn, order_id, brand_id, shops_id):
         update(conn, 'orders',
                values={'valid': False},
                where={'id': order_id})
+
+        from models.coupon import cancel_coupon_for_order
+        cancel_coupon_for_order(conn, order_id)
+
     return allowed
 
 

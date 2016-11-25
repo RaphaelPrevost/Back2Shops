@@ -264,10 +264,14 @@ def update_invoice(conn, id_iv, values, iv=None):
                        'status': iv['status'],
                        'amount_paid': iv['amount_paid'],
                        'timestamp': iv['update_time']})
-
         seller = get_seller(conn, iv['id_shipment'])
         from models.order import up_order_log
         up_order_log(conn, iv['id_order'], seller)
+
+        if int(values.get('status')) == INVOICE_STATUS.INVOICE_PAID:
+            from models.coupon import redeem_coupon_for_shipment
+            redeem_coupon_for_shipment(conn, iv['id_order'], iv['id_shipment'], id_iv)
+
 
     logging.info("invoice_%s updated: %s", id_iv, values)
     return r and r[0] or None

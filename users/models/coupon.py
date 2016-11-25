@@ -414,7 +414,7 @@ def _calc_currency_credit(conn, id_coupon, coupon, id_order,
         left_amount -= redeemable_amount
         total_redeemable_amount += redeemable_amount
 
-    return total_redeemable_amount, credit_value['currency']
+    return to_round(total_redeemable_amount), credit_value['currency']
 
 
 def _calc_discount_result(conn, id_coupon, coupon, id_order,
@@ -601,3 +601,133 @@ def _once_coupon_limited(conn, id_coupon, id_users,
         "and (%s) " % (same_user_cond, same_user_conf),
         params * 2)
     return len(results) > 0
+
+
+def cancel_coupon_for_order(conn, id_order):
+    db_utils.update(conn, 'coupon_redeemed',
+                    values={'order_status': ORDER_STATUS_FOR_COUPON.CANCELLED},
+                    where={'id_order': id_order})
+    db_utils.update(conn, 'store_credit_redeemed',
+                    values={'order_status': ORDER_STATUS_FOR_COUPON.CANCELLED},
+                    where={'id_order': id_order})
+
+    id_coupons = [item['modified_by_coupon']
+                  for item in get_order_items(conn, id_order)
+                  if item['modified_by_coupon']]
+    for id_coupon in id_coupons:
+        # check if need to mark redeemed_in_full False
+        credit_value = _get_store_credit(conn, id_coupon)
+        redeemed_amount = _get_store_redeemed_amount(conn, id_coupon)
+        if credit_value and credit_value['amount'] > to_round(redeemed_amount):
+            db_utils.update(conn, 'store_credit',
+                            values={'redeemed_in_full': False},
+                            where={'id_coupon': id_coupon})
+
+
+def redeem_coupon_for_shipment(conn, id_order, id_shipment, id_invoice):
+    shipping_list = get_shipping_list(conn, id_shipment)
+    coupon_items = [item for item in shipping_list
+                    if item['modified_by_coupon']]
+    items_group_by_coupon = {}
+    for item in shipping_list:
+        if not item['modified_by_coupon'] or item['price'] > 0:
+            continue
+        if item['modified_by_coupon'] not in items_group_by_coupon:
+            items_group_by_coupon[item['modified_by_coupon']] = []
+        items_group_by_coupon[item['modified_by_coupon']].append(item)
+
+    for id_coupon, items in items_group_by_coupon.iteritems():
+        _coupon_redeemed(conn, id_coupon, id_order, id_invoice)
+        amount = to_round(sum([item['quantity'] * item['price']
+                               for item in items]))
+        _store_credit_redeemed(conn, id_coupon, id_order, id_invoice, amount)
+
+
+def _coupon_redeemed(conn, id_coupon, id_order, id_invoice):
+    results = db_utils.select(
+        conn, 'coupon_redeemed',
+        where={
+            'id_coupon': id_coupon,
+            'id_order': id_order,
+        })
+    if not results:
+        return
+
+    update_values = {
+        'id_invoice': id_invoice,
+        'order_status': ORDER_STATUS_FOR_COUPON.PAID,
+    }
+    if len(results) == 1 and results[0]['id_invoice'] is None:
+        db_utils.update(conn, 'coupon_redeemed',
+                        values=update_values,
+                        where={'id': results[0]['id']})
+    else:
+        values = {
+            'id_coupon': results[0]['id_coupon'],
+            'id_user': results[0]['id_user'],
+            'id_order': results[0]['id_order'],
+            'redeemed_time': results[0]['redeemed_item'],
+            'account_address': results[0]['account_address'],
+            'account_phone': results[0]['account_phone'],
+            'user_agent': results[0]['user_agent'],
+        }
+        values.update(update_values)
+        db_utils.insert(conn, 'coupon_redeemed', values=values)
+
+
+def _store_credit_redeemed(conn, id_coupon, id_order, id_invoice, amount):
+    results = db_utils.select(
+        conn, 'store_credit_redeemed',
+        where={
+            'id_coupon': id_coupon,
+            'id_order': id_order,
+        },
+        order=('-id_invoice',))
+    if not results or results[0]['id_invoice']:
+        return
+
+    update_values = {
+        'id_invoice': id_invoice,
+        'order_status': ORDER_STATUS_FOR_COUPON.PAID,
+    }
+    total = to_round(results[0]['redeemed_amount'])
+    if total <= amount:
+        db_utils.update(conn, 'store_credit_redeemed',
+                        values=update_values,
+                        where={'id': results[0]['id']})
+    else:
+        values = {
+            'id_coupon': results[0]['id_coupon'],
+            'id_user': results[0]['id_user'],
+            'id_order': results[0]['id_order'],
+            'currency': results[0]['currency'],
+            'redeemed_amount': amount,
+        }
+        values.update(update_values)
+        db_utils.insert(conn, 'store_credit_redeemed', values=values)
+
+        db_utils.update(conn, 'store_credit_redeemed',
+                        values={'redeemed_amount': to_round(total - amount)},
+                        where={'id': results[0]['id']})
+
+    # check if need to mark redeemed_in_full
+    credit_value = _get_store_credit(conn, id_coupon)
+    redeemed_amount = _get_store_redeemed_amount(conn, id_coupon)
+    if credit_value and credit_value['amount'] <= to_round(redeemed_amount):
+        db_utils.update(conn, 'store_credit',
+                        values={'redeemed_in_full': True},
+                        where={'id_coupon': id_coupon})
+
+
+def _get_store_credit(conn, id_coupon):
+    results = db_utils.select(
+        conn, 'store_credit', where={'id_coupon': id_coupon})
+    return results[0] if results else None
+
+
+def _get_store_redeemed_amount(conn, id_coupon):
+    return db_utils.query(conn,
+        "select COALESCE(sum(redeemed_amount), 0) from store_credit_redeemed "
+        "where id_coupon=%s and order_status = %s ",
+        [id_coupon, ORDER_STATUS_FOR_COUPON.PAID])[0][0]
+
