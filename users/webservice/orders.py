@@ -326,6 +326,8 @@ class OrderResource(BaseJsonResource):
 
         if not sale.valid():
             raise ValidationError('ORDER_ERR_INVALID_SALE_ITEM_%s' % id_sale)
+        if not sale.available():
+            raise ValidationError('ORDER_ERR_UNAVAILABLE_SALE_ITEM_%s' % id_sale)
         elif int(id_variant) and not sale.valid_variant(id_variant):
             raise ValidationError('ORDER_ERR_INVALID_SALE_VARIANT_%s' % id_variant)
         elif int(id_type) and not sale.valid_type(id_type):

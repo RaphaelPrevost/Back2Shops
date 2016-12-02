@@ -164,9 +164,9 @@ class Sorter(object):
 
     def sort(self, sort_fields, get_sort_field_func=None):
         # sort_fields is a list of field in order of priority
-        # e.g. ['creation', '-shop_id', 'product__valid_to']
+        # e.g. ['creation', '-shop_id', 'product__available_to']
         # '__' is the split for child attribute.
-        # e.g. 'product__valid_to', will first get attribute with 'product'
+        # e.g. 'product__available_to', will first get attribute with 'product'
         #      then get attribute 'valid_to'.
 
         sort_fields = [f for f in sort_fields if f]

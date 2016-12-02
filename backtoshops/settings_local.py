@@ -372,6 +372,9 @@ ORDER_INVOICES = '%s/webservice/1.0/private/invoice/get' % USR_SERVER
 ORDER_SEND_INVOICES = '%s/webservice/1.0/private/invoice/send' % USR_SERVER
 ORDER_DELETE = '%s/webservice/1.0/private/order/delete' % USR_SERVER
 
+COUPON_CREATE_URL = '%s/webservice/1.0/private/coupon/' % USR_SERVER
+COUPON_LIST_URL = '%s/webservice/1.0/private/coupon/list' % USR_SERVER
+
 # config to see decrypt content for response,
 # only used for debugging
 CRYPTO_RESP_DEBUGING = True

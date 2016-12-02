@@ -103,16 +103,38 @@ class Product(models.Model):
     weight_unit = models.ForeignKey("WeightUnit",blank=False,default='kg')
     standard_weight = models.FloatField(null=True, blank=True)
     normal_price = models.FloatField(null=True)
-    discount_type = models.CharField(choices=DISCOUNT_TYPE, max_length=10,
-                                     blank=False, null=True)
-    discount = models.FloatField(null=True)
-    valid_from = models.DateField()
-    valid_to = models.DateField(null=True)
     #brand_attributes = models.ManyToManyField("attributes.BrandAttribute", through="attributes.BrandAttributePreview")
     short_description = models.CharField(max_length=240, blank=True, null=True)
+    available_from = models.DateField(null=True)
+    available_to = models.DateField(null=True)
 
     def __unicode__(self):
         return self.name
+
+    @property
+    def discount_type(self):
+        return 'percentage'
+
+    @property
+    def discount(self):
+        if hasattr(self, '_discount'):
+            return self._discount
+
+        from datetime import datetime
+        from B2SUtils.common import parse_ts
+        from common.coupons import get_item_specific_discount_coupon
+        coupon = get_item_specific_discount_coupon(self.sale.mother_brand.id,
+                                                   id_sale=self.sale.id)
+        if coupon and (not coupon.valid.from_
+                or parse_ts(coupon.valid.from_) <= datetime.now()) \
+            and (not coupon.valid.to_
+                or parse_ts(coupon.valid.to_) > datetime.now()):
+            self._discount = float(coupon.reward.rebate.ratio)
+        else:
+            self._discount = 0
+
+        return self._discount
+
 
 class ProductCurrency(models.Model):
     code = models.CharField(max_length=3)

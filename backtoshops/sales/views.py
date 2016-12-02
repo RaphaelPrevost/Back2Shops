@@ -76,6 +76,9 @@ from common.assets_utils import get_asset_name
 from common.cache_invalidation import send_cache_invalidation
 from common.constants import TARGET_MARKET_TYPES
 from common.constants import USERS_ROLE
+from common.coupons import create_item_specific_coupon
+from common.coupons import delete_coupon
+from common.coupons import get_item_specific_discount_coupon
 from common.error import InvalidRequestError
 from common.utils import get_currency
 from common.utils import get_default_setting
@@ -231,14 +234,14 @@ class ListSalesView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixin
 
         if sales_type == "old":
             self.sales = self.sales.filter(
-                Q(product__valid_to__isnull=False) &
-                Q(product__valid_to__lt=date.today())
+                Q(product__available_to__isnull=False) &
+                Q(product__available_to__lt=date.today())
             )
             self.page_title = _("History")
         else:
             self.sales = self.sales.filter(
-                Q(product__valid_to__isnull=True) |
-                Q(product__valid_to__gte=date.today())
+                Q(product__available_to__isnull=True) |
+                Q(product__available_to__gte=date.today())
             )
             self.page_title = _("Current Sales")
 
@@ -671,12 +674,10 @@ def edit_sale(request, *args, **kwargs):
         'description': sale.product.description,
         'weight_unit': sale.product.weight_unit,
         'standard_weight': sale.product.standard_weight,
-        'valid_from': sale.product.valid_from,
-        'valid_to': sale.product.valid_to,
+        'available_from': sale.product.available_from,
+        'available_to': sale.product.available_to,
         'normal_price': sale.product.normal_price,
         'currency': sale.product.currency,
-        'discount': sale.product.discount,
-        'discount_type': sale.product.discount_type,
         'brand_attributes': brand_attributes,
         'pictures': pictures,
         'type_attribute_prices': type_attribute_prices,
@@ -690,6 +691,16 @@ def edit_sale(request, *args, **kwargs):
         'ordersettings_initials': initial_ordersettings,
         'varattrs_initials': initial_varattrs,
     }
+
+    coupon = get_item_specific_discount_coupon(sale.mother_brand.id,
+                                               id_sale=sale.id)
+    if coupon:
+        initial_product.update({
+            'coupon_id': coupon.id,
+            'discount': coupon.reward.rebate.ratio,
+            'valid_from': coupon.valid.from_[:10] if coupon.valid.from_ else None,
+            'valid_to': coupon.valid.to_[:10] if coupon.valid.to_ else None,
+        })
 
     initial_shipping = {}
     if hasattr(sale, 'shippinginsale') and sale.shippinginsale:
@@ -808,15 +819,30 @@ class SaleWizardNew(NamedUrlSessionWizardView):
         product.description = product_data['description']
         product.weight_unit = product_data['weight_unit']
         product.standard_weight = product_data['standard_weight']
-        product.valid_from = product_data['valid_from'] or date.today()
-        product.valid_to = product_data['valid_to']
+        product.available_from = product_data['available_from'] or date.today()
+        product.available_to = product_data['available_to']
         product.normal_price = product_data['normal_price']
         product.currency = product_data['currency']
-        product.discount = product_data['discount']
-        product.discount_type = \
-            product.discount and product_data['discount_type'] or None
         product.short_description = product_data['short_description']
         product.save()
+
+        if product_data['coupon_id']:
+            if product_data['discount']:
+                # TODO: update item-specific coupon
+                pass
+            else:
+                # delete coupon
+                delete_coupon(product.brand.id, self.request.user.id,
+                              product_data['coupon_id'])
+        else:
+            if product_data['discount']:
+                # create the item-specific coupon
+                create_item_specific_coupon(
+                    product.brand.id, self.request.user.id, sale.id,
+                    product_data['discount'],
+                    product_data['valid_from'],
+                    product_data['valid_to'],
+                )
 
         sale.gender = product_data['gender']
         sale.save()

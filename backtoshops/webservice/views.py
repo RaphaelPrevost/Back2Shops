@@ -141,10 +141,11 @@ class SalesListView(BaseWebservice, ListView):
         shop = self.request.GET.get('shop', None)
         brand = self.request.GET.get('brand', None)
         queryset = Sale.objects.filter(
-            product__valid_from__lte=date.today()
+            Q(product__available_from__isnull=True) |
+            Q(product__available_from__lte=date.today())
         ).filter(
-            Q(product__valid_to__isnull=True) |
-            Q(product__valid_to__gte=date.today())
+            Q(product__available_to__isnull=True) |
+            Q(product__available_to__gte=date.today())
         )
         if product_type:
             queryset = queryset.filter(product__type=product_type)
@@ -479,10 +480,11 @@ class VicinitySalesListView(BaseWebservice, ListView):
         shop = self.request.GET.get('shop', None)
         brand = self.request.GET.get('brand', None)
         queryset = Sale.objects.filter(
-            product__valid_from__lte=date.today()
+            Q(product__available_from__isnull=True) |
+            Q(product__available_from__lte=date.today())
         ).filter(
-            Q(product__valid_to__isnull=True) |
-            Q(product__valid_to__gte=date.today())
+            Q(product__available_to__isnull=True) |
+            Q(product__available_to__gte=date.today())
         )
         if product_type:
             queryset = queryset.filter(product__type=product_type)

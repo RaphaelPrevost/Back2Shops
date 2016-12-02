@@ -38,6 +38,7 @@
 
 
 import logging
+from datetime import datetime
 from decimal import Decimal
 from common.error import NotExistError
 from common.redis_utils import get_redis_cli
@@ -153,6 +154,8 @@ class ActorSaleBrand(BaseActor):
 
 class ActorSaleDiscount(BaseActor):
     attrs_map = {'type': '@type',
+                 'from': '@from',
+                 'to': '@to',
                  'text': '#text'}
 
 
@@ -252,8 +255,8 @@ class ActorStocks(BaseActor):
         return [ActorStock(data=s) for s in s_list]
 
 class ActorSaleAvailable(BaseActor):
-    attrs_map = {'from': '@from',
-                 'to': '@to',
+    attrs_map = {'from_': '@from',
+                 'to_': '@to',
                  'total': '@total'}
 
     @property
@@ -265,6 +268,7 @@ class ActorSale(BaseActor):
     attrs_map = {'id': '@id',
                  'name': 'name',
                  'desc': 'desc',
+                 'discount_price': 'discount_price',
                  }
 
     # attributes set/used in orders
@@ -337,6 +341,16 @@ class ActorSale(BaseActor):
     def available(self):
         return ActorSaleAvailable(data=self.data.get('available'))
 
+    def available_now(self):
+        def parse_date(date_str):
+            return datetime.strptime(date_str[:10], '%Y-%m-%d').date()
+
+        now = datetime.now().date()
+        return (not self.available.from_
+                or parse_date(self.available.from_) <= now) \
+           and (not self.available.to_
+                or parse_date(self.available.to_) >= now)
+
     def get_weight_attr(self, id_type):
         if id_type:
             return self.type.get_attr(id_type)
@@ -387,9 +401,7 @@ class ActorSale(BaseActor):
 
             return Decimal(p.value)
 
-        base_price = Decimal(__base_price())
-        _discount = __diff_price(base_price, self.discount)
-        price = base_price - _discount
+        price = Decimal(__base_price())
         if int(id_variant):
             v = self.get_variant(id_variant)
             premium = __diff_price(price, v.premium)
@@ -453,6 +465,9 @@ class CachedSale:
 
     def valid(self):
         return self.sale is not None
+
+    def available(self):
+        return self.valid() and self.sale.available_now()
 
     def valid_variant(self, id_variant):
         if not self.valid():

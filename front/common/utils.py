@@ -214,6 +214,8 @@ def get_price_label(need_calc_before_tax=None):
 def get_product_default_display_price(sale, type_attr=None):
     ori_price = sale.get('price', {}).get('#text') or ''
     discount_price = sale.get('discount_price')
+    valid_from = sale.get('discount', {}).get('@from') or ''
+    valid_to = sale.get('discount', {}).get('@to') or ''
     if type_attr:
         if 'price' in type_attr:
             ori_price = type_attr['price'].get('#text')
@@ -225,6 +227,11 @@ def get_product_default_display_price(sale, type_attr=None):
                 discount_price = type_attr.get('discount_price')
                 break
     if not discount_price:
+        discount_price = ori_price
+
+    now = datetime.datetime.utcnow()
+    if valid_from and parse_ts(valid_from) > now \
+            or valid_to and parse_ts(valid_to) < now:
         discount_price = ori_price
     return float(ori_price), float(discount_price)
 
@@ -314,12 +321,21 @@ def get_brief_product(sale, req, resp, calc_price=True,
         product_info['img'] = '/img/dollar-example.jpg'
     return product_info
 
+def parse_date(date_str):
+    return datetime.datetime.strptime(date_str[:10], '%Y-%m-%d').date()
+
 def get_brief_product_list(sales, req, resp, users_id):
     is_business_account = user_is_business_account(req, resp, users_id)
+    now = datetime.datetime.utcnow().date()
     return [get_brief_product(s, req, resp,
                 is_business_account=is_business_account)
             for s in sales.itervalues()
-            if int(s.get('available', {}).get('@total', 0)) > 0]
+            if int(s.get('available', {}).get('@total', 0)) > 0
+            and (not s.get('available', {}).get('@from')
+                 or parse_date(s.get('available', {}).get('@from')) <= now)
+            and (not s.get('available', {}).get('@to')
+                 or parse_date(s.get('available', {}).get('@to')) >= now)
+            ]
 
 def get_random_products(sales, req, resp, users_id,
                         count=settings.NUM_OF_RANDOM_SALES):

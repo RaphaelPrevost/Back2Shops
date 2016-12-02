@@ -368,7 +368,8 @@ CREATE TABLE coupons (
     first_order_only boolean NOT NULL,
     manufacturer boolean NOT NULL DEFAULT false,
     password character varying(256),
-    description text
+    description text,
+    valid boolean NOT NULL DEFAULT true
 );
 
 CREATE TABLE coupon_accepted_at (
