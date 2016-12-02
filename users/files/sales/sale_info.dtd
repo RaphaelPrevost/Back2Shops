@@ -54,6 +54,8 @@
 
 <!ELEMENT discount (#PCDATA) >
 <!ATTLIST discount type (ratio | fixed) "ratio" >
+<!ATTLIST discount from CDATA #IMPLIED >
+<!ATTLIST discount to CDATA #IMPLIED >
 <!ELEMENT discount_price (#PCDATA) >
 
 <!ELEMENT variant (name, thumb, img+, premium) >

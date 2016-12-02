@@ -150,22 +150,30 @@
 
             {{ wizard.form.discount.errors }}
             {{ wizard.form.discount_type.errors }}
-            <div class="marge formrow">
+            <div class="formrow">
                 <label for="prixBTS">{% trans "Discount" %} {{ price_label }}</label>
                 <span class="contForm" id="newPrice">
+                    {{ wizard.form.coupon_id }}
                     {{ wizard.form.discount_type }}
                     {{ wizard.form.preview_discount_price_str }}
                     <span class="raw">></span>{{ wizard.form.discount }}<span id="discount_marker" class="discount_marker">%</span>
                     <span id="result">{% trans "Discounted price" %} : <strong id="discount_price">{% trans "N/A" %}</strong> <strong id="id_discount_price_marker">&nbsp;</strong></span>
                 </span>
             </div>
-
             {{ wizard.form.valid_from.errors }}
             {{ wizard.form.valid_to.errors }}
-            <div class="formrow">
+            <div class="marge formrow">
                 <label>{% trans "Valid through" %}</label>
                 <span>{{ wizard.form.valid_from.label }}</span>{{ wizard.form.valid_from }}
                 <span>{{ wizard.form.valid_to.label }}</span>{{ wizard.form.valid_to }}
+            </div>
+
+            {{ wizard.form.available_from.errors }}
+            {{ wizard.form.available_to.errors }}
+            <div class="formrow">
+                <label>{% trans "Available" %}</label>
+                <span>{{ wizard.form.available_from.label }}</span>{{ wizard.form.available_from }}
+                <span>{{ wizard.form.available_to.label }}</span>{{ wizard.form.available_to }}
             </div>
 
             {{ wizard.form.barcodes.management_form }}
@@ -1381,6 +1389,12 @@
     $("#{{ wizard.form.valid_to.auto_id }}").datepicker({
         onSelect: function(dateText, inst) {
             $("#preview-{{ wizard.form.valid_to.auto_id }}").html(dateText).parents("span:first").show();
+        }
+    });
+    $("#{{ wizard.form.available_from.auto_id }}").datepicker();
+    $("#{{ wizard.form.available_to.auto_id }}").datepicker({
+        onSelect: function(dateText, inst) {
+            $("#preview-{{ wizard.form.available_to.auto_id }}").html(dateText).parents("span:first").show();
         }
     });
 

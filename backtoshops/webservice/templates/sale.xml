@@ -84,7 +84,10 @@
 
     <!-- discount (type: "ratio" or "fixed" ) if it has -->
     {% if object.product.discount %}
-    <discount type="{% if object.product.discount_type == 'percentage' %}ratio{% else %}fixed{% endif %}">{{ object.product.discount|floatformat:-2 }}</discount>
+    <discount type="{% if object.product.discount_type == 'percentage' %}ratio{% else %}fixed{% endif %}"
+        {% if object.product.valid_from %} from="{{ object.product.valid_from|date:"c" }}" {% endif %}
+        {% if object.product.valid_to %} to="{{ object.product.valid_to|date:"c" }}" {% endif %}
+        >{{ object.product.discount|floatformat:-2 }}</discount>
     <discount_price>{% get_discount_price object.product.discount_type object.product.discount object.product.normal_price %}</discount_price>
     {% endif %}
 
@@ -135,9 +138,9 @@
         {% endfor %}
     </orderconfirmsettings>
 
-    <available from="{{ object.product.valid_from|date:"c" }}"
-            {% if object.product.valid_to %}
-               to="{{ object.product.valid_to|date:"c" }}"
+    <available from="{{ object.product.available_from|date:"c" }}"
+            {% if object.product.available_to %}
+               to="{{ object.product.available_to|date:"c" }}"
             {% endif %}
             total="{{ object.total_rest_stock }}"
             >

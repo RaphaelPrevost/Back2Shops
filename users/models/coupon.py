@@ -148,10 +148,10 @@ def order_item_match_cond(order_item, conds, id_brand, id_shops):
     match = True
     for m in conds:
         if m['id_type'] == COUPON_CONDITION_IDTYPE.SALE \
-                and m['id'] == order_item['id_sale']:
+                and m['id'] == order_item['sale_id']:
             continue
         elif m['id_type'] == COUPON_CONDITION_IDTYPE.SHOP \
-                and m['id'] == order_item['id_shop']:
+                and m['id'] == order_item['shop_id']:
             continue
         elif m['id_type'] == COUPON_CONDITION_IDTYPE.BRAND:
             pass #TODO check product item
@@ -164,7 +164,8 @@ def order_item_match_cond(order_item, conds, id_brand, id_shops):
 
 def check_coupon_with_password(conn, password, users_id, id_order, user_info):
     coupons = db_utils.select_dict(
-        conn, 'coupons', 'id', where={'password': password}).values()
+        conn, 'coupons', 'id',
+        where={'password': password, 'valid': True}).values()
     if len(coupons) == 0:
         raise ValidationError('COUPON_ERR_INVALID_PASSWORD')
     coupon = coupons[0]
@@ -262,7 +263,7 @@ def apply_appliable_coupons(conn, id_user, id_order, user_info):
     fields, columns = zip(*COUPON_FIELDS_COLUMNS)
     results = db_utils.query(conn, """
     select %s from coupons
-    where password = ''
+    where password = '' and valid
       and (expiration_time is null or expiration_time > now())
       and (exists (
         select 1 from coupon_given_to where id_coupon=coupons.id and id_user=%%s
@@ -276,7 +277,7 @@ def apply_appliable_coupons(conn, id_user, id_order, user_info):
 
     results = db_utils.query(conn, """
     select %s from coupons
-    where password = ''
+    where password = '' and valid
       and (expiration_time is null or expiration_time > now())
       and (exists (
         select 1 from coupon_given_to where id_coupon=coupons.id and id_user=%%s

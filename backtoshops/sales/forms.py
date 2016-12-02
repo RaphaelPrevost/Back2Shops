@@ -411,7 +411,12 @@ class ProductForm(forms.Form):
         label=_("Currency"),
         queryset=ProductCurrency.objects.all(),
         widget=forms.Select(attrs={'disabled':'disabled'}))
-    discount_type = forms.ChoiceField(required=False, choices=DISCOUNT_TYPE)
+    discount_type = forms.ChoiceField(
+        required=False,
+        choices=(('percentage', 'Percentage'),))
+    coupon_id = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'style': 'display: none;'}))
     discount = forms.FloatField(
         required=False,
         widget=forms.TextInput(attrs={'class': 'inputXS'}))
@@ -434,6 +439,16 @@ class ProductForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'inputS'}),
         localize=True)
     gender = forms.ChoiceField(choices=GENDERS, label=_("Target gender"))
+    available_from = forms.DateField(
+        required=False,
+        label=_("From"),
+        widget=forms.TextInput(attrs={'class': 'inputS'}),
+        localize=True)
+    available_to = forms.DateField(
+        required=False,
+        label=_("To"),
+        widget=forms.TextInput(attrs={'class': 'inputS'}),
+        localize=True)
 
     def __init__(self, mother_brand=None, data=None, files=None,
                  auto_id='id_%s', prefix=None, initial=None,
@@ -567,6 +582,19 @@ class ProductForm(forms.Form):
             raise forms.ValidationError(
                 _("Expiration date can not be set before today."))
         return valid_to
+
+    def clean_available_to(self):
+        available_from = self.cleaned_data['available_from']
+        available_to = self.cleaned_data['available_to']
+
+        if available_from and available_to and available_to < available_from:
+            raise forms.ValidationError(
+                _("Starting date can not be set past this sale's "
+                  "expiration date."))
+        elif available_to and available_to < date.today():
+            raise forms.ValidationError(
+                _("Expiration date can not be set before today."))
+        return available_to
 
     def clean_standard_weight(self):
         valid_taws = [taw for taw in self.type_attribute_weights.cleaned_data
@@ -702,8 +730,8 @@ class ListSalesForm(forms.Form):
                       ('total_sold_stock',_("Sales")),
                       ('product__normal_price',_("Price")),
                       ('product__discount_price',_("Discounted price")),
-                      ('product__valid_from',_("Starting date")),
-                      ('product__valid_to',_("Expiration date")),
+                      ('product__available_from',_("Starting date")),
+                      ('product__available_to',_("Expiration date")),
                      }
     order_by1 = forms.ChoiceField(required=False,choices=ORDER_BY_ITEMS)
     order_by2 = forms.ChoiceField(required=False,choices=ORDER_BY_ITEMS)

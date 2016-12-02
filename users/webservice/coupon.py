@@ -88,9 +88,13 @@ class CouponListResource(BaseXmlResource):
         id_promotion_group = req.get_param('promotion_group')
         id_product_brand = req.get_param('item_brand')
 
-        id_coupons = db_utils.select(
-            conn, 'coupons', columns=('id',),
-            where={'id_brand': id_brand})
+        query = """
+            select id from coupons
+            where id_brand=%s and valid
+              and (expiration_time is null or expiration_time >= now())
+            order by creation_time
+        """
+        id_coupons = db_utils.query(conn, query, [id_brand])
         id_coupons = [v[0] for v in id_coupons]
         if id_shops:
             id_coupons = self._filter_by_shops(conn, id_brand, id_shops, id_coupons)
@@ -218,7 +222,10 @@ class CouponCreateResource(BaseXmlResource):
     encrypt = True
     service = SERVICES.ADM
 
-    post_action_func_map = {'create': 'coupon_create'}
+    post_action_func_map = {
+        'create': 'coupon_create',
+        'delete': 'coupon_delete',
+    }
 
     def _on_post(self, req, resp, conn, **kwargs):
         action = req.get_param('action')
@@ -250,19 +257,37 @@ class CouponCreateResource(BaseXmlResource):
                 except ValueError, e:
                     raise ValidationError('COUPON_ERR_INVALID_PARAM_participating')
 
+            creation_time = req.get_param('creation_time')
+            if creation_time is not None:
+                try:
+                    creation_time = datetime.strptime(creation_time,
+                                                      "%Y-%m-%d %H:%M:%S")
+                except ValueError, e:
+                    try:
+                        creation_time = datetime.strptime(creation_time,
+                                                          "%Y-%m-%d")
+                    except ValueError, e:
+                        raise ValidationError('COUPON_ERR_INVALID_PARAM_expiration_time')
+
             expiration_time = req.get_param('expiration_time')
             if expiration_time is not None:
                 try:
                     expiration_time = datetime.strptime(expiration_time,
                                                         "%Y-%m-%d %H:%M:%S")
                 except ValueError, e:
-                    raise ValidationError('COUPON_ERR_INVALID_PARAM_expiration_time')
+                    try:
+                        expiration_time = datetime.strptime(expiration_time,
+                                                            "%Y-%m-%d")
+                        expiration_time = datetime.combine(expiration_time,
+                                                           datetime.max.time())
+                    except ValueError, e:
+                        raise ValidationError('COUPON_ERR_INVALID_PARAM_expiration_time')
 
             password = req.get_param('password') or ''
             if password:
                 results = db_utils.select(
                     conn, 'coupons', columns=('id',),
-                    where={'password': password})
+                    where={'password': password, 'valid': True})
                 if len(results) > 0:
                     raise ValidationError('COUPON_ERR_INVALID_PARAM_password')
 
@@ -471,8 +496,8 @@ class CouponCreateResource(BaseXmlResource):
                         COUPON_DISCOUNT_APPLIES.VALUE_SHIPPING),\
                        'discount_applies_to'
                 discount = req.get_param('discount')
-                assert discount and discount.isdigit(), 'discount'
-                discount = int(discount)
+                assert discount, 'discount'
+                discount = float(discount)
 
             elif reward_type == COUPON_REWARD_TYPE.COUPON_GIVEAWAY:
                 discount = 100
@@ -481,6 +506,23 @@ class CouponCreateResource(BaseXmlResource):
                'discount': discount,
             }
         return discount_values, gift_values_list
+
+    def coupon_delete(self, req, resp, conn):
+        id_brand = req.get_param('id_issuer')
+        if not id_brand:
+            raise ValidationError('COUPON_ERR_INVALID_ID_BRAND')
+
+        id_coupon = req.get_param('id_coupon')
+        coupons = db_utils.select(
+            conn, 'coupons', where={'id': id_coupon})
+        if not coupons:
+            raise ValidationError('COUPON_ERR_INVALID_ID_COUPON')
+        if coupons[0]['id_brand'] != int(id_brand):
+            raise ValidationError('COUPON_ERR_INVALID_COUPON_FOR_BRAND')
+
+        db_utils.update(conn, 'coupons', values={'valid': False},
+                        where={'id': id_coupon})
+        return {'id_coupon': id_coupon}
 
 
 class CouponRedeemResource(BaseJsonResource):

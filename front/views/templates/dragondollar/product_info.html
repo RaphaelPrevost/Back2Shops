@@ -214,6 +214,9 @@ $(function(){
     var discount = ${product_info.get("discount", {}).get("#text", 0)};
     var ori_price = parseFloat(${product_info.get("display", {}).get("ori_price", 99999999)});
     var discounted_price = parseFloat(${product_info.get("display", {}).get("price", 99999999)});
+    if (ori_price == discounted_price) {
+        discount = 0;
+    }
     var currency = "${cur_symbol(product_info.get('price', {}).get('@currency'))}";
     var show_final_price = "${show_final_price}";
     var calc_before_tax_price = "${calc_before_tax_price}";
@@ -229,7 +232,7 @@ $(function(){
             if (_price) {
                 type_attr_prices[${attr.get("@id")}] = _price;
             }
-            if (_discount_price) {
+            if (discount && _discount_price) {
                 type_attr_discount_prices[${attr.get("@id")}] = _discount_price;
             }
         <?py #endfor ?>
