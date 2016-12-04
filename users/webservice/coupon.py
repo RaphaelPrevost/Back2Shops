@@ -224,6 +224,7 @@ class CouponCreateResource(BaseXmlResource):
 
     post_action_func_map = {
         'create': 'coupon_create',
+        'update': 'coupon_update',
         'delete': 'coupon_delete',
     }
 
@@ -236,7 +237,7 @@ class CouponCreateResource(BaseXmlResource):
         assert hasattr(func, '__call__')
         return func(req, resp, conn)
 
-    def coupon_create(self, req, resp, conn):
+    def coupon_create(self, req, resp, conn, id_coupon=None):
         try:
             id_brand = req.get_param('id_issuer')
             assert id_brand, 'id_issuer'
@@ -307,6 +308,7 @@ class CouponCreateResource(BaseXmlResource):
                 'first_order_only': req.get_param('first_order_only') == 'True',
                 'password': password,
                 'description': req.get_param('description') or '',
+                'valid': True,
             }
             if max_redeem:
                 coupon_values.update({'max_redeemable': max_redeem})
@@ -333,9 +335,23 @@ class CouponCreateResource(BaseXmlResource):
             raise ValidationError('COUPON_ERR_INVALID_PARAM_%s' % e)
 
 
-        id_coupon = db_utils.insert(conn, 'coupons',
-                                    values=coupon_values,
-                                    returning='id')[0]
+        is_edit = id_coupon is not None
+        if is_edit:
+            db_utils.update(conn, 'coupons',
+                            values=coupon_values,
+                            where={'id': id_coupon})
+        else:
+            id_coupon = db_utils.insert(conn, 'coupons',
+                                        values=coupon_values,
+                                        returning='id')[0]
+
+        if is_edit:
+            for table in (
+                'coupon_given_to', 'coupon_accepted_at', 'coupon_condition',
+                'store_credit', 'coupon_discount', 'coupon_gift'):
+                db_utils.delete(conn, table,
+                                where={'id_coupon': id_coupon})
+
         if id_users:
             for id_user in id_users:
                 db_utils.insert(conn, 'coupon_given_to',
@@ -506,6 +522,21 @@ class CouponCreateResource(BaseXmlResource):
                'discount': discount,
             }
         return discount_values, gift_values_list
+
+    def coupon_update(self, req, resp, conn):
+        id_brand = req.get_param('id_issuer')
+        if not id_brand:
+            raise ValidationError('COUPON_ERR_INVALID_ID_BRAND')
+
+        id_coupon = req.get_param('id_coupon')
+        coupons = db_utils.select(
+            conn, 'coupons', where={'id': id_coupon})
+        if not coupons:
+            raise ValidationError('COUPON_ERR_INVALID_ID_COUPON')
+        if coupons[0]['id_brand'] != int(id_brand):
+            raise ValidationError('COUPON_ERR_INVALID_COUPON_FOR_BRAND')
+
+        return coupon_create(req, resp, conn, id_coupon=id_coupon)
 
     def coupon_delete(self, req, resp, conn):
         id_brand = req.get_param('id_issuer')

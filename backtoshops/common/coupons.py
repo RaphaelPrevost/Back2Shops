@@ -72,9 +72,29 @@ def post_coupon(id_brand, id_bo_user, **kwargs):
                       exc_info=True)
 
 
-def create_item_specific_coupon(id_brand, id_bo_user, id_sale, discount_ratio,
-                                valid_from, valid_to):
+def create_item_specific_coupon(id_brand, id_bo_user, id_sale,
+                                discount_ratio, valid_from, valid_to):
     kwargs = {
+        'reward_type': 'COUPON_DISCOUNT',
+        'discount_applies_to': 'VALUE_MATCHING',
+        'discount': discount_ratio,
+        'require': ujson.dumps({
+            "invoice_match":{"sale": [id_sale]}
+        }),
+    }
+    if valid_from:
+        kwargs['creation_time'] = str(valid_from)
+    if valid_to:
+        kwargs['expiration_time'] = str(valid_to)
+
+    return post_coupon(id_brand, id_bo_user, **kwargs)
+
+
+def update_item_specific_coupon(id_coupon, id_brand, id_bo_user, id_sale,
+                                discount_ratio, valid_from, valid_to):
+    kwargs = {
+        'action': 'update',
+        'id_coupon': id_coupon,
         'reward_type': 'COUPON_DISCOUNT',
         'discount_applies_to': 'VALUE_MATCHING',
         'discount': discount_ratio,
