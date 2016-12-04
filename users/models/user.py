@@ -90,11 +90,13 @@ def get_user_profile(conn, user_id):
 ADDR_FIELDS_COLUMNS = [
     ('id', 'users_address.id'),
     ('address', 'users_address.address'),
-    ('address2','users_address.address2'),
-    ('city','users_address.city'),
-    ('country','users_address.country_code'),
-    ('province','users_address.province_code'),
-    ('postalcode','users_address.postal_code'),
+    ('address2', 'users_address.address2'),
+    ('city', 'users_address.city'),
+    ('country', 'users_address.country_code'),
+    ('country_name', 'country.printable_name'),
+    ('province', 'users_address.province_code'),
+    ('province_name', 'province.name'),
+    ('postalcode', 'users_address.postal_code'),
     ('full_name', 'users_address.full_name'),
     ('calling_code', 'country_calling_code.calling_code'),
 
@@ -125,8 +127,13 @@ def get_user_address(conn, user_id, addr_id=None):
     query_str = (
         "SELECT %s "
           "FROM users_address "
+          "LEFT JOIN country "
+            "ON users_address.country_code = country.iso "
           "LEFT JOIN country_calling_code "
             "ON users_address.country_code = country_calling_code.country_code "
+          "LEFT JOIN province "
+            "ON users_address.province_code = province.code "
+            "AND users_address.country_code = province.country_code "
             "%s"
       "ORDER BY users_address.id"
     ) % (", ".join(columns), where)

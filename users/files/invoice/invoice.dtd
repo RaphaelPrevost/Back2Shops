@@ -39,7 +39,7 @@
 
 <!-- items -->
 <!ATTLIST item id CDATA #REQUIRED >
-<!ELEMENT item (external_id?, name?, type_name?, desc, price, qty, premium, tax*, subtotal, detail?, promo?, free?) >
+<!ELEMENT item (external_id?, name?, type_name?, desc, price, qty, premium?, tax*, subtotal, detail?, promo?, free?) >
 <!ELEMENT external_id (#PCDATA) >
 <!ELEMENT type_name (#PCDATA) >
 <!ELEMENT desc (#PCDATA) >
@@ -66,6 +66,8 @@
 
 <!ELEMENT total (#PCDATA) >
 <!ATTLIST total gross CDATA #IMPLIED
+                items_gross CDATA #IMPLIED
+                shipping_gross CDATA #IMPLIED
                 tax CDATA #IMPLIED >
 
 <!ELEMENT payment (period?, penalty?, instructions?) >
