@@ -78,6 +78,7 @@ from common.constants import TARGET_MARKET_TYPES
 from common.constants import USERS_ROLE
 from common.coupons import create_item_specific_coupon
 from common.coupons import delete_coupon
+from common.coupons import update_item_specific_coupon
 from common.coupons import get_item_specific_discount_coupon
 from common.error import InvalidRequestError
 from common.utils import get_currency
@@ -828,8 +829,15 @@ class SaleWizardNew(NamedUrlSessionWizardView):
 
         if product_data['coupon_id']:
             if product_data['discount']:
-                # TODO: update item-specific coupon
-                pass
+                # update item-specific coupon
+                update_item_specific_coupon(
+                    product_data['coupon_id'],
+                    product.brand.id, self.request.user.id, sale.id,
+                    product_data['discount'],
+                    product_data['valid_from'],
+                    product_data['valid_to'],
+                )
+
             else:
                 # delete coupon
                 delete_coupon(product.brand.id, self.request.user.id,
