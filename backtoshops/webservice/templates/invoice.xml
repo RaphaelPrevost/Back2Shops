@@ -10,15 +10,19 @@
             <seller>
                 <name>{{ object.seller.name }}</name>
                 <img>{{ object.seller.img }}</img>
+                {% if object.seller.business %}
                 <id type="business">{{ object.seller.business }}</id>
+                {% endif %}
+                {% if object.seller.tax %}
                 <id type="tax">{{ object.seller.tax }}</id>
+                {% endif %}
                 <id type="personal"></id>
                 <address>
                     <addr>{{ object.seller.address.addr }}</addr>
                     <zip>{{ object.seller.address.zip }}</zip>
                     <city>{{ object.seller.address.city }}</city>
                     <province>{{ object.seller.address.province}}</province>
-                    <country>{{ object.seller.address.country }}</country>
+                    <country>{{ object.seller.address.country_name }}</country>
                 </address>
             </seller>
             <!-- buyer -->
@@ -37,20 +41,24 @@
                     <addr>{{ object.buyer.address.address }} {{ object.buyer.address.address2 }}</addr>
                     <zip>{{ object.buyer.address.postalcode }}</zip>
                     <city>{{ object.buyer.address.city }}</city>
-                    <province>{{ object.buyer.address.province}}</province>
-                    <country>{{ object.buyer.address.country }}</country>
+                    <province>{{ object.buyer.address.province_name }}</province>
+                    <country>{{ object.buyer.address.country_name }}</country>
                 </address>
             </buyer>
             <!-- items -->
             {% for item in object.items %}
                 <item id="{{ item.id_item}}">
-                    <external_id>{{ item.external_id }}</external_id>
+                    {% if item.external_id %}
+                        <external_id>{{ item.external_id }}</external_id>
+                    {% endif %}
                     <name>{{ item.name }}</name>
                     <type_name>{{ item.type_name }}</type_name>
                     <desc>{{ item.desc }}</desc>
                     <price original="{{ item.price.original }}">{{ item.price.discounted }}</price>
                     <qty>{{ item.qty }}</qty>
-                    <premium>{{ item.premium }}</premium>
+                    {% if item.premium > 0 %}
+                        <premium>{{ item.premium }}</premium>
+                    {% endif %}
                     {% for tax in item.taxes %}
                         <tax name="{{ tax.name }}" amount="{{ tax.amount }}" rate="{{ tax.rate }}" to_worldwide="{{ tax.to_worldwide }}" show="{{ tax.show }}">{{ tax.tax }}</tax>
                     {% endfor %}
@@ -80,7 +88,7 @@
                 <subtotal>{{ object.shipping.subtotal }}</subtotal>
             </shipping>
 
-            <total gross="{{ object.total.gross }}" tax="{{ object.total.tax }}">{{ object.total.total }}</total>
+            <total items_gross="{{ object.total.items_gross }}" shipping_gross="{{ object.total.shipping_gross }}" gross="{{ object.total.gross }}" tax="{{ object.total.tax }}">{{ object.total.total }}</total>
 
             <payment>
                 {% if object.payment.period %}

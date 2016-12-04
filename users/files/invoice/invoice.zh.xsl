@@ -24,6 +24,7 @@
   <xsl:variable name="lang.premium">保险</xsl:variable>
   <xsl:variable name="lang.subtotal">小计</xsl:variable>
   <xsl:variable name="lang.shippingDesc">服务</xsl:variable>
+  <xsl:variable name="lang.shipping">运费</xsl:variable>
   <xsl:variable name="lang.handling">处理费</xsl:variable>
   <xsl:variable name="lang.shippingHandling">运费与处理费</xsl:variable>
   <xsl:variable name="lang.taxAmount">税费</xsl:variable>
@@ -31,6 +32,7 @@
   <xsl:variable name="lang.businessNumber">商业登记号码</xsl:variable>
   <xsl:variable name="lang.taxNumber">纳税登记号码</xsl:variable>
   <xsl:variable name="lang.thanks">欢迎您的光临！感谢您的惠顾与支持！</xsl:variable>
+  <xsl:variable name="lang.not_applicable">N/A</xsl:variable>
 
   <xsl:template match="/invoices">
   <html>
@@ -89,12 +91,14 @@
               <label for="subtotal">
                  <xsl:value-of select="$lang.subtotal" />
               </label>
-              <span id="subtotal"><xsl:value-of select="round(total/@gross*100) div 100.0" /></span>
+              <span id="subtotal">
+                 <xsl:value-of select="round(total/@items_gross*100) div 100.0" />
+              </span>
               <label for="shippingHandling">
                  <xsl:value-of select="$lang.shippingHandling" />
               </label>
               <span id="shippingHandling">
-                  <xsl:value-of select="round(shipping/postage*100) div 100.0 + round(shipping/handling*100) div 100.0" />
+                 <xsl:value-of select="round(total/@shipping_gross*100) div 100.0" />
               </span>
               <label for="tax">
                   <xsl:value-of select="$lang.taxAmount" />
@@ -169,7 +173,12 @@
     <xsl:template match="/invoices/invoice/item">
         <tr class="row">
             <td class="refs">
-                <xsl:value-of select="external_id" />
+                <xsl:if test="external_id">
+                    <xsl:value-of select="external_id" />
+                </xsl:if>
+                <xsl:if test="not(external_id)">
+                  <xsl:value-of select="$lang.not_applicable" />
+                </xsl:if>
             </td>
             <td class="desc">
                 <xsl:if test="name">
@@ -188,7 +197,9 @@
                 <xsl:value-of select="price/@original" />
             </td>
             </xsl:if>
-            <td class="taxRate" />
+            <td class="taxRate">
+                <xsl:if test="not(tax)">0</xsl:if>
+            </td>
             <td class="amount">
                 <xsl:if test="not(price/@original)">
                     <xsl:value-of select="price" />
@@ -199,17 +210,6 @@
             </td>
         </tr>
         <xsl:apply-templates select="detail" />
-        <xsl:if test="price/@original">
-        <tr class="discount row">
-            <td colspan="4" class="desc">
-                <xsl:value-of select="$lang.discount" />
-            </td>
-            <td class="taxRate" />
-            <td class="amount">
-                <xsl:value-of select="price - round(price/@original*100) div 100.0" />
-            </td>
-        </tr>
-        </xsl:if>
         <xsl:if test="premium">
         <tr class="premium row">
             <td colspan="4" class="desc">
@@ -264,23 +264,42 @@
 
     <xsl:template match="shipping">
         <tr class="shipping row">
-            <td colspan="4" class="desc"><xsl:value-of select="desc" /></td>
-            <td class="taxRate" />
+            <td colspan="4" class="desc">
+                <xsl:if test="desc">
+                    <xsl:value-of select="desc" />
+                </xsl:if>
+                <xsl:if test="not(desc)">
+                    <xsl:value-of select="$lang.shipping" />
+                </xsl:if>
+            </td>
+            <td class="taxRate">
+                <xsl:if test="not(tax)">0</xsl:if>
+            </td>
             <td class="amount">
-                <xsl:value-of select="postage" />
+                <xsl:if test="postage">
+                    <xsl:value-of select="postage" />
+                </xsl:if>
+                <xsl:if test="not(postage)">
+                    0
+                </xsl:if>
             </td>
         </tr>
-        <xsl:if test="handling">
         <tr class="handling row">
             <td colspan="4" class="desc">
                 <xsl:value-of select="$lang.handling" />
             </td>
-            <td class="taxRate" />
+            <td class="taxRate">
+                <xsl:if test="not(tax)">0</xsl:if>
+            </td>
             <td class="amount">
-                <xsl:value-of select="handling" />
+                <xsl:if test="handling">
+                    <xsl:value-of select="handling" />
+                </xsl:if>
+                <xsl:if test="not(handling)">
+                    0
+                </xsl:if>
             </td>
         </tr>
-        </xsl:if>
         <xsl:apply-templates select="tax" />
         <tr class="shippingTotal row">
             <td colspan="5" class="desc">

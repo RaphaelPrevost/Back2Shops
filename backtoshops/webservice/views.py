@@ -1034,9 +1034,13 @@ class InvoiceView(BaseCryptoWebService, ListView):
             'buyer': buyer,
             'items': items,
             'shipping': shipping,
-            'total': {'gross': gross,
-                      'tax': tax,
-                      'total': total},
+            'total': {
+                'items_gross': items_gross,
+                'shipping_gross': shipping_gross,
+                'gross': gross,
+                'tax': tax,
+                'total': total,
+            },
             'payment': self.get_payment(id_brand, id_shop),
         }
 
@@ -1062,7 +1066,9 @@ class InvoiceView(BaseCryptoWebService, ListView):
                             'zip': brand.address.zipcode,
                             'city': brand.address.city,
                             'province': brand.address.province_code,
-                            'country': brand.address.country_id}
+                            'country': brand.address.country_id,
+                            'country_name': brand.address.country.printable_name,
+                            }
 
                 }
 
@@ -1077,7 +1083,9 @@ class InvoiceView(BaseCryptoWebService, ListView):
                             'zip': shop.address.zipcode,
                             'city': shop.address.city,
                             'province': shop.address.province_code,
-                            'country': shop.address.country_id}
+                            'country': shop.address.country_id,
+                            'country_name': shop.address.country.printable_name
+                            }
                 }
 
     def get_seller(self, id_shop, id_brand):
