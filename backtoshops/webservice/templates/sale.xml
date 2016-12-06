@@ -7,6 +7,12 @@
 {% load get_varattr_value %}
 
 <sale id="{{ object.pk }}">
+    <!-- item brand -->
+    <product_brand id="{{ object.product.brand.pk }}">
+        <name>{{ object.product.brand.name }}</name>
+        <img>{% if object.product.brand.picture %}{{ object.product.brand.picture.url }}{% endif %}</img>
+    </product_brand>
+
     <!-- item category -->
     <category id="{{ object.product.category.pk }}">
         <name>{{ object.product.category.name }}</name>
