@@ -898,6 +898,9 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                             pass
                         else:
                             if bap: bap.delete()
+        if ba_ids:
+            ProductStock.objects.filter(sale=sale, brand_attribute=None).delete()
+        self._update_sale_stock_sum(sale)
 
         for pp_data in product_form.pictures.cleaned_data:
             if pp_data and not pp_data['DELETE'] and pp_data['sort_order']:
@@ -1150,11 +1153,15 @@ class SaleWizardNew(NamedUrlSessionWizardView):
                         stock=1,
                         rest_stock=1,
                         )
+        self._update_sale_stock_sum(sale)
 
+    def _update_sale_stock_sum(self, sale):
         sale_stock_sum = sale.detailed_stock.aggregate(stock_sum=Sum('stock'),
                                                        rest_stock_sum=Sum('rest_stock'))
         sale.total_stock = sale_stock_sum['stock_sum'] or 0
         sale.total_rest_stock = sale_stock_sum['rest_stock_sum'] or 0
+        if sale.total_rest_stock < 0:
+            sale.total_rest_stock = 0
         if sale.total_stock < sale.total_rest_stock:
             sale.total_stock = sale.total_rest_stock
         sale.save()
