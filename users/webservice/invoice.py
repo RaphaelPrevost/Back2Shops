@@ -285,8 +285,8 @@ class BaseInvoiceMixin:
         for item in normal_items:
             content.append(item)
             if _item_key(item) in discount_lines:
-                content.append(discount_lines[_item_key(item)])
-
+                content.append(discount_lines.pop(_item_key(item)))
+        content += discount_lines.values()
         return ujson.dumps(content)
 
     def validate_invoice(self, xml_invoice):
