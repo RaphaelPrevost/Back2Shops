@@ -72,6 +72,15 @@ class BrandAttributePreview(models.Model):
     brand_attribute = models.ForeignKey(BrandAttribute)
     preview = models.ForeignKey(ProductPicture, null=True)
 
+    def delete(self, using=None):
+        from stocks.models import ProductStock
+        ProductStock.objects.filter(
+            sale=self.product.sale,
+            brand_attribute=self.brand_attribute
+        ).delete()
+        super(BrandAttributePreview, self).delete(using)
+
+
 #class BrandAttributePicture(models.Model):
 #    attribute = models.ForeignKey("BrandAttribute", related_name="pictures")
 #    file = models.ImageField(upload_to="attribute_pictures")
