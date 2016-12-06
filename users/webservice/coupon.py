@@ -536,7 +536,7 @@ class CouponCreateResource(BaseXmlResource):
         if coupons[0]['id_brand'] != int(id_brand):
             raise ValidationError('COUPON_ERR_INVALID_COUPON_FOR_BRAND')
 
-        return coupon_create(req, resp, conn, id_coupon=id_coupon)
+        return self.coupon_create(req, resp, conn, id_coupon=id_coupon)
 
     def coupon_delete(self, req, resp, conn):
         id_brand = req.get_param('id_issuer')
