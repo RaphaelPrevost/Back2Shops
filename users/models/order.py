@@ -684,6 +684,7 @@ def get_orders_list(conn, brand_id, shops_id=None,
             sorted_order_ids.append(order_id)
 
     for order_id, order in orders_dict.iteritems():
+        order['order_items'] = _sort_order_items(order['order_items'])
         order['order_status'] = get_order_status(conn, order_id, brand_id, shops_id)
         if order['order_status'] > ORDER_STATUS.AWAITING_PAYMENT:
             order['paid_time_info'] = _get_paid_time_list(
@@ -705,6 +706,30 @@ def get_orders_list(conn, brand_id, shops_id=None,
         orders.append({order_id: orders_dict[order_id]})
     return orders
 
+def _sort_order_items(item_tuple_list):
+    _item_key = lambda item_id, item: ujson.dumps({
+        'id_sale': item_id,
+        "id_variant": item["id_variant"],
+        "id_price_type": item["id_price_type"],
+        "id_type": item["id_type"],
+    })
+
+    fakes = {}
+    normal_items = []
+    for item_id, item in item_tuple_list:
+        if item_id and item['price'] < 0:
+            fakes[_item_key(item_id, item)] = (item_id, item)
+        else:
+            normal_items.append((item_id, item))
+
+    results = []
+    for item_id, item in normal_items:
+        results.append((item_id, item))
+        _key = _item_key(item_id, item)
+        if _key in fakes:
+            results.append(fakes.pop(_key))
+    return results + fakes.values()
+
 def _get_order_items(conn, order_id, brand_id, shops_id=None):
     # {'order_items': [item_1_id: {},
     #                  item_2_id: {},
@@ -722,6 +747,7 @@ def _get_order_items(conn, order_id, brand_id, shops_id=None):
         item_id = order_item.pop('item_id')
         _update_extra_info_for_order_item(conn, item_id, order_item)
         items['order_items'].append((item_id, order_item))
+    items['order_items'] = _sort_order_items(items['order_items'])
     return items
 
 def get_order_items_by_id(conn, items_id):
