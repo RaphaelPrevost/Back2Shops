@@ -145,6 +145,7 @@ def order_item_match_cond(order_item, conds, id_brand, id_shops):
     if id_shops and order_item['shop_id'] in id_shops:
         return False
 
+    item_detail = ujson.loads(order_item['item_detail'])
     match = True
     for m in conds:
         if m['id_type'] == COUPON_CONDITION_IDTYPE.SALE \
@@ -153,8 +154,9 @@ def order_item_match_cond(order_item, conds, id_brand, id_shops):
         elif m['id_type'] == COUPON_CONDITION_IDTYPE.SHOP \
                 and m['id'] == order_item['shop_id']:
             continue
-        elif m['id_type'] == COUPON_CONDITION_IDTYPE.BRAND:
-            pass #TODO check product item
+        elif m['id_type'] == COUPON_CONDITION_IDTYPE.BRAND \
+                and str(m['id']) == item_detail.get('product_brand', {}).get('id'):
+            continue
         elif m['id_type'] == COUPON_CONDITION_IDTYPE.GROUP:
             pass #TODO check promotion group
         else:

@@ -28,8 +28,11 @@
 <!ELEMENT id (#PCDATA) >
 <!ATTLIST id type (business | tax | personal) "business" >
 
-<!ELEMENT sale (category, type, name, desc, short_desc, img*, brand, weight?, price?, discount?, discount_price?, variant*, shop*, external*, orderconfirmsettings, available) >
+<!ELEMENT sale (product_brand, category, type, name, desc, short_desc, img*, brand, weight?, price?, discount?, discount_price?, variant*, shop*, external*, orderconfirmsettings, available) >
 <!ATTLIST sale id CDATA #REQUIRED >
+
+<!ELEMENT product_brand (name, img) >
+<!ATTLIST product_brand id CDATA #REQUIRED >
 
 <!ELEMENT category (name, thumb, img) >
 <!ATTLIST category id CDATA #REQUIRED >

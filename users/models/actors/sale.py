@@ -51,9 +51,17 @@ from B2SUtils.base_actor import BaseActor
 from B2SUtils.common import to_round
 
 
+class ActorProductBrand(BaseActor):
+    attrs_map = {'id': '@id',
+                 'name': 'name',
+                 'img': 'img',
+                 }
+
 class ActorSaleCategory(BaseActor):
     attrs_map = {'id': '@id',
-                 'name': '#text'}
+                 'name': 'name',
+                 'img': 'img',
+                 }
 
 class ActorWeight(BaseActor):
     attrs_map = {'unit': '@unit',
@@ -280,6 +288,10 @@ class ActorSale(BaseActor):
                                         unicode.encode(self.name, 'utf8'),
                                         unicode.encode(self.desc, 'utf8'),
                                         ])
+
+    @property
+    def product_brand(self):
+        return ActorProductBrand(data=self.data['product_brand'])
 
     @property
     def category(self):
