@@ -149,11 +149,11 @@ def get_coupons(id_brand, id_shop=None, id_sale=None,
 
 def get_item_specific_discount_coupon(id_brand, id_sale):
     coupons_actor = get_coupons(id_brand, id_sale=id_sale)
-    for coupon in coupons_actor.coupons:
-        if coupon.type != 'COUPON_DISCOUNT':
-            continue
-        if coupon.reward.rebate.type != 'VALUE_MATCHING':
-            continue
-        return coupon
-
+    if coupons_actor:
+        for coupon in coupons_actor.coupons:
+            if coupon.type != 'COUPON_DISCOUNT':
+                continue
+            if coupon.reward.rebate.type != 'VALUE_MATCHING':
+                continue
+            return coupon
     return None
