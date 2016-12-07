@@ -80,7 +80,7 @@ class TestUserAuth(BaseTestCase):
         old_data = _parse_auth_cookie(auth_cookie.value.strip('"'))
 
         # csrf updated after post requests
-        self.pass_auth_verification()
+        self.b._access("webservice/1.0/pub/tickets/post", {})
         new_auth_cookie = self.b.get_cookies().get(USER_AUTH_COOKIE_NAME)
         new_data = _parse_auth_cookie(new_auth_cookie.value.strip('"'))
         self.assertNotEquals(old_data['csrf'], new_data['csrf'])

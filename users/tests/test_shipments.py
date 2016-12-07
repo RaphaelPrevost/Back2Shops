@@ -503,6 +503,8 @@ class TestShippingList(BaseShipmentTestCase):
         wwwOrder = [item_with_carrier_shipping]
         id_order = self.success_wwwOrder(self.telephone, self.shipaddr,
                                          self.billaddr, wwwOrder)
+        self._reqInvoice(id_order)
+
         id_shp = self._shipmentsCountCheck(id_order, 1)[0]
         resp_content = self._shippingList(id_order)
         id_order_item = self._order_item(id_order)[0]
@@ -538,8 +540,10 @@ class TestShippingList(BaseShipmentTestCase):
                       'sale_item': {
                           'id': u'1000029',
                           'name': u'item1 type weight type price with variant',
+                          'currency': 'EUR',
                           'quantity': 2,
                           'packing_quantity': 2,
+                          'remaining_quantity': 0,
                           'sel_variant': {
                               'id': u'1000011',
                               'name': u'product brand attr for test',
@@ -570,6 +574,11 @@ class TestShippingList(BaseShipmentTestCase):
         params = urllib.urlencode({'id_order': id_order})
         url = "webservice/1.0/pub/shipping/list?%s" % params
         resp = self.b._access(url)
+        return resp.get_data()
+
+    def _reqInvoice(self, id_order):
+        url = "webservice/1.0/pub/invoice/request"
+        resp = self.b._access(url, {'order': id_order})
         return resp.get_data()
 
 
