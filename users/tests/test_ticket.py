@@ -49,7 +49,7 @@ from common.utils import generate_random_str
 from B2SProtocol.constants import RESP_RESULT
 from B2SUtils import db_utils
 
-class TestUserAuth(BaseTestCase):
+class TestTicket(BaseTestCase):
     def setUp(self):
         BaseTestCase.setUp(self)
         self.email = "%s@example.com" % generate_random_str()
