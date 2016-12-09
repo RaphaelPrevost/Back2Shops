@@ -1,10 +1,10 @@
 <coupons version="1.0">
     {% for coupon in coupons %}
-    <coupon id="{{coupon['id']}}" issuer="{{coupon['id_brand']}}" stackable="{{coupon['stackable']}}" author="{{coupon['author']}}">
+    <coupon id="{{coupon['id']}}" issuer="{{coupon['issuer']}}" stackable="{{coupon['stackable']}}" author="{{coupon['author']}}">
         <type>{{coupon['coupon_type']}}</type>
         <desc>{{coupon['desc']}}</desc>
         <password>{{coupon['password']}}</password>
-        <valid from="{{coupon['creation_time']}}" to="{{coupon['expiration_time']}}" />
+        <valid from="{{coupon['effective_time']}}" to="{{coupon['expiration_time']}}" />
         <redeemable {%if coupon['max_redeemable'] %}max="{{coupon['max_redeemable']}}"{% endif %} always="{{coupon['redeemable_always']}}">
             <!-- redeemable by whom ? -->
             {% for id_user in coupon.get('id_users', []) %}

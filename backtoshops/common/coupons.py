@@ -83,7 +83,7 @@ def create_item_specific_coupon(id_brand, id_bo_user, id_sale,
         }),
     }
     if valid_from:
-        kwargs['creation_time'] = str(valid_from)
+        kwargs['effective_time'] = str(valid_from)
     if valid_to:
         kwargs['expiration_time'] = str(valid_to)
 
@@ -103,7 +103,7 @@ def update_item_specific_coupon(id_coupon, id_brand, id_bo_user, id_sale,
         }),
     }
     if valid_from:
-        kwargs['creation_time'] = str(valid_from)
+        kwargs['effective_time'] = str(valid_from)
     if valid_to:
         kwargs['expiration_time'] = str(valid_to)
 

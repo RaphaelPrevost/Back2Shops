@@ -171,4 +171,5 @@ ALTER TABLE order_items ADD COLUMN modified_by_coupon BIGINT;
 ALTER TABLE coupons ADD COLUMN manufacturer boolean NOT NULL DEFAULT false;
 ALTER TABLE shipping_fee ADD COLUMN details text;
 ALTER TABLE coupons ADD COLUMN valid boolean NOT NULL DEFAULT true;
+ALTER TABLE coupons ADD COLUMN effective_time timestamp without time zone DEFAULT now() NOT NULL;
 COMMIT;

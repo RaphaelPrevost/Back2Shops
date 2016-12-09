@@ -145,7 +145,7 @@ urlpatterns = {
     '/webservice/1.0/private/sensor/bought_history': SensorBoughtHistoryResource,
     '/webservice/1.0/private/sensor/visitors_online': SensorVisitorsOnlineResource,
     '/webservice/1.0/private/sensor/visitors/log': SensorVisitorsLogResource,
-    '/webservice/1.0/private/coupon': coupon.CouponCreateResource,
+    '/webservice/1.0/private/coupon': coupon.CouponPostResource,
     '/webservice/1.0/private/coupon/list': coupon.CouponListResource,
     '/webservice/1.0/public/coupon/redeem': coupon.CouponRedeemResource,
 

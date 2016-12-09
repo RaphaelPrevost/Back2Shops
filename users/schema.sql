@@ -361,6 +361,7 @@ CREATE TABLE coupons (
     id_bo_user bigint NOT NULL,
     coupon_type smallint NOT NULL,
     creation_time timestamp without time zone DEFAULT now() NOT NULL,
+    effective_time timestamp without time zone DEFAULT now() NOT NULL,
     expiration_time timestamp without time zone,
     stackable boolean NOT NULL,
     redeemable_always boolean NOT NULL,

@@ -41,7 +41,6 @@ import cgi
 from datetime import datetime
 import logging
 import ujson
-import xmltodict
 
 from B2SCrypto.constant import SERVICES
 from B2SProtocol.constants import RESP_RESULT
@@ -121,7 +120,7 @@ class CouponListResource(BaseXmlResource):
                                c_values['coupon_type']),
                 'desc': c_values['description'],
                 'password': c_values['password'],
-                'creation_time': str(c_values['creation_time'])[:19],
+                'effective_time': str(c_values['effective_time'])[:19],
                 'expiration_time': str(c_values['expiration_time'] or '')[:19],
                 'redeemable_always':
                     'true' if c_values['redeemable_always'] else 'false',
@@ -167,7 +166,9 @@ class CouponListResource(BaseXmlResource):
         results = db_utils.query(conn, query)
         results = [v[0] for v in results]
         if results:
-            return set(id_coupons).intersection(results)
+            results = list(set(id_coupons).intersection(results))
+            results.sort(key=lambda o:id_coupons.index(o))
+            return results
         else:
             return id_coupons
 
@@ -178,14 +179,17 @@ class CouponListResource(BaseXmlResource):
                    'id_type': id_type})
         results = [v[0] for v in results]
         if results:
-            return set(id_coupons).intersection(results)
+            results = list(set(id_coupons).intersection(results))
+            results.sort(key=lambda o:id_coupons.index(o))
+            return results
         else:
             return id_coupons
 
     def _get_shop_details(self, id_shop):
         shop = get_redis_cli().get(SHOP % id_shop)
         if not shop:
-            raise ValidationError('COUPON_ERR_INVALID_SHOP')
+            shop = {'@id': id_shop}
+            logging.error('Missing shop info(id=%s) in redis', id_shop)
         return ujson.loads(shop)
 
     def _get_reward_data(self, conn, id_coupon, coupon_type):
@@ -217,7 +221,7 @@ class CouponListResource(BaseXmlResource):
         return reward
 
 
-class CouponCreateResource(BaseXmlResource):
+class CouponPostResource(BaseXmlResource):
     template = "coupon_create.xml"
     encrypt = True
     service = SERVICES.ADM
@@ -258,17 +262,19 @@ class CouponCreateResource(BaseXmlResource):
                 except ValueError, e:
                     raise ValidationError('COUPON_ERR_INVALID_PARAM_participating')
 
-            creation_time = req.get_param('creation_time')
-            if creation_time is not None:
+            effective_time = req.get_param('effective_time')
+            if effective_time is not None:
                 try:
-                    creation_time = datetime.strptime(creation_time,
+                    effective_time = datetime.strptime(effective_time,
                                                       "%Y-%m-%d %H:%M:%S")
                 except ValueError, e:
                     try:
-                        creation_time = datetime.strptime(creation_time,
+                        effective_time = datetime.strptime(effective_time,
                                                           "%Y-%m-%d")
+                        effective_time = datetime.combine(effective_time,
+                                                         datetime.min.time())
                     except ValueError, e:
-                        raise ValidationError('COUPON_ERR_INVALID_PARAM_expiration_time')
+                        raise ValidationError('COUPON_ERR_INVALID_PARAM_effective_time')
 
             expiration_time = req.get_param('expiration_time')
             if expiration_time is not None:
@@ -302,6 +308,7 @@ class CouponCreateResource(BaseXmlResource):
             coupon_values = {
                 'id_brand': id_brand,
                 'id_bo_user': id_bo_user,
+                'effective_time': effective_time,
                 'expiration_time': expiration_time,
                 'stackable': req.get_param('stackable') == 'True',
                 'redeemable_always': redeemable_always,
@@ -434,10 +441,10 @@ class CouponCreateResource(BaseXmlResource):
 
             cond_value = {'operation': operation}
             if operation != COUPON_CONDITION_OPERATION.NONE:
-                cond_value = {
+                cond_value.update({
                     'comparison': comparison,
                     'threshold': threshold,
-                }
+                })
 
             cond_list = self._get_cond_values(COUPON_CONDITION_IDTYPE.SALE,
                                               id_sales, cond_value) + \
