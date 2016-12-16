@@ -175,8 +175,10 @@ class TypesListView(BaseWebservice, ListView):
     template_name = "types_list.xml"
 
     def get_queryset(self):
-        queryset = ProductType.objects.filter(brand_id=self.id_brand)
-        self.q_category = ProductCategory.objects.filter(brand_id=self.id_brand)
+        queryset = ProductType.objects.filter(
+            Q(brand_id=self.id_brand) | Q(is_default=True))
+        self.q_category = ProductCategory.objects.filter(
+            Q(brand_id=self.id_brand) | Q(is_default=True))
         return queryset
 
     def get(self, request, brand, *args, **kwargs):

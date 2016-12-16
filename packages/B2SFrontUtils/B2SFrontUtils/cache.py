@@ -46,6 +46,7 @@ from constants import REMOTE_API_NAME
 from B2SProtocol.constants import RESP_RESULT
 from B2SProtocol.constants import ALL
 from B2SProtocol.constants import CATEGORY
+from B2SProtocol.constants import CATEGORY_FOR_BRAND
 from B2SProtocol.constants import SALE
 from B2SProtocol.constants import SALES_ALL
 from B2SProtocol.constants import SALES_FOR_TYPE
@@ -94,7 +95,7 @@ class BaseCacheProxy(object):
             resp_dict = self._get_from_local(**kw)
         elif self._need_save_local_cache(**kw):
             self._update_local_cache(resp_dict)
-        return resp_dict
+        return self._filter_resp(resp_dict, **kw)
 
     def _get_from_server(self, obj_id=None, **kw):
         resp_dict = remote_call(self.usr_root_uri, self.api_name,
@@ -184,6 +185,9 @@ class BaseCacheProxy(object):
         filter_ids = set(self.redis_cli.lrange(key % id_, 0, -1))
         return pre_ids.intersection(filter_ids)
 
+    def _filter_resp(self, resp_dict, **kw):
+        return resp_dict
+
 
 class RoutesCacheProxy(BaseCacheProxy):
     api_name = REMOTE_API_NAME.GET_ROUTES
@@ -237,6 +241,27 @@ class SalesCacheProxy(BaseCacheProxy):
             else:
                 return False
         return True
+
+    def _filter_resp(self, resp_dict, **kw):
+        show_uncategorized_sales = False
+        category_ids = []
+        try:
+            if kw.get('brand'):
+                category_ids = self.redis_cli.lrange(CATEGORY_FOR_BRAND % kw.get('brand'), 0, -1)
+                if category_ids is not None and len(category_ids) == 0:
+                    show_uncategorized_sales = True
+        except Exception, e:
+            logging.error('Failed to check category', exc_info=True)
+
+        result = {}
+        for _id, obj_dict in resp_dict.iteritems():
+            cate_id = obj_dict.get('category', {}).get('@id')
+            if (show_uncategorized_sales
+                    and obj_dict['category']['@default'] == 'True') or \
+               (not show_uncategorized_sales
+                    and (not category_ids or cate_id in category_ids)):
+                result[_id] = obj_dict
+        return result
 
     def _get_from_redis(self, obj_id=None, **kw):
         if obj_id:

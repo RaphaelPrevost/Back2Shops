@@ -70,6 +70,10 @@
     background-color: #f9f9f9;
 }
 
+.vente.warning {
+    background-color: #e3cbc6;
+}
+
 .vente a.delete { 
     display: block; float: right;
     width: 14px; height: 14px;
@@ -101,6 +105,10 @@
     .vente h4 {
         font-weight: normal;
         background-color: #c8c8c8;
+    }
+
+    .vente.warning .helptext {
+        color: red;
     }
 
 
@@ -149,7 +157,6 @@
         width: 133px;
         padding: 8px 3px 9px 3px;
         overflow: hidden;
-        background-color: #fff;
     }
         .content .prix span {
             display: block;

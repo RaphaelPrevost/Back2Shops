@@ -67,3 +67,6 @@
 
 == version 0.0.21 ==
 1. Add CONFIRMING to SHIPMENT_STATUS
+
+== version 0.0.22 ==
+1. Add constant CATEGORY_FOR_BRAND

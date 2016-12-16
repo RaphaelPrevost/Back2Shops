@@ -77,6 +77,11 @@ class HomepageResource(BaseHtmlResource):
         except IOError:
             data['coins'] = []
 
+        try:
+            remote_resp = data_access(REMOTE_API_NAME.GET_TYPES,
+                                      seller=settings.BRAND_ID)
+        except:
+            pass
         return data
 
 

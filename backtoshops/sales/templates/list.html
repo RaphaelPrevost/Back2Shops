@@ -10,6 +10,7 @@
 {% load is_manager_upper %}
 {% load show_step_shop %}
 {% load sub %}
+{% load tips %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
@@ -54,7 +55,7 @@
 
             <!--VENTE-->
             {% for sale in page.object_list %}
-            <div class="vente" sale="{{ sale.id }}">
+            <div class="vente {% if sale|sale_uncategorized %}warning{% endif %}" sale="{{ sale.id }}">
                 <!--NOM, CATEGORIE, TYPE de Prod-->
                 <a href="{% if request.user|is_manager_upper %}{% url 'edit_sale' sale_id=sale.pk step=sale|show_step_shop:request.user|yesno:"shop,product" %}{% endif %}"
                     title="{% trans "click to edit this sale" %}">
@@ -67,7 +68,11 @@
                     {% elif request.user|is_shop_manager_upper and sale|is_local_sale %}
                         <a class="delete" href="#">[X]</a>
                     {% endif %}
-                    {{ sale.product.category.name }} > {{ sale.product.type.name }}
+                    {% if sale|sale_uncategorized %}
+                        {% sale_uncategorized_tip %}
+                    {% else %}
+                        {{ sale.product.category.name }} > {{ sale.product.type.name }}
+                    {% endif %}
                 </h4>
                 <!--INFOS VENTE-->
                 <div class="content">

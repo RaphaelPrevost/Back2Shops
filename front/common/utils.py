@@ -363,7 +363,7 @@ def get_type_from_sale(sale):
     _type = sale.get('type', {})
     type_info = {
         'id': _type.get('@id', ''),
-        'name': _type.get('name', '')
+        'name': '' if _type.get('@default') == 'True' else _type.get('name', '')
     }
     return type_info
 

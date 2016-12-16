@@ -1556,7 +1556,8 @@ class SaleWizardNew(NamedUrlSessionWizardView):
 
 
 def get_product_types(request, *args, **kwargs):
-    product_types_list = []
+    types = list(ProductType.objects.filter(Q(is_default=True) & Q(valid=True)))
+
     brand = request.user.get_profile().work_for
     cat_id = kwargs.get('cat_id')
     cat = ProductCategory.objects.filter(pk=cat_id).filter(brand=brand)
@@ -1565,7 +1566,7 @@ def get_product_types(request, *args, **kwargs):
             .filter(category_id=cat_id)\
             .filter(type__brand=brand)
 
-        types = [map.type for map in cat_maps]
+        types.extend([map.type for map in cat_maps])
         map_types = CategoryTypeMap.objects\
             .order_by('type')\
             .values('type')\
@@ -1577,10 +1578,8 @@ def get_product_types(request, *args, **kwargs):
         orphan_types = list(orphan_types)
         types.extend(orphan_types)
 
-        for type in types:
-            product_types_list.append({'label': type.name,
-                                       'value': type.id,
-                                       'valid': type.valid})
+    product_types_list = [{'label': t.name, 'value': t.id, 'valid': t.valid}
+                          for t in types]
     return HttpResponse(json.dumps(product_types_list),
                         mimetype='application/json')
 

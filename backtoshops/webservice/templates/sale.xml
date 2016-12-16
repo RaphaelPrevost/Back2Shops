@@ -14,14 +14,14 @@
     </product_brand>
 
     <!-- item category -->
-    <category id="{{ object.product.category.pk }}">
+    <category id="{{ object.product.category.pk }}" default="{{ object.product.category.is_default }}">
         <name>{{ object.product.category.name }}</name>
         <thumb>{% if object.product.category.thumbnail %}{{ object.product.category.thumbnail.url }}{% endif %}</thumb>
         <img>{% if object.product.category.picture %}{{ object.product.category.picture.url }}{% endif %}</img>
     </category>
     
     <!-- item type -->
-    <type id="{{ object.product.type.pk }}">
+    <type id="{{ object.product.type.pk }}" default="{{ object.product.type.is_default }}">
         <name>{{ object.product.type.name }}</name>
         {% for ca in object.product.type.common_attributes.all %}
         {% if ca.valid %}

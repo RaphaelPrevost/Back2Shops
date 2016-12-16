@@ -62,3 +62,6 @@
 
 == version 0.0.21 ==
 1. Add constant GET_SLIDE_SHOW
+
+== version 0.0.22 ==
+1. Check category for sales
