@@ -59,6 +59,7 @@ class ActorProductBrand(BaseActor):
 
 class ActorSaleCategory(BaseActor):
     attrs_map = {'id': '@id',
+                 'default': '@default',
                  'name': 'name',
                  'img': 'img',
                  }
@@ -95,6 +96,7 @@ class ActorSaleVarAttr(BaseActor):
 
 class ActorSaleType(BaseActor):
     attrs_map = {'id': '@id',
+                 'default': '@default',
                  'name': 'name'}
 
     @property

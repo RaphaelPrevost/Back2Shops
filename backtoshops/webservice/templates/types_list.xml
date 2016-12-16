@@ -1,6 +1,6 @@
 <types version="1.0">
 	{% for type in object_list %}
-    <type id="{{ type.pk }}">
+    <type id="{{ type.pk }}" default="{{ type.is_default }}" valid="{{ type.valid }}">
         <name>{{ type.name }}</name>
         <sort_order>{% if type.sort_order %}{{ type.sort_order}}{% endif %}</sort_order>
         <!-- list of common attributes for this product type -->
@@ -10,7 +10,7 @@
     </type>
 	{% endfor %}
 	{% for category in categories %}
-    <category id="{{ category.pk }}">
+    <category id="{{ category.pk }}" default="{{ category.is_default }}" valid="{{ category.valid }}">
         <name>{{ category.name }}</name>
         <thumb>{% if category.thumbnail %}{{ category.thumbnail.url }}{% endif %}</thumb>
         <img>{% if category.picture %}{{ category.picture.url }}{% endif %}</img>

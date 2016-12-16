@@ -45,6 +45,7 @@ from django import forms
 from django.forms.formsets import BaseFormSet
 from django.forms.formsets import formset_factory
 from django.forms.util import ErrorList
+from django.db.models import Q
 from django.utils.encoding import force_text
 from django.utils.encoding import force_unicode
 from django.utils.encoding import python_2_unicode_compatible
@@ -460,9 +461,17 @@ class ProductForm(forms.Form):
         self.fields['brand'] = forms.ModelChoiceField(
             queryset=ProductBrand.objects.filter(seller=mother_brand)
         )
-        cat_queryset = ProductCategory.objects.filter(brand=mother_brand)
-        if add_new:
-            cat_queryset = cat_queryset.filter(valid=True)
+        cat_queryset = ProductCategory.objects.filter(
+                Q(brand=mother_brand) & Q(valid=True))
+        if initial.get('category'):
+            selected_category = ProductCategory.objects.get(pk=initial['category'])
+            if not (selected_category.is_default or selected_category.valid):
+                cat_queryset = ProductCategory.objects.filter(
+                        Q(brand=mother_brand))
+        if not cat_queryset:
+            cat_queryset = ProductCategory.objects.filter(
+                Q(is_default=True) & Q(valid=True))
+            self.fields['category'].empty_label = None
         self.fields['category'].queryset = cat_queryset
 
         b_attrs_prefix = "brand_attributes"

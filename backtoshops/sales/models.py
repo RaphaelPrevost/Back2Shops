@@ -164,6 +164,7 @@ class ProductCategory(models.Model):
                                 null=True, blank=True,
                                 storage=AssetsStorage())
     brand = models.ForeignKey(Brand, null=True, blank=True)
+    is_default = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.name
@@ -183,6 +184,7 @@ class ProductType(models.Model):
     valid = models.BooleanField(default=True)
     sort_order = models.SmallIntegerField(null=True, blank=True)
     brand = models.ForeignKey(Brand, null=True, blank=True)
+    is_default = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.name

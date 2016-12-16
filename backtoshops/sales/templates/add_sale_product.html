@@ -33,11 +33,11 @@
 
             {{ wizard.form.category.errors }}
             <div class="formrow">
-                {% if wizard.form.category|show_sale_uncategorized_tip %}
-                    {% sale_uncategorized_tip user %}
-                {% endif %}
                 <label for="{{ wizard.form.category.auto_id }}">{% trans wizard.form.category.label %}</label>
                 {{ wizard.form.category }}
+                {% if wizard.form.category|show_sale_uncategorized_tip:wizard.form %}
+                    {% sale_uncategorized_tip %}
+                {% endif %}
             </div>
 
             {{ wizard.form.type.errors }}
@@ -409,7 +409,7 @@
         currency_changed();
         prod_name_changed();
         set_default_option($('#{{ wizard.form.brand.auto_id }}'));
-        set_default_option($('#{{ wizard.form.category.auto_id }}'));
+        set_default_category_option($('#{{ wizard.form.category.auto_id }}'));
         sort_existing_pp($('#existing_pp'));
         update_barcodes();
         update_extrefs();
@@ -418,11 +418,18 @@
     });
 
     function set_default_option(select_obj) {
-        if (select_obj.find('option').length == 2
+        if (select_obj.find('option').length > 1
                 && select_obj.find('option:selected').val() == ""
             || select_obj.find('option').length == 1
                 && select_obj.find('option:selected').length == 0) {
             select_obj.find('option[value!=""]').selected().change();
+        }
+    }
+
+    function set_default_category_option(select_obj) {
+        if (select_obj.find('option').length == 1
+                && select_obj.find('option:selected').length == 0) {
+            select_obj.find('option:first').selected().change();
         }
     }
 
@@ -1214,29 +1221,42 @@
 
     // Get product types by selected product category
     function getTypeOptions(cat_id) {
-        if (cat_id) {
-            $.ajax({
-                type: "GET",
-                url: "/sales/get_product_types/" + cat_id,
-                dataType:"json",
-                success: function(data, textStatus){
-                    $("#product_type_selector").empty();
-                    $.each(data, function(i, option){
-                        if (option.valid) {
-                            $("#product_type_selector").append($("<option>", {value: option.value, text: option.label}));
-                        } else if ("{{ wizard.form.type.value }}" != "None" && option.value == "{{ wizard.form.type.value }}") {
-                            $("#product_type_selector").append($("<option>", {value: option.value, text: "({% trans "invalid" %})" + option.label}));
-                        }
-                    });
-                    if ("{{ wizard.form.type.value }}") {
-                        $("#product_type_selector").val("{{ wizard.form.type.value }}").change();
-                    }
-                    set_default_option($('#product_type_selector'));
-                }
-            });
-        } else {
-            $("#product_type_selector").empty();
+        if ($("#{{ wizard.form.category.auto_id }} option").length == 1 &&
+            $("#{{ wizard.form.category.auto_id }} option")[0].textContent == 'Unspecified' ) {
+            $("#{{ wizard.form.category.auto_id }}").parent().hide();
         }
+        if (cat_id) {
+            $(".helptext").hide();
+        } else {
+            cat_id = 0;
+            $(".helptext").show();
+        }
+        $.ajax({
+            type: "GET",
+            url: "/sales/get_product_types/" + cat_id,
+            dataType:"json",
+            success: function(data, textStatus){
+                $("#product_type_selector").empty();
+                $.each(data, function(i, option){
+                    if (option.valid) {
+                        $("#product_type_selector").append($("<option>", {value: option.value, text: option.label}));
+                    } else if ("{{ wizard.form.type.value }}" != "None" && option.value == "{{ wizard.form.type.value }}") {
+                        $("#product_type_selector").append($("<option>", {value: option.value, text: "({% trans "invalid" %})" + option.label}));
+                    }
+                });
+                if ("{{ wizard.form.type.value }}" != "None") {
+                    $("#product_type_selector").val("{{ wizard.form.type.value }}").change();
+                }
+                set_default_option($('#product_type_selector'));
+
+                if ($("#product_type_selector").length == 1 &&
+                    $("#product_type_selector")[0].textContent == 'Unspecified') {
+                    $("#product_type_selector").parent().hide();
+                } else {
+                    $("#product_type_selector").parent().show();
+                }
+            }
+        });
         $("#product_type_selector").change();
     }
 

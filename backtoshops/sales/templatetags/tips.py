@@ -40,49 +40,31 @@
 from django import template
 from django.core.urlresolvers import reverse
 from django.contrib.auth import get_user_model
+from django.db.models import Q
+from django.utils.translation import ugettext
 from accounts.models import UserProfile
 from common.constants import USERS_ROLE
+from sales.models import ProductCategory
 
 register = template.Library()
 
 def _wrap(tip):
-    return '<span class="helptext">{}</span>'.format(tip)
+    return '<span class="helptext">{}</span>'.format(ugettext(tip))
 
 @register.simple_tag
 @register.filter
-def show_sale_uncategorized_tip(category):
-    return len(category.field.queryset) == 0
+def show_sale_uncategorized_tip(category, form):
+    cate_id = form.initial.get('category')
+    return not (cate_id and [c for c in category.field.queryset if c.id == cate_id])
 
 @register.simple_tag
 @register.filter
-def sale_uncategorized_tip(user):
-    if user.is_superuser or user.get_profile().role == USERS_ROLE.OPERATOR:
-        return ''
+def sale_uncategorized_tip():
+    return _wrap('Uncategorized item')
 
-    user_profile = user.get_profile()
-    if user_profile.role == USERS_ROLE.ADMIN:
-        tip = (
-            'Sales are currently uncategorized. '
-            'Categories can be created <a href="{}">in your Settings Panel</a>.'
-            .format(reverse('list_categories'))
-        )
-    elif user_profile.role == USERS_ROLE.MANAGER:
-        user_cls = get_user_model()
-        brand_admin = None
-        for profile in UserProfile.objects.filter(
-                work_for=user_profile.work_for, role=USERS_ROLE.ADMIN):
-            if profile.user.is_active:
-                brand_admin = profile.user
-                break
-        if brand_admin:
-            admin_contact = '{} ({})'.format(
-                brand_admin.get_full_name() or 'your administrator',
-                brand_admin.email)
-        else:
-            admin_contact = 'your administrator'
-        tip = (
-            'Sales are currently uncategorized. '
-            'Categories can be created by {}.'.format(admin_contact)
-        )
-
-    return _wrap(tip)
+@register.simple_tag
+@register.filter
+def sale_uncategorized(sale):
+    return sale.product.category.is_default \
+        and ProductCategory.objects.filter(Q(brand=sale.product.brand)
+                                         & Q(valid=True))

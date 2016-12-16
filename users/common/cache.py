@@ -52,6 +52,7 @@ from B2SCrypto.constant import SERVICES
 from B2SCrypto.utils import decrypt_json_resp
 from B2SProtocol.constants import ALL
 from B2SProtocol.constants import CATEGORY
+from B2SProtocol.constants import CATEGORY_FOR_BRAND
 from B2SProtocol.constants import GLOBAL_MARKET
 from B2SProtocol.constants import ROUTE
 from B2SProtocol.constants import ROUTES_VERSION
@@ -510,7 +511,7 @@ class TypesCacheProxy(CacheProxy):
 
         try:
             self._refresh_redis(version, types, is_entire_result, **kw)
-            self._refresh_cats_redis(cats)
+            self._refresh_cats_redis(cats, **kw)
         except (RedisError, ConnectionError), e:
             logging.error('Redis Error: %s', (e,), exc_info=True)
 
@@ -540,6 +541,14 @@ class TypesCacheProxy(CacheProxy):
             name = CATEGORY % id_cat
             pipe.set(name, cat_str)
         pipe.execute()
+
+        brand_id = kw.get('seller')
+        if brand_id:
+            pipe = get_redis_cli().pipeline()
+            for cat in cats:
+                if cat['@default'] == 'False' and cat['@valid'] == 'True':
+                    pipe.rpush(CATEGORY_FOR_BRAND % brand_id, cat['@id'])
+            pipe.execute()
 
 
 class CatesCacheProxy(TypesCacheProxy):

@@ -716,10 +716,8 @@ label {
 #main_form .formrow .helptext {
     height: auto;
     line-height: 14px;
-    padding: 5px 7px;
-    margin: 5px 3px 5px 130px;
-    background-color: #d4f3ff;
-    border: 1px solid #71cdff;
+    padding: 2px 7px;
+    color: red;
 }
 
 #main_form .helptext a {
