@@ -57,12 +57,15 @@ from common.utils import html_escape_params
 from common.utils import send_reload_signal
 from common.utils import watching_invalidate_cache_list
 from urls import BrandRoutes
+from B2SUtils.log import addBugzScoutHandler
 from B2SUtils.log import setupLogging
 from B2SUtils.common import parse_form_params
 from B2SFrontUtils.constants import REMOTE_API_NAME
 
 
 setupLogging(settings.LOG_CONFIG_FILE)
+if settings.PRODUCTION:
+    addBugzScoutHandler(**settings.BUGZ_SCOUT_REPORT)
 init_translators()
 
 def get_app(reload_=False):

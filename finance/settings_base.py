@@ -54,6 +54,12 @@ DATABASE = {
 }
 
 LOG_CONFIG_FILE = 'logging.cfg'
+BUGZ_SCOUT_REPORT = {
+    'url': 'http://dragondollar.fogbugz.com/scoutSubmit.asp',
+    'user_name': 'bugwatch@dragondollar.com',
+    'project': 'Dragon Dollar',
+    'area': 'finance',
+}
 
 USR_ROOT_URI = "http://localhost:8100"
 ADM_ROOT_URI = "http://localhost:8000"

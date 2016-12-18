@@ -46,9 +46,12 @@ from gevent.pywsgi import WSGIServer
 
 import settings
 from urls import urlpatterns
+from B2SUtils.log import addBugzScoutHandler
 from B2SUtils.log import setupLogging
 
 setupLogging(settings.LOG_CONFIG_FILE)
+if settings.PRODUCTION:
+    addBugzScoutHandler(**settings.BUGZ_SCOUT_REPORT)
 
 # falcon.API instances are callable WSGI apps
 app = api = falcon.API()
