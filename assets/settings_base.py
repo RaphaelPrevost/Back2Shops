@@ -57,4 +57,10 @@ SERVER_APIKEY_URI_MAP = {
 }
 
 LOG_CONFIG_FILE = 'logging.cfg'
+BUGZ_SCOUT_REPORT = {
+    'url': 'http://dragondollar.fogbugz.com/scoutSubmit.asp',
+    'user_name': 'bugwatch@dragondollar.com',
+    'project': 'Dragon Dollar',
+    'area': 'assets',
+}
 

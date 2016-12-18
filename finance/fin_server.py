@@ -49,9 +49,12 @@ import settings
 from urls import urlpatterns
 from B2SUtils.common import parse_form_params
 from B2SUtils.db_utils import init_db_pool
+from B2SUtils.log import addBugzScoutHandler
 from B2SUtils.log import setupLogging
 
 setupLogging(settings.LOG_CONFIG_FILE)
+if settings.PRODUCTION:
+    addBugzScoutHandler(**settings.BUGZ_SCOUT_REPORT)
 
 # falcon.API instances are callable WSGI apps
 app = api = falcon.API(before=[parse_form_params])

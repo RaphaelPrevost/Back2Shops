@@ -38,6 +38,9 @@
 
 
 import logging
+import traceback
+import urllib
+import urllib2
 
 from logging import config as log_config
 
@@ -45,3 +48,37 @@ def setupLogging(config_file):
     log_config.fileConfig(config_file)
     logging.info('Logger (re)started')
     logging.debug('with debug logging enabled')
+
+def addBugzScoutHandler(**bugz_scout_settings):
+    handler = BugzScoutLogHandler(**bugz_scout_settings)
+    handler.setLevel(logging.ERROR)
+    logging.getLogger().addHandler(handler)
+
+
+class BugzScoutLogHandler(logging.Handler):
+    def __init__(self, url=None, user_name=None, project=None, area=None):
+        logging.Handler.__init__(self)
+        self.url = url
+        self.username = user_name
+        self.project = project
+        self.area = area
+
+    def emit(self, record):
+        brief = '%s: %s' % (record.levelname, record.getMessage())
+        brief = brief.replace('\n', '\\n').replace('\r', '\\r')
+
+        if record.exc_info:
+            stack_trace = '\n'.join(traceback.format_exception(*record.exc_info))
+        else:
+            stack_trace = 'No stack trace available'
+
+        bug = {
+            'ScoutUserName': self.username,
+            'ScoutProject': self.project,
+            'ScoutArea': self.area,
+            'Description': brief,
+            'Extra': stack_trace,
+        }
+        if self.url:
+            urllib2.urlopen(self.url, urllib.urlencode(bug))
+

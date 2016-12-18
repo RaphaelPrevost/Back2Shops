@@ -73,6 +73,12 @@ USER_AUTH_COOKIE_EXPIRES = 8 * 3600
 SUPPORTED_MAJOR_COUNTRIES = ['US', 'CA', 'CN']
 
 LOG_CONFIG_FILE = 'logging.cfg'
+BUGZ_SCOUT_REPORT = {
+    'url': 'http://dragondollar.fogbugz.com/scoutSubmit.asp',
+    'user_name': 'bugwatch@dragondollar.com',
+    'project': 'Dragon Dollar',
+    'area': 'user',
+}
 
 HMAC_KEY_SIZE = 128
 HMAC_KEY_FILE_PATH = 'hmac.pem'

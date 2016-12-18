@@ -279,6 +279,14 @@ LOGGING = {
             'filename': os.path.join(SITE_ROOT, '../logs/error.log'),
             'mode': 'a'
         },
+        'bugzscout': {
+            'level': 'ERROR',
+            'class': 'B2SUtils.log.BugzScoutLogHandler',
+            'url': 'http://dragondollar.fogbugz.com/scoutSubmit.asp',
+            'user_name': 'bugwatch@dragondollar.com',
+            'project': 'Dragon Dollar',
+            'area': 'backoffice',
+        },
         'mail_admins': {
             'level': 'ERROR',
             'filters': [],
@@ -288,7 +296,7 @@ LOGGING = {
     'loggers': {
         'django': {
             'level': 'ERROR',
-            'handlers': ['console', 'log_file'],
+            'handlers': ['console', 'log_file', 'bugzscout'],
             'propagate': True
         },
         'django.request': {

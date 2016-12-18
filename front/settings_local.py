@@ -39,9 +39,3 @@
 
 # frontend settings
 from settings_base import *
-
-BRAND_NAME = "DRAGONDOLLAR"
-
-TEMPLATE_PATH = ['views/templates/dragondollar', 'views/templates/breuer']
-
-DRAGON_FEED_CACHE_PATH = "static/cache/DRAGON_FEED.json"
