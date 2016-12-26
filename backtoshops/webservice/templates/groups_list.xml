@@ -1,0 +1,10 @@
+<?xml version="1.0" standalone="no" ?>
+<!DOCTYPE sales PUBLIC "-//BACKTOSHOPS//SHOPSLIST" "shops.dtd">
+
+{% load l10n %}
+
+<groups version="1.0">
+	{% for object in object_list %}
+        {% include "group.xml" %}
+	{% endfor %}
+</groups>

@@ -1,0 +1,8 @@
+<?xml version="1.0" standalone="no" ?>
+<!DOCTYPE sales PUBLIC "-//BACKTOSHOPS//SALEINFO" "sale_info.dtd">
+
+{% load l10n %}
+
+<info type="group" version="1.0">
+    {% include "group.xml" %}
+</info>

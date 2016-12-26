@@ -70,3 +70,6 @@
 
 == version 0.0.22 ==
 1. Add constant CATEGORY_FOR_BRAND
+
+== version 0.0.23 ==
+1. Add constants GROUP*

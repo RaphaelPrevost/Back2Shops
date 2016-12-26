@@ -108,6 +108,7 @@ class COUPON_CONDITION_OPERATION(CustomEnum):
     NONE = 1
     SUM_ITEMS = 2
     SUM_PRICE = 3
+    MATCH_ALL = 4
 
 class COUPON_CONDITION_COMPARISON(CustomEnum):
     LT = 1

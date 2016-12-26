@@ -46,6 +46,7 @@ from webservice.auth import UserVerifyResource
 from webservice.aux import AuxResource
 from webservice.cache_invalidation import InvalidationResource
 from webservice.crypto import ApiKeyResource
+from webservice.groups import GroupsResource
 from webservice.invoice import InvoiceGet4FUserResource
 from webservice.invoice import InvoiceGetResource
 from webservice.invoice import InvoiceResource
@@ -103,6 +104,7 @@ urlpatterns = {
     '/webservice/1.0/pub/shipping/list': PubShippingListResource,
     '/webservice/1.0/pub/shipping/fees': ShippingFeesResource,
     '/webservice/1.0/pub/shops/list': ShopsResource,
+    '/webservice/1.0/pub/groups/list': GroupsResource,
     '/webservice/1.0/pub/types/list': TypesResource,
     '/webservice/1.0/pub/order': OrderResource,
     '/webservice/1.0/pub/order/orders': OrderList4FUserResource,

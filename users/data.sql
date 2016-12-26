@@ -632,4 +632,5 @@ INSERT INTO province VALUES ('TW', '台湾', 'CN', 'Taiwan');
 
 INSERT INTO currency VALUES (1, 'EUR', 'Euro');
 INSERT INTO currency VALUES (2, 'USD', 'US Dollar');
+INSERT INTO currency VALUES (3, 'CNY', 'China Yuan');
 COMMIT;

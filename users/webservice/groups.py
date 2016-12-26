@@ -37,4 +37,15 @@
 #############################################################################
 
 
-__version__ = '0.0.23'
+from common.cache import group_cache_proxy
+from webservice.base import BaseJsonResource
+
+class GroupsResource(BaseJsonResource):
+    def _on_get(self, req, resp, conn, **kwargs):
+        content = group_cache_proxy.get(
+            seller=req._params.get('seller'),
+            shop=req._params.get('shop'))
+        return content
+
+def import_groups_list():
+    group_cache_proxy.refresh()

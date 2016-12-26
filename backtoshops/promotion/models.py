@@ -38,9 +38,14 @@
 
 
 from django.db import models
+from django.db.models.signals import post_delete
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
 from accounts.models import Brand
+from common.cache_invalidation import post_delete_handler
+from common.cache_invalidation import post_save_handler
 from sales.models import ProductType
 from sales.models import Sale
 from shops.models import Shop
@@ -66,3 +71,10 @@ class SalesInGroup(models.Model):
     sale = models.ForeignKey(Sale)
 
 
+@receiver(post_delete, sender=Group, dispatch_uid='promotion.models.Group')
+def on_group_deleted(sender, **kwargs):
+    post_delete_handler('group', sender, **kwargs)
+
+@receiver(post_save, sender=Group, dispatch_uid='promotion.models.Group')
+def on_group_saved(sender, **kwargs):
+    post_save_handler('group', sender, **kwargs)

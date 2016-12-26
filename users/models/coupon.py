@@ -41,8 +41,10 @@ import logging
 import ujson
 
 from B2SUtils import db_utils
+from B2SUtils.base_actor import as_list
 from B2SUtils.common import to_round
 from B2SUtils.errors import ValidationError
+from common.cache import group_cache_proxy
 from common.constants import ADDR_TYPE
 from common.constants import COUPON_CONDITION_IDTYPE
 from common.constants import COUPON_CONDITION_OPERATION
@@ -96,12 +98,14 @@ def get_coupon_shop_data(conn, id_coupon):
 
 def get_coupon_condition_data(conn, id_coupon):
     match = []
+    operation = None
     threshold = None
     cond_values = db_utils.select_dict(
         conn, 'coupon_condition', 'id',
         where={'id_coupon': id_coupon})
     if cond_values:
         for cond_value in cond_values.itervalues():
+            operation = cond_value['operation']
             if cond_value['id_value'] and cond_value['id_type']:
                 match.append({
                     'id': cond_value['id_value'],
@@ -114,18 +118,19 @@ def get_coupon_condition_data(conn, id_coupon):
                         COUPON_CONDITION_OPERATION.SUM_PRICE,
                     ):
                 _threshold = {
-                    'operation': cond_value['operation'],
                     'operation_name': 'items' if cond_value['operation'] ==
                         COUPON_CONDITION_OPERATION.SUM_ITEMS else 'price',
-                    'comparison': COUPON_CONDITION_COMPARISON.toReverseDict()[
-                                  cond_value['comparison']],
+                    'comparison_name':
+                        COUPON_CONDITION_COMPARISON.toReverseDict()[
+                        cond_value['comparison']],
+                    'comparison': cond_value['comparison'],
                     'threshold': cond_value['threshold'],
                 }
                 if threshold:
                     assert threshold == _threshold
                 else:
                     threshold = _threshold
-    return match, threshold
+    return match, operation, threshold
 
 def match_comparison(comparison, threshold, value):
     if comparison == COUPON_CONDITION_COMPARISON.LT:
@@ -145,24 +150,48 @@ def order_item_match_cond(order_item, conds, id_brand, id_shops):
     if id_shops and order_item['shop_id'] in id_shops:
         return False
 
-    item_detail = ujson.loads(order_item['item_detail'])
-    match = True
-    for m in conds:
-        if m['id_type'] == COUPON_CONDITION_IDTYPE.SALE \
-                and m['id'] == order_item['sale_id']:
+    sale_conds = [m['id'] for m in conds
+                  if m['id_type'] == COUPON_CONDITION_IDTYPE.SALE]
+    shop_conds = [m['id'] for m in conds
+                  if m['id_type'] == COUPON_CONDITION_IDTYPE.SHOP]
+    brand_conds = [m['id'] for m in conds
+                  if m['id_type'] == COUPON_CONDITION_IDTYPE.BRAND]
+
+    result_conds = []
+    if sale_conds:
+        result_conds.append(any([
+            id_ == order_item['sale_id'] for id_ in sale_conds]))
+    if shop_conds:
+        result_conds.append(any([
+            id_ == order_item['shop_id'] for id_ in shop_conds]))
+    if brand_conds:
+        item_detail = ujson.loads(order_item['item_detail'])
+        result_conds.append(any([
+            str(id_) == item_detail.get('product_brand', {}).get('id')
+            for id_ in brand_conds]))
+    return all(result_conds)
+
+def order_items_match_group(order_items, groups, conds, operation):
+    group_conds = [m['id'] for m in conds
+                   if m['id_type'] == COUPON_CONDITION_IDTYPE.GROUP]
+    for id_group in group_conds:
+        group = groups.get(str(id_group))
+        if not group:
             continue
-        elif m['id_type'] == COUPON_CONDITION_IDTYPE.SHOP \
-                and m['id'] == order_item['shop_id']:
-            continue
-        elif m['id_type'] == COUPON_CONDITION_IDTYPE.BRAND \
-                and str(m['id']) == item_detail.get('product_brand', {}).get('id'):
-            continue
-        elif m['id_type'] == COUPON_CONDITION_IDTYPE.GROUP:
-            pass #TODO check promotion group
+
+        group_sales = [int(s['@id']) for s in as_list(group['sales']['sale'])]
+        matched_items = [o['sale_id'] for o in order_items
+                         if o['brand_id'] == int(group['brand']['@id'])
+                            and o['shop_id'] == int(group['shop']['@id'])
+                            and o['sale_id'] in group_sales]
+        if operation == COUPON_CONDITION_OPERATION.MATCH_ALL:
+            if len(set(matched_items)) == len(group_sales):
+                return True
         else:
-            match = False
-            break
-    return match
+            if len(matched_items) > 0:
+                return True
+    return False
+
 
 def check_coupon_with_password(conn, password, users_id, id_order, user_info):
     coupons = db_utils.select_dict(
@@ -233,28 +262,36 @@ def get_user_info(conn, id_user):
     row_dict = dict(zip(("fo_user_addr", "fo_user_phone"), row))
     return row_dict
 
-def check_order_for_coupon(conn, coupon, all_order_items):
+def check_order_for_coupon(conn, coupon, all_order_items, groups):
     if len(all_order_items) == 0:
         raise ValidationError('COUPON_ERR_INVALID_ORDER')
     id_shops = get_coupon_shop_data(conn, coupon['id'])
-    conds, threshold = get_coupon_condition_data(conn, coupon['id'])
-    order_match = any([order_item_match_cond(o_item, conds,
-                                             coupon['id_brand'], id_shops)
-                       for o_item in all_order_items])
-    if not order_match:
-        raise ValidationError('COUPON_ERR_INVALID_COUPON')
+    conds, operation, threshold = get_coupon_condition_data(conn, coupon['id'])
 
     if id_shops:
         order_items = [o for o in all_order_items if o['shop_id'] in id_shops]
     else:
         order_items = [o for o in all_order_items]
+    order_items = [o_item for o_item in order_items
+                    if order_item_match_cond(o_item,
+                        conds, coupon['id_brand'], id_shops)]
+    order_match = len(order_items) > 0
+    if order_match and \
+            len([m['id'] for m in conds
+                 if m['id_type'] == COUPON_CONDITION_IDTYPE.GROUP]) > 0:
+        order_match = \
+            order_items_match_group(all_order_items, groups, conds, operation)
+
+    if not order_match:
+        raise ValidationError('COUPON_ERR_INVALID_COUPON')
+
     if threshold:
-        if threshold['operation'] == COUPON_CONDITION_OPERATION.SUM_ITEMS:
+        if operation == COUPON_CONDITION_OPERATION.SUM_ITEMS:
             value = sum([o['quantity'] for o in order_items])
             if not match_comparison(threshold['comparison'],
                     threshold['threshold'], value):
                 raise ValidationError('COUPON_ERR_INVALID_COUPON')
-        elif threshold['operation'] == COUPON_CONDITION_OPERATION.SUM_PRICE:
+        elif operation == COUPON_CONDITION_OPERATION.SUM_PRICE:
             value = sum([o['price'] * o['quantity'] for o in order_items])
             if not match_comparison(threshold['comparison'],
                     threshold['threshold'], value):
@@ -308,9 +345,10 @@ def apply_appliable_coupons(conn, id_user, id_order, user_info):
                 continue
 
         all_order_items = get_order_items(conn, id_order)
+        groups = get_promotion_groups(conn, coupon['id_brand'])
         try:
             match_order_items = \
-                check_order_for_coupon(conn, coupon, all_order_items)
+                check_order_for_coupon(conn, coupon, all_order_items, groups)
         except ValidationError, e:
             continue
 
@@ -430,7 +468,7 @@ def _calc_discount_result(conn, id_coupon, coupon, id_order,
         if discount_value['discount_type'] == COUPON_DISCOUNT_APPLIES.VALUE_CHEAPEST:
             min_price_item = min_price = match_order_items[0]
             for o_item in match_order_items[1:]:
-                if o_item['price'] < min_price_item['price']:
+                if 0 < o_item['price'] < min_price_item['price']:
                     min_price_item = o_item
             for o_item in all_order_items:
                 if o_item == min_price_item:
@@ -440,7 +478,7 @@ def _calc_discount_result(conn, id_coupon, coupon, id_order,
 
         elif discount_value['discount_type'] == COUPON_DISCOUNT_APPLIES.VALUE_MATCHING:
             for o_item in all_order_items:
-                if o_item in match_order_items:
+                if o_item in match_order_items and o_item['price'] > 0:
                     o_item['discount'] = _calc_discount(
                         o_item['price'], discount_value['discount'])
 
@@ -478,7 +516,7 @@ def _calc_discount_result(conn, id_coupon, coupon, id_order,
                 'item_detail': '{"name": ""}',
                 'type_name': '',
                 'modified_by_coupon': id_coupon,
-            })
+            }, quantity=o_item['quantity'])
 
     else:
         gift_values = db_utils.select(
@@ -734,3 +772,6 @@ def _get_store_redeemed_amount(conn, id_coupon):
         "where id_coupon=%s and order_status = %s ",
         [id_coupon, ORDER_STATUS_FOR_COUPON.PAID])[0][0]
 
+
+def get_promotion_groups(conn, id_brand, id_shop=None):
+    return group_cache_proxy.get(seller=id_brand, shop=id_shop)

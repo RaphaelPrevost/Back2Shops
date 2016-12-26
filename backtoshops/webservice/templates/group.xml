@@ -1,0 +1,15 @@
+<group id="{{ object.pk }}">
+    <name>{{ object.name }}</name>
+    <brand id="{{ object.brand.pk }}"></brand>
+    <shop id="{{ object.shop.pk }}"></shop>
+    <types>
+        {% for type in object.all_types %}
+        <type id="{{ type.pk }}"></type>
+        {% endfor %}
+    </types>
+    <sales>
+        {% for sale in object.all_sales %}
+        <sale id="{{ sale.pk }}"></sale>
+        {% endfor %}
+    </sales>
+</group>

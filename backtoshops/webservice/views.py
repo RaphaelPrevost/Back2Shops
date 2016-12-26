@@ -87,6 +87,7 @@ from events.models import EventQueue
 from globalsettings import get_setting
 from globalsettings.models import GlobalSettings
 from routes.models import Route
+from promotion.models import Group
 from sales.models import ProductCategory
 from sales.models import ProductType
 from sales.models import STOCK_TYPE_GLOBAL
@@ -171,6 +172,25 @@ class ShopsListView(BaseWebservice, ListView):
             queryset = queryset.filter(city__iexact=city)
         return queryset
 
+class PromotionGroupsListView(BaseWebservice, ListView):
+    template_name = 'groups_list.xml'
+
+    def get_queryset(self):
+        brand = self.request.GET.get('seller', None)
+        shop = self.request.GET.get('shop', None)
+        queryset = Group.objects.all()
+        if brand:
+            queryset = queryset.filter(brand=brand)
+        if shop:
+            queryset = queryset.filter(shop=shop)
+        object_list = []
+        for obj in queryset:
+            obj.all_types = obj.types.all()
+            obj.all_sales = obj.sales.all()
+            object_list.append(obj)
+        return object_list
+
+
 class TypesListView(BaseWebservice, ListView):
     template_name = "types_list.xml"
 
@@ -246,6 +266,16 @@ class SalesInfoView(BaseWebservice, DetailView):
 class ShopsInfoView(BaseWebservice, DetailView):
     template_name = "shops_info.xml"
     model = Shop
+
+class PromotionGroupInfoView(BaseWebservice, DetailView):
+    template_name = "group_info.xml"
+    model = Group
+
+    def get_object(self, queryset=None):
+        obj = super(PromotionGroupInfoView, self).get_object(queryset=queryset)
+        obj.all_types = obj.types.all()
+        obj.all_sales = obj.sales.all()
+        return obj
 
 class TypesInfoView(BaseWebservice, DetailView):
     template_name = "types_info.xml"
