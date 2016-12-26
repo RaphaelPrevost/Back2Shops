@@ -54,6 +54,16 @@ class TestCoupon(BaseTestCase):
         super(TestCoupon, self).setUp()
         self.id_brand = 1000001
         self.bo_user = 1000002
+        self.id_coupon = None
+
+    def tearDown(self):
+        if self.id_coupon:
+            # delete coupon
+            self._post_coupon({
+                'action': 'delete',
+                'id_coupon': self.id_coupon,
+            })
+        super(TestCoupon, self).tearDown()
 
     def _list_coupons(self, params=None):
         query = {
@@ -105,7 +115,7 @@ class TestCoupon(BaseTestCase):
 
         # create new coupon
         coupon_values.update({'action': 'create'})
-        id_coupon = self._post_coupon(coupon_values)
+        self.id_coupon = self._post_coupon(coupon_values)
         coupons_data = self._list_coupons(params={'id_item': id_sale})
         self.assertEquals(len(coupons_data), num + 1)
         self.assertEquals(
@@ -119,41 +129,45 @@ class TestCoupon(BaseTestCase):
                 '<redeemable always="true"></redeemable>'
                 '<require order="any">'
                     '<order match="sale" id="%s"></order>'
+                    '<operation>NONE</operation>'
                 '</require>'
                 '<reward>'
                     '<rebate type="VALUE_MATCHING">5.0</rebate>'
                 '</reward>'
             '</coupon>'
-            % (id_coupon, self.id_brand, self.bo_user,
+            % (self.id_coupon, self.id_brand, self.bo_user,
                today, today, id_sale)
         )
 
         # expired coupon
         coupon_values.update({
             'action': 'update',
-            'id_coupon': id_coupon,
+            'id_coupon': self.id_coupon,
             'expiration_time': str(datetime.now())[:19],
         })
-        id_coupon = self._post_coupon(coupon_values)
+        self._post_coupon(coupon_values)
         coupons_data = self._list_coupons(params={'id_item': id_sale})
         self.assertEquals(len(coupons_data), num)
-        self.assertNotEquals(coupons_data[-1]['@id'], id_coupon)
+        if len(coupons_data) > 0:
+            self.assertNotEquals(coupons_data[-1]['@id'], self.id_coupon)
 
         # coupon without expiration_time
         coupon_values.pop('expiration_time')
-        id_coupon = self._post_coupon(coupon_values)
+        self._post_coupon(coupon_values)
         coupons_data = self._list_coupons(params={'id_item': id_sale})
         self.assertEquals(len(coupons_data), num + 1)
-        self.assertEquals(coupons_data[-1]['@id'], id_coupon)
+        self.assertEquals(coupons_data[-1]['@id'], self.id_coupon)
 
         # delete coupon
         self._post_coupon({
             'action': 'delete',
-            'id_coupon': id_coupon,
+            'id_coupon': self.id_coupon,
         })
         coupons_data = self._list_coupons(params={'id_item': id_sale})
         self.assertEquals(len(coupons_data), num)
-        self.assertNotEquals(coupons_data[-1]['@id'], id_coupon)
+        if len(coupons_data) > 0:
+            self.assertNotEquals(coupons_data[-1]['@id'], self.id_coupon)
+        self.id_coupon = None
 
     @unittest.skipUnless(not is_backoffice_server_running(), SKIP_REASON)
     def test_store_credit_coupon(self):
@@ -171,7 +185,7 @@ class TestCoupon(BaseTestCase):
             'effective_time': today,
             'expiration_time': today,
         }
-        id_coupon = self._post_coupon(coupon_values)
+        self.id_coupon = self._post_coupon(coupon_values)
         coupons_data = self._list_coupons(params={'id_shop': id_shop})
         self.assert_(len(coupons_data) > 0)
         self.assertEquals(
@@ -185,21 +199,24 @@ class TestCoupon(BaseTestCase):
                 '<redeemable always="true"></redeemable>'
                 '<require order="any">'
                     '<order match="shop" id="%s"></order>'
+                    '<operation>NONE</operation>'
                 '</require>'
                 '<reward>'
                     '<credit currency="EUR">10.0</credit>'
                 '</reward>'
             '</coupon>'
-            % (id_coupon, self.id_brand, self.bo_user,
+            % (self.id_coupon, self.id_brand, self.bo_user,
                today, today, id_shop)
         )
 
         self._post_coupon({
             'action': 'delete',
-            'id_coupon': id_coupon,
+            'id_coupon': self.id_coupon,
         })
         coupons_data = self._list_coupons(params={'id_shop': id_shop})
-        self.assertNotEquals(coupons_data[-1]['@id'], id_coupon)
+        if len(coupons_data) > 0:
+            self.assertNotEquals(coupons_data[-1]['@id'], self.id_coupon)
+        self.id_coupon = None
 
     @unittest.skipUnless(not is_backoffice_server_running(), SKIP_REASON)
     def test_give_away_coupon(self):
@@ -222,7 +239,7 @@ class TestCoupon(BaseTestCase):
             'effective_time': today,
             'expiration_time': today,
         }
-        id_coupon = self._post_coupon(coupon_values)
+        self.id_coupon = self._post_coupon(coupon_values)
         coupons_data = self._list_coupons(params={'item_brand': id_item_brand})
         self.assert_(len(coupons_data) > 0)
         self.assertEquals(
@@ -236,6 +253,7 @@ class TestCoupon(BaseTestCase):
                 '<redeemable always="true"></redeemable>'
                 '<require order="any">'
                     '<order match="brand" id="%s"></order>'
+                    '<operation>SUM_PRICE</operation>'
                     '<threshold sum="price" must="GTE">100.0</threshold>'
                 '</require>'
                 '<reward>'
@@ -243,13 +261,15 @@ class TestCoupon(BaseTestCase):
                     '<gift quantity="2">1000002</gift>'
                 '</reward>'
             '</coupon>'
-            % (id_coupon, self.id_brand, self.bo_user,
+            % (self.id_coupon, self.id_brand, self.bo_user,
                today, today, id_item_brand)
         )
 
         self._post_coupon({
             'action': 'delete',
-            'id_coupon': id_coupon,
+            'id_coupon': self.id_coupon,
         })
         coupons_data = self._list_coupons(params={'item_brand': id_item_brand})
-        self.assertNotEquals(coupons_data[-1]['@id'], id_coupon)
+        if len(coupons_data) > 0:
+            self.assertNotEquals(coupons_data[-1]['@id'], self.id_coupon)
+        self.id_coupon = None

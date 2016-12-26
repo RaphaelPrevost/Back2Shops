@@ -61,7 +61,10 @@
             {% endfor %}
             {% endif %}
             {% if coupon['require'].get('operation') %}
-            <threshold sum="{{coupon['require']['operation_name']}}" must="{{coupon['require']['comparison']}}">{{coupon['require']['threshold']}}</threshold>
+            <operation>{{coupon['require']['operation']}}</operation>
+            {% endif %}
+            {% if coupon['require'].get('threshold') %}
+            <threshold sum="{{coupon['require']['operation_name']}}" must="{{coupon['require']['comparison_name']}}">{{coupon['require']['threshold']}}</threshold>
             {% endif %}
         </require>
         {% endif %}

@@ -10,7 +10,7 @@ hiredis==0.1.1
 Tenjin==1.1.1
 B2SUtils==0.1.6
 B2SRespUtils==0.0.3
-B2SProtocol==0.0.22
+B2SProtocol==0.0.23
 B2SFrontUtils==0.0.22
 M2Crypto==0.21.1.B2S
 B2SCrypto==0.0.5

@@ -407,7 +407,7 @@ class ActorSale(BaseActor):
                 return Decimal(obj.text)
 
         def __base_price():
-            if int(id_price_type):
+            if id_price_type and int(id_price_type):
                 p = self.get_type_price(id_price_type,
                                         raise_not_exist=False)
             else:

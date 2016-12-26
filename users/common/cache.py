@@ -74,6 +74,11 @@ from B2SProtocol.constants import SHOPS_FOR_BRAND
 from B2SProtocol.constants import SHOPS_FOR_CITY
 from B2SProtocol.constants import SHOPS_VERSION
 from B2SProtocol.constants import SHOPS_ALL
+from B2SProtocol.constants import GROUP
+from B2SProtocol.constants import GROUPS_FOR_BRAND
+from B2SProtocol.constants import GROUPS_FOR_SHOP
+from B2SProtocol.constants import GROUPS_VERSION
+from B2SProtocol.constants import GROUPS_ALL
 from B2SProtocol.constants import SALE_CACHED_QUERY
 from B2SProtocol.constants import SALES_QUERY
 from B2SProtocol.constants import BARCODE
@@ -468,6 +473,82 @@ class ShopsCacheProxy(CacheProxy):
             self._rem_diff_objs(SHOPS_ALL, [s['@id'] for s in shops])
 
 
+class GroupsCacheProxy(CacheProxy):
+    list_api = "pub/promotion_groups/list?%s"
+    obj_api = "pub/promotion_groups/info/%s"
+    obj_key = GROUP
+
+    @property
+    def query_options(self):
+        return ('seller', 'shop')
+
+    def _get_from_redis(self, **kw):
+        # do filters.
+        groups_id = set(get_redis_cli().lrange(GROUPS_ALL % ALL, 0, -1))
+        groups_id = self._filter_interact(GROUPS_FOR_BRAND,
+                                         kw.get('seller'),
+                                         groups_id)
+        groups_id = self._filter_interact(GROUPS_FOR_SHOP,
+                                         kw.get('shop'),
+                                         groups_id)
+
+        groups = {}
+        for g_id in groups_id:
+            group = get_redis_cli().get(GROUP % g_id)
+            if group:
+                groups[g_id] = ujson.loads(group)
+
+        return groups
+
+    def _rem_attrs_for_obj(self, id):
+        cli = get_redis_cli()
+        group = cli.get(GROUP % id)
+        if not group:
+            cli.lrem(GROUPS_ALL % ALL, id, 0)
+            return
+        group = ujson.loads(group)
+        pipe = cli.pipeline()
+        pipe.lrem(GROUPS_FOR_BRAND % group['brand']['@id'], id, 0)
+        pipe.lrem(GROUPS_FOR_SHOP % group['shop']['@id'], id, 0)
+        pipe.lrem(GROUPS_ALL % ALL, id, 0)
+        pipe.execute()
+
+    def parse_xml(self, xml, is_entire_result, **kw):
+        logging.info('parse groups xml: %s, is_entire_result:%s',
+                     xml, is_entire_result)
+        data = xmltodict.parse(xml)
+        data = data.get('groups', data.get('info'))
+
+        version = data['@version']
+        groups = as_list(data.get('group', None))
+        try:
+            self._refresh_redis(version, groups, is_entire_result)
+        except (RedisError, ConnectionError), e:
+            logging.error('Redis Error: %s', (e,), exc_info=True)
+        return dict([(group['@id'], group) for group in groups])
+
+    def _refresh_redis(self, version, groups, is_entire_result):
+        # save version
+        self._set_to_redis(GROUPS_VERSION, version)
+
+        # save groups info into redis
+        self._save_objs_to_redis(groups)
+
+        pipe = get_redis_cli().pipeline()
+        for group in groups:
+            group_id = group['@id']
+            brand_id = group['brand']['@id']
+            shop_id = group['shop']['@id']
+
+            pipe.rpush(GROUPS_FOR_BRAND % brand_id, group_id)
+            pipe.rpush(GROUPS_FOR_SHOP % shop_id, group_id)
+            pipe.rpush(GROUPS_ALL % ALL, group_id)
+        pipe.execute()
+
+        if is_entire_result:
+            self._rem_diff_objs(GROUPS_ALL, [s['@id'] for s in groups])
+
+
 class TypesCacheProxy(CacheProxy):
     list_api = "pub/types/list/%s"
     obj_api = "pub/types/info/%s"
@@ -722,6 +803,7 @@ class SalesFindProxy:
 
 sale_cache_proxy = SalesCacheProxy()
 shop_cache_proxy = ShopsCacheProxy()
+group_cache_proxy = GroupsCacheProxy()
 find_cache_proxy = SalesFindProxy()
 type_cache_proxy = TypesCacheProxy()
 cate_cache_proxy = CatesCacheProxy()

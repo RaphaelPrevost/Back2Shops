@@ -12,6 +12,6 @@ Jinja2==2.7.1
 WeasyPrint==0.19.2
 B2SUtils==0.1.6
 B2SRespUtils==0.0.3
-B2SProtocol==0.0.22
+B2SProtocol==0.0.23
 pytz==2014.4
 stripe==1.21.0

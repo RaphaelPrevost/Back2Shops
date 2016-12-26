@@ -18,6 +18,9 @@ COPY address_address (id, address, zipcode, city, country_id, province_code) FRO
 1000006	Alabama center	112233	ALABAMA	US	AL
 1000009	Alabama center	100002	ALABAMA	US	AL
 1000010	Alabama center	100004	ALABAMA	US	AL
+1000011	dawanglu	1000001	BEIJING	AF	\N
+1000012	dawanglu	1000001	BEIJING	AF	\N
+1000013	qianmen	1000001	BEIJING	AF	\N
 \.
 
 --
@@ -29,6 +32,7 @@ COPY accounts_brand (id, name, logo, address_id, business_reg_num, tax_reg_num) 
 1000002	corporate account 2	img/brand_logos/test.jpeg 	1000002	1000002	1000004
 1000003	corporate account 3	img/brand_logos/test.jpeg	1000003	1000003	1000004
 1000004	corporate account 4	img/brand_logos/test.jpeg	1000004	1000004	1000004
+1000005	corporate account 5	img/brand_logos/test.jpeg	1000011	1000005	1000005
 \.
 
 
@@ -42,6 +46,7 @@ COPY auth_user (id, password, last_login, is_superuser, username, first_name, la
 1000001	pbkdf2_sha256$10000$P5L1F8apMmEm$GRYb7vEvdj+5H5QfP+5fieH37NuI8s6/aq4s+9Ow4Y8=	2014-02-08 06:40:18.822346+00	t	test_admin_1000000			admin@infinite-code.com	t	t	2013-12-30 08:45:04.266+00
 1000005	pbkdf2_sha256$10000$WE8o1XJiyPG9$ej57dR5dxROoDkafomKbktAAEwGKLzuNkTBx5mDck5w=	2014-02-08 06:42:30.454369+00	f	test_user4_1000000			user4@inifinite-code.com	t	t	2014-02-08 06:42:06.962951+00
 1000004	pbkdf2_sha256$10000$FES6biRhcI0z$70PFBpJoZ2BAehTTTq08h1v9SsxHC2FwHooSJ+d5kTc=	2014-02-08 06:46:53.654438+00	f	test_user3_1000000			user3@infinite-code.com	t	t	2014-02-08 01:53:12.231276+00
+1000006	pbkdf2_sha256$10000$TxT6kmaOxS2k$aW17Lk2Om8EhJ7TojqgZa+GpSmFZSogWHU+M6xYvMio=	2014-02-08 06:46:53.654438+00	f	test_user5_1000000			user5@infinite-code.com	t	t	2014-02-08 01:53:12.231276+00
 \.
 
 
@@ -54,6 +59,7 @@ COPY accounts_userprofile (id, user_id, work_for_id, language, role, allow_inter
 1000002	1000003	1000002	en	1	t
 1000003	1000004	1000003	en	1	t
 1000004	1000005	1000004	en	1	t
+1000005	1000006	1000005	en	1	t
 \.
 
 
@@ -68,6 +74,8 @@ COPY shops_shop (id, mother_brand_id, gestion_name, phone, name, catcher, descri
 1000004	1000002	shop 4		shop name 4				114	116	44444	img/shop_images/大学宿舍_4.jpeg	1000008	2000004	2000004
 1000005	1000003	shop 5 	123123123123	shop name 5	Caption 5	The 5th shop	{}	34.1568725999999998	-85.6963627000000088	55555		1000009	2000005	1000005
 1000006	1000003	shop name 6	34534534534	shop name 6	caption 6	the 6th shop	{}	34.1568725999999998	-85.6963627000000088	66666		1000010	2000006	1000006
+1000007	1000005	Dawanglu Shop		Dawanglu			{}	39.9779912	116.41200188			1000011	1000005	1000005
+1000008	1000005	Qianmen Shop		Qianmen			{}	39.9779912	116.41200188			1000012	1000005	1000005
 \.
 
 
@@ -100,6 +108,7 @@ COPY sales_productbrand (id, seller_id, name, picture) FROM stdin;
 1000002	1000002	product brand 2	img/product_brands/test.jpeg
 1000003	1000003	product brand 3	img/product_brands/test.jpeg
 1000004	1000004	product brand 4	img/product_brands/test.jpeg
+1000005	1000005	新旺	img/product_brands/test.jpeg
 \.
 
 
@@ -107,9 +116,9 @@ COPY sales_productbrand (id, seller_id, name, picture) FROM stdin;
 -- Data for Name: sales_productcategory; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY sales_productcategory (id, name, brand_id, valid) FROM stdin;
-1000001	product category 1	1000001	t
-1000002	product category 2	1000001	t
+COPY sales_productcategory (id, name, brand_id, valid, is_default) FROM stdin;
+1000001	product category 1	1000001	t	f
+1000002	product category 2	1000001	t	f
 \.
 
 
@@ -117,12 +126,12 @@ COPY sales_productcategory (id, name, brand_id, valid) FROM stdin;
 -- Data for Name: sales_producttype; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY sales_producttype (id, name, brand_id, valid) FROM stdin;
-1000001	product type 1	1000001	t
-1000002	product type 2	1000001	t
-1000003	product type 3	1000002	t
-1000004	product type 4	1000002	t
-1000005	item type 1	1000001	t
+COPY sales_producttype (id, name, brand_id, valid, is_default) FROM stdin;
+1000001	product type 1	1000001	t	f
+1000002	product type 2	1000001	t	f
+1000003	product type 3	1000002	t	f
+1000004	product type 4	1000002	t	f
+1000005	item type 1	1000001	t	f
 \.
 
 
@@ -162,6 +171,13 @@ COPY sales_sale (id, direct_sale, mother_brand_id, type_stock, total_stock, tota
 1000031	f	1000001	L	60	60	U	2014-02-19 08:17:53.778708+00
 1000032	f	1000001	L	31	31	U	2014-02-20 02:50:17.076423+00
 1000033	f	1000001	L	32	32	U	2014-02-20 03:32:01.741571+00
+1000034	f	1000005	L	198	198	U	2014-02-20 03:32:01.741571+00
+1000035	f	1000005	L	198	198	U	2014-02-20 03:32:01.741571+00
+1000036	f	1000005	L	198	198	U	2014-02-20 03:32:01.741571+00
+1000037	f	1000005	L	198	198	U	2014-02-20 03:32:01.741571+00
+1000038	f	1000005	L	198	198	U	2014-02-20 03:32:01.741571+00
+1000039	f	1000005	L	198	198	U	2014-02-20 03:32:01.741571+00
+1000040	f	1000005	L	198	198	U	2014-02-20 03:32:01.741571+00
 \.
 
 
@@ -169,38 +185,45 @@ COPY sales_sale (id, direct_sale, mother_brand_id, type_stock, total_stock, tota
 -- Data for Name: sales_product; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY sales_product (id, sale_id, category_id, type_id, brand_id, name, description, normal_price, discount_type, discount, valid_from, valid_to, currency_id, weight_unit_id, standard_weight) FROM stdin;
-1000003	1000003	1000002	1000003	1000001	product name 3	product 3	30	percentage	1	2013-12-30	\N	1	kg	30
-1000004	1000004	1000001	1000001	1000002	product 4 name	product 4	40	percentage	1	2013-12-30	\N	1	kg	40
-1000002	1000002	1000001	1000001	1000001	product name 2	product 2	10	percentage	1	2013-12-30	\N	1	kg	10
-1000001	1000001	1000001	1000001	1000001	product name 1	product 1	10	percentage	1	2013-12-30	\N	1	kg	10
-1000007	1000007	1000001	1000001	1000003	product name 6	product with carrier shipping	2	\N	\N	2014-02-08	\N	1	kg	2
-1000008	1000008	1000001	1000001	1000003	product name 7	product with invoice shipping	3	\N	\N	2014-02-08	\N	1	kg	3
-1000009	1000009	1000001	1000001	1000003	product name 8	product with flat rate	5	\N	\N	2014-02-08	\N	1	kg	5
-1000010	1000010	1000001	1000001	1000003	product name 9	the product with free shipping 	9	\N	\N	2014-02-08	\N	1	kg	9
-1000011	1000011	1000001	1000001	1000003	product name 10	the product with custom shipping	10	\N	\N	2014-02-08	\N	1	kg	10
-1000023	1000023	1000002	1000003	1000003	item2 spm not allow group flat rate	product for test	2	\N	\N	2014-02-08	\N	1	kg	2
-1000006	1000006	1000001	1000001	1000003	product name 5	the product with carrier shipping	1.02000000000000002	\N	\N	2014-02-08	\N	1	kg	1.05000000000000004
-1000012	1000012	1000001	1000001	1000003	product name 11	the product for corporate account 3	2	\N	\N	2014-02-08	\N	1	kg	1
-1000013	1000013	1000001	1000001	1000004	product name 12	the product for corporate account 4	4	\N	\N	2014-02-08	\N	1	kg	3
-1000024	1000024	1000002	1000003	1000003	item3 spm not allow group carrier shipping	product for test	3	\N	\N	2014-02-08	\N	1	kg	3
-1000014	1000014	1000001	1000001	1000003	spm group test with carrier EMS USPS item1	product for common carrier service	2	\N	\N	2014-02-08	\N	1	kg	1
-1000025	1000025	1000001	1000001	1000003	item4 spm not allow group custom shipping	product for sale	3	\N	\N	2014-02-08	\N	1	kg	3
-1000016	1000016	1000001	1000001	1000003	spm group test with carrier USPS item3	product for test	3	\N	\N	2014-02-08	\N	1	kg	3
-1000017	1000017	1000002	1000003	1000003	spm group test with carrier EMS item4	product for sale	4	\N	\N	2014-02-08	\N	1	kg	4
-1000026	1000026	1000001	1000001	1000003	item5 spm not allow group invoice shipping	product for sale	5	\N	\N	2014-02-08	\N	1	kg	5
-1000015	1000015	1000001	1000001	1000003	spm group test with carrier EMS USPS item2	product for test	2	\N	\N	2014-02-08	\N	1	kg	2
-1000019	1000019	1000001	1000001	1000003	spm group test with custom shipping 1, 2	product for test	4	\N	\N	2014-02-08	\N	1	kg	3
-1000027	1000027	1000001	1000001	1000003	spm group test product in shop 5	product for test	1	\N	\N	2014-02-08	\N	1	kg	1
-1000018	1000018	1000001	1000001	1000003	spm group test with custom shipping 1,2	product for test	2	\N	\N	2014-02-08	\N	1	kg	1
-1000020	1000020	1000001	1000001	1000003	spm group test with custom shipping 1	product for test	6	\N	\N	2014-02-08	\N	1	kg	5
-1000021	1000021	1000001	1000001	1000003	spm group test with custom shipping 2	product for test	8	\N	\N	2014-02-08	\N	1	kg	7
-1000022	1000022	1000001	1000001	1000003	item1 spm not allow group free shipping	product for test	2	\N	\N	2014-02-08	\N	1	kg	1
-1000028	1000028	1000001	1000001	1000003	spm group test product in shop 6	product for test	2	\N	\N	2014-02-08	\N	1	kg	2
-1000029	1000029	1000001	1000001	1000001	item1 type weight type price with variant	product for test	\N	\N	\N	2014-02-17	\N	1	kg	\N
-1000030	1000031	1000001	1000001	1000001	shipping fee test with 2 shops 2 services	shipping fee test item	\N	\N	\N	2014-02-19	\N	1	kg	\N
-1000031	1000032	1000001	1000001	1000001	free item for shipping conf test	sale for test	5	\N	\N	2014-02-20	\N	1	kg	3.29999999999999982
-1000032	1000033	1000001	1000001	1000001	shipping conf test with one service	sale item for test	\N	\N	\N	2014-02-20	\N	1	kg	\N
+COPY sales_product (id, sale_id, category_id, type_id, brand_id, name, description, normal_price, available_from, available_to, currency_id, weight_unit_id, standard_weight) FROM stdin;
+1000003	1000003	1000002	1000003	1000001	product name 3	product 3	30	2013-12-30	\N	1	kg	30
+1000004	1000004	1000001	1000001	1000002	product 4 name	product 4	40	2013-12-30	\N	1	kg	40
+1000002	1000002	1000001	1000001	1000001	product name 2	product 2	10	2013-12-30	\N	1	kg	10
+1000001	1000001	1000001	1000001	1000001	product name 1	product 1	10	2013-12-30	\N	1	kg	10
+1000007	1000007	1000001	1000001	1000003	product name 6	product with carrier shipping	2	2014-02-08	\N	1	kg	2
+1000008	1000008	1000001	1000001	1000003	product name 7	product with invoice shipping	3	2014-02-08	\N	1	kg	3
+1000009	1000009	1000001	1000001	1000003	product name 8	product with flat rate	5	2014-02-08	\N	1	kg	5
+1000010	1000010	1000001	1000001	1000003	product name 9	the product with free shipping 	9	2014-02-08	\N	1	kg	9
+1000011	1000011	1000001	1000001	1000003	product name 10	the product with custom shipping	10	2014-02-08	\N	1	kg	10
+1000023	1000023	1000002	1000003	1000003	item2 spm not allow group flat rate	product for test	2	2014-02-08	\N	1	kg	2
+1000006	1000006	1000001	1000001	1000003	product name 5	the product with carrier shipping	1.02000000000000002	2014-02-08	\N	1	kg	1.05000000000000004
+1000012	1000012	1000001	1000001	1000003	product name 11	the product for corporate account 3	2	2014-02-08	\N	1	kg	1
+1000013	1000013	1000001	1000001	1000004	product name 12	the product for corporate account 4	4	2014-02-08	\N	1	kg	3
+1000024	1000024	1000002	1000003	1000003	item3 spm not allow group carrier shipping	product for test	3	2014-02-08	\N	1	kg	3
+1000014	1000014	1000001	1000001	1000003	spm group test with carrier EMS USPS item1	product for common carrier service	2	2014-02-08	\N	1	kg	1
+1000025	1000025	1000001	1000001	1000003	item4 spm not allow group custom shipping	product for sale	3	2014-02-08	\N	1	kg	3
+1000016	1000016	1000001	1000001	1000003	spm group test with carrier USPS item3	product for test	3	2014-02-08	\N	1	kg	3
+1000017	1000017	1000002	1000003	1000003	spm group test with carrier EMS item4	product for sale	4	2014-02-08	\N	1	kg	4
+1000026	1000026	1000001	1000001	1000003	item5 spm not allow group invoice shipping	product for sale	5	2014-02-08	\N	1	kg	5
+1000015	1000015	1000001	1000001	1000003	spm group test with carrier EMS USPS item2	product for test	2	2014-02-08	\N	1	kg	2
+1000019	1000019	1000001	1000001	1000003	spm group test with custom shipping 1, 2	product for test	4	2014-02-08	\N	1	kg	3
+1000027	1000027	1000001	1000001	1000003	spm group test product in shop 5	product for test	1	2014-02-08	\N	1	kg	1
+1000018	1000018	1000001	1000001	1000003	spm group test with custom shipping 1,2	product for test	2	2014-02-08	\N	1	kg	1
+1000020	1000020	1000001	1000001	1000003	spm group test with custom shipping 1	product for test	6	2014-02-08	\N	1	kg	5
+1000021	1000021	1000001	1000001	1000003	spm group test with custom shipping 2	product for test	8	2014-02-08	\N	1	kg	7
+1000022	1000022	1000001	1000001	1000003	item1 spm not allow group free shipping	product for test	2	2014-02-08	\N	1	kg	1
+1000028	1000028	1000001	1000001	1000003	spm group test product in shop 6	product for test	2	2014-02-08	\N	1	kg	2
+1000029	1000029	1000001	1000001	1000001	item1 type weight type price with variant	product for test	\N	2014-02-17	\N	1	kg	\N
+1000030	1000031	1000001	1000001	1000001	shipping fee test with 2 shops 2 services	shipping fee test item	\N	2014-02-19	\N	1	kg	\N
+1000031	1000032	1000001	1000001	1000001	free item for shipping conf test	sale for test	5	2014-02-20	\N	1	kg	3.29999999999999982
+1000032	1000033	1000001	1000001	1000001	shipping conf test with one service	sale item for test	\N	2014-02-20	\N	1	kg	\N
+1000034	1000034	1	1	1000005	三文鱼贝果	超好吃	30	2014-2-20	\N	3	g	200
+1000035	1000035	1	1	1000005	南瓜汤	超好吃	26	2014-2-20	\N	3	g	200
+1000036	1000036	1	1	1000005	宫保鸡丁	超好吃	20	2014-2-20	\N	3	g	200
+1000037	1000037	1	1	1000005	菠萝包	超好吃	8	2014-2-20	\N	3	g	200
+1000038	1000038	1	1	1000005	奶茶	超好吃	14	2014-2-20	\N	3	g	200
+1000039	1000039	1	1	1000005	鸳鸯咖啡	超好吃	16	2014-2-20	\N	3	g	200
+1000040	1000040	1	1	1000005	苹果汁	超好吃	12	2014-2-20	\N	3	g	200
 \.
 
 
@@ -214,6 +237,13 @@ COPY sales_productpicture (id, product_id, is_brand_attribute, picture) FROM std
 1000004	1000004	f	img/product_pictures/test.jpeg
 1000001	1000001	f	img/product_pictures/test.jpeg
 1000005	\N	f	img/product_pictures/test.jpeg
+1000006	1000034	f	img/product_pictures/test.jpeg
+1000007	1000035	f	img/product_pictures/test.jpeg
+1000008	1000036	f	img/product_pictures/test.jpeg
+1000009	1000037	f	img/product_pictures/test.jpeg
+1000010	1000038	f	img/product_pictures/test.jpeg
+1000011	1000039	f	img/product_pictures/test.jpeg
+1000012	1000040	f	img/product_pictures/test.jpeg
 \.
 
 
@@ -347,6 +377,13 @@ COPY shippings_shipping (id, handling_fee, allow_group_shipment, allow_pickup, p
 1000029	6	t	f	f	3
 1000030	\N	t	f	f	1
 1000031	\N	t	f	f	3
+1000032	\N	t	f	f	1
+1000033	\N	t	f	f	1
+1000034	\N	t	f	f	1
+1000035	\N	t	f	f	1
+1000036	\N	t	f	f	1
+1000037	\N	t	f	f	1
+1000038	\N	t	f	f	1
 \.
 
 
@@ -386,6 +423,13 @@ COPY sales_shippinginsale (id, sale_id, shipping_id) FROM stdin;
 1000029	1000031	1000029
 1000030	1000032	1000030
 1000031	1000033	1000031
+1000032	1000034	1000032
+1000033	1000035	1000033
+1000034	1000036	1000034
+1000035	1000037	1000035
+1000036	1000038	1000036
+1000037	1000039	1000037
+1000038	1000040	1000038
 \.
 
 
@@ -424,6 +468,20 @@ COPY sales_shopsinsale (id, sale_id, shop_id, is_freezed) FROM stdin;
 1000031	1000031	1000001	f
 1000032	1000032	1000002	f
 1000033	1000033	1000002	f
+1000034	1000034	1000007	f
+1000035	1000034	1000008	f
+1000036	1000035	1000007	f
+1000037	1000035	1000008	f
+1000038	1000036	1000007	f
+1000039	1000036	1000008	f
+1000040	1000037	1000007	f
+1000041	1000037	1000008	f
+1000042	1000038	1000007	f
+1000043	1000038	1000008	f
+1000044	1000039	1000007	f
+1000045	1000039	1000008	f
+1000046	1000040	1000007	f
+1000047	1000040	1000008	f
 \.
 
 --
@@ -556,6 +614,20 @@ COPY stocks_productstock (id, sale_id, brand_attribute_id, common_attribute_id, 
 10000039	1000031	1000012	1000003	1000001	30	30	f
 10000040	1000032	1000013	1000003	1000002	31	31	f
 10000041	1000033	1000014	1000003	1000002	32	32	f
+10000042	1000034	\N	\N	1000007	99	99	f
+10000043	1000034	\N	\N	1000008	99	99	f
+10000044	1000035	\N	\N	1000007	99	99	f
+10000045	1000035	\N	\N	1000008	99	99	f
+10000046	1000036	\N	\N	1000007	99	99	f
+10000047	1000036	\N	\N	1000008	99	99	f
+10000048	1000037	\N	\N	1000007	99	99	f
+10000049	1000037	\N	\N	1000008	99	99	f
+10000050	1000038	\N	\N	1000007	99	99	f
+10000051	1000038	\N	\N	1000008	99	99	f
+10000052	1000039	\N	\N	1000007	99	99	f
+10000053	1000039	\N	\N	1000008	99	99	f
+10000054	1000040	\N	\N	1000007	99	99	f
+10000055	1000040	\N	\N	1000008	99	99	f
 \.
 
 
@@ -563,15 +635,54 @@ COPY stocks_productstock (id, sale_id, brand_attribute_id, common_attribute_id, 
 -- Data for Name: taxes_rate; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY taxes_rate (id, name, region_id, province, applies_to_id, shipping_to_region_id, shipping_to_province, rate, apply_after, enabled, display_on_front, taxable) FROM stdin;
-1	Out China	CN		\N	\N		5	\N	t	f	f
-2	Out US	US		\N	\N		3	\N	t	f	f
-3	US to CN	US		\N	CN		4	\N	t	\N	f
-4	US to US	US		\N	US		1	\N	t	\N	f
-6	US-AL to US-AL	US	AL	1000001	US	AL	0.5	\N	t	\N	\N
-5	US-AL to US-AK after	US	AL	\N	US	AK	2	4	t	\N	f
-7	US AL to AL shipping fee	US	AL	\N	US	AL	1	\N	t	\N	t
+COPY taxes_rate (id, name, region_id, province, applies_to_id, shipping_to_region_id, shipping_to_province, rate, apply_after, enabled, display_on_front, applies_to_delivery, applies_to_personal_accounts, applies_to_business_accounts, applies_after_promos, applies_to_free_items, applies_to_manufacturer_promos) FROM stdin;
+1	Out China	CN		\N	\N		5	\N	t	f	f	t	f	t	f	t
+2	Out US	US		\N	\N		3	\N	t	f	f	t	f	t	f	t
+3	US to CN	US		\N	CN		4	\N	t	\N	f	t	f	t	f	t
+4	US to US	US		\N	US		1	\N	t	\N	f	t	f	t	f	t
+6	US-AL to US-AL	US	AL	1000001	US	AL	0.5	\N	t	\N	\N	t	f	t	f	t
+5	US-AL to US-AK after	US	AL	\N	US	AK	2	4	t	\N	f	t	f	t	f	t
+7	US AL to AL shipping fee	US	AL	\N	US	AL	1	\N	t	\N	t	t	f	t	f	t
+8	test general tax	AF		\N	\N		10	\N	t	f	f	t	f	f	f	t
+9	test local tax	AF		\N	\N		8.5	\N	t	f	f	t	f	t	t	t
 \.
+
+
+--
+-- Data for Name: promotion_group; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY promotion_group (id, name, brand_id, shop_id, created, updated)  FROM stdin;
+1000001	三文鱼贝果+南瓜汤	1000005	1000007	2016-12-20 06:58:45.589086+08	2016-12-20 06:58:45.589086+08
+1000003	奶茶+鸳鸯咖啡	1000005	1000007	2016-12-20 06:58:45.589086+08	2016-12-20 06:58:45.589086+08
+1000004	奶茶+鸳鸯咖啡	1000005	1000008	2016-12-20 06:58:45.589086+08	2016-12-20 06:58:45.589086+08
+\.
+
+
+--
+-- Data for Name: promotion_typesingroup; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY promotion_typesingroup (id, group_id, type_id)  FROM stdin;
+1000001	1000001	1
+1000003	1000003	1
+1000004	1000004	1
+\.
+
+
+--
+-- Data for Name: promotion_salesingroup; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY promotion_salesingroup (id, group_id, sale_id)  FROM stdin;
+1000001	1000001	1000034
+1000002	1000001	1000035
+1000005	1000003	1000038
+1000006	1000003	1000039
+1000007	1000004	1000038
+1000008	1000004	1000039
+\.
+
 
 --
 -- PostgreSQL database dump complete

@@ -47,6 +47,7 @@ from webservice.views import SalesListView, BrandInfoView, BrandListView, \
     BrandingsListView, apikey, SalesFindView, TaxesListView, ShippingInfoView, \
     ShippingFeesView, ShippingServicesInfoView, InvoiceView, BrandSettingsView, \
     payment_init, RoutesListView, SuggestView, EventListView, event_push, \
+    PromotionGroupsListView, PromotionGroupInfoView, \
     stock_decrement, stock_increment
 
 
@@ -55,6 +56,7 @@ from webservice.views import SalesListView, BrandInfoView, BrandListView, \
 urlpatterns = patterns(settings.SITE_NAME,
     url(r'1.0/pub/sales/list', SalesListView.as_view()),
     url(r'1.0/pub/shops/list', ShopsListView.as_view()),
+    url(r'1.0/pub/promotion_groups/list', PromotionGroupsListView.as_view()),
     url(r'1.0/pub/types/list/(?P<brand>\d+)', TypesListView.as_view()),
     url(r'1.0/pub/brand/list', BrandListView.as_view()),
     url(r'1.0/pub/brand/home/slideshow/(?P<brand>\d+)', BrandingsListView.as_view()),
@@ -62,6 +64,7 @@ urlpatterns = patterns(settings.SITE_NAME,
     url(r'1.0/pub/brand/settings/list', BrandSettingsView.as_view()),
     url(r'1.0/pub/sales/info/(?P<pk>\d+)', SalesInfoView.as_view()),
     url(r'1.0/pub/shops/info/(?P<pk>\d+)', ShopsInfoView.as_view()),
+    url(r'1.0/pub/promotion_groups/info/(?P<pk>\d+)', PromotionGroupInfoView.as_view()),
     url(r'1.0/pub/types/info/(?P<pk>\d+)', TypesInfoView.as_view()),
     url(r'1.0/pub/sales/find', SalesFindView.as_view()),
     url(r'1.0/pub/apikey.pem', apikey),

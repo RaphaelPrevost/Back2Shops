@@ -62,6 +62,7 @@ from models.coupon import check_order_for_coupon
 from models.coupon import get_coupon_condition_data
 from models.coupon import get_coupon_shop_data
 from models.coupon import get_coupon_user_data
+from models.coupon import get_promotion_groups
 from models.coupon import get_user_info
 from models.coupon import match_comparison
 from models.coupon import order_item_match_cond
@@ -134,8 +135,11 @@ class CouponListResource(BaseXmlResource):
                 'shops': [self._get_shop_details(id_shop)
                     for id_shop in get_coupon_shop_data(conn, id_coupon)]
             })
-            conds, threshold = get_coupon_condition_data(conn, id_coupon)
+            conds, operation, threshold = get_coupon_condition_data(conn, id_coupon)
             require = {}
+            if operation:
+                require['operation'] = \
+                        COUPON_CONDITION_OPERATION.toReverseDict()[operation]
             if threshold:
                 require.update(threshold)
             if conds:
@@ -308,15 +312,17 @@ class CouponPostResource(BaseXmlResource):
             coupon_values = {
                 'id_brand': id_brand,
                 'id_bo_user': id_bo_user,
-                'effective_time': effective_time,
                 'expiration_time': expiration_time,
-                'stackable': req.get_param('stackable') == 'True',
+                'stackable': req.get_param('stackable') in ('True', 'true'),
                 'redeemable_always': redeemable_always,
-                'first_order_only': req.get_param('first_order_only') == 'True',
+                'first_order_only': req.get_param('first_order_only')
+                                    in ('True', 'true'),
                 'password': password,
                 'description': req.get_param('description') or '',
                 'valid': True,
             }
+            if effective_time:
+                coupon_values.update({'effective_time': effective_time})
             if max_redeem:
                 coupon_values.update({'max_redeemable': max_redeem})
 
@@ -437,10 +443,13 @@ class CouponPostResource(BaseXmlResource):
                 threshold = float(equal)
                 comparison = COUPON_CONDITION_COMPARISON.EQ
             else:
-                assert operation == COUPON_CONDITION_OPERATION.NONE, 'operation'
+                assert operation not in (
+                    COUPON_CONDITION_OPERATION.SUM_ITEMS,
+                    COUPON_CONDITION_OPERATION.SUM_PRICE), 'operation'
 
             cond_value = {'operation': operation}
-            if operation != COUPON_CONDITION_OPERATION.NONE:
+            if operation in (COUPON_CONDITION_OPERATION.SUM_ITEMS,
+                             COUPON_CONDITION_OPERATION.SUM_PRICE):
                 cond_value.update({
                     'comparison': comparison,
                     'threshold': threshold,
@@ -582,7 +591,9 @@ class CouponRedeemResource(BaseJsonResource):
             conn, password, self.users_id, id_order, user_info)
 
         all_order_items = get_order_items(conn, id_order)
-        match_order_items = check_order_for_coupon(conn, coupon, all_order_items)
+        groups = get_promotion_groups(conn, req.get_param('brand'))
+        match_order_items = \
+            check_order_for_coupon(conn, coupon, all_order_items, groups)
         apply_password_coupon(conn, coupon, all_order_items, match_order_items,
                               self.users_id, id_order, user_info)
         return {"res": RESP_RESULT.S, "err": ""}

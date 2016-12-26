@@ -16,7 +16,7 @@ B2SCrypto==0.0.5
 xmltodict==0.7.0
 B2SUtils==0.1.6
 B2SRespUtils==0.0.3
-B2SProtocol==0.0.22
+B2SProtocol==0.0.23
 email==4.0.2
 lxml==3.3.3
 pytz==2014.4
