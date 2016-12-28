@@ -651,6 +651,7 @@ class TaxesListView(BaseCryptoWebService, ListView):
         fromProvince = self.request.GET.get('fromProvince', None)
         toCountry = self.request.GET.get('toCountry', None)
         toProvince = self.request.GET.get('toProvince', None)
+        applyAfterCoupons = self.request.GET.get('applyAfterCoupons', None)
 
         queryset = Rate.objects.filter(enabled=True)
         if fromCountry:
@@ -661,6 +662,9 @@ class TaxesListView(BaseCryptoWebService, ListView):
             queryset = queryset.filter(province=fromProvince)
         if toProvince:
             queryset = queryset.filter(shipping_to_province=toProvince)
+        if applyAfterCoupons:
+            queryset = queryset.filter(
+                applies_after_promos=applyAfterCoupons.lower() == 'true')
 
         return queryset
 
@@ -1198,7 +1202,8 @@ class InvoiceView(BaseCryptoWebService, ListView):
                                            else None),
                                        is_free_item=is_free_item,
                                        free_item_price=free_item_price,
-                                       is_manufacturer_promo=item['manufacturer_promo'])
+                                       is_manufacturer_promo=item['manufacturer_promo'],
+                                       redeemable_credits=item['redeemable_credits'])
             for tax in items_taxes:
                 tax['tax'] = tax['tax'] * qty
                 tax['amount'] = tax['amount'] * qty
@@ -1229,7 +1234,7 @@ class InvoiceView(BaseCryptoWebService, ListView):
     def get_tax(self, price, pro_category, from_address, to_address,
                 shipping_tax=False, is_business_account=False,
                 promo_type=None, is_free_item=False, free_item_price=0,
-                is_manufacturer_promo=False):
+                is_manufacturer_promo=False, redeemable_credits=None):
         f_ctry = from_address['country']
         f_prov = from_address['province']
         t_ctry = to_address['country']
@@ -1353,15 +1358,16 @@ class InvoiceView(BaseCryptoWebService, ListView):
             if rate.apply_after:
                 pre_tax = taxes[rate.apply_after]
                 amount = pre_tax['amount'] + pre_tax['tax']
-            if promo_type == 'COUPON_CURRENCY' and not rate.applies_after_promos:
-                tax['amount'] = amount
-                tax['tax'] = 0
-            elif use_after_tax_price:
+            if use_after_tax_price:
                 tax['amount'] = to_round(amount / (1 + rate.rate / 100.0))
                 tax['tax'] = amount - tax['amount']
             else:
                 tax['amount'] = amount
                 tax['tax'] = to_round(amount * (1 + rate.rate / 100.0)) - amount
+            if not rate.applies_after_promos and \
+                    promo_type == 'COUPON_CURRENCY' and \
+                    redeemable_credits is not None:
+                tax['tax'] = -redeemable_credits - tax['amount']
 
             tax['rate'] = rate.rate
             tax['to_worldwide'] = rate.shipping_to_region_id is None

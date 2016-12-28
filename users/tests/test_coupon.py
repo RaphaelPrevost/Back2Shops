@@ -55,6 +55,9 @@ class TestCoupon(BaseTestCase):
         self.id_brand = 1000001
         self.bo_user = 1000002
         self.id_coupon = None
+        with db_utils.get_conn() as conn:
+            db_utils.update(conn, "coupons",
+                            values={'valid': False})
 
     def tearDown(self):
         if self.id_coupon:

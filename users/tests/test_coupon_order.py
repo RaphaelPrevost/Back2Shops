@@ -45,6 +45,7 @@ from collections import OrderedDict
 from datetime import datetime
 from datetime import timedelta
 
+from B2SProtocol.constants import RESP_RESULT
 from B2SUtils import db_utils
 from B2SUtils.base_actor import as_list
 from common.test_utils import is_backoffice_server_running
@@ -54,12 +55,16 @@ from tests.base_order_test import BaseOrderTestCase
 
 SKIP_REASON = "Please start backoffice server before running this test"
 
-class TestCouponOrder(BaseOrderTestCase):
+class BaseTestCoupon(BaseOrderTestCase):
+
     def setUp(self):
-        super(TestCouponOrder, self).setUp()
+        super(BaseTestCoupon, self).setUp()
         self.id_brand = 1000005
         self.bo_user = 1000006
         self.coupons = []
+        with db_utils.get_conn() as conn:
+            db_utils.update(conn, "coupons",
+                            values={'valid': False})
 
     def tearDown(self):
         for id_coupon in self.coupons:
@@ -68,7 +73,7 @@ class TestCouponOrder(BaseOrderTestCase):
                 'action': 'delete',
                 'id_coupon': id_coupon,
             })
-        super(TestCouponOrder, self).tearDown()
+        super(BaseTestCoupon, self).tearDown()
 
     def _post_coupon(self, values):
         values.update({
@@ -83,6 +88,18 @@ class TestCouponOrder(BaseOrderTestCase):
             self.coupons.append(id_coupon)
         return id_coupon
 
+    def _redeem_password_coupon(self, values, err=None):
+        values.update({
+            'users_id': self.users_id,
+        })
+        resp = self.b._access("webservice/1.0/public/coupon/redeem", values)
+        data = ujson.loads(resp.get_data())
+        if err:
+            self.assertEquals(data['res'], RESP_RESULT.F)
+            self.assertEquals(data['err'], err)
+        else:
+            self.assertEquals(data['res'], RESP_RESULT.S)
+
     def _check_order_item(self, item, sale_id, name, quantity=1, price=None):
         self.assertEquals(item['sale_id'], sale_id)
         self.assertEquals(item['name'], name)
@@ -91,15 +108,18 @@ class TestCouponOrder(BaseOrderTestCase):
             self.assertAlmostEqual(item['price'], price)
 
     def _check_invoice_item(self, item, name, price, taxes,
-                            quantity=1, promo=False, free=False):
-        self.assertEquals(item['name'].encode('utf8'), name)
-        self.assertEquals(int(item['qty']), 1)
+                            quantity=1, subtotal=None, promo=False, free=False):
+        self.assertEquals(item['name'].encode('utf8') if item['name'] else '',
+                          name)
+        self.assertEquals(int(item['qty']), quantity)
         self.assertAlmostEqual(float(item['price']['#text']), price)
         self.assertEquals(len(as_list(item['tax'])), len(taxes))
         for tax, expected_tax in zip(as_list(item['tax']), taxes):
             self.assertEquals(tax['@name'].encode('utf8'), expected_tax['name'])
             self.assertAlmostEqual(float(tax['@rate']), expected_tax['rate'])
             self.assertAlmostEqual(float(tax['#text']), expected_tax['tax'])
+        if subtotal is not None:
+            self.assertAlmostEqual(float(item['subtotal']), subtotal)
         self.assertEquals(item['promo'], str(promo))
         self.assertEquals(item['free'], str(free))
 
@@ -110,8 +130,11 @@ class TestCouponOrder(BaseOrderTestCase):
             items += as_list(invoice_data['item'])
         return items
 
+
+class TestGifts(BaseTestCoupon):
+
     @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
-    def test_group_for_match_all(self):
+    def test_match_all_in_group(self):
         # The Dawanglu shop defines a promotion group: (三文鱼贝果+南瓜汤)
         # If a customer buys the holiday menu (both the bagel and the soup),
         # they get a free 菠萝包 and 鸳鸯咖啡.
@@ -250,7 +273,7 @@ class TestCouponOrder(BaseOrderTestCase):
                                      ])
 
     @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
-    def test_group_for_match_any(self):
+    def test_match_any_in_group(self):
         # The Dawanglu and Qianmen shops both define a promotion group
         # for hot drinks (奶茶, 鸳鸯咖啡).
         # If a customer orders ANY hot drinks, he gets a free 菠萝包.
@@ -450,8 +473,12 @@ class TestCouponOrder(BaseOrderTestCase):
                                       'rate': 8.5, 'tax': 2.21},
                                      ])
 
-    @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
-    def test_discount_coupons(self):
+
+class TestDiscount(BaseTestCoupon):
+
+    def setUp(self):
+        super(TestDiscount, self).setUp()
+
         # Coupon A give a -20% on hot drinks (奶茶, 鸳鸯咖啡),
         # but expired !
         yesterday = str((datetime.now() - timedelta(days=1)).date())
@@ -525,6 +552,8 @@ class TestCouponOrder(BaseOrderTestCase):
         }
         self._post_coupon(coupon_values)
 
+    @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
+    def test_dawanglu_shop(self):
         # The customer orders 1 三文鱼贝果, 2 菠萝包 and 1 鸳鸯咖啡
         # at Dawanglu. Coupon C is applied.
         wwwOrder = [
@@ -569,6 +598,47 @@ class TestCouponOrder(BaseOrderTestCase):
             self._check_order_item(all_order_items[5], 1000039,
                                    '', 1, - 16 * discount)
 
+            invoice_items = self._get_invoice_items(id_order)
+            self.assertEquals(len(invoice_items), 6)
+            self._check_invoice_item(invoice_items[0], '三文鱼贝果', 30,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': 3},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': 2.55},
+                                     ], promo=True)
+            self._check_invoice_item(invoice_items[1], '', -9,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': -0.9},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': -0.77},
+                                     ], promo=True)
+            self._check_invoice_item(invoice_items[2], '菠萝包', 8,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': 0.8 * 2},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': 0.68 * 2},
+                                     ], quantity=2, promo=True)
+            self._check_invoice_item(invoice_items[3], '', -2.4,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': -0.24 * 2},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': -0.2 * 2},
+                                     ], quantity=2, promo=True)
+            self._check_invoice_item(invoice_items[4], '鸳鸯咖啡', 16,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': 1.6},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': 1.36},
+                                     ], promo=True)
+            self._check_invoice_item(invoice_items[5], '', -4.8,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': -0.48},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': -0.41},
+                                     ], promo=True)
+
+    @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
+    def test_qianmen_shop(self):
         # The customer makes the same order at Qianmen.
         # Coupon B & D are applied.
         wwwOrder = [
@@ -615,6 +685,51 @@ class TestCouponOrder(BaseOrderTestCase):
             self._check_order_item(all_order_items[6], 1000039,
                                    '', 1, - 16 * 0.1)
 
+            invoice_items = self._get_invoice_items(id_order)
+            self.assertEquals(len(invoice_items), 7)
+            self._check_invoice_item(invoice_items[0], '三文鱼贝果', 30,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': 3},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': 2.55},
+                                     ], promo=True)
+            self._check_invoice_item(invoice_items[1], '', -15,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': -1.5},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': -1.28},
+                                     ], promo=True)
+            self._check_invoice_item(invoice_items[2], '菠萝包', 8,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': 0.8 * 2},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': 0.68 * 2},
+                                     ], quantity=2, promo=True)
+            self._check_invoice_item(invoice_items[3], '', -4,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': -0.4 * 2},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': -0.34 * 2},
+                                     ], quantity=2, promo=True)
+            self._check_invoice_item(invoice_items[4], '鸳鸯咖啡', 16,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': 1.6},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': 1.36},
+                                     ], promo=True)
+            self._check_invoice_item(invoice_items[5], '', -8,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': -0.8},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': -0.68},
+                                     ], promo=True)
+            self._check_invoice_item(invoice_items[6], '', -1.6,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': -0.16},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': -0.14},
+                                     ], promo=True)
+
         # The customer orders 1 菠萝包 and 1 鸳鸯咖啡 at Qianmen,
         # Coupon D is applied.
         wwwOrder = [
@@ -645,4 +760,458 @@ class TestCouponOrder(BaseOrderTestCase):
                                    '鸳鸯咖啡', 1, 16)
             self._check_order_item(all_order_items[2], 1000039,
                                    '', 1, 16 * discount)
+
+            invoice_items = self._get_invoice_items(id_order)
+            self.assertEquals(len(invoice_items), 3)
+            self._check_invoice_item(invoice_items[0], '菠萝包', 8,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': 0.8},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': 0.68},
+                                     ])
+            self._check_invoice_item(invoice_items[1], '鸳鸯咖啡', 16,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': 1.6},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': 1.36},
+                                     ], promo=True)
+            self._check_invoice_item(invoice_items[2], '', -1.6,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': -0.16},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': -0.14},
+                                     ], promo=True)
+
+
+class TestCredits(BaseTestCoupon):
+
+    def setUp(self):
+        super(TestCredits, self).setUp()
+
+        # 1 expired credit for 10 yuan
+        yesterday = str((datetime.now() - timedelta(days=1)).date())
+        coupon_values = {
+            'action': 'create',
+            'author': self.bo_user,
+            'reward_type': 'COUPON_CURRENCY',
+            'store_credit_amount': 10,
+            'store_credit_currency': 'CNY',
+            'effective_time': yesterday,
+            'expiration_time': yesterday,
+        }
+        self._post_coupon(coupon_values)
+
+        # 1 credit for 20 yuan valid until tomorrow
+        tomorrow = str((datetime.now() + timedelta(days=1)).date())
+        coupon_values = {
+            'action': 'create',
+            'author': self.bo_user,
+            'reward_type': 'COUPON_CURRENCY',
+            'store_credit_amount': 20,
+            'store_credit_currency': 'CNY',
+            'expiration_time': tomorrow,
+        }
+        self._post_coupon(coupon_values)
+
+        # 1 credit for 10 yuan valid until today, but only at Qianmen
+        today = str(datetime.now().date())
+        coupon_values = {
+            'action': 'create',
+            'author': self.bo_user,
+            'reward_type': 'COUPON_CURRENCY',
+            'store_credit_amount': 10,
+            'store_credit_currency': 'CNY',
+            'participating': '1000008',
+            'expiration_time': today,
+        }
+        self._post_coupon(coupon_values)
+
+        # 1 credit for 10 yuan valid until next month, but only at Dawanglu
+        next_month = str((datetime.now() + timedelta(days=30)).date())
+        coupon_values = {
+            'action': 'create',
+            'author': self.bo_user,
+            'reward_type': 'COUPON_CURRENCY',
+            'store_credit_amount': 10,
+            'store_credit_currency': 'CNY',
+            'participating': '1000007',
+            'expiration_time': next_month,
+        }
+        self._post_coupon(coupon_values)
+
+    @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
+    def test_qianmen_shop(self):
+        # the customer orders 1 菠萝包 and 1 鸳鸯咖啡 at Qianmen.
+        # we fully redeem the 10 yuan valid only at Qianmen,
+        # only redeem 14 yuan on the 20 valid until tomorrow
+        wwwOrder = [
+            {'id_sale': 1000037,
+             'id_variant': 0,
+             'quantity': 1,
+             'id_shop': 1000008,
+             'id_type': 0,
+             'id_price_type': 0,
+             'id_weight_type': 0},
+            {'id_sale': 1000039,
+             'id_variant': 0,
+             'quantity': 1,
+             'id_shop': 1000008,
+             'id_type': 0,
+             'id_price_type': 0,
+             'id_weight_type': 0},
+        ]
+        id_order = self.success_wwwOrder(
+            self.telephone, self.shipaddr, self.billaddr, wwwOrder)
+        with db_utils.get_conn() as conn:
+            all_order_items = get_order_items(conn, id_order)
+            self.assertEquals(len(all_order_items), 4)
+            self._check_order_item(all_order_items[0], 1000037,
+                                   '菠萝包', 1, 8)
+            self._check_order_item(all_order_items[1], 1000039,
+                                   '鸳鸯咖啡', 1, 16)
+            self._check_order_item(all_order_items[2], 0,
+                                   '', 1, -10)
+            self._check_order_item(all_order_items[3], 0,
+                                   '', 1, -14)
+
+            #redeem_records = db_utils.select(
+            #    conn, 'store_credit_redeemed',
+            #    where={'id_order': id_order, 'id_user': self.users_id})
+            #self.assertEquals(len(redeem_records), 2)
+            #self.assertAlmostEqual(redeem_records[0]['redeemed_amount'],
+            #                       10.0)
+            #self.assertAlmostEqual(redeem_records[1]['redeemed_amount'],
+            #                       24 * 1.1 - 10)
+
+    @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
+    def test_dawanglu_shop(self):
+        # the customer orders the same thing at Dawanglu.
+        # we fully redeem the 20 yuan valid until tomorrow,
+        # and only 4 yuan of the coupon valid only at Dawanglu.
+        wwwOrder = [
+            {'id_sale': 1000037,
+             'id_variant': 0,
+             'quantity': 1,
+             'id_shop': 1000007,
+             'id_type': 0,
+             'id_price_type': 0,
+             'id_weight_type': 0},
+            {'id_sale': 1000039,
+             'id_variant': 0,
+             'quantity': 1,
+             'id_shop': 1000007,
+             'id_type': 0,
+             'id_price_type': 0,
+             'id_weight_type': 0},
+        ]
+        id_order = self.success_wwwOrder(
+            self.telephone, self.shipaddr, self.billaddr, wwwOrder)
+        with db_utils.get_conn() as conn:
+            all_order_items = get_order_items(conn, id_order)
+            self.assertEquals(len(all_order_items), 4)
+            self._check_order_item(all_order_items[0], 1000037,
+                                   '菠萝包', 1, 8)
+            self._check_order_item(all_order_items[1], 1000039,
+                                   '鸳鸯咖啡', 1, 16)
+            self._check_order_item(all_order_items[2], 0,
+                                   '', 1, -20)
+            self._check_order_item(all_order_items[3], 0,
+                                   '', 1, -4)
+
+            #redeem_records = db_utils.select(
+            #    conn, 'store_credit_redeemed',
+            #    where={'id_order': id_order, 'id_user': self.users_id})
+            #self.assertEquals(len(redeem_records), 2)
+            #self.assertAlmostEqual(redeem_records[0]['redeemed_amount'],
+            #                       20.0)
+            #self.assertAlmostEqual(redeem_records[1]['redeemed_amount'],
+            #                       24 * 1.1 - 20)
+
+
+class TestCouponForDiffUsers(BaseTestCoupon):
+
+    @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
+    def test_first_order_only(self):
+        # post Customer 1's first order.
+        wwwOrder = [
+            {'id_sale': 1000037,
+             'id_variant': 0,
+             'quantity': 1,
+             'id_shop': 1000007,
+             'id_type': 0,
+             'id_price_type': 0,
+             'id_weight_type': 0},
+        ]
+        id_order = self.success_wwwOrder(
+            self.telephone, self.shipaddr, self.billaddr, wwwOrder)
+        with db_utils.get_conn() as conn:
+            all_order_items = get_order_items(conn, id_order)
+            self.assertEquals(len(all_order_items), 1)
+            self._check_order_item(all_order_items[0], 1000037,
+                                   '菠萝包', 1, 8)
+
+        # The coupon gives 10% discount on any order,
+        # But it can only be used for a new customer. 
+        coupon_values = {
+            'action': 'create',
+            'author': self.bo_user,
+            'reward_type': 'COUPON_DISCOUNT',
+            'discount_applies_to': 'VALUE_INVOICED',
+            'discount': 10,
+            'first_order_only': True,
+        }
+        self._post_coupon(coupon_values)
+
+        # Customer 1 as an old customer, tries to use the coupon:
+        # it is rejected.
+        id_order = self.success_wwwOrder(
+            self.telephone, self.shipaddr, self.billaddr, wwwOrder)
+        with db_utils.get_conn() as conn:
+            all_order_items = get_order_items(conn, id_order)
+            self.assertEquals(len(all_order_items), 1)
+            self._check_order_item(all_order_items[0], 1000037,
+                                   '菠萝包', 1, 8)
+
+        # Customer 2 is a new customer and tries to use the coupon:
+        # it is applied.
+        self.login_with_new_user()
+        id_order = self.success_wwwOrder(
+            self.telephone, self.shipaddr, self.billaddr, wwwOrder)
+        with db_utils.get_conn() as conn:
+            all_order_items = get_order_items(conn, id_order)
+            self.assertEquals(len(all_order_items), 2)
+            self._check_order_item(all_order_items[0], 1000037,
+                                   '菠萝包', 1, 8)
+            self._check_order_item(all_order_items[1], 1000037,
+                                   '', 1, -0.8)
+
+    @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
+    def test_redeem_times(self):
+        # The coupon gives 10% discount on any order,
+        # but can only be redeemed 2 times
+        coupon_values = {
+            'action': 'create',
+            'author': self.bo_user,
+            'reward_type': 'COUPON_DISCOUNT',
+            'discount_applies_to': 'VALUE_INVOICED',
+            'discount': 10,
+            'max_redeem': 2,
+        }
+        self._post_coupon(coupon_values)
+
+        # Customer 1 uses the coupon successfully.
+        wwwOrder = [
+            {'id_sale': 1000037,
+             'id_variant': 0,
+             'quantity': 1,
+             'id_shop': 1000007,
+             'id_type': 0,
+             'id_price_type': 0,
+             'id_weight_type': 0},
+        ]
+        id_order = self.success_wwwOrder(
+            self.telephone, self.shipaddr, self.billaddr, wwwOrder)
+        with db_utils.get_conn() as conn:
+            all_order_items = get_order_items(conn, id_order)
+            self.assertEquals(len(all_order_items), 2)
+            self._check_order_item(all_order_items[0], 1000037,
+                                   '菠萝包', 1, 8)
+            self._check_order_item(all_order_items[1], 1000037,
+                                   '', 1, -0.8)
+
+        # Customer 2 uses the coupon successfully.
+        self.login_with_new_user()
+        id_order = self.success_wwwOrder(
+            self.telephone, self.shipaddr, self.billaddr, wwwOrder)
+        with db_utils.get_conn() as conn:
+            all_order_items = get_order_items(conn, id_order)
+            self.assertEquals(len(all_order_items), 2)
+            self._check_order_item(all_order_items[0], 1000037,
+                                   '菠萝包', 1, 8)
+            self._check_order_item(all_order_items[1], 1000037,
+                                   '', 1, -0.8)
+
+        # Customer 3 cannot use the coupon.
+        self.login_with_new_user()
+        id_order = self.success_wwwOrder(
+            self.telephone, self.shipaddr, self.billaddr, wwwOrder)
+        with db_utils.get_conn() as conn:
+            all_order_items = get_order_items(conn, id_order)
+            self.assertEquals(len(all_order_items), 1)
+            self._check_order_item(all_order_items[0], 1000037,
+                                   '菠萝包', 1, 8)
+
+    @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
+    def test_loyalty_card(self):
+        # It is represented by a coupon, valid for one year,
+        # which gives -10% discount on any order.
+        # It is activated by a password, and has redeemable="always" property.
+        # It is linked to the user Customer 1.
+        next_year = str((datetime.now() + timedelta(days=365)).date())
+        coupon_values = {
+            'action': 'create',
+            'author': self.bo_user,
+            'reward_type': 'COUPON_DISCOUNT',
+            'discount_applies_to': 'VALUE_INVOICED',
+            'discount': 10,
+            'password': '123456',
+            'redeemable': 'always',
+            'beneficiary': self.users_id,
+            'expiration_time': next_year,
+        }
+        id_coupon = self._post_coupon(coupon_values)
+
+        # Customer 1 uses the coupon on 2 different orders successfully ;
+        wwwOrder = [
+            {'id_sale': 1000037,
+             'id_variant': 0,
+             'quantity': 1,
+             'id_shop': 1000007,
+             'id_type': 0,
+             'id_price_type': 0,
+             'id_weight_type': 0},
+        ]
+        for _ in range(2):
+            id_order = self.success_wwwOrder(
+                self.telephone, self.shipaddr, self.billaddr, wwwOrder)
+            self._redeem_password_coupon({
+                'id_order': id_order,
+                'password': '123456',
+            })
+            with db_utils.get_conn() as conn:
+                all_order_items = get_order_items(conn, id_order)
+                self.assertEquals(len(all_order_items), 2)
+                self._check_order_item(all_order_items[0], 1000037,
+                                       '菠萝包', 1, 8)
+                self._check_order_item(all_order_items[1], 1000037,
+                                       '', 1, -0.8)
+
+        # Customer 1 cannot use the coupon after 1 year
+        yesterday = str((datetime.now() - timedelta(days=1)).date())
+        coupon_values.update({
+            'action': 'update',
+            'id_coupon': id_coupon,
+            'expiration_time': yesterday,
+        })
+        self._post_coupon(coupon_values)
+        id_order = self.success_wwwOrder(
+            self.telephone, self.shipaddr, self.billaddr, wwwOrder)
+        self._redeem_password_coupon({
+            'id_order': id_order,
+            'password': '123456',
+        }, err='COUPON_ERR_INVALID_COUPON')
+
+        # Customer 2 tries to use the coupon (with the password) but fails.
+        self.login_with_new_user()
+        coupon_values.update({
+            'action': 'update',
+            'id_coupon': id_coupon,
+            'expiration_time': next_year,
+        })
+        self._post_coupon(coupon_values)
+        id_order = self.success_wwwOrder(
+            self.telephone, self.shipaddr, self.billaddr, wwwOrder)
+        self._redeem_password_coupon({
+            'id_order': id_order,
+            'password': '123456',
+        }, err='COUPON_ERR_INVALID_COUPON')
+
+
+class TestDiscountCreditCombination(BaseTestCoupon):
+
+    @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
+    def test(self):
+        # The customer has a 50% discount coupon,
+        # and a 20 yuan store credit coupon.
+        coupon_values = {
+            'action': 'create',
+            'author': self.bo_user,
+            'reward_type': 'COUPON_DISCOUNT',
+            'discount_applies_to': 'VALUE_INVOICED',
+            'discount': 50,
+            'beneficiary': self.users_id,
+        }
+        self._post_coupon(coupon_values)
+
+        coupon_values = {
+            'action': 'create',
+            'author': self.bo_user,
+            'reward_type': 'COUPON_CURRENCY',
+            'store_credit_amount': 20,
+            'store_credit_currency': 'CNY',
+            'beneficiary': self.users_id,
+        }
+        self._post_coupon(coupon_values)
+
+        # The customer orders a 菠萝包 and a 苹果汁
+        wwwOrder = [
+            {'id_sale': 1000037,
+             'id_variant': 0,
+             'quantity': 1,
+             'id_shop': 1000007,
+             'id_type': 0,
+             'id_price_type': 0,
+             'id_weight_type': 0},
+            {'id_sale': 1000040,
+             'id_variant': 0,
+             'quantity': 1,
+             'id_shop': 1000007,
+             'id_type': 0,
+             'id_price_type': 0,
+             'id_weight_type': 0},
+        ]
+        id_order = self.success_wwwOrder(
+            self.telephone, self.shipaddr, self.billaddr, wwwOrder)
+        with db_utils.get_conn() as conn:
+            all_order_items = get_order_items(conn, id_order)
+            self.assertEquals(len(all_order_items), 5)
+            self._check_order_item(all_order_items[0], 1000037,
+                                   '菠萝包', 1, 8)
+            self._check_order_item(all_order_items[1], 1000040,
+                                   '苹果汁', 1, 12)
+            self._check_order_item(all_order_items[2], 1000037,
+                                   '', 1, -4)
+            self._check_order_item(all_order_items[3], 1000040,
+                                   '', 1, -6)
+            self._check_order_item(all_order_items[4], 0,
+                                   '', 1, -10)
+
+            invoice_items = self._get_invoice_items(id_order)
+            self.assertEquals(len(invoice_items), 5)
+            self._check_invoice_item(invoice_items[0], '菠萝包', 8,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': 0.8},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': 0.68},
+                                     ], promo=True)
+            self._check_invoice_item(invoice_items[1], '', -4,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': -0.4},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': -0.34},
+                                     ], promo=True)
+            self._check_invoice_item(invoice_items[2], '苹果汁', 12,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': 1.2},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': 1.02},
+                                     ], promo=True)
+            self._check_invoice_item(invoice_items[3], '', -6,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': -0.6},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': -0.51},
+                                     ], promo=True)
+            self._check_invoice_item(invoice_items[4], '', -10,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': -1},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': -0.85},
+                                     ], promo=True)
+            redeem_records = db_utils.select(
+                conn, 'store_credit_redeemed',
+                where={'id_order': id_order, 'id_user': self.users_id})
+            self.assertEquals(len(redeem_records), 1)
+            self.assertAlmostEqual(redeem_records[0]['redeemed_amount'],
+                                   10 * 1.1) # apply-before-promo tax
 

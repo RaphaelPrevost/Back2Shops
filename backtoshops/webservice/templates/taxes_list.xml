@@ -11,7 +11,7 @@
     {% if object.applies_to_id or object.apply_after %}
         <apply {% if object.applies_to_id %}to="{{ object.applies_to_id }}"{% endif %} {% if object.apply_after %}after="{{ object.apply_after }}"{% endif %}/>
     {% endif %}
-    <shipping country="{{ object.shipping_to_region_id }}" {% if object.shipping_to_province %}province="{{ object.shipping_to_province }}"{% endif %} applies_to_delivery="{{ object.applies_to_delivery }}"/>
+    <shipping {% if object.shipping_to_region_id%}country="{{ object.shipping_to_region_id }}"{% endif %} {% if object.shipping_to_province %}province="{{ object.shipping_to_province }}"{% endif %} applies_to_delivery="{{ object.applies_to_delivery }}"/>
     <rate>{{ object.rate }}</rate>
     <display_on_front>{{ object.display_on_front }}</display_on_front>
     <applies_to_personal_accounts>{{ object.applies_to_personal_accounts }}</applies_to_personal_accounts>

@@ -40,11 +40,14 @@ from datetime import datetime
 import logging
 import ujson
 
+from B2SProtocol.constants import SALE
+from B2SProtocol.constants import SHOP
 from B2SUtils import db_utils
 from B2SUtils.base_actor import as_list
 from B2SUtils.common import to_round
 from B2SUtils.errors import ValidationError
 from common.cache import group_cache_proxy
+from common.cache import tax_cache_proxy
 from common.constants import ADDR_TYPE
 from common.constants import COUPON_CONDITION_IDTYPE
 from common.constants import COUPON_CONDITION_OPERATION
@@ -52,6 +55,7 @@ from common.constants import COUPON_CONDITION_COMPARISON
 from common.constants import COUPON_DISCOUNT_APPLIES
 from common.constants import COUPON_REWARD_TYPE
 from common.constants import ORDER_STATUS_FOR_COUPON
+from common.redis_utils import get_redis_cli
 from models.actors.sale import CachedSale
 from models.order import get_order_items
 from models.order import _create_order_details
@@ -60,6 +64,7 @@ from models.shipments import get_shipments_by_order
 from models.shipments import get_shipping_list
 from models.shipments import get_shipping_fee
 from models.shipments import update_shipping_fee
+from models.user import get_user_address
 
 
 COUPON_FIELDS_COLUMNS = [
@@ -147,7 +152,7 @@ def match_comparison(comparison, threshold, value):
 def order_item_match_cond(order_item, conds, id_brand, id_shops):
     if order_item['brand_id'] != id_brand:
         return False
-    if id_shops and order_item['shop_id'] in id_shops:
+    if id_shops and order_item['shop_id'] not in id_shops:
         return False
 
     sale_conds = [m['id'] for m in conds
@@ -202,7 +207,7 @@ def check_coupon_with_password(conn, password, users_id, id_order, user_info):
     coupon = coupons[0]
 
     id_users = get_coupon_user_data(conn, coupon['id'])
-    if id_users and users_id not in id_users:
+    if id_users and int(users_id) not in id_users:
         raise ValidationError('COUPON_ERR_INVALID_COUPON')
 
     if coupon['expiration_time'] and \
@@ -210,10 +215,10 @@ def check_coupon_with_password(conn, password, users_id, id_order, user_info):
         raise ValidationError('COUPON_ERR_INVALID_COUPON')
 
     results = db_utils.query(conn,
-        "select 1 from coupon_redeemed "
+        "select id from coupon_redeemed "
         "where id_order=%s and id_coupon=%s and order_status in (%s,%s) "
         "union "
-        "select 1 from store_credit_redeemed "
+        "select id from store_credit_redeemed "
         "where id_order=%s and id_coupon=%s and order_status in (%s,%s) ",
         [id_order, coupon['id'],
          ORDER_STATUS_FOR_COUPON.PENDING,
@@ -223,10 +228,10 @@ def check_coupon_with_password(conn, password, users_id, id_order, user_info):
 
     if not coupon['stackable']:
         results = db_utils.query(conn,
-            "select 1 from coupon_redeemed "
+            "select id from coupon_redeemed "
             "where id_order=%s and order_status in (%s, %s) "
             "union "
-            "select 1 from store_credit_redeemed "
+            "select id from store_credit_redeemed "
             "where id_order=%s and order_status in (%s, %s) ",
             [id_order,
              ORDER_STATUS_FOR_COUPON.PENDING,
@@ -310,9 +315,9 @@ def apply_appliable_coupons(conn, id_user, id_order, user_info):
         select 1 from coupon_given_to where id_coupon=coupons.id
       ))
       and coupon_type = %%s
-    order by creation_time
+    order by expiration_time, creation_time
     """ % ','.join(columns), [id_user, COUPON_REWARD_TYPE.COUPON_CURRENCY])
-    store_coupons = [dict(zip(fields, result)) for result in results]
+    credit_coupons = [dict(zip(fields, result)) for result in results]
 
     results = db_utils.query(conn, """
     select %s from coupons
@@ -324,16 +329,18 @@ def apply_appliable_coupons(conn, id_user, id_order, user_info):
         select 1 from coupon_given_to where id_coupon=coupons.id
       ))
       and coupon_type != %%s
-    order by creation_time
+    order by expiration_time, creation_time
     """ % ','.join(columns), [id_user, COUPON_REWARD_TYPE.COUPON_CURRENCY])
     other_coupons = [dict(zip(fields, result)) for result in results]
 
     appliable_coupons = []
-    for coupon in other_coupons + store_coupons:
+    for coupon in other_coupons + credit_coupons:
         if len(appliable_coupons) > 0 and not coupon['stackable']:
             continue
         if coupon['max_redeemable'] and \
                 _get_redeemed_times(conn, coupon['id']) >= coupon['max_redeemable']:
+            continue
+        if coupon['first_order_only'] and _user_having_orders(conn, id_user):
             continue
         if not coupon['redeemable_always']:
             user_info = get_user_info(conn, id_user)
@@ -356,7 +363,8 @@ def apply_appliable_coupons(conn, id_user, id_order, user_info):
         if reward_type == COUPON_REWARD_TYPE.COUPON_CURRENCY:
             try:
                 credit_amount, currency = _calc_currency_credit(
-                    conn, coupon['id'], coupon, id_order, match_order_items)
+                    conn, coupon['id'], coupon,
+                    id_order, id_user, match_order_items)
             except ValidationError, e:
                 continue
 
@@ -403,7 +411,44 @@ def apply_password_coupon(conn, pwd_coupon, all_order_items, match_order_items,
     })
 
 
-def _calc_currency_credit(conn, id_coupon, coupon, id_order,
+def get_apply_before_coupons_taxes(conn, id_user, id_shop, id_sale):
+    tax_list = []
+    try:
+        if id_shop:
+            shop = ujson.loads(get_redis_cli().get(SHOP % id_shop))
+            from_address = shop['address']
+        else:
+            sale = ujson.loads(get_redis_cli().get(SALE % id_sale))
+            from_address = sale['brand']['address']
+
+        to_address = get_user_address(conn, id_user,
+                addr_type=ADDR_TYPE.Shipping)[0]
+
+        taxes = tax_cache_proxy.get()
+        for tax in taxes.values():
+            if tax['applies_after_promos'] == 'True':
+                continue
+            if tax['country'] != from_address['country']['#text']:
+                continue
+            if tax.get('province') and \
+                    tax['province'] != from_address['country']['@province']:
+                continue
+            if tax['shipping'].get('@country') and \
+                    tax['shipping'].get('@country') != 'None' and \
+                    tax['shipping'].get('@country') != to_address['country']:
+                continue
+            if tax['shipping'].get('@province') and \
+                    tax['shipping'].get('@province') != to_address['province']:
+                continue
+            tax_list.append(tax)
+
+    except Exception, e:
+        logging.error("Failed to get apply-before-coupons taxes",
+                      exc_info=True)
+    return tax_list
+
+
+def _calc_currency_credit(conn, id_coupon, coupon, id_order, id_user,
                           match_order_items):
     credit_value = db_utils.select_dict(
         conn, 'store_credit', 'id_coupon',
@@ -430,9 +475,16 @@ def _calc_currency_credit(conn, id_coupon, coupon, id_order,
                     for o in shipping_list
                     if o['id_item'] in match_id_items
                        and o['currency'] == credit_value['currency']])
-        redeemable_amount = min(total, left_amount)
-        if redeemable_amount <= 0:
+        price = min(total, left_amount)
+        if price <= 0:
             continue
+
+        taxes = get_apply_before_coupons_taxes(conn, id_user,
+                shipment['id_shop'], shipping_list[0]['id_sale'])
+        price_with_tax = 0
+        for tax in taxes:
+            price_with_tax += total * (100 + float(tax['rate'])) / 100.0
+        redeemable_amount = min(price_with_tax, left_amount)
 
         fake_item = {
             'id_sale': 0,
@@ -440,14 +492,17 @@ def _calc_currency_credit(conn, id_coupon, coupon, id_order,
             'id_brand': match_order_items[0]['brand_id'],
             'id_shop': match_order_items[0]['shop_id'],
             'name': '',
-            'price': -redeemable_amount,
+            'price': -price,
             'currency': credit_value['currency'],
             'description': coupon['description'],
             'weight': 0,
             'weight_unit': match_order_items[0]['weight_unit'],
             'barcode': '',
             'external_id': '',
-            'item_detail': '{"name": ""}',
+            'item_detail': ujson.dumps({
+                'name': '',
+                'redeemable_credits': redeemable_amount,
+            }),
             'type_name': '',
             'modified_by_coupon': id_coupon,
         }
@@ -544,7 +599,7 @@ def _create_fake_order_item(conn, id_order, orig_id_item,
     db_utils.insert(conn, 'order_details', values=details_value)
     logging.info('order_details create: %s', details_value)
 
-    _create_shipping_list(conn, id_item, orig_id_item)
+    _create_shipping_list(conn, id_item, orig_id_item, quantity=quantity)
 
 
 def _copy_fake_order_item(conn, id_order, orig_id_item,
@@ -573,7 +628,7 @@ def _copy_fake_order_item(conn, id_order, orig_id_item,
                         item_copy_value['modified_by_coupon']},
                     where={'id': orig_id_item})
 
-    _create_shipping_list(conn, id_item, orig_id_item)
+    _create_shipping_list(conn, id_item, orig_id_item, quantity=quantity)
 
 
 def _create_free_order_item(conn, id_order, id_sale, orig_id_item,
@@ -606,15 +661,22 @@ def _calc_discount(price, discount):
 
 def _get_redeemed_times(conn, id_coupon):
     results = db_utils.query(conn,
-        "select 1 from coupon_redeemed "
+        "select id from coupon_redeemed "
         "where id_coupon=%s and order_status in (%s, %s) "
         "union "
-        "select 1 from store_credit_redeemed "
+        "select id from store_credit_redeemed "
         "where id_coupon=%s and order_status in (%s, %s) ",
         [id_coupon,
          ORDER_STATUS_FOR_COUPON.PENDING,
          ORDER_STATUS_FOR_COUPON.PAID] * 2)
     return len(results)
+
+
+def _user_having_orders(conn, id_user):
+    results = db_utils.query(conn,
+        "select id from orders where id_user=%s and valid limit 5",
+        [id_user])
+    return len(results) > 1 # don't count in the current order
 
 
 def _once_coupon_limited(conn, id_coupon, id_users,
@@ -633,11 +695,11 @@ def _once_coupon_limited(conn, id_coupon, id_users,
     if user_agent:
         params.append(user_agent)
     results = db_utils.query(conn,
-        "select 1 from coupon_redeemed "
+        "select id from coupon_redeemed "
         "where id_coupon=%%s and order_status in (%%s, %%s) "
         "and (%s) "
         "union "
-        "select 1 from store_credit_redeemed "
+        "select id from store_credit_redeemed "
         "where id_coupon=%%s and order_status in (%%s, %%s) "
         "and (%s) " % (same_user_cond, same_user_conf),
         params * 2)
