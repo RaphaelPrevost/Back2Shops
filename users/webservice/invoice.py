@@ -260,6 +260,7 @@ class BaseInvoiceMixin:
                 if len(coupons) > 0:
                     promo_type = COUPON_REWARD_TYPE.toReverseDict()[coupons[0]['coupon_type']]
                     manufacturer_promo = coupons[0]['manufacturer']
+            detail = ujson.loads(shipping['item_detail'])
             item = {
                 "id_item": shipping["id_item"],
                 "id_sale": shipping["id_sale"],
@@ -275,9 +276,12 @@ class BaseInvoiceMixin:
                 'manufacturer_promo': manufacturer_promo,
                 'price': shipping['price'],
                 'desc': shipping["description"],
+                'redeemable_credits': detail.get('redeemable_credits'),
             }
             if shipping['id_sale'] and shipping['price'] < 0:
-                discount_lines[_item_key(item)] = item
+                if _item_key(item) not in discount_lines:
+                    discount_lines[_item_key(item)] = []
+                discount_lines[_item_key(item)].append(item)
             else:
                 normal_items.append(item)
 
@@ -285,8 +289,9 @@ class BaseInvoiceMixin:
         for item in normal_items:
             content.append(item)
             if _item_key(item) in discount_lines:
-                content.append(discount_lines.pop(_item_key(item)))
-        content += discount_lines.values()
+                content += discount_lines.pop(_item_key(item))
+        for items in discount_lines.values():
+            content += items
         return ujson.dumps(content)
 
     def validate_invoice(self, xml_invoice):

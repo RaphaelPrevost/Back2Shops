@@ -39,6 +39,7 @@
 
 from B2SUtils.db_utils import query
 from B2SUtils.db_utils import select
+from common.constants import ADDR_TYPE
 from common.error import UserError
 from common.error import ErrorCode as E_C
 
@@ -101,11 +102,12 @@ ADDR_FIELDS_COLUMNS = [
     ('calling_code', 'country_calling_code.calling_code'),
 
 ]
-def get_user_address(conn, user_id, addr_id=None):
+def get_user_address(conn, user_id, addr_id=None, addr_type=None):
     """
     @param conn: database connection
     @param user_id: user's id.
     @param addr_id: id of users_address
+    @param addr_type: type of users_address
     @return: [{'id': ...,
                'address': ...,
                'address2': ...,
@@ -123,6 +125,9 @@ def get_user_address(conn, user_id, addr_id=None):
     if addr_id:
         where += "AND id = %s "
         params.append(addr_id)
+    if addr_type and addr_type in (ADDR_TYPE.Shipping, ADDR_TYPE.Billing):
+        where += "AND addr_type in (%s, %s) "
+        params.append(addr_type, ADDR_TYPE.Both)
 
     query_str = (
         "SELECT %s "

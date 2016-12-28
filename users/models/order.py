@@ -718,7 +718,9 @@ def _sort_order_items(item_tuple_list):
     normal_items = []
     for item_id, item in item_tuple_list:
         if item_id and item['price'] < 0:
-            fakes[_item_key(item_id, item)] = (item_id, item)
+            if _item_key(item_id, item) not in fakes:
+                fakes[_item_key(item_id, item)] = []
+            fakes[_item_key(item_id, item)].append((item_id, item))
         else:
             normal_items.append((item_id, item))
 
@@ -727,8 +729,10 @@ def _sort_order_items(item_tuple_list):
         results.append((item_id, item))
         _key = _item_key(item_id, item)
         if _key in fakes:
-            results.append(fakes.pop(_key))
-    return results + fakes.values()
+            results += fakes.pop(_key)
+    for items in fakes.values():
+        results += items
+    return results
 
 def _get_order_items(conn, order_id, brand_id, shops_id=None):
     # {'order_items': [item_1_id: {},

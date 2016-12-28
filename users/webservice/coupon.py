@@ -246,6 +246,8 @@ class CouponPostResource(BaseXmlResource):
         return func(req, resp, conn)
 
     def coupon_create(self, req, resp, conn, id_coupon=None):
+        is_edit = id_coupon is not None
+
         try:
             id_brand = req.get_param('id_issuer')
             assert id_brand, 'id_issuer'
@@ -295,7 +297,7 @@ class CouponPostResource(BaseXmlResource):
                         raise ValidationError('COUPON_ERR_INVALID_PARAM_expiration_time')
 
             password = req.get_param('password') or ''
-            if password:
+            if password and not is_edit:
                 results = db_utils.select(
                     conn, 'coupons', columns=('id',),
                     where={'password': password, 'valid': True})
@@ -348,7 +350,6 @@ class CouponPostResource(BaseXmlResource):
             raise ValidationError('COUPON_ERR_INVALID_PARAM_%s' % e)
 
 
-        is_edit = id_coupon is not None
         if is_edit:
             db_utils.update(conn, 'coupons',
                             values=coupon_values,
