@@ -471,19 +471,21 @@ def _calc_currency_credit(conn, id_coupon, coupon, id_order, id_user,
         if left_amount <= 0:
             continue
         shipping_list = get_shipping_list(conn, shipment['id'])
-        total = sum([o['price'] * o['quantity']
-                    for o in shipping_list
-                    if o['id_item'] in match_id_items
-                       and o['currency'] == credit_value['currency']])
-        price = min(total, left_amount)
-        if price <= 0:
-            continue
+        price = sum([o['price'] * o['quantity']
+                     for o in shipping_list
+                     if o['id_item'] in match_id_items
+                        and o['currency'] == credit_value['currency']])
+        redeemed_amount = abs(
+            sum([o['price'] * o['quantity']
+                 for o in shipping_list
+                 if o['id_sale'] == 0
+                    and o['currency'] == credit_value['currency']]))
 
         taxes = get_apply_before_coupons_taxes(conn, id_user,
                 shipment['id_shop'], shipping_list[0]['id_sale'])
-        price_with_tax = 0
-        for tax in taxes:
-            price_with_tax += total * (100 + float(tax['rate'])) / 100.0
+        price_with_tax = price + sum(
+                [(price + redeemed_amount) * float(tax['rate']) / 100.0
+                 for tax in taxes])
         redeemable_amount = min(price_with_tax, left_amount)
 
         fake_item = {
@@ -492,7 +494,7 @@ def _calc_currency_credit(conn, id_coupon, coupon, id_order, id_user,
             'id_brand': match_order_items[0]['brand_id'],
             'id_shop': match_order_items[0]['shop_id'],
             'name': '',
-            'price': -price,
+            'price': -min(price, left_amount),
             'currency': credit_value['currency'],
             'description': coupon['description'],
             'weight': 0,

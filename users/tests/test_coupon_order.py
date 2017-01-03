@@ -108,7 +108,8 @@ class BaseTestCoupon(BaseOrderTestCase):
             self.assertAlmostEqual(item['price'], price)
 
     def _check_invoice_item(self, item, name, price, taxes,
-                            quantity=1, subtotal=None, promo=False, free=False):
+                            quantity=1, subtotal=None,
+                            promo=False, free=False):
         self.assertEquals(item['name'].encode('utf8') if item['name'] else '',
                           name)
         self.assertEquals(int(item['qty']), quantity)
@@ -118,6 +119,10 @@ class BaseTestCoupon(BaseOrderTestCase):
             self.assertEquals(tax['@name'].encode('utf8'), expected_tax['name'])
             self.assertAlmostEqual(float(tax['@rate']), expected_tax['rate'])
             self.assertAlmostEqual(float(tax['#text']), expected_tax['tax'])
+            if 'amount' in expected_tax:
+                self.assertAlmostEqual(float(tax['@amount']), expected_tax['amount'])
+            elif not free:
+                self.assertAlmostEqual(float(tax['@amount']), price * quantity)
         if subtotal is not None:
             self.assertAlmostEqual(float(item['subtotal']), subtotal)
         self.assertEquals(item['promo'], str(promo))
@@ -129,6 +134,12 @@ class BaseTestCoupon(BaseOrderTestCase):
         for invoice_data in as_list(xmltodict.parse(invoice_xml)['invoices']['invoice']):
             items += as_list(invoice_data['item'])
         return items
+
+    def _get_order_amount_due(self, conn, id_order):
+        results = db_utils.query(conn,
+            "select sum(amount_due) from invoices where id_order=%s",
+            [id_order])
+        return results[0][0]
 
 
 class TestGifts(BaseTestCoupon):
@@ -245,6 +256,9 @@ class TestGifts(BaseTestCoupon):
                                     [{'name': 'test local tax',
                                       'rate': 8.5, 'tax': 1.36},
                                      ], free=True, promo=True)
+            self.assertAlmostEqual(
+                (30 + 3 + 2.55) + (26 + 2.6 + 2.21) + 0.68 + 1.36,
+                self._get_order_amount_due(conn, id_order))
 
         # If a customer orders only a soup, they don't get any free item.
         wwwOrder = [
@@ -271,6 +285,9 @@ class TestGifts(BaseTestCoupon):
                                      {'name': 'test local tax',
                                       'rate': 8.5, 'tax': 2.21},
                                      ])
+            self.assertAlmostEqual(
+                26 + 2.6 + 2.21,
+                self._get_order_amount_due(conn, id_order))
 
     @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
     def test_match_any_in_group(self):
@@ -321,6 +338,9 @@ class TestGifts(BaseTestCoupon):
                                     [{'name': 'test local tax',
                                       'rate': 8.5, 'tax': 0.68},
                                      ], free=True, promo=True)
+            self.assertAlmostEqual(
+                (14 + 1.4 + 1.19) + 0.68,
+                self._get_order_amount_due(conn, id_order))
 
         # If a customer orders a 咖啡 at Dawanglu, they get the free gifts
         wwwOrder = [
@@ -378,6 +398,9 @@ class TestGifts(BaseTestCoupon):
                                      {'name': 'test local tax',
                                       'rate': 8.5, 'tax': 1.02},
                                      ])
+            self.assertAlmostEqual(
+                12 + 1.2 + 1.02,
+                self._get_order_amount_due(conn, id_order))
 
     @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
     def test_sum_price(self):
@@ -445,6 +468,9 @@ class TestGifts(BaseTestCoupon):
                                     [{'name': 'test local tax',
                                       'rate': 8.5, 'tax': 1.36},
                                      ], promo=True, free=True)
+            self.assertAlmostEqual(
+                (30 + 3 + 2.55) + (26 + 2.6 + 2.21) + 1.36,
+                self._get_order_amount_due(conn, id_order))
 
         # If a customer orders only a 南瓜汤 at Qianmen,
         # they don't get any gift.
@@ -472,6 +498,9 @@ class TestGifts(BaseTestCoupon):
                                      {'name': 'test local tax',
                                       'rate': 8.5, 'tax': 2.21},
                                      ])
+            self.assertAlmostEqual(
+                26 + 2.6 + 2.21,
+                self._get_order_amount_due(conn, id_order))
 
 
 class TestDiscount(BaseTestCoupon):
@@ -636,6 +665,11 @@ class TestDiscount(BaseTestCoupon):
                                      {'name': 'test local tax',
                                       'rate': 8.5, 'tax': -0.41},
                                      ], promo=True)
+            self.assertAlmostEqual(
+                (30 + 3 + 2.55 - 9 - 0.9 - 0.77)
+                + 2 * (8 + 0.8 + 0.68 - 2.4 - 0.24 - 0.2)
+                + (16 + 1.6 + 1.36 - 4.8 - 0.48 - 0.41),
+                self._get_order_amount_due(conn, id_order))
 
     @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
     def test_qianmen_shop(self):
@@ -729,6 +763,11 @@ class TestDiscount(BaseTestCoupon):
                                      {'name': 'test local tax',
                                       'rate': 8.5, 'tax': -0.14},
                                      ], promo=True)
+            self.assertAlmostEqual(
+                (30 + 3 + 2.55 - 15 - 1.5 - 1.28)
+                + 2 * (8 + 0.8 + 0.68 - 4 - 0.4 - 0.34)
+                + (16 + 1.6 + 1.36 - 8 - 0.8 - 0.68 - 1.6 - 0.16 - 0.14),
+                self._get_order_amount_due(conn, id_order))
 
         # The customer orders 1 菠萝包 and 1 鸳鸯咖啡 at Qianmen,
         # Coupon D is applied.
@@ -781,6 +820,9 @@ class TestDiscount(BaseTestCoupon):
                                      {'name': 'test local tax',
                                       'rate': 8.5, 'tax': -0.14},
                                      ], promo=True)
+            self.assertAlmostEqual(
+                (8 + 0.8 + 0.68) + (16 + 1.6 + 1.36 - 1.6 - 0.16 - 0.14),
+                self._get_order_amount_due(conn, id_order))
 
 
 class TestCredits(BaseTestCoupon):
@@ -874,14 +916,47 @@ class TestCredits(BaseTestCoupon):
             self._check_order_item(all_order_items[3], 0,
                                    '', 1, -14)
 
-            #redeem_records = db_utils.select(
-            #    conn, 'store_credit_redeemed',
-            #    where={'id_order': id_order, 'id_user': self.users_id})
-            #self.assertEquals(len(redeem_records), 2)
-            #self.assertAlmostEqual(redeem_records[0]['redeemed_amount'],
-            #                       10.0)
-            #self.assertAlmostEqual(redeem_records[1]['redeemed_amount'],
-            #                       24 * 1.1 - 10)
+            invoice_items = self._get_invoice_items(id_order)
+            self.assertEquals(len(invoice_items), 4)
+            self._check_invoice_item(invoice_items[0], '菠萝包', 8,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': 0.8},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': 0.68},
+                                     ])
+            self._check_invoice_item(invoice_items[1], '鸳鸯咖啡', 16,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': 1.6},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': 1.36},
+                                     ])
+            self._check_invoice_item(invoice_items[2], '', -10,
+                                    [# apply-before-promo tax
+                                     {'name': 'test general tax',
+                                      'rate': 10, 'tax': 0},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': -0.85},
+                                     ], promo=True)
+            self._check_invoice_item(invoice_items[3], '', -14,
+                                    [# apply-before-promo tax
+                                     {'name': 'test general tax',
+                                      'rate': 10,
+                                      'tax': -(24 * 1.1 - 10 - 14)},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': -1.19},
+                                     ], promo=True)
+            self.assertAlmostEqual(0,
+                self._get_order_amount_due(conn, id_order))
+
+            redeem_records = db_utils.select(
+                conn, 'store_credit_redeemed',
+                where={'id_order': id_order, 'id_user': self.users_id})
+            self.assertEquals(len(redeem_records), 2)
+            self.assertAlmostEqual(redeem_records[0]['redeemed_amount'],
+                                   10.0)
+            self.assertAlmostEqual(redeem_records[1]['redeemed_amount'],
+                                   24 * 1.1 - 10)
+
 
     @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
     def test_dawanglu_shop(self):
@@ -918,14 +993,46 @@ class TestCredits(BaseTestCoupon):
             self._check_order_item(all_order_items[3], 0,
                                    '', 1, -4)
 
-            #redeem_records = db_utils.select(
-            #    conn, 'store_credit_redeemed',
-            #    where={'id_order': id_order, 'id_user': self.users_id})
-            #self.assertEquals(len(redeem_records), 2)
-            #self.assertAlmostEqual(redeem_records[0]['redeemed_amount'],
-            #                       20.0)
-            #self.assertAlmostEqual(redeem_records[1]['redeemed_amount'],
-            #                       24 * 1.1 - 20)
+            invoice_items = self._get_invoice_items(id_order)
+            self.assertEquals(len(invoice_items), 4)
+            self._check_invoice_item(invoice_items[0], '菠萝包', 8,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': 0.8},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': 0.68},
+                                     ])
+            self._check_invoice_item(invoice_items[1], '鸳鸯咖啡', 16,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': 1.6},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': 1.36},
+                                     ])
+            self._check_invoice_item(invoice_items[2], '', -20,
+                                    [# apply-before-promo tax
+                                     {'name': 'test general tax',
+                                      'rate': 10, 'tax': 0},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': -1.7},
+                                     ], promo=True)
+            self._check_invoice_item(invoice_items[3], '', -4,
+                                    [# apply-before-promo tax
+                                     {'name': 'test general tax',
+                                      'rate': 10,
+                                      'tax': -(24 * 1.1 - 20 - 4)},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': -0.34},
+                                     ], promo=True)
+            self.assertAlmostEqual(0,
+                self._get_order_amount_due(conn, id_order))
+
+            redeem_records = db_utils.select(
+                conn, 'store_credit_redeemed',
+                where={'id_order': id_order, 'id_user': self.users_id})
+            self.assertEquals(len(redeem_records), 2)
+            self.assertAlmostEqual(redeem_records[0]['redeemed_amount'],
+                                   20.0)
+            self.assertAlmostEqual(redeem_records[1]['redeemed_amount'],
+                                   24 * 1.1 - 20)
 
 
 class TestCouponForDiffUsers(BaseTestCoupon):
@@ -1208,6 +1315,12 @@ class TestDiscountCreditCombination(BaseTestCoupon):
                                      {'name': 'test local tax',
                                       'rate': 8.5, 'tax': -0.85},
                                      ], promo=True)
+            self.assertAlmostEqual(
+                (8 + 0.8 + 0.68 - 4 - 0.4 - 0.34)
+                + (12 + 1.2 + 1.02 - 6 - 0.6 - 0.51)
+                - 11 - 0.85,
+                self._get_order_amount_due(conn, id_order))
+
             redeem_records = db_utils.select(
                 conn, 'store_credit_redeemed',
                 where={'id_order': id_order, 'id_user': self.users_id})
