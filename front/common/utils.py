@@ -525,6 +525,7 @@ def get_basket_table_info(req, resp, basket_data, users_id):
                 break
 
         one = {
+            'id_sale': id_sale,
             'item': item,
             'quantity': quantity,
             'variant': variant,

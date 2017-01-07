@@ -55,7 +55,9 @@ from B2SUtils import db_utils
 from B2SUtils.db_utils import select
 from B2SUtils.errors import ValidationError
 from common.error import NotExistError
+from common.error import UserError
 from common.error import ErrorCode as E_C
+from common.error import error_code_mapping
 from common.utils import push_order_confirming_event
 from common.email_utils import send_order_email
 from common.email_utils import send_order_email_to_service
@@ -172,9 +174,22 @@ class OrderResource(BaseJsonResource):
                 id_order = self._posOrder(upc_shop, req, resp, conn)
             else:
                 id_order = self._wwwOrder(req, resp, conn)
-            return {'res': RESP_RESULT.S,
-                    'err': '',
-                    'id': id_order}
+
+            result = {
+                'res': RESP_RESULT.S,
+                'err': '',
+                'id': id_order,
+            }
+            return result
+
+        except UserError, e:
+            conn.rollback()
+            logging.warning('Coupon gifts error when posting order: %s',
+                          req.query_string, exc_info=True)
+            return {'res': RESP_RESULT.F,
+                    'err': error_code_mapping[e.code],
+                    'params': e.desc,
+                    'id': 0}
         except Exception, e:
             conn.rollback()
             logging.error('Create order for %s failed for error: %s',
@@ -201,9 +216,11 @@ class OrderResource(BaseJsonResource):
         telephone = req.get_param('telephone')
         user_info = get_user_info(conn, self.users_id)
         user_info['user_agent'] = req.get_header('User-Agent')
+        chosen_gifts = ujson.loads(req.get_param('gifts') or '[]')
         order_id = create_order(conn, self.users_id, telephone,
                                 order_items, upc_shop=upc_shop,
-                                user_info=user_info)
+                                user_info=user_info,
+                                chosen_gifts=chosen_gifts)
         return order_id
 
 
@@ -240,9 +257,11 @@ class OrderResource(BaseJsonResource):
         telephone = req.get_param('telephone')
         user_info = get_user_info(conn, self.users_id)
         user_info['user_agent'] = req.get_header('User-Agent')
+        chosen_gifts = ujson.loads(req.get_param('gifts') or '[]')
         order_id = create_order(conn, self.users_id, telephone,
                                 order_items, shipaddr=shipaddr,
-                                billaddr=billaddr, user_info=user_info)
+                                billaddr=billaddr, user_info=user_info,
+                                chosen_gifts=chosen_gifts)
         return order_id
 
     def _requestValidCheck(self, conn, req):

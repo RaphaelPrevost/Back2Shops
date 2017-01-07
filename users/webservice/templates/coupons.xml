@@ -72,9 +72,13 @@
             {% if coupon['reward'].get('discount') %}
             <rebate type="{{coupon['reward']['discount'].get('type')}}">{{coupon['reward']['discount'].get('discount')}}</rebate>
             {% endif %}
-            {% for gift in coupon['reward']['gifts'] %}
-            <gift quantity="{{gift['quantity']}}">{{gift['item_id']}}</gift>
-            {% endfor %}
+            {% if coupon['reward'].get('gifts') %}
+            <gifts {% if coupon['reward'].get('max_selection') %}max_selection="{{coupon['reward']['max_selection']}}"{% endif %}>
+                {% for gift in coupon['reward']['gifts'] %}
+                <gift quantity="{{gift['quantity']}}">{{gift['item_id']}}</gift>
+                {% endfor %}
+            </gifts>
+            {% endif %}
             {% if coupon['reward'].get('credit') %}
             <credit currency="{{coupon['reward']['credit'].get('currency')}}">{{coupon['reward']['credit'].get('amount')}}</credit>
             {% endif %}

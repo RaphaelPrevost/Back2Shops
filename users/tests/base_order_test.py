@@ -70,7 +70,7 @@ class OrderBrowser(UsersBrowser):
                              'posOrder': o})
         return resp.get_data()
 
-    def do_wwwOrder(self, telephone, shipaddr, billaddr, order):
+    def do_wwwOrder(self, telephone, shipaddr, billaddr, order, **kwargs):
         """ order format:
             [
                 {'id_sale': xxx,
@@ -83,12 +83,15 @@ class OrderBrowser(UsersBrowser):
                  'id_shop': xxx}
             ]
         """
-        resp = self._access("webservice/1.0/pub/order",
-                            {'action': 'create',
-                             'telephone': telephone,
-                             'shipaddr': shipaddr,
-                             'billaddr': billaddr,
-                             'wwwOrder': ujson.dumps(order)})
+        data = {
+            'action': 'create',
+            'telephone': telephone,
+            'shipaddr': shipaddr,
+            'billaddr': billaddr,
+            'wwwOrder': ujson.dumps(order),
+        }
+        data.update(kwargs)
+        resp = self._access("webservice/1.0/pub/order", data)
         return resp.get_data()
 
     def post_invoices(self, id_order):
@@ -176,12 +179,24 @@ class BaseOrderTestCase(BaseTestCase):
         self.assertTrue(r['id'] > 0, r)
         return r['id']
 
-    def success_wwwOrder(self, telephone, shipaddr, billaddr, wwwOrder):
-        r = self.b.do_wwwOrder(telephone, shipaddr, billaddr, wwwOrder)
+    def success_wwwOrder(self, telephone, shipaddr, billaddr, wwwOrder,
+                         **kwargs):
+        r = self.b.do_wwwOrder(telephone, shipaddr, billaddr, wwwOrder,
+                               **kwargs)
         r = ujson.loads(r)
         self.assertTrue(r['res'] == 'SUCCESS', r)
         self.assertTrue(r['id'] > 0, r)
         return r['id']
+
+    def fail_wwwOrder(self, err, telephone, shipaddr, billaddr, wwwOrder,
+                      **kwargs):
+        r = self.b.do_wwwOrder(telephone, shipaddr, billaddr, wwwOrder,
+                               **kwargs)
+        r = ujson.loads(r)
+        self.assertTrue(r['res'] == 'FAILURE', r)
+        self.assertTrue(r['err'] == err, r)
+        self.assertTrue(r['id'] == 0, r)
+        return r.get('params')
 
     def get_user_info(self, users_id):
         browser = self.b

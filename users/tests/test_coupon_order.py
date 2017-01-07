@@ -502,6 +502,86 @@ class TestGifts(BaseTestCoupon):
                 26 + 2.6 + 2.21,
                 self._get_order_amount_due(conn, id_order))
 
+    @unittest.skipUnless(is_backoffice_server_running(), SKIP_REASON)
+    def test_select_gifts(self):
+        # If a customer orders for more than 50 yuan,
+        # they get a free 菠萝包 or 鸳鸯咖啡.
+        coupon_values = {
+            'action': 'create',
+            'author': self.bo_user,
+            'reward_type': 'COUPON_GIVEAWAY',
+            'require': ujson.dumps({
+                "invoice_match": {
+                    "operation": "SUM_PRICE",
+                    "more_than": 50,
+                    "equal": 50,
+                },
+            }),
+            'select_only': 1,
+            'gift': ujson.dumps([
+                {"id": 1000037, "quantity":2},
+                {"id": 1000039, "quantity":1},
+            ]),
+        }
+        self._post_coupon(coupon_values)
+
+        id_shop = 1000008
+        wwwOrder = [
+            {'id_sale': 1000034,
+             'id_variant': 0,
+             'quantity': 1,
+             'id_shop': id_shop,
+             'id_type': 0,
+             'id_price_type': 0,
+             'id_weight_type': 0},
+            {'id_sale': 1000035,
+             'id_variant': 0,
+             'quantity': 1,
+             'id_shop': id_shop,
+             'id_type': 0,
+             'id_price_type': 0,
+             'id_weight_type': 0},
+        ]
+        err_params = self.fail_wwwOrder(
+            'COUPON_ERR_GIFTS_NEED_SELECT_GIFTS',
+            self.telephone, self.shipaddr, self.billaddr, wwwOrder)
+        self.assertEquals(err_params, {
+            'max_selection': 1,
+            'gifts_available': [[1000037, 2], [1000039, 1]]
+        })
+
+        id_order = self.success_wwwOrder(
+            self.telephone, self.shipaddr, self.billaddr, wwwOrder,
+            gifts=ujson.dumps([[1000039, 1]]))
+        with db_utils.get_conn() as conn:
+            all_order_items = get_order_items(conn, id_order)
+            self.assertEquals(len(all_order_items), 3)
+            self._check_order_item(all_order_items[0], 1000034, '三文鱼贝果')
+            self._check_order_item(all_order_items[1], 1000035, '南瓜汤')
+            self._check_order_item(all_order_items[2], 1000039, '鸳鸯咖啡')
+
+            invoice_items = self._get_invoice_items(id_order)
+            self.assertEquals(len(invoice_items), 3)
+            self._check_invoice_item(invoice_items[0], '三文鱼贝果', 30,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': 3},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': 2.55},
+                                     ])
+            self._check_invoice_item(invoice_items[1], '南瓜汤', 26,
+                                    [{'name': 'test general tax',
+                                      'rate': 10, 'tax': 2.6},
+                                     {'name': 'test local tax',
+                                      'rate': 8.5, 'tax': 2.21},
+                                     ])
+            self._check_invoice_item(invoice_items[2], '鸳鸯咖啡', 0,
+                                    [{'name': 'test local tax',
+                                      'rate': 8.5, 'tax': 1.36},
+                                     ], promo=True, free=True)
+            self.assertAlmostEqual(
+                (30 + 3 + 2.55) + (26 + 2.6 + 2.21) + 1.36,
+                self._get_order_amount_due(conn, id_order))
+
 
 class TestDiscount(BaseTestCoupon):
 

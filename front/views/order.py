@@ -40,6 +40,7 @@
 import settings
 import gevent
 import ujson
+import urllib
 import xmltodict
 
 from B2SFrontUtils.constants import REMOTE_API_NAME
@@ -269,17 +270,23 @@ class OrderAPIResource(BaseJsonResource):
                 'billaddr': req.get_param('id_billaddr'),
                 'wwwOrder': ujson.dumps(orders),
             }
+            if req.get_param('gifts'):
+                data.update({'gifts': req.get_param('gifts')})
 
         order_resp = data_access(REMOTE_API_NAME.CREATE_ORDER,
                                  req, resp, **data)
         if order_resp.get('res') == RESP_RESULT.F:
             errmsg = order_resp['err']
             redirect_url = get_url_format(FRT_ROUTE_ROLE.BASKET)
-            if 'OUT_OF_STOCK' in errmsg:
+            query = {}
+            if errmsg.startswith('COUPON_ERR_GIFTS_'):
+                query['params'] = ujson.dumps(order_resp['params'])
+            elif 'OUT_OF_STOCK' in errmsg:
                 errmsg = errmsg[errmsg.index('OUT_OF_STOCK'):]
             else:
                 errmsg = 'FAILED_PLACE_ORDER'
-            redirect_to = "%s?err=%s" % (redirect_url, errmsg)
+            query['err'] = errmsg
+            redirect_to = "%s?%s" % (redirect_url, urllib.urlencode(query))
         else:
             if basket_key and basket_data:
                 clear_basket(req, resp, basket_key, basket_data)

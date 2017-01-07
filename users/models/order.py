@@ -220,7 +220,7 @@ def up_order_log(conn, id_order, sellers):
 
 def create_order(conn, users_id, telephone_id, order_items,
                  upc_shop=None, shipaddr=None, billaddr=None,
-                 user_info=None):
+                 user_info=None, chosen_gifts=None):
     order_id = _create_order(conn, users_id)
     _create_order_shipment_detail(conn, order_id, shipaddr,
                                   billaddr, telephone_id)
@@ -283,7 +283,8 @@ def create_order(conn, users_id, telephone_id, order_items,
                           e, order_id, brand, exc_info=True)
 
     from models.coupon import apply_appliable_coupons
-    apply_appliable_coupons(conn, users_id, order_id, user_info)
+    apply_appliable_coupons(conn, users_id, order_id,
+                            user_info, chosen_gifts)
 
     return order_id
 
