@@ -213,6 +213,10 @@ class CouponListResource(BaseXmlResource):
             if gift_values:
                 reward['gifts'] = [{'item_id': gift[0], 'quantity': gift[1]}
                                    for gift in gift_values]
+                results = db_utils.select(
+                    conn, 'coupon_give_away', where={'id_coupon': id_coupon})
+                if results:
+                    reward['max_selection'] = results[0]['max_selection'] or 0
             else:
                 discount_value = db_utils.select_dict(
                     conn, 'coupon_discount', 'id_coupon',
@@ -342,7 +346,7 @@ class CouponPostResource(BaseXmlResource):
                 coupon_values.update({'stackable': True})
                 store_credit_values = self._get_coupon_reward_currency(req)
             else:
-                discount_values, gift_values_list = \
+                discount_values, gift_values = \
                     self._get_coupon_reward_discount(req, require, reward_type)
 
         except AssertionError, e:
@@ -362,7 +366,8 @@ class CouponPostResource(BaseXmlResource):
         if is_edit:
             for table in (
                 'coupon_given_to', 'coupon_accepted_at', 'coupon_condition',
-                'store_credit', 'coupon_discount', 'coupon_gift'):
+                'store_credit', 'coupon_discount', 'coupon_give_away',
+                'coupon_gift'):
                 db_utils.delete(conn, table,
                                 where={'id_coupon': id_coupon})
 
@@ -392,10 +397,15 @@ class CouponPostResource(BaseXmlResource):
                 discount_values.update({'id_coupon': id_coupon})
                 db_utils.insert(conn, 'coupon_discount',
                                 values=discount_values)
-            for gift_values in gift_values_list:
-                gift_values.update({'id_coupon': id_coupon})
-                db_utils.insert(conn, 'coupon_gift',
-                                values=gift_values)
+            if gift_values:
+                for g_values in gift_values.pop('list'):
+                    g_values.update({'id_coupon': id_coupon})
+                    db_utils.insert(conn, 'coupon_gift',
+                                    values=g_values)
+                if gift_values:
+                    gift_values.update({'id_coupon': id_coupon})
+                    db_utils.insert(conn, 'coupon_give_away',
+                                    values=gift_values)
 
         return {'id_coupon': id_coupon}
 
@@ -499,6 +509,8 @@ class CouponPostResource(BaseXmlResource):
         }
 
     def _get_coupon_reward_discount(self, req, require, reward_type):
+        discount_values = {}
+        gift_values = {}
         if req.get_param('gift'):
             gifts = ujson.loads(req.get_param('gift', '[]'))
             assert isinstance(gifts, list), 'gift'
@@ -506,12 +518,15 @@ class CouponPostResource(BaseXmlResource):
                 assert 'id' in gift and isinstance(gift['id'], int), 'gift'
                 assert ('quantity' in gift and
                          isinstance(gift['quantity'], int)), 'gift'
-            discount_values = {}
-            gift_values_list = [{'id_sale': gift['id'],
-                                 'quantity': gift['quantity']}
-                                for gift in gifts]
+            gift_values.update({'list': [{'id_sale': gift['id'],
+                                          'quantity': gift['quantity']}
+                                          for gift in gifts]})
+            if req.get_param('select_only'):
+                max_selection = req.get_param('select_only')
+                assert 0 < int(req.get_param('select_only')) <= len(gifts), \
+                       'select_only'
+                gift_values.update({'max_selection': req.get_param('select_only')})
         else:
-            gift_values_list = []
             discount_applies_to = req.get_param('discount_applies_to')
             assert discount_applies_to and \
                    hasattr(COUPON_DISCOUNT_APPLIES, discount_applies_to), \
@@ -523,7 +538,6 @@ class CouponPostResource(BaseXmlResource):
                 ):
                 raise AssertionError('discount_applies_to')
 
-            gift_values_list = []
             if reward_type == COUPON_REWARD_TYPE.COUPON_DISCOUNT:
                 assert (discount_applies_to !=
                         COUPON_DISCOUNT_APPLIES.VALUE_SHIPPING),\
@@ -534,11 +548,11 @@ class CouponPostResource(BaseXmlResource):
 
             elif reward_type == COUPON_REWARD_TYPE.COUPON_GIVEAWAY:
                 discount = 100
-            discount_values = {
+            discount_values.update({
                'discount_type': discount_applies_to,
                'discount': discount,
-            }
-        return discount_values, gift_values_list
+            })
+        return discount_values, gift_values
 
     def coupon_update(self, req, resp, conn):
         id_brand = req.get_param('id_issuer')
@@ -595,7 +609,8 @@ class CouponRedeemResource(BaseJsonResource):
         groups = get_promotion_groups(conn, req.get_param('brand'))
         match_order_items = \
             check_order_for_coupon(conn, coupon, all_order_items, groups)
+        chosen_gifts = ujson.loads(req.get_param('gifts') or '[]')
         apply_password_coupon(conn, coupon, all_order_items, match_order_items,
-                              self.users_id, id_order, user_info)
+                              self.users_id, id_order, user_info, chosen_gifts)
         return {"res": RESP_RESULT.S, "err": ""}
 

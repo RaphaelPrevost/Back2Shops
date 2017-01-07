@@ -60,6 +60,19 @@ class ErrorCode:
         100, "OUT_OF_STOCK_%s"
     )
 
+    COUPON_ERR_GIFTS_NEED_SELECT_GIFTS = (
+        103, "COUPON_ERR_GIFTS_NEED_SELECT_GIFTS"
+    )
+    COUPON_ERR_GIFTS_EXCEED_MAX_SELECTION = (
+        104, "COUPON_ERR_GIFTS_EXCEED_MAX_SELECTION"
+    )
+    COUPON_ERR_GIFTS_INVALID_ITEM = (
+        105, "COUPON_ERR_GIFTS_INVALID_ITEM"
+    )
+    COUPON_ERR_GIFTS_INVALID_QUANTITY = (
+        106, "COUPON_ERR_GIFTS_INVALID_QUANTITY"
+    )
+
 
     # Sale shipping fee error
     SSF_MISS_PARAM = (
@@ -202,3 +215,12 @@ class ErrorCode:
     PB_FIN_HANDLED_ERR = (
         195, 'Paybox failed to handled in finance server'
     )
+
+
+error_code_mapping = {}
+for attr_name in dir(ErrorCode):
+    if attr_name.startswith('__'):
+        continue
+    error = getattr(ErrorCode, attr_name)
+    error_code_mapping[error[0]] = error[1]
+

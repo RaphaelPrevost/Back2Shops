@@ -191,8 +191,12 @@ class ActorReward(BaseActor):
         return ActorCredit(self.data.get('credit'))
 
     @property
+    def gift_max_selection(self):
+        return self.data.get('gifts', {}).get('@max_selection')
+
+    @property
     def gifts(self):
-        gift_data = as_list(self.data.get('gift'))
+        gift_data = as_list(self.data.get('gifts', {}).get('gift'))
         return [ActorGift(data=g) for g in gift_data]
 
 

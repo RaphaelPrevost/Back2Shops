@@ -401,6 +401,11 @@ CREATE TABLE coupon_discount (
     discount double precision NOT NULL
 );
 
+CREATE TABLE coupon_give_away (
+    id_coupon bigint PRIMARY KEY NOT NULL REFERENCES coupons(id),
+    max_selection integer
+);
+
 CREATE TABLE coupon_gift (
     id_coupon bigint NOT NULL REFERENCES coupons(id),
     id_sale BIGINT NOT NULL,

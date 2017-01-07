@@ -55,6 +55,8 @@ from common.constants import COUPON_CONDITION_COMPARISON
 from common.constants import COUPON_DISCOUNT_APPLIES
 from common.constants import COUPON_REWARD_TYPE
 from common.constants import ORDER_STATUS_FOR_COUPON
+from common.error import UserError
+from common.error import ErrorCode
 from common.redis_utils import get_redis_cli
 from models.actors.sale import CachedSale
 from models.order import get_order_items
@@ -303,7 +305,7 @@ def check_order_for_coupon(conn, coupon, all_order_items, groups):
                 raise ValidationError('COUPON_ERR_INVALID_COUPON')
     return order_items
 
-def apply_appliable_coupons(conn, id_user, id_order, user_info):
+def apply_appliable_coupons(conn, id_user, id_order, user_info, chosen_gifts):
     fields, columns = zip(*COUPON_FIELDS_COLUMNS)
     results = db_utils.query(conn, """
     select %s from coupons
@@ -378,7 +380,8 @@ def apply_appliable_coupons(conn, id_user, id_order, user_info):
             })
 
         else:
-            _calc_discount_result(conn, coupon['id'], coupon, id_order,
+            _calc_discount_result(conn, coupon['id'], coupon,
+                                  id_order, chosen_gifts,
                                   all_order_items, match_order_items)
 
             db_utils.insert(conn, 'coupon_redeemed', values={
@@ -395,9 +398,10 @@ def apply_appliable_coupons(conn, id_user, id_order, user_info):
 
 
 def apply_password_coupon(conn, pwd_coupon, all_order_items, match_order_items,
-                          id_user, id_order, user_info):
+                          id_user, id_order, user_info, chosen_gifts):
     assert pwd_coupon['coupon_type'] != COUPON_REWARD_TYPE.COUPON_CURRENCY
-    _calc_discount_result(conn, pwd_coupon['id'], pwd_coupon, id_order,
+    _calc_discount_result(conn, pwd_coupon['id'], pwd_coupon,
+                          id_order, chosen_gifts,
                           all_order_items, match_order_items)
 
     db_utils.insert(conn, 'coupon_redeemed', values={
@@ -515,7 +519,7 @@ def _calc_currency_credit(conn, id_coupon, coupon, id_order, id_user,
     return to_round(total_redeemable_amount), credit_value['currency']
 
 
-def _calc_discount_result(conn, id_coupon, coupon, id_order,
+def _calc_discount_result(conn, id_coupon, coupon, id_order, chosen_gifts,
                           all_order_items, match_order_items):
     results = db_utils.select_dict(
         conn, 'coupon_discount', 'id_coupon',
@@ -579,12 +583,49 @@ def _calc_discount_result(conn, id_coupon, coupon, id_order,
         gift_values = db_utils.select(
             conn, 'coupon_gift', columns=('id_sale', 'quantity'),
             where={'id_coupon': id_coupon})
-        if gift_values:
-            for gift in gift_values:
-                _create_free_order_item(conn, id_order, gift['id_sale'],
+        chosen_gifts = get_chosen_gifts(conn, id_coupon, chosen_gifts)
+        if chosen_gifts:
+            for id_sale, quantity in chosen_gifts:
+                _create_free_order_item(conn, id_order, id_sale,
                     match_order_items[0]['item_id'],
                     {'price': 0, 'modified_by_coupon': id_coupon},
-                    quantity=gift['quantity'])
+                    quantity=quantity)
+
+def get_chosen_gifts(conn, id_coupon, chosen_gifts):
+    gift_values = db_utils.select(
+        conn, 'coupon_gift', columns=('id_sale', 'quantity'),
+        where={'id_coupon': id_coupon})
+    gifts_available = [(gift['id_sale'], gift['quantity'])
+                       for gift in gift_values]
+
+    results = db_utils.select(
+        conn, 'coupon_give_away',
+        where={'id_coupon': id_coupon})
+    if results:
+        max_selection = results[0]['max_selection'] or 0
+        if max_selection:
+            params = {'max_selection': max_selection,
+                      'gifts_available': gifts_available}
+            if not chosen_gifts:
+                raise UserError(
+                    ErrorCode.COUPON_ERR_GIFTS_NEED_SELECT_GIFTS[0], params)
+            if len(chosen_gifts) > max_selection:
+                raise UserError(
+                    ErrorCode.COUPON_ERR_GIFTS_EXCEED_MAX_SELECTION[0], params)
+            if not set(dict(chosen_gifts).keys()
+                    ).issubset(dict(gifts_available).keys()):
+                raise UserError(
+                    ErrorCode.COUPON_ERR_GIFTS_INVALID_ITEM[0], params)
+            for id_sale, quantity in chosen_gifts:
+                if dict(gifts_available)[id_sale] < quantity:
+                    raise UserError(
+                        ErrorCode.COUPON_ERR_GIFTS_INVALID_QUANTITY[0], params)
+        else:
+            chosen_gifts = gifts_available
+    else:
+        chosen_gifts = gifts_available
+
+    return chosen_gifts
 
 
 def _create_fake_order_item(conn, id_order, orig_id_item,

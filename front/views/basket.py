@@ -37,6 +37,7 @@
 #############################################################################
 
 
+import HTMLParser
 import logging
 import settings
 import ujson
@@ -62,10 +63,31 @@ class BasketResource(BaseHtmlResource):
         _, basket_data = get_basket(req, resp)
         sales = data_access(REMOTE_API_NAME.GET_SALES,
                             req, resp, **req._params)
+
+        err = req.get_param('err') or ''
+        max_selection = 0
+        if err.startswith('COUPON_ERR_GIFTS_'):
+            html_parser = HTMLParser.HTMLParser()
+            params = ujson.loads(html_parser.unescape(req.get_param('params')))
+            max_selection = params['max_selection']
+            gifts = dict(
+                [(ujson.dumps({
+                        'id_sale': id_sale,
+                        'id_shop': 0,
+                        'id_attr': 0,
+                        'id_variant': 0,
+                        'id_price_type': 0,
+                }), quantity)
+                for id_sale, quantity in params['gifts_available']])
+        else:
+            gifts = {}
+
         return {
             'basket': get_basket_table_info(req, resp, basket_data,
                                             self.users_id),
-            'err': req.get_param('err') or '',
+            'gifts': get_basket_table_info(req, resp, gifts, self.users_id),
+            'max_selection': max_selection,
+            'err': err,
         }
 
 

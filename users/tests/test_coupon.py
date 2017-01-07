@@ -44,6 +44,7 @@ import xmltodict
 from collections import OrderedDict
 from datetime import datetime
 
+from B2SUtils import db_utils
 from common.test_utils import BaseTestCase
 from common.test_utils import is_backoffice_server_running
 
@@ -260,8 +261,10 @@ class TestCoupon(BaseTestCase):
                     '<threshold sum="price" must="GTE">100.0</threshold>'
                 '</require>'
                 '<reward>'
-                    '<gift quantity="1">1000001</gift>'
-                    '<gift quantity="2">1000002</gift>'
+                    '<gifts>'
+                        '<gift quantity="1">1000001</gift>'
+                        '<gift quantity="2">1000002</gift>'
+                    '</gifts>'
                 '</reward>'
             '</coupon>'
             % (self.id_coupon, self.id_brand, self.bo_user,

@@ -43,7 +43,7 @@
                 <tbody>
                     <?py for item in basket: ?>
 
-                    <tr data="${item['item']}">
+                    <tr class="item" data="${item['item']}">
                         <td class="left">
                             <a href="${item['product']['link']}">
                                 <img src="${get_single_attribute(item['product'], 'img')}"  width="150px" alt="${item['product']['name']}" />
@@ -88,6 +88,35 @@
                     </tr>
 
                     <?py #endfor ?>
+
+                    <?py for item in gifts: ?>
+                    <tr class="gift" data-id_sale="${item['id_sale']}" data-quantity="${item['quantity']}">
+                        <td class="left">
+                            <a href="${item['product']['link']}">
+                                <img src="${get_single_attribute(item['product'], 'img')}"  width="150px" alt="${item['product']['name']}" />
+                            </a>
+                        </td>
+                        <td class="left"><h1>${item['product']['name']}</h1>
+                            <strong class="type">
+                            <?py if item['type']: ?>Taille : ${item['type']['name']}<?py #endif ?>
+                            <?py if item['variant'] and item['type']: ?> - <?py #endif ?>
+                            <?py if item['variant']: ?>Coloris : ${item['variant']['name']}<?py #endif ?>
+                            </strong>
+                        </td>
+                        <td class="ref">${item['external_id']}</td>
+                        <td class="price">0</td>
+                        <td>
+                            <?py if item['out_of_stock']: ?>
+                            <span style="color:red">
+                                (${_('Temporarily out of stock')})
+                            </span>
+                            <?py #endif ?>
+                            <input hidden id="quantity" name="nb_product" type="text" maxlength="4" value="${item['quantity']}" />
+                        </td>
+                        <td class="price"><span id="amount"></span><span>${cur_symbol(item['product']['currency'])}</span></td>
+                        <td><a href="javascript:void(0)" class="supprimer" title="${_('Supprimer')}">x</a></td>
+                    </tr>
+                    <?py #endfor ?>
                 </tbody>
             </table>
             <a class="btn purchase" href="javascript:next()">${_('Valider')}</a>
@@ -103,21 +132,37 @@
 
 <script type="text/javascript">
 
+    var gift_max_selection = ${max_selection};
+
     function next() {
-        if ($('tr #amount').length == 0) return;
+        if ($('tr.item').length == 0) return;
+        if ($('tr.gift').length > 0 && gift_max_selection > 0
+                && $('tr.gift').length > gift_max_selection) {
+            alert("You can choose " + gift_max_selection + " gifts at most.");
+            return;            
+        }
+        update_gifts();
 
         $.get('/ajax_basket',
-                function(data) {
-                    if (data['res'] == 'FAILURE') {
-                        $(".errwrapper").text(data['err']);
-                    } else {
-                        if (data['set_cookies_js']) {
-                            eval(data['set_cookies_js']);
-                        }
-                        location = "${order_addr_url_format}";
+            function(data) {
+                if (data['res'] == 'FAILURE') {
+                    $(".errwrapper").text(data['err']);
+                } else {
+                    if (data['set_cookies_js']) {
+                        eval(data['set_cookies_js']);
                     }
+                    location = "${order_addr_url_format}";
                 }
+            }
         );
+    }
+
+    function update_gifts() {
+        gifts = [];
+        $.each($('tr.gift'), function(index, value, array) {
+            gifts.push([$(value).data('id_sale'), $(value).data('quantity')]);
+        });
+        document.cookie = "CHOSEN_GIFTS=" + JSON.stringify(gifts);
     }
 
     function calc_row(tr) {
@@ -179,16 +224,21 @@
         $('tr .supprimer').click(function(){
             // remove item
             var tr = $(this).parent().parent();
+            var is_gift = (tr.attr('class') == 'gift')
             tr.remove();
             calc_sum();
 
-            $.post('/ajax_basket', {
-                'cmd': 'del',
-                'sale': tr.attr('data')},
-                function(data) {
-                    $("#nb_prod").html(data['cur_basket_qty']);
-                }
-            );
+            if (is_gift) {
+                update_gifts();
+            } else {
+                $.post('/ajax_basket', {
+                    'cmd': 'del',
+                    'sale': tr.attr('data')},
+                    function(data) {
+                        $("#nb_prod").html(data['cur_basket_qty']);
+                    }
+                );
+            }
         });
     });
 

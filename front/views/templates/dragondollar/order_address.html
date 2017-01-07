@@ -82,8 +82,14 @@
 
 <script type="text/javascript">
 function checkout() {
+    var formData = $("#addrForm").serializeArray();
+    formData.push({
+        'name': 'gifts',
+        'value': getCookie('CHOSEN_GIFTS'),
+    });
+
     $.post('/ajax_order',
-        $("#addrForm").serializeArray(),
+        formData,
         function(data) {
             if (data['set_cookies_js']) {
                 eval(data['set_cookies_js']);
@@ -95,5 +101,13 @@ function checkout() {
             }
         }
     )
+}
+
+function getCookie(name) {
+    var arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
+    if(arr=document.cookie.match(reg))
+        return unescape(arr[2]);
+    else
+        return null;
 }
 </script>

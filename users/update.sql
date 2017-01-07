@@ -167,6 +167,95 @@ ALTER TABLE users_profile ADD COLUMN company_name text;
 ALTER TABLE users_profile ADD COLUMN company_position text;
 ALTER TABLE users_profile ADD COLUMN company_tax_id text;
 
+CREATE TABLE coupons (
+    id serial PRIMARY KEY,
+    id_brand bigint NOT NULL,
+    id_bo_user bigint NOT NULL,
+    coupon_type smallint NOT NULL,
+    creation_time timestamp without time zone DEFAULT now() NOT NULL,
+    effective_time timestamp without time zone DEFAULT now() NOT NULL,
+    expiration_time timestamp without time zone,
+    stackable boolean NOT NULL,
+    redeemable_always boolean NOT NULL,
+    max_redeemable integer,
+    first_order_only boolean NOT NULL,
+    manufacturer boolean NOT NULL DEFAULT false,
+    password character varying(256),
+    description text,
+    valid boolean NOT NULL DEFAULT true
+);
+
+CREATE TABLE coupon_accepted_at (
+    id_coupon bigint NOT NULL REFERENCES coupons(id),
+    id_shop bigint NOT NULL,
+    CONSTRAINT coupon_accepted_at_key PRIMARY KEY (id_coupon, id_shop)
+);
+
+CREATE TABLE coupon_given_to (
+    id_coupon bigint NOT NULL REFERENCES coupons(id),
+    id_user integer NOT NULL REFERENCES users(id),
+    CONSTRAINT coupon_given_to_key PRIMARY KEY (id_coupon, id_user)
+);
+
+CREATE TABLE coupon_condition (
+    id serial PRIMARY KEY,
+    id_coupon bigint NOT NULL REFERENCES coupons(id),
+    id_value bigint,
+    id_type smallint,
+    operation integer NOT NULL,
+    comparison integer,
+    threshold double precision
+);
+
+CREATE TABLE coupon_discount (
+    id_coupon bigint PRIMARY KEY NOT NULL REFERENCES coupons(id),
+    discount_type integer NOT NULL,
+    discount double precision NOT NULL
+);
+
+CREATE TABLE coupon_give_away (
+    id_coupon bigint PRIMARY KEY NOT NULL REFERENCES coupons(id),
+    max_selection integer,
+);
+
+CREATE TABLE coupon_gift (
+    id_coupon bigint NOT NULL REFERENCES coupons(id),
+    id_sale BIGINT NOT NULL,
+    quantity integer NOT NULL,
+    CONSTRAINT coupon_gift_key PRIMARY KEY (id_coupon, id_sale)
+);
+
+CREATE TABLE coupon_redeemed (
+    id serial PRIMARY KEY,
+    id_coupon bigint NOT NULL REFERENCES coupons(id),
+    id_user integer NOT NULL,
+    id_order BIGINT NOT NULL,
+    id_invoice BIGINT,
+    order_status smallint NOT NULL,
+    redeemed_time timestamp without time zone DEFAULT now() NOT NULL,
+    account_address text,
+    account_phone character varying(32),
+    user_agent text
+);
+
+CREATE TABLE store_credit (
+    id_coupon bigint PRIMARY KEY NOT NULL REFERENCES coupons(id),
+    currency character varying(3) REFERENCES currency(code),
+    amount double precision NOT NULL,
+    redeemed_in_full boolean DEFAULT false NOT NULL
+);
+
+CREATE TABLE store_credit_redeemed (
+    id serial PRIMARY KEY,
+    id_coupon bigint NOT NULL REFERENCES coupons(id),
+    id_user integer NOT NULL,
+    id_order BIGINT NOT NULL,
+    id_invoice BIGINT,
+    order_status smallint NOT NULL,
+    currency character varying(3) REFERENCES currency(code),
+    redeemed_amount double precision NOT NULL
+);
+
 ALTER TABLE order_items ADD COLUMN modified_by_coupon BIGINT;
 ALTER TABLE coupons ADD COLUMN manufacturer boolean NOT NULL DEFAULT false;
 ALTER TABLE shipping_fee ADD COLUMN details text;
