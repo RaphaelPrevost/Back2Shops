@@ -214,6 +214,30 @@ class RoutesCacheProxy(BaseCacheProxy):
         return True
 
 
+class AdmSettingsCacheProxy(BaseCacheProxy):
+    api_name = REMOTE_API_NAME.ADM_SETTINGS
+    local_cache_file = "static/cache/%s.json" % api_name
+
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(AdmSettingsCacheProxy,
+                                  cls).__new__(cls, *args, **kwargs)
+        return cls._instance
+
+    def get(self, **kw):
+        resp_dict = self._get_from_server(**kw)
+
+        if resp_dict.get('res') == RESP_RESULT.F:
+            resp_dict = self._get_from_local(**kw)
+        self._update_local_cache(resp_dict)
+        return resp_dict
+
+    def _match_obj(self, obj, **valid_kwargs):
+        return True
+
+
 class SalesCacheProxy(BaseCacheProxy):
     api_name = REMOTE_API_NAME.GET_SALES
     obj_redis_key = SALE
@@ -405,6 +429,7 @@ class TaxesCacheProxy(BaseCacheProxy):
 
 cache_proxy = {
     RoutesCacheProxy.api_name: RoutesCacheProxy,
+    AdmSettingsCacheProxy.api_name: AdmSettingsCacheProxy,
     SalesCacheProxy.api_name: SalesCacheProxy,
     TypesCacheProxy.api_name: TypesCacheProxy,
     TaxesCacheProxy.api_name: TaxesCacheProxy,

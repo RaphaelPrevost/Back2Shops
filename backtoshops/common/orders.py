@@ -99,11 +99,13 @@ def _populate_order_info(order):
                    if item != None and item != ""]
         order_detail['search_options'] = ' '.join(options)
 
-def get_order_list(brand_id, shops_id=None):
+def get_order_list(brand_id, shops_id=None, limit=None):
     try:
         order_url = '%s?brand_id=%s' % (settings.ORDER_LIST_URL, brand_id)
         if shops_id:
             order_url += "&shops_id=%s" % ujson.dumps(shops_id)
+        if limit:
+            order_url += "&limit=%s" % limit
         data = get_from_remote(
             order_url,
             settings.SERVER_APIKEY_URI_MAP[SERVICES.USR],

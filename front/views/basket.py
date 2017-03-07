@@ -137,7 +137,7 @@ class BasketAPIResource(BaseJsonResource):
             chosen_item = unescape_string(chosen_item)
 
         if cmd == 'add':
-            if use_unique_items():
+            if use_unique_items(req, resp):
                 basket_data[chosen_item] = 1
             elif chosen_item in basket_data:
                 basket_data[chosen_item] += quantity
@@ -145,7 +145,7 @@ class BasketAPIResource(BaseJsonResource):
                 basket_data[chosen_item] = quantity
 
         elif cmd == 'update':
-            if use_unique_items():
+            if use_unique_items(req, resp):
                 basket_data[chosen_item] = 1
             else:
                 basket_data[chosen_item] = quantity

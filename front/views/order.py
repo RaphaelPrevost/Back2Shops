@@ -244,7 +244,7 @@ class OrderAPIResource(BaseJsonResource):
             all_sales = data_access(REMOTE_API_NAME.GET_SALES, req, resp)
             orders = []
             basket_key, basket_data = get_basket(req, resp)
-            is_unique = use_unique_items()
+            is_unique = use_unique_items(req, resp)
             for item, quantity in basket_data.iteritems():
                 try:
                     item_info = ujson.loads(item)

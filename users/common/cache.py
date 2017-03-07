@@ -733,6 +733,14 @@ class SettingsCacheProxy(CacheProxy):
     def refresh(self, obj_id=None):
         self._get_from_server()
 
+    def _get_from_redis(self, **kw):
+        g_settings = get_redis_cli().get(self.obj_key % ('', 'ALL'))
+        if not g_settings:
+            raise NoRedisData()
+        g_settings = ujson.loads(g_settings)
+        brand_id = kw.get('brand')
+        return self._filter_settings(g_settings, brand_id)
+
     def parse_xml(self, xml, is_entire_result, **kw):
         logging.info('parse brandsettings xml: %s, is_entire_result:%s',
                      xml, is_entire_result)
@@ -744,10 +752,21 @@ class SettingsCacheProxy(CacheProxy):
             self._refresh_redis(version, g_settings, is_entire_result)
         except (RedisError, ConnectionError), e:
             logging.error('Redis Error: %s', (e,), exc_info=True)
-        return dict([(g['@name'], g) for g in g_settings])
+
+        brand_id = kw.get('brand')
+        return self._filter_settings(g_settings, brand_id)
+
+    def _filter_settings(self, g_settings, brand_id):
+        result = dict([(g['@name'], g) for g in g_settings
+                       if not g['@brand']])
+        result.update(dict([(g['@name'], g) for g in g_settings
+                            if g['@brand'] == brand_id ]))
+        return result
 
     def _refresh_redis(self, version, g_settings, is_entire_result):
         self._set_to_redis(BRANDSETTINGS_VERSION, version)
+        self._set_to_redis(self.obj_key % ('', 'ALL'),
+                           ujson.dumps(g_settings))
         self._save_objs_to_redis(g_settings)
 
     def _save_objs_to_redis(self, data_list):

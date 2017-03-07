@@ -406,7 +406,10 @@ class OrderListResource(BaseOrderResource):
         if shops_id:
             shops_id = ujson.loads(urllib2.unquote(shops_id))
 
-        orders = get_orders_list(conn, brand_id, shops_id)
+        limit = req.get_param('limit', None)
+        if limit:
+            limit = int(limit)
+        orders = get_orders_list(conn, brand_id, shops_id, limit=limit)
         return orders
 
 class OrderList4FUserResource(BaseOrderResource):

@@ -155,7 +155,8 @@ class BaseResource(object):
                        session)
 
             name = 'SID:%s' % _sid
-            cli = get_redis_cli()
+            cli = get_redis_cli(ping=True)
+            if not cli: return
             cli.setex(name,
                       self.users_id or "",
                       settings.SESSION_EXP_TIME)
@@ -166,7 +167,8 @@ class BaseResource(object):
             __remote_log(sid)
 
         def __up_session(_sid):
-            cli = get_redis_cli()
+            cli = get_redis_cli(ping=True)
+            if not cli: return
             name = 'SID:%s' % _sid
             if not cli.get(name) and self.users_id:
                 __remote_log(_sid)
@@ -339,7 +341,8 @@ class BaseHtmlResource(BaseResource):
         resp_dict['err'] = get_err_msg(resp_dict['err'])
         resp_dict['route_args'] = self.route_args
 
-        need_calc_before_tax = calc_before_tax_price()
+        need_calc_before_tax = calc_before_tax_price(self.request,
+                                                     self.response)
         resp_dict['calc_before_tax_price'] = need_calc_before_tax
         resp_dict['price_label'] = get_price_label(need_calc_before_tax)
 

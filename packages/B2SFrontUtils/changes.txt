@@ -65,3 +65,6 @@
 
 == version 0.0.22 ==
 1. Check category for sales
+
+== version 0.0.23 ==
+1. add cache.AdmSettingsCacheProxy 

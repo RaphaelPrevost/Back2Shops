@@ -187,28 +187,28 @@ def user_is_business_account(req, resp, users_id):
         general_user_values = user_info['general']['values'][0]
         is_b_account = general_user_values.get('is_business_account', False)
     else:
-        front_personal_account_allowed = get_redis_cli().get(
-            BRANDSETTING % ('', 'front_personal_account_allowed')) == 'True'
-        front_business_account_allowed = get_redis_cli().get(
-            BRANDSETTING % ('', 'front_business_account_allowed')) == 'True'
+        front_personal_account_allowed = get_adm_settings(
+            'front_personal_account_allowed', req, resp) == 'True'
+        front_business_account_allowed = get_adm_settings(
+            'front_business_account_allowed', req, resp) == 'True'
         if not front_personal_account_allowed and \
                 front_business_account_allowed:
             is_b_account = True
     return is_b_account
 
-def calc_before_tax_price():
-    val = get_redis_cli().get(
-            BRANDSETTING % (settings.BRAND_ID, 'use_after_tax_price'))
-    return val == 'True'
+def calc_before_tax_price(req, resp):
+    return get_adm_settings('use_after_tax_price', req, resp) == 'True'
 
-def use_unique_items():
-    val = get_redis_cli().get(
-            BRANDSETTING % (settings.BRAND_ID, 'unique_items'))
-    return val == 'True'
+def use_unique_items(req, resp):
+    return get_adm_settings('unique_items', req, resp) == 'True'
 
-def get_price_label(need_calc_before_tax=None):
-    if need_calc_before_tax is None:
-        need_calc_before_tax = calc_before_tax_price()
+def get_adm_settings(name, req, resp):
+    from common.data_access import data_access
+    settings_list = data_access(REMOTE_API_NAME.ADM_SETTINGS, req, resp)
+    return settings_list.get(name)
+
+
+def get_price_label(need_calc_before_tax):
     return _("Before tax") if need_calc_before_tax else _("After tax")
 
 def get_product_default_display_price(sale, type_attr=None):
@@ -311,7 +311,7 @@ def get_brief_product(sale, req, resp, calc_price=True,
                 user_country_code, user_province_code,
                 _cate_id, is_business_account)
         product_info['price'] = price
-        if calc_before_tax_price():
+        if calc_before_tax_price(req, resp):
             product_info['price_with_tax_calc'] = price * (1 + tax_info['rate'] / 100.0)
         else:
             product_info['price_with_tax_calc'] = price / (1 + tax_info['rate'] / 100.0)
@@ -559,7 +559,7 @@ def get_basket_table_info(req, resp, basket_data, users_id):
                 country_code, province_code,
                 user_country_code, user_province_code,
                 _cate_id, is_business_account)
-        if calc_before_tax_price():
+        if calc_before_tax_price(req, resp):
             one['price_with_tax_calc'] = price / (1 + tax_info['rate'] / 100.0)
         else:
             one['price_with_tax_calc'] = price * (1 + tax_info['rate'] / 100.0)

@@ -41,6 +41,7 @@ from webservice import coupon
 from webservice import ticket
 from webservice import ticket_attachment
 from webservice.accounts import UserResource
+from webservice.adm_settings import SettingsResource
 from webservice.auth import UserLoginResource
 from webservice.auth import UserVerifyResource
 from webservice.aux import AuxResource
@@ -126,6 +127,7 @@ urlpatterns = {
     '/webservice/protected/shipping/fee': ShippingFeeResource,
 
     '/webservice/1.0/private/routes/list': RoutesResource,
+    '/webservice/1.0/private/settings/list': SettingsResource,
     '/webservice/1.0/private/taxes/list': TaxesResource,
     '/webservice/1.0/private/order/orders': OrderListResource,
     '/webservice/1.0/private/order/detail': OrderDetailResource,
