@@ -286,20 +286,21 @@ class ListOrdersView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
         else:
             brand_id = request.user.get_profile().work_for.pk
 
-        try:
-            shops_id = _get_req_user_shops(self.request.user)
-            orders = get_order_list(brand_id, shops_id=shops_id)
-        except UsersServerError, e:
-            self.error_msg = (
-                "Sorry, the system meets some issues, our engineers have been "
-                "notified, please check back later.")
-
         orders_by_status = {
             ORDER_STATUS.PENDING: [],
             ORDER_STATUS.AWAITING_PAYMENT: [],
             ORDER_STATUS.AWAITING_SHIPPING: [],
             ORDER_STATUS.COMPLETED: [],
         }
+
+        try:
+            shops_id = _get_req_user_shops(self.request.user)
+            # TODO: performance issue
+            orders = get_order_list(brand_id, shops_id=shops_id)
+        except UsersServerError, e:
+            self.error_msg = (
+                "Sorry, the system meets some issues, our engineers have been "
+                "notified, please check back later.")
 
         status = params.get('status')
         query = None
@@ -349,10 +350,7 @@ class ListOrdersView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
             )
         return
 
-    def make_page(self):
-        """
-        make a pagination
-        """
+    def calc_pages(self):
         try:
             self.current_page = int(self.request.GET.get('page', '1'))
             p_size = int(
@@ -363,6 +361,14 @@ class ListOrdersView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
             self.request.session['page_size'] = p_size
         except:
             self.current_page = 1
+
+    def make_page(self):
+        """
+        make a pagination
+        """
+        if not self.current_page or not self.request.session['page_size']:
+            self.calc_pages()
+
         paginator = Paginator(self.orders, settings.get_page_size(self.request))
         try:
             self.page = paginator.page(self.current_page)
@@ -382,6 +388,7 @@ class ListOrdersView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
         self.page_nav = self.page.paginator.page_range[self.range_start:self.range_start+settings.PAGE_NAV_SIZE]
 
     def get(self, request, orders_type=None):
+        self.calc_pages()
         self.set_orders_list(request, request.GET)
         self.form = ListOrdersForm(self.status, request.GET)
         if self.form.is_valid():
@@ -394,6 +401,7 @@ class ListOrdersView(OperatorUpperLoginRequiredMixin, View, TemplateResponseMixi
         return self.render_to_response(self.__dict__)
 
     def post(self, request, orders_type=None):
+        self.calc_pages()
         self.set_orders_list(request, request.POST)
         self.form = ListOrdersForm(self.status, request.POST)
         if self.form.is_valid():

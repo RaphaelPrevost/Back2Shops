@@ -376,7 +376,7 @@ def sa_settings(request):
 def brand_settings(request):
     is_saved = False
     brand_id = request.user.get_profile().work_for.pk
-    having_orders = len(get_order_list(brand_id)) > 0
+    having_orders = len(get_order_list(brand_id, limit=1)) > 0
     if request.method == 'POST':
         form = SABrandSettingsForm(data=request.POST, user=request.user,
                                    having_orders=having_orders)

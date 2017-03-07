@@ -37,8 +37,11 @@
 #############################################################################
 
 
+import logging
 import redis
 import settings
+
+from redis.exceptions import RedisError
 
 class RedisConnPool(object):
     _pool = None
@@ -56,5 +59,13 @@ class RedisConnPool(object):
         return cls._pool
 
 
-def get_redis_cli():
-    return redis.Redis(connection_pool=RedisConnPool())
+def get_redis_cli(ping=False):
+    cli = redis.Redis(connection_pool=RedisConnPool())
+    try:
+        if ping:
+            cli.ping()
+        return cli
+    except RedisError, e:
+        logging.error('Redis Error: ', exc_info=True)
+
+

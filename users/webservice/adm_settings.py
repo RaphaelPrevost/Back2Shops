@@ -37,4 +37,15 @@
 #############################################################################
 
 
-__version__ = '0.0.23'
+from B2SCrypto.constant import SERVICES
+from common.cache import settings_cache_proxy
+from webservice.base import BaseJsonResource
+
+class SettingsResource(BaseJsonResource):
+    encrypt = True
+    service = SERVICES.FRO
+
+    def _on_get(self, req, resp, conn, **kwargs):
+        brand = req.get_param('brand')
+        return settings_cache_proxy.get(brand=brand)
+
