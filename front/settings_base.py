@@ -50,7 +50,8 @@ FRONT_ROOT_URI = 'http://%s:%s' % (node().split('.')[0], SERVER_PORT)
 CENTRAL_REDIS = {
     'HOST': 'localhost',
     'PORT': 6379,
-    'TEST_PORT': 6279
+    'TEST_PORT': 6279,
+    'PASSWORD': 'setpassforsafety',
 }
 
 BRAND_ID = "1000001"

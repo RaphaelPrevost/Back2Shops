@@ -43,7 +43,7 @@ function edit_product_settings() {
     sed -i -e "s|92.222.30.4|$AST_ADDR|g" $1
     sed -i -e "s|92.222.30.6|$VSL_ADDR|g" $1
 
-    SERVER_ADDR=$(echo $BRAND)_FRT_ADDR
+    SERVER_ADDR=$(echo $MAIN_BRAND)_FRT_ADDR
     SERVER_ADDR=$(eval echo "\$${SERVER_ADDR}")
     sed -i -e "s|92.222.30.5|$SERVER_ADDR|g" $1
 }

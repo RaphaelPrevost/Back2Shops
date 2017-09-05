@@ -1,5 +1,7 @@
 #! /bin/bash
 
+PASSWORD="setpassforsafety"
+
 if [ "$1" == "--test" ]; then
   echo "Start redis server for test..."
   PORT=6279
@@ -11,7 +13,7 @@ else
 fi
 
 echo "Shutting Down central-redis"
-redis-cli -p $PORT shutdown
+redis-cli -p $PORT -a $PASSWORD shutdown
 echo "Running central-redis"
 redis-server $CONF
 echo "DONE"

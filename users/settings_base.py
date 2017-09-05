@@ -57,7 +57,8 @@ DATABASE = {
 CENTRAL_REDIS = {
     'HOST': 'localhost',
     'PORT': 6379,
-    'TEST_PORT': 6279
+    'TEST_PORT': 6279,
+    'PASSWORD': 'setpassforsafety',
 }
 
 DEFAULT_REDIS_CACHE_TTL = 15 * 60 # now it's used for only TypesCacheProxy
