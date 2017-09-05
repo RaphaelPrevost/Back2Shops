@@ -55,7 +55,8 @@ class RedisConnPool(object):
                 port = redis_config['PORT']
 
             cls._pool = redis.ConnectionPool(host=redis_config['HOST'],
-                                             port=port)
+                                             port=port,
+                                             password=redis_config['PASSWORD'])
         return cls._pool
 
 
