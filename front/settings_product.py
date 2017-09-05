@@ -51,7 +51,8 @@ import urlparse
 CENTRAL_REDIS = {
     'HOST': urlparse.urlparse(USR_ROOT_URI).hostname,
     'PORT': 6379,
-    'TEST_PORT': 6279
+    'TEST_PORT': 6279,
+    'PASSWORD': 'setpassforsafety',
 }
 
 SERVER_APIKEY_URI_MAP = {
