@@ -83,9 +83,12 @@ B2S_TIMEZONE = 'Europe/Paris'
 
 ### Paybox
 PAYBOX_REQUEST_URL = None
+PAYBOX_DIRECT_REQUEST_URL = None
+
 PAYBOX_SITE = None
 PAYBOX_RANG = None
 PAYBOX_IDENTIFIANT = None
+PAYBOX_CLE = None # website password provided by Paybox
 
 PAYBOX_HASH_TYPE = 'SHA512'
 PAYBOX_HMAC_KEY = None

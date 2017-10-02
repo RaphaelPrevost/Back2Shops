@@ -38,7 +38,12 @@
 
 
 from webservice.api_key import ApiKeyResource
+from webservice.creditcard import CCDeleteResource
+from webservice.creditcard import CCAddResource
+from webservice.creditcard import CCListResource
 from webservice.payment import PayboxTransResource
+from webservice.payment import PaymentAjaxResource
+from webservice.payment import PaymentAutoResource
 from webservice.payment import PaymentFormResource
 from webservice.payment import PaymentInitResource
 from webservice.payment import PaypalTransResource
@@ -46,9 +51,15 @@ from webservice.payment import StripeChargeResource
 from webservice.payment import StripeTransResource
 
 urlpatterns = {
-    '/webservice/1.0/pub/apikey.pem': ApiKeyResource,
-    '/webservice/1.0/private/payment/form': PaymentFormResource,
     '/webservice/1.0/private/payment/init': PaymentInitResource,
+    '/webservice/1.0/private/payment/form': PaymentFormResource,
+    '/webservice/1.0/private/payment/creditcard/record': CCAddResource,
+    '/webservice/1.0/private/payment/creditcard/delete': CCDeleteResource,
+    '/webservice/1.0/private/payment/creditcard/list': CCListResource,
+    '/webservice/1.0/private/payment/ajax': PaymentAjaxResource,
+    '/webservice/1.0/private/payment/auto': PaymentAutoResource,
+
+    '/webservice/1.0/pub/apikey.pem': ApiKeyResource,
     '/webservice/1.0/pub/paypal/trans/{id_trans}': PaypalTransResource,
     '/webservice/1.0/pub/paybox/trans/{id_trans}': PayboxTransResource,
     '/webservice/1.0/pub/stripe/trans/{id_trans}': StripeTransResource,

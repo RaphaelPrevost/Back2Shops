@@ -40,6 +40,7 @@
 import binascii
 import hashlib
 import hmac
+import re
 import weasyprint
 
 from common.template import ENV
@@ -87,3 +88,15 @@ def gen_500_pdf_resp(resp):
 
 def gen_hmac(key, msg, algorithm=hashlib.sha512):
     return hmac.new(binascii.unhexlify(key), msg, algorithm).hexdigest()
+
+
+def mask_cc_num(cc_num):
+    return ('{}{:*>' + str(len(cc_num) - 8) + '}'
+            ).format(cc_num[:4], cc_num[-4:])
+
+def is_valid_cc_num(cc_num):
+    return re.match(r'^\d{13,19}$', cc_num)
+
+def is_valid_cvc(cvc):
+    return re.match(r'^\d{3,4}$', cvc)
+

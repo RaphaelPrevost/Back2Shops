@@ -73,3 +73,17 @@ CREATE TABLE trans_stripe (
 );
 CREATE UNIQUE INDEX trans_stripe_by_sp_trans_id ON trans_stripe USING btree (sp_trans_id);
 
+
+CREATE TABLE credit_card (
+    id serial PRIMARY KEY,
+    id_user BIGINT NOT NULL,
+    cardholder_name character varying(64),
+    cc_num character varying(32) NOT NULL,
+    expiration_date character varying(4) NOT NULL,
+    create_time timestamp without time zone DEFAULT now() NOT NULL,
+    repeat boolean DEFAULT false NOT NULL,
+    paybox_token character varying(64),
+    valid boolean DEFAULT true NOT NULL
+);
+CREATE INDEX credit_card_by_id_user ON credit_card USING btree (id_user);
+
