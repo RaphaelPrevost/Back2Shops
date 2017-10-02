@@ -37,6 +37,7 @@
 #############################################################################
 
 
+import os
 import psycopg2
 import pypgwrap
 from B2SUtils.errors import DatabaseError
@@ -46,6 +47,7 @@ global db_initialized
 db_initialized = False
 
 def init_db_pool(db_config, force=False):
+    os.environ["PYPGWRAP_AUTOCOMMIT"] = 'False'
     global db_initialized
     if db_initialized and not force:
         return

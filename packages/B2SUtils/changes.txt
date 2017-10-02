@@ -50,3 +50,6 @@
 
 == version 0.1.6 ==
 1. add BugzScoutLogHandler
+
+== version 0.1.7 ==
+1. set env PYPGWRAP_AUTOCOMMIT for pypgwrap
