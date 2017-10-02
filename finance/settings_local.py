@@ -44,11 +44,13 @@ SELLER_EMAIL = 'business@infinite-code.com'
 
 ### Paybox
 PAYBOX_REQUEST_URL = 'https://preprod-tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi'
+PAYBOX_DIRECT_REQUEST_URL = 'https://preprod-ppps.paybox.com/PPPS.php'
 
 # no-3D
 PAYBOX_SITE = '1999888'
 PAYBOX_RANG = '32'
 PAYBOX_IDENTIFIANT = '1686319'
+PAYBOX_CLE = '1999888I'
 
 #3D
 # PAYBOX_SITE = '1999888'

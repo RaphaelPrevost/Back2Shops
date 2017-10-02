@@ -51,7 +51,10 @@ class UserError(Exception):
         self.desc = desc
 
     def __str__(self):
-        return ' - '.join([str(self.code), str(self.desc)])
+        return ' - '.join([str(self.code), str(self.desc.encode('utf8'))])
+
+class ThirdPartyError(UserError):
+    pass
 
 class ErrorCode:
 
@@ -60,3 +63,12 @@ class ErrorCode:
         101, "Invalid Payment Form Request"
     )
 
+    # Payment Ajax Error
+    PMA_INVALID_REQ = (
+        105, "Invalid Payment Ajax Request"
+    )
+
+    # Payment Auto Error
+    PM_AUTO_INVALID_REQ = (
+        110, "Invalid Payment Auto Request"
+    )

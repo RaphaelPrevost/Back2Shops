@@ -67,6 +67,7 @@ from B2SProtocol.constants import TRANS_PAYPAL_STATUS
 from B2SProtocol.constants import TRANS_STATUS
 from B2SRespUtils.generate import temp_content
 
+
 class PaymentInitResource(BaseJsonResource):
     encrypt = True
 
@@ -358,4 +359,106 @@ class StripeTransResource(BaseResource):
             logging.error('stripe_trans_err: %s', e, exc_info=True)
             resp.status = falcon.HTTP_500
 
+
+class PaymentAjaxResource(BaseJsonResource):
+    encrypt = True
+    service = SERVICES.USR
+
+    def valid_check(self, conn, req, **kwargs):
+        data = decrypt_json_resp(req.stream,
+                                 settings.SERVER_APIKEY_URI_MAP[self.service],
+                                 settings.PRIVATE_KEY_PATH)
+        logging.info("payment_ajax_request: %s", data)
+        data = ujson.loads(data)
+
+        try:
+            cookie = ujson.loads(data['cookie'])
+            trans = get_trans_by_id(conn, cookie['internal_trans'])
+            assert len(trans) == 1, "No trans for cookie %s" % cookie
+            trans = trans[0]
+            assert data['cookie'] == trans['cookie'], (
+                "invalid cookie: %s expected: %s"
+                % (cookie, trans['cookie']))
+
+            id_card = CCAddResource().add_card(conn, {
+                    'id_user': trans['id_user'],
+                    'pan': data.get('pan'),
+                    'cvc': data.get('cvc'),
+                    'expiration_date': data.get('expiration_date'),
+                    'repeat': data.get('repeat'),
+                })
+            card = db_utils.select(conn, 'credit_card',
+                                   where={'id': id_card, 'valid': True})[0]
+            return trans, card
+
+        except AssertionError, e:
+            logging.error("pm_ajax_invalid_request, param : %s "
+                          "error: %s", data, e, exc_info=True)
+            raise UserError(ErrorCode.PMA_INVALID_REQ[0],
+                            ErrorCode.PMA_INVALID_REQ[1])
+
+    def _on_post(self, req, resp, conn, **kwargs):
+        try:
+            trans, card = self.valid_check(conn, req, **kwargs)
+
+            resp_data = p.one_click_pay(
+                trans['id'], trans['id_user'], trans['id_order'],
+                card['paybox_token'], card['expiration_date'],
+                trans['amount_due'], trans['currency'],
+                repeat=card['repeat'])
+
+            update_trans(conn,
+                         values={'status': TRANS_STATUS.TRANS_PAID},
+                         where={'id': trans['id']})
+
+            data = {
+                'id_trans': trans['id'],
+                'user_id': trans['id_user'],
+                'currency': trans['currency'],
+                'Amt': trans['amount_due'],
+                'PBRef': resp_data['NUMTRANS'],
+                'Auth': resp_data['AUTORISATION'],
+                'RespCode': resp_data['CODEREPONSE'],
+                'content': resp_data,
+            }
+            update_or_create_trans_paybox(conn, data)
+            return {"res": RESP_RESULT.S, "err": ""}
+
+        except ThirdPartyError, e:
+            return {"res": RESP_RESULT.F, "err": e.desc}
+
+        except Exception, e:
+            conn.rollback()
+            logging.error('paybox_ajax_err: %s', e, exc_info=True)
+            return {"res": RESP_RESULT.F, "err": str(e)}
+
+
+class PaymentAutoResource(PaymentAjaxResource):
+
+    def valid_check(self, conn, req, **kwargs):
+        req._params.update(kwargs)
+        logging.info("payment_auto_request: %s", req._params)
+
+        try:
+            cookie = req.get_param('cookie')
+            cookie = ujson.loads(cookie)
+            trans = get_trans_by_id(conn, cookie['internal_trans'])
+            assert len(trans) == 1, "No trans for cookie %s" % cookie
+            trans = trans[0]
+            assert req.get_param('cookie') == trans['cookie'], (
+                "invalid cookie: %s expected: %s"
+                % (cookie, trans['cookie']))
+
+            id_card = req.get_param('id_card')
+            card = db_utils.select(conn, 'credit_card',
+                                   where={'id': id_card, 'valid': True})
+            assert len(card) == 1, "No valid card %s" % id_card
+
+            return trans[0], card[0]
+
+        except AssertionError, e:
+            logging.error("pm_ajax_invalid_request, param : %s "
+                          "error: %s", data, e, exc_info=True)
+            raise UserError(ErrorCode.PM_AUTO_INVALID_REQ[0],
+                            ErrorCode.PM_AUTO_INVALID_REQ[1])
 

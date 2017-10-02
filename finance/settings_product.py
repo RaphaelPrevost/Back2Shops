@@ -61,11 +61,14 @@ SELLER_EMAIL = 'business@infinite-code.com'
 # TODO: change production values for paybox settings
 ### Paybox
 PAYBOX_REQUEST_URL = 'https://preprod-tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi'
+PAYBOX_DIRECT_REQUEST_URL = 'https://preprod-ppps.paybox.com/PPPS.php'
+#PAYBOX_DIRECT_REQUEST_URL = 'https://ppps.paybox.com/PPPS.php'
 
 # no-3D
 PAYBOX_SITE = '1999888'
 PAYBOX_RANG = '32'
 PAYBOX_IDENTIFIANT = '1686319'
+PAYBOX_CLE = None
 
 #3D
 # PAYBOX_SITE = '1999888'
