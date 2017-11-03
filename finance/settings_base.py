@@ -40,6 +40,7 @@
 # finance.backtoshops.com settings
 import os
 
+PRODUCTION = False
 
 SERVER_PORT = 9000 # for development only
 
