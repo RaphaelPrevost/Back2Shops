@@ -46,7 +46,9 @@ import stripe
 
 from common.constants import CUR_CODE
 from common.error import ErrorCode
+from common.error import ThirdPartyError
 from common.error import UserError
+from common.third_party.paybox import Paybox
 from common.utils import gen_hmac
 from models.paybox import update_or_create_trans_paybox
 from models.paypal import update_or_create_trans_paypal
@@ -58,11 +60,13 @@ from models.transaction import update_trans
 from webservice.base import BaseHtmlResource
 from webservice.base import BaseJsonResource
 from webservice.base import BaseResource
+from webservice.creditcard import CCAddResource
 
-from B2SUtils.db_utils import select
+from B2SUtils import db_utils
 from B2SCrypto.utils import decrypt_json_resp
 from B2SCrypto.constant import SERVICES
 from B2SProtocol.constants import PAYMENT_TYPES
+from B2SProtocol.constants import RESP_RESULT
 from B2SProtocol.constants import TRANS_PAYPAL_STATUS
 from B2SProtocol.constants import TRANS_STATUS
 from B2SRespUtils.generate import temp_content
@@ -322,7 +326,7 @@ class StripeChargeResource(BaseJsonResource):
         }
 
     def charge(self, conn, id_trans, card_token):
-        trans = select(conn, "transactions",
+        trans = db_utils.select(conn, "transactions",
                        columns=['amount_due', 'currency', 'iv_numbers'],
                        where={'id': id_trans})[0]
         stripe.api_key = settings.STRIPE_SECRET_API_KEY
@@ -381,12 +385,12 @@ class PaymentAjaxResource(BaseJsonResource):
                 % (cookie, trans['cookie']))
 
             id_card = CCAddResource().add_card(conn, {
-                    'id_user': trans['id_user'],
-                    'pan': data.get('pan'),
-                    'cvc': data.get('cvc'),
-                    'expiration_date': data.get('expiration_date'),
-                    'repeat': data.get('repeat'),
-                })
+                'id_user': trans['id_user'],
+                'pan': data.get('pan'),
+                'cvc': data.get('cvc'),
+                'expiration_date': data.get('expiration_date'),
+                'repeat': data.get('repeat'),
+            })
             card = db_utils.select(conn, 'credit_card',
                                    where={'id': id_card, 'valid': True})[0]
             return trans, card
@@ -401,7 +405,7 @@ class PaymentAjaxResource(BaseJsonResource):
         try:
             trans, card = self.valid_check(conn, req, **kwargs)
 
-            resp_data = p.one_click_pay(
+            resp_data = Paybox().one_click_pay(
                 trans['id'], trans['id_user'], trans['id_order'],
                 card['paybox_token'], card['expiration_date'],
                 trans['amount_due'], trans['currency'],

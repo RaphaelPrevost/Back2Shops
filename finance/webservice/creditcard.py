@@ -64,7 +64,7 @@ class CCAddResource(BaseJsonResource):
                                      settings.SERVER_APIKEY_URI_MAP[self.service],
                                      settings.PRIVATE_KEY_PATH)
             data = ujson.loads(data)
-            self.add_card(conn, data)
+            id_card = self.add_card(conn, data)
 
         except ThirdPartyError, e:
             return {"res": RESP_RESULT.F, "err": e.desc}
@@ -72,7 +72,7 @@ class CCAddResource(BaseJsonResource):
         except Exception, e:
             return {"res": RESP_RESULT.F, "err": str(e)}
 
-        return {"res": RESP_RESULT.S, "err": ""}
+        return {"res": RESP_RESULT.S, "err": "", "id": id_card}
 
     def add_card(self, conn, data):
         # validation
