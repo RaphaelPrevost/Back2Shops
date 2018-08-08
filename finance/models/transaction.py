@@ -49,11 +49,15 @@ from B2SProtocol.constants import TRANS_STATUS
 def create_trans(conn, id_order, id_user, id_invoices,
                  iv_numbers, amount_due, currency, invoices_data,
                  status=TRANS_STATUS.TRANS_OPEN,
-                 create_time=datetime.now(),
-                 update_time=datetime.now(),
+                 create_time=None,
+                 update_time=None,
                  cookie=None):
     if isinstance(id_invoices, list):
         id_invoices = ujson.dumps(id_invoices)
+    if (create_time == None):
+        create_time = datetime.now()
+    if (update_time == None):
+        update_time = datetime.now()
     values = {
         'id_order': id_order,
         'id_user': id_user,
