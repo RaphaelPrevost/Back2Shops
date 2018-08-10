@@ -44,6 +44,7 @@ from datetime import datetime
 from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import query
 from B2SUtils.db_utils import update
+from B2SUtils.db_utils import select
 from B2SProtocol.constants import TRANS_STATUS
 
 def create_trans(conn, id_order, id_user, id_invoices,
@@ -54,10 +55,22 @@ def create_trans(conn, id_order, id_user, id_invoices,
                  cookie=None):
     if isinstance(id_invoices, list):
         id_invoices = ujson.dumps(id_invoices)
+
+    # if there is an existing open transaction for this order and invoices,
+    # return it directly to avoid creating duplicate transactions
+    check = select(conn, 'transactions',  columns=("id","cookie",), where={
+        'id_order': id_order,
+        'id_invoices': id_invoices,
+        'status': TRANS_STATUS.TRANS_OPEN,
+    })
+    if len(check) > 0:
+        return row[0][0]
+    
     if (create_time == None):
         create_time = datetime.now()
     if (update_time == None):
         update_time = datetime.now()
+    
     values = {
         'id_order': id_order,
         'id_user': id_user,
