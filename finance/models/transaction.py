@@ -107,8 +107,13 @@ def update_trans(conn, values, where=None):
     return r
 
 def get_trans_by_id(conn, id_trans):
-    sql = ("SELECT * "
-           "FROM transactions "
-           "WHERE id=%s")
-    r = query(conn, sql, (id_trans,))
+    sql = """
+    SELECT *
+    FROM transactions
+    WHERE id=%(id)s AND status=%(status)s ;
+    """ % ({
+        "id": str(id_trans),
+        "status": str(TRANS_STATUS.TRANS_OPEN),
+    })
+    r = query(conn, sql)
     return r
