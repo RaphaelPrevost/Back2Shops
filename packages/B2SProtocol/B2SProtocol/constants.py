@@ -90,6 +90,7 @@ class ORDER_STATUS(CustomEnum):
 class TRANS_STATUS(CustomEnum):
     TRANS_OPEN = 1
     TRANS_PAID = 2
+    TRANS_FAIL = 3
 
 class ORDER_IV_SENT_STATUS(CustomEnum):
     NO_SENT = 1
@@ -193,4 +194,3 @@ EURO_UNION_COUNTRIES = (
 
 SESSION_COOKIE_NAME = 'SESSION'
 EXPIRY_FORMAT = '%a, %d %b %Y %H:%M:%S UTC'
-
