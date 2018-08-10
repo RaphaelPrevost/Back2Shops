@@ -64,7 +64,7 @@ def create_trans(conn, id_order, id_user, id_invoices,
         'status': TRANS_STATUS.TRANS_OPEN,
     })
     if len(check) > 0:
-        return row[0][0]
+        return check[0][0]
     
     if (create_time == None):
         create_time = datetime.now()
