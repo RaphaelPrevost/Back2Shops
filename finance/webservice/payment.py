@@ -261,10 +261,14 @@ class PaypalTransResource(BaseResource):
                 update_trans(conn,
                              values={'status': TRANS_STATUS.TRANS_PAID},
                              where={'id': id_trans})
+            else:
+                update_trans(conn,
+                             values={'status': TRANS_STATUS.TRANS_FAIL},
+                             where={'id': id_trans})
             update_or_create_trans_paypal(conn, req._params)
             resp.status = falcon.HTTP_200
         except Exception, e:
-            conn.rollback()
+            #conn.rollback()
             logging.error('paypal_verified_err: %s', e, exc_info=True)
             resp.status = falcon.HTTP_500
 
@@ -285,11 +289,15 @@ class PayboxTransResource(BaseResource):
                 update_trans(conn,
                              values={'status': TRANS_STATUS.TRANS_PAID},
                              where={'id': id_trans})
+            else:
+                update_trans(conn,
+                             values={'status': TRANS_STATUS.TRANS_FAIL},
+                             where={'id': id_trans})
 
             update_or_create_trans_paybox(conn, req._params)
             resp.status = falcon.HTTP_200
         except Exception, e:
-            conn.rollback()
+            #conn.rollback()
             logging.error('paybox_verified_err: %s', e, exc_info=True)
             resp.status = falcon.HTTP_500
 
@@ -310,12 +318,12 @@ class StripeChargeResource(BaseJsonResource):
         except stripe.error.StripeError, e:
             body = e.json_body
             data = body['error']
-            conn.rollback()
+            #conn.rollback()
             logging.error('trans(id=%s) stripe_charge_err: %s',
                           id_trans, data, exc_info=True)
 
         except Exception, e:
-            conn.rollback()
+            #conn.rollback()
             data = {'message': str(e)}
             logging.error('trans(id=%s) stripe_charge_err: %s',
                           id_trans, e, exc_info=True)
@@ -353,13 +361,17 @@ class StripeTransResource(BaseResource):
                 update_trans(conn,
                              values={'status': TRANS_STATUS.TRANS_PAID},
                              where={'id': id_trans})
+            else:
+                update_trans(conn,
+                             values={'status': TRANS_STATUS.TRANS_FAIL},
+                             where={'id': id_trans})
 
             if 'id' in data:
                 update_or_create_trans_stripe(conn, id_trans, data)
             resp.status = falcon.HTTP_200
 
         except Exception, e:
-            conn.rollback()
+            #conn.rollback()
             logging.error('stripe_trans_err: %s', e, exc_info=True)
             resp.status = falcon.HTTP_500
 
@@ -411,9 +423,14 @@ class PaymentAjaxResource(BaseJsonResource):
                 trans['amount_due'], trans['currency'],
                 repeat=card['repeat'])
 
-            update_trans(conn,
-                         values={'status': TRANS_STATUS.TRANS_PAID},
-                         where={'id': trans['id']})
+            if resp_data['CODEREPONSE'] == '00000':
+                update_trans(conn,
+                             values={'status': TRANS_STATUS.TRANS_PAID},
+                             where={'id': trans['id']})
+            else:
+                update_trans(conn,
+                             values={'status': TRANS_STATUS.TRANS_FAIL},
+                             where={'id': trans['id']})
 
             data = {
                 'id_trans': trans['id'],
@@ -429,10 +446,13 @@ class PaymentAjaxResource(BaseJsonResource):
             return {"res": RESP_RESULT.S, "err": ""}
 
         except ThirdPartyError, e:
+            update_trans(conn,
+                         values={'status': TRANS_STATUS.TRANS_FAIL},
+                         where={'id': trans['id']})
             return {"res": RESP_RESULT.F, "err": e.desc}
 
         except Exception, e:
-            conn.rollback()
+            #conn.rollback()
             logging.error('paybox_ajax_err: %s', e, exc_info=True)
             return {"res": RESP_RESULT.F, "err": str(e)}
 
@@ -465,4 +485,3 @@ class PaymentAutoResource(PaymentAjaxResource):
                           "error: %s", data, e, exc_info=True)
             raise UserError(ErrorCode.PM_AUTO_INVALID_REQ[0],
                             ErrorCode.PM_AUTO_INVALID_REQ[1])
-
