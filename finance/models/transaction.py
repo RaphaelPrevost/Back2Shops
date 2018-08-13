@@ -44,6 +44,7 @@ from datetime import datetime
 from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import query
 from B2SUtils.db_utils import update
+from B2SUtils.errors import ValidationError
 from B2SProtocol.constants import TRANS_STATUS
 
 def create_trans(conn, id_order, id_user, id_invoices,
