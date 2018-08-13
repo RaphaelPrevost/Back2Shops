@@ -44,7 +44,6 @@ from datetime import datetime
 from B2SUtils.db_utils import insert
 from B2SUtils.db_utils import query
 from B2SUtils.db_utils import update
-from B2SUtils.db_utils import select
 from B2SProtocol.constants import TRANS_STATUS
 
 def create_trans(conn, id_order, id_user, id_invoices,
@@ -58,11 +57,17 @@ def create_trans(conn, id_order, id_user, id_invoices,
 
     # if there is an existing open transaction for this order and invoices,
     # return it directly to avoid creating duplicate transactions
-    check = select(conn, 'transactions',  columns=("id","cookie",), where={
+    sql = """
+    SELECT id, cookie
+    FROM transactions
+    WHERE id_order = %(id_order)s AND id_invoices = '%(id_invoices)s' AND status != %(status)s ;
+    """ % ({
         'id_order': id_order,
         'id_invoices': id_invoices,
-        'status': TRANS_STATUS.TRANS_OPEN,
+        'status': TRANS_STATUS.TRANS_FAIL,
     })
+    check = query(conn, sql)
+    
     if len(check) > 0:
         return check[0][0]
     
@@ -110,10 +115,16 @@ def get_trans_by_id(conn, id_trans):
     sql = """
     SELECT *
     FROM transactions
-    WHERE id=%(id)s AND status=%(status)s ;
+    WHERE id = %(id)s AND status != %(status)s ;
     """ % ({
         "id": str(id_trans),
-        "status": str(TRANS_STATUS.TRANS_OPEN),
+        "status": str(TRANS_STATUS.TRANS_FAIL),
     })
     r = query(conn, sql)
+    
+    if len(r) != 1:
+        raise ValidationError("ERR_TRANSACTION_ID")
+    if r[0]['status'] == TRANS_STATUS.TRANS_PAID:
+        raise ValidationError("ERR_TRANSACTION_ALREADY_PAID")
+    
     return r
