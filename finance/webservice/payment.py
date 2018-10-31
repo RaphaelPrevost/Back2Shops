@@ -416,7 +416,10 @@ class PaymentAjaxResource(BaseJsonResource):
     def _on_post(self, req, resp, conn, **kwargs):
         try:
             trans, card = self.valid_check(conn, req, **kwargs)
-
+        except ThirdPartyError, e:
+            return {"res": RESP_RESULT.F, "err": e.desc}
+        
+        try:
             resp_data = Paybox().one_click_pay(
                 trans['id'], trans['id_user'], trans['id_order'],
                 card['paybox_token'], card['expiration_date'],
