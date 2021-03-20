@@ -8,7 +8,7 @@ gevent==1.0.1
 gevent-psycopg2==0.0.3
 M2Crypto==0.21.1.B2S
 B2SCrypto==0.0.5
-Jinja2==2.7.1
+Jinja2==2.11.3
 WeasyPrint==0.19.2
 B2SUtils==0.1.7
 B2SRespUtils==0.0.3
