@@ -51,7 +51,7 @@ setup(
     description='Packages to provide some utils functions to generate response',
     long_description=open('README.txt').read(),
     install_requires=[
-       'Jinja2==2.7.1',
+       'Jinja2==2.11.3',
        'WeasyPrint==0.19.2',
        'ujson==1.33'
         ],
