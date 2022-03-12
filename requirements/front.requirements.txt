@@ -16,7 +16,7 @@ M2Crypto==0.21.1.B2S
 B2SCrypto==0.0.5
 xmltodict==0.7.0
 Unidecode==0.04.16
-Pillow==2.1.0
+Pillow==9.0.1
 pytz==2014.4
 beautifulsoup4==4.3.2
 feedparser==5.1.3
