@@ -55,6 +55,6 @@ setup(
        'pypgwrap==0.1.4',
        'gevent==1.0.1',
        'gevent-psycopg2==0.0.3',
-       'ujson==1.33',
+       'ujson==5.4.0',
         ],
      )
