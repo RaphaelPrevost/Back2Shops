@@ -55,7 +55,7 @@ setup(
     long_description=open('README.txt').read(),
     install_requires=[
         'enum==0.4.4',
-        'ujson==1.33',
+        'ujson==5.4.0',
         'gevent==1.0.1',
         'Unidecode==0.04.16',
         'geoip2==0.6.0',
