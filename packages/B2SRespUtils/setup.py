@@ -53,7 +53,7 @@ setup(
     install_requires=[
        'Jinja2==2.7.1',
        'WeasyPrint==0.19.2',
-       'ujson==1.33'
+       'ujson==5.4.0'
         ],
      )
 
