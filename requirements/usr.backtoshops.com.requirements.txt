@@ -10,7 +10,7 @@ gevent==1.0.1
 gevent-psycopg2==0.0.3
 redis==2.8.0
 hiredis==0.1.1
-mechanize==0.2.5
+mechanize==0.4.6
 M2Crypto==0.21.1.B2S
 B2SCrypto==0.0.5
 xmltodict==0.7.0
